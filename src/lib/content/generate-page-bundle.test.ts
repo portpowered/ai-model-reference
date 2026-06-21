@@ -127,6 +127,8 @@ describe("generatePageBundle", () => {
     expect(result.registryId).toBe(`concept.${slug}`);
     expect(result.route).toBe(`/docs/concepts/${slug}`);
     expect(result.writtenFiles).toEqual([]);
+    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings[0]?.field).toBe("conceptType");
     expect(result.plannedFiles).toHaveLength(5);
     expect(
       result.plannedFiles.some((file) => file.label.includes("graph registry")),
@@ -137,6 +139,31 @@ describe("generatePageBundle", () => {
     }
 
     expect(formatGeneratePageBundlePlan(result)).toContain(result.route);
+    expect(formatGeneratePageBundlePlan(result)).toContain("Warnings:");
+  });
+
+  test("ontology-first dry-run avoids deprecated taxonomy warnings", async () => {
+    const slug = `ontology-first-${crypto.randomUUID()}`;
+    const result = await generatePageBundle({
+      spec: {
+        ...baseSpecFields,
+        slug,
+        kind: "module",
+        primaryClassificationId: "classification.attention-mechanisms",
+        secondaryClassificationIds: ["classification.kv-cache-optimizations"],
+        relationships: [
+          {
+            relationshipType: "variant",
+            targetId: "module.multi-head-attention",
+          },
+        ],
+      },
+      dryRun: true,
+      projectRoot: getProjectRoot(),
+    });
+
+    expect(result.warnings).toEqual([]);
+    expect(formatGeneratePageBundlePlan(result)).not.toContain("Warnings:");
   });
 
   test("writes glossary bundle with substituted ids and page-spec messages", async () => {

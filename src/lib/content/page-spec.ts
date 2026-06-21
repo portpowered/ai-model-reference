@@ -259,6 +259,147 @@ export type PageSpecValidationIssue = {
   message: string;
 };
 
+export type PageSpecWarning = {
+  field: string;
+  message: string;
+};
+
+type DeprecatedTaxonomyFieldWarningOptions = {
+  field: string;
+  recordKind: "concept" | "glossary" | "module" | "training-regime" | "system";
+  replacement: string;
+};
+
+function createDeprecatedTaxonomyFieldWarning(
+  options: DeprecatedTaxonomyFieldWarningOptions,
+): PageSpecWarning {
+  const { field, recordKind, replacement } = options;
+  return {
+    field,
+    message: `${field} is deprecated for ${recordKind} page specs. Use ${replacement} instead for ontology-first authoring.`,
+  };
+}
+
+export function collectDeprecatedTaxonomyWarnings(
+  spec: PageSpec,
+): PageSpecWarning[] {
+  switch (spec.kind) {
+    case "concept":
+    case "glossary":
+      return spec.conceptType
+        ? [
+            createDeprecatedTaxonomyFieldWarning({
+              field: "conceptType",
+              recordKind: spec.kind,
+              replacement:
+                "primaryClassificationId plus optional secondaryClassificationIds and relationships",
+            }),
+          ]
+        : [];
+    case "module":
+      return [
+        ...(spec.moduleType
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "moduleType",
+                recordKind: "module",
+                replacement:
+                  "primaryClassificationId plus optional secondaryClassificationIds",
+              }),
+            ]
+          : []),
+        ...(spec.moduleFamily
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "moduleFamily",
+                recordKind: "module",
+                replacement:
+                  "secondaryClassificationIds for additional taxonomy membership",
+              }),
+            ]
+          : []),
+        ...(spec.variantGroup
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "variantGroup",
+                recordKind: "module",
+                replacement:
+                  "relationships for variant or related-module topology",
+              }),
+            ]
+          : []),
+      ];
+    case "training-regime":
+      return [
+        ...(spec.regimeType
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "regimeType",
+                recordKind: "training-regime",
+                replacement:
+                  "primaryClassificationId plus optional secondaryClassificationIds",
+              }),
+            ]
+          : []),
+        ...(spec.conceptType
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "conceptType",
+                recordKind: "training-regime",
+                replacement:
+                  "primaryClassificationId plus optional secondaryClassificationIds",
+              }),
+            ]
+          : []),
+        ...(spec.variantGroup
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "variantGroup",
+                recordKind: "training-regime",
+                replacement:
+                  "relationships for variant or nearby-regime topology",
+              }),
+            ]
+          : []),
+      ];
+    case "system":
+      return [
+        ...(spec.systemType
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "systemType",
+                recordKind: "system",
+                replacement:
+                  "primaryClassificationId plus optional secondaryClassificationIds",
+              }),
+            ]
+          : []),
+        ...(spec.conceptType
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "conceptType",
+                recordKind: "system",
+                replacement:
+                  "primaryClassificationId plus optional secondaryClassificationIds",
+              }),
+            ]
+          : []),
+        ...(spec.variantGroup
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "variantGroup",
+                recordKind: "system",
+                replacement:
+                  "relationships for variant or related-system topology",
+              }),
+            ]
+          : []),
+      ];
+    default:
+      return [];
+  }
+}
+
 export class PageSpecValidationError extends Error {
   readonly issues: PageSpecValidationIssue[];
 

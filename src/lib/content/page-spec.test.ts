@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  collectDeprecatedTaxonomyWarnings,
   deriveDefaultSummaryKey,
   deriveDefaultTitleKey,
   derivePageFrontmatter,
@@ -185,6 +186,45 @@ describe("validatePageSpec", () => {
         },
       ]);
     }
+  });
+
+  test("reports deprecated taxonomy warnings for legacy module fields", () => {
+    const spec = validatePageSpec({
+      ...baseFields,
+      kind: "module",
+      moduleType: "attention",
+      moduleFamily: "attention",
+      variantGroup: "attention-head-sharing",
+    });
+
+    expect(collectDeprecatedTaxonomyWarnings(spec)).toEqual([
+      expect.objectContaining({
+        field: "moduleType",
+      }),
+      expect.objectContaining({
+        field: "moduleFamily",
+      }),
+      expect.objectContaining({
+        field: "variantGroup",
+      }),
+    ]);
+  });
+
+  test("does not report deprecated taxonomy warnings for ontology-first module inputs", () => {
+    const spec = validatePageSpec({
+      ...baseFields,
+      kind: "module",
+      primaryClassificationId: "classification.attention-mechanisms",
+      secondaryClassificationIds: ["classification.kv-cache-optimizations"],
+      relationships: [
+        {
+          relationshipType: "variant",
+          targetId: "module.multi-head-attention",
+        },
+      ],
+    });
+
+    expect(collectDeprecatedTaxonomyWarnings(spec)).toEqual([]);
   });
 
   test("accepts a valid model page spec", () => {

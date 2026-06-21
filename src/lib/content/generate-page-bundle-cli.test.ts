@@ -42,6 +42,12 @@ async function createFixtureRoot(): Promise<string> {
   await mkdir(join(tempRoot, "src", "content", "registry", "concepts"), {
     recursive: true,
   });
+  await mkdir(join(tempRoot, "src", "content", "registry", "classifications"), {
+    recursive: true,
+  });
+  await mkdir(join(tempRoot, "src", "content", "registry", "citations"), {
+    recursive: true,
+  });
   await mkdir(join(tempRoot, "src", "content", "registry", "modules"), {
     recursive: true,
   });
@@ -153,6 +159,51 @@ async function writeReferenceModuleFixture(
   );
 }
 
+async function writeClassificationFixture(
+  tempRoot: string,
+  input: {
+    slug: string;
+    classificationType:
+      | "domain"
+      | "family"
+      | "mechanism"
+      | "topology"
+      | "behavior";
+    classifiesKinds: string[];
+    parentClassificationId?: string;
+  },
+): Promise<void> {
+  await writeFile(
+    join(
+      tempRoot,
+      "src",
+      "content",
+      "registry",
+      "classifications",
+      `${input.slug}.json`,
+    ),
+    JSON.stringify({
+      id: `classification.${input.slug}`,
+      slug: input.slug,
+      kind: "classification",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "draft",
+      createdAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-02T00:00:00.000Z",
+      classificationType: input.classificationType,
+      classifiesKinds: input.classifiesKinds,
+      ...(input.parentClassificationId
+        ? { parentClassificationId: input.parentClassificationId }
+        : {}),
+    }),
+  );
+}
+
 async function seedExpandedKindValidationFixtures(
   tempRoot: string,
 ): Promise<void> {
@@ -168,13 +219,43 @@ async function seedExpandedKindValidationFixtures(
     kindDirectory: "tags",
     slug: "model-family",
   });
+  await copyRegistryFixture(tempRoot, {
+    kindDirectory: "classifications",
+    slug: "attention-mechanisms",
+  });
+  await copyRegistryFixture(tempRoot, {
+    kindDirectory: "citations",
+    slug: "attention-is-all-you-need",
+  });
+  await writeClassificationFixture(tempRoot, {
+    slug: "neural-network-components",
+    classificationType: "family",
+    classifiesKinds: ["module"],
+  });
+  await writeClassificationFixture(tempRoot, {
+    slug: "kv-cache-optimizations",
+    classificationType: "behavior",
+    classifiesKinds: ["module"],
+    parentClassificationId: "classification.attention-mechanisms",
+  });
+  await writeClassificationFixture(tempRoot, {
+    slug: "training-behaviors",
+    classificationType: "behavior",
+    classifiesKinds: ["training-regime"],
+  });
   await writeReferenceModuleFixture(tempRoot, {
     slug: "multi-head-attention",
     aliases: ["MHA"],
   });
   await writeReferenceModuleFixture(tempRoot, {
+    slug: "attention",
+  });
+  await writeReferenceModuleFixture(tempRoot, {
     slug: "multi-query-attention",
     aliases: ["MQA"],
+  });
+  await writeReferenceModuleFixture(tempRoot, {
+    slug: "next-token-prediction",
   });
   await writeFile(
     join(
@@ -403,6 +484,46 @@ describe("runGeneratePageBundleCli", () => {
           expect(await pathExists(path)).toBe(false);
         }
       }
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("dry-run prints deprecated taxonomy warnings for compatibility inputs", async () => {
+    const tempRoot = await createFixtureRoot();
+    const slug = `cli-warning-${crypto.randomUUID()}`;
+    const specPath = join(tempRoot, "warning-page-spec.json");
+
+    try {
+      await writeFile(
+        specPath,
+        JSON.stringify({
+          kind: "module",
+          slug,
+          title: "CLI Warning Module",
+          summary: "Summary for warning review.",
+          moduleType: "attention",
+          moduleFamily: "attention",
+          variantGroup: "attention-head-sharing",
+        }),
+      );
+
+      const result = await runGeneratePageBundleCli({
+        specPath,
+        dryRun: true,
+        projectRoot: tempRoot,
+      });
+
+      expect(result.plan).toContain("Warnings:");
+      expect(result.plan).toContain(
+        "moduleType is deprecated for module page specs",
+      );
+      expect(result.plan).toContain(
+        "moduleFamily is deprecated for module page specs",
+      );
+      expect(result.plan).toContain(
+        "variantGroup is deprecated for module page specs",
+      );
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }

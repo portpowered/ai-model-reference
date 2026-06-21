@@ -16,11 +16,13 @@ import {
 import type { GraphRegistryArtifact } from "./generate-page-bundle-graphs";
 import { buildGraphRegistryArtifacts } from "./generate-page-bundle-graphs";
 import {
+  collectDeprecatedTaxonomyWarnings,
   deriveDefaultSummaryKey,
   deriveDefaultTitleKey,
   derivePageFrontmatter,
   type PageSpec,
   type PageSpecKind,
+  type PageSpecWarning,
   registryIdForPageSpec,
   registryKindForPageSpec,
   validatePageSpec,
@@ -50,6 +52,7 @@ export type GeneratePageBundleResult = {
   route: string;
   plannedFiles: PlannedBundleFile[];
   writtenFiles: string[];
+  warnings: PageSpecWarning[];
 };
 
 export type PageBundleArtifacts = {
@@ -710,6 +713,7 @@ export async function generatePageBundle(
       route: routeForSpec(spec),
       plannedFiles,
       writtenFiles: [],
+      warnings: collectDeprecatedTaxonomyWarnings(spec),
     };
   }
 
@@ -737,6 +741,7 @@ export async function generatePageBundle(
     route: routeForSpec(spec),
     plannedFiles,
     writtenFiles: plannedFiles.map((file) => file.path),
+    warnings: collectDeprecatedTaxonomyWarnings(spec),
   };
 }
 
@@ -746,6 +751,14 @@ export function formatGeneratePageBundlePlan(
   const lines = [
     `Registry id: ${result.registryId}`,
     `Route: ${result.route}`,
+    ...(result.warnings.length > 0
+      ? [
+          "Warnings:",
+          ...result.warnings.map(
+            (warning) => `  - ${warning.field}: ${warning.message}`,
+          ),
+        ]
+      : []),
     "Planned files:",
     ...result.plannedFiles.map((file) => `  - ${file.path} (${file.label})`),
   ];
