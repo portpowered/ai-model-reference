@@ -1,4 +1,8 @@
 import {
+  getClassificationById,
+  resolveClassificationId,
+} from "@/lib/content/generated/registry-runtime.generated";
+import {
   ontologyRelationshipPriority,
   relationshipOutranksClassificationSibling,
 } from "@/lib/content/ontology-peer-policy";
@@ -8,10 +12,6 @@ import {
   registryDisplayTitle,
   registryRecordHref,
 } from "@/lib/content/registry-linking";
-import {
-  getClassificationById,
-  resolveClassificationId,
-} from "@/lib/content/generated/registry-runtime.generated";
 import type {
   ClassificationRecord,
   ConceptRecord,
