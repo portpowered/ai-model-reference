@@ -32,6 +32,18 @@ the temporary legacy-id bridge.
   Shared canonical-plus-compatibility selector contract for customer-visible
   ontology consumers. Use this when topology and timeline must accept the same
   supported selector set across static preload and client hydration.
+* `src/lib/content/sidebar-grouping.ts`
+  Docs-shell sidebar subgroup resolver. Module, training, and system subgroup
+  placement should derive from canonical classification membership first, with
+  any remaining customer-visible exceptions fenced behind one explicit fallback
+  path instead of scattered typed-taxonomy reads. For concept/glossary slices,
+  migrate the currently grouped published records onto canonical concept
+  classifications first, then keep any still-curated families on one named
+  editorial fallback helper instead of reintroducing `conceptType` branching.
+  For modules, only use the editorial bridge when the canonical classification
+  is still too coarse to distinguish the intended subgroup, such as the
+  `module.attention` foundation page whose current ontology membership alone
+  cannot separate `attention-foundations` from `attention-variants`.
 * `src/lib/content/topology-selector-compatibility.ts`
   Topology-specific temporary selector fence. Keep any remaining shorthand or
   legacy topology-only aliases here instead of expanding the generic
@@ -118,11 +130,13 @@ the temporary legacy-id bridge.
   Machine-checkable contract for remaining typed-taxonomy consumer clusters,
   ownership, compatibility status, the recommended next migration target, and
   the targeted deprecation fence across runtime, generation, and authoring
-  surfaces. For related-doc work specifically, ontology-first behavior should
-  appear here as either a migrated consumer or an explicitly named
-  compatibility-only bridge; it should not remain listed as an unresolved
-  primary consumer once direct relationships and classification peers define the
-  default reader path.
+  surfaces. When multiple migration slices intentionally share one file, scope
+  the entry's field-reference inventory to resolver-specific snippets so the
+  audit stays reviewer-visible instead of double-counting the entire file. For
+  related-doc work specifically, ontology-first behavior should appear here as
+  either a migrated consumer or an explicitly named compatibility-only bridge;
+  it should not remain listed as an unresolved primary consumer once direct
+  relationships and classification peers define the default reader path.
 * `src/lib/governance/legacy-taxonomy-compatibility-budget.ts`
   Shared reviewer-facing budget contract that records the approved baseline for
   one explicit legacy classification-id bridge inventory and one explicit

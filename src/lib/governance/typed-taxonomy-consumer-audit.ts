@@ -39,6 +39,7 @@ export type TypedTaxonomyConsumerCluster =
 export type TypedTaxonomyConsumerContractEntry = {
   cluster: TypedTaxonomyConsumerCluster;
   evidence: readonly string[];
+  fieldReferenceScopeSnippets?: readonly string[];
   fields: readonly LegacyTypedTaxonomyField[];
   id: string;
   owner: string;
@@ -161,27 +162,62 @@ export const typedTaxonomyConsumerAuditContract: readonly TypedTaxonomyConsumerC
         "The indexed search-document facet shape still exposes moduleType while downstream filters remain compatibility-bound.",
     },
     {
-      id: "sidebar-group-derivation",
+      id: "sidebar-group-derivation-module-training-system",
       path: "src/lib/content/sidebar-grouping.ts",
       cluster: "sidebar-topology",
-      status: "unresolved-migration-target",
+      status: "migrated-ontology-first-consumer",
       owner: "navigation/docs-shell",
-      fields: [
-        "conceptType",
-        "moduleType",
-        "regimeType",
-        "systemType",
-        "sidebarGrouping",
-      ],
+      fields: ["moduleType", "regimeType", "systemType", "sidebarGrouping"],
       evidence: [
-        'record.conceptType === "math"',
-        'record.moduleType === "attention"',
-        'record.regimeType === "alignment"',
+        'membership.has("classification.module.attention")',
+        'membership.has("classification.training.alignment")',
+        'membership.has("classification.system.routing")',
+        "record.sidebarGrouping?.modules",
+        'record.regimeType === "distillation"',
         'record.systemType === "memory"',
-        'record.sidebarGrouping?.modules ?? "attention-variants"',
+      ],
+      fieldReferenceScopeSnippets: [
+        'membership.has("classification.module.attention")',
+        'membership.has("classification.training.alignment")',
+        'membership.has("classification.system.routing")',
+        "record.sidebarGrouping?.modules",
+        'record.regimeType === "alignment"',
+        'record.regimeType === "post-training"',
+        'record.regimeType === "distillation"',
+        'record.regimeType === "optimization"',
+        "record.sidebarGrouping?.training",
+        'record.systemType === "memory"',
+        'record.systemType === "routing"',
+        "record.sidebarGrouping?.systems",
       ],
       rationale:
-        "Sidebar subgroup placement still depends primarily on legacy typed taxonomy and editorial sidebarGrouping overrides instead of ontology-first derivation.",
+        "Module, training, and system sidebar subgroup placement now resolves through canonical classification membership first and only falls back through one explicit compatibility path for records whose ontology shape is still incomplete.",
+    },
+    {
+      id: "sidebar-group-derivation-concept-glossary",
+      path: "src/lib/content/sidebar-grouping.ts",
+      cluster: "sidebar-topology",
+      status: "migrated-ontology-first-consumer",
+      owner: "navigation/docs-shell",
+      fields: ["sidebarGrouping"],
+      evidence: [
+        'membership.has("classification.concept.math")',
+        'membership.has("classification.concept.inference")',
+        "record.sidebarGrouping?.glossary",
+        "record.sidebarGrouping?.concepts",
+      ],
+      fieldReferenceScopeSnippets: [
+        'membership.has("classification.concept.math")',
+        'membership.has("classification.concept.training")',
+        'membership.has("classification.concept.evaluation")',
+        'membership.has("classification.concept.architecture.activation")',
+        "record.sidebarGrouping?.glossary",
+        'membership.has("classification.concept.inference")',
+        'membership.has("classification.concept.architecture")',
+        "record.sidebarGrouping?.concepts",
+      ],
+      rationale:
+        "Concept and glossary sidebar subgroup placement now checks canonical concept classification membership first and funnels the remaining curated labels through one explicit editorial fallback path.",
     },
     {
       id: "related-doc-legacy-peer-fallbacks",
@@ -497,6 +533,7 @@ function collectFilesRecursively(directory: string): string[] {
 function collectFieldReferences(
   source: string,
   fields: readonly LegacyTypedTaxonomyField[],
+  scopeSnippets?: readonly string[],
 ): TypedTaxonomyConsumerFieldReference[] {
   if (fields.length === 0) {
     return [];
@@ -510,6 +547,14 @@ function collectFieldReferences(
   return source
     .split(/\r?\n/)
     .flatMap((line, index): TypedTaxonomyConsumerFieldReference[] => {
+      if (
+        scopeSnippets &&
+        scopeSnippets.length > 0 &&
+        !scopeSnippets.some((snippet) => line.includes(snippet))
+      ) {
+        return [];
+      }
+
       const matches = [...line.matchAll(fieldPattern)];
       if (matches.length === 0) {
         return [];
@@ -619,7 +664,11 @@ export function collectTypedTaxonomyConsumerAudit(
       ...entry,
       path: normalizedPath,
       contractDrift,
-      fieldReferences: collectFieldReferences(source, entry.fields),
+      fieldReferences: collectFieldReferences(
+        source,
+        entry.fields,
+        entry.fieldReferenceScopeSnippets,
+      ),
     };
   });
 
@@ -727,6 +776,14 @@ export function formatTypedTaxonomyConsumerAudit(
       lines.push(`  owner: ${entry.owner}`);
       lines.push(`  fields: ${entry.fields.join(", ")}`);
       lines.push(`  rationale: ${entry.rationale}`);
+      if (
+        entry.fieldReferenceScopeSnippets &&
+        entry.fieldReferenceScopeSnippets.length > 0
+      ) {
+        lines.push(
+          `  reference scope: ${entry.fieldReferenceScopeSnippets.join(" | ")}`,
+        );
+      }
 
       if (entry.fieldReferences.length > 0) {
         const fieldReferenceSummary = entry.fieldReferences

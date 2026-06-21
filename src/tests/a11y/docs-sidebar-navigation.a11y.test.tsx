@@ -5,9 +5,12 @@ import { act } from "react";
 import { CanonicalDocsLayout } from "@/components/layout/canonical-docs-layout";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import {
+  DPO_TRAINING_URL,
   GROUPED_QUERY_ATTENTION_URL,
   PLACEHOLDER_SIDEBAR_DESCRIPTION,
+  ROUTING_SYSTEM_URL,
   TOKEN_GLOSSARY_URL,
+  WHY_LONG_CONTEXT_IS_HARD_URL,
 } from "@/lib/navigation/docs-sidebar-contract";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
@@ -81,7 +84,7 @@ describe("docs sidebar navigation accessibility", () => {
     expect(document.activeElement).toBe(gqaLink);
   });
 
-  test("rendered docs sidebar shows registry-driven separators for glossary, concepts, and modules", async () => {
+  test("rendered docs sidebar shows ontology-derived and editorial-fallback groups across docs sections", async () => {
     captureOriginalFetch();
     await installDocsSearchFetchMock();
     const context = await loadAppTestContext();
@@ -101,7 +104,13 @@ describe("docs sidebar navigation accessibility", () => {
       throw new Error("expected Fumadocs docs sidebar");
     }
 
-    for (const folderName of ["Glossary", "Concepts", "Modules"] as const) {
+    for (const folderName of [
+      "Glossary",
+      "Concepts",
+      "Modules",
+      "Training",
+      "Systems",
+    ] as const) {
       const folder = within(sidebar).getByRole("button", { name: folderName });
       await act(async () => {
         folder.click();
@@ -120,6 +129,25 @@ describe("docs sidebar navigation accessibility", () => {
     expect(
       within(sidebar).getByRole("link", { name: "Grouped-Query Attention" }),
     ).toBeTruthy();
+
+    const longContextLink = within(sidebar).getByRole("link", {
+      name: "Why long context is hard",
+    });
+    expect(longContextLink.getAttribute("href")).toBe(
+      WHY_LONG_CONTEXT_IS_HARD_URL,
+    );
+
+    const dpoLink = within(sidebar).getByRole("link", {
+      name: "Direct Preference Optimization",
+    });
+    expect(dpoLink.getAttribute("href")).toBe(DPO_TRAINING_URL);
+    expect(within(sidebar).queryAllByText("Alignment").length).toBeGreaterThan(
+      0,
+    );
+
+    const routingLink = within(sidebar).getByRole("link", { name: "Routing" });
+    expect(routingLink.getAttribute("href")).toBe(ROUTING_SYSTEM_URL);
+    expect(within(sidebar).queryAllByText("Routing").length).toBeGreaterThan(0);
   });
 
   test("localized docs shell preserves locale while exposing only shipped Vietnamese docs links", async () => {

@@ -21,6 +21,7 @@
   "status": "published",
   "createdAt": "2026-06-04T11:52:13.229Z",
   "updatedAt": "2026-06-04T14:00:00.000Z",
+  "primaryClassificationId": "classification.concept.training",
   "conceptType": "training",
   "prerequisiteIds": [
     "concept.conditioning",

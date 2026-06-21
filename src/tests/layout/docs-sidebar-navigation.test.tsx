@@ -1,13 +1,16 @@
 import { describe, expect, test } from "bun:test";
 import {
   collectSidebarPageLinks,
+  DPO_TRAINING_URL,
   extractNdSidebarHtml,
   findSidebarPageLink,
   GROUPED_QUERY_ATTENTION_URL,
   hasLegacyPlaceholderSidebar,
   PLACEHOLDER_SIDEBAR_DESCRIPTION,
+  ROUTING_SYSTEM_URL,
   stripHtmlScripts,
   TOKEN_GLOSSARY_URL,
+  WHY_LONG_CONTEXT_IS_HARD_URL,
 } from "@/lib/navigation/docs-sidebar-contract";
 import { source } from "@/lib/source";
 import { readBuiltHtmlForConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
@@ -22,6 +25,21 @@ const BUILT_HTML_DOC_ROUTES = [
     path: "/docs/modules/grouped-query-attention",
     file: ".next/server/app/docs/modules/grouped-query-attention.html",
     requiredSidebarUrls: [GROUPED_QUERY_ATTENTION_URL],
+  },
+  {
+    path: "/docs/concepts/why-long-context-is-hard",
+    file: ".next/server/app/docs/concepts/why-long-context-is-hard.html",
+    requiredSidebarUrls: [WHY_LONG_CONTEXT_IS_HARD_URL],
+  },
+  {
+    path: "/docs/training/dpo",
+    file: ".next/server/app/docs/training/dpo.html",
+    requiredSidebarUrls: [DPO_TRAINING_URL],
+  },
+  {
+    path: "/docs/systems/routing",
+    file: ".next/server/app/docs/systems/routing.html",
+    requiredSidebarUrls: [ROUTING_SYSTEM_URL],
   },
 ] as const;
 
@@ -69,13 +87,28 @@ describe("docs sidebar page-tree contract", () => {
     expect(gqa?.name).toBe("Grouped-Query Attention");
   });
 
-  test("page tree includes sidebar subheadings for module and glossary traversal", () => {
+  test("page tree includes stable subgroup labels across representative docs sections", () => {
     const sidebarJson = JSON.stringify(source.pageTree);
 
     expect(sidebarJson).toContain("Attention Foundations");
     expect(sidebarJson).toContain("Attention Variants");
-    expect(sidebarJson).toContain("Model Taxonomy");
-    expect(sidebarJson).toContain("Sequence And Attention");
+    expect(sidebarJson).toContain("Long Context");
+    expect(sidebarJson).toContain("Alignment");
+    expect(sidebarJson).toContain("Routing");
+  });
+
+  test("page tree includes concept, training, and system reader URLs", () => {
+    const links = collectSidebarPageLinks(source.pageTree);
+
+    expect(findSidebarPageLink(links, WHY_LONG_CONTEXT_IS_HARD_URL)?.name).toBe(
+      "Why long context is hard",
+    );
+    expect(findSidebarPageLink(links, DPO_TRAINING_URL)?.name).toBe(
+      "Direct Preference Optimization",
+    );
+    expect(findSidebarPageLink(links, ROUTING_SYSTEM_URL)?.name).toBe(
+      "Routing",
+    );
   });
 });
 

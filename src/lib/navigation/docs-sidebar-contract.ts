@@ -4,6 +4,10 @@ import type { Node } from "fumadocs-core/page-tree";
 export const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 export const GROUPED_QUERY_ATTENTION_URL =
   "/docs/modules/grouped-query-attention";
+export const WHY_LONG_CONTEXT_IS_HARD_URL =
+  "/docs/concepts/why-long-context-is-hard";
+export const DPO_TRAINING_URL = "/docs/training/dpo";
+export const ROUTING_SYSTEM_URL = "/docs/systems/routing";
 
 /** Copy shown only by the legacy DocsShell placeholder sidebar. */
 export const PLACEHOLDER_SIDEBAR_DESCRIPTION =
