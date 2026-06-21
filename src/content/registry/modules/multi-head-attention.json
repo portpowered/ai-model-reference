@@ -33,9 +33,6 @@
   "moduleFamily": "attention",
   "conceptType": "attention-variant",
   "variantGroup": "attention-head-sharing",
-  "sidebarGrouping": {
-    "modules": "attention-foundations"
-  },
   "optimizes": ["expressiveness"],
   "exampleModelIds": [],
   "improvesOnIds": [],

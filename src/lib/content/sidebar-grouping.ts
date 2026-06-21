@@ -62,6 +62,13 @@ export type SidebarGroupingValidationIssue = {
   message: string;
 };
 
+type SidebarGroupingRecordByKind = {
+  concept: ConceptsSidebarRecord;
+  module: ModulesSidebarRecord;
+  "training-regime": TrainingSidebarRecord;
+  system: SystemsSidebarRecord;
+};
+
 type GlossarySidebarRecord = {
   primaryClassificationId?: string;
   secondaryClassificationIds?: readonly string[];
@@ -460,8 +467,9 @@ export function resolveSystemsSidebarGroup(
 export function validateSidebarGroupingForRecord(
   kind: SidebarGroupingKind,
   recordId: string,
-  sidebarGrouping: SidebarGrouping | undefined,
+  record: SidebarGroupingRecordByKind[SidebarGroupingKind],
 ): SidebarGroupingValidationIssue[] {
+  const { sidebarGrouping } = record;
   if (!sidebarGrouping) {
     return [];
   }
@@ -505,5 +513,162 @@ export function validateSidebarGroupingForRecord(
     }
   }
 
+  if (issues.length > 0) {
+    return issues;
+  }
+
+  const redundantOntologyGroup =
+    kind === "concept"
+      ? sectionHasRedundantConceptSidebarGrouping(record, sidebarGrouping)
+      : kind === "module"
+        ? sectionHasRedundantModuleSidebarGrouping(record, sidebarGrouping)
+        : kind === "training-regime"
+          ? sectionHasRedundantTrainingSidebarGrouping(record, sidebarGrouping)
+          : sectionHasRedundantSystemSidebarGrouping(record, sidebarGrouping);
+
+  if (redundantOntologyGroup) {
+    issues.push({
+      path: [redundantOntologyGroup.section],
+      message: `Record ${recordId} defines redundant sidebarGrouping.${redundantOntologyGroup.section} = "${redundantOntologyGroup.editorialGroup}". Canonical classification membership already resolves this subgroup to "${redundantOntologyGroup.ontologyGroup}". Remove the editorial override until the ontology model needs a true exception.`,
+    });
+  }
+
   return issues;
+}
+
+function sectionHasRedundantConceptSidebarGrouping(
+  record: ConceptsSidebarRecord,
+  sidebarGrouping: SidebarGrouping,
+):
+  | {
+      section: "concepts" | "glossary";
+      editorialGroup: string;
+      ontologyGroup: string;
+    }
+  | undefined {
+  const conceptsEditorialGroup = sidebarGrouping.concepts;
+  if (conceptsEditorialGroup) {
+    const ontologyGroup = resolveConceptsSidebarGroupWithSource({
+      ...record,
+      sidebarGrouping: undefined,
+    });
+    if (ontologyGroup?.groupId === conceptsEditorialGroup) {
+      return {
+        section: "concepts",
+        editorialGroup: conceptsEditorialGroup,
+        ontologyGroup: ontologyGroup.groupId,
+      };
+    }
+  }
+
+  const glossaryEditorialGroup = sidebarGrouping.glossary;
+  if (glossaryEditorialGroup) {
+    const ontologyGroup = resolveGlossarySidebarGroupWithSource({
+      ...record,
+      sidebarGrouping: undefined,
+    });
+    if (ontologyGroup?.groupId === glossaryEditorialGroup) {
+      return {
+        section: "glossary",
+        editorialGroup: glossaryEditorialGroup,
+        ontologyGroup: ontologyGroup.groupId,
+      };
+    }
+  }
+
+  return undefined;
+}
+
+function sectionHasRedundantModuleSidebarGrouping(
+  record: ModulesSidebarRecord,
+  sidebarGrouping: SidebarGrouping,
+):
+  | {
+      section: "modules";
+      editorialGroup: string;
+      ontologyGroup: string;
+    }
+  | undefined {
+  const editorialGroup = sidebarGrouping.modules;
+  if (!editorialGroup) {
+    return undefined;
+  }
+
+  const ontologyGroup = resolveOntologyModulesSidebarGroup(record);
+  if (!ontologyGroup) {
+    return undefined;
+  }
+
+  if (
+    shouldUseEditorialModulesSidebarFallback(record, ontologyGroup) &&
+    editorialGroup !== ontologyGroup.groupId
+  ) {
+    return undefined;
+  }
+
+  return {
+    section: "modules",
+    editorialGroup,
+    ontologyGroup: ontologyGroup.groupId,
+  };
+}
+
+function sectionHasRedundantTrainingSidebarGrouping(
+  record: TrainingSidebarRecord,
+  sidebarGrouping: SidebarGrouping,
+):
+  | {
+      section: "training";
+      editorialGroup: string;
+      ontologyGroup: string;
+    }
+  | undefined {
+  const editorialGroup = sidebarGrouping.training;
+  if (!editorialGroup) {
+    return undefined;
+  }
+
+  const ontologyGroup = resolveTrainingSidebarGroupWithSource({
+    ...record,
+    sidebarGrouping: undefined,
+  });
+  if (!ontologyGroup) {
+    return undefined;
+  }
+
+  return {
+    section: "training",
+    editorialGroup,
+    ontologyGroup: ontologyGroup.groupId,
+  };
+}
+
+function sectionHasRedundantSystemSidebarGrouping(
+  record: SystemsSidebarRecord,
+  sidebarGrouping: SidebarGrouping,
+):
+  | {
+      section: "systems";
+      editorialGroup: string;
+      ontologyGroup: string;
+    }
+  | undefined {
+  const editorialGroup = sidebarGrouping.systems;
+  if (!editorialGroup) {
+    return undefined;
+  }
+
+  const ontologyGroup = resolveSystemsSidebarGroupWithSource({
+    ...record,
+    sidebarGrouping: undefined,
+  });
+  if (!ontologyGroup) {
+    return undefined;
+  }
+
+  return {
+    section: "systems",
+    editorialGroup,
+    ontologyGroup: ontologyGroup.groupId,
+  };
 }

@@ -20,9 +20,6 @@
   "updatedAt": "2026-06-21T00:00:00.000Z",
   "primaryClassificationId": "classification.concept.architecture",
   "conceptType": "architecture",
-  "sidebarGrouping": {
-    "concepts": "architecture"
-  },
   "prerequisiteIds": ["concept.architecture", "concept.module"],
   "explainsIds": []
 }

@@ -189,7 +189,10 @@ describe("registry schemas", () => {
       "module",
       "module.grouped-query-attention",
       {
-        modules: "wrong-group" as never,
+        primaryClassificationId: "classification.module.attention",
+        sidebarGrouping: {
+          modules: "wrong-group" as never,
+        },
       },
     );
     expect(issues).toHaveLength(1);
@@ -202,12 +205,46 @@ describe("registry schemas", () => {
       "module",
       "module.grouped-query-attention",
       {
-        glossary: "model-taxonomy",
+        sidebarGrouping: {
+          glossary: "model-taxonomy",
+        },
       },
     );
     expect(issues).toHaveLength(1);
     expect(issues[0]?.message).toContain("module.grouped-query-attention");
     expect(issues[0]?.message).toContain("sidebarGrouping.glossary");
+  });
+
+  test("rejects redundant sidebar grouping overrides when ontology already resolves placement", () => {
+    const issues = validateSidebarGroupingForRecord(
+      "training-regime",
+      "training-regime.dpo",
+      {
+        primaryClassificationId: "classification.training.alignment",
+        sidebarGrouping: {
+          training: "alignment",
+        },
+      },
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0]?.message).toContain("training-regime.dpo");
+    expect(issues[0]?.message).toContain(
+      'sidebarGrouping.training = "alignment"',
+    );
+  });
+
+  test("allows explicit sidebar overrides only when ontology is still too coarse", () => {
+    const issues = validateSidebarGroupingForRecord(
+      "module",
+      "module.attention",
+      {
+        primaryClassificationId: "classification.module.attention",
+        sidebarGrouping: {
+          modules: "attention-foundations",
+        },
+      },
+    );
+    expect(issues).toHaveLength(0);
   });
 
   test("rejects tag records missing category and landingPage", () => {

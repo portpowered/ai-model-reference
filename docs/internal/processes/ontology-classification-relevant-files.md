@@ -46,7 +46,9 @@ the temporary legacy-id bridge.
   For modules, only use the editorial bridge when the canonical classification
   is still too coarse to distinguish the intended subgroup, such as the
   `module.attention` foundation page whose current ontology membership alone
-  cannot separate `attention-foundations` from `attention-variants`.
+  cannot separate `attention-foundations` from `attention-variants`. Validation
+  should reject redundant or ignored `sidebarGrouping` entries once ontology
+  already resolves the same subgroup.
 * `src/lib/content/topology-selector-compatibility.ts`
   Topology-specific temporary selector fence. Keep any remaining shorthand or
   legacy topology-only aliases here instead of expanding the generic

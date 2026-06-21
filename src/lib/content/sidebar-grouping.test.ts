@@ -9,6 +9,7 @@ import {
   resolveTrainingSidebarGroupWithSource,
   SIDEBAR_GROUP_LABELS,
   SIDEBAR_GROUPING_PRECEDENCE,
+  validateSidebarGroupingForRecord,
 } from "./sidebar-grouping";
 
 describe("sidebar grouping contract", () => {
@@ -79,6 +80,47 @@ describe("sidebar grouping contract", () => {
       groupId: "attention-variants",
       source: "derived-taxonomy",
     });
+  });
+
+  test("rejects redundant or ignored editorial sidebar metadata once ontology already resolves the subgroup", () => {
+    expect(
+      validateSidebarGroupingForRecord(
+        "concept",
+        "concept.transformer-architecture",
+        {
+          primaryClassificationId: "classification.concept.architecture",
+          sidebarGrouping: {
+            concepts: "architecture",
+          },
+        },
+      ),
+    ).toEqual([
+      {
+        path: ["concepts"],
+        message:
+          'Record concept.transformer-architecture defines redundant sidebarGrouping.concepts = "architecture". Canonical classification membership already resolves this subgroup to "architecture". Remove the editorial override until the ontology model needs a true exception.',
+      },
+    ]);
+
+    expect(
+      validateSidebarGroupingForRecord(
+        "module",
+        "module.multi-head-attention",
+        {
+          primaryClassificationId: "classification.module.attention.multi-head",
+          secondaryClassificationIds: ["classification.module.attention"],
+          sidebarGrouping: {
+            modules: "attention-foundations",
+          },
+        },
+      ),
+    ).toEqual([
+      {
+        path: ["modules"],
+        message:
+          'Record module.multi-head-attention defines redundant sidebarGrouping.modules = "attention-foundations". Canonical classification membership already resolves this subgroup to "attention-variants". Remove the editorial override until the ontology model needs a true exception.',
+      },
+    ]);
   });
 
   test("derives training and system groups from ontology when the branch is modeled", () => {
