@@ -134,6 +134,18 @@ export type LegacyTaxonomyCompatibilityBudgetSnapshot = {
   status: LegacyTaxonomyCompatibilityBudgetStatus;
 };
 
+export type LegacyClassificationBudgetGuardResult = {
+  auditedAtUtc: string;
+  drift: readonly string[];
+  approvedBridgeCount: number;
+  currentBridgeCount: number;
+  owner: string;
+  rationale: string;
+  status: LegacyTaxonomyCompatibilityBudgetStatus;
+  surfaceId: string;
+  surfaceLabel: string;
+};
+
 type CollectLegacyTaxonomyCompatibilityBudgetOptions = {
   auditedAtUtc?: string;
   legacyClassificationBridges?: readonly LegacyClassificationBridge[];
@@ -285,6 +297,25 @@ export function collectLegacyTaxonomyCompatibilityBudget(
   };
 }
 
+export function collectLegacyClassificationBudgetGuard(
+  options: CollectLegacyTaxonomyCompatibilityBudgetOptions = {},
+): LegacyClassificationBudgetGuardResult {
+  const snapshot = collectLegacyTaxonomyCompatibilityBudget(options);
+  const surface = snapshot.legacyClassificationSurface;
+
+  return {
+    auditedAtUtc: snapshot.auditedAtUtc,
+    drift: surface.drift,
+    approvedBridgeCount: surface.approvedBridgeCount,
+    currentBridgeCount: surface.currentBridgeCount,
+    owner: surface.owner,
+    rationale: surface.rationale,
+    status: surface.status,
+    surfaceId: surface.surfaceId,
+    surfaceLabel: surface.surfaceLabel,
+  };
+}
+
 export function formatLegacyTaxonomyCompatibilityBudget(
   snapshot: LegacyTaxonomyCompatibilityBudgetSnapshot,
 ): string {
@@ -321,5 +352,25 @@ export function formatLegacyTaxonomyCompatibilityBudget(
     "",
     "Drift details:",
     ...driftLines,
+  ].join("\n");
+}
+
+export function formatLegacyClassificationBudgetGuard(
+  result: LegacyClassificationBudgetGuardResult,
+): string {
+  return [
+    "Legacy classification compatibility budget guard",
+    `Audited at (UTC): ${result.auditedAtUtc}`,
+    `Status: ${result.status}`,
+    `Surface: ${result.surfaceLabel}`,
+    `Owner: ${result.owner}`,
+    `Approved baseline: ${result.approvedBridgeCount} bridges`,
+    `Current measured: ${result.currentBridgeCount} bridges`,
+    `Rationale: ${result.rationale}`,
+    "",
+    "Drift details:",
+    ...(result.status === "aligned"
+      ? ["No legacy classification bridge growth detected."]
+      : result.drift.map((drift) => `- ${drift}`)),
   ].join("\n");
 }

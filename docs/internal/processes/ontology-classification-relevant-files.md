@@ -88,6 +88,9 @@ the temporary legacy-id bridge.
   Coverage that proves the committed repo still matches the recorded
   compatibility-budget baselines and that budget drift is reported in maintainer
   terms when either governed surface grows.
+* `src/tests/ci/legacy-classification-budget-command.test.ts`
+  CLI-level proof that the dedicated legacy bridge no-growth verifier stays
+  green for the committed runtime bridge inventory.
 * `src/lib/governance/typed-taxonomy-consumer-audit.test.ts`
   Regression coverage for grouped audit summaries and contract-drift detection.
 * `src/lib/governance/typed-taxonomy-consumer-fence.test.ts`
@@ -102,6 +105,9 @@ the temporary legacy-id bridge.
 * `scripts/report-legacy-taxonomy-compatibility-budget.ts`
   Maintainer entrypoint for printing the approved legacy taxonomy compatibility
   budget and the current measured result for each governed surface.
+* `scripts/verify-legacy-classification-budget.ts`
+  Maintainer and CI entrypoint that fails when the runtime legacy
+  classification bridge inventory grows beyond the approved budget.
 * `src/tests/ci/typed-taxonomy-consumer-fence-command.test.ts`
   CLI-level proof that the targeted deprecation fence stays green for the
   committed compatibility contract.

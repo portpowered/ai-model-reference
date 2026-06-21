@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
+  collectLegacyClassificationBudgetGuard,
   collectLegacyTaxonomyCompatibilityBudget,
+  formatLegacyClassificationBudgetGuard,
   formatLegacyTaxonomyCompatibilityBudget,
   legacyTaxonomyCompatibilityBudgetContract,
 } from "./legacy-taxonomy-compatibility-budget";
@@ -171,5 +173,38 @@ describe("legacy taxonomy compatibility budget", () => {
         ),
       ]),
     );
+  });
+
+  test("fails the legacy bridge guard when the approved bridge inventory grows", () => {
+    const result = collectLegacyClassificationBudgetGuard({
+      auditedAtUtc: "2026-06-21T00:00:00.000Z",
+      legacyClassificationBridges: [
+        ...legacyTaxonomyCompatibilityBudgetContract.legacyClassificationSurface
+          .approvedBridges,
+        {
+          legacyId: "classification.extra-legacy-bridge",
+          canonicalId: "classification.module.attention",
+        },
+      ],
+      typedTaxonomyAudit: createTypedTaxonomyAuditResult(),
+    });
+
+    expect(result.status).toBe("drifted");
+    expect(result.drift).toEqual(
+      expect.arrayContaining([
+        "approved 8 bridges but found 9",
+        expect.stringContaining(
+          'registry runtime legacy classification bridges added "classification.extra-legacy-bridge -> classification.module.attention"',
+        ),
+      ]),
+    );
+
+    const report = formatLegacyClassificationBudgetGuard(result);
+    expect(report).toContain(
+      "Legacy classification compatibility budget guard",
+    );
+    expect(report).toContain("Status: drifted");
+    expect(report).toContain("Approved baseline: 8 bridges");
+    expect(report).toContain("Current measured: 9 bridges");
   });
 });
