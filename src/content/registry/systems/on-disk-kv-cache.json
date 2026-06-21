@@ -6,7 +6,11 @@
   "defaultSummaryKey": "description",
   "aliases": ["on-disk KV cache"],
   "tags": ["kv-cache", "context-window", "foundations"],
-  "relatedIds": ["paper.deepseek-v4", "system.expert-parallel-overlap"],
+  "relatedIds": [
+    "paper.deepseek-v4",
+    "system.expert-parallel-overlap",
+    "system.batching"
+  ],
   "citationIds": ["citation.deepseek-v4-paper"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
@@ -15,9 +19,6 @@
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
   "systemType": "memory",
-  "sidebarGrouping": {
-    "systems": "memory"
-  },
   "relatedModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "relatedModuleIds": ["module.compressed-sparse-attention"],
   "relatedConceptIds": ["concept.kv-cache", "concept.context-extension"],

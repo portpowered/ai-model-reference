@@ -6,7 +6,11 @@
   "defaultSummaryKey": "description",
   "aliases": ["expert parallel overlap"],
   "tags": ["foundations", "feed-forward"],
-  "relatedIds": ["paper.deepseek-v4", "system.on-disk-kv-cache"],
+  "relatedIds": [
+    "paper.deepseek-v4",
+    "system.on-disk-kv-cache",
+    "system.batching"
+  ],
   "citationIds": ["citation.deepseek-v4-paper"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
@@ -15,9 +19,6 @@
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
   "systemType": "routing",
-  "sidebarGrouping": {
-    "systems": "routing"
-  },
   "relatedModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "relatedModuleIds": ["module.deepseekmoe"],
   "relatedConceptIds": ["concept.transformer-architecture"],

@@ -126,6 +126,7 @@ describe("inference engine system page", () => {
 
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/docs/concepts/quantization"');
+    expect(html).toContain('href="/docs/systems/batching"');
     expect(html).toContain('href="/docs/systems/on-disk-kv-cache"');
     expect(html).toContain('href="/docs/systems/expert-parallel-overlap"');
     expect(html).toContain('href="/docs/models/gpt-3"');

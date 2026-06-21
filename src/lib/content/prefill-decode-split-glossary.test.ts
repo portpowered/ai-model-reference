@@ -57,6 +57,7 @@ describe("Phase 5 prefill/decode split glossary page (US-004)", () => {
       "concept.prefill",
       "concept.decode",
       "concept.kv-cache",
+      "system.batching",
       "concept.autoregressive-generation",
       "module.attention",
       "module.multi-query-attention",

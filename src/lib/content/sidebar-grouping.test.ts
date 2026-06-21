@@ -5,6 +5,7 @@ import {
   resolveConceptsSidebarGroupWithSource,
   resolveGlossarySidebarGroupWithSource,
   resolveModulesSidebarGroupWithSource,
+  resolveSystemsSidebarGroup,
   resolveSystemsSidebarGroupWithSource,
   resolveTrainingSidebarGroupWithSource,
   SIDEBAR_GROUP_LABELS,
@@ -229,5 +230,17 @@ describe("sidebar grouping contract", () => {
       groupId: "model-taxonomy",
       source: "editorial-sidebar-grouping",
     });
+  });
+
+  test("exposes stable subgroup labels for systems navigation", () => {
+    expect(getSidebarGroupIdsForSection("systems")).toEqual([
+      "memory",
+      "routing",
+      "serving",
+    ]);
+    expect(SIDEBAR_GROUP_LABELS.systems.serving).toBe("Serving");
+    expect(resolveSystemsSidebarGroup({ systemType: "serving" })).toBe(
+      "serving",
+    );
   });
 });

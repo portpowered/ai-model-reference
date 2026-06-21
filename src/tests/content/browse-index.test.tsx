@@ -30,6 +30,7 @@ describe("browse index page render", () => {
       "/docs/papers/deepseek-v4",
       "/docs/training/on-policy-distillation",
       "/docs/systems/routing",
+      "/docs/systems/batching",
       "/docs/systems/on-disk-kv-cache",
       "/docs/glossary/token",
     ] as const) {

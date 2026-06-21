@@ -51,11 +51,6 @@ const TRAINING_SIDEBAR_OVERRIDES = [
   ["training-regime.fp4-quantization-aware-training", "optimization"],
 ] as const;
 
-const SYSTEM_SIDEBAR_OVERRIDES = [
-  ["system.on-disk-kv-cache", "memory"],
-  ["system.expert-parallel-overlap", "routing"],
-] as const;
-
 describe("sidebar grouping backfill", () => {
   test("records from slug-driven glossary groups now carry explicit registry metadata", () => {
     for (const [recordId, expectedGroup] of GLOSSARY_SIDEBAR_BACKFILLS) {
@@ -79,15 +74,9 @@ describe("sidebar grouping backfill", () => {
     }
   });
 
-  test("training and systems keep intentional editorial overrides where ontology detail is still incomplete", () => {
+  test("training keeps intentional editorial overrides where ontology detail is still incomplete", () => {
     for (const [recordId, expectedGroup] of TRAINING_SIDEBAR_OVERRIDES) {
       expect(getTrainingRegimeById(recordId)?.sidebarGrouping?.training).toBe(
-        expectedGroup,
-      );
-    }
-
-    for (const [recordId, expectedGroup] of SYSTEM_SIDEBAR_OVERRIDES) {
-      expect(getSystemById(recordId)?.sidebarGrouping?.systems).toBe(
         expectedGroup,
       );
     }
@@ -119,5 +108,18 @@ describe("sidebar grouping backfill", () => {
       getTrainingRegimeById("training-regime.dpo")?.sidebarGrouping,
     ).toBeUndefined();
     expect(getSystemById("system.routing")?.sidebarGrouping).toBeUndefined();
+    expect(
+      getSystemById("system.on-disk-kv-cache")?.sidebarGrouping,
+    ).toBeUndefined();
+    expect(
+      getSystemById("system.expert-parallel-overlap")?.sidebarGrouping,
+    ).toBeUndefined();
+  });
+
+  test("serving systems stay derivable without redundant sidebar overrides", () => {
+    const batching = getSystemById("system.batching");
+
+    expect(batching?.systemType).toBe("serving");
+    expect(batching?.sidebarGrouping).toBeUndefined();
   });
 });

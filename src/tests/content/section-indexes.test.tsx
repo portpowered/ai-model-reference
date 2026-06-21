@@ -66,6 +66,7 @@ describe("section index page render", () => {
 
     expect(html).toContain("Systems");
     expect(html).toContain('href="/docs/systems/routing"');
+    expect(html).toContain('href="/docs/systems/batching"');
     expect(html).toContain('href="/docs/systems/on-disk-kv-cache"');
     expect(html).toContain('href="/docs/systems/expert-parallel-overlap"');
   });

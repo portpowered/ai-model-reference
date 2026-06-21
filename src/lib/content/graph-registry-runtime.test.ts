@@ -21,6 +21,11 @@ describe("graph-registry-runtime", () => {
   });
 
   test("loads published graph records by id", () => {
+    const batchingSystemFlow = getGraphById("graph.batching-system-flow");
+    expect(batchingSystemFlow?.id).toBe("graph.batching-system-flow");
+    expect(batchingSystemFlow?.subjectId).toBe("system.batching");
+    expect(batchingSystemFlow?.nodes.length).toBe(4);
+    expect(batchingSystemFlow?.edges.length).toBe(3);
     const computeFlow = getGraphById(
       "graph.grouped-query-attention-compute-flow",
     );
@@ -48,6 +53,7 @@ describe("graph-registry-runtime", () => {
 
     expect(ids).toContain(CANONICAL_GRAPH_ID);
     expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toContain("graph.batching-system-flow");
     expect(ids).toContain("graph.bpe-compute-flow");
     expect(ids).toContain("graph.sentencepiece-compute-flow");
     expect(ids).toContain("graph.byte-level-tokenization-compute-flow");
