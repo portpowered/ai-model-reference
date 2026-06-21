@@ -1,0 +1,56 @@
+{
+  "id": "module.cross-attention",
+  "slug": "cross-attention",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "cross attention",
+    "cross-attention",
+    "encoder-decoder attention",
+    "encoder decoder attention"
+  ],
+  "tags": ["attention"],
+  "relatedIds": [
+    "module.attention",
+    "module.multi-head-attention",
+    "module.bidirectional-attention",
+    "concept.transformer-architecture",
+    "concept.encoder-decoder",
+    "concept.multimodal-model"
+  ],
+  "citationIds": ["citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "releaseDate": "2017-06-12",
+  "authors": [
+    "Ashish Vaswani",
+    "Noam Shazeer",
+    "Niki Parmar",
+    "Jakob Uszkoreit",
+    "Llion Jones",
+    "Aidan N. Gomez",
+    "Lukasz Kaiser",
+    "Illia Polosukhin"
+  ],
+  "sourceId": "citation.attention-is-all-you-need",
+  "moduleType": "attention",
+  "moduleFamily": "attention",
+  "conceptType": "attention-variant",
+  "variantGroup": "attention-memory-sources",
+  "sidebarGrouping": {
+    "modules": "attention-foundations"
+  },
+  "optimizes": [
+    "cross-source-conditioning",
+    "multistream-context-fusion",
+    "encoder-decoder-context-bridging"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}

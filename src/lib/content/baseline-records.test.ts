@@ -196,6 +196,41 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.optimizes.length).toBeGreaterThan(0);
   });
 
+  test("cross-attention module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/cross-attention.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.cross-attention");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("attention");
+    expect(module.moduleFamily).toBe("attention");
+    expect(module.tags).toEqual(["attention"]);
+    expect(module.aliases).toEqual(
+      expect.arrayContaining([
+        "cross attention",
+        "cross-attention",
+        "encoder-decoder attention",
+        "encoder decoder attention",
+      ]),
+    );
+    expect(module.variantGroup).toBe("attention-memory-sources");
+    expect(module.conceptType).toBe("attention-variant");
+    expect(module.relatedIds).toEqual([
+      "module.attention",
+      "module.multi-head-attention",
+      "module.bidirectional-attention",
+      "concept.transformer-architecture",
+      "concept.encoder-decoder",
+      "concept.multimodal-model",
+    ]);
+    expect(module.citationIds).toContain("citation.attention-is-all-you-need");
+    expect(module.sidebarGrouping?.modules).toBe("attention-foundations");
+    expect(module.optimizes.length).toBeGreaterThan(0);
+  });
+
   test("attention tag JSON passes tagRecordSchema", async () => {
     const tag = await readRegistryJson("tags/attention.json", tagRecordSchema);
 
