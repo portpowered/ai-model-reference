@@ -208,6 +208,22 @@ function parentClassificationId(classificationId: string): string | undefined {
   return resolveClassification(classificationId)?.parentClassificationId;
 }
 
+function isClassificationAncestor(
+  ancestorClassificationId: string,
+  descendantClassificationId: string,
+): boolean {
+  let currentParentId = parentClassificationId(descendantClassificationId);
+
+  while (currentParentId) {
+    if (currentParentId === ancestorClassificationId) {
+      return true;
+    }
+    currentParentId = parentClassificationId(currentParentId);
+  }
+
+  return false;
+}
+
 function hasOntologyPeerData(record: RelatedRegistryRecord): boolean {
   if ("relationships" in record && (record.relationships?.length ?? 0) > 0) {
     return true;
@@ -323,6 +339,27 @@ function bestClassificationMatch(
   const candidateIds = new Set(listClassificationIds(candidate));
   const matches = sourceIds
     .filter((classificationId) => candidateIds.has(classificationId))
+    .filter((classificationId) => {
+      if (
+        !sourcePrimary ||
+        !candidatePrimary ||
+        sourcePrimary === candidatePrimary
+      ) {
+        return true;
+      }
+
+      if (
+        classificationId === sourcePrimary ||
+        classificationId === candidatePrimary
+      ) {
+        return true;
+      }
+
+      return !(
+        isClassificationAncestor(classificationId, sourcePrimary) &&
+        isClassificationAncestor(classificationId, candidatePrimary)
+      );
+    })
     .map((classificationId) => ({
       classificationId,
       label: classificationLabel(classificationId),
@@ -350,6 +387,10 @@ function bestSharedParentClassificationMatch(
   source: RelatedRegistryRecord,
   candidate: RelatedRegistryRecord,
 ): OntologyClassificationMatch | undefined {
+  if (bestClassificationMatch(source, candidate)) {
+    return undefined;
+  }
+
   const sourcePrimary =
     "primaryClassificationId" in source
       ? source.primaryClassificationId
@@ -364,15 +405,6 @@ function bestSharedParentClassificationMatch(
       : undefined;
   const sourceClassificationIds = listClassificationIds(source);
   const candidateClassificationIds = listClassificationIds(candidate);
-  const candidateIdSet = new Set(candidateClassificationIds);
-
-  if (
-    sourceClassificationIds.some((classificationId) =>
-      candidateIdSet.has(classificationId),
-    )
-  ) {
-    return undefined;
-  }
 
   const matches: OntologyClassificationMatch[] = [];
 

@@ -428,7 +428,7 @@ describe("related-docs", () => {
       ]),
     );
 
-    expect(peers.map((item) => item.registryId)).toContain(
+    expect(peers.map((item) => item.registryId)).not.toContain(
       "module.multi-head-attention",
     );
     expect(peers.map((item) => item.registryId)).toContain(
@@ -456,23 +456,27 @@ describe("related-docs", () => {
       listRelatedRegistryRecords(),
       new Set([
         "module.grouped-query-attention",
+        "module.multi-head-attention",
         "module.feed-forward-network",
         "module.relu",
       ]),
     );
 
     expect(peers.map((item) => item.registryId)).toContain(
+      "module.multi-head-attention",
+    );
+    expect(peers.map((item) => item.registryId)).toContain(
       "module.feed-forward-network",
     );
     expect(peers.map((item) => item.registryId)).toContain("module.relu");
-    expect(peers.map((item) => item.registryId)).not.toContain(
-      "module.multi-head-attention",
-    );
     expect(
-      peers.every((item) =>
-        item.reasonLabel.includes("Shares parent classification: module"),
-      ),
-    ).toBe(true);
+      peers.find((item) => item.registryId === "module.multi-head-attention")
+        ?.reasonLabel,
+    ).toBe("Shares parent classification: attention mechanisms");
+    expect(
+      peers.find((item) => item.registryId === "module.feed-forward-network")
+        ?.reasonLabel,
+    ).toBe("Shares parent classification: module");
   });
 
   test("excludeRelatedDocItems removes already-rendered peers without reordering the rest", () => {
@@ -736,6 +740,9 @@ describe("related-docs", () => {
       SHARED_TAGS,
     ]);
     expect(groups[0]?.items.map((item) => item.registryId)).toContain(
+      "module.multi-query-attention",
+    );
+    expect(groups[1]?.items.map((item) => item.registryId)).toContain(
       "module.multi-head-attention",
     );
     expect(groups[1]?.items.map((item) => item.registryId)).toContain(
