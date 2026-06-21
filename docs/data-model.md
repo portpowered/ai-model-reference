@@ -366,33 +366,42 @@ Tag rules:
 
 ## Derived Related Documents
 
-Related-document sections should be derived from taxonomy, tags, and typed fields before using manual overrides.
+Related-document sections should derive peers from the shared ontology runtime before consulting legacy taxonomy strings or curated overrides.
 
-For example, Multi-Head Attention, Grouped Query Attention, Multi-Query Attention, and Multi-Head Latent Attention can be grouped because they share `moduleType: "attention"` and a `variantGroup`, not because every page manually lists every other page.
+The shared peer policy lives in `src/lib/content/ontology-peer-policy.ts` and applies to related docs, search grouping, and topology-backed browse surfaces.
 
-Derived related-document inputs:
+Primary peer sources, in order:
 
-* `moduleType`
-* `moduleFamily`
-* `conceptType`
-* `variantGroup`
+* direct ontology relationships
+* sibling records in the same classification branch
+* records that only share the same parent classification
+
+Relationship precedence over generic classification siblings:
+
+* `variant`
+* `part-of`
+* `explains`
+
+Policy rules:
+
+* Legacy taxonomy fields such as `variantGroup`, `moduleFamily`, and `conceptType` remain compatibility metadata and should not be the primary peer-discovery source when ontology ancestry exists.
+* Shared-parent classification peers are a fallback only after direct relationships and same-classification siblings have been considered.
+* Shared tags remain a broad discovery signal and should rank below ontology relationships and classification membership.
+* `relatedIds` remains a curated escape hatch for exceptions taxonomy and ontology still cannot express cleanly.
+* Related UI should label why records appear using ontology-explainable reasons rather than relying on legacy bucket names as the main explanation.
+
+Deliberate improvement case:
+
+* Broad legacy `conceptType` buckets such as `general` can group semantically unrelated glossary pages together. Under the ontology-first policy, records such as `concept.foundation-model` and `concept.temperature` do not become nearby peers just because they share that old taxonomy string; they need direct relationships or classification adjacency.
+
+Compatibility inputs that may still support fallback behavior on older surfaces:
+
 * `tags`
 * `usedByModelIds`
 * `introducedByPaperIds`
 * `trainingRegimeIds`
 * `paperIds`
 * `relatedIds`
-
-Derived related-document rules:
-
-* `variantGroup` is the strongest module-to-module grouping signal.
-* `conceptType` groups records that explain the same underlying idea across modules, training regimes, and systems pages.
-* `moduleFamily` groups broader families such as attention, normalization, feed-forward, tokenization, quantization, and inference optimization.
-* Shared tags are broad discovery signals and should be ranked lower than exact typed fields.
-* `relatedIds` is kept only for curated exceptions that taxonomy cannot express, such as a paper that argues against a method or a prerequisite concept that does not share tags.
-* Related UI should label why records appear, such as same variant group, same concept type, shared tag, used by same model, introduced by same paper, or curated related link.
-* A module page should show nearby variants by deriving records with the same `variantGroup`.
-* A tag page should show all resources for a tag, grouped by kind.
 
 ## Sidebar Grouping Metadata
 

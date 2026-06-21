@@ -382,9 +382,11 @@ make clean     # remove generated artifacts
 
 ## Derived Related Documents And Tags Contract
 
-* `src/features/docs/components/DerivedRelatedDocs.tsx` renders grouped related resources from registry taxonomy, tags, typed fields, and optional `relatedIds` overrides.
-* `DerivedRelatedDocs` derives groups such as same variant group, same concept type, same module family, shared tags, used by the same models, introduced by the same papers, and curated related links.
-* Module pages should use `DerivedRelatedDocs` to show nearby variants and alternatives. For example, Multi-Head Attention should surface GQA, MQA, MLA, sparse attention, and sliding-window attention when they share `variantGroup`, `conceptType`, `moduleFamily`, or relevant tags.
+* `src/features/docs/components/DerivedRelatedDocs.tsx` renders grouped related resources from the shared ontology peer policy, compatibility metadata, and optional `relatedIds` overrides.
+* `src/lib/content/ontology-peer-policy.ts` defines the cross-surface peer precedence: direct ontology relationships first, same-classification siblings second, and shared-parent classification peers only as a fallback.
+* Relationship types `variant`, `part-of`, and `explains` must outrank generic classification siblings when both apply.
+* Legacy taxonomy fields such as `variantGroup`, `conceptType`, and `moduleFamily` remain compatibility metadata and should not be treated as the primary peer-discovery contract once ontology ancestry exists.
+* Module pages should use `DerivedRelatedDocs` to show nearby variants and alternatives according to ontology relationships and classification structure rather than broad legacy grouping strings.
 * `src/features/models/components/ModuleAtAGlance.tsx` renders module `optimizes` and `exampleModelIds` near the top of module pages.
 * Model pages should derive related models, modules, training regimes, datasets, and papers from model family, shared modules, training regimes, datasets, organizations, tags, and optional `relatedIds`.
 * Paper pages should derive introduced models/modules/concepts from typed paper fields, plus supporting or conflicting papers from contribution type, tags, and optional `relatedIds`.
