@@ -69,12 +69,15 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/alibi",
   "/docs/modules/attention",
   "/docs/modules/batch-norm",
-  "/docs/modules/bpe",
   "/docs/modules/bidirectional-attention",
+  "/docs/modules/block-sparse-attention",
+  "/docs/modules/bpe",
   "/docs/modules/byte-level-tokenization",
+  "/docs/modules/causal-attention",
   "/docs/modules/compressed-sparse-attention",
   "/docs/modules/deepseekmoe",
   "/docs/modules/feed-forward-network",
+  "/docs/modules/gelu",
   "/docs/modules/group-norm",
   "/docs/modules/grouped-query-attention",
   "/docs/modules/heavily-compressed-attention",
@@ -82,6 +85,7 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/leaky-relu",
   "/docs/modules/learned-positional-embeddings",
   "/docs/modules/linear-attention",
+  "/docs/modules/local-attention",
   "/docs/modules/longrope",
   "/docs/modules/manifold-constrained-hyper-connections",
   "/docs/modules/mixture-of-experts",
@@ -97,6 +101,7 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/rmsnorm",
   "/docs/modules/rope",
   "/docs/modules/sentencepiece",
+  "/docs/modules/sigmoid",
   "/docs/modules/silu",
   "/docs/modules/sinusoidal-positional-embeddings",
   "/docs/modules/sliding-window-attention",
@@ -105,6 +110,9 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/superhot-rope",
   "/docs/modules/swiglu",
   "/docs/modules/t5-relative-position-bias",
+  "/docs/modules/tanh",
+  "/docs/modules/unigram-tokenizer",
+  "/docs/modules/wordpiece",
   "/docs/modules/yarn",
 ] as const;
 
@@ -133,8 +141,10 @@ const TRAINING_INDEX_URLS = [
 ] as const;
 
 const SYSTEM_INDEX_URLS = [
+  "/docs/systems/batching",
   "/docs/systems/deployment",
   "/docs/systems/expert-parallel-overlap",
+  "/docs/systems/inference-engine",
   "/docs/systems/on-disk-kv-cache",
   "/docs/systems/routing",
 ] as const;

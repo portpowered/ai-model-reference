@@ -134,11 +134,11 @@ describe("batching docs route render", () => {
     const page = await loadSystemPage("batching");
     const html = await renderSystemDocsShell(page);
 
-    expect(html).toContain('data-opening-summary="folded"');
-    expect(html).toContain('data-testid="folded-summary"');
+    expect(html).toContain('data-testid="folded-opening-summary"');
+    expect(html).toContain("Opening summary");
     expect(html).toContain("waiting just long enough");
     expect(html).toContain("At a glance");
-    expect(html.indexOf('data-opening-summary="folded"')).toBeLessThan(
+    expect(html.indexOf('data-testid="folded-opening-summary"')).toBeLessThan(
       html.indexOf('aria-label="At a glance"'),
     );
   });
