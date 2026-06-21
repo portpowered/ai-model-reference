@@ -87,7 +87,9 @@ the temporary legacy-id bridge.
   Timeline-specific selector parsing and outbound URL normalization. Keep the
   accepted selector set and the emitted steady-state selector URLs separate
   here so legacy or shorthand entry compatibility does not leak back into
-  canonical chip and recovery links.
+  canonical chip and recovery links. Timeline defaults should resolve from the
+  canonical activation classification id first rather than depending on the
+  incidental ordering of runtime navigation options.
 * `src/features/docs/timeline/timeline-query.test.ts`
   Focused proof that timeline query normalization keeps accepted compatibility
   selectors on the input side while chip and recovery href builders emit only
