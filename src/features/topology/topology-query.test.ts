@@ -53,4 +53,16 @@ describe("topology query helpers", () => {
       }),
     ).toBe("/topology?classification=");
   });
+
+  test("canonicalizes compatibility selectors and canonical ids when writing topology URLs", () => {
+    expect(
+      buildTopologyHref(
+        "/topology",
+        ["feed-forward", "classification.module.activation"],
+        new URLSearchParams(),
+      ),
+    ).toBe(
+      "/topology?classification=feed-forward-networks&classification=activation-functions",
+    );
+  });
 });

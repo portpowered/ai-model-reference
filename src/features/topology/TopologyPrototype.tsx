@@ -1,23 +1,29 @@
 "use client";
 
 import { X } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { MouseEvent } from "react";
 import { useMemo } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { FilterChipNav } from "@/features/docs/components/FilterChipNav";
 import {
   getTopologyNavigationLabels,
   listTopologyNavigationOptions,
 } from "@/lib/content/topology-navigation";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import { cn } from "@/lib/utils";
 import { TopologyCytoscapeGraph } from "./TopologyCytoscapeGraph";
 import type { TopologyDocsPageContentByRegistryId } from "./topology-content";
 import {
   buildTopologyGraph,
   resolveTopologyClassificationId,
 } from "./topology-data";
-import { buildTopologyHref, parseTopologyQuery } from "./topology-query";
+import {
+  buildTopologyHref,
+  getCanonicalTopologySelectorsForOutput,
+  parseTopologyQuery,
+} from "./topology-query";
 
 type TopologyPrototypeProps = {
   docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId;
@@ -36,6 +42,7 @@ export function TopologyPrototype({
     () => parseTopologyQuery(searchParams),
     [searchParams],
   );
+  const defaultTopologyHref = buildTopologyHref(pathname, [], searchParams);
   const graph = buildTopologyGraph(queryState.selectors);
   const chips = useMemo(
     () =>
@@ -51,6 +58,11 @@ export function TopologyPrototype({
   const activeClassificationIds = new Set(
     graph.selectedClassifications.map(
       (selection) => selection.classificationId,
+    ),
+  );
+  const validSelectors = getCanonicalTopologySelectorsForOutput(
+    queryState.selectors.filter((selector) =>
+      Boolean(resolveTopologyClassificationId(selector)),
     ),
   );
 
@@ -74,7 +86,7 @@ export function TopologyPrototype({
     const classificationId = resolveTopologyClassificationId(selector);
     if (classificationId && activeClassificationIds.has(classificationId)) {
       updateSelection(
-        queryState.selectors.filter(
+        validSelectors.filter(
           (item) => resolveTopologyClassificationId(item) !== classificationId,
         ),
         { explicitEmpty: true },
@@ -82,7 +94,12 @@ export function TopologyPrototype({
       return;
     }
 
-    updateSelection([...queryState.selectors, selector]);
+    updateSelection([...validSelectors, selector]);
+  }
+
+  function navigateToDefaultTopology(event: MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    globalThis.location.assign(defaultTopologyHref);
   }
 
   const filterItems = chips.map((chip) => {
@@ -90,11 +107,11 @@ export function TopologyPrototype({
     const href = buildTopologyHref(
       pathname,
       isActive
-        ? queryState.selectors.filter(
+        ? validSelectors.filter(
             (item) =>
               resolveTopologyClassificationId(item) !== chip.classificationId,
           )
-        : [...queryState.selectors, chip.selector],
+        : [...validSelectors, chip.selector],
       searchParams,
       isActive ? { explicitEmpty: true } : undefined,
     );
@@ -161,15 +178,16 @@ export function TopologyPrototype({
               ? text.emptyNoSelectionDescription
               : `${text.emptySelectedPrefix}: ${emptySelectionLabel ?? text.selectedViewNone}.`}
           </p>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-4"
-            onClick={() => updateSelection([])}
+          <Link
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "mt-4",
+            )}
+            href={defaultTopologyHref}
+            onClick={navigateToDefaultTopology}
           >
             {text.emptyReturnAction}
-          </Button>
+          </Link>
         </article>
       ) : null}
 
@@ -187,15 +205,16 @@ export function TopologyPrototype({
           <p className="mt-2 text-sm text-muted-foreground">
             {text.errorInvalidPrefix}: {graph.invalidSelections.join(", ")}.
           </p>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-4"
-            onClick={() => updateSelection([])}
+          <Link
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "mt-4",
+            )}
+            href={defaultTopologyHref}
+            onClick={navigateToDefaultTopology}
           >
             {text.errorReturnAction}
-          </Button>
+          </Link>
         </article>
       ) : null}
     </section>

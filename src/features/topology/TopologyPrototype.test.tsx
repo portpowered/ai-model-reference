@@ -156,7 +156,7 @@ describe("TopologyPrototype", () => {
         })
         .getAttribute("href"),
     ).toBe(
-      "/topology?classification=feed-forward&classification=activation-functions",
+      "/topology?classification=feed-forward-networks&classification=activation-functions",
     );
 
     await user.click(
@@ -166,7 +166,7 @@ describe("TopologyPrototype", () => {
     );
 
     expect(router.push).toHaveBeenCalledWith(
-      "/topology?classification=feed-forward&classification=activation-functions",
+      "/topology?classification=feed-forward-networks&classification=activation-functions",
     );
   });
 
@@ -194,6 +194,16 @@ describe("TopologyPrototype", () => {
         .getAttribute("href"),
     ).toBe("/topology?classification=");
     expect(
+      screen
+        .getByRole("link", {
+          name: messages.topologyBrowse.classificationLabels
+            .activationFunctions,
+        })
+        .getAttribute("href"),
+    ).toBe(
+      "/topology?classification=feed-forward-networks&classification=activation-functions",
+    );
+    expect(
       screen.getByRole("img", { name: messages.topologyPrototype.graphLabel }),
     ).toBeTruthy();
   });
@@ -218,7 +228,14 @@ describe("TopologyPrototype", () => {
       screen.getByText(messages.topologyPrototype.emptyNoSelectionDescription),
     ).toBeTruthy();
     expect(
-      screen.getByRole("button", {
+      screen
+        .getByRole("link", {
+          name: messages.topologyPrototype.emptyReturnAction,
+        })
+        .getAttribute("href"),
+    ).toBe("/topology");
+    expect(
+      screen.getByRole("link", {
         name: messages.topologyPrototype.emptyReturnAction,
       }),
     ).toBeTruthy();
@@ -263,10 +280,69 @@ describe("TopologyPrototype", () => {
       screen.getByText("Invalid classification: missing-slice."),
     ).toBeTruthy();
     expect(
-      screen.getByRole("button", {
+      screen
+        .getByRole("link", {
+          name: messages.topologyPrototype.errorReturnAction,
+        })
+        .getAttribute("href"),
+    ).toBe("/topology");
+    expect(
+      screen.getByRole("link", {
         name: messages.topologyPrototype.errorReturnAction,
       }),
     ).toBeTruthy();
+  });
+
+  test("clears invalid classification state back to the canonical topology URL", async () => {
+    const messages = await loadUiMessages();
+
+    setMockPathname("/topology");
+    setMockSearchParams(new URLSearchParams("classification=missing-slice"));
+
+    render(
+      <TopologyPrototype
+        messages={messages}
+        docsPageContentByRegistryId={docsPageContentByRegistryId}
+      />,
+    );
+
+    expect(
+      screen
+        .getByRole("link", {
+          name: messages.topologyPrototype.errorReturnAction,
+        })
+        .getAttribute("href"),
+    ).toBe("/topology");
+  });
+
+  test("drops invalid selectors from chip recovery links and click navigation", async () => {
+    const messages = await loadUiMessages();
+    const user = userEvent.setup();
+    const router = getMockRouter();
+
+    setMockPathname("/topology");
+    setMockSearchParams(new URLSearchParams("classification=missing-slice"));
+
+    render(
+      <TopologyPrototype
+        messages={messages}
+        docsPageContentByRegistryId={docsPageContentByRegistryId}
+      />,
+    );
+
+    const activationChip = screen.getByRole("link", {
+      name: messages.topologyBrowse.classificationLabels.activationFunctions,
+    });
+
+    expect(activationChip.getAttribute("href")).toBe(
+      "/topology?classification=activation-functions",
+    );
+
+    await user.click(activationChip);
+
+    expect(router.push).toHaveBeenCalledWith(
+      "/topology?classification=activation-functions",
+    );
   });
 
   test("renders the inspection panel shell in the default state", async () => {

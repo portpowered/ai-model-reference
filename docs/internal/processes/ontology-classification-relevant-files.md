@@ -32,12 +32,26 @@ the temporary legacy-id bridge.
   Shared canonical-plus-compatibility selector contract for customer-visible
   ontology consumers. Use this when topology and timeline must accept the same
   supported selector set across static preload and client hydration.
+* `src/lib/content/topology-selector-compatibility.ts`
+  Topology-specific temporary selector fence. Keep any remaining shorthand or
+  legacy topology-only aliases here instead of expanding the generic
+  ontology-selector helper.
 * `src/features/topology/topology-data.ts`
   Selector-to-classification resolution and graph assembly for the customer-
   visible topology surface. Canonical ids/slugs should resolve before any
   temporary compatibility branch, and accepted legacy ids or shorthand
   selectors should stay on one explicit temporary path instead of piggybacking
   on generic runtime lookup.
+* `src/features/topology/topology-query.ts`
+  Outbound topology URL contract for the graph surface. Keep entry-time
+  compatibility support separate from emitted selector URLs so chip toggles,
+  clear actions, and other steady-state topology links normalize back to the
+  canonical runtime-backed selector set.
+* `src/features/topology/TopologyPrototype.tsx`
+  Customer-visible topology chip interactions and recovery actions. When
+  selector semantics change, verify both the graph-state resolver and the
+  emitted URL updates here so compatibility aliases do not leak back into the
+  steady-state browser URL.
 * `src/lib/content/ontology-timeline.ts`
   Timeline classification resolution and item assembly. Keep selector matching
   aligned with the shared ontology selector contract instead of ad hoc fuzzy
@@ -147,6 +161,13 @@ the temporary legacy-id bridge.
 * `src/features/topology/topology-data.test.ts`
   Topology-surface assertions for canonical selection, invalid-selector
   recovery, and membership/relationship graph output.
+* `src/features/topology/topology-query.test.ts`
+  Focused proof that topology query serialization normalizes supported
+  compatibility selectors and canonical ids back to the canonical outbound URL
+  contract.
+* `src/features/topology/TopologyPrototype.test.tsx`
+  Browser-interaction-level proof for topology chip hrefs and router pushes
+  after selector canonicalization changes.
 * `src/lib/content/ontology-timeline.test.ts`
   Canonical-versus-compatibility selector assertions for the timeline data
   layer.
