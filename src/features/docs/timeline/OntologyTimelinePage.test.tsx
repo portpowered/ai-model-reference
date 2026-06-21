@@ -19,6 +19,16 @@ const timelineClassificationSlugs = [
   "transformer-block-structures",
 ] as const;
 
+const legacyTimelineCompatibilitySelectors = [
+  "classification.activation-functions",
+  "classification.attention-mechanisms",
+  "classification.feed-forward-networks",
+  "classification.normalization-layers",
+  "classification.position-encoding-methods",
+  "classification.tokenization-methods",
+  "classification.transformer-block-structures",
+] as const;
+
 function extractChipEventCount(
   html: string,
   classificationSlug: string,
@@ -132,6 +142,9 @@ describe("OntologyTimelinePage", () => {
       "module.deepseekmoe",
     ]);
     expect(defaultClassification).toBe("activation-functions");
+    for (const selector of legacyTimelineCompatibilitySelectors) {
+      expect(html).not.toContain(selector);
+    }
   });
 
   test("does not depend on searchParams during static prerender", async () => {
@@ -194,5 +207,20 @@ describe("OntologyTimelinePage", () => {
       },
     });
     expect(preloaded["classification.activation"]).toBeUndefined();
+  });
+
+  test("keeps legacy selector support in preload only and emits canonical timeline selectors in the rendered shell", async () => {
+    const html = await renderTimeline();
+
+    expect(html).toContain(
+      'href="/docs/timeline?classification=feed-forward-networks"',
+    );
+    expect(html).not.toContain(
+      'href="/docs/timeline?classification=classification.feed-forward-networks"',
+    );
+    expect(html).not.toContain(
+      'href="/docs/timeline?classification=classification.module.feed-forward"',
+    );
+    expect(html).not.toContain("classification.feed-forward-networks");
   });
 });

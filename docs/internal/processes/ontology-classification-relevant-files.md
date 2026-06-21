@@ -76,6 +76,10 @@ the temporary legacy-id bridge.
   accepted selector set and the emitted steady-state selector URLs separate
   here so legacy or shorthand entry compatibility does not leak back into
   canonical chip and recovery links.
+* `src/features/docs/timeline/timeline-query.test.ts`
+  Focused proof that timeline query normalization keeps accepted compatibility
+  selectors on the input side while chip and recovery href builders emit only
+  canonical outbound selectors and preserve unknown-selector empty states.
 
 ## Remaining compatibility fallback outside the proving consumer
 
