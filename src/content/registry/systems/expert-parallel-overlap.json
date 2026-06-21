@@ -19,9 +19,6 @@
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
   "systemType": "routing",
-  "sidebarGrouping": {
-    "systems": "routing"
-  },
   "relatedModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "relatedModuleIds": ["module.deepseekmoe"],
   "relatedConceptIds": ["concept.transformer-architecture"],

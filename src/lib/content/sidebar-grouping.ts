@@ -94,6 +94,7 @@ type SystemsSidebarRecord = {
   primaryClassificationId?: string;
   secondaryClassificationIds?: readonly string[];
   sidebarGrouping?: SidebarGrouping;
+  systemType?: string;
 };
 
 export type SidebarGroupingSource =

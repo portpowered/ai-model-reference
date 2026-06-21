@@ -52,7 +52,7 @@ describe("graph-registry-runtime", () => {
     const records = listGraphRecords();
     const ids = records.map((record) => record.id);
 
-    expect(records.length).toBe(49);
+    expect(records.length).toBe(55);
     expect(ids).toContain(CANONICAL_GRAPH_ID);
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids).toContain("graph.batching-system-flow");
