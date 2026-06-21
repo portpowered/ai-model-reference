@@ -8,6 +8,7 @@ import { buildSearchDocuments } from "@/lib/search/build-documents";
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 const RELU_MODULE_URL = "/docs/modules/relu";
+const UNIGRAM_TOKENIZER_URL = "/docs/modules/unigram-tokenizer";
 
 function buildRegistryIndexes(records: ModuleRecord[]): RegistryIndexes {
   return {
@@ -264,5 +265,33 @@ describe("buildSearchDocuments", () => {
       },
     ]);
     expect(document?.title).toBe("Synthetic Module");
+  });
+
+  test("indexes published unigram tokenizer page with tokenizer-specific aliases and body text", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const unigram = documents.find(
+      (document) => document.url === UNIGRAM_TOKENIZER_URL,
+    );
+
+    expect(unigram).toBeDefined();
+    expect(unigram?.title).toBe("Unigram Tokenizer");
+    expect(unigram?.description).toContain("highest-scoring");
+    expect(unigram?.kind).toBe("module");
+    expect(unigram?.registryId).toBe("module.unigram-tokenizer");
+    expect(unigram?.aliases).toEqual(
+      expect.arrayContaining([
+        "unigram tokenizer",
+        "unigram tokenization",
+        "SentencePiece unigram",
+      ]),
+    );
+    expect(unigram?.tags).toEqual(
+      expect.arrayContaining(["foundations", "token-to-probability-chain"]),
+    );
+    expect(unigram?.bodyText).toContain("SentencePiece-style");
+    expect(unigram?.bodyText).toContain("merge-based");
+    expect(unigram?.facets.moduleType).toBe("tokenizer");
   });
 });

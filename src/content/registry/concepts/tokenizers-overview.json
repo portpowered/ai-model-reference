@@ -10,15 +10,17 @@
     "tokenizers",
     "tokenizers overview",
     "text tokenization",
-    "tokenization overview"
+    "tokenization overview",
+    "subword tokenizers overview"
   ],
-  "tags": ["tokenization", "foundations"],
+  "tags": ["tokenization", "foundations", "token-to-probability-chain"],
   "relatedIds": [
     "concept.token",
     "concept.transformer-architecture",
-    "module.bpe",
-    "module.wordpiece",
     "module.sentencepiece",
+    "module.bpe",
+    "module.unigram-tokenizer",
+    "module.wordpiece",
     "model.gpt-3"
   ],
   "citationIds": [
@@ -34,5 +36,10 @@
     "concepts": "architecture"
   },
   "prerequisiteIds": ["concept.token"],
-  "explainsIds": []
+  "explainsIds": [
+    "module.bpe",
+    "module.wordpiece",
+    "module.sentencepiece",
+    "module.unigram-tokenizer"
+  ]
 }

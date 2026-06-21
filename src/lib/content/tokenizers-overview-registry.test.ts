@@ -17,7 +17,11 @@ describe("tokenizers overview registry", () => {
     expect(record.slug).toBe("tokenizers-overview");
     expect(record.status).toBe("published");
     expect(record.conceptType).toBe("architecture");
-    expect(record.tags).toEqual(["tokenization", "foundations"]);
+    expect(record.tags).toEqual([
+      "tokenization",
+      "foundations",
+      "token-to-probability-chain",
+    ]);
     expect(record.aliases).toEqual(
       expect.arrayContaining([
         "tokenizer overview",
@@ -28,10 +32,17 @@ describe("tokenizers overview registry", () => {
     expect(record.relatedIds).toEqual([
       "concept.token",
       "concept.transformer-architecture",
+      "module.sentencepiece",
+      "module.bpe",
+      "module.unigram-tokenizer",
+      "module.wordpiece",
+      "model.gpt-3",
+    ]);
+    expect(record.explainsIds).toEqual([
       "module.bpe",
       "module.wordpiece",
       "module.sentencepiece",
-      "model.gpt-3",
+      "module.unigram-tokenizer",
     ]);
   });
 
@@ -98,6 +109,7 @@ describe("tokenizers overview registry", () => {
       "concept.tokenizers-overview",
       "concept.token",
       "module.bpe",
+      "module.unigram-tokenizer",
       "module.wordpiece",
     ]);
   });

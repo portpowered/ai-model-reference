@@ -103,4 +103,13 @@ describe("graph-registry-runtime", () => {
       getGraphById(CANONICAL_GRAPH_ID)?.nodes.map((node) => node.id),
     ).not.toContain("override-proof-node");
   });
+
+  test("includes unigram tokenizer in the bundled graph registry", () => {
+    const records = listGraphRecords();
+
+    expect(records.length).toBeGreaterThan(0);
+    expect(records.map((record) => record.id)).toContain(
+      "graph.unigram-tokenizer-segmentation-flow",
+    );
+  });
 });

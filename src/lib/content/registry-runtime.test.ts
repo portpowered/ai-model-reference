@@ -86,6 +86,40 @@ describe("registry-runtime", () => {
     expect(record?.moduleType).toBe("attention");
   });
 
+  test("getModuleById returns published unigram tokenizer with tokenizer-family metadata", () => {
+    const record = getModuleById("module.unigram-tokenizer");
+
+    expect(record?.slug).toBe("unigram-tokenizer");
+    expect(record?.status).toBe("published");
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "unigram tokenizer",
+        "unigram tokenization",
+        "SentencePiece unigram",
+      ]),
+    );
+    expect(record?.tags).toEqual([
+      "tokenization",
+      "foundations",
+      "token-to-probability-chain",
+    ]);
+    expect(record?.moduleType).toBe("tokenizer");
+    expect(record?.moduleFamily).toBe("tokenization");
+    expect(record?.conceptType).toBe("tokenizer-variant");
+    expect(record?.variantGroup).toBe("subword-tokenizers");
+    expect(record?.sourceId).toBe("citation.kudo-sentencepiece");
+    expect(record?.citationIds).toEqual([
+      "citation.kudo-sentencepiece",
+      "citation.sennrich-bpe",
+    ]);
+    expect(record?.relatedIds).toEqual([
+      "concept.token",
+      "concept.tokenizers-overview",
+      "module.sentencepiece",
+      "module.bpe",
+    ]);
+  });
+
   test("getModuleById returns bidirectional attention with encoder-side links", () => {
     const record = getModuleById("module.bidirectional-attention");
     expect(record?.slug).toBe("bidirectional-attention");
@@ -112,7 +146,11 @@ describe("registry-runtime", () => {
     const record = getModuleById("module.sentencepiece");
     expect(record?.slug).toBe("sentencepiece");
     expect(record?.moduleType).toBe("tokenizer");
-    expect(record?.tags).toEqual(["tokenization", "foundations"]);
+    expect(record?.tags).toEqual([
+      "tokenization",
+      "foundations",
+      "token-to-probability-chain",
+    ]);
     expect(record?.aliases).toEqual(
       expect.arrayContaining([
         "SentencePiece",
@@ -126,6 +164,7 @@ describe("registry-runtime", () => {
       "concept.tokenizers-overview",
       "concept.token",
       "module.bpe",
+      "module.unigram-tokenizer",
       "module.wordpiece",
     ]);
     expect(record?.citationIds).toEqual(["citation.kudo-sentencepiece"]);
@@ -148,6 +187,7 @@ describe("registry-runtime", () => {
     expect(getRegistryTags("module.sentencepiece")).toEqual([
       "tokenization",
       "foundations",
+      "token-to-probability-chain",
     ]);
   });
 

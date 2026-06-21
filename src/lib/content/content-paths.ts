@@ -254,6 +254,12 @@ export const BYTE_LEVEL_TOKENIZATION_PAGE_DIR = join(
   "byte-level-tokenization",
 );
 
+/** Tokenization module page directory. */
+export const UNIGRAM_TOKENIZER_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "unigram-tokenizer",
+);
+
 /** Phase 1 token glossary sample page directory. */
 export const TOKEN_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "token");
 
