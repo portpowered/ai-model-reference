@@ -32,6 +32,10 @@ the temporary legacy-id bridge.
   Shared canonical-plus-compatibility selector contract for customer-visible
   ontology consumers. Use this when topology and timeline must accept the same
   supported selector set across static preload and client hydration.
+* `src/lib/content/topology-selector-compatibility.ts`
+  Topology-specific temporary selector fence. Keep any remaining shorthand or
+  legacy topology-only aliases here instead of expanding the generic
+  ontology-selector helper.
 * `src/features/topology/topology-data.ts`
   Selector-to-classification resolution and graph assembly for the customer-
   visible topology surface. Canonical ids/slugs should resolve before any

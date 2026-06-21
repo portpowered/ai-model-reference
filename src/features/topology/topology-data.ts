@@ -1,14 +1,9 @@
-import {
-  listOntologyClassificationCompatibilitySelectors,
-  resolveCanonicalOntologyClassificationSelector,
-  resolveOntologyClassificationSelector,
-} from "@/lib/content/ontology-classification-selectors";
+import { resolveCanonicalOntologyClassificationSelector } from "@/lib/content/ontology-classification-selectors";
 import {
   registryDisplayTitle,
   registryRecordHref,
 } from "@/lib/content/registry-linking";
 import {
-  getClassificationById,
   getPrimaryClassificationForRecord,
   listClassificationMembers,
   listClassificationRecords,
@@ -27,33 +22,12 @@ import type {
   TrainingRegimeRecord,
 } from "@/lib/content/schemas";
 import { listTopologyNavigationOptions } from "@/lib/content/topology-navigation";
+import { resolveTopologyCompatibilityClassificationId } from "@/lib/content/topology-selector-compatibility";
 
 export function getDefaultTopologyClassificationSelectors(): string[] {
   return listTopologyNavigationOptions().map(
     (option) => option.classificationSlug,
   );
-}
-
-function listTemporaryTopologyLegacyCompatibilitySelectors(): Map<
-  string,
-  string
-> {
-  const selectors = new Map<string, string>();
-
-  for (const option of listTopologyNavigationOptions()) {
-    const classification = getClassificationById(option.classificationId);
-    if (!classification) {
-      continue;
-    }
-
-    for (const selector of listOntologyClassificationCompatibilitySelectors(
-      classification,
-    )) {
-      selectors.set(selector, classification.id);
-    }
-  }
-
-  return selectors;
 }
 
 function resolveClassificationForSelector(
@@ -71,28 +45,15 @@ function resolveClassificationForSelector(
     return canonicalClassification;
   }
 
-  const supportedCompatibilitySelectors =
-    listTemporaryTopologyLegacyCompatibilitySelectors();
-
-  const classification = resolveOntologyClassificationSelector(
-    normalizedSelector,
-    classifications,
-  );
-
-  if (!classification) {
+  const compatibilityClassificationId =
+    resolveTopologyCompatibilityClassificationId(normalizedSelector);
+  if (!compatibilityClassificationId) {
     return undefined;
   }
 
-  if (
-    classification.id === normalizedSelector ||
-    classification.slug === normalizedSelector ||
-    supportedCompatibilitySelectors.get(normalizedSelector) ===
-      classification.id
-  ) {
-    return classification;
-  }
-
-  return undefined;
+  return classifications.find(
+    (classification) => classification.id === compatibilityClassificationId,
+  );
 }
 
 export function resolveTopologyClassificationId(

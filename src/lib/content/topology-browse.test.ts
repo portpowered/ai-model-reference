@@ -87,6 +87,26 @@ describe("topology browse request state", () => {
     expect(state.mode).toBe("graph-map");
   });
 
+  test("accepts fenced compatibility selectors for supported topology options", () => {
+    const state = resolveTopologyBrowseState(
+      {
+        classification: "classification.attention-mechanisms",
+        mode: "graph-map",
+      },
+      listTopologyNavigationOptions(),
+    );
+
+    expect(state.kind).toBe("selected");
+    if (state.kind !== "selected") {
+      return;
+    }
+    expect(state.option.classificationId).toBe(
+      "classification.module.attention",
+    );
+    expect(state.option.classificationSlug).toBe("attention-mechanisms");
+    expect(state.mode).toBe("graph-map");
+  });
+
   test("selects feed-forward timeline state from URL parameters", () => {
     const state = resolveTopologyBrowseState(
       {
