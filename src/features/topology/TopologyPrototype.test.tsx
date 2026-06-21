@@ -11,6 +11,10 @@ import {
 } from "@/tests/a11y/mock-navigation";
 import { TopologyPrototype } from "./TopologyPrototype";
 import type { TopologyDocsPageContentByRegistryId } from "./topology-content";
+import {
+  buildTopologyGraph,
+  DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS,
+} from "./topology-data";
 
 const docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId = {
   "concept.activation": {
@@ -265,6 +269,17 @@ describe("TopologyPrototype", () => {
   test("shows classification scope and visible member count when a classification node is selected", async () => {
     const messages = await loadUiMessages();
     const user = userEvent.setup();
+    const graph = buildTopologyGraph(DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS);
+
+    if (graph.status === "error") {
+      throw new Error("Expected default topology graph to build successfully.");
+    }
+
+    const visibleMemberCount = graph.edges.filter(
+      (edge) =>
+        edge.kind === "membership" &&
+        edge.sourceId === "classification.activation-functions",
+    ).length;
 
     setMockPathname("/topology");
     setMockSearchParams(new URLSearchParams());
@@ -288,7 +303,7 @@ describe("TopologyPrototype", () => {
     expect(
       screen.getByText(messages.topologyPrototype.classificationTypeFamily),
     ).toBeTruthy();
-    expect(screen.getByText("4")).toBeTruthy();
+    expect(screen.getByText(String(visibleMemberCount))).toBeTruthy();
   });
 
   test("shows relationship source and target details when a relationship is selected", async () => {
