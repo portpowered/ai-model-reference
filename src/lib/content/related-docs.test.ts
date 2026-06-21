@@ -784,6 +784,34 @@ describe("related-docs", () => {
     );
   });
 
+  test("deriveRelatedDocGroups keeps explicit compatibility groups isolated even for ontology-backed records", () => {
+    const source = getRegistryRecordById("module.grouped-query-attention");
+    if (source?.kind !== "module") {
+      throw new Error(
+        "expected module.grouped-query-attention to exist in the runtime",
+      );
+    }
+
+    const groups = deriveRelatedDocGroups(
+      source,
+      listRelatedRegistryRecords(),
+      [COMPATIBILITY_SAME_VARIANT_GROUP],
+      new Set([
+        "module.grouped-query-attention",
+        "module.multi-head-attention",
+        "module.multi-query-attention",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      COMPATIBILITY_SAME_VARIANT_GROUP,
+    ]);
+    expect(groups[0]?.items.map((item) => item.registryId)).toEqual([
+      "module.multi-head-attention",
+      "module.multi-query-attention",
+    ]);
+  });
+
   test("deriveRelatedDocGroups keeps explicit ontology groups in policy order", () => {
     const source = getRegistryRecordById("module.standard-ffn");
     if (source?.kind !== "module") {

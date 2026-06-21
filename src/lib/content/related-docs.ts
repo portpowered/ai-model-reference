@@ -85,6 +85,15 @@ export const COMPATIBILITY_RELATED_DOC_GROUP_IDS = [
   COMPATIBILITY_SAME_CONCEPT_TYPE,
 ] as const satisfies readonly DerivedRelatedDocGroupId[];
 
+const LEGACY_RELATED_DOC_PEER_ALIAS_IDS = [
+  SAME_VARIANT_GROUP,
+  SAME_CONCEPT_TYPE,
+] as const;
+
+type RequestedRelatedDocGroupId =
+  | DerivedRelatedDocGroupId
+  | (typeof LEGACY_RELATED_DOC_PEER_ALIAS_IDS)[number];
+
 export const PLANNED_RELATED_REASON_LABEL = "Planned related doc" as const;
 
 export type RelatedRegistryRecord =
@@ -404,48 +413,64 @@ function bestSharedParentClassificationMatch(
   })[0];
 }
 
+function compatibilityGroupForLegacyPeerAlias(
+  groupId: (typeof LEGACY_RELATED_DOC_PEER_ALIAS_IDS)[number],
+): (typeof COMPATIBILITY_RELATED_DOC_GROUP_IDS)[number] {
+  return groupId === SAME_VARIANT_GROUP
+    ? COMPATIBILITY_SAME_VARIANT_GROUP
+    : COMPATIBILITY_SAME_CONCEPT_TYPE;
+}
+
+function isDerivedRelatedDocGroupId(
+  groupId: RequestedRelatedDocGroupId,
+): groupId is DerivedRelatedDocGroupId {
+  return (
+    groupId === DIRECT_RELATIONSHIPS ||
+    groupId === CLASSIFICATION_SIBLINGS ||
+    groupId === SHARED_PARENT_CLASSIFICATION ||
+    groupId === COMPATIBILITY_SAME_VARIANT_GROUP ||
+    groupId === SHARED_TAGS ||
+    groupId === COMPATIBILITY_SAME_CONCEPT_TYPE ||
+    groupId === CURATED_RELATED ||
+    groupId === SAME_MODEL_FAMILY ||
+    groupId === SHARED_MODULES ||
+    groupId === SHARED_TRAINING_REGIMES ||
+    groupId === INTRODUCED_RECORDS
+  );
+}
+
 function normalizeRequestedGroups(
   source: RelatedRegistryRecord,
   requestedGroups: string[],
 ): Set<DerivedRelatedDocGroupId> {
   const normalized = new Set<DerivedRelatedDocGroupId>();
-  const shouldExpandLegacyPeerAliases = hasOntologyPeerData(source);
+  const shouldPreferOntologyPeerGroups = hasOntologyPeerData(source);
 
   for (const groupId of requestedGroups) {
+    const requestedGroupId = groupId as RequestedRelatedDocGroupId;
+
     if (
-      groupId === DIRECT_RELATIONSHIPS ||
-      groupId === CLASSIFICATION_SIBLINGS ||
-      groupId === SHARED_PARENT_CLASSIFICATION ||
-      groupId === CURATED_RELATED ||
-      groupId === SAME_MODEL_FAMILY ||
-      groupId === SHARED_MODULES ||
-      groupId === SHARED_TRAINING_REGIMES ||
-      groupId === INTRODUCED_RECORDS ||
-      groupId === SAME_VARIANT_GROUP ||
-      groupId === SHARED_TAGS ||
-      groupId === SAME_CONCEPT_TYPE
+      LEGACY_RELATED_DOC_PEER_ALIAS_IDS.includes(
+        requestedGroupId as (typeof LEGACY_RELATED_DOC_PEER_ALIAS_IDS)[number],
+      )
     ) {
-      if (
-        shouldExpandLegacyPeerAliases &&
-        (groupId === SAME_VARIANT_GROUP || groupId === SAME_CONCEPT_TYPE)
-      ) {
-        normalized.add(DIRECT_RELATIONSHIPS);
-        normalized.add(CLASSIFICATION_SIBLINGS);
-        normalized.add(SHARED_PARENT_CLASSIFICATION);
+      if (shouldPreferOntologyPeerGroups) {
+        for (const ontologyGroupId of ONTOLOGY_RELATED_DOC_GROUP_IDS) {
+          normalized.add(ontologyGroupId);
+        }
         continue;
       }
 
-      if (groupId === SAME_VARIANT_GROUP) {
-        normalized.add(COMPATIBILITY_SAME_VARIANT_GROUP);
-        continue;
-      }
+      normalized.add(
+        compatibilityGroupForLegacyPeerAlias(
+          requestedGroupId as (typeof LEGACY_RELATED_DOC_PEER_ALIAS_IDS)[number],
+        ),
+      );
+      continue;
+    }
 
-      if (groupId === SAME_CONCEPT_TYPE) {
-        normalized.add(COMPATIBILITY_SAME_CONCEPT_TYPE);
-        continue;
-      }
-
-      normalized.add(groupId);
+    if (isDerivedRelatedDocGroupId(requestedGroupId)) {
+      normalized.add(requestedGroupId);
     }
   }
 

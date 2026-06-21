@@ -227,13 +227,14 @@ export const typedTaxonomyConsumerAuditContract: readonly TypedTaxonomyConsumerC
       owner: "docs/discovery",
       fields: ["conceptType", "variantGroup"],
       evidence: [
-        "normalized.add(COMPATIBILITY_SAME_VARIANT_GROUP);",
-        "normalized.add(COMPATIBILITY_SAME_CONCEPT_TYPE);",
+        "const shouldPreferOntologyPeerGroups = hasOntologyPeerData(source);",
+        "function compatibilityGroupForLegacyPeerAlias(",
+        "normalized.add(compatibilityGroupForLegacyPeerAlias(",
         "if (!source.variantGroup) {",
         "candidate.variantGroup === source.variantGroup",
       ],
       rationale:
-        "Related-doc derivation is now ontology-first by default; the remaining conceptType and variantGroup reads are confined to explicitly named compatibility-only peer groups for records that still lack usable ontology peers.",
+        "Related-doc derivation is now ontology-first by default; legacy peer aliases expand to ontology groups when ontology data exists, and the remaining conceptType and variantGroup reads are confined to explicitly named compatibility-only peer groups for records that still lack usable ontology peers.",
     },
     {
       id: "page-spec-legacy-authoring-fields",
