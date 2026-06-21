@@ -67,6 +67,10 @@ the temporary legacy-id bridge.
 
 ## Reviewer-facing verification
 
+* `page-specs/*.json`
+  Committed ontology-first starter specs should prefer canonical
+  `primaryClassificationId` values; leave legacy ids only in explicitly named
+  compatibility fixtures.
 * `src/lib/content/registry-runtime.test.ts`
   Runtime assertions against the committed registry data.
 * `src/lib/content/registry-runtime-generation.test.ts`

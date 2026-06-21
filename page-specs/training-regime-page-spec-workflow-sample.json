@@ -4,7 +4,7 @@
   "title": "Training Regime Page Spec Workflow Sample",
   "summary": "A generated training-regime page spec that exercises the canonical bundle workflow for training regimes.",
   "status": "draft",
-  "primaryClassificationId": "classification.training-behaviors",
+  "primaryClassificationId": "classification.training.alignment",
   "relationships": [
     {
       "relationshipType": "uses",

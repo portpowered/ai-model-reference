@@ -149,7 +149,7 @@ describe("generatePageBundle", () => {
         ...baseSpecFields,
         slug,
         kind: "module",
-        primaryClassificationId: "classification.attention-mechanisms",
+        primaryClassificationId: "classification.module.attention",
         secondaryClassificationIds: ["classification.kv-cache-optimizations"],
         relationships: [
           {
@@ -741,7 +741,7 @@ describe("generatePageBundle", () => {
           ...baseSpecFields,
           slug: "generated-ontology-first-module",
           kind: "module",
-          primaryClassificationId: "classification.attention-mechanisms",
+          primaryClassificationId: "classification.module.attention",
           secondaryClassificationIds: ["classification.kv-cache-optimizations"],
           relationships: [
             {
@@ -768,7 +768,7 @@ describe("generatePageBundle", () => {
           ...baseSpecFields,
           slug: "generated-ontology-first-training",
           kind: "training-regime",
-          primaryClassificationId: "classification.training-behaviors",
+          primaryClassificationId: "classification.training.alignment",
           relationships: [
             {
               relationshipType: "used-by",
@@ -786,7 +786,7 @@ describe("generatePageBundle", () => {
           ...baseSpecFields,
           slug: "generated-ontology-first-system",
           kind: "system",
-          primaryClassificationId: "classification.serving-systems",
+          primaryClassificationId: "classification.system.routing",
           relationships: [
             {
               relationshipType: "uses",

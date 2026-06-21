@@ -300,11 +300,10 @@ async function seedExpandedKindValidationFixtures(
     classifiesKinds: ["training-regime"],
   });
   await writeClassificationFixture(tempRoot, {
-    id: "classification.training.behaviors",
-    slug: "training-behaviors",
-    classificationType: "behavior",
+    id: "classification.training.alignment",
+    slug: "training-alignment",
+    classificationType: "family",
     classifiesKinds: ["training-regime"],
-    legacyIds: ["classification.training-behaviors"],
     parentClassificationId: "classification.training",
   });
   await writeReferenceModuleFixture(tempRoot, {
@@ -644,7 +643,7 @@ describe("runGeneratePageBundleCli", () => {
           ...sampleSpec,
           ...(sampleSpec.kind === "module" ? { moduleType: "attention" } : {}),
           ...(sampleSpec.kind === "training-regime"
-            ? { regimeType: "pretraining" }
+            ? { regimeType: "alignment" }
             : {}),
         };
         const tempSpecPath = join(tempRoot, `${sampleSpec.slug}.spec.json`);
