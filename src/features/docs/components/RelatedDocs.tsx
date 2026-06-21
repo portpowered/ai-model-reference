@@ -9,12 +9,12 @@ import {
 } from "@/lib/content/registry-runtime";
 import {
   applyRelatedDocMessageOverrides,
-  deriveCuratedRelatedItems,
-  deriveSameVariantGroupPeers,
-  excludeRelatedDocItems,
-  SAME_VARIANT_GROUP,
+  CLASSIFICATION_SIBLINGS,
+  CURATED_RELATED,
+  DIRECT_RELATIONSHIPS,
+  deriveRelatedDocGroups,
+  SHARED_PARENT_CLASSIFICATION,
 } from "@/lib/content/related-docs";
-import type { ModuleRecord } from "@/lib/content/schemas";
 
 export function RelatedDocs({ registryId }: { registryId: string }) {
   const messages = useOptionalPageMessages();
@@ -25,44 +25,52 @@ export function RelatedDocs({ registryId }: { registryId: string }) {
 
   const candidates = listRelatedRegistryRecords();
   const publishedRegistryIds = getPublishedDocsRegistryIds();
-  const variantGroupItems =
-    source.kind === "module"
-      ? deriveSameVariantGroupPeers(
-          source,
-          candidates.filter(
-            (candidate): candidate is ModuleRecord =>
-              candidate.kind === "module",
-          ),
-          publishedRegistryIds,
-        )
-      : [];
-  const curatedItems = applyRelatedDocMessageOverrides(
-    excludeRelatedDocItems(
-      deriveCuratedRelatedItems(source, candidates, publishedRegistryIds),
-      variantGroupItems.map((item) => item.registryId),
-    ),
-    messages,
-  ).filter((item) => item.href);
+  const groups = deriveRelatedDocGroups(
+    source,
+    candidates,
+    [
+      CURATED_RELATED,
+      DIRECT_RELATIONSHIPS,
+      CLASSIFICATION_SIBLINGS,
+      SHARED_PARENT_CLASSIFICATION,
+    ],
+    publishedRegistryIds,
+  )
+    .map((group) => ({
+      ...group,
+      items:
+        group.id === CURATED_RELATED
+          ? applyRelatedDocMessageOverrides(group.items, messages)
+          : group.items,
+    }))
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => item.href),
+    }))
+    .filter((group) => group.items.length > 0);
 
-  if (variantGroupItems.length === 0 && curatedItems.length === 0) {
+  if (groups.length === 0) {
     return null;
   }
 
   return (
     <>
-      {variantGroupItems.length > 0 ? (
-        <div className="my-4" data-testid="variant-group-related-docs">
-          <RelatedDocList
-            items={variantGroupItems}
-            groupId={SAME_VARIANT_GROUP}
-          />
-        </div>
-      ) : null}
-      {curatedItems.length > 0 ? (
-        <div className="my-4" data-testid="curated-related-docs">
-          <RelatedDocList items={curatedItems} testId="curated-related-docs" />
-        </div>
-      ) : null}
+      {groups.map((group) => {
+        const testId =
+          group.id === CURATED_RELATED
+            ? "curated-related-docs"
+            : `${group.id}-related-docs`;
+
+        return (
+          <div key={group.id} className="my-4" data-testid={testId}>
+            <RelatedDocList
+              items={group.items}
+              groupId={group.id}
+              testId={testId}
+            />
+          </div>
+        );
+      })}
     </>
   );
 }

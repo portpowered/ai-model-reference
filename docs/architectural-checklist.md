@@ -383,6 +383,7 @@ make clean     # remove generated artifacts
 ## Derived Related Documents And Tags Contract
 
 * `src/features/docs/components/DerivedRelatedDocs.tsx` renders grouped related resources from the shared ontology peer policy, compatibility metadata, and optional `relatedIds` overrides.
+* `src/features/docs/components/RelatedDocs.tsx` should render default page-side related links from curated overrides plus ontology-derived relationship, classification-sibling, and shared-parent groups instead of `variantGroup` as the main module peer source.
 * `src/lib/content/ontology-peer-policy.ts` defines the cross-surface peer precedence: direct ontology relationships first, same-classification siblings second, and shared-parent classification peers only as a fallback.
 * Relationship types `variant`, `part-of`, and `explains` must outrank generic classification siblings when both apply.
 * Legacy taxonomy fields such as `variantGroup`, `conceptType`, and `moduleFamily` remain compatibility metadata and should not be treated as the primary peer-discovery contract once ontology ancestry exists.

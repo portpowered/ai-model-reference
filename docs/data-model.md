@@ -389,6 +389,7 @@ Policy rules:
 * Shared tags remain a broad discovery signal and should rank below ontology relationships and classification membership.
 * `relatedIds` remains a curated escape hatch for exceptions taxonomy and ontology still cannot express cleanly.
 * Related UI should label why records appear using ontology-explainable reasons rather than relying on legacy bucket names as the main explanation.
+* Default related-doc sections should surface reasons such as `Same classification: attention mechanisms` or `Shares parent classification: neural network components` so readers can see the ontology path instead of a legacy `variantGroup` label.
 
 Deliberate improvement case:
 
