@@ -1,4 +1,8 @@
-import { getModuleById } from "@/lib/content/registry-runtime";
+import {
+  getModuleById,
+  getPrimaryClassificationForRecord,
+  listSecondaryClassificationsForRecord,
+} from "@/lib/content/registry-runtime";
 import type { ModuleRecord } from "@/lib/content/schemas";
 
 function formatLabel(value: string): string {
@@ -6,6 +10,11 @@ function formatLabel(value: string): string {
     .split("-")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function formatClassificationLabel(classificationId: string): string {
+  const slug = classificationId.split(".").at(-1) ?? classificationId;
+  return formatLabel(slug);
 }
 
 function MetadataRow({ label, value }: { label: string; value: string }) {
@@ -23,29 +32,23 @@ function buildRows(record: ModuleRecord) {
     { label: "Math level", value: formatLabel(record.mathLevel) },
   ];
 
-  if (record.moduleType) {
+  const primaryClassification = getPrimaryClassificationForRecord(record.id);
+  if (primaryClassification) {
     rows.unshift({
-      label: "Module type",
-      value: formatLabel(record.moduleType),
+      label: "Classification",
+      value: formatClassificationLabel(primaryClassification.slug),
     });
   }
 
-  if (record.moduleFamily) {
+  const secondaryClassifications = listSecondaryClassificationsForRecord(
+    record.id,
+  );
+  if (secondaryClassifications.length > 0) {
     rows.push({
-      label: "Module family",
-      value: formatLabel(record.moduleFamily),
-    });
-  }
-  if (record.conceptType) {
-    rows.push({
-      label: "Concept type",
-      value: formatLabel(record.conceptType),
-    });
-  }
-  if (record.variantGroup) {
-    rows.push({
-      label: "Variant group",
-      value: formatLabel(record.variantGroup),
+      label: "Also classified as",
+      value: secondaryClassifications
+        .map((classification) => formatClassificationLabel(classification.slug))
+        .join(", "),
     });
   }
 
@@ -55,7 +58,17 @@ function buildRows(record: ModuleRecord) {
 export function ModuleMetadataCard({ registryId }: { registryId: string }) {
   const record = getModuleById(registryId);
   if (!record) {
-    return null;
+    return (
+      <aside
+        className="my-6 rounded-lg border border-border bg-card p-4"
+        data-registry-id={registryId}
+        aria-label="Module metadata"
+      >
+        <p className="text-sm text-muted-foreground">
+          Module metadata is unavailable for this record.
+        </p>
+      </aside>
+    );
   }
 
   const rows = buildRows(record);

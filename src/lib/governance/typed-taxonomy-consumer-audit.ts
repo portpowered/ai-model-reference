@@ -303,16 +303,15 @@ export const typedTaxonomyConsumerAuditContract: readonly TypedTaxonomyConsumerC
       id: "module-metadata-card-legacy-display",
       path: "src/features/models/components/ModuleMetadataCard.tsx",
       cluster: "metadata-ui",
-      status: "approved-compatibility-bridge",
+      status: "migrated-ontology-first-consumer",
       owner: "reader-experience",
-      fields: ["moduleType", "conceptType", "variantGroup"],
+      fields: [],
       evidence: [
-        "if (record.moduleType) {",
-        "if (record.conceptType) {",
-        "if (record.variantGroup) {",
+        "const primaryClassification = getPrimaryClassificationForRecord(record.id);",
+        "const secondaryClassifications = listSecondaryClassificationsForRecord(",
       ],
       rationale:
-        "Module detail metadata still renders legacy taxonomy labels directly for reader continuity.",
+        "Module detail metadata now renders ontology classification labels directly from the generated registry runtime.",
     },
     {
       id: "training-regime-at-a-glance-legacy-display",
