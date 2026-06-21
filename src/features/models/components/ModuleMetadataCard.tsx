@@ -1,21 +1,9 @@
 import {
-  getModuleById,
-  getPrimaryClassificationForRecord,
-  listSecondaryClassificationsForRecord,
-} from "@/lib/content/registry-runtime";
+  deriveOntologyMetadataLabels,
+  formatMetadataToken,
+} from "@/lib/content/metadata-labels";
+import { getModuleById } from "@/lib/content/registry-runtime";
 import type { ModuleRecord } from "@/lib/content/schemas";
-
-function formatLabel(value: string): string {
-  return value
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function formatClassificationLabel(classificationId: string): string {
-  const slug = classificationId.split(".").at(-1) ?? classificationId;
-  return formatLabel(slug);
-}
 
 function MetadataRow({ label, value }: { label: string; value: string }) {
   return (
@@ -27,28 +15,23 @@ function MetadataRow({ label, value }: { label: string; value: string }) {
 }
 
 function buildRows(record: ModuleRecord) {
+  const metadataLabels = deriveOntologyMetadataLabels(record);
   const rows: Array<{ label: string; value: string }> = [
-    { label: "Status", value: formatLabel(record.status) },
-    { label: "Math level", value: formatLabel(record.mathLevel) },
+    { label: "Status", value: formatMetadataToken(record.status) },
+    { label: "Math level", value: formatMetadataToken(record.mathLevel) },
   ];
 
-  const primaryClassification = getPrimaryClassificationForRecord(record.id);
-  if (primaryClassification) {
+  if (metadataLabels.primaryLabel) {
     rows.unshift({
       label: "Classification",
-      value: formatClassificationLabel(primaryClassification.slug),
+      value: metadataLabels.primaryLabel,
     });
   }
 
-  const secondaryClassifications = listSecondaryClassificationsForRecord(
-    record.id,
-  );
-  if (secondaryClassifications.length > 0) {
+  if (metadataLabels.secondaryLabels.length > 0) {
     rows.push({
       label: "Also classified as",
-      value: secondaryClassifications
-        .map((classification) => formatClassificationLabel(classification.slug))
-        .join(", "),
+      value: metadataLabels.secondaryLabels.join(", "),
     });
   }
 
