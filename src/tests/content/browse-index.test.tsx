@@ -111,6 +111,32 @@ describe("browse index page render", () => {
       "A simple activation function that keeps positive values and turns negative values into zero.",
     );
     expect(html).not.toContain(">description<");
+    expect(html).toContain("Cơ chế attention");
+    expect(html).toContain("Lớp chuẩn hóa");
+    expect(html).toContain("Phương pháp mã hóa vị trí");
+    expect(html).toContain("Phương pháp token hóa");
+    expect(html).toContain("Cấu trúc khối transformer");
+    expect(html).not.toContain(">Attention Mechanisms<");
+    expect(html).not.toContain(">Normalization Layers<");
+  });
+
+  it("renders japanese runtime-discovered topology options without english fallback labels", async () => {
+    const page = await renderBrowseIndexPage("ja", {
+      searchParams: Promise.resolve({
+        classification: "attention-mechanisms",
+        mode: "graph-map",
+      }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Attention 機構のグラフマップ");
+    expect(html).toContain("Attention 機構");
+    expect(html).toContain("正規化層");
+    expect(html).toContain("位置エンコーディング方式");
+    expect(html).toContain("トークン化方式");
+    expect(html).toContain("Transformer ブロック構造");
+    expect(html).not.toContain(">Normalization Layers<");
+    expect(html).not.toContain(">Tokenization Methods<");
   });
 
   it("renders feed-forward timeline state from URL parameters on first load", async () => {

@@ -120,7 +120,12 @@
     "timelineLabel": "Dòng thời gian",
     "classificationLabels": {
       "activationFunctions": "Hàm kích hoạt",
-      "feedForwardNetworks": "Mạng feed-forward"
+      "attentionMechanisms": "Cơ chế attention",
+      "feedForwardNetworks": "Mạng feed-forward",
+      "normalizationLayers": "Lớp chuẩn hóa",
+      "positionEncodingMethods": "Phương pháp mã hóa vị trí",
+      "tokenizationMethods": "Phương pháp token hóa",
+      "transformerBlockStructures": "Cấu trúc khối transformer"
     },
     "classificationSelectorTitle": "Phân loại module",
     "classificationSelectorDescription": "Duyệt các nhánh ontology theo module mà không rời khỏi bề mặt topology đã chọn.",

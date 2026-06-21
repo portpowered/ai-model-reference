@@ -31,7 +31,12 @@ export type TopologyNavigationOption = {
 
 const TOPOLOGY_SEED_CLASSIFICATION_KEYS = {
   "activation-functions": "activationFunctions",
+  "attention-mechanisms": "attentionMechanisms",
   "feed-forward-networks": "feedForwardNetworks",
+  "normalization-layers": "normalizationLayers",
+  "position-encoding-methods": "positionEncodingMethods",
+  "tokenization-methods": "tokenizationMethods",
+  "transformer-block-structures": "transformerBlockStructures",
 } as const;
 
 type TopologySeedClassificationSlug =
@@ -62,8 +67,18 @@ export function getTopologyNavigationLabels(
     classificationLabels: {
       "activation-functions":
         messages.topologyBrowse.classificationLabels.activationFunctions,
+      "attention-mechanisms":
+        messages.topologyBrowse.classificationLabels.attentionMechanisms,
       "feed-forward-networks":
         messages.topologyBrowse.classificationLabels.feedForwardNetworks,
+      "normalization-layers":
+        messages.topologyBrowse.classificationLabels.normalizationLayers,
+      "position-encoding-methods":
+        messages.topologyBrowse.classificationLabels.positionEncodingMethods,
+      "tokenization-methods":
+        messages.topologyBrowse.classificationLabels.tokenizationMethods,
+      "transformer-block-structures":
+        messages.topologyBrowse.classificationLabels.transformerBlockStructures,
     },
     surfaceLabels: {
       "graph-map": messages.topologyBrowse.graphMapLabel,

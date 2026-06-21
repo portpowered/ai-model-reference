@@ -22,7 +22,9 @@ the temporary legacy-id bridge.
   Current proving consumer for runtime-owned module-branch discovery on the
   `/browse` topology surface; this consumer should derive candidate branches
   from `buildClassificationSubtree(...)` roots rather than a hardcoded parent
-  classification id.
+  classification id, and localized browse labels must cover every
+  runtime-discovered branch that can ship on `/vi/browse`, `/ja/browse`, and
+  other locale-prefixed surfaces.
 * `src/lib/search/build-documents.ts`
   Search-term expansion that keeps canonical and legacy classification terms
   discoverable during migration.

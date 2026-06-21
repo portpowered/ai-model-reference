@@ -135,6 +135,46 @@ describe("topology navigation model", () => {
       label: "Dòng thời gian",
       href: "/vi/browse?classification=feed-forward-networks&mode=timeline",
     });
+    expect(options.map((option) => option.label)).toEqual(
+      expect.arrayContaining([
+        "Hàm kích hoạt",
+        "Cơ chế attention",
+        "Mạng feed-forward",
+        "Lớp chuẩn hóa",
+        "Phương pháp mã hóa vị trí",
+        "Phương pháp token hóa",
+        "Cấu trúc khối transformer",
+      ]),
+    );
+  });
+
+  test("preserves localized classification labels across every runtime-discovered branch for japanese routes", async () => {
+    const messages = await loadUiMessages("ja");
+    const options = listTopologyNavigationOptions({
+      locale: "ja",
+      labels: getTopologyNavigationLabels(messages),
+    });
+
+    expect(options.map((option) => option.label)).toEqual(
+      expect.arrayContaining([
+        "活性化関数",
+        "Attention 機構",
+        "フィードフォワードネットワーク",
+        "正規化層",
+        "位置エンコーディング方式",
+        "トークン化方式",
+        "Transformer ブロック構造",
+      ]),
+    );
+    expect(
+      options.find(
+        (option) => option.classificationSlug === "attention-mechanisms",
+      )?.destinations,
+    ).toContainEqual({
+      mode: "graph-map",
+      label: "グラフマップ",
+      href: "/ja/browse?classification=attention-mechanisms&mode=graph-map",
+    });
   });
 
   test("returns an empty model when no eligible seed classifications exist", () => {

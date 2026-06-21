@@ -120,7 +120,12 @@
     "timelineLabel": "タイムライン",
     "classificationLabels": {
       "activationFunctions": "活性化関数",
-      "feedForwardNetworks": "フィードフォワードネットワーク"
+      "attentionMechanisms": "Attention 機構",
+      "feedForwardNetworks": "フィードフォワードネットワーク",
+      "normalizationLayers": "正規化層",
+      "positionEncodingMethods": "位置エンコーディング方式",
+      "tokenizationMethods": "トークン化方式",
+      "transformerBlockStructures": "Transformer ブロック構造"
     },
     "classificationSelectorTitle": "モジュール分類",
     "classificationSelectorDescription": "選択中の topology サーフェスを離れずに、モジュール指向の ontology ブランチを参照します。",
