@@ -1,15 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import type { ClassificationTreeClassificationNode } from "@/lib/content/registry-runtime";
+import type { ClassificationSubtreeClassificationNode } from "@/lib/content/registry-runtime";
 import {
   getTopologyNavigationLabels,
   listTopologyNavigationOptions,
-  TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
 } from "@/lib/content/topology-navigation";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 function publishedClassificationNode(
-  overrides: Partial<ClassificationTreeClassificationNode>,
-): ClassificationTreeClassificationNode {
+  overrides: Partial<ClassificationSubtreeClassificationNode>,
+): ClassificationSubtreeClassificationNode {
   return {
     nodeType: "classification",
     classification: {
@@ -27,19 +26,21 @@ function publishedClassificationNode(
       updatedAt: "2026-06-20T00:00:00.000Z",
       classificationType: "family",
       classifiesKinds: ["module"],
-      parentClassificationId: TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
+      parentClassificationId: "classification.module-root",
     },
     children: [],
     classificationChildren: [],
     recordChildren: [],
     directMemberCount: 0,
+    descendantMemberCount: 0,
+    hasMatchingMembers: false,
     totalMemberCount: 0,
     ...overrides,
   };
 }
 
 describe("topology navigation model", () => {
-  test("derives graph-map and timeline destinations from seeded classifications", () => {
+  test("derives graph-map and timeline destinations from runtime-discovered classifications", () => {
     const options = listTopologyNavigationOptions();
 
     expect(options.map((option) => option.classificationId)).toEqual(
@@ -134,6 +135,46 @@ describe("topology navigation model", () => {
       label: "Dòng thời gian",
       href: "/vi/browse?classification=feed-forward-networks&mode=timeline",
     });
+    expect(options.map((option) => option.label)).toEqual(
+      expect.arrayContaining([
+        "Hàm kích hoạt",
+        "Cơ chế attention",
+        "Mạng feed-forward",
+        "Lớp chuẩn hóa",
+        "Phương pháp mã hóa vị trí",
+        "Phương pháp token hóa",
+        "Cấu trúc khối transformer",
+      ]),
+    );
+  });
+
+  test("preserves localized classification labels across every runtime-discovered branch for japanese routes", async () => {
+    const messages = await loadUiMessages("ja");
+    const options = listTopologyNavigationOptions({
+      locale: "ja",
+      labels: getTopologyNavigationLabels(messages),
+    });
+
+    expect(options.map((option) => option.label)).toEqual(
+      expect.arrayContaining([
+        "活性化関数",
+        "Attention 機構",
+        "フィードフォワードネットワーク",
+        "正規化層",
+        "位置エンコーディング方式",
+        "トークン化方式",
+        "Transformer ブロック構造",
+      ]),
+    );
+    expect(
+      options.find(
+        (option) => option.classificationSlug === "attention-mechanisms",
+      )?.destinations,
+    ).toContainEqual({
+      mode: "graph-map",
+      label: "グラフマップ",
+      href: "/ja/browse?classification=attention-mechanisms&mode=graph-map",
+    });
   });
 
   test("returns an empty model when no eligible seed classifications exist", () => {
@@ -145,8 +186,8 @@ describe("topology navigation model", () => {
           publishedClassificationNode({
             classification: {
               ...publishedClassificationNode({}).classification,
-              id: TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
-              slug: "neural-network-components",
+              id: "classification.module-root",
+              slug: "module-root",
             },
             classificationChildren: [
               publishedClassificationNode({
@@ -188,8 +229,8 @@ describe("topology navigation model", () => {
         publishedClassificationNode({
           classification: {
             ...publishedClassificationNode({}).classification,
-            id: TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
-            slug: "neural-network-components",
+            id: "classification.module-root",
+            slug: "module-root",
           },
           classificationChildren: [optionTree],
           children: [optionTree],

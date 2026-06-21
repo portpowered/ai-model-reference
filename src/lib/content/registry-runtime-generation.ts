@@ -429,9 +429,70 @@ export type ClassificationTreeOptions = {
   rootClassificationIds?: readonly string[];
 };
 
+export type ClassificationSubtreeRecordPlacement = "owning-classification";
+
+export type ClassificationSubtreeEmptyBehavior =
+  | "prune-empty-leaves"
+  | "include-empty-leaves";
+
+export type ClassificationSubtreeClassificationNode = {
+  nodeType: "classification";
+  classification: ClassificationRecord;
+  children: ClassificationSubtreeNode[];
+  classificationChildren: ClassificationSubtreeClassificationNode[];
+  recordChildren: ClassificationTreeRecordNode[];
+  directMemberCount: number;
+  descendantMemberCount: number;
+  totalMemberCount: number;
+  hasMatchingMembers: boolean;
+};
+
+export type ClassificationSubtreeNode =
+  | ClassificationSubtreeClassificationNode
+  | ClassificationTreeRecordNode;
+
+export type ClassificationSubtreeResult = {
+  emptyBehavior: ClassificationSubtreeEmptyBehavior;
+  filters: {
+    classificationKinds: OntologyParticipantKind[];
+    memberKinds: OntologyParticipantKind[];
+    memberPlacement: ClassificationSubtreeRecordPlacement;
+    rootClassificationIds: string[];
+    statuses: ClassificationRecord["status"][];
+    includeSecondary: boolean;
+  };
+  isEmpty: boolean;
+  memberPlacement: ClassificationSubtreeRecordPlacement;
+  roots: ClassificationSubtreeClassificationNode[];
+};
+
+export type ClassificationBranchMembership = {
+  classification: ClassificationRecord;
+  descendantMemberCount: number;
+  descendantMembers: ClassificationMember[];
+  directMemberCount: number;
+  directMembers: ClassificationMember[];
+  memberPlacement: ClassificationSubtreeRecordPlacement;
+  totalMemberCount: number;
+  totalMembers: ClassificationMember[];
+};
+
 const defaultClassificationStatuses: ClassificationRecord["status"][] = [
   "published",
 ];
+
+export const CLASSIFICATION_RUNTIME_ORDERING_RULE = {
+  classifications: "sortOrder asc, slug asc, id asc",
+  members:
+    "record.sortOrder asc, record.kind asc, record.slug asc, record.id asc, membershipType asc, classification sortOrder/slug/id",
+  nodeChildren: "classification children first, then record children",
+} as const;
+
+export const CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE = {
+  defaultBehavior: "prune-empty-leaves",
+  includeEmptyBehavior: "include-empty-leaves",
+  subtreeMemberPlacement: "owning-classification",
+} as const;
 
 function compareOptionalSortOrder(
   left: number | undefined,
@@ -606,6 +667,15 @@ function listDirectClassificationMembers(
   return members.sort(compareClassificationMembers);
 }
 
+function matchesRequestedMemberKinds(
+  members: ClassificationMember[],
+  memberKinds: readonly OntologyParticipantKind[] | undefined,
+): ClassificationMember[] {
+  return members.filter((member) =>
+    matchesClassificationMemberKind(member, memberKinds),
+  );
+}
+
 function getTaggedRecordById(
   registryId: string,
 ): TaggedRegistryRecord | undefined {
@@ -771,14 +841,15 @@ export function listClassificationChildren(
   classificationId: string,
   options: ClassificationTraversalOptions = {},
 ): ClassificationRecord[] {
-  if (!classificationsById.has(classificationId)) {
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
     return [];
   }
 
   return classificationRecords
     .filter(
       (classification) =>
-        classification.parentClassificationId === classificationId &&
+        classification.parentClassificationId === resolvedClassificationId &&
         matchesClassificationTraversalOptions(classification, options),
     )
     .sort(compareClassificationRecords);
@@ -788,14 +859,15 @@ export function listClassificationAncestors(
   classificationId: string,
   options: ClassificationTraversalOptions = {},
 ): ClassificationRecord[] {
-  if (!classificationsById.has(classificationId)) {
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
     return [];
   }
 
   const ancestors: ClassificationRecord[] = [];
   const visited = new Set<string>();
   let parentClassificationId =
-    classificationsById.get(classificationId)?.parentClassificationId;
+    classificationsById.get(resolvedClassificationId)?.parentClassificationId;
 
   while (parentClassificationId && !visited.has(parentClassificationId)) {
     visited.add(parentClassificationId);
@@ -817,13 +889,14 @@ export function listClassificationDescendants(
   classificationId: string,
   options: ClassificationTraversalOptions = {},
 ): ClassificationRecord[] {
-  if (!classificationsById.has(classificationId)) {
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
     return [];
   }
 
   const descendants: ClassificationRecord[] = [];
   const visited = new Set<string>();
-  const stack = listClassificationChildren(classificationId, {
+  const stack = listClassificationChildren(resolvedClassificationId, {
     ...options,
     statuses: options.statuses ?? [],
   })
@@ -1026,6 +1099,31 @@ export function listClassificationMembers(
   );
 }
 
+function resolveTreeRootClassifications(
+  options: ClassificationTreeOptions = {},
+): ClassificationRecord[] {
+  const classificationTraversal = options.classificationTraversal ?? {};
+
+  return (
+    options.rootClassificationIds?.flatMap((classificationId) => {
+      const resolvedClassificationId = resolveClassificationId(classificationId);
+      if (!resolvedClassificationId) {
+        return [];
+      }
+
+      const classification = classificationsById.get(resolvedClassificationId);
+      if (
+        !classification ||
+        !matchesClassificationTraversalOptions(classification, classificationTraversal)
+      ) {
+        return [];
+      }
+
+      return [classification];
+    }) ?? listClassificationRoots(classificationTraversal)
+  );
+}
+
 function buildClassificationTreeNode(
   classification: ClassificationRecord,
   options: ClassificationTreeOptions = {},
@@ -1079,24 +1177,144 @@ function buildClassificationTreeNode(
 export function buildClassificationTree(
   options: ClassificationTreeOptions = {},
 ): ClassificationTreeClassificationNode[] {
-  const classificationTraversal = options.classificationTraversal ?? {};
-  const rootClassifications =
-    options.rootClassificationIds?.flatMap((classificationId) => {
-      const classification = classificationsById.get(classificationId);
-      if (
-        !classification ||
-        !matchesClassificationTraversalOptions(classification, classificationTraversal)
-      ) {
-        return [];
-      }
-
-      return [classification];
-    }) ??
-    listClassificationRoots(classificationTraversal);
-
-  return rootClassifications
+  return resolveTreeRootClassifications(options)
     .map((classification) => buildClassificationTreeNode(classification, options))
     .flatMap((node) => (node ? [node] : []));
+}
+
+function buildClassificationSubtreeNode(
+  classification: ClassificationRecord,
+  options: ClassificationTreeOptions = {},
+): ClassificationSubtreeClassificationNode | undefined {
+  const classificationTraversal = options.classificationTraversal ?? {};
+  const memberQuery = options.memberQuery ?? {};
+  const classificationChildren = listClassificationChildren(classification.id, {
+    ...classificationTraversal,
+    statuses: classificationTraversal.statuses ?? [],
+  })
+    .map((childClassification) =>
+      buildClassificationSubtreeNode(childClassification, options),
+    )
+    .flatMap((node) => (node ? [node] : []));
+  const recordChildren = matchesRequestedMemberKinds(
+    listClassificationMembers(classification.id, memberQuery).filter(
+      (member) => !member.isInherited,
+    ),
+    options.memberKinds,
+  ).map((member) => ({
+    nodeType: "record" as const,
+    member,
+  }));
+  const directMemberCount = recordChildren.length;
+  const descendantMemberCount = classificationChildren.reduce(
+    (count, childClassification) => count + childClassification.totalMemberCount,
+    0,
+  );
+  const totalMemberCount = directMemberCount + descendantMemberCount;
+
+  if (
+    options.includeEmptyClassifications !== true &&
+    totalMemberCount === 0 &&
+    classificationChildren.length === 0
+  ) {
+    return undefined;
+  }
+
+  return {
+    nodeType: "classification",
+    classification,
+    children: [...classificationChildren, ...recordChildren],
+    classificationChildren,
+    recordChildren,
+    directMemberCount,
+    descendantMemberCount,
+    totalMemberCount,
+    hasMatchingMembers: totalMemberCount > 0,
+  };
+}
+
+export function buildClassificationSubtree(
+  options: ClassificationTreeOptions = {},
+): ClassificationSubtreeResult {
+  const classificationTraversal = options.classificationTraversal ?? {};
+  const rootClassifications = resolveTreeRootClassifications(options);
+  const roots = rootClassifications
+    .map((classification) =>
+      buildClassificationSubtreeNode(classification, options),
+    )
+    .flatMap((node) => (node ? [node] : []));
+
+  return {
+    emptyBehavior:
+      options.includeEmptyClassifications === true
+        ? CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.includeEmptyBehavior
+        : CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.defaultBehavior,
+    filters: {
+      classificationKinds: [
+        ...(classificationTraversal.classifiesKinds ?? []),
+      ],
+      memberKinds: [...(options.memberKinds ?? [])],
+      memberPlacement:
+        CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.subtreeMemberPlacement,
+      rootClassificationIds: rootClassifications.map(
+        (classification) => classification.id,
+      ),
+      statuses: [...(classificationTraversal.statuses ?? defaultClassificationStatuses)],
+      includeSecondary: options.memberQuery?.includeSecondary === true,
+    },
+    isEmpty: roots.length === 0,
+    memberPlacement: CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.subtreeMemberPlacement,
+    roots,
+  };
+}
+
+export function getClassificationBranchMembership(
+  classificationId: string,
+  options: Pick<
+    ClassificationTreeOptions,
+    "classificationTraversal" | "memberKinds" | "memberQuery"
+  > = {},
+): ClassificationBranchMembership | undefined {
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
+    return undefined;
+  }
+
+  const classification = classificationsById.get(resolvedClassificationId);
+  if (!classification) {
+    return undefined;
+  }
+
+  if (
+    options.classificationTraversal &&
+    !matchesClassificationTraversalOptions(
+      classification,
+      options.classificationTraversal,
+    )
+  ) {
+    return undefined;
+  }
+
+  const totalMembers = matchesRequestedMemberKinds(
+    listClassificationMembers(resolvedClassificationId, {
+      ...(options.memberQuery ?? {}),
+      includeDescendants: true,
+    }),
+    options.memberKinds,
+  );
+  const directMembers = totalMembers.filter((member) => !member.isInherited);
+  const descendantMembers = totalMembers.filter((member) => member.isInherited);
+
+  return {
+    classification,
+    descendantMemberCount: descendantMembers.length,
+    descendantMembers,
+    directMemberCount: directMembers.length,
+    directMembers,
+    memberPlacement: CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.subtreeMemberPlacement,
+    totalMemberCount: totalMembers.length,
+    totalMembers,
+  };
 }
 `;
 }

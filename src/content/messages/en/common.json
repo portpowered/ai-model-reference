@@ -120,7 +120,12 @@
     "timelineLabel": "Timeline",
     "classificationLabels": {
       "activationFunctions": "Activation Functions",
-      "feedForwardNetworks": "Feed Forward Networks"
+      "attentionMechanisms": "Attention Mechanisms",
+      "feedForwardNetworks": "Feed Forward Networks",
+      "normalizationLayers": "Normalization Layers",
+      "positionEncodingMethods": "Position Encoding Methods",
+      "tokenizationMethods": "Tokenization Methods",
+      "transformerBlockStructures": "Transformer Block Structures"
     },
     "classificationSelectorTitle": "Module classifications",
     "classificationSelectorDescription": "Browse module-oriented ontology branches without leaving the selected topology surface.",

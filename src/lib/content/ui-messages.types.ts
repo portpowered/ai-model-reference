@@ -116,7 +116,12 @@ export type UiMessages = {
     timelineLabel: string;
     classificationLabels: {
       activationFunctions: string;
+      attentionMechanisms: string;
       feedForwardNetworks: string;
+      normalizationLayers: string;
+      positionEncodingMethods: string;
+      tokenizationMethods: string;
+      transformerBlockStructures: string;
     };
     classificationSelectorTitle: string;
     classificationSelectorDescription: string;

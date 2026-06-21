@@ -13,7 +13,18 @@ the temporary legacy-id bridge.
   ontology-first content checks.
 * `src/lib/content/registry-runtime-generation.ts`
   Generated runtime source contract for canonical lookup, legacy-id
-  canonicalization, parent-child traversal, and `listLegacyClassificationBridges`.
+  canonicalization, parent-child traversal, filtered subtree generation,
+  branch-membership authority, deterministic ordering
+  (`sortOrder -> slug -> id` for classifications; record-aware ordering for
+  members), explicit empty-branch behavior, and
+  `listLegacyClassificationBridges`.
+* `src/lib/content/topology-navigation.ts`
+  Current proving consumer for runtime-owned module-branch discovery on the
+  `/browse` topology surface; this consumer should derive candidate branches
+  from `buildClassificationSubtree(...)` roots rather than a hardcoded parent
+  classification id, and localized browse labels must cover every
+  runtime-discovered branch that can ship on `/vi/browse`, `/ja/browse`, and
+  other locale-prefixed surfaces.
 * `src/lib/search/build-documents.ts`
   Search-term expansion that keeps canonical and legacy classification terms
   discoverable during migration.
@@ -42,6 +53,17 @@ the temporary legacy-id bridge.
   Timeline static preload registration. Any selector the timeline route accepts
   must be preloaded here as well or the client route will drift from the
   server-resolved contract.
+
+## Remaining compatibility fallback outside the proving consumer
+
+* `src/lib/search/build-documents.ts`
+  Search still keeps legacy flat classification ids and canonical ids side by
+  side for discoverability during migration; this slice does not remove that
+  compatibility expansion.
+* `src/lib/content/page-spec.ts`
+  Page-spec generation and validation still accept legacy taxonomy fields such
+  as `conceptType`, `moduleFamily`, and `variantGroup` as temporary
+  compatibility inputs outside the migrated `/browse` navigation surface.
 
 ## Reviewer-facing verification
 
@@ -86,4 +108,5 @@ the temporary legacy-id bridge.
   Hydration coverage for canonical ids, legacy ids, and invalid timeline
   selectors read from the browser URL.
 * `docs/data-model.md`
-  Human-readable ontology contract and temporary bridge rules.
+  Human-readable ontology contract, runtime ordering rules, empty-branch
+  behavior, and temporary bridge rules.

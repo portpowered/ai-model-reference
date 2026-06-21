@@ -1,7 +1,7 @@
 import { getPublishedDocsHrefForRecord } from "@/lib/content/published-docs-registry-ids";
 import {
-  buildClassificationTree,
-  type ClassificationTreeClassificationNode,
+  buildClassificationSubtree,
+  type ClassificationSubtreeClassificationNode,
 } from "@/lib/content/registry-runtime";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
@@ -9,8 +9,6 @@ import {
   defaultLocale,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
-
-export const TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID = "classification.module";
 
 export const TOPOLOGY_SURFACE_MODES = ["graph-map", "timeline"] as const;
 
@@ -27,13 +25,18 @@ export type TopologyNavigationOption = {
   classificationSlug: string;
   label: string;
   memberCount: number;
-  tree: ClassificationTreeClassificationNode;
+  tree: ClassificationSubtreeClassificationNode;
   destinations: TopologyNavigationDestination[];
 };
 
 const TOPOLOGY_SEED_CLASSIFICATION_KEYS = {
   "activation-functions": "activationFunctions",
+  "attention-mechanisms": "attentionMechanisms",
   "feed-forward-networks": "feedForwardNetworks",
+  "normalization-layers": "normalizationLayers",
+  "position-encoding-methods": "positionEncodingMethods",
+  "tokenization-methods": "tokenizationMethods",
+  "transformer-block-structures": "transformerBlockStructures",
 } as const;
 
 type TopologySeedClassificationSlug =
@@ -48,7 +51,7 @@ export type TopologyNavigationLabels = {
 
 type TopologyNavigationInput = {
   locale?: SiteLocale;
-  tree?: readonly ClassificationTreeClassificationNode[];
+  tree?: readonly ClassificationSubtreeClassificationNode[];
   labels?: TopologyNavigationLabels;
 };
 
@@ -64,8 +67,18 @@ export function getTopologyNavigationLabels(
     classificationLabels: {
       "activation-functions":
         messages.topologyBrowse.classificationLabels.activationFunctions,
+      "attention-mechanisms":
+        messages.topologyBrowse.classificationLabels.attentionMechanisms,
       "feed-forward-networks":
         messages.topologyBrowse.classificationLabels.feedForwardNetworks,
+      "normalization-layers":
+        messages.topologyBrowse.classificationLabels.normalizationLayers,
+      "position-encoding-methods":
+        messages.topologyBrowse.classificationLabels.positionEncodingMethods,
+      "tokenization-methods":
+        messages.topologyBrowse.classificationLabels.tokenizationMethods,
+      "transformer-block-structures":
+        messages.topologyBrowse.classificationLabels.transformerBlockStructures,
     },
     surfaceLabels: {
       "graph-map": messages.topologyBrowse.graphMapLabel,
@@ -119,23 +132,17 @@ function buildDestinations(
 
 export function listTopologyNavigationOptions({
   locale = defaultLocale,
-  tree = buildClassificationTree({
-    rootClassificationIds: [TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID],
+  tree = buildClassificationSubtree({
+    classificationTraversal: {
+      classifiesKinds: ["module"],
+      statuses: ["published"],
+    },
     memberKinds: ["module"],
-  }),
+  }).roots,
   labels,
 }: TopologyNavigationInput = {}): TopologyNavigationOption[] {
-  const topologyRoot = tree.find(
-    (classification) =>
-      classification.classification.id ===
-      TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
-  );
-
-  if (!topologyRoot) {
-    return [];
-  }
-
-  return topologyRoot.classificationChildren
+  return tree
+    .flatMap((rootClassification) => rootClassification.classificationChildren)
     .filter(
       (classification) =>
         classification.totalMemberCount > 0 &&
