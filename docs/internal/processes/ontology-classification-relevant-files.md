@@ -61,7 +61,8 @@ the temporary legacy-id bridge.
   published training-regime or system record still lacks canonical
   classification membership, keep any temporary typed-taxonomy fallback on this
   helper path so the card remains readable without reopening component-level
-  legacy field reads.
+  legacy field reads, and keep the typed-taxonomy audit/fence contract pointed
+  at this helper because it owns the remaining metadata UI compatibility reads.
 * `src/features/models/components/ModuleMetadataCard.tsx`
   Module metadata UI. Classification and secondary-classification rows should
   resolve through the shared metadata label helper rather than direct legacy
