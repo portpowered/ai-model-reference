@@ -122,14 +122,14 @@
       "activationFunctions": "Activation Functions",
       "feedForwardNetworks": "Feed Forward Networks"
     },
-    "classificationSelectorTitle": "Seed classifications",
-    "classificationSelectorDescription": "Switch between the activation and feed-forward seed slices without leaving the topology surface.",
-    "classificationSelectorLabel": "Topology seed classifications",
+    "classificationSelectorTitle": "Module classifications",
+    "classificationSelectorDescription": "Browse module-oriented ontology branches without leaving the selected topology surface.",
+    "classificationSelectorLabel": "Topology module classifications",
     "selectedClassificationLabel": "Selected classification",
     "selectedModeLabel": "Selected surface",
-    "membersTitle": "Published members",
-    "graphMapDescription": "This graph-map prototype lists the published members attached to the selected classification so reviewers can check the topology slice before the full graph renderer is connected.",
-    "timelineDescription": "This timeline prototype orders the published members in the selected classification so reviewers can check the same ontology slice through a time-oriented surface.",
+    "membersTitle": "Classification tree",
+    "graphMapDescription": "This graph-map prototype renders the generated classification tree for the selected branch so reviewers can inspect nested module ownership before the full graph renderer is connected.",
+    "timelineDescription": "This timeline prototype renders the same generated classification tree with timeline ordering so reviewers can inspect the selected branch through a time-oriented surface.",
     "invalidTitle": "Invalid topology selection",
     "invalidDescription": "The requested classification or surface mode is not available for this prototype. Choose one of the valid topology links below.",
     "invalidClassificationLabel": "Requested classification",
@@ -138,7 +138,11 @@
     "emptyTitle": "No topology options available",
     "emptyDescription": "No eligible seed classifications currently have published members for the topology prototype.",
     "validOptionsTitle": "Valid topology links",
-    "memberListLabel": "Topology members"
+    "memberListLabel": "Topology classification tree",
+    "classificationChildrenLabel": "Nested classifications",
+    "recordChildrenLabel": "Published modules",
+    "directMembersLabel": "Direct members",
+    "totalMembersLabel": "Visible members"
   },
   "modelsIndex": {
     "title": "Models",

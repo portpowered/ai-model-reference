@@ -6,6 +6,7 @@ import type {
 } from "@/lib/content/topology-navigation";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
+  type BulletlessListMargin,
   bulletlessListClassName,
   bulletlessListMarkersClassName,
   docsResourceCardLinkClassName,
@@ -21,6 +22,20 @@ export type TopologyMemberEntry = {
   membershipType: "primary" | "secondary";
 };
 
+export type TopologyClassificationEntry = {
+  nodeType: "classification";
+  classificationId: string;
+  slug: string;
+  title: string;
+  directMemberCount: number;
+  totalMemberCount: number;
+  children: TopologyTreeEntry[];
+};
+
+export type TopologyTreeEntry =
+  | TopologyClassificationEntry
+  | (TopologyMemberEntry & { nodeType: "record" });
+
 type ResolvedTopologyBrowseState = Exclude<
   TopologyBrowseState,
   { kind: "not-requested" }
@@ -29,7 +44,7 @@ type ResolvedTopologyBrowseState = Exclude<
 type TopologyBrowsePageProps = {
   messages: UiMessages;
   state: ResolvedTopologyBrowseState;
-  members?: TopologyMemberEntry[];
+  tree?: TopologyClassificationEntry[];
 };
 
 function formatTemplate(
@@ -238,18 +253,17 @@ function TopologyEmptyState({ messages }: { messages: UiMessages }) {
 function TopologySelectedState({
   messages,
   state,
-  members,
+  tree,
 }: {
   messages: UiMessages;
   state: Extract<TopologyBrowseState, { kind: "selected" }>;
-  members: TopologyMemberEntry[];
+  tree: TopologyClassificationEntry[];
 }) {
   const modeLabel = formatModeLabel(messages, state.mode);
   const modeDescription =
     state.mode === "graph-map"
       ? messages.topologyBrowse.graphMapDescription
       : messages.topologyBrowse.timelineDescription;
-  const MemberListTag = state.mode === "timeline" ? "ol" : "ul";
 
   return (
     <>
@@ -289,23 +303,12 @@ function TopologySelectedState({
         >
           {messages.topologyBrowse.membersTitle}
         </h2>
-        <MemberListTag
-          className={bulletlessListClassName("mt-4")}
-          aria-label={messages.topologyBrowse.memberListLabel}
-        >
-          {members.map((member) => (
-            <li key={member.registryId}>
-              <Link href={member.url} className={docsResourceCardLinkClassName}>
-                <span className="font-medium text-foreground">
-                  {member.title}
-                </span>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {member.summary}
-                </p>
-              </Link>
-            </li>
-          ))}
-        </MemberListTag>
+        <TopologyTreeList
+          messages={messages}
+          entries={tree}
+          mode={state.mode}
+          className="mt-4"
+        />
       </section>
 
       <TopologyOptionLinks messages={messages} options={state.options} />
@@ -350,7 +353,7 @@ export function topologyBrowseDescription(
 export function TopologyBrowsePage({
   messages,
   state,
-  members = [],
+  tree = [],
 }: TopologyBrowsePageProps) {
   if (state.kind === "empty") {
     return <TopologyEmptyState messages={messages} />;
@@ -361,10 +364,122 @@ export function TopologyBrowsePage({
   }
 
   return (
-    <TopologySelectedState
-      messages={messages}
-      state={state}
-      members={members}
-    />
+    <TopologySelectedState messages={messages} state={state} tree={tree} />
+  );
+}
+
+function TopologyTreeList({
+  messages,
+  entries,
+  mode,
+  className,
+}: {
+  messages: UiMessages;
+  entries: readonly TopologyClassificationEntry[];
+  mode: TopologySurfaceMode;
+  className?: BulletlessListMargin;
+}) {
+  const ListTag = mode === "timeline" ? "ol" : "ul";
+
+  return (
+    <ListTag
+      className={bulletlessListClassName(className)}
+      aria-label={messages.topologyBrowse.memberListLabel}
+    >
+      {entries.map((entry) => (
+        <li key={entry.classificationId}>
+          <TopologyClassificationBranch
+            messages={messages}
+            entry={entry}
+            mode={mode}
+          />
+        </li>
+      ))}
+    </ListTag>
+  );
+}
+
+function TopologyClassificationBranch({
+  messages,
+  entry,
+  mode,
+}: {
+  messages: UiMessages;
+  entry: TopologyClassificationEntry;
+  mode: TopologySurfaceMode;
+}) {
+  const classificationChildren = entry.children.filter(
+    (child): child is TopologyClassificationEntry =>
+      child.nodeType === "classification",
+  );
+  const recordChildren = entry.children.filter(
+    (child): child is TopologyMemberEntry & { nodeType: "record" } =>
+      child.nodeType === "record",
+  );
+  const RecordListTag = mode === "timeline" ? "ol" : "ul";
+
+  return (
+    <article className="rounded-lg border border-border bg-card p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="font-serif text-xl font-semibold text-foreground">
+            {entry.title}
+          </h3>
+        </div>
+        <dl className="grid grid-cols-2 gap-3 text-sm text-muted-foreground">
+          <div>
+            <dt>{messages.topologyBrowse.directMembersLabel}</dt>
+            <dd className="font-medium text-foreground">
+              {entry.directMemberCount}
+            </dd>
+          </div>
+          <div>
+            <dt>{messages.topologyBrowse.totalMembersLabel}</dt>
+            <dd className="font-medium text-foreground">
+              {entry.totalMemberCount}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      {recordChildren.length > 0 ? (
+        <div className="mt-4">
+          <p className="text-sm font-medium text-foreground">
+            {messages.topologyBrowse.recordChildrenLabel}
+          </p>
+          <RecordListTag className={bulletlessListClassName("mt-3")}>
+            {recordChildren.map((member) => (
+              <li key={member.registryId}>
+                <Link
+                  href={member.url}
+                  className={docsResourceCardLinkClassName}
+                >
+                  <span className="font-medium text-foreground">
+                    {member.title}
+                  </span>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {member.summary}
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </RecordListTag>
+        </div>
+      ) : null}
+
+      {classificationChildren.length > 0 ? (
+        <div className="mt-6">
+          <p className="text-sm font-medium text-foreground">
+            {messages.topologyBrowse.classificationChildrenLabel}
+          </p>
+          <TopologyTreeList
+            messages={messages}
+            entries={classificationChildren}
+            mode={mode}
+            className="mt-3"
+          />
+        </div>
+      ) : null}
+    </article>
   );
 }
