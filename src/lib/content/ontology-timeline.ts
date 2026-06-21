@@ -1,4 +1,3 @@
-import { resolveOntologyClassificationSelector } from "@/lib/content/ontology-classification-selectors";
 import {
   buildPageReleaseMetadata,
   type ReleasablePageRecord,
@@ -23,6 +22,7 @@ import type {
   ClassificationRecord,
   OntologyRelationship,
 } from "@/lib/content/schemas";
+import { resolveTimelineClassificationSelector } from "@/lib/content/timeline-selector-compatibility";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 
 type TimelineSourceRecord = ReleasablePageRecord;
@@ -97,7 +97,7 @@ function resolveClassification(
   classifications: readonly ClassificationRecord[],
   requestedClassification: string,
 ): ClassificationRecord | undefined {
-  return resolveOntologyClassificationSelector(
+  return resolveTimelineClassificationSelector(
     requestedClassification,
     classifications,
   );

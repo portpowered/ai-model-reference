@@ -67,6 +67,10 @@ the temporary legacy-id bridge.
   Timeline static preload registration. Any selector the timeline route accepts
   must be preloaded here as well or the client route will drift from the
   server-resolved contract.
+* `src/lib/content/timeline-selector-compatibility.ts`
+  Timeline-specific temporary selector fence. Keep any still-supported legacy
+  timeline ids or shorthand selectors here so canonical timeline resolution can
+  stay separate from explicit compatibility handling.
 * `src/features/docs/timeline/timeline-query.ts`
   Timeline-specific selector parsing and outbound URL normalization. Keep the
   accepted selector set and the emitted steady-state selector URLs separate
@@ -176,6 +180,9 @@ the temporary legacy-id bridge.
 * `src/lib/content/ontology-timeline.test.ts`
   Canonical-versus-compatibility selector assertions for the timeline data
   layer.
+* `src/lib/content/timeline-selector-compatibility.test.ts`
+  Focused proof that the timeline compatibility fence stays reviewable,
+  canonicalizes approved selectors, and rejects undeclared near misses.
 * `src/features/docs/timeline/OntologyTimelinePage.test.tsx`
   Static preload coverage proving accepted selector forms survive the
   server-to-client handoff.

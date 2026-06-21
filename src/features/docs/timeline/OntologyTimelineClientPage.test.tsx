@@ -153,6 +153,37 @@ describe("OntologyTimelineClientPage", () => {
     });
   });
 
+  test("keeps unsupported near-miss selectors in the empty recovery state", async () => {
+    setWindowLocationSearch("?classification=classification.activation");
+
+    const messages = await loadUiMessages("en");
+    const preloadedTimelines = loadPreloadedTimelineSelections("en");
+    const defaultTimeline =
+      preloadedTimelines[getDefaultTimelineClassificationSelector()];
+    if (!defaultTimeline) {
+      throw new Error("Expected canonical default timeline preload to resolve");
+    }
+
+    render(
+      <OntologyTimelineClientPage
+        initialTimeline={defaultTimeline}
+        locale="en"
+        messages={messages}
+        preloadedTimelines={preloadedTimelines}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("No dated timeline events")).toBeTruthy();
+    });
+    expect(screen.getByText(/classification\.activation/)).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", { name: messages.timelinePage.activationLink })
+        .getAttribute("href"),
+    ).toBe("/docs/timeline?classification=activation-functions");
+  });
+
   test("hydrates an invalid classification into the recoverable empty state", async () => {
     setWindowLocationSearch("?classification=not-a-real-slice");
 

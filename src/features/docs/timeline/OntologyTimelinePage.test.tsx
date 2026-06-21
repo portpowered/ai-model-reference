@@ -164,7 +164,7 @@ describe("OntologyTimelinePage", () => {
     expect(html).toContain('data-testid="ontology-chrono-timeline"');
   });
 
-  test("preloads canonical and legacy selectors for client-side timeline hydration", () => {
+  test("preloads canonical and explicitly fenced compatibility selectors for client-side timeline hydration", () => {
     const preloaded = loadPreloadedTimelineSelections("en");
 
     expect(preloaded[getDefaultTimelineClassificationSelector()]).toMatchObject(
@@ -193,5 +193,6 @@ describe("OntologyTimelinePage", () => {
         classificationId: "classification.module.feed-forward",
       },
     });
+    expect(preloaded["classification.activation"]).toBeUndefined();
   });
 });

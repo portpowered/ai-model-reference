@@ -1,8 +1,6 @@
-import {
-  normalizeOntologyClassificationSelector,
-  resolveOntologyClassificationSelector,
-} from "@/lib/content/ontology-classification-selectors";
+import { normalizeOntologyClassificationSelector } from "@/lib/content/ontology-classification-selectors";
 import { listClassificationRecords } from "@/lib/content/registry-runtime";
+import { resolveTimelineClassificationSelector } from "@/lib/content/timeline-selector-compatibility";
 import { listTopologyNavigationOptions } from "@/lib/content/topology-navigation";
 
 export const TIMELINE_CLASSIFICATION_QUERY_KEY = "classification";
@@ -39,7 +37,7 @@ export function getCanonicalTimelineSelectorForOutput(
   selector: string,
 ): string {
   const normalizedSelector = normalizeOntologyClassificationSelector(selector);
-  const classification = resolveOntologyClassificationSelector(
+  const classification = resolveTimelineClassificationSelector(
     normalizedSelector,
     listClassificationRecords(),
   );
