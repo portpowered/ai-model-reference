@@ -110,8 +110,8 @@ export function formatGeneratePageBundleUsage(): string {
     "Legacy concept/glossary scaffold flows still exist through scaffold-doc-page,",
     "but new canonical bundles should start here.",
     "",
-    "Compatibility example page spec:",
-    '  { "kind": "concept", "slug": "example", "title": "Example", "summary": "Short summary.", "conceptType": "general" }',
+    "Ontology-first example page spec:",
+    '  { "kind": "concept", "slug": "example", "title": "Example", "summary": "Short summary.", "primaryClassificationId": "classification.example" }',
   ].join("\n");
 }
 

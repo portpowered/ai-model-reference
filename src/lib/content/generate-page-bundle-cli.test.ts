@@ -408,7 +408,7 @@ describe("runGeneratePageBundleCli", () => {
     }
   });
 
-  test("generation CLI writes and validates expanded canonical kind bundles from committed sample specs", async () => {
+  test("generation CLI writes and validates expanded canonical kind bundles from committed sample specs with temporary compatibility fields where still required", async () => {
     const tempRoot = await createFixtureRoot();
     const samplePaths = [
       "module-page-spec-workflow-sample.json",
@@ -452,8 +452,21 @@ describe("runGeneratePageBundleCli", () => {
       await seedExpandedKindValidationFixtures(tempRoot);
 
       for (const specPath of samplePaths) {
+        const sampleSpec = JSON.parse(
+          await readFile(specPath, "utf8"),
+        ) as Record<string, unknown> & { kind: string; slug: string };
+        const compatibilitySpec = {
+          ...sampleSpec,
+          ...(sampleSpec.kind === "module" ? { moduleType: "attention" } : {}),
+          ...(sampleSpec.kind === "training-regime"
+            ? { regimeType: "pretraining" }
+            : {}),
+        };
+        const tempSpecPath = join(tempRoot, `${sampleSpec.slug}.spec.json`);
+        await writeFile(tempSpecPath, JSON.stringify(compatibilitySpec));
+
         const result = await runGeneratePageBundleCli({
-          specPath,
+          specPath: tempSpecPath,
           projectRoot: tempRoot,
         });
         expect(result.dryRun).toBe(false);
@@ -667,7 +680,7 @@ describe("formatGeneratePageBundleUsage", () => {
     expect(usage).toContain("--dry-run");
     expect(usage).toContain("scaffold-doc-page");
     expect(usage).toContain("primaryClassificationId");
-    expect(usage).toContain("Compatibility example page spec");
+    expect(usage).toContain("Ontology-first example page spec");
   });
 });
 

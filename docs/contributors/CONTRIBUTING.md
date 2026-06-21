@@ -217,17 +217,19 @@ resolve to published records in `src/content/registry/tags/` (for example
 `attention` maps to `tag.attention`). Repeat the same slugs in frontmatter and in
 the registry record `tags` array.
 
-When using `generate:page-bundle`, the **current checked-in validator** still
-expects some legacy typed fields for certain kinds: `conceptType` for concept
-and glossary pages, `moduleType` for modules, `family` plus `sourceType` and
-`modalities` for models, `authors` plus `publishedAt` and `url` for papers, and
-`regimeType` for training-regime pages. Treat those typed taxonomy fields as
-temporary compatibility inputs rather than the preferred long-term contract for
-modules, concepts, training regimes, or systems. Valid `conceptType` values are
-`architecture`, `math`, `training`, `inference`, `systems`, `evaluation`, and
-`general`. Optional spec fields (`tags`, `aliases`, `relatedIds`,
-`citationIds`) seed registry and frontmatter fields in one step. The legacy
-`scaffold:doc-page` CLI accepts the concept/glossary subset through
+When using `generate:page-bundle`, the checked-in page-spec validator now
+accepts ontology-first inputs for module, concept, glossary, training-regime,
+and system pages through `primaryClassificationId` plus optional
+`secondaryClassificationIds` and `relationships`. Legacy typed taxonomy fields
+such as `conceptType`, `moduleType`, `regimeType`, and `systemType` are still
+accepted as temporary compatibility inputs, but they are no longer required for
+those ontology-backed authoring paths. Model pages still require `family`,
+`sourceType`, and `modalities`, and paper pages still require `authors`,
+`publishedAt`, and `url`. Valid `conceptType` values remain `architecture`,
+`math`, `training`, `inference`, `systems`, `evaluation`, and `general` when a
+compatibility input is still needed. Optional spec fields (`tags`, `aliases`,
+`relatedIds`, `citationIds`) seed registry and frontmatter fields in one step.
+The legacy `scaffold:doc-page` CLI accepts the concept/glossary subset through
 `--concept-type` and comma-separated optional flags.
 
 ## Canonical content requirements
