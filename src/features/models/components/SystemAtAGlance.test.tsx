@@ -13,4 +13,19 @@ describe("SystemAtAGlance", () => {
     expect(html).toContain("System Routing");
     expect(html).not.toContain(">Routing<");
   });
+
+  test("keeps published systems readable when they still need compatibility labels", () => {
+    const html = renderToStaticMarkup(
+      <SystemAtAGlance registryId="system.inference-engine" />,
+    );
+
+    expect(html).toContain('data-registry-id="system.inference-engine"');
+    expect(html).toContain("System type");
+    expect(html).toContain("Runtime");
+    expect(html).toContain("Related models");
+    expect(html).toContain('href="/docs/models/gpt-3"');
+    expect(html).toContain("Related modules");
+    expect(html).toContain("No related modules listed yet.");
+    expect(html).not.toContain(">runtime<");
+  });
 });

@@ -70,6 +70,18 @@ describe("metadata-labels", () => {
     });
   });
 
+  test("falls back to a training regime compatibility label when ontology data is absent", () => {
+    const record = requireValue(
+      getTrainingRegimeById("training-regime.specialist-training"),
+      "training-regime.specialist-training",
+    );
+
+    expect(deriveOntologyMetadataLabels(record)).toEqual({
+      primaryLabel: "Post Training",
+      secondaryLabels: [],
+    });
+  });
+
   test("derives a system classification label from ontology membership", () => {
     const record = requireValue(
       getSystemById("system.routing"),
@@ -78,6 +90,18 @@ describe("metadata-labels", () => {
 
     expect(deriveOntologyMetadataLabels(record)).toEqual({
       primaryLabel: "System Routing",
+      secondaryLabels: [],
+    });
+  });
+
+  test("falls back to a system compatibility label when ontology data is absent", () => {
+    const record = requireValue(
+      getSystemById("system.inference-engine"),
+      "system.inference-engine",
+    );
+
+    expect(deriveOntologyMetadataLabels(record)).toEqual({
+      primaryLabel: "Runtime",
       secondaryLabels: [],
     });
   });

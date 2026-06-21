@@ -57,7 +57,11 @@ the temporary legacy-id bridge.
   Shared reader-facing metadata label derivation for ontology-backed module,
   training-regime, and system cards. Keep classification-to-label formatting on
   this single helper path instead of reintroducing ad hoc `slug`, `regimeType`,
-  or `systemType` display logic inside individual metadata components.
+  or `systemType` display logic inside individual metadata components. If a
+  published training-regime or system record still lacks canonical
+  classification membership, keep any temporary typed-taxonomy fallback on this
+  helper path so the card remains readable without reopening component-level
+  legacy field reads.
 * `src/features/models/components/ModuleMetadataCard.tsx`
   Module metadata UI. Classification and secondary-classification rows should
   resolve through the shared metadata label helper rather than direct legacy

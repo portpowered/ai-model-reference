@@ -32,13 +32,27 @@ function formatClassificationLabel(classificationId: string): string {
   return formatMetadataToken(classification?.slug ?? resolvedClassificationId);
 }
 
+function getLegacyPrimaryLabel(
+  record: OntologyMetadataRecord,
+): string | undefined {
+  if (record.kind === "training-regime" && record.regimeType) {
+    return formatMetadataToken(record.regimeType);
+  }
+
+  if (record.kind === "system" && record.systemType) {
+    return formatMetadataToken(record.systemType);
+  }
+
+  return undefined;
+}
+
 export function deriveOntologyMetadataLabels(
   record: OntologyMetadataRecord,
 ): OntologyMetadataLabels {
   return {
     primaryLabel: record.primaryClassificationId
       ? formatClassificationLabel(record.primaryClassificationId)
-      : undefined,
+      : getLegacyPrimaryLabel(record),
     secondaryLabels: (record.secondaryClassificationIds ?? []).map(
       formatClassificationLabel,
     ),
