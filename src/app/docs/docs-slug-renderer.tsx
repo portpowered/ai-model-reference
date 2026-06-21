@@ -21,7 +21,6 @@ import { isDocsPageShippedForLocale } from "@/lib/content/pages";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
-import { source } from "@/lib/source";
 import { getMDXComponents } from "../../../mdx-components";
 
 type DocsSlugPageBody = ComponentType<{
@@ -36,6 +35,11 @@ type DocsSlugPageData = {
   title?: string;
   description?: string;
 };
+
+async function loadDocsSource() {
+  const { source } = await import("@/lib/source");
+  return source;
+}
 
 function buildDocsPageAlternates(docsSlug: string) {
   const alternates = localizedRouteAlternates({
@@ -63,6 +67,7 @@ async function renderLocalDocsPage(
     return null;
   }
 
+  const source = await loadDocsSource();
   const page = source.getPage(slug);
   if (!page) {
     return null;
@@ -133,6 +138,7 @@ export async function renderDocsSlugPage(
     return localPage;
   }
 
+  const source = await loadDocsSource();
   const page = source.getPage(slug);
 
   if (!page) {
@@ -184,6 +190,7 @@ export async function buildDocsPageMetadata(
   const localRef = parseLocalDocsPageRef(slug);
 
   if (localRef) {
+    const source = await loadDocsSource();
     const page = source.getPage(slug);
     if (page && docsSlug) {
       const loadedPage = await loadLocalDocsPage(localRef, locale);
@@ -195,6 +202,7 @@ export async function buildDocsPageMetadata(
     }
   }
 
+  const source = await loadDocsSource();
   const page = source.getPage(slug);
 
   if (!page) {
