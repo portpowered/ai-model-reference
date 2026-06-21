@@ -52,6 +52,8 @@
     "report:planner-queue-health": "bun ./scripts/report-planner-queue-health.ts",
     "report:planner-loopback-reconciliation": "bun ./scripts/report-planner-loopback-reconciliation.ts",
     "audit:canonical-page-surface": "bun ./scripts/audit-canonical-page-surface.ts",
+    "audit:typed-taxonomy-consumers": "bun ./scripts/audit-typed-taxonomy-consumers.ts",
+    "verify:typed-taxonomy-consumer-fence": "bun ./scripts/verify-typed-taxonomy-consumer-fence.ts",
     "scaffold:doc-page": "bun ./scripts/scaffold-doc-page.ts",
     "generate:page-bundle": "bun ./scripts/generate-page-bundle.ts",
     "generate:table-registry": "bun ./scripts/generate-table-registry-runtime.ts",

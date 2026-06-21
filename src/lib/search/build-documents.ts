@@ -17,6 +17,7 @@ import type {
   TagRecord,
   TrainingRegimeRecord,
 } from "@/lib/content/schemas";
+import { resolveLegacySearchTaxonomyCompatibility } from "./legacy-taxonomy-compat";
 import type {
   SearchDocument,
   SearchDocumentFacets,
@@ -33,22 +34,12 @@ function isModuleRecord(record: RegistryRecord): record is ModuleRecord {
   return record.kind === "module";
 }
 
-function isConceptRecord(record: RegistryRecord): record is ConceptRecord {
-  return record.kind === "concept";
-}
-
 function isTagRecord(record: RegistryRecord): record is TagRecord {
   return record.kind === "tag";
 }
 
 function isModelRecord(record: RegistryRecord): record is ModelRecord {
   return record.kind === "model";
-}
-
-function isTrainingRegimeRecord(
-  record: RegistryRecord,
-): record is TrainingRegimeRecord {
-  return record.kind === "training-regime";
 }
 
 type OntologyParticipatingRecord =
@@ -392,17 +383,10 @@ function buildFacets(
     (relationship) => relationship.relationshipType,
   );
 
-  if (registryRecord && isModuleRecord(registryRecord)) {
-    facets.moduleType = registryRecord.moduleType;
-    facets.optimizes = registryRecord.optimizes;
-    facets.legacyModuleFamily = registryRecord.moduleFamily;
-    facets.legacyConceptType = registryRecord.conceptType;
-    facets.legacyVariantGroup = registryRecord.variantGroup;
-  }
-
-  if (registryRecord && isConceptRecord(registryRecord)) {
-    facets.legacyConceptType = registryRecord.conceptType;
-  }
+  Object.assign(
+    facets,
+    resolveLegacySearchTaxonomyCompatibility(registryRecord, topology),
+  );
 
   if (registryRecord && isModelRecord(registryRecord)) {
     facets.modelFamily = registryRecord.family;
@@ -411,9 +395,8 @@ function buildFacets(
     facets.trainingRegimeIds = registryRecord.trainingRegimeIds;
   }
 
-  if (registryRecord && isTrainingRegimeRecord(registryRecord)) {
-    facets.legacyConceptType = registryRecord.conceptType;
-    facets.legacyVariantGroup = registryRecord.variantGroup;
+  if (registryRecord && isModuleRecord(registryRecord)) {
+    facets.optimizes = registryRecord.optimizes;
   }
 
   return facets;

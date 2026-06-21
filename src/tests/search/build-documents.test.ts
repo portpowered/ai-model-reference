@@ -20,6 +20,28 @@ function buildRegistryIndexes(records: ModuleRecord[]): RegistryIndexes {
   };
 }
 
+function buildClassificationRecord(
+  overrides: Partial<ClassificationRecord> = {},
+): ClassificationRecord {
+  return {
+    id: "classification.module.attention",
+    slug: "attention-mechanisms",
+    kind: "classification",
+    defaultTitleKey: "title",
+    defaultSummaryKey: "description",
+    aliases: ["attention mechanism"],
+    tags: [],
+    relatedIds: [],
+    citationIds: [],
+    status: "published",
+    createdAt: "2026-06-20T00:00:00.000Z",
+    updatedAt: "2026-06-20T00:00:00.000Z",
+    classificationType: "mechanism",
+    classifiesKinds: ["module"],
+    ...overrides,
+  };
+}
+
 function buildSyntheticPage(registryId: string): DocsPageSource {
   return {
     pageDir: "/tmp/synthetic-module",
@@ -212,6 +234,28 @@ describe("buildSearchDocuments", () => {
     });
     expect(document?.title).toBe("Synthetic Module");
     expect(document?.facets.moduleType).toBe("other");
+  });
+
+  test("derives moduleType from ontology classification when legacy moduleType disagrees", () => {
+    const record = buildSyntheticModule({
+      moduleType: "other",
+      primaryClassificationId: "classification.module.attention",
+    });
+    const classification = buildClassificationRecord();
+    const indexes = buildRegistryIndexes([record]);
+    indexes.byId.set(classification.id, classification);
+    indexes.bySlug.set(classification.slug, classification);
+    indexes.classificationsById.set(classification.id, classification);
+
+    const document = buildSearchDocuments(
+      [buildSyntheticPage(record.id)],
+      indexes,
+    )[0];
+
+    expect(document?.topology.primaryClassificationId).toBe(
+      "classification.module.attention",
+    );
+    expect(document?.facets.moduleType).toBe("attention");
   });
 
   test("keeps documents searchable when classification targets are missing or draft", () => {
