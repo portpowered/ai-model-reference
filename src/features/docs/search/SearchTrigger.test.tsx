@@ -1,4 +1,6 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
+import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { SharedProps } from "fumadocs-ui/contexts/search";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { ComponentType } from "react";
@@ -18,6 +20,10 @@ function renderSearchTrigger(messages: UiMessages) {
 }
 
 describe("SearchTrigger", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   test("exposes header search affordance with aria-label and data-search", async () => {
     const messages = await loadUiMessages();
     const html = renderSearchTrigger(messages);
@@ -72,5 +78,49 @@ describe("SearchTrigger", () => {
 
     expect(html).not.toContain('data-search=""');
     expect(html).not.toContain('type="button"');
+  });
+
+  test("opens search on click and toggles accent styles while hovered", async () => {
+    const messages = await loadUiMessages();
+    const user = userEvent.setup();
+    let open = false;
+    const SearchDialog: ComponentType<SharedProps> = ({ open: isOpen }) => {
+      open = isOpen;
+      return null;
+    };
+
+    render(
+      <RootProvider search={{ SearchDialog, enabled: true }}>
+        <SearchTrigger messages={messages} />
+      </RootProvider>,
+    );
+
+    const trigger = screen.getByRole("button", {
+      name: messages.search.open,
+    });
+    expect(trigger.getAttribute("style")).toBeNull();
+
+    await user.hover(trigger);
+    expect(trigger.getAttribute("style")).toContain(
+      "background-color: var(--accent)",
+    );
+    expect(trigger.getAttribute("style")).toContain(
+      "border-color: var(--accent)",
+    );
+    expect(trigger.getAttribute("style")).toContain(
+      "color: var(--accent-foreground)",
+    );
+
+    const hotKey = trigger.querySelector("kbd");
+    expect(hotKey?.getAttribute("style")).toContain(
+      "color: var(--accent-foreground)",
+    );
+
+    await user.unhover(trigger);
+    expect(trigger.getAttribute("style")).toBeNull();
+    expect(hotKey?.getAttribute("style")).toBeNull();
+
+    await user.click(trigger);
+    expect(open).toBe(true);
   });
 });
