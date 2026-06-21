@@ -27,7 +27,7 @@
   "releaseDate": "2013-01-01",
   "authors": ["Andrew L. Maas", "Awni Y. Hannun", "Andrew Y. Ng"],
   "sourceId": "citation.rectifier-nonlinearities-improve-neural-network-acoustic-models",
-  "primaryClassificationId": "classification.activation-functions",
+  "primaryClassificationId": "classification.module.activation",
   "relationships": [
     {
       "relationshipType": "variant",

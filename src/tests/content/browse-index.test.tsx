@@ -105,12 +105,12 @@ describe("browse index page render", () => {
 
     expect(html).toContain("Bản đồ đồ thị Hàm kích hoạt");
     expect(html).toContain("Phân loại đã chọn");
-    expect(html).toContain("Cây phân loại");
     expect(html).toContain('href="/docs/modules/relu"');
     expect(html).not.toContain('href="/vi/docs/modules/relu"');
     expect(html).toContain(
       "A simple activation function that keeps positive values and turns negative values into zero.",
     );
+    expect(html).not.toContain(">description<");
   });
 
   it("renders feed-forward timeline state from URL parameters on first load", async () => {

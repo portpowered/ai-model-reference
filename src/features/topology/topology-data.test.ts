@@ -29,16 +29,21 @@ describe("topology data builder", () => {
       ),
     ).toEqual(
       expect.arrayContaining([
-        "classification.activation-functions",
-        "classification.feed-forward-networks",
+        "classification.module.activation",
+        "classification.module.attention",
+        "classification.module.feed-forward",
+        "classification.module.normalization",
+        "classification.module.positional-encoding",
+        "classification.module.tokenization",
+        "classification.module.transformer-block",
       ]),
     );
 
     expect(graph.nodes.map((node) => node.registryId)).toEqual(
       expect.arrayContaining([
-        "classification.activation-functions",
-        "classification.feed-forward-networks",
-        "classification.neural-network-components",
+        "classification.module.activation",
+        "classification.module.feed-forward",
+        "classification.module",
         "concept.activation",
         "module.relu",
         "module.leaky-relu",
@@ -54,7 +59,7 @@ describe("topology data builder", () => {
     ).toMatchObject({
       kind: "record",
       recordKind: "module",
-      primaryClassificationId: "classification.activation-functions",
+      primaryClassificationId: "classification.module.activation",
       canonicalHref: "/docs/modules/relu",
     });
   });
@@ -67,32 +72,32 @@ describe("topology data builder", () => {
       expect.arrayContaining([
         expect.objectContaining({
           kind: "membership",
-          sourceId: "classification.activation-functions",
+          sourceId: "classification.module.activation",
           targetId: "module.relu",
           membershipType: "primary",
         }),
         expect.objectContaining({
           kind: "membership",
-          sourceId: "classification.feed-forward-networks",
-          targetId: "module.standard-ffn",
+          sourceId: "classification.module.feed-forward",
+          targetId: "module.feed-forward-network",
           membershipType: "primary",
         }),
         expect.objectContaining({
           kind: "relationship",
-          sourceId: "module.standard-ffn",
+          sourceId: "module.feed-forward-network",
           targetId: "concept.activation",
           relationshipType: "uses",
         }),
         expect.objectContaining({
-          kind: "relationship",
-          sourceId: "module.swiglu",
-          targetId: "module.silu",
-          relationshipType: "uses",
+          kind: "membership",
+          sourceId: "classification.module.activation",
+          targetId: "module.gelu",
+          membershipType: "primary",
         }),
         expect.objectContaining({
           kind: "relationship",
           sourceId: "module.feed-forward-network",
-          targetId: "classification.neural-network-components",
+          targetId: "classification.module",
           relationshipType: "part-of",
         }),
       ]),
@@ -110,12 +115,12 @@ describe("topology data builder", () => {
   });
 
   test("returns a stable empty result for valid classifications without visible members", () => {
-    expect(buildTopologyGraph(["neural-network-components"])).toMatchObject({
+    expect(buildTopologyGraph(["concept"])).toMatchObject({
       status: "empty",
       reason: "no-members",
       selectedClassifications: [
         expect.objectContaining({
-          classificationId: "classification.neural-network-components",
+          classificationId: "classification.concept",
         }),
       ],
     });

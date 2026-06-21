@@ -200,9 +200,7 @@ describe("TopologyPrototype", () => {
     const messages = await loadUiMessages();
 
     setMockPathname("/topology");
-    setMockSearchParams(
-      new URLSearchParams("classification=neural-network-components"),
-    );
+    setMockSearchParams(new URLSearchParams("classification=concept"));
 
     render(
       <TopologyPrototype
@@ -214,9 +212,7 @@ describe("TopologyPrototype", () => {
     expect(
       screen.getAllByText(messages.topologyPrototype.emptyTitle).length,
     ).toBeGreaterThan(0);
-    expect(
-      screen.getByText("Selected classification: neural-network-components."),
-    ).toBeTruthy();
+    expect(screen.getByText("Selected classification: concept.")).toBeTruthy();
   });
 
   test("renders invalid classification recovery state from the URL", async () => {

@@ -72,10 +72,11 @@ describe("search result meta", () => {
     );
     expect(meta?.description.length).toBeGreaterThan(0);
     expect(meta?.topology.primaryClassificationId).toBe(
-      "classification.attention-mechanisms",
+      "classification.module.attention.grouped-query",
     );
     expect(meta?.topology.ancestorClassificationIds).toEqual([
-      "classification.neural-network-components",
+      "classification.module.attention",
+      "classification.module",
     ]);
   });
 

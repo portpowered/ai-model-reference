@@ -260,6 +260,18 @@ function buildGeneratedSource(
       );
     }
 
+    if (directory.directory === "classifications") {
+      mapLines.push(
+        `const ${directory.mapConst} = new Map<string, ${directory.recordType}>(`,
+        `  ${directory.recordsConst}.flatMap((record) => [`,
+        "    [record.id, record] as const,",
+        "    ...((record.legacyIds ?? []).map((legacyId) => [legacyId, record] as const)),",
+        "  ]),",
+        ");",
+      );
+      continue;
+    }
+
     mapLines.push(
       `const ${directory.mapConst} = new Map<string, ${directory.recordType}>(`,
       `  ${directory.recordsConst}.map((record) => [record.id, record]),`,
@@ -309,6 +321,21 @@ ${importLines.join("\n")}
 
 ${arrayLines.join("\n")}
 ${mapLines.join("\n")}
+const classificationChildrenByParentId = new Map<string, ClassificationRecord[]>();
+
+for (const record of classificationRecords) {
+  if (!record.parentClassificationId) {
+    continue;
+  }
+
+  const existingChildren =
+    classificationChildrenByParentId.get(record.parentClassificationId) ?? [];
+  existingChildren.push(record);
+  classificationChildrenByParentId.set(
+    record.parentClassificationId,
+    existingChildren,
+  );
+}
 
 type TaggedRegistryRecord =
   | ModuleRecord
@@ -348,6 +375,11 @@ export type ResolvedOntologyRelationship = {
   relationshipType: OntologyRelationshipType;
   targetId: string;
   target: RuntimeRegistryRecord | undefined;
+};
+
+export type LegacyClassificationBridge = {
+  legacyId: string;
+  canonicalId: string;
 };
 
 type OntologyParticipantKind = OntologyParticipatingRegistryRecord["kind"];
@@ -522,7 +554,12 @@ function listDirectClassificationMembers(
   classificationId: string,
   options: ClassificationMemberQueryOptions = {},
 ): ClassificationMember[] {
-  const classification = classificationsById.get(classificationId);
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
+    return [];
+  }
+
+  const classification = classificationsById.get(resolvedClassificationId);
   if (!classification) {
     return [];
   }
@@ -534,9 +571,13 @@ function listDirectClassificationMembers(
       continue;
     }
 
-    if (record.primaryClassificationId === classificationId) {
+    if (
+      record.primaryClassificationId &&
+      resolveClassificationId(record.primaryClassificationId) ===
+        resolvedClassificationId
+    ) {
       members.push({
-        classificationId,
+        classificationId: resolvedClassificationId,
         classification,
         isInherited: false,
         membershipType: "primary",
@@ -546,10 +587,14 @@ function listDirectClassificationMembers(
 
     if (
       options.includeSecondary &&
-      record.secondaryClassificationIds?.includes(classificationId)
+      record.secondaryClassificationIds?.some(
+        (secondaryClassificationId) =>
+          resolveClassificationId(secondaryClassificationId) ===
+          resolvedClassificationId,
+      )
     ) {
       members.push({
-        classificationId,
+        classificationId: resolvedClassificationId,
         classification,
         isInherited: false,
         membershipType: "secondary",
@@ -620,6 +665,42 @@ export function getClassificationById(
   registryId: string,
 ): ClassificationRecord | undefined {
   return classificationsById.get(registryId);
+}
+
+export function getParentClassificationById(
+  registryId: string,
+): ClassificationRecord | undefined {
+  const classification = getClassificationById(registryId);
+  if (!classification?.parentClassificationId) {
+    return undefined;
+  }
+  return classificationsById.get(classification.parentClassificationId);
+}
+
+export function listChildClassifications(
+  classificationId: string,
+): ClassificationRecord[] {
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
+    return [];
+  }
+
+  return classificationChildrenByParentId.get(resolvedClassificationId) ?? [];
+}
+
+export function resolveClassificationId(
+  registryId: string,
+): string | undefined {
+  return classificationsById.get(registryId)?.id;
+}
+
+export function listLegacyClassificationBridges(): LegacyClassificationBridge[] {
+  return classificationRecords.flatMap((record) =>
+    (record.legacyIds ?? []).map((legacyId) => ({
+      legacyId,
+      canonicalId: record.id,
+    })),
+  );
 }
 
 export function getPaperById(registryId: string): PaperRecord | undefined {
@@ -915,24 +996,34 @@ export function listClassificationMembers(
   classificationId: string,
   options: ClassificationMemberQueryOptions = {},
 ): ClassificationMember[] {
-  if (!classificationsById.has(classificationId)) {
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
     return [];
   }
 
-  const directMembers = listDirectClassificationMembers(classificationId, options);
+  const directMembers = listDirectClassificationMembers(
+    resolvedClassificationId,
+    options,
+  );
   if (!options.includeDescendants) {
     return directMembers;
   }
 
-  const inheritedMembers = listClassificationDescendants(classificationId, {
-  }).flatMap((classification) =>
-    listDirectClassificationMembers(classification.id, options).map((member) => ({
-      ...member,
-      isInherited: true,
-    })),
+  const inheritedMembers = listClassificationDescendants(
+    resolvedClassificationId,
+    {},
+  ).flatMap((classification) =>
+    listDirectClassificationMembers(classification.id, options).map(
+      (member) => ({
+        ...member,
+        isInherited: true,
+      }),
+    ),
   );
 
-  return [...directMembers, ...inheritedMembers].sort(compareClassificationMembers);
+  return [...directMembers, ...inheritedMembers].sort(
+    compareClassificationMembers,
+  );
 }
 
 function buildClassificationTreeNode(

@@ -36,18 +36,20 @@ type OntologySeedRecord =
   | TrainingRegimeRecord;
 
 const seededPrimaryClassifications = new Map([
-  ["concept.activation", "classification.activation-functions"],
-  ["module.relu", "classification.activation-functions"],
-  ["module.attention", "classification.attention-mechanisms"],
-  ["module.feed-forward-network", "classification.feed-forward-networks"],
-  ["module.mixture-of-experts", "classification.feed-forward-networks"],
-  ["module.layer-norm", "classification.normalization-layers"],
-  ["module.rope", "classification.position-encoding-methods"],
-  ["module.bpe", "classification.tokenization-methods"],
+  ["concept.activation", "classification.concept.architecture.activation"],
+  ["module.relu", "classification.module.activation"],
+  ["module.attention", "classification.module.attention"],
+  ["module.feed-forward-network", "classification.module.feed-forward"],
+  ["module.mixture-of-experts", "classification.module.feed-forward"],
+  ["module.layer-norm", "classification.module.normalization"],
+  ["module.rope", "classification.module.positional-encoding"],
+  ["module.bpe", "classification.module.tokenization"],
   [
     "module.manifold-constrained-hyper-connections",
-    "classification.transformer-block-structures",
+    "classification.module.transformer-block",
   ],
+  ["training-regime.dpo", "classification.training.alignment"],
+  ["system.routing", "classification.system.routing"],
 ]);
 
 const seededPublishedRoutes = new Map([
@@ -136,7 +138,7 @@ describe("ontology foundation regression coverage", () => {
             error.code === "parse-error" &&
             error.path?.includes("modules/sigmoid.json") &&
             error.message.includes(
-              "primaryClassificationId is required when a record opts into ontology membership or relationships",
+              'record "module.sigmoid" requires primaryClassificationId under the ontology-first taxonomy contract',
             ),
         ),
       ).toBe(true);
@@ -155,8 +157,8 @@ describe("ontology foundation regression coverage", () => {
           ...record,
           secondaryClassificationIds: [
             "classification.activation-functions",
-            "classification.feed-forward-networks",
-            "classification.feed-forward-networks",
+            "classification.module.feed-forward",
+            "classification.module.feed-forward",
           ],
         }),
       );
@@ -210,22 +212,103 @@ describe("ontology foundation regression coverage", () => {
     }
   });
 
+  test("validation fails when a migrated concept record drops its required primary classification", async () => {
+    const { registryRoot, tempRoot } = await createTempRegistryRoot();
+    try {
+      await updateTempRegistryRecord(
+        registryRoot,
+        "concepts/activation.json",
+        (record) => {
+          const { primaryClassificationId: _ignored, ...rest } = record;
+          return rest;
+        },
+      );
+
+      const errors = await validateRegistryContent({ registryRoot });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "parse-error" &&
+            error.path?.includes("concepts/activation.json") &&
+            error.message.includes(
+              'record "concept.activation" requires primaryClassificationId under the ontology-first taxonomy contract',
+            ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("validation fails when a module classification conflicts with the legacy taxonomy field bridge", async () => {
+    const { registryRoot, tempRoot } = await createTempRegistryRoot();
+    try {
+      await updateTempRegistryRecord(
+        registryRoot,
+        "modules/relu.json",
+        (record) => ({
+          ...record,
+          primaryClassificationId: "classification.module.feed-forward",
+        }),
+      );
+
+      const errors = await validateRegistryContent({ registryRoot });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "parse-error" &&
+            error.path?.includes("modules/relu.json") &&
+            error.message.includes(
+              'primaryClassificationId "classification.module.feed-forward" conflicts with legacy taxonomy field moduleType="activation"; expected "feed-forward"',
+            ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("validation fails when a secondary classification points at the wrong ontology kind", async () => {
+    const { registryRoot, tempRoot } = await createTempRegistryRoot();
+    try {
+      await updateTempRegistryRecord(
+        registryRoot,
+        "modules/grouped-query-attention.json",
+        (record) => ({
+          ...record,
+          secondaryClassificationIds: ["classification.concept.architecture"],
+        }),
+      );
+
+      const errors = await validateRegistryContent({ registryRoot });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "parse-error" &&
+            error.path?.includes("modules/grouped-query-attention.json") &&
+            error.message.includes(
+              'secondaryClassificationIds entry "classification.concept.architecture" cannot classify module records',
+            ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   test("loader validates seeded classification membership and typed relationship targets", async () => {
     const indexes = await loadRegistry();
     const activationClassification = indexes.classificationsById.get(
-      "classification.activation-functions",
+      "classification.module.activation",
     );
     const feedForwardClassification = indexes.classificationsById.get(
-      "classification.feed-forward-networks",
+      "classification.module.feed-forward",
     );
 
     expect(activationClassification?.classificationType).toBe("family");
-    expect(activationClassification?.classifiesKinds).toEqual(
-      expect.arrayContaining(["concept", "module"]),
-    );
-    expect(activationClassification?.classifiesKinds).toHaveLength(2);
+    expect(activationClassification?.classifiesKinds).toEqual(["module"]);
     expect(feedForwardClassification?.parentClassificationId).toBe(
-      "classification.neural-network-components",
+      "classification.module",
     );
     expect(
       indexes.classificationsById.get(
@@ -233,27 +316,38 @@ describe("ontology foundation regression coverage", () => {
       )?.classificationType,
     ).toBe("domain");
     expect(
-      indexes.classificationsById.get("classification.attention-mechanisms")
+      indexes.classificationsById.get("classification.module.attention")
         ?.classificationType,
     ).toBe("family");
     expect(
-      indexes.classificationsById.get("classification.normalization-layers")
-        ?.classificationType,
-    ).toBe("family");
-    expect(
-      indexes.classificationsById.get(
-        "classification.position-encoding-methods",
-      )?.classificationType,
-    ).toBe("family");
-    expect(
-      indexes.classificationsById.get("classification.tokenization-methods")
+      indexes.classificationsById.get("classification.module.normalization")
         ?.classificationType,
     ).toBe("family");
     expect(
       indexes.classificationsById.get(
-        "classification.transformer-block-structures",
+        "classification.module.positional-encoding",
       )?.classificationType,
+    ).toBe("family");
+    expect(
+      indexes.classificationsById.get("classification.module.tokenization")
+        ?.classificationType,
+    ).toBe("family");
+    expect(
+      indexes.classificationsById.get("classification.module.transformer-block")
+        ?.classificationType,
     ).toBe("topology");
+    expect(
+      indexes.classificationsById.get("classification.concept.architecture")
+        ?.parentClassificationId,
+    ).toBe("classification.concept");
+    expect(
+      indexes.classificationsById.get("classification.training.alignment")
+        ?.parentClassificationId,
+    ).toBe("classification.training");
+    expect(
+      indexes.classificationsById.get("classification.system.routing")
+        ?.parentClassificationId,
+    ).toBe("classification.system");
 
     for (const [
       registryId,
@@ -288,36 +382,40 @@ describe("ontology foundation regression coverage", () => {
 
   test("runtime helpers query the activation and feed-forward seed slice by classification and relationship type", () => {
     expect(getPrimaryClassificationForRecord("module.relu")?.id).toBe(
-      "classification.activation-functions",
+      "classification.module.activation",
     );
     expect(getPrimaryClassificationForRecord("module.attention")?.id).toBe(
-      "classification.attention-mechanisms",
+      "classification.module.attention",
     );
     expect(getPrimaryClassificationForRecord("module.swiglu")?.id).toBe(
-      "classification.feed-forward-networks",
+      "classification.module.feed-forward",
     );
     expect(getPrimaryClassificationForRecord("module.layer-norm")?.id).toBe(
-      "classification.normalization-layers",
+      "classification.module.normalization",
     );
     expect(getPrimaryClassificationForRecord("module.rope")?.id).toBe(
-      "classification.position-encoding-methods",
+      "classification.module.positional-encoding",
     );
     expect(getPrimaryClassificationForRecord("module.bpe")?.id).toBe(
-      "classification.tokenization-methods",
+      "classification.module.tokenization",
+    );
+    expect(getPrimaryClassificationForRecord("concept.activation")?.id).toBe(
+      "classification.concept.architecture.activation",
+    );
+    expect(getPrimaryClassificationForRecord("training-regime.dpo")?.id).toBe(
+      "classification.training.alignment",
+    );
+    expect(getPrimaryClassificationForRecord("system.routing")?.id).toBe(
+      "classification.system.routing",
     );
 
     expect(
-      listClassificationMembers("classification.activation-functions").map(
+      listClassificationMembers("classification.module.activation").map(
         (member) => `${member.membershipType}:${member.record.id}`,
       ),
-    ).toEqual(
-      expect.arrayContaining([
-        "primary:concept.activation",
-        "primary:module.relu",
-      ]),
-    );
+    ).toEqual(expect.arrayContaining(["primary:module.relu"]));
     expect(
-      listClassificationMembers("classification.feed-forward-networks").map(
+      listClassificationMembers("classification.module.feed-forward").map(
         (member) => `${member.membershipType}:${member.record.id}`,
       ),
     ).toEqual(
@@ -330,18 +428,27 @@ describe("ontology foundation regression coverage", () => {
       ]),
     );
     expect(
-      listClassificationMembers("classification.attention-mechanisms").map(
+      listClassificationMembers("classification.module.attention").map(
         (member) => `${member.membershipType}:${member.record.id}`,
       ),
     ).toEqual(
       expect.arrayContaining([
         "primary:module.attention",
         "primary:module.causal-attention",
-        "primary:module.grouped-query-attention",
       ]),
     );
     expect(
-      listClassificationMembers("classification.normalization-layers").map(
+      listClassificationMembers("classification.module.attention", {
+        includeSecondary: true,
+      }).map((member) => `${member.membershipType}:${member.record.id}`),
+    ).toEqual(
+      expect.arrayContaining([
+        "secondary:module.multi-head-attention",
+        "secondary:module.grouped-query-attention",
+      ]),
+    );
+    expect(
+      listClassificationMembers("classification.module.normalization").map(
         (member) => `${member.membershipType}:${member.record.id}`,
       ),
     ).toEqual(
@@ -351,14 +458,14 @@ describe("ontology foundation regression coverage", () => {
       ]),
     );
     expect(
-      listClassificationMembers("classification.position-encoding-methods").map(
-        (member) => `${member.membershipType}:${member.record.id}`,
-      ),
+      listClassificationMembers(
+        "classification.module.positional-encoding",
+      ).map((member) => `${member.membershipType}:${member.record.id}`),
     ).toEqual(
       expect.arrayContaining(["primary:module.rope", "primary:module.alibi"]),
     );
     expect(
-      listClassificationMembers("classification.tokenization-methods").map(
+      listClassificationMembers("classification.module.tokenization").map(
         (member) => `${member.membershipType}:${member.record.id}`,
       ),
     ).toEqual(
@@ -368,10 +475,25 @@ describe("ontology foundation regression coverage", () => {
       ]),
     );
     expect(
-      listClassificationMembers(
-        "classification.transformer-block-structures",
-      ).map((member) => `${member.membershipType}:${member.record.id}`),
+      listClassificationMembers("classification.module.transformer-block").map(
+        (member) => `${member.membershipType}:${member.record.id}`,
+      ),
     ).toEqual(["primary:module.manifold-constrained-hyper-connections"]);
+    expect(
+      listClassificationMembers(
+        "classification.concept.architecture.activation",
+      ).map((member) => `${member.membershipType}:${member.record.id}`),
+    ).toEqual(["primary:concept.activation"]);
+    expect(
+      listClassificationMembers("classification.training.alignment").map(
+        (member) => `${member.membershipType}:${member.record.id}`,
+      ),
+    ).toEqual(["primary:training-regime.dpo"]);
+    expect(
+      listClassificationMembers("classification.system.routing").map(
+        (member) => `${member.membershipType}:${member.record.id}`,
+      ),
+    ).toEqual(["primary:system.routing"]);
 
     const swiglu = getRegistryRecordById("module.swiglu");
     expectSeedRecord(swiglu, "module.swiglu");
@@ -411,7 +533,7 @@ describe("ontology foundation regression coverage", () => {
         "module.feed-forward-network",
         "part-of",
       ).map((relationship) => relationship.target?.id),
-    ).toEqual(["classification.neural-network-components"]);
+    ).toEqual(["classification.module"]);
   });
 
   test("every published module now participates in a supported ontology classification", async () => {

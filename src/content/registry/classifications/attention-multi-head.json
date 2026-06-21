@@ -1,0 +1,17 @@
+{
+  "id": "classification.module.attention.multi-head",
+  "slug": "attention-multi-head",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["multi-head attention", "MHA"],
+  "tags": ["attention", "foundations"],
+  "relatedIds": ["module.multi-head-attention"],
+  "citationIds": ["citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "mechanism",
+  "classifiesKinds": ["module"],
+  "parentClassificationId": "classification.module.attention"
+}

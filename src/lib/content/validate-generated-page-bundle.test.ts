@@ -71,6 +71,9 @@ async function createTemplateFixtureRoot(): Promise<string> {
 
 async function prepareContentRoots(tempRoot: string): Promise<string> {
   const contentRoot = join(tempRoot, "src", "content");
+  await mkdir(join(contentRoot, "registry", "classifications"), {
+    recursive: true,
+  });
   await mkdir(join(contentRoot, "registry", "concepts"), { recursive: true });
   await mkdir(join(contentRoot, "registry", "modules"), { recursive: true });
   await mkdir(join(contentRoot, "registry", "models"), { recursive: true });
@@ -88,6 +91,54 @@ async function prepareContentRoots(tempRoot: string): Promise<string> {
   await mkdir(join(contentRoot, "docs", "papers"), { recursive: true });
   await mkdir(join(contentRoot, "docs", "training"), { recursive: true });
   return contentRoot;
+}
+
+async function writeClassificationFixtures(contentRoot: string): Promise<void> {
+  await writeFile(
+    join(contentRoot, "registry", "classifications", "module.json"),
+    JSON.stringify({
+      id: "classification.module",
+      slug: "module",
+      kind: "classification",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-02T00:00:00.000Z",
+      classificationType: "domain",
+      classifiesKinds: ["module"],
+    }),
+  );
+  await writeFile(
+    join(
+      contentRoot,
+      "registry",
+      "classifications",
+      "attention-mechanisms.json",
+    ),
+    JSON.stringify({
+      id: "classification.module.attention",
+      slug: "attention-mechanisms",
+      kind: "classification",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: ["attention family"],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-02T00:00:00.000Z",
+      classificationType: "family",
+      classifiesKinds: ["module"],
+      parentClassificationId: "classification.module",
+      legacyIds: ["classification.attention-mechanisms"],
+    }),
+  );
 }
 
 async function writeTagFixture(contentRoot: string): Promise<void> {
@@ -146,6 +197,7 @@ async function writeModuleFixture(
       releaseDate: "2024-01-01",
       authors: ["A. Author"],
       sourceId: "citation.generated-module-ref",
+      primaryClassificationId: "classification.module.attention",
       moduleType: "attention",
       optimizes: [],
       exampleModelIds: [],
@@ -430,6 +482,7 @@ describe("validateGeneratedPageBundle", () => {
 
     try {
       await writeTagFixture(contentRoot);
+      await writeClassificationFixtures(contentRoot);
       await writeCitationFixture(contentRoot);
       await writeModuleFixture(contentRoot, {
         slug: "multi-head-attention",
@@ -614,6 +667,7 @@ describe("validateGeneratedPageBundle", () => {
 
     try {
       await writeTagFixture(contentRoot);
+      await writeClassificationFixtures(contentRoot);
 
       for (const testCase of cases) {
         await generatePageBundle({

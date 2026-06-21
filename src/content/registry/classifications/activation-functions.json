@@ -1,5 +1,5 @@
 {
-  "id": "classification.activation-functions",
+  "id": "classification.module.activation",
   "slug": "activation-functions",
   "kind": "classification",
   "defaultTitleKey": "title",
@@ -8,10 +8,11 @@
     "activation function",
     "activation family",
     "GELU",
-    "Gaussian error linear unit"
+    "Gaussian error linear unit",
+    "activation-functions"
   ],
   "tags": ["activation", "foundations"],
-  "relatedIds": ["concept.activation"],
+  "relatedIds": ["module.relu", "module.silu"],
   "citationIds": [
     "citation.goodfellow-deep-learning",
     "citation.rectified-linear-units-improve-restricted-boltzmann-machines",
@@ -21,6 +22,7 @@
   "createdAt": "2026-06-20T00:00:00.000Z",
   "updatedAt": "2026-06-20T00:00:00.000Z",
   "classificationType": "family",
-  "classifiesKinds": ["concept", "module"],
-  "parentClassificationId": "classification.neural-network-components"
+  "classifiesKinds": ["module"],
+  "parentClassificationId": "classification.module",
+  "legacyIds": ["classification.activation-functions"]
 }

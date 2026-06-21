@@ -1,10 +1,15 @@
 {
-  "id": "classification.attention-mechanisms",
+  "id": "classification.module.attention",
   "slug": "attention-mechanisms",
   "kind": "classification",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["attention", "attention mechanism", "attention family"],
+  "aliases": [
+    "attention",
+    "attention mechanism",
+    "attention family",
+    "attention-mechanisms"
+  ],
   "tags": ["attention", "foundations"],
   "relatedIds": ["module.attention", "module.multi-head-attention"],
   "citationIds": ["citation.attention-is-all-you-need"],
@@ -13,5 +18,6 @@
   "updatedAt": "2026-06-21T00:00:00.000Z",
   "classificationType": "family",
   "classifiesKinds": ["module"],
-  "parentClassificationId": "classification.neural-network-components"
+  "parentClassificationId": "classification.module",
+  "legacyIds": ["classification.attention-mechanisms"]
 }

@@ -22,11 +22,11 @@
   "releaseDate": "1989-03-01",
   "authors": ["Kurt Hornik", "Maxwell Stinchcombe", "Halbert White"],
   "sourceId": "citation.multilayer-feedforward-networks-are-universal-approximators",
-  "primaryClassificationId": "classification.feed-forward-networks",
+  "primaryClassificationId": "classification.module.feed-forward",
   "relationships": [
     {
       "relationshipType": "part-of",
-      "targetId": "classification.neural-network-components"
+      "targetId": "classification.module"
     },
     {
       "relationshipType": "uses",

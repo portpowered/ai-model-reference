@@ -7,6 +7,16 @@ async function renderTimeline() {
   return renderToStaticMarkup(await renderTimelinePage("en"));
 }
 
+const timelineClassificationSlugs = [
+  "activation-functions",
+  "attention-mechanisms",
+  "feed-forward-networks",
+  "normalization-layers",
+  "position-encoding-methods",
+  "tokenization-methods",
+  "transformer-block-structures",
+] as const;
+
 function extractChipEventCount(
   html: string,
   classificationSlug: string,
@@ -41,6 +51,15 @@ describe("OntologyTimelinePage", () => {
     const feedForwardTimeline = loadOntologyTimelineData(
       "feed-forward-networks",
     );
+    const classificationCounts = new Map(
+      timelineClassificationSlugs.map((slug) => {
+        const timeline = loadOntologyTimelineData(slug);
+        return [
+          slug,
+          timeline.status === "success" ? timeline.items.length : undefined,
+        ];
+      }),
+    );
 
     expect(activationTimeline.status).toBe("success");
     expect(feedForwardTimeline.status).toBe("success");
@@ -73,14 +92,24 @@ describe("OntologyTimelinePage", () => {
     expect(extractChipEventCount(html, "activation-functions")).toBe(
       activationTimeline.items.length,
     );
-    expect(extractChipEventCount(html, "attention-mechanisms")).toBe(14);
+    expect(extractChipEventCount(html, "attention-mechanisms")).toBe(
+      classificationCounts.get("attention-mechanisms"),
+    );
     expect(extractChipEventCount(html, "feed-forward-networks")).toBe(
       feedForwardTimeline.items.length,
     );
-    expect(extractChipEventCount(html, "normalization-layers")).toBe(5);
-    expect(extractChipEventCount(html, "position-encoding-methods")).toBe(13);
-    expect(extractChipEventCount(html, "tokenization-methods")).toBe(5);
-    expect(extractChipEventCount(html, "transformer-block-structures")).toBe(1);
+    expect(extractChipEventCount(html, "normalization-layers")).toBe(
+      classificationCounts.get("normalization-layers"),
+    );
+    expect(extractChipEventCount(html, "position-encoding-methods")).toBe(
+      classificationCounts.get("position-encoding-methods"),
+    );
+    expect(extractChipEventCount(html, "tokenization-methods")).toBe(
+      classificationCounts.get("tokenization-methods"),
+    );
+    expect(extractChipEventCount(html, "transformer-block-structures")).toBe(
+      classificationCounts.get("transformer-block-structures"),
+    );
     expect(activationTimeline.items.map((item) => item.registryId)).toEqual([
       "module.tanh",
       "module.sigmoid",

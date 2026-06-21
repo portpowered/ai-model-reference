@@ -61,12 +61,20 @@ describe("OntologyTimelineClientPage", () => {
       expect(feedForwardChip?.getAttribute("aria-current")).toBe("page");
     });
 
-    expect(screen.getByRole("link", { name: /attention/i })).toBeTruthy();
-    expect(screen.getByRole("link", { name: /normalization/i })).toBeTruthy();
-    expect(
-      screen.getByRole("link", { name: /position encoding/i }),
-    ).toBeTruthy();
-    expect(screen.getByRole("link", { name: /tokenization/i })).toBeTruthy();
+    const nearbyClassificationHrefs = [
+      "/docs/timeline?classification=attention-mechanisms",
+      "/docs/timeline?classification=normalization-layers",
+      "/docs/timeline?classification=position-encoding-methods",
+      "/docs/timeline?classification=tokenization-methods",
+    ];
+
+    for (const href of nearbyClassificationHrefs) {
+      expect(
+        screen
+          .getAllByRole("link")
+          .some((element) => element.getAttribute("href") === href),
+      ).toBe(true);
+    }
   });
 
   test("hydrates an invalid classification into the recoverable empty state", async () => {

@@ -20,6 +20,7 @@ import {
   deriveDefaultSummaryKey,
   deriveDefaultTitleKey,
   derivePageFrontmatter,
+  type ModulePageSpec,
   type PageSpec,
   type PageSpecKind,
   type PageSpecWarning,
@@ -128,6 +129,17 @@ export class GeneratePageBundleError extends Error {
     this.name = "GeneratePageBundleError";
   }
 }
+
+const defaultModulePrimaryClassificationByType: Partial<
+  Record<NonNullable<ModulePageSpec["moduleType"]>, string>
+> = {
+  attention: "classification.module.attention",
+  normalization: "classification.module.normalization",
+  "feed-forward": "classification.module.feed-forward",
+  activation: "classification.module.activation",
+  "position-encoding": "classification.module.positional-encoding",
+  tokenizer: "classification.module.tokenization",
+};
 
 function isoDateUtc(): string {
   return new Date().toISOString().slice(0, 10);
@@ -426,12 +438,24 @@ function buildRegistryRecord(
         prerequisiteIds: spec.prerequisiteIds,
         explainsIds: spec.explainsIds,
       };
-    case "module":
+    case "module": {
+      const primaryClassificationId =
+        spec.primaryClassificationId ??
+        (spec.moduleType
+          ? defaultModulePrimaryClassificationByType[spec.moduleType]
+          : undefined);
+      if (!primaryClassificationId) {
+        throw new GeneratePageBundleError(
+          `Module page specs with moduleType "${spec.moduleType}" must declare primaryClassificationId until the ontology mapping is defined for that module type.`,
+        );
+      }
+
       return {
         ...base,
         ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
         ...(spec.authors ? { authors: spec.authors } : {}),
         ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
+        primaryClassificationId,
         mathLevel: spec.mathLevel,
         optimizes: spec.optimizes,
         exampleModelIds: spec.exampleModelIds,
@@ -444,6 +468,7 @@ function buildRegistryRecord(
         ...(spec.variantGroup ? { variantGroup: spec.variantGroup } : {}),
         ...(spec.variantOf ? { variantOf: spec.variantOf } : {}),
       };
+    }
     case "model":
       return {
         ...base,
