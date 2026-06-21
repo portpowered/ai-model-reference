@@ -280,13 +280,14 @@ describe("registry-runtime", () => {
     ]);
   });
 
-<<<<<<< HEAD
   test("getRegistryCitationIds returns citations for causal attention", () => {
     expect(getRegistryCitationIds("module.causal-attention")).toEqual([
-=======
+      "citation.attention-is-all-you-need",
+    ]);
+  });
+
   test("getRegistryCitationIds returns citations for cross-attention", () => {
     expect(getRegistryCitationIds("module.cross-attention")).toEqual([
->>>>>>> 3bc1d31f (feat: [cross-attention-module-page-001] - [Register cross-attention as a first-class attention module])
       "citation.attention-is-all-you-need",
     ]);
   });
