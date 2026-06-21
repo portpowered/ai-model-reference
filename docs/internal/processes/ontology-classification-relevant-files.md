@@ -15,8 +15,11 @@ the temporary legacy-id bridge.
   Generated runtime source contract for canonical lookup, legacy-id
   canonicalization, parent-child traversal, and `listLegacyClassificationBridges`.
 * `src/lib/search/build-documents.ts`
-  Search-term expansion that keeps canonical and legacy classification terms
-  discoverable during migration.
+  Search facet assembly, including ontology-first topology promotion into the
+  indexed document contract.
+* `src/lib/search/legacy-taxonomy-compat.ts`
+  Explicit compatibility adapter for search surfaces that still emit legacy
+  typed-taxonomy facets while downstream filters migrate.
 
 ## Reviewer-facing verification
 

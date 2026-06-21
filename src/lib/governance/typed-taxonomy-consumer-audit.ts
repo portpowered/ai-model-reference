@@ -112,18 +112,31 @@ export const typedTaxonomyConsumerAuditContract: readonly TypedTaxonomyConsumerC
   [
     {
       id: "search-document-facet-compatibility",
-      path: "src/lib/search/build-documents.ts",
+      path: "src/lib/search/legacy-taxonomy-compat.ts",
       cluster: "search",
-      status: "unresolved-migration-target",
+      status: "approved-compatibility-bridge",
       owner: "search/discovery",
       fields: ["moduleType", "conceptType", "variantGroup"],
       evidence: [
-        "facets.moduleType = registryRecord.moduleType;",
-        "facets.legacyConceptType = registryRecord.conceptType;",
-        "facets.legacyVariantGroup = registryRecord.variantGroup;",
+        "deriveModuleTypeFromTopology(topology) ?? registryRecord.moduleType",
+        "legacyConceptType: registryRecord.conceptType,",
+        "legacyVariantGroup: registryRecord.variantGroup,",
       ],
       rationale:
-        "Search still derives legacy module and concept facets directly from registry typed taxonomy fields instead of routing them through an explicit compatibility adapter.",
+        "Search now routes legacy module, concept, and variant facets through an explicit compatibility adapter while downstream filters still depend on those fields.",
+    },
+    {
+      id: "search-document-ontology-first-facet-builder",
+      path: "src/lib/search/build-documents.ts",
+      cluster: "search",
+      status: "migrated-ontology-first-consumer",
+      owner: "search/discovery",
+      fields: [],
+      evidence: [
+        "resolveLegacySearchTaxonomyCompatibility(registryRecord, topology)",
+      ],
+      rationale:
+        "Search facet building now derives module taxonomy from ontology topology first and delegates any remaining legacy facet emission to the named compatibility adapter.",
     },
     {
       id: "search-document-public-facet-shape",
