@@ -150,6 +150,25 @@ export function resolveGraphNodeLabel(
   return labelKey;
 }
 
+function hasMeaningfulSemanticTitle(text: string | undefined): text is string {
+  if (!text) {
+    return false;
+  }
+
+  return /[\p{L}\p{N}]/u.test(text);
+}
+
+function normalizeSemanticTitleCandidate(
+  text: string | undefined,
+): string | undefined {
+  if (!text) {
+    return undefined;
+  }
+
+  const normalized = text.trim();
+  return hasMeaningfulSemanticTitle(normalized) ? normalized : undefined;
+}
+
 function getNodeSizeEstimateConfig(
   visualRole: RegistryFlowNodeVisualRole,
 ): NodeSizeEstimateConfig | null {
@@ -394,11 +413,14 @@ function resolveGraphNodeSemanticData(
       ? "registry"
       : "none";
   const resolvedTitle =
-    graphLabel.trim().length > 0
-      ? graphLabel
-      : registryTitle === registryRecord?.defaultTitleKey
-        ? graphLabel
-        : (registryTitle ?? graphLabel);
+    normalizeSemanticTitleCandidate(graphLabel) ??
+    (registryTitle === registryRecord?.defaultTitleKey
+      ? undefined
+      : normalizeSemanticTitleCandidate(registryTitle)) ??
+    normalizeSemanticTitleCandidate(graphLocalSummary) ??
+    normalizeSemanticTitleCandidate(registryResolvedSummary) ??
+    (graphLabel.trim() || undefined) ??
+    node.id;
   const hasCanonicalPage = Boolean(
     node.registryId &&
       registryRecord &&
@@ -410,8 +432,11 @@ function resolveGraphNodeSemanticData(
       : null;
   const relatedPage = resolveGraphNodeRelatedPage(node);
   const interactionKind = hasCanonicalPage
-    ? "canonical"
-    : summarySource === "graph-local"
+    ? hasMeaningfulSemanticTitle(resolvedTitle)
+      ? "canonical"
+      : "none"
+    : summarySource === "graph-local" &&
+        hasMeaningfulSemanticTitle(resolvedTitle)
       ? "graph-local"
       : "none";
 

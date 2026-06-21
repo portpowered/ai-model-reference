@@ -214,6 +214,10 @@ describe("graph-flow", () => {
     const maskedMhaNode = nodes.find((node) => node.id === "masked-mha");
     const feedForwardNode = nodes.find((node) => node.id === "feed-forward");
     const decoderStackNode = nodes.find((node) => node.id === "decoder-stack");
+    const attentionSublayerNode = nodes.find(
+      (node) => node.id === "attention-sublayer",
+    );
+    const positionAddNode = nodes.find((node) => node.id === "position-add");
     const softmaxDependencyEdge = edges.find(
       (edge) => edge.id === "linear-to-softmax",
     );
@@ -238,6 +242,15 @@ describe("graph-flow", () => {
     expect(decoderStackNode?.data.semantic).toMatchObject({
       registryId: "concept.transformer-architecture",
       resolvedTitle: "Transformer architecture",
+    });
+    expect(attentionSublayerNode?.data.semantic).toMatchObject({
+      resolvedTitle: "Attention sublayer container",
+      interactionKind: "graph-local",
+    });
+    expect(positionAddNode?.data.semantic).toMatchObject({
+      registryId: "concept.embedding",
+      resolvedTitle: "Embedding",
+      interactionKind: "canonical",
     });
     expect(softmaxDependencyEdge?.data?.semantic).toMatchObject({
       edgeFamily: "depends-on",
@@ -440,6 +453,80 @@ describe("graph-flow", () => {
       hasCanonicalPage: false,
       summarySource: "none",
       interactionKind: "none",
+    });
+  });
+
+  test("uses graph-local summaries as semantic titles when labels are blank or symbol-only", () => {
+    const graph = {
+      id: "graph.graph-local-semantic-title-fixture",
+      slug: "graph-local-semantic-title-fixture",
+      kind: "graph",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-21T00:00:00.000Z",
+      updatedAt: "2026-06-21T00:00:00.000Z",
+      subjectId: "concept.feed-forward-network",
+      graphType: "concept-map",
+      rootNodeId: "blank-label-node",
+      layout: "vertical-expandable",
+      defaultExpandedDepth: 1,
+      supportedRenderers: ["react-flow"],
+      nodes: [
+        {
+          id: "blank-label-node",
+          labelKey: "graph.nodes.blankLabelNode.label",
+          summaryKey: "graph.nodes.blankLabelNode.summary",
+          moduleKind: "operation",
+          childNodeIds: [],
+          visualRole: "process-node",
+        },
+        {
+          id: "symbol-label-node",
+          labelKey: "graph.nodes.symbolLabelNode.label",
+          summaryKey: "graph.nodes.symbolLabelNode.summary",
+          moduleKind: "operation",
+          childNodeIds: [],
+          visualRole: "operator-circle",
+        },
+      ],
+      edges: [],
+    } satisfies Parameters<typeof buildRegistryFlowGraph>[0];
+
+    const pageMessages = {
+      title: "Fixture",
+      description: "Fixture",
+      graph: {
+        nodes: {
+          blankLabelNode: {
+            label: " ",
+            summary: "Repeated decoder block container",
+          },
+          symbolLabelNode: {
+            label: "+",
+            summary: "Residual addition step",
+          },
+        },
+      },
+    } satisfies PageMessages;
+
+    const { nodes } = buildRegistryFlowGraph(graph, pageMessages);
+
+    expect(
+      nodes.find((node) => node.id === "blank-label-node")?.data.semantic,
+    ).toMatchObject({
+      resolvedTitle: "Repeated decoder block container",
+      interactionKind: "graph-local",
+    });
+    expect(
+      nodes.find((node) => node.id === "symbol-label-node")?.data.semantic,
+    ).toMatchObject({
+      resolvedTitle: "Residual addition step",
+      interactionKind: "graph-local",
     });
   });
 

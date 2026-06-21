@@ -173,6 +173,81 @@ function CanonicalNodeHarness({ data }: { data: RegistryFlowNodeData }) {
   );
 }
 
+function GraphNodeHarness({
+  data,
+  id,
+}: {
+  data: RegistryFlowNodeData;
+  id: string;
+}) {
+  const [activeNode, setActiveNode] = useState<{
+    canonicalPageHref?: string;
+    entityKind?: RegistryFlowNodeData["semantic"]["entityKind"];
+    hasCanonicalPage: boolean;
+    id: string;
+    interactionKind: RegistryFlowNodeData["semantic"]["interactionKind"];
+    relatedPageHref?: string;
+    relatedPageTitle?: string;
+    resolvedSummary?: string;
+    resolvedTitle: string;
+  } | null>(null);
+
+  const nodeProps = {
+    id,
+    data,
+    type: buildRegistryFlowNodeType(data.nodeFamily),
+    selected: false,
+    dragging: false,
+    zIndex: 0,
+    isConnectable: false,
+    positionAbsoluteX: 0,
+    positionAbsoluteY: 0,
+    xPos: 0,
+    yPos: 0,
+    draggingHandle: null,
+    targetPosition: undefined,
+    sourcePosition: undefined,
+    width: 220,
+    height: 82,
+    parentId: undefined,
+    dragHandle: undefined,
+  } as never;
+
+  const node = (() => {
+    switch (data.nodeFamily) {
+      case "canonical-reference":
+        return CanonicalReferenceNode(nodeProps);
+      case "structural":
+        return StructuralNode(nodeProps);
+      case "annotation":
+        return AnnotationNode(nodeProps);
+      case "operator":
+        return OperatorNode(nodeProps);
+      case "architecture-block":
+        return ArchitectureBlockNode(nodeProps);
+      default:
+        return FallbackNode(nodeProps);
+    }
+  })();
+
+  return (
+    <RegistryGraphFlowInteractionContext.Provider
+      value={{
+        activeNodeId: activeNode?.id,
+        openNodePopup: setActiveNode,
+        popupId: "graph-node-popup",
+      }}
+    >
+      <ReactFlowProvider>{node}</ReactFlowProvider>
+      <RegistryGraphFlowNodePopup
+        activeNode={activeNode}
+        onClose={() => setActiveNode(null)}
+        popupId="graph-node-popup"
+      />
+    </RegistryGraphFlowInteractionContext.Provider>
+  );
+}
+
 function EdgePopupHarness({
   activeEdge,
 }: {
@@ -604,6 +679,81 @@ describe("RegistryGraphFlow", () => {
     expect(
       screen.queryByRole("dialog", { name: /Input\s+Embedding details/ }),
     ).toBeNull();
+  });
+
+  test("uses meaningful accessible names and popup titles for shipped GPT-3 fallback nodes", () => {
+    const graph = getGraphById("graph.gpt-3-architecture");
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const { nodes } = buildRegistryFlowGraph(
+      graph,
+      gpt3Messages as PageMessages,
+    );
+    const decoderStackNode = nodes.find((node) => node.id === "decoder-stack");
+    const attentionSublayerNode = nodes.find(
+      (node) => node.id === "attention-sublayer",
+    );
+    const positionAddNode = nodes.find((node) => node.id === "position-add");
+
+    expect(decoderStackNode).toBeDefined();
+    expect(attentionSublayerNode).toBeDefined();
+    expect(positionAddNode).toBeDefined();
+    if (!decoderStackNode || !attentionSublayerNode || !positionAddNode) {
+      return;
+    }
+
+    renderRegistryGraph(
+      <>
+        <GraphNodeHarness
+          id={decoderStackNode.id}
+          data={decoderStackNode.data}
+        />
+        <GraphNodeHarness
+          id={attentionSublayerNode.id}
+          data={attentionSublayerNode.data}
+        />
+        <GraphNodeHarness id={positionAddNode.id} data={positionAddNode.data} />
+      </>,
+      gpt3Messages,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Open Transformer architecture details/,
+      }),
+    );
+    expect(
+      screen.getByRole("dialog", { name: /Transformer architecture details/ }),
+    ).toBeTruthy();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Open Attention sublayer container details/,
+      }),
+    );
+    expect(
+      screen.getByRole("dialog", {
+        name: /Attention sublayer container details/,
+      }),
+    ).toBeTruthy();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Open Embedding details/,
+      }),
+    );
+    const embeddingPopup = screen.getByRole("dialog", {
+      name: /Embedding details/,
+    });
+    expect(within(embeddingPopup).getByText("Concept")).toBeTruthy();
+
+    expect(
+      screen.queryByRole("button", { name: /Open \+ details/ }),
+    ).toBeNull();
+    expect(screen.queryByRole("button", { name: /Open\s+details/ })).toBeNull();
   });
 
   test("opens graph-local fallback popups and exposes related docs destinations", () => {
