@@ -370,6 +370,33 @@ export type ClassificationMember = {
   record: OntologyParticipatingRegistryRecord;
 };
 
+export type ClassificationTreeRecordNode = {
+  nodeType: "record";
+  member: ClassificationMember;
+};
+
+export type ClassificationTreeClassificationNode = {
+  nodeType: "classification";
+  classification: ClassificationRecord;
+  children: ClassificationTreeNode[];
+  classificationChildren: ClassificationTreeClassificationNode[];
+  recordChildren: ClassificationTreeRecordNode[];
+  directMemberCount: number;
+  totalMemberCount: number;
+};
+
+export type ClassificationTreeNode =
+  | ClassificationTreeClassificationNode
+  | ClassificationTreeRecordNode;
+
+export type ClassificationTreeOptions = {
+  classificationTraversal?: ClassificationTraversalOptions;
+  includeEmptyClassifications?: boolean;
+  memberKinds?: readonly OntologyParticipantKind[];
+  memberQuery?: ClassificationMemberQueryOptions;
+  rootClassificationIds?: readonly string[];
+};
+
 const defaultClassificationStatuses: ClassificationRecord["status"][] = [
   "published",
 ];
@@ -478,6 +505,17 @@ function matchesClassificationTraversalOptions(
   return options.classifiesKinds.some((kind) =>
     classification.classifiesKinds.includes(kind),
   );
+}
+
+function matchesClassificationMemberKind(
+  member: ClassificationMember,
+  memberKinds: readonly OntologyParticipantKind[] | undefined,
+): boolean {
+  if (!memberKinds?.length) {
+    return true;
+  }
+
+  return memberKinds.some((kind) => kind === member.record.kind);
 }
 
 function listDirectClassificationMembers(
@@ -895,6 +933,79 @@ export function listClassificationMembers(
   );
 
   return [...directMembers, ...inheritedMembers].sort(compareClassificationMembers);
+}
+
+function buildClassificationTreeNode(
+  classification: ClassificationRecord,
+  options: ClassificationTreeOptions = {},
+): ClassificationTreeClassificationNode | undefined {
+  const classificationTraversal = options.classificationTraversal ?? {};
+  const memberQuery = options.memberQuery ?? {};
+  const classificationChildren = listClassificationChildren(classification.id, {
+    ...classificationTraversal,
+    statuses: classificationTraversal.statuses ?? [],
+  })
+    .map((childClassification) =>
+      buildClassificationTreeNode(childClassification, options),
+    )
+    .flatMap((node) => (node ? [node] : []));
+  const recordChildren = listClassificationMembers(classification.id, memberQuery)
+    .filter((member) => !member.isInherited)
+    .filter((member) =>
+      matchesClassificationMemberKind(member, options.memberKinds),
+    )
+    .map((member) => ({
+      nodeType: "record" as const,
+      member,
+    }));
+  const directMemberCount = recordChildren.length;
+  const totalMemberCount =
+    directMemberCount +
+    classificationChildren.reduce(
+      (count, childClassification) => count + childClassification.totalMemberCount,
+      0,
+    );
+
+  if (
+    options.includeEmptyClassifications !== true &&
+    totalMemberCount === 0 &&
+    classificationChildren.length === 0
+  ) {
+    return undefined;
+  }
+
+  return {
+    nodeType: "classification",
+    classification,
+    children: [...classificationChildren, ...recordChildren],
+    classificationChildren,
+    recordChildren,
+    directMemberCount,
+    totalMemberCount,
+  };
+}
+
+export function buildClassificationTree(
+  options: ClassificationTreeOptions = {},
+): ClassificationTreeClassificationNode[] {
+  const classificationTraversal = options.classificationTraversal ?? {};
+  const rootClassifications =
+    options.rootClassificationIds?.flatMap((classificationId) => {
+      const classification = classificationsById.get(classificationId);
+      if (
+        !classification ||
+        !matchesClassificationTraversalOptions(classification, classificationTraversal)
+      ) {
+        return [];
+      }
+
+      return [classification];
+    }) ??
+    listClassificationRoots(classificationTraversal);
+
+  return rootClassifications
+    .map((classification) => buildClassificationTreeNode(classification, options))
+    .flatMap((node) => (node ? [node] : []));
 }
 `;
 }

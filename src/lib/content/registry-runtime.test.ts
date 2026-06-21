@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildClassificationTree,
   getCitationById,
   getClassificationById,
   getConceptById,
@@ -368,6 +369,80 @@ describe("registry-runtime", () => {
     expect(
       listClassificationDescendants("classification.activation-functions"),
     ).toEqual([]);
+  });
+
+  test("classification tree runtime builds renderable nodes and hides empty branches by default", () => {
+    const tree = buildClassificationTree({
+      rootClassificationIds: ["classification.neural-network-components"],
+      memberKinds: ["module"],
+    });
+
+    expect(
+      tree.map((node) => ({
+        id: node.classification.id,
+        directMemberCount: node.directMemberCount,
+        totalMemberCount: node.totalMemberCount,
+        childClassificationIds: node.classificationChildren.map(
+          (child) => child.classification.id,
+        ),
+        childRecordIds: node.recordChildren.map(
+          (child) => child.member.record.id,
+        ),
+      })),
+    ).toEqual([
+      {
+        id: "classification.neural-network-components",
+        directMemberCount: 0,
+        totalMemberCount: expect.any(Number),
+        childClassificationIds: [
+          "classification.activation-functions",
+          "classification.attention-mechanisms",
+          "classification.feed-forward-networks",
+          "classification.normalization-layers",
+          "classification.position-encoding-methods",
+          "classification.tokenization-methods",
+          "classification.transformer-block-structures",
+        ],
+        childRecordIds: [],
+      },
+    ]);
+
+    const activationBranch = tree[0]?.classificationChildren.find(
+      (child) =>
+        child.classification.id === "classification.activation-functions",
+    );
+    expect(activationBranch?.children[0]?.nodeType).toBe("record");
+    expect(
+      activationBranch?.recordChildren.map((child) => child.member.record.id),
+    ).toEqual(
+      expect.arrayContaining([
+        "module.leaky-relu",
+        "module.relu",
+        "module.silu",
+        "module.sigmoid",
+      ]),
+    );
+    expect(
+      buildClassificationTree({
+        rootClassificationIds: ["classification.activation-functions"],
+        memberKinds: ["paper"],
+      }),
+    ).toEqual([]);
+    expect(
+      buildClassificationTree({
+        rootClassificationIds: ["classification.activation-functions"],
+        memberKinds: ["paper"],
+        includeEmptyClassifications: true,
+      }).map((node) => ({
+        id: node.classification.id,
+        totalMemberCount: node.totalMemberCount,
+      })),
+    ).toEqual([
+      {
+        id: "classification.activation-functions",
+        totalMemberCount: 0,
+      },
+    ]);
   });
 
   test("seeded activation records resolve through ontology classification helpers", () => {
