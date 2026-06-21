@@ -1,0 +1,17 @@
+{
+  "kind": "model",
+  "slug": "model-page-spec-workflow-sample",
+  "title": "Model Page Spec Workflow Sample",
+  "summary": "A generated model page spec that exercises the canonical bundle workflow for models.",
+  "status": "draft",
+  "family": "gpt",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "tags": ["attention", "model-family"],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "This sample shows the generator can produce a model page bundle and aligned registry record from one page spec."
+    }
+  }
+}

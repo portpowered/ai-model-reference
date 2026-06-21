@@ -327,6 +327,18 @@ function buildPageMessages(
     };
   }
 
+  if (spec.tables) {
+    const mergedTables = mergeRecordSection(
+      templateMessages.tables as
+        | Record<string, Record<string, unknown>>
+        | undefined,
+      spec.tables as Record<string, Record<string, unknown>>,
+    );
+    if (mergedTables) {
+      messages.tables = mergedTables;
+    }
+  }
+
   if (spec.assetMessages) {
     const mergedAssets = mergeRecordSection(
       messages.assets as Record<string, Record<string, unknown>> | undefined,

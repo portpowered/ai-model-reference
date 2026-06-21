@@ -75,6 +75,7 @@ async function prepareContentRoots(tempRoot: string): Promise<string> {
   await mkdir(join(contentRoot, "registry", "modules"), { recursive: true });
   await mkdir(join(contentRoot, "registry", "models"), { recursive: true });
   await mkdir(join(contentRoot, "registry", "papers"), { recursive: true });
+  await mkdir(join(contentRoot, "registry", "tables"), { recursive: true });
   await mkdir(join(contentRoot, "registry", "training-regimes"), {
     recursive: true,
   });
@@ -93,6 +94,67 @@ async function writeTagFixture(contentRoot: string): Promise<void> {
   await writeFile(
     join(contentRoot, "registry", "tags", "attention.json"),
     JSON.stringify(validTagRecord),
+  );
+}
+
+async function writeCitationFixture(contentRoot: string): Promise<void> {
+  await mkdir(join(contentRoot, "registry", "citations"), { recursive: true });
+  await writeFile(
+    join(contentRoot, "registry", "citations", "generated-module-ref.json"),
+    JSON.stringify({
+      id: "citation.generated-module-ref",
+      slug: "generated-module-ref",
+      kind: "citation",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: ["attention"],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-02T00:00:00.000Z",
+      citationType: "paper",
+      authors: ["A. Author"],
+      title: "Generated Module Reference",
+      url: "https://example.com/generated-module-reference",
+      mla: 'Author, A. "Generated Module Reference." Example, 2024.',
+      year: 2024,
+    }),
+  );
+}
+
+async function writeModuleFixture(
+  contentRoot: string,
+  input: { slug: string; aliases?: string[] },
+): Promise<void> {
+  await writeFile(
+    join(contentRoot, "registry", "modules", `${input.slug}.json`),
+    JSON.stringify({
+      id: `module.${input.slug}`,
+      slug: input.slug,
+      kind: "module",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: input.aliases ?? [],
+      tags: ["attention"],
+      relatedIds: [],
+      citationIds: ["citation.generated-module-ref"],
+      status: "published",
+      createdAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-02T00:00:00.000Z",
+      releaseDate: "2024-01-01",
+      authors: ["A. Author"],
+      sourceId: "citation.generated-module-ref",
+      moduleType: "attention",
+      optimizes: [],
+      exampleModelIds: [],
+      improvesOnIds: [],
+      tradeoffIds: [],
+      usedByModelIds: [],
+      introducedByPaperIds: [],
+      mathLevel: "light",
+    }),
   );
 }
 
@@ -368,6 +430,54 @@ describe("validateGeneratedPageBundle", () => {
 
     try {
       await writeTagFixture(contentRoot);
+      await writeCitationFixture(contentRoot);
+      await writeModuleFixture(contentRoot, {
+        slug: "multi-head-attention",
+        aliases: ["MHA"],
+      });
+      await writeModuleFixture(contentRoot, {
+        slug: "multi-query-attention",
+        aliases: ["MQA"],
+      });
+      await writeFile(
+        join(contentRoot, "registry", "tables", `${slug}-comparison.json`),
+        JSON.stringify({
+          id: `table.${slug}-comparison`,
+          subjectId: `module.${slug}`,
+          columns: [
+            {
+              moduleId: `module.${slug}`,
+              titleKey: "tables.comparison.columns.generated.title",
+            },
+            {
+              moduleId: "module.multi-head-attention",
+              titleKey: "tables.comparison.columns.mha.title",
+            },
+            {
+              moduleId: "module.multi-query-attention",
+              titleKey: "tables.comparison.columns.mqa.title",
+            },
+          ],
+          dimensions: [
+            {
+              id: "cacheFootprint",
+              labelKey: "tables.comparison.dimensions.cacheFootprint",
+            },
+          ],
+          valueKeysByModuleId: {
+            [`module.${slug}`]: {
+              cacheFootprint:
+                "tables.comparison.values.generated.cacheFootprint",
+            },
+            "module.multi-head-attention": {
+              cacheFootprint: "tables.comparison.values.mha.cacheFootprint",
+            },
+            "module.multi-query-attention": {
+              cacheFootprint: "tables.comparison.values.mqa.cacheFootprint",
+            },
+          },
+        }),
+      );
 
       await generatePageBundle({
         spec: {
@@ -377,6 +487,41 @@ describe("validateGeneratedPageBundle", () => {
           moduleType: "attention",
           tags: ["attention"],
           optimizes: ["kv-cache"],
+          assets: {
+            comparisonTable: {
+              type: "table",
+              tableId: `table.${slug}-comparison`,
+            },
+          },
+          tables: {
+            comparison: {
+              columns: {
+                generated: {
+                  title: "Generated Module",
+                },
+                mha: {
+                  title: "MHA",
+                },
+                mqa: {
+                  title: "MQA",
+                },
+              },
+              dimensions: {
+                cacheFootprint: "Cache footprint",
+              },
+              values: {
+                generated: {
+                  cacheFootprint: "Shared KV heads reduce cache growth.",
+                },
+                mha: {
+                  cacheFootprint: "Each query head keeps its own KV pair.",
+                },
+                mqa: {
+                  cacheFootprint: "One KV head serves all query heads.",
+                },
+              },
+            },
+          },
         },
         projectRoot: tempRoot,
       });
@@ -405,18 +550,13 @@ describe("validateGeneratedPageBundle", () => {
         pageUrl: `/docs/modules/${slug}`,
         indexes,
       });
-      const knownFixtureGaps = new Set([
-        "unresolved-table-id",
-        "unresolved-table-module-id",
-        "missing-table-message-key",
-      ]);
-      const tableErrors = errors.filter((error) =>
-        knownFixtureGaps.has(error.code),
-      );
-      expect(tableErrors.length).toBeGreaterThan(0);
-      expect(
-        errors.filter((error) => !knownFixtureGaps.has(error.code)),
-      ).toEqual([]);
+      expect(errors).toEqual([]);
+
+      const registryErrors = await validateGeneratedPageBundleRegistryContent({
+        registryRoot: join(contentRoot, "registry"),
+        docsRoot: join(contentRoot, "docs"),
+      });
+      expect(registryErrors).toEqual([]);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }

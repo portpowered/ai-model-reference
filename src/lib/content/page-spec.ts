@@ -10,6 +10,7 @@ import {
   type PageKind,
   pageAssetConfigSchema,
   pageGraphMessagesSchema,
+  pageTableMessagesSchema,
   registryStatusSchema,
   systemTypeSchema,
   trainingRegimeTypeSchema,
@@ -71,6 +72,7 @@ const pageSpecBaseSchema = z.object({
   assets: pageAssetConfigSchema.optional(),
   assetMessages: pageSpecAssetMessagesSchema.optional(),
   graph: pageGraphMessagesSchema.optional(),
+  tables: z.record(z.string(), pageTableMessagesSchema).optional(),
 });
 
 const conceptBackedPageSpecSchema = pageSpecBaseSchema.extend({

@@ -30,7 +30,9 @@ import {
   type PageMessages,
   pageFrontmatterSchema,
   type SystemRecord,
+  type TableRecord,
   type TrainingRegimeRecord,
+  tableRecordSchema,
 } from "./schemas";
 import {
   isShippedLocalizedDocsSlug,
@@ -640,11 +642,58 @@ function validateGraphAssetReferences(
   return errors;
 }
 
+export async function loadTableRecordsFromRegistry(
+  registryRoot: string,
+): Promise<{
+  recordsById: Map<string, TableRecord>;
+  errors: ValidationError[];
+}> {
+  const tablesRoot = join(registryRoot, "tables");
+  let entries: string[];
+  try {
+    entries = (await readdir(tablesRoot)).filter((entry) =>
+      entry.endsWith(".json"),
+    );
+  } catch {
+    return { recordsById: new Map(), errors: [] };
+  }
+
+  const recordsById = new Map<string, TableRecord>();
+  const errors: ValidationError[] = [];
+
+  for (const entry of entries.sort()) {
+    const recordPath = join(tablesRoot, entry);
+    try {
+      const raw = JSON.parse(await readFile(recordPath, "utf8")) as unknown;
+      const record = tableRecordSchema.parse(raw);
+      if (recordsById.has(record.id)) {
+        errors.push({
+          code: "duplicate-table-id",
+          message: `Duplicate table registry id "${record.id}" in ${recordPath}`,
+          path: recordPath,
+        });
+        continue;
+      }
+      recordsById.set(record.id, record);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      errors.push({
+        code: "invalid-table-record",
+        message: `${recordPath}: ${message}`,
+        path: recordPath,
+      });
+    }
+  }
+
+  return { recordsById, errors };
+}
+
 function validateTableAssetReferences(
   pageDirectory: string,
   assets: PageAssetConfig,
   messages: PageMessages,
   indexes: RegistryIndexes,
+  tableRecordsById?: ReadonlyMap<string, TableRecord>,
   locale: SiteLocale = defaultLocale,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
@@ -654,7 +703,8 @@ function validateTableAssetReferences(
       continue;
     }
 
-    const tableRecord = getTableById(asset.tableId);
+    const tableRecord =
+      tableRecordsById?.get(asset.tableId) ?? getTableById(asset.tableId);
     if (!tableRecord) {
       errors.push({
         code: "unresolved-table-id",
@@ -718,6 +768,7 @@ async function discoverPageMdxFiles(docsRoot: string): Promise<string[]> {
 export async function validateColocatedPageBundle(
   pageDirectory: string,
   indexes?: RegistryIndexes,
+  tableRecordsById?: ReadonlyMap<string, TableRecord>,
 ): Promise<{
   errors: ValidationError[];
   messages?: PageMessages;
@@ -756,7 +807,13 @@ export async function validateColocatedPageBundle(
   if (indexes) {
     errors.push(
       ...validateGraphAssetReferences(pageDirectory, assets, indexes),
-      ...validateTableAssetReferences(pageDirectory, assets, messages, indexes),
+      ...validateTableAssetReferences(
+        pageDirectory,
+        assets,
+        messages,
+        indexes,
+        tableRecordsById,
+      ),
     );
   }
 
@@ -781,6 +838,7 @@ async function validateLocalizedPageMessages(
   mdxBody: string,
   assets: PageAssetConfig,
   indexes: RegistryIndexes,
+  tableRecordsById: ReadonlyMap<string, TableRecord> | undefined,
   shippedLocalizedDocsManifest: ShippedLocalizedDocsManifest,
 ): Promise<ValidationError[]> {
   const errors: ValidationError[] = [];
@@ -845,6 +903,7 @@ async function validateLocalizedPageMessages(
         assets,
         messages,
         indexes,
+        tableRecordsById,
         locale,
       ),
     );
@@ -867,6 +926,7 @@ async function validatePageMdx(
   pagePath: string,
   docsRoot: string,
   indexes: RegistryIndexes,
+  tableRecordsById: ReadonlyMap<string, TableRecord> | undefined,
   shippedLocalizedDocsManifest: ShippedLocalizedDocsManifest,
 ): Promise<ValidationError[]> {
   const errors: ValidationError[] = [];
@@ -941,7 +1001,11 @@ async function validatePageMdx(
     }
   }
 
-  const bundle = await validateColocatedPageBundle(pageDirectory, indexes);
+  const bundle = await validateColocatedPageBundle(
+    pageDirectory,
+    indexes,
+    tableRecordsById,
+  );
   errors.push(...bundle.errors);
   if (!bundle.messages || !bundle.assets) {
     return errors;
@@ -977,6 +1041,7 @@ async function validatePageMdx(
       mdxBody,
       assets,
       indexes,
+      tableRecordsById,
       shippedLocalizedDocsManifest,
     )),
   );
@@ -1178,12 +1243,15 @@ export async function validateRegistryContent(
   options: ValidateRegistryContentOptions = {},
 ): Promise<ValidationError[]> {
   const docsRoot = options.docsRoot ?? defaultDocsRoot;
+  const registryRoot =
+    options.registryRoot ?? join(defaultContentRoot, "registry");
   resetDerivedShippedLocalizedDocsManifestCache();
   const shippedLocalizedDocsManifest =
     resolveDerivedShippedLocalizedDocsManifest(
       options.shippedLocalizedDocsManifest,
       docsRoot,
     );
+  const tableRegistry = await loadTableRecordsFromRegistry(registryRoot);
   const { indexes, errors: registryErrors } =
     await validateRegistryFiles(options);
 
@@ -1191,7 +1259,7 @@ export async function validateRegistryContent(
     return registryErrors;
   }
 
-  const errors = [...registryErrors];
+  const errors = [...registryErrors, ...tableRegistry.errors];
 
   const pagePaths = await discoverPageMdxFiles(docsRoot);
   const validatedPageDirectories = new Set<string>();
@@ -1203,6 +1271,7 @@ export async function validateRegistryContent(
         pagePath,
         docsRoot,
         indexes,
+        tableRegistry.recordsById,
         shippedLocalizedDocsManifest,
       )),
     );
@@ -1215,7 +1284,13 @@ export async function validateRegistryContent(
       continue;
     }
     errors.push(
-      ...(await validateColocatedPageBundle(pageDirectory, indexes)).errors,
+      ...(
+        await validateColocatedPageBundle(
+          pageDirectory,
+          indexes,
+          tableRegistry.recordsById,
+        )
+      ).errors,
     );
   }
 
