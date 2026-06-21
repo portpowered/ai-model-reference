@@ -33,7 +33,7 @@ function pageBundleSlug(file: { path: string }): string[] | undefined {
 
 export const source = loader({
   baseUrl: "/docs",
-  source: docs.toFumadocsSource(),
+  source: docs.toFumadocsSource() as Parameters<typeof loader>[0]["source"],
   slugs: pageBundleSlug,
   plugins: [excludeNonPublishedLocalDocsPlugin()],
 });
