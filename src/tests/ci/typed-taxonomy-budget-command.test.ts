@@ -56,4 +56,58 @@ describe("typed taxonomy compatibility budget command", () => {
       rmSync(snapshotRoot, { recursive: true, force: true });
     }
   });
+
+  test("fails when the governed search cluster grows beyond the approved budget", () => {
+    const workspaceRoot = resolve(import.meta.dir, "../../..");
+    const snapshotRoot = mkdtempSync(
+      join(tmpdir(), "typed-taxonomy-budget-guard-drift-"),
+    );
+
+    try {
+      for (const entry of typedTaxonomyConsumerAuditContract) {
+        const sourcePath = join(workspaceRoot, entry.path);
+        const targetPath = join(snapshotRoot, entry.path);
+        mkdirSync(dirname(targetPath), { recursive: true });
+        writeFileSync(targetPath, readFileSync(sourcePath, "utf8"));
+      }
+
+      const publicFacetShapePath = join(
+        snapshotRoot,
+        "src/lib/search/types.ts",
+      );
+      writeFileSync(
+        publicFacetShapePath,
+        `${readFileSync(publicFacetShapePath, "utf8")}\nexport type LegacyBudgetDriftProbe = { moduleType?: string };\n`,
+      );
+
+      const result = spawnSync(
+        "bun",
+        [
+          "run",
+          "verify:typed-taxonomy-budget",
+          "--",
+          "--repo-root",
+          snapshotRoot,
+        ],
+        {
+          cwd: workspaceRoot,
+          encoding: "utf8",
+        },
+      );
+
+      expect(result.status).toBe(1);
+      expect(result.stdout ?? "").toContain("Status: drifted");
+      expect(result.stdout ?? "").toContain(
+        "Approved baseline: 3 entries, 14 field references",
+      );
+      expect(result.stdout ?? "").toContain(
+        "Current measured: 3 entries, 15 field references",
+      );
+      expect(result.stdout ?? "").toContain(
+        'search typed-taxonomy compatibility cluster entry "search-document-public-facet-shape" at src/lib/search/types.ts approved 1 field references but found 2',
+      );
+    } finally {
+      rmSync(snapshotRoot, { recursive: true, force: true });
+    }
+  });
 });

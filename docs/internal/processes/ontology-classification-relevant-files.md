@@ -91,7 +91,8 @@ the temporary legacy-id bridge.
   terms when either governed surface grows.
 * `src/tests/ci/legacy-classification-budget-command.test.ts`
   CLI-level proof that the dedicated legacy bridge no-growth verifier stays
-  green for the committed runtime bridge inventory.
+  green for the committed runtime bridge inventory and fails red when a fixture
+  bridge inventory grows beyond the approved baseline.
 * `src/lib/governance/typed-taxonomy-consumer-audit.test.ts`
   Regression coverage for grouped audit summaries and contract-drift detection.
 * `src/lib/governance/typed-taxonomy-consumer-fence.test.ts`
@@ -103,7 +104,8 @@ the temporary legacy-id bridge.
 * `src/tests/ci/typed-taxonomy-budget-command.test.ts`
   CLI-level proof that the dedicated search typed-taxonomy budget guard stays
   green for the committed approved consumer inventory and field-reference
-  counts.
+  counts, and fails red when an approved search-cluster entry grows beyond its
+  recorded field-reference budget.
 * `src/tests/ci/typed-taxonomy-consumer-audit-command.test.ts`
   CLI-level proof that maintainers can render the current audit summary from the
   repository root.
