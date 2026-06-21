@@ -25,6 +25,7 @@ const ATTENTION_VARIANT_MODULE_IDS = [
   "module.grouped-query-attention",
   "module.multi-head-latent-attention",
   "module.sparse-attention",
+  "module.block-sparse-attention",
   "module.sliding-window-attention",
   "module.linear-attention",
 ] as const;
@@ -45,10 +46,6 @@ const HEAD_SHARING_MODULE_URLS = [
 
 const SOLO_VARIANT_GROUP_MODULES = [
   {
-    registryId: "module.sparse-attention",
-    variantGroup: "sparse-patterns",
-  },
-  {
     registryId: "module.sliding-window-attention",
     variantGroup: "attention-locality",
   },
@@ -56,6 +53,11 @@ const SOLO_VARIANT_GROUP_MODULES = [
     registryId: "module.linear-attention",
     variantGroup: "subquadratic-attention",
   },
+] as const;
+
+const SPARSE_PATTERN_REGISTRY_IDS = [
+  "module.sparse-attention",
+  "module.block-sparse-attention",
 ] as const;
 
 function expectModuleRecord(registryId: string): ModuleRecord {
@@ -123,6 +125,31 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
         PUBLISHED_DOCS_REGISTRY_IDS,
       );
       expect(peers).toEqual([]);
+    }
+  });
+
+  test("sparse-pattern variants cross-link sparse and block-sparse attention once both publish", () => {
+    const modules = listPublishedModuleRecords();
+
+    for (const sourceId of SPARSE_PATTERN_REGISTRY_IDS) {
+      const source = expectModuleRecord(sourceId);
+      const peers = deriveSameVariantGroupPeers(
+        source,
+        modules,
+        PUBLISHED_DOCS_REGISTRY_IDS,
+      );
+
+      const expectedPeerIds = SPARSE_PATTERN_REGISTRY_IDS.filter(
+        (id) => id !== sourceId,
+      );
+      expect(peers.map((peer) => peer.registryId)).toEqual(expectedPeerIds);
+      expect(
+        peers.every((peer) => peer.reasonLabel === "Same variant group"),
+      ).toBe(true);
+      expect(
+        peers.every((peer) => peer.href?.startsWith("/docs/modules/")),
+      ).toBe(true);
+      expect(peers.every((peer) => !peer.isPlanned)).toBe(true);
     }
   });
 
@@ -229,5 +256,17 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
       expect(html).toContain('data-testid="curated-related-docs"');
       expect(html).toContain("curated");
     }
+  });
+
+  test("sparse attention related docs render the published block-sparse sibling before curated links", () => {
+    const html = renderToStaticMarkup(
+      <RelatedDocs registryId="module.sparse-attention" />,
+    );
+
+    expect(html).toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('href="/docs/modules/block-sparse-attention"');
+    expect(html).toContain("Same variant group");
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain("curated");
   });
 });
