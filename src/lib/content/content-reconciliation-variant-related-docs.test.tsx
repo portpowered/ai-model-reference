@@ -182,7 +182,7 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     }
   });
 
-  test("DerivedRelatedDocs renders same-variant-group peers for MHA, MQA, and GQA", () => {
+  test("DerivedRelatedDocs upgrades legacy same-variant-group requests to ontology classification siblings", () => {
     for (const registryId of [
       "module.multi-head-attention",
       "module.multi-query-attention",
@@ -196,8 +196,9 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
       );
 
       expect(html).toContain('data-testid="derived-related-docs"');
-      expect(html).toContain('data-related-group="same-variant-group"');
-      expect(html).toContain("Same variant group");
+      expect(html).toContain('data-related-group="classification-siblings"');
+      expect(html).not.toContain('data-related-group="same-variant-group"');
+      expect(html).toContain("Same classification");
 
       for (const peerId of HEAD_SHARING_REGISTRY_IDS) {
         if (peerId === registryId) {
@@ -209,36 +210,37 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     }
   });
 
-  test("RelatedDocs composes same-variant-group peers with curated links on GQA", () => {
+  test("RelatedDocs composes curated links with ontology classification siblings on GQA", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="module.grouped-query-attention" />,
     );
 
-    expect(html).toContain('data-related-group="same-variant-group"');
+    expect(html).not.toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('data-related-group="classification-siblings"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-latent-attention"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain("curated");
+    expect(html).toContain("Same classification: attention mechanisms");
   });
 
-  test("RelatedDocs adds the shipped causal peer before encoder-side curated links on bidirectional attention", () => {
+  test("RelatedDocs keeps the causal neighbor visible while switching bidirectional attention to ontology sibling labels", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="module.bidirectional-attention" />,
     );
 
-    expect(html).toContain('data-related-group="same-variant-group"');
+    expect(html).not.toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('data-related-group="classification-siblings"');
     expect(html).toContain('href="/docs/modules/causal-attention"');
-    expect(html).toContain("Same variant group");
+    expect(html).toContain("Same classification: attention mechanisms");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/encoder"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/glossary/encoder-decoder"');
-    expect(html).not.toContain('href="/docs/modules/multi-head-attention"');
-    expect(html).not.toContain('href="/docs/modules/grouped-query-attention"');
   });
 
   test("RelatedDocs does not duplicate head-sharing module links between variant and curated groups on GQA", () => {
@@ -257,14 +259,15 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     ).toHaveLength(1);
   });
 
-  test("module pages render same-variant-group peer links in the related section", async () => {
+  test("module pages render ontology classification sibling peer links in the related section", async () => {
     for (const url of HEAD_SHARING_MODULE_URLS) {
       const slug = url.replace("/docs/modules/", "");
       const loadedPage = await loadLocalDocsPage({ section: "modules", slug });
       const html = renderModuleDocsShell(loadedPage);
 
-      expect(html).toContain('data-related-group="same-variant-group"');
-      expect(html).toContain("Same variant group");
+      expect(html).toContain('data-related-group="classification-siblings"');
+      expect(html).not.toContain('data-related-group="same-variant-group"');
+      expect(html).toContain("Same classification: attention mechanisms");
 
       for (const peerUrl of HEAD_SHARING_MODULE_URLS) {
         if (peerUrl === url) {
@@ -287,24 +290,26 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     }
   });
 
-  test("sparse attention related docs render the published block-sparse sibling before curated links", () => {
+  test("sparse attention related docs render ontology classification siblings alongside curated links", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="module.sparse-attention" />,
     );
 
-    expect(html).toContain('data-related-group="same-variant-group"');
+    expect(html).not.toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('data-related-group="classification-siblings"');
     expect(html).toContain('href="/docs/modules/block-sparse-attention"');
-    expect(html).toContain("Same variant group");
+    expect(html).toContain("Same classification: attention mechanisms");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain("curated");
   });
 
-  test("sliding-window attention renders local-attention as its same-variant-group peer without duplicating curated links", () => {
+  test("sliding-window attention keeps local-attention visible as an ontology sibling without duplicating curated links", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="module.sliding-window-attention" />,
     );
 
-    expect(html).toContain('data-related-group="same-variant-group"');
+    expect(html).not.toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('data-related-group="classification-siblings"');
     expect(html).toContain('href="/docs/modules/local-attention"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
@@ -312,5 +317,16 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     expect(html.match(/href="\/docs\/modules\/local-attention"/g)).toHaveLength(
       1,
     );
+  });
+
+  test("foundation-model related docs do not group temperature just because both records share the legacy general conceptType", () => {
+    const html = renderToStaticMarkup(
+      <RelatedDocs registryId="concept.foundation-model" />,
+    );
+
+    expect(html).not.toContain('href="/docs/glossary/temperature"');
+    expect(html).toContain('href="/docs/glossary/generative-model"');
+    expect(html).toContain('href="/docs/glossary/discriminative-model"');
+    expect(html).not.toContain('data-related-group="same-concept-type"');
   });
 });
