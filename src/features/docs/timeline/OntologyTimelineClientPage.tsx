@@ -5,6 +5,7 @@ import type { OntologyTimelineResult } from "@/lib/content/ontology-timeline";
 import type { UiMessages } from "@/lib/content/ui-messages";
 import type { SiteLocale } from "@/lib/i18n/locale-routing";
 import { OntologyTimelineView } from "./OntologyTimelineView";
+import { normalizeTimelineClassificationSelector } from "./timeline-query";
 
 type OntologyTimelineClientPageProps = {
   locale: SiteLocale;
@@ -12,11 +13,6 @@ type OntologyTimelineClientPageProps = {
   initialTimeline: OntologyTimelineResult;
   preloadedTimelines: Record<string, OntologyTimelineResult>;
 };
-
-function normalizeRequestedClassification(value: string | null | undefined) {
-  const normalized = value?.trim().toLowerCase();
-  return normalized && normalized.length > 0 ? normalized : "activation";
-}
 
 function buildUnknownTimelineResult(
   requestedClassification: string,
@@ -41,7 +37,7 @@ function resolveTimelineFromLocationSearch(
   preloadedTimelines: Record<string, OntologyTimelineResult>,
   initialTimeline: OntologyTimelineResult,
 ): OntologyTimelineResult {
-  const classification = normalizeRequestedClassification(
+  const classification = normalizeTimelineClassificationSelector(
     new URLSearchParams(locationSearch).get("classification"),
   );
 
@@ -80,8 +76,9 @@ export function OntologyTimelineClientPage({
 
   function handleSelectClassification(classification: string) {
     setTimeline(
-      preloadedTimelines[normalizeRequestedClassification(classification)] ??
-        buildUnknownTimelineResult(classification, initialTimeline),
+      preloadedTimelines[
+        normalizeTimelineClassificationSelector(classification)
+      ] ?? buildUnknownTimelineResult(classification, initialTimeline),
     );
   }
 
@@ -90,6 +87,7 @@ export function OntologyTimelineClientPage({
       locale={locale}
       messages={messages}
       onSelectClassification={handleSelectClassification}
+      fallbackChips={initialTimeline.nearbyClassifications}
       timeline={timeline}
     />
   );

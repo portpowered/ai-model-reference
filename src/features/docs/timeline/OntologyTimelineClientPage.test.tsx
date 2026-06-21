@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { OntologyTimelineClientPage } from "@/features/docs/timeline/OntologyTimelineClientPage";
 import { loadPreloadedTimelineSelections } from "@/features/docs/timeline/OntologyTimelinePage";
+import { getDefaultTimelineClassificationSelector } from "@/features/docs/timeline/timeline-query";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("OntologyTimelineClientPage", () => {
@@ -39,10 +40,15 @@ describe("OntologyTimelineClientPage", () => {
     if (feedForwardTimeline?.status !== "success") {
       throw new Error("Expected feed-forward timeline preload to resolve");
     }
+    const defaultTimeline =
+      preloadedTimelines[getDefaultTimelineClassificationSelector()];
+    if (!defaultTimeline) {
+      throw new Error("Expected canonical default timeline preload to resolve");
+    }
 
     render(
       <OntologyTimelineClientPage
-        initialTimeline={preloadedTimelines.activation}
+        initialTimeline={defaultTimeline}
         locale="en"
         messages={messages}
         preloadedTimelines={preloadedTimelines}
@@ -84,10 +90,15 @@ describe("OntologyTimelineClientPage", () => {
 
     const messages = await loadUiMessages("en");
     const preloadedTimelines = loadPreloadedTimelineSelections("en");
+    const defaultTimeline =
+      preloadedTimelines[getDefaultTimelineClassificationSelector()];
+    if (!defaultTimeline) {
+      throw new Error("Expected canonical default timeline preload to resolve");
+    }
 
     render(
       <OntologyTimelineClientPage
-        initialTimeline={preloadedTimelines.activation}
+        initialTimeline={defaultTimeline}
         locale="en"
         messages={messages}
         preloadedTimelines={preloadedTimelines}
@@ -114,10 +125,15 @@ describe("OntologyTimelineClientPage", () => {
 
     const messages = await loadUiMessages("en");
     const preloadedTimelines = loadPreloadedTimelineSelections("en");
+    const defaultTimeline =
+      preloadedTimelines[getDefaultTimelineClassificationSelector()];
+    if (!defaultTimeline) {
+      throw new Error("Expected canonical default timeline preload to resolve");
+    }
 
     render(
       <OntologyTimelineClientPage
-        initialTimeline={preloadedTimelines.activation}
+        initialTimeline={defaultTimeline}
         locale="en"
         messages={messages}
         preloadedTimelines={preloadedTimelines}
@@ -137,15 +153,51 @@ describe("OntologyTimelineClientPage", () => {
     });
   });
 
+  test("keeps unsupported near-miss selectors in the empty recovery state", async () => {
+    setWindowLocationSearch("?classification=classification.activation");
+
+    const messages = await loadUiMessages("en");
+    const preloadedTimelines = loadPreloadedTimelineSelections("en");
+    const defaultTimeline =
+      preloadedTimelines[getDefaultTimelineClassificationSelector()];
+    if (!defaultTimeline) {
+      throw new Error("Expected canonical default timeline preload to resolve");
+    }
+
+    render(
+      <OntologyTimelineClientPage
+        initialTimeline={defaultTimeline}
+        locale="en"
+        messages={messages}
+        preloadedTimelines={preloadedTimelines}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("No dated timeline events")).toBeTruthy();
+    });
+    expect(screen.getByText(/classification\.activation/)).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", { name: messages.timelinePage.activationLink })
+        .getAttribute("href"),
+    ).toBe("/docs/timeline?classification=activation-functions");
+  });
+
   test("hydrates an invalid classification into the recoverable empty state", async () => {
     setWindowLocationSearch("?classification=not-a-real-slice");
 
     const messages = await loadUiMessages("en");
     const preloadedTimelines = loadPreloadedTimelineSelections("en");
+    const defaultTimeline =
+      preloadedTimelines[getDefaultTimelineClassificationSelector()];
+    if (!defaultTimeline) {
+      throw new Error("Expected canonical default timeline preload to resolve");
+    }
 
     render(
       <OntologyTimelineClientPage
-        initialTimeline={preloadedTimelines.activation}
+        initialTimeline={defaultTimeline}
         locale="en"
         messages={messages}
         preloadedTimelines={preloadedTimelines}
@@ -160,6 +212,15 @@ describe("OntologyTimelineClientPage", () => {
       screen
         .getByRole("link", { name: messages.timelinePage.activationLink })
         .getAttribute("href"),
-    ).toBe("/docs/timeline?classification=activation");
+    ).toBe("/docs/timeline?classification=activation-functions");
+    expect(
+      screen
+        .getAllByRole("link")
+        .some(
+          (element) =>
+            element.getAttribute("href") ===
+            "/docs/timeline?classification=activation-functions",
+        ),
+    ).toBe(true);
   });
 });
