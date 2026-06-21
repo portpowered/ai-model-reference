@@ -86,6 +86,14 @@ describe("typed taxonomy consumer audit", () => {
           }),
         ]),
       );
+      expect(audit.nextMigrationTarget).toEqual(
+        expect.objectContaining({
+          cluster: "search",
+          entryCount: 1,
+          fieldCount: 2,
+          unresolvedFieldBreadth: ["conceptType", "moduleType"],
+        }),
+      );
       expect(audit.entries[0]?.fieldReferences).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -102,6 +110,7 @@ describe("typed taxonomy consumer audit", () => {
       const report = formatTypedTaxonomyConsumerAudit(audit);
       expect(report).toContain("Typed taxonomy consumer audit");
       expect(report).toContain("Cluster summary");
+      expect(report).toContain("Recommended next migration target");
       expect(report).toContain("search");
       expect(report).toContain("sidebar/topology");
     } finally {
@@ -148,6 +157,7 @@ describe("typed taxonomy consumer audit", () => {
           text: "conceptType: conceptTypeSchema.optional(),",
         },
       ]);
+      expect(audit.nextMigrationTarget).toBeNull();
     } finally {
       rmSync(repoRoot, { force: true, recursive: true });
     }

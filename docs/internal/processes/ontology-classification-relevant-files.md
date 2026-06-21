@@ -32,8 +32,9 @@ the temporary legacy-id bridge.
   Focused proving-ground regression coverage for the migrated ontology slice.
 * `src/lib/governance/typed-taxonomy-consumer-audit.ts`
   Machine-checkable contract for remaining typed-taxonomy consumer clusters,
-  ownership, compatibility status, and the targeted deprecation fence across
-  runtime, generation, and authoring surfaces.
+  ownership, compatibility status, the recommended next migration target, and
+  the targeted deprecation fence across runtime, generation, and authoring
+  surfaces.
 * `src/lib/governance/typed-taxonomy-consumer-audit.test.ts`
   Regression coverage for grouped audit summaries and contract-drift detection.
 * `src/lib/governance/typed-taxonomy-consumer-fence.test.ts`

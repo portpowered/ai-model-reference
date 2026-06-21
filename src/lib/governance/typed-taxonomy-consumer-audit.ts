@@ -67,12 +67,23 @@ export type TypedTaxonomyConsumerAuditClusterSummary = {
   statusCounts: Record<TypedTaxonomyConsumerStatus, number>;
 };
 
+export type TypedTaxonomyNextMigrationTarget = {
+  cluster: TypedTaxonomyConsumerCluster;
+  clusterLabel: string;
+  entryCount: number;
+  fieldCount: number;
+  paths: readonly string[];
+  rationale: string;
+  unresolvedFieldBreadth: readonly LegacyTypedTaxonomyField[];
+};
+
 export type TypedTaxonomyConsumerAuditResult = {
   auditedAtUtc: string;
   clusterSummaries: readonly TypedTaxonomyConsumerAuditClusterSummary[];
   contractStatus: "aligned" | "drifted";
   entries: readonly TypedTaxonomyConsumerAuditEntry[];
   fieldInventory: readonly LegacyTypedTaxonomyField[];
+  nextMigrationTarget: TypedTaxonomyNextMigrationTarget | null;
   totals: {
     entryCount: number;
     fieldReferenceCount: number;
@@ -520,6 +531,70 @@ function buildStatusCounts(): Record<TypedTaxonomyConsumerStatus, number> {
   };
 }
 
+function pickNextMigrationTarget(
+  entries: readonly TypedTaxonomyConsumerAuditEntry[],
+): TypedTaxonomyNextMigrationTarget | null {
+  const unresolvedEntries = entries.filter(
+    (entry) => entry.status === "unresolved-migration-target",
+  );
+  if (unresolvedEntries.length === 0) {
+    return null;
+  }
+
+  const clusterCandidates = Object.entries(
+    TYPED_TAXONOMY_CONSUMER_CLUSTER_LABELS,
+  )
+    .map(([cluster, clusterLabel]) => {
+      const clusterEntries = unresolvedEntries.filter(
+        (entry) => entry.cluster === cluster,
+      );
+      if (clusterEntries.length === 0) {
+        return null;
+      }
+
+      const fieldBreadth = [
+        ...new Set(clusterEntries.flatMap((entry) => entry.fields)),
+      ].sort();
+      const fieldCount = clusterEntries.reduce(
+        (sum, entry) => sum + entry.fieldReferences.length,
+        0,
+      );
+
+      return {
+        cluster: cluster as TypedTaxonomyConsumerCluster,
+        clusterLabel,
+        entryCount: clusterEntries.length,
+        fieldCount,
+        paths: clusterEntries.map((entry) => entry.path).sort(),
+        rationale: clusterEntries.map((entry) => entry.rationale).join(" "),
+        unresolvedFieldBreadth: fieldBreadth,
+      } satisfies TypedTaxonomyNextMigrationTarget;
+    })
+    .filter((candidate) => candidate !== null);
+
+  clusterCandidates.sort((left, right) => {
+    if (right.fieldCount !== left.fieldCount) {
+      return right.fieldCount - left.fieldCount;
+    }
+
+    if (
+      right.unresolvedFieldBreadth.length !== left.unresolvedFieldBreadth.length
+    ) {
+      return (
+        right.unresolvedFieldBreadth.length - left.unresolvedFieldBreadth.length
+      );
+    }
+
+    if (right.entryCount !== left.entryCount) {
+      return right.entryCount - left.entryCount;
+    }
+
+    return left.clusterLabel.localeCompare(right.clusterLabel);
+  });
+
+  return clusterCandidates[0];
+}
+
 export function collectTypedTaxonomyConsumerAudit(
   repoRoot: string,
   options: CollectTypedTaxonomyConsumerAuditOptions = {},
@@ -582,6 +657,7 @@ export function collectTypedTaxonomyConsumerAudit(
     entries,
     clusterSummaries,
     fieldInventory: [...LEGACY_TYPED_TAXONOMY_FIELDS],
+    nextMigrationTarget: pickNextMigrationTarget(entries),
     totals: {
       entryCount: entries.length,
       fieldReferenceCount: entries.reduce(
@@ -613,6 +689,22 @@ export function formatTypedTaxonomyConsumerAudit(
     lines.push(
       `- ${summary.clusterLabel}: ${summary.entryCount} entries, ${summary.fieldCount} field references, ${summary.statusCounts["approved-compatibility-bridge"]} approved bridges, ${summary.statusCounts["migrated-ontology-first-consumer"]} migrated, ${summary.statusCounts["unresolved-migration-target"]} unresolved`,
     );
+  }
+
+  lines.push("", "Recommended next migration target");
+
+  if (!audit.nextMigrationTarget) {
+    lines.push("- none: no unresolved migration targets remain in the audit");
+  } else {
+    const target = audit.nextMigrationTarget;
+    lines.push(
+      `- ${target.clusterLabel}: ${target.entryCount} unresolved entries, ${target.fieldCount} observed field references, ${target.unresolvedFieldBreadth.length} deprecated fields still primary`,
+    );
+    lines.push(`  paths: ${target.paths.join(", ")}`);
+    lines.push(
+      `  deprecated fields: ${target.unresolvedFieldBreadth.join(", ")}`,
+    );
+    lines.push(`  why next: ${target.rationale}`);
   }
 
   for (const [cluster, clusterLabel] of Object.entries(
