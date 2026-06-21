@@ -107,7 +107,9 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
         [...expectedPeerIds].sort(),
       );
       expect(
-        peers.every((peer) => peer.reasonLabel === "Same variant group"),
+        peers.every(
+          (peer) => peer.reasonLabel === "Compatibility: same variant group",
+        ),
       ).toBe(true);
       expect(
         peers.every((peer) => peer.href?.startsWith("/docs/modules/")),
@@ -134,7 +136,9 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
         [...expectedPeerIds].sort(),
       );
       expect(
-        peers.every((peer) => peer.reasonLabel === "Same variant group"),
+        peers.every(
+          (peer) => peer.reasonLabel === "Compatibility: same variant group",
+        ),
       ).toBe(true);
       expect(
         peers.every((peer) => peer.href?.startsWith("/docs/modules/")),
@@ -173,7 +177,9 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
       );
       expect(peers.map((peer) => peer.registryId)).toEqual(expectedPeerIds);
       expect(
-        peers.every((peer) => peer.reasonLabel === "Same variant group"),
+        peers.every(
+          (peer) => peer.reasonLabel === "Compatibility: same variant group",
+        ),
       ).toBe(true);
       expect(
         peers.every((peer) => peer.href?.startsWith("/docs/modules/")),

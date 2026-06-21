@@ -401,12 +401,20 @@ Related-document sections are derived from taxonomy, tags, and typed registry fi
 If I am reading Multi-Head Attention, what nearby module variants should I inspect next?
 ```
 
-The registry should not require every page to manually list every nearby page. Instead, related resources are derived from fields such as:
+The registry should not require every page to manually list every nearby page.
+Instead, related resources are derived from ontology-first sources in this
+order:
+
+* direct ontology relationships
+* same-classification siblings
+* shared-parent classification peers
+
+Compatibility-only fallbacks may still exist for records without usable
+ontology peer data, but they are not the default contract. Those fallback
+inputs may include:
 
 * `variantGroup`
 * `conceptType`
-* `moduleFamily`
-* `moduleType`
 * `tags`
 * `usedByModelIds`
 * `introducedByPaperIds`
@@ -416,16 +424,18 @@ The registry should not require every page to manually list every nearby page. I
 Page components render those relationships as grouped sections:
 
 ```txt
-Same variant group
-Same concept type
-Same module family
-Shared tags
-Used by the same models
-Introduced by the same papers
+Direct relationships
+Same classification
+Shared parent classification
+Compatibility: same variant group
+Compatibility: same concept type
+Shared tag
 Curated related links
 ```
 
-`relatedIds` remains an override for high-value links that cannot be derived from taxonomy, such as a paper arguing against a method or a prerequisite concept that intentionally does not share tags.
+`relatedIds` remains an override for high-value links that cannot be derived
+from ontology or classification data, such as a paper arguing against a method
+or a prerequisite concept that intentionally does not share tags.
 
 MDX can introduce the section, but the component should read the registry and derive the current related documents.
 

@@ -6,6 +6,9 @@ import {
 import {
   applyRelatedDocMessageOverrides,
   CLASSIFICATION_SIBLINGS,
+  COMPATIBILITY_RELATED_DOC_GROUP_IDS,
+  COMPATIBILITY_SAME_CONCEPT_TYPE,
+  COMPATIBILITY_SAME_VARIANT_GROUP,
   CURATED_RELATED,
   DIRECT_RELATIONSHIPS,
   deriveClassificationSiblingPeers,
@@ -19,6 +22,7 @@ import {
   excludeRelatedDocItems,
   hasPublishedDocsPage,
   isPlannedRelatedTarget,
+  ONTOLOGY_RELATED_DOC_GROUP_IDS,
   PLANNED_RELATED_REASON_LABEL,
   registryDisplayTitle,
   SAME_CONCEPT_TYPE,
@@ -229,7 +233,9 @@ describe("related-docs", () => {
       "module.multi-query-attention",
     ]);
     expect(
-      peers.every((item) => item.reasonLabel === "Same variant group"),
+      peers.every(
+        (item) => item.reasonLabel === "Compatibility: same variant group",
+      ),
     ).toBe(true);
     expect(peers.every((item) => item.href?.includes("/docs/modules/"))).toBe(
       true,
@@ -291,7 +297,7 @@ describe("related-docs", () => {
     );
     expect(peers).toHaveLength(1);
     expect(peers[0]?.href).toBe("/docs/glossary/architecture");
-    expect(peers[0]?.reasonLabel).toBe("Same concept type");
+    expect(peers[0]?.reasonLabel).toBe("Compatibility: same concept type");
     expect(peers[0]?.isPlanned).toBe(false);
   });
 
@@ -545,7 +551,7 @@ describe("related-docs", () => {
     );
 
     expect(groups.map((group) => group.id)).toEqual([
-      SAME_CONCEPT_TYPE,
+      COMPATIBILITY_SAME_CONCEPT_TYPE,
       SHARED_TAGS,
     ]);
     expect(groups[0]?.items.map((item) => item.registryId)).toEqual([
@@ -626,7 +632,7 @@ describe("related-docs", () => {
     );
 
     expect(groups).toHaveLength(1);
-    expect(groups[0]?.id).toBe(SAME_VARIANT_GROUP);
+    expect(groups[0]?.id).toBe(COMPATIBILITY_SAME_VARIANT_GROUP);
     expect(groups[0]?.items).toHaveLength(2);
   });
 
@@ -639,10 +645,12 @@ describe("related-docs", () => {
     );
 
     expect(groups.map((group) => group.id)).toEqual([
-      SAME_CONCEPT_TYPE,
+      COMPATIBILITY_SAME_CONCEPT_TYPE,
       SHARED_TAGS,
     ]);
-    const plannedGroup = groups.find((group) => group.id === SAME_CONCEPT_TYPE);
+    const plannedGroup = groups.find(
+      (group) => group.id === COMPATIBILITY_SAME_CONCEPT_TYPE,
+    );
     expect(plannedGroup?.items[0]?.isPlanned).toBe(true);
   });
 
@@ -710,6 +718,18 @@ describe("related-docs", () => {
       DIRECT_RELATIONSHIPS,
       CLASSIFICATION_SIBLINGS,
       SHARED_PARENT_CLASSIFICATION,
+    ]);
+  });
+
+  test("related-doc contract exposes ontology and compatibility group inventories separately", () => {
+    expect(ONTOLOGY_RELATED_DOC_GROUP_IDS).toEqual([
+      DIRECT_RELATIONSHIPS,
+      CLASSIFICATION_SIBLINGS,
+      SHARED_PARENT_CLASSIFICATION,
+    ]);
+    expect(COMPATIBILITY_RELATED_DOC_GROUP_IDS).toEqual([
+      COMPATIBILITY_SAME_VARIANT_GROUP,
+      COMPATIBILITY_SAME_CONCEPT_TYPE,
     ]);
   });
 });

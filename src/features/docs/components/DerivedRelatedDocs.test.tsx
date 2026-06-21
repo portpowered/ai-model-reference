@@ -50,7 +50,9 @@ describe("DerivedRelatedDocs", () => {
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain("Shared tag");
-    expect(html).toContain('data-related-group="same-concept-type"');
+    expect(html).toContain(
+      'data-related-group="compatibility-same-concept-type"',
+    );
     expect(html).toContain('href="/docs/glossary/transformer"');
   });
 

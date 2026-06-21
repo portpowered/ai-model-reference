@@ -33,6 +33,10 @@ export const DIRECT_RELATIONSHIPS = "direct-relationships" as const;
 export const CLASSIFICATION_SIBLINGS = "classification-siblings" as const;
 export const SHARED_PARENT_CLASSIFICATION =
   "shared-parent-classification" as const;
+export const COMPATIBILITY_SAME_VARIANT_GROUP =
+  "compatibility-same-variant-group" as const;
+export const COMPATIBILITY_SAME_CONCEPT_TYPE =
+  "compatibility-same-concept-type" as const;
 export const CURATED_RELATED = "curated-related" as const;
 export const SAME_MODEL_FAMILY = "same-model-family" as const;
 export const SHARED_MODULES = "shared-modules" as const;
@@ -44,9 +48,9 @@ export type DerivedRelatedDocGroupId =
   | typeof DIRECT_RELATIONSHIPS
   | typeof CLASSIFICATION_SIBLINGS
   | typeof SHARED_PARENT_CLASSIFICATION
-  | typeof SAME_VARIANT_GROUP
+  | typeof COMPATIBILITY_SAME_VARIANT_GROUP
   | typeof SHARED_TAGS
-  | typeof SAME_CONCEPT_TYPE
+  | typeof COMPATIBILITY_SAME_CONCEPT_TYPE
   | typeof CURATED_RELATED
   | typeof SAME_MODEL_FAMILY
   | typeof SHARED_MODULES
@@ -60,15 +64,26 @@ export const DERIVED_RELATED_DOC_GROUP_LABELS: Record<
   [DIRECT_RELATIONSHIPS]: "Direct relationships",
   [CLASSIFICATION_SIBLINGS]: "Same classification",
   [SHARED_PARENT_CLASSIFICATION]: "Shared parent classification",
-  [SAME_VARIANT_GROUP]: "Same variant group",
+  [COMPATIBILITY_SAME_VARIANT_GROUP]: "Compatibility: same variant group",
   [SHARED_TAGS]: "Shared tag",
-  [SAME_CONCEPT_TYPE]: "Same concept type",
+  [COMPATIBILITY_SAME_CONCEPT_TYPE]: "Compatibility: same concept type",
   [CURATED_RELATED]: "curated",
   [SAME_MODEL_FAMILY]: "Same model family",
   [SHARED_MODULES]: "Shared modules",
   [SHARED_TRAINING_REGIMES]: "Shared training regimes",
   [INTRODUCED_RECORDS]: "Introduced by this paper",
 };
+
+export const ONTOLOGY_RELATED_DOC_GROUP_IDS = [
+  DIRECT_RELATIONSHIPS,
+  CLASSIFICATION_SIBLINGS,
+  SHARED_PARENT_CLASSIFICATION,
+] as const satisfies readonly DerivedRelatedDocGroupId[];
+
+export const COMPATIBILITY_RELATED_DOC_GROUP_IDS = [
+  COMPATIBILITY_SAME_VARIANT_GROUP,
+  COMPATIBILITY_SAME_CONCEPT_TYPE,
+] as const satisfies readonly DerivedRelatedDocGroupId[];
 
 export const PLANNED_RELATED_REASON_LABEL = "Planned related doc" as const;
 
@@ -120,8 +135,8 @@ const RELATED_DOC_GROUP_PRIORITY: readonly DerivedRelatedDocGroupId[] = [
   SAME_MODEL_FAMILY,
   SHARED_MODULES,
   SHARED_TRAINING_REGIMES,
-  SAME_VARIANT_GROUP,
-  SAME_CONCEPT_TYPE,
+  COMPATIBILITY_SAME_VARIANT_GROUP,
+  COMPATIBILITY_SAME_CONCEPT_TYPE,
   SHARED_TAGS,
 ];
 
@@ -420,6 +435,16 @@ function normalizeRequestedGroups(
         continue;
       }
 
+      if (groupId === SAME_VARIANT_GROUP) {
+        normalized.add(COMPATIBILITY_SAME_VARIANT_GROUP);
+        continue;
+      }
+
+      if (groupId === SAME_CONCEPT_TYPE) {
+        normalized.add(COMPATIBILITY_SAME_CONCEPT_TYPE);
+        continue;
+      }
+
       normalized.add(groupId);
     }
   }
@@ -473,7 +498,8 @@ export function deriveSameVariantGroupPeers(
     return [];
   }
 
-  const reasonLabel = DERIVED_RELATED_DOC_GROUP_LABELS[SAME_VARIANT_GROUP];
+  const reasonLabel =
+    DERIVED_RELATED_DOC_GROUP_LABELS[COMPATIBILITY_SAME_VARIANT_GROUP];
   return dedupeRelatedDocItems(
     modules
       .filter(
@@ -520,7 +546,8 @@ export function deriveSameConceptTypePeers(
     return [];
   }
 
-  const reasonLabel = DERIVED_RELATED_DOC_GROUP_LABELS[SAME_CONCEPT_TYPE];
+  const reasonLabel =
+    DERIVED_RELATED_DOC_GROUP_LABELS[COMPATIBILITY_SAME_CONCEPT_TYPE];
   return dedupeRelatedDocItems(
     candidates
       .filter(
@@ -918,7 +945,7 @@ export function deriveRelatedDocGroups(
   }
 
   if (
-    normalizedRequestedGroups.has(SAME_VARIANT_GROUP) &&
+    normalizedRequestedGroups.has(COMPATIBILITY_SAME_VARIANT_GROUP) &&
     source.kind === "module"
   ) {
     const moduleCandidates = candidates.filter(
@@ -930,9 +957,10 @@ export function deriveRelatedDocGroups(
       publishedRegistryIds,
     );
     if (items.length > 0) {
-      groupsById.set(SAME_VARIANT_GROUP, {
-        id: SAME_VARIANT_GROUP,
-        reasonLabel: DERIVED_RELATED_DOC_GROUP_LABELS[SAME_VARIANT_GROUP],
+      groupsById.set(COMPATIBILITY_SAME_VARIANT_GROUP, {
+        id: COMPATIBILITY_SAME_VARIANT_GROUP,
+        reasonLabel:
+          DERIVED_RELATED_DOC_GROUP_LABELS[COMPATIBILITY_SAME_VARIANT_GROUP],
         items,
       });
     }
@@ -1034,16 +1062,17 @@ export function deriveRelatedDocGroups(
     }
   }
 
-  if (normalizedRequestedGroups.has(SAME_CONCEPT_TYPE)) {
+  if (normalizedRequestedGroups.has(COMPATIBILITY_SAME_CONCEPT_TYPE)) {
     const items = deriveSameConceptTypePeers(
       source,
       candidates,
       publishedRegistryIds,
     );
     if (items.length > 0) {
-      groupsById.set(SAME_CONCEPT_TYPE, {
-        id: SAME_CONCEPT_TYPE,
-        reasonLabel: DERIVED_RELATED_DOC_GROUP_LABELS[SAME_CONCEPT_TYPE],
+      groupsById.set(COMPATIBILITY_SAME_CONCEPT_TYPE, {
+        id: COMPATIBILITY_SAME_CONCEPT_TYPE,
+        reasonLabel:
+          DERIVED_RELATED_DOC_GROUP_LABELS[COMPATIBILITY_SAME_CONCEPT_TYPE],
         items,
       });
     }
