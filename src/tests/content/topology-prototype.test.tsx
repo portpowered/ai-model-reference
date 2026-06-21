@@ -77,6 +77,20 @@ describe("topology prototype page", () => {
     expect(
       screen.getByText(messages.topologyPrototype.detailPanelTitle),
     ).toBeTruthy();
+    expect(
+      screen.getByText(messages.topologyPrototype.detailPanelHint),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(messages.topologyPrototype.detailPanelEmptyTitle),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(messages.topologyPrototype.detailPanelEmptyDescription),
+    ).toBeTruthy();
+    expect(
+      screen.getAllByRole("link", {
+        name: messages.topologyPrototype.detailOpenCanonicalPage,
+      }).length,
+    ).toBeGreaterThan(0);
   });
 
   test("renders localized vietnamese topology copy", async () => {
@@ -98,5 +112,19 @@ describe("topology prototype page", () => {
     expect(
       screen.getByText(messages.topologyPrototype.detailPanelTitle),
     ).toBeTruthy();
+    expect(
+      screen.getByText(messages.topologyPrototype.detailPanelHint),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(messages.topologyPrototype.detailPanelEmptyTitle),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(messages.topologyPrototype.detailPanelEmptyDescription),
+    ).toBeTruthy();
+    expect(
+      screen.getAllByRole("link", {
+        name: messages.topologyPrototype.detailOpenCanonicalPage,
+      }).length,
+    ).toBeGreaterThan(0);
   });
 });
