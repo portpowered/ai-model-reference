@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { renderTimelinePage } from "@/app/(site)/site-renderers";
+import { loadPreloadedTimelineSelections } from "@/features/docs/timeline/OntologyTimelinePage";
 import { loadOntologyTimelineData } from "@/lib/content/ontology-timeline";
 
 async function renderTimeline() {
@@ -155,5 +156,28 @@ describe("OntologyTimelinePage", () => {
 
     expect(html).toContain("Activation chronology");
     expect(html).toContain('data-testid="ontology-chrono-timeline"');
+  });
+
+  test("preloads canonical and legacy selectors for client-side timeline hydration", () => {
+    const preloaded = loadPreloadedTimelineSelections("en");
+
+    expect(preloaded["classification.module.feed-forward"]).toMatchObject({
+      status: "success",
+      classification: {
+        classificationId: "classification.module.feed-forward",
+      },
+    });
+    expect(preloaded["classification.feed-forward-networks"]).toMatchObject({
+      status: "success",
+      classification: {
+        classificationId: "classification.module.feed-forward",
+      },
+    });
+    expect(preloaded["feed-forward"]).toMatchObject({
+      status: "success",
+      classification: {
+        classificationId: "classification.module.feed-forward",
+      },
+    });
   });
 });

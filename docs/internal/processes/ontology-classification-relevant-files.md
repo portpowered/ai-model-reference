@@ -17,18 +17,31 @@ the temporary legacy-id bridge.
 * `src/lib/search/build-documents.ts`
   Search-term expansion that keeps canonical and legacy classification terms
   discoverable during migration.
+* `src/lib/content/ontology-classification-selectors.ts`
+  Shared canonical-plus-compatibility selector contract for customer-visible
+  ontology consumers. Use this when topology and timeline must accept the same
+  supported selector set across static preload and client hydration.
 * `src/features/topology/topology-data.ts`
   Selector-to-classification resolution and graph assembly for the customer-
   visible topology surface. Canonical ids/slugs should resolve before any
   temporary compatibility branch, and accepted legacy ids or shorthand
   selectors should stay on one explicit temporary path instead of piggybacking
   on generic runtime lookup.
+* `src/lib/content/ontology-timeline.ts`
+  Timeline classification resolution and item assembly. Keep selector matching
+  aligned with the shared ontology selector contract instead of ad hoc fuzzy
+  matching so canonical ids and explicit compatibility selectors behave the
+  same on server and client.
 * `src/lib/content/topology-navigation.ts`
   Registry-driven browse navigation options that expose classification slugs to
   the topology and timeline entry points.
 * `src/lib/search/legacy-taxonomy-compat.ts`
   Explicit compatibility adapter for search surfaces that still emit legacy
   typed-taxonomy facets while downstream filters migrate.
+* `src/features/docs/timeline/OntologyTimelinePage.tsx`
+  Timeline static preload registration. Any selector the timeline route accepts
+  must be preloaded here as well or the client route will drift from the
+  server-resolved contract.
 
 ## Reviewer-facing verification
 
@@ -63,5 +76,14 @@ the temporary legacy-id bridge.
 * `src/features/topology/topology-data.test.ts`
   Topology-surface assertions for canonical selection, invalid-selector
   recovery, and membership/relationship graph output.
+* `src/lib/content/ontology-timeline.test.ts`
+  Canonical-versus-compatibility selector assertions for the timeline data
+  layer.
+* `src/features/docs/timeline/OntologyTimelinePage.test.tsx`
+  Static preload coverage proving accepted selector forms survive the
+  server-to-client handoff.
+* `src/features/docs/timeline/OntologyTimelineClientPage.test.tsx`
+  Hydration coverage for canonical ids, legacy ids, and invalid timeline
+  selectors read from the browser URL.
 * `docs/data-model.md`
   Human-readable ontology contract and temporary bridge rules.

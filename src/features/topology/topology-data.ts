@@ -1,3 +1,4 @@
+import { resolveOntologyClassificationSelector } from "@/lib/content/ontology-classification-selectors";
 import {
   registryDisplayTitle,
   registryRecordHref,
@@ -7,7 +8,6 @@ import {
   getPrimaryClassificationForRecord,
   listClassificationMembers,
   listClassificationRecords,
-  listLegacyClassificationBridges,
   listOntologyRelationshipsForRecord,
   listSecondaryClassificationsForRecord,
 } from "@/lib/content/registry-runtime";
@@ -37,53 +37,53 @@ const TEMPORARY_TOPOLOGY_LEGACY_SELECTOR_ALIASES = new Map<string, string>([
   ["feed-forward-network", "classification.module.feed-forward"],
 ]);
 
-function resolveCanonicalClassificationForSelector(
-  selector: string,
-): ClassificationRecord | undefined {
-  return listClassificationRecords().find(
-    (classification) =>
-      classification.slug === selector || classification.id === selector,
-  );
-}
-
 function listTemporaryTopologyLegacyCompatibilitySelectors(): Map<
   string,
   string
 > {
-  const activeClassificationIds = new Set(
-    listTopologyNavigationOptions().map((option) => option.classificationId),
-  );
   const selectors = new Map(TEMPORARY_TOPOLOGY_LEGACY_SELECTOR_ALIASES);
 
-  for (const bridge of listLegacyClassificationBridges()) {
-    if (activeClassificationIds.has(bridge.canonicalId)) {
-      selectors.set(bridge.legacyId, bridge.canonicalId);
+  for (const option of listTopologyNavigationOptions()) {
+    const classification = getClassificationById(option.classificationId);
+    if (!classification) {
+      continue;
+    }
+
+    for (const legacyId of classification.legacyIds ?? []) {
+      selectors.set(legacyId, classification.id);
     }
   }
 
   return selectors;
 }
 
-function resolveLegacyCompatibilityClassificationForSelector(
-  selector: string,
-): ClassificationRecord | undefined {
-  const compatibilityClassificationId =
-    listTemporaryTopologyLegacyCompatibilitySelectors().get(selector);
-
-  return compatibilityClassificationId
-    ? getClassificationById(compatibilityClassificationId)
-    : undefined;
-}
-
 function resolveClassificationForSelector(
   selector: string,
 ): ClassificationRecord | undefined {
   const normalizedSelector = normalizeSelector(selector);
-
-  return (
-    resolveCanonicalClassificationForSelector(normalizedSelector) ??
-    resolveLegacyCompatibilityClassificationForSelector(normalizedSelector)
+  const classifications = listClassificationRecords();
+  const classification = resolveOntologyClassificationSelector(
+    normalizedSelector,
+    classifications,
   );
+
+  if (!classification) {
+    return undefined;
+  }
+
+  const supportedCompatibilitySelectors =
+    listTemporaryTopologyLegacyCompatibilitySelectors();
+
+  if (
+    classification.id === normalizedSelector ||
+    classification.slug === normalizedSelector ||
+    supportedCompatibilitySelectors.get(normalizedSelector) ===
+      classification.id
+  ) {
+    return classification;
+  }
+
+  return undefined;
 }
 
 export function resolveTopologyClassificationId(

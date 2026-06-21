@@ -1,3 +1,4 @@
+import { resolveOntologyClassificationSelector } from "@/lib/content/ontology-classification-selectors";
 import {
   buildPageReleaseMetadata,
   type ReleasablePageRecord,
@@ -92,61 +93,14 @@ export type BuildOntologyTimelineInput = {
   records: readonly RelatedRegistryRecord[];
 };
 
-function normalizeLookupValue(value: string): string {
-  return value.trim().toLowerCase();
-}
-
-function classificationMatchScore(
-  classification: ClassificationRecord,
-  requestedClassification: string,
-): number {
-  const requested = normalizeLookupValue(requestedClassification);
-  const id = normalizeLookupValue(classification.id);
-  const idSuffix = id.replace(/^classification\./, "");
-  const slug = normalizeLookupValue(classification.slug);
-  const aliases = classification.aliases.map(normalizeLookupValue);
-  const tags = classification.tags.map(normalizeLookupValue);
-
-  if (id === requested || `classification.${requested}` === id) {
-    return 100;
-  }
-  if (idSuffix === requested) {
-    return 95;
-  }
-  if (slug === requested) {
-    return 90;
-  }
-  if (slug.startsWith(`${requested}-`) || requested.startsWith(`${slug}-`)) {
-    return 80;
-  }
-  if (aliases.includes(requested)) {
-    return 70;
-  }
-  if (tags.includes(requested)) {
-    return 60;
-  }
-  if (aliases.some((alias) => alias.includes(requested))) {
-    return 50;
-  }
-
-  return 0;
-}
-
 function resolveClassification(
   classifications: readonly ClassificationRecord[],
   requestedClassification: string,
 ): ClassificationRecord | undefined {
-  return classifications
-    .map((classification) => ({
-      classification,
-      score: classificationMatchScore(classification, requestedClassification),
-    }))
-    .filter((match) => match.score > 0)
-    .sort(
-      (left, right) =>
-        right.score - left.score ||
-        left.classification.id.localeCompare(right.classification.id),
-    )[0]?.classification;
+  return resolveOntologyClassificationSelector(
+    requestedClassification,
+    classifications,
+  );
 }
 
 function pageByRegistryId(
