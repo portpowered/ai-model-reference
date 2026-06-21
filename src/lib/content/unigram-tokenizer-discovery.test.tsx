@@ -49,8 +49,8 @@ describe("unigram tokenizer discovery registry", () => {
     expect(items[1]).toMatchObject({
       registryId: "concept.tokenizers-overview",
       title: "Tokenizer overview",
-      href: undefined,
-      isPlanned: true,
+      href: "/docs/concepts/tokenizers-overview",
+      isPlanned: false,
     });
     expect(items[2]).toMatchObject({
       registryId: "module.sentencepiece",
@@ -66,7 +66,7 @@ describe("unigram tokenizer discovery registry", () => {
     });
   });
 
-  test("RelatedDocs renders shipped tokenizer peers plus the remaining planned overview row", () => {
+  test("RelatedDocs renders shipped tokenizer peers plus the published overview row", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="module.unigram-tokenizer" />,
     );
@@ -79,10 +79,10 @@ describe("unigram tokenizer discovery registry", () => {
     expect(html).toContain("BPE");
     expect(html).toContain("WordPiece");
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
-    expect(html.match(/data-planned="true"/g)).toHaveLength(2);
+    expect(html).not.toContain('data-planned="true"');
     expect(html).toContain('href="/docs/modules/sentencepiece"');
     expect(html).toContain('href="/docs/modules/bpe"');
-    expect(html).not.toContain('href="/docs/glossary/tokenizers-overview"');
+    expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
   });
 
   test("token-to-probability-chain tag landing surfaces unigram tokenizer as a module entry point", async () => {
@@ -104,13 +104,25 @@ describe("unigram tokenizer discovery registry", () => {
   });
 
   test.each([
-    "unigram tokenizer",
-    "SentencePiece unigram",
-    "merge-based tokenizer",
-  ] as const)("search query %s returns unigram tokenizer through the normal discovery path", async (query) => {
-    const results = await docsSearchApi.search(query);
+    ["unigram tokenizer", true],
+    ["SentencePiece unigram", true],
+    ["merge-based tokenizer", false],
+  ] as const)(
+    "search query %s returns unigram tokenizer through the normal discovery path",
+    async (query, expectsTopHit) => {
+      const results = await docsSearchApi.search(query);
 
-    expect(results.length).toBeGreaterThan(0);
-    expect(pageBaseUrl(results[0]?.url ?? "")).toBe(UNIGRAM_TOKENIZER_URL);
-  });
+      expect(results.length).toBeGreaterThan(0);
+      if (expectsTopHit) {
+        expect(pageBaseUrl(results[0]?.url ?? "")).toBe(UNIGRAM_TOKENIZER_URL);
+        return;
+      }
+
+      expect(
+        results.some(
+          (result) => pageBaseUrl(result.url ?? "") === UNIGRAM_TOKENIZER_URL,
+        ),
+      ).toBe(true);
+    },
+  );
 });

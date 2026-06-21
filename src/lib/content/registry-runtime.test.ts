@@ -142,7 +142,11 @@ describe("registry-runtime", () => {
     const record = getModuleById("module.sentencepiece");
     expect(record?.slug).toBe("sentencepiece");
     expect(record?.moduleType).toBe("tokenizer");
-    expect(record?.tags).toEqual(["tokenization", "foundations"]);
+    expect(record?.tags).toEqual([
+      "tokenization",
+      "foundations",
+      "token-to-probability-chain",
+    ]);
     expect(record?.aliases).toEqual(
       expect.arrayContaining([
         "SentencePiece",
@@ -156,6 +160,7 @@ describe("registry-runtime", () => {
       "concept.tokenizers-overview",
       "concept.token",
       "module.bpe",
+      "module.unigram-tokenizer",
       "module.wordpiece",
     ]);
     expect(record?.citationIds).toEqual(["citation.kudo-sentencepiece"]);
@@ -178,6 +183,7 @@ describe("registry-runtime", () => {
     expect(getRegistryTags("module.sentencepiece")).toEqual([
       "tokenization",
       "foundations",
+      "token-to-probability-chain",
     ]);
   });
 
