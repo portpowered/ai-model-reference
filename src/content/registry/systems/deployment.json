@@ -12,6 +12,8 @@
     "concept.kv-cache",
     "concept.kv-cache-quantization",
     "system.routing",
+    "system.inference-engine",
+    "system.batching",
     "system.on-disk-kv-cache",
     "system.expert-parallel-overlap",
     "model.gpt-3",

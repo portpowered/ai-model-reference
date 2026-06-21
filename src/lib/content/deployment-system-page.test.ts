@@ -44,6 +44,8 @@ describe("Deployment system page (deployment-system-page-001)", () => {
       "concept.kv-cache",
       "concept.kv-cache-quantization",
       "system.routing",
+      "system.inference-engine",
+      "system.batching",
       "system.on-disk-kv-cache",
       "system.expert-parallel-overlap",
       "model.gpt-3",
@@ -73,6 +75,12 @@ describe("Deployment system page (deployment-system-page-001)", () => {
     expect(
       items.find((item) => item.registryId === "system.routing")?.href,
     ).toBe("/docs/systems/routing");
+    expect(
+      items.find((item) => item.registryId === "system.inference-engine")?.href,
+    ).toBe("/docs/systems/inference-engine");
+    expect(
+      items.find((item) => item.registryId === "system.batching")?.href,
+    ).toBe("/docs/systems/batching");
     expect(
       items.find((item) => item.registryId === "concept.quantization")?.href,
     ).toBe("/docs/concepts/quantization");
@@ -145,10 +153,7 @@ describe("Deployment system page (deployment-system-page-001)", () => {
     const context = await loadAppTestContext();
     const page = await renderDocsSlugPage(["systems", "deployment"]);
     const rendered = await renderWithAppProviders(
-      createElement(CanonicalDocsLayout, {
-        messages: context.messages,
-        children: page,
-      }),
+      CanonicalDocsLayout({ messages: context.messages, children: page }),
       {
         context,
         SearchDialog: () => null,
@@ -177,6 +182,8 @@ describe("Deployment system page (deployment-system-page-001)", () => {
 
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/systems/routing"');
+    expect(html).toContain('href="/docs/systems/inference-engine"');
+    expect(html).toContain('href="/docs/systems/batching"');
     expect(html).toContain('href="/docs/concepts/quantization"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).toContain('href="/docs/systems/expert-parallel-overlap"');
