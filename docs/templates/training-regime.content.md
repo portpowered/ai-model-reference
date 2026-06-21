@@ -32,4 +32,16 @@ Follow [docs writing standards](../../factory/docs/standards/docs-writing-standa
 
 ## Registry Expectations
 
-The training regime registry record should include `regimeType`, `conceptType`, `variantGroup`, `usedByModelIds`, `relatedModuleIds`, `paperIds`, tags, aliases, citations, and curated `relatedIds` only when derived relationships are insufficient.
+Canonical taxonomy authoring for training regimes should start with
+`primaryClassificationId`, optional `secondaryClassificationIds`, and
+`relationships`. Use [the ontology convergence plan](../temp/ontology-classification-topology-convergence-plan.md)
+for the staged deprecation matrix.
+
+Treat `regimeType`, `conceptType`, `variantGroup`, and `sidebarGrouping` as
+deprecated compatibility fields in this slice. Do not introduce them as the
+preferred path in new starter content unless a current compatibility workflow
+still requires them.
+
+The training regime registry record should still include `usedByModelIds`,
+`relatedModuleIds`, `paperIds`, tags, aliases, citations, and curated
+`relatedIds` only when derived relationships are insufficient.

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { access, mkdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const repoRoot = join(import.meta.dir, "../../..");
@@ -31,6 +31,29 @@ async function pathExists(path: string): Promise<boolean> {
 }
 
 describe("contributor documented workflow commands", () => {
+  test("contributor guide publishes the ontology-first deprecation matrix", async () => {
+    const guidePath = join(repoRoot, "docs", "contributors", "CONTRIBUTING.md");
+    const guide = await readFile(guidePath, "utf8");
+
+    expect(guide).toContain("## Ontology-first taxonomy contract");
+    expect(guide).toContain(
+      "../temp/ontology-classification-topology-convergence-plan.md",
+    );
+    expect(guide).toContain("primaryClassificationId");
+    expect(guide).toContain("secondaryClassificationIds");
+    expect(guide).toContain("relationships");
+    expect(guide).toContain("moduleType");
+    expect(guide).toContain("conceptType");
+    expect(guide).toContain("regimeType");
+    expect(guide).toContain("systemType");
+    expect(guide).toContain("variantGroup");
+    expect(guide).toContain("moduleFamily");
+    expect(guide).toContain("sidebarGrouping");
+    expect(guide).toContain("Temporarily accepted with warnings");
+    expect(guide).toContain("Compatibility-only fallback");
+    expect(guide).toContain("No longer generated");
+  });
+
   test("generate:page-bundle dry-run previews observable paths from committed sample spec", () => {
     const result = runBun([
       "run",

@@ -666,6 +666,8 @@ describe("formatGeneratePageBundleUsage", () => {
     expect(usage).toContain("--spec");
     expect(usage).toContain("--dry-run");
     expect(usage).toContain("scaffold-doc-page");
+    expect(usage).toContain("primaryClassificationId");
+    expect(usage).toContain("Compatibility example page spec");
   });
 });
 
