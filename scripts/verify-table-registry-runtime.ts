@@ -3,16 +3,14 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
-  getContentRoot,
   getProjectRoot,
-  getRegistryRoot,
+  getRegistryCollectionRoot,
 } from "@/lib/content/content-paths";
 import type { TableRecord } from "@/lib/content/schemas";
 import { verifyGeneratedTableRegistryState } from "@/lib/content/table-registry-verification";
 
 const projectRoot = getProjectRoot();
-const contentRoot = getContentRoot(projectRoot);
-const tablesRegistryRoot = join(getRegistryRoot(contentRoot), "tables");
+const tablesRegistryRoot = getRegistryCollectionRoot("tables");
 const generatedModulePath = join(
   projectRoot,
   "src/lib/content/generated/table-registry.generated.ts",

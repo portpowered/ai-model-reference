@@ -1,7 +1,12 @@
 import { readdirSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
-import { getProjectRoot, getRegistryRoot } from "./content-paths";
+import {
+  getProjectRoot,
+  getRegistryCollectionRoot,
+  getRegistryRoot,
+  type RegistryCollection,
+} from "./content-paths";
 import {
   loadRegistry,
   RegistryLoadError,
@@ -9,7 +14,7 @@ import {
 } from "./registry";
 
 type RuntimeRegistryDirectory = {
-  directory: string;
+  directory: Exclude<RegistryCollection, "graphs" | "tables">;
   recordType: string;
   schemaName: string;
   recordsConst: string;
@@ -79,6 +84,13 @@ const runtimeRegistryDirectories: RuntimeRegistryDirectory[] = [
     schemaName: "organizationRecordSchema",
     recordsConst: "organizationRecords",
     mapConst: "organizationsById",
+  },
+  {
+    directory: "tags",
+    recordType: "TagRecord",
+    schemaName: "tagRecordSchema",
+    recordsConst: "tagRecords",
+    mapConst: "tagsById",
   },
   {
     directory: "citations",
@@ -208,7 +220,10 @@ function buildGeneratedSource(
   let importIndex = 0;
 
   for (const directory of runtimeRegistryDirectories) {
-    const directoryPath = join(registryRoot, directory.directory);
+    const directoryPath = getRegistryCollectionRoot(
+      directory.directory,
+      registryRoot,
+    );
     const jsonFiles = listJsonFiles(directoryPath);
 
     for (const fileName of jsonFiles) {
@@ -262,6 +277,7 @@ function buildGeneratedSource(
     "type OrganizationRecord",
     "type PaperRecord",
     "type SystemRecord",
+    "type TagRecord",
     "type TrainingRegimeRecord",
   ];
   const schemaImports = [
@@ -274,6 +290,7 @@ function buildGeneratedSource(
     "organizationRecordSchema",
     "paperRecordSchema",
     "systemRecordSchema",
+    "tagRecordSchema",
     "trainingRegimeRecordSchema",
   ].filter((schemaName) => usedSchemaNames.has(schemaName));
   const recordImports = [...recordTypeImports, ...schemaImports].join(",\n  ");
@@ -315,6 +332,7 @@ type OntologyParticipatingRegistryRecord =
 type RuntimeRegistryRecord =
   | TaggedRegistryRecord
   | ClassificationRecord
+  | TagRecord
   | CitationRecord;
 
 type OntologyRelationshipType =
@@ -372,6 +390,7 @@ function getRuntimeRecordById(
   return (
     getTaggedRecordById(registryId) ??
     classificationsById.get(registryId) ??
+    tagsById.get(registryId) ??
     citationsById.get(registryId)
   );
 }
@@ -421,6 +440,11 @@ export function getOrganizationById(
   return organizationsById.get(registryId);
 }
 
+/** Synchronous tag lookup for client prose auto-linking and tests. */
+export function getTagById(registryId: string): TagRecord | undefined {
+  return tagsById.get(registryId);
+}
+
 /** Synchronous citation lookup for source metadata and tests. */
 export function getCitationById(
   registryId: string,
@@ -454,6 +478,22 @@ export function listTrainingRegimeRecords(): TrainingRegimeRecord[] {
 
 export function listSystemRecords(): SystemRecord[] {
   return [...systemRecords];
+}
+
+export function listDatasetRecords(): DatasetRecord[] {
+  return [...datasetRecords];
+}
+
+export function listOrganizationRecords(): OrganizationRecord[] {
+  return [...organizationRecords];
+}
+
+export function listTagRecords(): TagRecord[] {
+  return [...tagRecords];
+}
+
+export function listCitationRecords(): CitationRecord[] {
+  return [...citationRecords];
 }
 
 /** Registry records used for derived related-document groups. */

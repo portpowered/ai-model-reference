@@ -30,6 +30,7 @@ export type UiMessages = {
     description: string;
     canonicalNote: string;
     tagFilterDescription: string;
+    classificationScopeDescription: string;
     emptySuggestionGqa: string;
     emptySuggestionAttentionLinkLabel: string;
     emptySuggestionPrefix: string;

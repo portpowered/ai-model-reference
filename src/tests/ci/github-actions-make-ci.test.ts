@@ -138,6 +138,9 @@ describe("GitHub Actions make ci", () => {
     expect(scripts.pretest).toBe(
       "bun run prepare:content-runtime && fumadocs-mdx",
     );
+    expect(scripts["pretest:website"]).toBe(
+      "bun run prepare:content-runtime && fumadocs-mdx",
+    );
     expect(scripts["pretest:build-contract"]).toBe(
       "bun run prepare:content-runtime && fumadocs-mdx",
     );

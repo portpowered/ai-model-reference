@@ -1,0 +1,46 @@
+{
+  "id": "module.local-attention",
+  "slug": "local-attention",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "local attention",
+    "Local attention",
+    "local window attention",
+    "long-context attention",
+    "windowed attention",
+    "windowed local attention",
+    "neighborhood attention"
+  ],
+  "tags": ["attention", "context-window"],
+  "relatedIds": [
+    "module.attention",
+    "module.sliding-window-attention",
+    "module.sparse-attention",
+    "concept.why-long-context-is-hard",
+    "concept.context-window"
+  ],
+  "citationIds": ["citation.longformer"],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "releaseDate": "2020-04-01",
+  "authors": ["Iz Beltagy", "Matthew E. Peters", "Arman Cohan"],
+  "sourceId": "citation.longformer",
+  "moduleType": "attention",
+  "moduleFamily": "attention",
+  "conceptType": "attention-variant",
+  "variantGroup": "attention-locality",
+  "optimizes": [
+    "attention-compute",
+    "memory-bandwidth",
+    "long-context-inference"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": ["module.attention"],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}

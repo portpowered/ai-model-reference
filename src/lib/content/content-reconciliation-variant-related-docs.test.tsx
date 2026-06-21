@@ -18,12 +18,15 @@ import type { ModuleRecord } from "@/lib/content/schemas";
 
 /** Attention modules with a published docs page and variantGroup after batch 017. */
 const ATTENTION_VARIANT_MODULE_IDS = [
+  "module.causal-attention",
   "module.bidirectional-attention",
   "module.multi-head-attention",
   "module.multi-query-attention",
   "module.grouped-query-attention",
   "module.multi-head-latent-attention",
+  "module.local-attention",
   "module.sparse-attention",
+  "module.block-sparse-attention",
   "module.sliding-window-attention",
   "module.linear-attention",
 ] as const;
@@ -44,17 +47,19 @@ const HEAD_SHARING_MODULE_URLS = [
 
 const SOLO_VARIANT_GROUP_MODULES = [
   {
-    registryId: "module.sparse-attention",
-    variantGroup: "sparse-patterns",
-  },
-  {
-    registryId: "module.sliding-window-attention",
-    variantGroup: "attention-locality",
-  },
-  {
     registryId: "module.linear-attention",
     variantGroup: "subquadratic-attention",
   },
+] as const;
+
+const SPARSE_PATTERN_REGISTRY_IDS = [
+  "module.sparse-attention",
+  "module.block-sparse-attention",
+] as const;
+
+const ATTENTION_LOCALITY_REGISTRY_IDS = [
+  "module.local-attention",
+  "module.sliding-window-attention",
 ] as const;
 
 function expectModuleRecord(registryId: string): ModuleRecord {
@@ -111,6 +116,33 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     }
   });
 
+  test("attention-locality peers cross-link local attention and sliding-window attention", () => {
+    const modules = listPublishedModuleRecords();
+
+    for (const sourceId of ATTENTION_LOCALITY_REGISTRY_IDS) {
+      const source = expectModuleRecord(sourceId);
+      const peers = deriveSameVariantGroupPeers(
+        source,
+        modules,
+        PUBLISHED_DOCS_REGISTRY_IDS,
+      );
+
+      const expectedPeerIds = ATTENTION_LOCALITY_REGISTRY_IDS.filter(
+        (id) => id !== sourceId,
+      );
+      expect(peers.map((peer) => peer.registryId).sort()).toEqual(
+        [...expectedPeerIds].sort(),
+      );
+      expect(
+        peers.every((peer) => peer.reasonLabel === "Same variant group"),
+      ).toBe(true);
+      expect(
+        peers.every((peer) => peer.href?.startsWith("/docs/modules/")),
+      ).toBe(true);
+      expect(peers.every((peer) => !peer.isPlanned)).toBe(true);
+    }
+  });
+
   test("solo variant groups omit same-variant-group peers until siblings publish", () => {
     const modules = listPublishedModuleRecords();
 
@@ -122,6 +154,31 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
         PUBLISHED_DOCS_REGISTRY_IDS,
       );
       expect(peers).toEqual([]);
+    }
+  });
+
+  test("sparse-pattern variants cross-link sparse and block-sparse attention once both publish", () => {
+    const modules = listPublishedModuleRecords();
+
+    for (const sourceId of SPARSE_PATTERN_REGISTRY_IDS) {
+      const source = expectModuleRecord(sourceId);
+      const peers = deriveSameVariantGroupPeers(
+        source,
+        modules,
+        PUBLISHED_DOCS_REGISTRY_IDS,
+      );
+
+      const expectedPeerIds = SPARSE_PATTERN_REGISTRY_IDS.filter(
+        (id) => id !== sourceId,
+      );
+      expect(peers.map((peer) => peer.registryId)).toEqual(expectedPeerIds);
+      expect(
+        peers.every((peer) => peer.reasonLabel === "Same variant group"),
+      ).toBe(true);
+      expect(
+        peers.every((peer) => peer.href?.startsWith("/docs/modules/")),
+      ).toBe(true);
+      expect(peers.every((peer) => !peer.isPlanned)).toBe(true);
     }
   });
 
@@ -166,12 +223,14 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     expect(html).toContain("curated");
   });
 
-  test("RelatedDocs prioritizes shipped self-attention, causal fallback, and encoder-side links on bidirectional attention", () => {
+  test("RelatedDocs adds the shipped causal peer before encoder-side curated links on bidirectional attention", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="module.bidirectional-attention" />,
     );
 
-    expect(html).not.toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('href="/docs/modules/causal-attention"');
+    expect(html).toContain("Same variant group");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
@@ -226,5 +285,32 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
       expect(html).toContain('data-testid="curated-related-docs"');
       expect(html).toContain("curated");
     }
+  });
+
+  test("sparse attention related docs render the published block-sparse sibling before curated links", () => {
+    const html = renderToStaticMarkup(
+      <RelatedDocs registryId="module.sparse-attention" />,
+    );
+
+    expect(html).toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('href="/docs/modules/block-sparse-attention"');
+    expect(html).toContain("Same variant group");
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain("curated");
+  });
+
+  test("sliding-window attention renders local-attention as its same-variant-group peer without duplicating curated links", () => {
+    const html = renderToStaticMarkup(
+      <RelatedDocs registryId="module.sliding-window-attention" />,
+    );
+
+    expect(html).toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('href="/docs/modules/local-attention"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html.match(/href="\/docs\/modules\/local-attention"/g)).toHaveLength(
+      1,
+    );
   });
 });

@@ -36,6 +36,7 @@ const BUILT_APP_CONVERGENCE_SCRIPT = join(
 );
 const BUILT_APP_CONVERGENCE_E2E_TIMEOUT_MS =
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 600_000;
+const NEXT_BUILD_CONTRACT_TIMEOUT_MS = 300_000;
 
 function runBuiltAppConvergenceScript(
   options: { cwd?: string; env?: Record<string, string | undefined> } = {},
@@ -116,7 +117,7 @@ describe("next build turbopack NFT tracing warning", () => {
         }
       }
     },
-    { timeout: 300_000 },
+    { timeout: NEXT_BUILD_CONTRACT_TIMEOUT_MS },
   );
 });
 

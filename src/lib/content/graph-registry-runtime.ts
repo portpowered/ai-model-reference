@@ -1,4 +1,4 @@
-import { graphRecords } from "@/lib/content/graph-registry-runtime.generated";
+import { graphRecords } from "@/lib/content/generated/graph-registry-runtime.generated";
 import type { GraphRecord } from "@/lib/content/schemas";
 
 const graphsById = new Map(graphRecords.map((record) => [record.id, record]));

@@ -11,18 +11,14 @@ import {
   resolveAssetText,
   validatePageAssetReferences,
 } from "./assets";
+import { getDocsPageDir } from "./content-paths";
 import {
   AssetLoadError,
   loadPageAssets,
   resolvePageAsset,
   resolvePageAssetWithMessages,
 } from "./page-assets-load";
-import {
-  getMessageString,
-  groupedQueryAttentionPageDir,
-  loadPageMessages,
-  tokenGlossaryPageDir,
-} from "./page-messages-load";
+import { getMessageString, loadPageMessages } from "./page-messages-load";
 import type { PageAssetConfig, PageMessages } from "./schemas";
 
 const assetFixture = JSON.parse(
@@ -40,6 +36,11 @@ const messageFixture = JSON.parse(
 
 const syncAssets = assetFixture as PageAssetConfig;
 const syncMessages = messageFixture as PageMessages;
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
+const tokenGlossaryPageDir = getDocsPageDir("glossary", "token");
 
 const validAssetConfig = {
   computeFlow: {

@@ -252,13 +252,16 @@ describe("Phase 1 baseline registry records", () => {
 
     expect(concept.id).toBe("concept.tokenizers-overview");
     expect(concept.kind).toBe("concept");
-    expect(concept.status).toBe("draft");
+    expect(concept.status).toBe("published");
+    expect(concept.conceptType).toBe("architecture");
     expect(concept.tags).toContain("tokenization");
     expect(concept.prerequisiteIds).toContain("concept.token");
+    expect(concept.relatedIds).toContain("concept.transformer-architecture");
     expect(concept.explainsIds).toEqual([
       "module.bpe",
       "module.wordpiece",
       "module.sentencepiece",
+      "module.unigram-tokenizer",
     ]);
   });
 
@@ -270,12 +273,16 @@ describe("Phase 1 baseline registry records", () => {
 
     expect(module.id).toBe("module.wordpiece");
     expect(module.kind).toBe("module");
-    expect(module.status).toBe("draft");
+    expect(module.status).toBe("published");
     expect(module.moduleType).toBe("tokenizer");
     expect(module.moduleFamily).toBe("tokenization");
     expect(module.variantGroup).toBe("subword-tokenizers");
     expect(module.relatedIds).toContain("module.bpe");
     expect(module.relatedIds).toContain("module.sentencepiece");
+    expect(module.citationIds).toContain("citation.gnmt-wordpiece");
+    expect(module.citationIds).toContain(
+      "citation.bert-pre-training-of-deep-bidirectional-transformers",
+    );
   });
 
   test("sentencepiece module JSON passes moduleRecordSchema", async () => {

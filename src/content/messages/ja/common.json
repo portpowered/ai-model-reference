@@ -32,8 +32,9 @@
   "searchEntry": {
     "title": "検索",
     "description": "タイトル、別名、タグで Model Atlas を検索します。検索コントロールを使ってモジュール、概念、用語集の項目へ移動できます。",
-    "canonicalNote": "正規の検索エントリ URL: /search。検索クエリの受け渡しでは ?q=<term> を、タグの受け渡しでは ?tag=<slug> を付けることがあります（例: /search?tag=attention）。",
+    "canonicalNote": "正規の検索エントリ URL: /search。検索クエリの受け渡しでは ?q=<term>、タグでは ?tag=<slug>、分類では ?classification=<id-or-slug> を付けることがあります（例: /search?classification=activation）。",
     "tagFilterDescription": "{tag} タグの付いたリソースの結果を表示しています。",
+    "classificationScopeDescription": "{classification} 分類に絞った結果を表示しています。",
     "emptySuggestionGqa": "GQA",
     "emptySuggestionAttentionLinkLabel": "attention タグ一覧",
     "emptySuggestionPrefix": "たとえば",

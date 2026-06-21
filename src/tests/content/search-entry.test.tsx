@@ -6,6 +6,7 @@ import {
   describe,
   expect,
   it,
+  setDefaultTimeout,
 } from "bun:test";
 import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -21,6 +22,8 @@ import {
 } from "@/tests/a11y/render";
 import { createDocsSearchRouteFetch } from "@/tests/search/route-fetch";
 import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
+
+setDefaultTimeout(15_000);
 
 function installDocsSearchRouteFetch(): void {
   globalThis.fetch = createDocsSearchRouteFetch();

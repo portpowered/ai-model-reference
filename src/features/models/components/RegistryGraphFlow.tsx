@@ -18,6 +18,7 @@ import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { InlineMath } from "@/features/docs/components/Math";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
+import type { GraphLegendItem } from "@/features/graphs/components/GraphFrame";
 import {
   buildRegistryGraphFlowNodeThemeStyle,
   REGISTRY_GRAPH_FLOW_INTERACTION,
@@ -584,16 +585,28 @@ export function RegistryGraphFlow({
   graphId,
   alt,
   caption,
+  title,
+  legend,
 }: {
   assetId: string;
   graphId: string;
   alt?: string;
   caption?: string;
+  title?: string;
+  legend?: readonly GraphLegendItem[];
 }) {
   const accessibleLabel = alt ?? `Graph ${graphId}`;
 
   return (
     <figure className="registry-graph-flow-figure">
+      {title ? (
+        <div
+          className="mb-3 text-center text-sm font-semibold tracking-[0.16em] text-muted-foreground uppercase"
+          data-graph-title={graphId}
+        >
+          {title}
+        </div>
+      ) : null}
       <ReactFlowProvider>
         <RegistryGraphFlowCanvas
           assetId={assetId}
@@ -601,6 +614,22 @@ export function RegistryGraphFlow({
           alt={accessibleLabel}
         />
       </ReactFlowProvider>
+      {legend && legend.length > 0 ? (
+        <div
+          className="mt-3 flex flex-wrap items-center justify-center gap-4 rounded-xl border border-border/60 bg-card/35 px-4 py-3 text-sm"
+          data-graph-legend={graphId}
+        >
+          {legend.map((item) => (
+            <div key={item.label} className="flex items-center gap-2">
+              <span
+                className="size-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: item.color }}
+              />
+              <span>{item.label}</span>
+            </div>
+          ))}
+        </div>
+      ) : null}
       {caption ? <figcaption>{caption}</figcaption> : null}
     </figure>
   );

@@ -1,0 +1,144 @@
+{
+  "title": "Hyperbolic Tangent Activation",
+  "description": "A smooth activation function that maps each value into a centered -1-to-1 range.",
+  "openingSummary": "The hyperbolic tangent activation, usually called tanh, maps any input value into a number between -1 and 1. It kept the smooth S-curve behavior of sigmoid while centering outputs around 0, but its flat tails still made deep networks train slowly when many values saturated.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "The hyperbolic tangent activation is a smooth function that maps each input value x to a value between -1 and 1. Large negative inputs move close to -1, large positive inputs move close to 1, and inputs near 0 stay near 0. In a neural network, that centered range lets a hidden value carry negative, neutral, or positive evidence."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Tanh was useful because early neural networks needed differentiable nonlinear rules, but sigmoid outputs are always positive. Centering the output around 0 often makes the next layer easier to balance because positive and negative activations can offset each other."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Tanh works one value at a time. Near x = 0, the curve has a strong slope and behaves almost like the identity function. Far from 0, the curve flattens near -1 or 1, so very large negative or positive values change the output only a little."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formula below shows the centered S-curve rule. The key features are the -1-to-1 output range, the zero-centered midpoint, and the flat tails on both sides."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with sigmoid, tanh keeps the same saturating S-curve shape but shifts the midpoint from 0.5 to 0. Compared with ReLU, tanh is bounded on both sides, so it can express negative activations but cannot keep growing for large positive inputs."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Tanh appears in older dense networks and recurrent neural networks, especially where a hidden state benefits from a bounded centered range. Modern transformer feed-forward blocks usually use ReLU-like or gated activations instead because tanh saturation can weaken gradient flow through deep stacks."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "The main tradeoff is saturation. Once an input lands far into either tail, the output is almost fixed near -1 or 1, and the local gradient becomes small. That can slow learning in early layers of deep networks, even though the centered output is easier to work with than sigmoid's positive-only range."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Tanh still matters because it separates two ideas that are easy to confuse: centered activations can help signal balance, while saturating tails can still make optimization harder. That contrast explains why later activation functions kept stronger slopes while moving away from bounded S-curves."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Activation chart showing the tanh curve centered at 0 and bounded between -1 and 1 with flat tails on both sides",
+      "variants": {
+        "tanh": {
+          "label": "Tanh"
+        },
+        "sigmoid": {
+          "label": "Sigmoid"
+        },
+        "relu": {
+          "label": "ReLU"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "tanh": {
+          "title": "Tanh"
+        },
+        "sigmoid": {
+          "title": "Sigmoid"
+        },
+        "relu": {
+          "title": "ReLU"
+        }
+      },
+      "dimensions": {
+        "outputRange": "Output range",
+        "centerPoint": "Center point",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "tanh": {
+          "outputRange": "Always between -1 and 1",
+          "centerPoint": "Centered at 0",
+          "mainTradeoff": "Keeps negative and positive evidence, but saturated tails weaken gradients"
+        },
+        "sigmoid": {
+          "outputRange": "Always between 0 and 1",
+          "centerPoint": "Centered at 0.5",
+          "mainTradeoff": "Useful as a soft gate, but positive-only outputs can shift the next layer"
+        },
+        "relu": {
+          "outputRange": "0 for negative values, unbounded for positive values",
+          "centerPoint": "Hard cutoff at 0",
+          "mainTradeoff": "Keeps a strong positive slope, but drops negative signal"
+        }
+      }
+    }
+  },
+  "math": {
+    "tanhSchema": {
+      "label": "Hyperbolic tangent activation",
+      "formula": "\\tanh(x) = \\frac{e^x - e^{-x}}{e^x + e^{-x}}",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "One input value before the activation rule is applied."
+        },
+        "tanh": {
+          "term": "\\tanh",
+          "definition": "Hyperbolic tangent function."
+        },
+        "e": {
+          "term": "e",
+          "definition": "Base of the natural exponential."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputState": {
+        "label": "Token state h_t"
+      },
+      "expandProjection": {
+        "label": "Wide projection W_1"
+      },
+      "activationRule": {
+        "label": "tanh(x) maps into -1 to 1"
+      },
+      "saturationBehavior": {
+        "label": "Tails flatten near -1 and 1"
+      },
+      "projectBack": {
+        "label": "Project back with W_2"
+      },
+      "outputState": {
+        "label": "Updated token state"
+      }
+    }
+  }
+}

@@ -3,10 +3,12 @@ import { readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const repoRoot = join(import.meta.dir, "..");
-// The website suite contains several long-running render/a11y files whose
-// timeouts become scheduler-dependent under aggressive sharding. Keep the
-// default serial so `bun run test` stays deterministic; callers can still opt
-// into more shards through WEBSITE_TEST_PARALLEL_WORKERS when they want speed.
+/**
+ * Keep plain `make test` aligned with the CI matrix default. The website suite
+ * contains many heavyweight server-render and search rows that are stable under
+ * the serialized worker budget used in CI, but can time out locally when Bun
+ * fans them back out across multiple shards by default.
+ */
 const defaultParallelWorkers = 1;
 
 const excludedPrefixes = [

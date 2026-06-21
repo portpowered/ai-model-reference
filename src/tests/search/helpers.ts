@@ -166,6 +166,12 @@ export function createRetriedStaticClientSearch(
   };
 }
 
+export function resultsIncludeTokenizersOverview(
+  results: Array<{ url: string }>,
+): boolean {
+  return resultsIncludeUrl(results, "/docs/concepts/tokenizers-overview");
+}
+
 type ThinMetadataQueries = {
   queryAllByTestId: (id: string) => HTMLElement[];
   queryByTestId: (id: string) => HTMLElement | null;

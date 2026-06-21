@@ -1,0 +1,46 @@
+{
+  "id": "system.inference-engine",
+  "slug": "inference-engine",
+  "kind": "system",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "inference engine",
+    "model runtime",
+    "serving engine",
+    "LLM inference engine"
+  ],
+  "tags": ["foundations", "kv-cache", "quantization"],
+  "relatedIds": [
+    "concept.kv-cache",
+    "concept.quantization",
+    "concept.prefill",
+    "concept.decode",
+    "concept.prefill-decode-split",
+    "system.on-disk-kv-cache",
+    "system.expert-parallel-overlap",
+    "model.gpt-3",
+    "model.deepseek-v4-pro"
+  ],
+  "citationIds": ["citation.brown-gpt-3", "citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2020-05-28",
+  "authors": ["OpenAI"],
+  "sourceId": "citation.brown-gpt-3",
+  "systemType": "runtime",
+  "relatedModelIds": ["model.gpt-3", "model.deepseek-v4-pro"],
+  "relatedModuleIds": [],
+  "relatedConceptIds": [
+    "concept.kv-cache",
+    "concept.quantization",
+    "concept.prefill",
+    "concept.decode",
+    "concept.prefill-decode-split"
+  ],
+  "paperIds": ["paper.deepseek-v4"],
+  "datasetIds": [],
+  "conceptType": "inference",
+  "variantGroup": "serving-runtime-foundations"
+}

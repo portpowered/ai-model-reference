@@ -1,10 +1,12 @@
+import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { getGeneratedContentRuntimeRoot } from "@/lib/content/content-paths";
 import { deriveShippedLocalizedDocsManifest } from "@/lib/content/shipped-localized-docs.server";
 
 const outputPath = path.join(
-  process.cwd(),
-  "src/generated/shipped-localized-docs.ts",
+  getGeneratedContentRuntimeRoot(process.cwd()),
+  "shipped-localized-docs.generated.ts",
 );
 const manifest = deriveShippedLocalizedDocsManifest();
 
@@ -14,5 +16,20 @@ export const SHIPPED_LOCALIZED_DOCS = ${JSON.stringify(manifest, null, 2)} as co
 
 mkdirSync(path.dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, fileContents, "utf8");
+
+const formatResult = spawnSync(
+  "bunx",
+  ["biome", "format", "--write", outputPath],
+  {
+    cwd: process.cwd(),
+    encoding: "utf8",
+  },
+);
+
+if (formatResult.status !== 0) {
+  throw new Error(
+    `Failed to format ${outputPath}: ${formatResult.stderr || formatResult.stdout}`,
+  );
+}
 
 console.log(`Wrote shipped localized docs manifest to ${outputPath}`);

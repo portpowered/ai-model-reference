@@ -1,13 +1,16 @@
 import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { getDocsPageDir } from "./content-paths";
 import { loadPageAssets } from "./page-assets-load";
-import {
-  groupedQueryAttentionPageDir,
-  loadPageMessages,
-  tokenGlossaryPageDir,
-} from "./page-messages-load";
+import { loadPageMessages } from "./page-messages-load";
 import { pageFrontmatterSchema } from "./schemas";
+
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
+const tokenGlossaryPageDir = getDocsPageDir("glossary", "token");
 
 function parseYamlFrontmatterBlock(block: string): Record<string, unknown> {
   const result: Record<string, unknown> = {};

@@ -104,6 +104,11 @@ describe("RegistryGraphFlow", () => {
             graphId="graph.grouped-query-attention-compute-flow"
             alt={messages.assets?.computeFlow?.alt}
             caption={messages.assets?.computeFlow?.caption}
+            title="Grouped-Query Attention Compute Flow"
+            legend={[
+              { color: "#111111", label: "Attention path" },
+              { color: "#2563eb", label: "Cache reuse" },
+            ]}
           />
         </PageAssetsProvider>
       </PageMessagesProvider>,
@@ -139,6 +144,15 @@ describe("RegistryGraphFlow", () => {
     expect(html).toContain('data-graph-node-count="6"');
     expect(html).toContain("Hidden states");
     expect(html).toContain("G query groups");
+    expect(html).toContain(
+      'data-graph-title="graph.grouped-query-attention-compute-flow"',
+    );
+    expect(html).toContain("Grouped-Query Attention Compute Flow");
+    expect(html).toContain(
+      'data-graph-legend="graph.grouped-query-attention-compute-flow"',
+    );
+    expect(html).toContain("Attention path");
+    expect(html).toContain("Cache reuse");
     expect(html).toContain(
       "Query groups route to shared KV heads during attention",
     );
