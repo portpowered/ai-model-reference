@@ -159,7 +159,7 @@ function toRelatedItem(
   };
 }
 
-/** Peers sharing `variantGroup` with the source module, excluding the source. */
+/** Published peers sharing `variantGroup` with the source module, excluding the source. */
 export function deriveSameVariantGroupPeers(
   source: ModuleRecord,
   modules: ModuleRecord[],
@@ -175,7 +175,8 @@ export function deriveSameVariantGroupPeers(
       .filter(
         (candidate) =>
           candidate.id !== source.id &&
-          candidate.variantGroup === source.variantGroup,
+          candidate.variantGroup === source.variantGroup &&
+          hasPublishedDocsPage(candidate, publishedRegistryIds),
       )
       .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
       .sort((a, b) => a.title.localeCompare(b.title)),

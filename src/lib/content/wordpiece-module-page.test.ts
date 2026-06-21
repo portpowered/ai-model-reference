@@ -19,7 +19,7 @@ describe("wordpiece module page", () => {
     expect(page?.messages.openingSummary?.length).toBeGreaterThan(0);
   });
 
-  test("renders a customer-facing WordPiece explainer with related links and citations", async () => {
+  test("renders a customer-facing WordPiece explainer with shipped related links, no placeholders, and citations", async () => {
     const page = await loadModulePage("wordpiece");
 
     expect(page.frontmatter.registryId).toBe("module.wordpiece");
@@ -46,11 +46,16 @@ describe("wordpiece module page", () => {
       "Google&#x27;s Neural Machine Translation System: Bridging the Gap between Human and Machine Translation.",
     );
     expect(html).not.toContain("Reader Shortcut");
+    expect(html).not.toContain("later story");
+    expect(html).not.toContain(
+      "planned - coming in a later phase to be planned",
+    );
   });
 
   test.each([
     "WordPiece",
     "word piece",
+    "wordpiece tokenizer",
   ] as const)("search ranks the canonical WordPiece page for %s", async (query) => {
     const results = await docsSearchApi.search(query);
 
