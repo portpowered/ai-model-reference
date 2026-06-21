@@ -771,14 +771,15 @@ export function listClassificationChildren(
   classificationId: string,
   options: ClassificationTraversalOptions = {},
 ): ClassificationRecord[] {
-  if (!classificationsById.has(classificationId)) {
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
     return [];
   }
 
   return classificationRecords
     .filter(
       (classification) =>
-        classification.parentClassificationId === classificationId &&
+        classification.parentClassificationId === resolvedClassificationId &&
         matchesClassificationTraversalOptions(classification, options),
     )
     .sort(compareClassificationRecords);
@@ -788,14 +789,15 @@ export function listClassificationAncestors(
   classificationId: string,
   options: ClassificationTraversalOptions = {},
 ): ClassificationRecord[] {
-  if (!classificationsById.has(classificationId)) {
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
     return [];
   }
 
   const ancestors: ClassificationRecord[] = [];
   const visited = new Set<string>();
   let parentClassificationId =
-    classificationsById.get(classificationId)?.parentClassificationId;
+    classificationsById.get(resolvedClassificationId)?.parentClassificationId;
 
   while (parentClassificationId && !visited.has(parentClassificationId)) {
     visited.add(parentClassificationId);
@@ -817,13 +819,14 @@ export function listClassificationDescendants(
   classificationId: string,
   options: ClassificationTraversalOptions = {},
 ): ClassificationRecord[] {
-  if (!classificationsById.has(classificationId)) {
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
     return [];
   }
 
   const descendants: ClassificationRecord[] = [];
   const visited = new Set<string>();
-  const stack = listClassificationChildren(classificationId, {
+  const stack = listClassificationChildren(resolvedClassificationId, {
     ...options,
     statuses: options.statuses ?? [],
   })

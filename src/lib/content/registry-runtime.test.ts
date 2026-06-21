@@ -386,7 +386,7 @@ describe("registry-runtime", () => {
     ).toEqual([]);
   });
 
-  test("classification traversal helpers expose stable roots, children, and ancestors", () => {
+  test("classification traversal helpers expose stable roots, children, ancestors, and descendants", () => {
     expect(
       listClassificationRoots().map((classification) => classification.id),
     ).toEqual([
@@ -415,12 +415,31 @@ describe("registry-runtime", () => {
       "classification.module.tokenization",
       "classification.module.transformer-block",
     ]);
+    expect(
+      listClassificationChildren("classification.attention-mechanisms").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual([
+      "classification.module.attention.grouped-query",
+      "classification.module.attention.multi-head",
+    ]);
 
     expect(
       listClassificationAncestors("classification.activation-functions").map(
         (classification) => classification.id,
       ),
     ).toEqual(["classification.module"]);
+    expect(
+      listClassificationAncestors(
+        "classification.module.attention.grouped-query",
+      ).map((classification) => classification.id),
+    ).toEqual(["classification.module.attention", "classification.module"]);
+    expect(
+      listClassificationRoots({
+        classifiesKinds: ["module"],
+        statuses: ["draft"],
+      }),
+    ).toEqual([]);
     expect(
       listClassificationChildren("classification.missing-runtime-record"),
     ).toEqual([]);
@@ -430,6 +449,14 @@ describe("registry-runtime", () => {
     expect(
       listClassificationDescendants("classification.activation-functions"),
     ).toEqual([]);
+    expect(
+      listClassificationDescendants("classification.attention-mechanisms").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual([
+      "classification.module.attention.grouped-query",
+      "classification.module.attention.multi-head",
+    ]);
   });
 
   test("classification tree runtime builds renderable nodes and hides empty branches by default", () => {
