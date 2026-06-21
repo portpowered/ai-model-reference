@@ -221,6 +221,7 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.relatedIds).toEqual([
       "module.attention",
       "module.multi-head-attention",
+      "module.causal-attention",
       "module.bidirectional-attention",
       "concept.transformer-architecture",
       "concept.encoder-decoder",

@@ -72,6 +72,9 @@
         "mha": {
           "title": "Multi-Head Attention"
         },
+        "causal": {
+          "title": "Causal Attention"
+        },
         "bidirectional": {
           "title": "Bidirectional Attention"
         }
@@ -96,6 +99,11 @@
           "querySource": "The same sequence that also produces keys and values in standard self-attention",
           "memorySource": "The same sequence, split across multiple heads",
           "mainUse": "Baseline dense attention inside Transformer blocks"
+        },
+        "causal": {
+          "querySource": "The active generated prefix up to the current token",
+          "memorySource": "The same growing sequence, but future positions are masked out",
+          "mainUse": "Autoregressive decoding where each token predicts the next one without seeing future tokens"
         },
         "bidirectional": {
           "querySource": "The visible sequence being encoded",

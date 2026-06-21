@@ -15,6 +15,10 @@
       "titleKey": "tables.comparison.columns.mha.title"
     },
     {
+      "moduleId": "module.causal-attention",
+      "titleKey": "tables.comparison.columns.causal.title"
+    },
+    {
       "moduleId": "module.bidirectional-attention",
       "titleKey": "tables.comparison.columns.bidirectional.title"
     }
@@ -48,6 +52,11 @@
       "querySource": "tables.comparison.values.mha.querySource",
       "memorySource": "tables.comparison.values.mha.memorySource",
       "mainUse": "tables.comparison.values.mha.mainUse"
+    },
+    "module.causal-attention": {
+      "querySource": "tables.comparison.values.causal.querySource",
+      "memorySource": "tables.comparison.values.causal.memorySource",
+      "mainUse": "tables.comparison.values.causal.mainUse"
     },
     "module.bidirectional-attention": {
       "querySource": "tables.comparison.values.bidirectional.querySource",

@@ -84,7 +84,11 @@ describe("loadModulePage cross-attention", () => {
     );
     expect(html).toContain('data-graph-node-id="cross-time-kv-s-2"');
     expect(html).toContain('data-table-id="table.cross-attention-comparison"');
+    expect(html).toContain("Causal Attention");
     expect(html).toContain("Where keys and values come from");
+    expect(html).toContain(
+      "The same growing sequence, but future positions are masked out",
+    );
     expect(html).toContain('href="/docs/glossary/encoder-decoder"');
     expect(html).toContain('href="/docs/glossary/multimodal-model"');
     expect(html).toContain('data-testid="curated-related-docs"');
@@ -130,6 +134,9 @@ describe("cross-attention page assets", () => {
     }
     expect(assets.comparisonTable.type).toBe("table");
     expect(validatePageAssetReferences(assets, messages)).toEqual([]);
+    expect(messages.tables?.comparison?.columns?.causal?.title).toBe(
+      "Causal Attention",
+    );
   });
 });
 
