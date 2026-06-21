@@ -1,4 +1,3 @@
-import type { TopologyNavigationOption } from "@/lib/content/topology-navigation";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   buildLocalizedRoute,
@@ -24,36 +23,10 @@ export type PrimaryNavItem = {
   label: string;
 };
 
-type PrimaryNavOptions = {
-  topologyOptions?: readonly TopologyNavigationOption[];
-};
-
-function formatTopologyNavLabel(
-  messages: UiMessages,
-  option: TopologyNavigationOption,
-  destination: TopologyNavigationOption["destinations"][number],
-): string {
-  return messages.topologyBrowse.navigationLabelTemplate
-    .replaceAll("{classification}", option.label)
-    .replaceAll("{mode}", destination.label);
-}
-
-function getTopologyPrimaryNavItems(
-  messages: UiMessages,
-  topologyOptions: readonly TopologyNavigationOption[] = [],
-): PrimaryNavItem[] {
-  return topologyOptions.flatMap((option) =>
-    option.destinations.map((destination) => ({
-      href: destination.href,
-      label: formatTopologyNavLabel(messages, option, destination),
-    })),
-  );
-}
-
 export function getPrimaryNavItems(
   messages: UiMessages,
   locale: SiteLocale = defaultLocale,
-  options: PrimaryNavOptions = {},
+  _options = {},
 ): PrimaryNavItem[] {
   return [
     {

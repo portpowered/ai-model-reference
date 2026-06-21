@@ -24,19 +24,24 @@ describe("topology prototype page", () => {
 
     const { topologyPrototype } = messages;
     expect(screen.getByText(topologyPrototype.title)).toBeTruthy();
-    expect(screen.getByText(topologyPrototype.description)).toBeTruthy();
-    expect(screen.getByText(topologyPrototype.selectedViewValue)).toBeTruthy();
+    expect(screen.queryByText(topologyPrototype.description)).toBeNull();
+    expect(
+      screen.getByRole("navigation", {
+        name: topologyPrototype.chipListLabel,
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", {
+        name: topologyPrototype.clearSelectionLabel,
+      }),
+    ).toBeTruthy();
     expect(screen.getByText(topologyPrototype.successTitle)).toBeTruthy();
-    expect(screen.getByText(topologyPrototype.nodeActivation)).toBeTruthy();
-    expect(screen.getByText(topologyPrototype.nodeRelu)).toBeTruthy();
-    expect(screen.getByText(topologyPrototype.nodeSwiGLU)).toBeTruthy();
-    expect(screen.getByText(topologyPrototype.nodeFeedForward)).toBeTruthy();
     expect(
       screen.getByRole("img", { name: topologyPrototype.graphLabel }),
     ).toBeTruthy();
   });
 
-  test("renders loading, empty, error, and success regions in the docs shell", async () => {
+  test("renders the quieter graph shell in the docs layout", async () => {
     const messages = await loadUiMessages();
     setMockPathname("/topology");
     setMockSearchParams(new URLSearchParams());
@@ -44,13 +49,16 @@ describe("topology prototype page", () => {
     render(await renderTopologyPrototypePage());
 
     const { topologyPrototype } = messages;
-    expect(screen.getByText(topologyPrototype.loadingTitle)).toBeTruthy();
+    expect(screen.queryByText(topologyPrototype.loadingTitle)).toBeNull();
+    expect(screen.queryByText(topologyPrototype.emptyTitle)).toBeNull();
+    expect(screen.queryByText(topologyPrototype.errorTitle)).toBeNull();
     expect(
-      screen.getAllByText(topologyPrototype.emptyTitle).length,
-    ).toBeGreaterThan(0);
+      screen.queryByText(topologyPrototype.accessibleNodeListTitle),
+    ).toBeNull();
     expect(
-      screen.getAllByText(topologyPrototype.errorTitle).length,
-    ).toBeGreaterThan(0);
+      screen.queryByText(topologyPrototype.accessibleRelationshipListTitle),
+    ).toBeNull();
+    expect(screen.queryByText(topologyPrototype.legendTitle)).toBeNull();
     expect(screen.getByText(topologyPrototype.successTitle)).toBeTruthy();
     expect(document.getElementById("nd-page")).toBeTruthy();
   });
@@ -64,13 +72,10 @@ describe("topology prototype page", () => {
 
     expect(screen.getByText(messages.topologyPrototype.title)).toBeTruthy();
     expect(
-      screen.getByText(messages.topologyPrototype.description),
-    ).toBeTruthy();
+      screen.queryByText(messages.topologyPrototype.description),
+    ).toBeNull();
     expect(
-      screen.getByText(messages.topologyPrototype.selectedViewValue),
-    ).toBeTruthy();
-    expect(
-      screen.getByRole("list", {
+      screen.getByRole("navigation", {
         name: messages.topologyPrototype.chipListLabel,
       }),
     ).toBeTruthy();
@@ -86,11 +91,6 @@ describe("topology prototype page", () => {
     expect(
       screen.getByText(messages.topologyPrototype.detailPanelEmptyDescription),
     ).toBeTruthy();
-    expect(
-      screen.getAllByRole("link", {
-        name: messages.topologyPrototype.detailOpenCanonicalPage,
-      }).length,
-    ).toBeGreaterThan(0);
   });
 
   test("renders localized vietnamese topology copy", async () => {
@@ -102,10 +102,10 @@ describe("topology prototype page", () => {
 
     expect(screen.getByText(messages.topologyPrototype.title)).toBeTruthy();
     expect(
-      screen.getByText(messages.topologyPrototype.description),
-    ).toBeTruthy();
+      screen.queryByText(messages.topologyPrototype.description),
+    ).toBeNull();
     expect(
-      screen.getByRole("list", {
+      screen.getByRole("navigation", {
         name: messages.topologyPrototype.chipListLabel,
       }),
     ).toBeTruthy();
@@ -121,10 +121,5 @@ describe("topology prototype page", () => {
     expect(
       screen.getByText(messages.topologyPrototype.detailPanelEmptyDescription),
     ).toBeTruthy();
-    expect(
-      screen.getAllByRole("link", {
-        name: messages.topologyPrototype.detailOpenCanonicalPage,
-      }).length,
-    ).toBeGreaterThan(0);
   });
 });

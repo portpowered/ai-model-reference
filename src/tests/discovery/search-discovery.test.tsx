@@ -71,8 +71,8 @@ const PHASE_1_DISCOVERY_ROUTES = [
       TimelinePage({
         searchParams: Promise.resolve({ classification: "activation" }),
       }),
-    expectInHtml: "Activation Timeline",
-    alsoExpectInHtml: "Rectified Linear Unit",
+    expectInHtml: "Timeline",
+    alsoExpectInHtml: "Loading timeline",
   },
   {
     path: "/tags",
@@ -146,8 +146,14 @@ describe("Phase 1 search discovery", () => {
     expect(resultsIncludeUrl(results, "/docs/training/dpo")).toBe(true);
   });
 
+  test("tokenizer query includes tokenizers overview as a direct relevant hit", async () => {
+    const results = await docsSearchApi.search("tokenizer");
+    expect(results.length).toBeGreaterThan(0);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(resultsIncludeTokenizersOverview(results)).toBe(true);
+  });
+
   test.each([
-    "tokenizer",
     "tokenizers",
     "text tokenization",
   ] as const)("%s query returns tokenizers overview as a direct relevant hit", async (query) => {

@@ -107,9 +107,7 @@ describe("Phase 1 discovery search handoffs", () => {
     const items = getPrimaryNavItems(messages);
     expect(items.map((item) => item.href)).toEqual([
       "/",
-      "/docs/architecture",
       "/topology",
-      "/docs/glossary",
       "/docs/timeline",
       "/tags",
     ]);

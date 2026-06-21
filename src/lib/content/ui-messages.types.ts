@@ -209,7 +209,7 @@ export type UiMessages = {
     selectedViewNone: string;
     chipListLabel: string;
     chipHint: string;
-    resetToDefaultLabel: string;
+    clearSelectionLabel: string;
     loadingTitle: string;
     loadingDescription: string;
     emptyTitle: string;

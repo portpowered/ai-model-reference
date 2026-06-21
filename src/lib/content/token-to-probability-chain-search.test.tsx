@@ -16,7 +16,7 @@ import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 
 const CHAIN_TAG = "token-to-probability-chain";
 
-const SOFTMAX_BODY_PHRASE = "vocabulary softmax normalization at decode time";
+const SOFTMAX_BODY_PHRASE = "next-token sampling reads softmax probabilities";
 
 const CHAIN_GLOSSARY_PAGES = [
   { title: "Token", url: "/docs/glossary/token" },

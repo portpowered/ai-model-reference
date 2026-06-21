@@ -46,7 +46,7 @@
   "timelinePage": {
     "title": "Timeline",
     "description": "Browse how things change over time.",
-     "eyebrow": "Ontology timeline",
+    "eyebrow": "Ontology timeline",
     "successSummary": "Showing {count} dated events for {classification}.",
     "loadingTitle": "Loading timeline",
     "loadingDescription": "Preparing the interactive timeline renderer.",
@@ -205,15 +205,15 @@
     "emptyHomeLink": "ホームに戻る"
   },
   "topologyPrototype": {
-    "title": "トポロジーマップ",
-    "description": "activation と feed-forward 近傍のための制約付きグラフマップのプロトタイプです。",
+    "title": "トポロジー",
+    "description": "公開済みの classification、concept、module をまたぐトポロジー関係です。",
     "selectedViewLabel": "選択中のビュー",
     "selectedViewValue": "activation + activation-function + feed-forward",
     "selectedViewDefault": "既定の activation / feed-forward 近傍",
     "selectedViewNone": "classification が選択されていません",
     "chipListLabel": "分類フィルター",
     "chipHint": "1 つ以上の classification を切り替えて、graph と URL を同期させます。",
-    "resetToDefaultLabel": "既定の activation view に戻る",
+    "clearSelectionLabel": "Classification をクリア",
     "loadingTitle": "グラフを準備中",
     "loadingDescription": "グラフデータが準備できる前の loading 領域をトポロジー画面に用意します。",
     "emptyTitle": "一致するノードはありません",

@@ -19,10 +19,6 @@ import {
   PRIMARY_NAV_MOBILE_LINK_CLASS,
   PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS,
 } from "@/components/layout/primary-nav";
-import {
-  getTopologyNavigationLabels,
-  listTopologyNavigationOptions,
-} from "@/lib/content/topology-navigation";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { source } from "@/lib/source";
 import { assertPrimaryNavNoDuplicateSearchLink } from "@/lib/verify/customer-ask-home-header-convergence";
@@ -76,9 +72,7 @@ describe("ModelAtlasDocsHeader", () => {
     const expectedItems = getPrimaryNavItems(messages);
     expect(expectedItems.map((item) => item.href)).toEqual([
       "/",
-      "/docs/architecture",
       "/topology",
-      "/docs/glossary",
       "/docs/timeline",
       "/tags",
     ]);
@@ -131,7 +125,7 @@ describe("ModelAtlasDocsHeader", () => {
     expect(html).toContain("flex min-w-0 w-full items-center gap-2");
     expect(html).toContain("min-w-0 flex-1 md:flex-none");
     expect(html).toContain(
-      "flex w-full min-w-0 items-center justify-between px-3 py-2 md:inline-flex md:w-auto md:justify-start md:px-2 md:py-1.5",
+      "flex w-full min-w-0 items-center justify-between !px-4 !py-2 md:inline-flex md:w-auto md:justify-start md:!px-3 md:!py-1.5",
     );
   });
 
@@ -167,25 +161,20 @@ describe("ModelAtlasDocsHeader", () => {
     );
   });
 
-  test("renders derived topology access points in the desktop primary nav", async () => {
+  test("keeps the simplified primary nav even when topology options are provided", async () => {
     const messages = await loadUiMessages();
     const SearchDialog: ComponentType<SharedProps> = () => null;
-    const topologyOptions = listTopologyNavigationOptions({
-      labels: getTopologyNavigationLabels(messages),
-    });
     const html = renderToStaticMarkup(
       <RootProvider search={{ SearchDialog, enabled: true }}>
         <ModelAtlasDocsHeader
           messages={messages}
           pageTree={source.pageTree}
-          topologyOptions={topologyOptions}
+          topologyOptions={[]}
         />
       </RootProvider>,
     );
 
-    const expectedItems = getPrimaryNavItems(messages, "en", {
-      topologyOptions,
-    });
+    const expectedItems = getPrimaryNavItems(messages);
     const desktopNavMatch = html.match(
       /<nav[^>]*aria-label="Primary"[^>]*>([\s\S]*?)<\/nav>/,
     );
@@ -197,12 +186,6 @@ describe("ModelAtlasDocsHeader", () => {
       expect(desktopNavMatch?.[1]).toContain(`>${item.label}<`);
     }
 
-    expect(desktopNavMatch?.[1]).toContain(
-      'href="/browse?classification=activation-functions&amp;mode=graph-map"',
-    );
-    expect(desktopNavMatch?.[1]).toContain(
-      'href="/browse?classification=feed-forward-networks&amp;mode=timeline"',
-    );
     expect(html).toContain("flex-wrap");
     expect(html).toContain("gap-y-2");
   });
@@ -252,25 +235,16 @@ describe("ModelAtlasDocsHeader", () => {
       });
       expect(link.getAttribute("href")).toBe(item.href);
     }
-
-    expect(
-      within(drawer as HTMLElement).getByRole("button", {
-        name: "Glossary",
-      }),
-    ).toBeTruthy();
   });
 
-  test("reveals derived topology access points in the mobile drawer", async () => {
+  test("keeps the simplified mobile drawer nav when topology options are provided", async () => {
     const messages = await loadUiMessages();
     const SearchDialog: ComponentType<SharedProps> = () => null;
-    const topologyOptions = listTopologyNavigationOptions({
-      labels: getTopologyNavigationLabels(messages),
-    });
     await renderWithAppProviders(
       <ModelAtlasDocsHeader
         messages={messages}
         pageTree={source.pageTree}
-        topologyOptions={topologyOptions}
+        topologyOptions={[]}
       />,
       {
         SearchDialog,
@@ -285,9 +259,7 @@ describe("ModelAtlasDocsHeader", () => {
     );
     expect(drawer).toBeTruthy();
 
-    const expectedItems = getPrimaryNavItems(messages, "en", {
-      topologyOptions,
-    });
+    const expectedItems = getPrimaryNavItems(messages);
     for (const item of expectedItems) {
       const link = within(drawer as HTMLElement).getByRole("link", {
         name: item.label,
@@ -297,41 +269,31 @@ describe("ModelAtlasDocsHeader", () => {
     }
   });
 
-  test("renders localized topology header labels on a vietnamese route", async () => {
+  test("renders localized simplified header labels on a vietnamese route", async () => {
     const messages = await loadUiMessages("vi");
     const SearchDialog: ComponentType<SharedProps> = () => null;
-    const topologyOptions = listTopologyNavigationOptions({
-      locale: "vi",
-      labels: getTopologyNavigationLabels(messages),
-    });
     const html = renderToStaticMarkup(
       <RootProvider search={{ SearchDialog, enabled: true }}>
         <ModelAtlasDocsHeader
           messages={messages}
           pageTree={source.pageTree}
           locale="vi"
-          topologyOptions={topologyOptions}
+          topologyOptions={[]}
         />
       </RootProvider>,
     );
 
-    const expectedItems = getPrimaryNavItems(messages, "vi", {
-      topologyOptions,
-    });
-    expect(expectedItems.map((item) => item.label)).toContain(
-      "Bản đồ đồ thị Hàm kích hoạt",
-    );
+    const expectedItems = getPrimaryNavItems(messages, "vi");
 
     const desktopNavMatch = html.match(
       /<nav[^>]*aria-label="Primary"[^>]*>([\s\S]*?)<\/nav>/,
     );
     expect(desktopNavMatch).toBeTruthy();
-    expect(desktopNavMatch?.[1]).toContain(">Bản đồ đồ thị Hàm kích hoạt<");
-    expect(desktopNavMatch?.[1]).toContain(
-      ">Dòng thời gian Mạng feed-forward<",
-    );
+    for (const item of expectedItems) {
+      expect(desktopNavMatch?.[1]).toContain(`>${item.label}<`);
+    }
     expect(html).toContain(">Trang chủ<");
-    expect(html).toContain(">Thuật ngữ<");
+    expect(html).toContain(">Dòng thời gian<");
   });
 
   test("closes the mobile menu and hides the disclosure panel when toggled off", async () => {
@@ -445,6 +407,31 @@ describe("ModelAtlasDocsHeader", () => {
         .getAttribute("href"),
     ).toBe("/ja/docs/glossary/token?tag=attention");
     expect(dialog.textContent).not.toContain(messages.language.unavailable);
+  });
+
+  test("keeps the language and GitHub header controls on the same outline button contract", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    renderHeaderWithNavigation(
+      <ModelAtlasDocsHeader messages={messages} pageTree={source.pageTree} />,
+      {
+        SearchDialog,
+      },
+    );
+
+    const languageButton = screen.getByRole("button", {
+      name: messages.language.open,
+    });
+    const githubLink = screen.getByRole("link", {
+      name: "Open project GitHub repository",
+    });
+
+    expect(languageButton.className).toContain("header-action-icon");
+    expect(githubLink.className).toContain("header-action-icon");
+    expect(languageButton.className).toContain("!border-border");
+    expect(githubLink.className).toContain("!border-border");
+    expect(languageButton.className).toContain("hover:!bg-[color-mix");
+    expect(githubLink.className).toContain("hover:!bg-[color-mix");
   });
 
   test("shows unavailable locales for docs pages that are not shipped in that locale", async () => {

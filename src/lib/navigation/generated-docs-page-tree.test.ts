@@ -221,6 +221,17 @@ function findNextSeparatorIndex(nodes: Node[], currentIndex: number): number {
 }
 
 describe("generated docs page tree", () => {
+  test("does not keep the legacy Getting Started page as a top-level sidebar entry", () => {
+    expect(
+      source.pageTree.children.some(
+        (node) =>
+          node.type === "page" &&
+          "url" in node &&
+          node.url === "/docs/getting-started",
+      ),
+    ).toBe(false);
+  });
+
   test("grouped docs folders expose runtime-derived subgroup labels in configured order", () => {
     for (const sectionConfig of GROUPED_SECTIONS) {
       const expectedGroups = collectExpectedGroups(sectionConfig);

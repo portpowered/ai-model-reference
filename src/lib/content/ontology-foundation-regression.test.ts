@@ -15,16 +15,25 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import type {
+  ConceptRecord,
+  DatasetRecord,
+  ModelRecord,
+  ModuleRecord,
+  PaperRecord,
+  SystemRecord,
+  TrainingRegimeRecord,
+} from "@/lib/content/schemas";
 import { validateRegistryContent } from "@/lib/content/validate-registry";
 
-type OntologySeedRecord = Extract<
-  RegistryRecord,
-  {
-    primaryClassificationId?: string;
-    secondaryClassificationIds?: string[];
-    relationships?: Array<{ relationshipType: string; targetId: string }>;
-  }
->;
+type OntologySeedRecord =
+  | ConceptRecord
+  | DatasetRecord
+  | ModelRecord
+  | ModuleRecord
+  | PaperRecord
+  | SystemRecord
+  | TrainingRegimeRecord;
 
 const seededPrimaryClassifications = new Map([
   ["concept.activation", "classification.activation-functions"],
@@ -89,7 +98,16 @@ function expectSeedRecord(
   registryId: string,
 ): asserts record is OntologySeedRecord {
   expect(record?.id).toBe(registryId);
-  if (!record || !("primaryClassificationId" in record)) {
+  if (
+    !record ||
+    (record.kind !== "concept" &&
+      record.kind !== "dataset" &&
+      record.kind !== "model" &&
+      record.kind !== "module" &&
+      record.kind !== "paper" &&
+      record.kind !== "system" &&
+      record.kind !== "training-regime")
+  ) {
     throw new Error(`Expected ${registryId} to be an ontology seed record`);
   }
 }
@@ -223,8 +241,9 @@ describe("ontology foundation regression coverage", () => {
         ?.classificationType,
     ).toBe("family");
     expect(
-      indexes.classificationsById.get("classification.position-encoding-methods")
-        ?.classificationType,
+      indexes.classificationsById.get(
+        "classification.position-encoding-methods",
+      )?.classificationType,
     ).toBe("family");
     expect(
       indexes.classificationsById.get("classification.tokenization-methods")
@@ -336,10 +355,7 @@ describe("ontology foundation regression coverage", () => {
         (member) => `${member.membershipType}:${member.record.id}`,
       ),
     ).toEqual(
-      expect.arrayContaining([
-        "primary:module.rope",
-        "primary:module.alibi",
-      ]),
+      expect.arrayContaining(["primary:module.rope", "primary:module.alibi"]),
     );
     expect(
       listClassificationMembers("classification.tokenization-methods").map(
@@ -355,9 +371,7 @@ describe("ontology foundation regression coverage", () => {
       listClassificationMembers(
         "classification.transformer-block-structures",
       ).map((member) => `${member.membershipType}:${member.record.id}`),
-    ).toEqual([
-      "primary:module.manifold-constrained-hyper-connections",
-    ]);
+    ).toEqual(["primary:module.manifold-constrained-hyper-connections"]);
 
     const swiglu = getRegistryRecordById("module.swiglu");
     expectSeedRecord(swiglu, "module.swiglu");
@@ -403,14 +417,17 @@ describe("ontology foundation regression coverage", () => {
   test("every published module now participates in a supported ontology classification", async () => {
     const indexes = await loadRegistry();
     const modules = [...indexes.byId.values()].filter(
-      (record) => record.kind === "module" && record.status === "published",
+      (record): record is ModuleRecord =>
+        record.kind === "module" && record.status === "published",
     );
 
     expect(modules.length).toBeGreaterThan(0);
     for (const moduleRecord of modules) {
       expect(moduleRecord.primaryClassificationId).toBeDefined();
       expect(
-        indexes.classificationsById.has(moduleRecord.primaryClassificationId ?? ""),
+        indexes.classificationsById.has(
+          moduleRecord.primaryClassificationId ?? "",
+        ),
       ).toBe(true);
     }
   });

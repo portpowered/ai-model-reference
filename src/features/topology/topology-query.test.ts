@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   buildTopologyHref,
+  getDefaultTopologySelectors,
   parseTopologyQuery,
   TOPOLOGY_CLASSIFICATION_QUERY_KEY,
 } from "./topology-query";
@@ -8,7 +9,7 @@ import {
 describe("topology query helpers", () => {
   test("uses the default topology selection when the URL has no classification parameter", () => {
     expect(parseTopologyQuery(new URLSearchParams())).toEqual({
-      selectors: ["activation", "activation-function", "feed-forward"],
+      selectors: getDefaultTopologySelectors(),
       usesDefault: true,
     });
   });
@@ -41,7 +42,7 @@ describe("topology query helpers", () => {
     expect(
       buildTopologyHref(
         "/topology",
-        ["activation", "activation-function", "feed-forward"],
+        getDefaultTopologySelectors(),
         new URLSearchParams("foo=bar"),
       ),
     ).toBe("/topology?foo=bar");

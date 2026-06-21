@@ -1,4 +1,4 @@
-import { DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS } from "./topology-data";
+import { getDefaultTopologyClassificationSelectors } from "./topology-data";
 
 export const TOPOLOGY_CLASSIFICATION_QUERY_KEY = "classification";
 
@@ -16,7 +16,7 @@ function dedupeSelectors(selectors: readonly string[]): string[] {
 }
 
 export function getDefaultTopologySelectors(): string[] {
-  return [...DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS];
+  return getDefaultTopologyClassificationSelectors();
 }
 
 export function parseTopologyQuery(
@@ -38,7 +38,7 @@ export function parseTopologyQuery(
 
 function hasDefaultSelectorSet(selectors: readonly string[]): boolean {
   const normalized = dedupeSelectors(selectors);
-  const defaults = dedupeSelectors(DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS);
+  const defaults = dedupeSelectors(getDefaultTopologyClassificationSelectors());
 
   return (
     normalized.length === defaults.length &&

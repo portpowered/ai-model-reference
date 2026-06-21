@@ -6,7 +6,6 @@
 @import "../features/docs/styles/docs-page-footer-chrome.css";
 @import "../features/docs/styles/registry-graph-flow-theme.css";
 @import "@xyflow/react/dist/style.css";
-@import "react-chrono/dist/style.css";
 
 :root {
   --radius: 0.5rem;
@@ -91,6 +90,28 @@ article[data-registry-id] > section:first-of-type > h2 {
  */
 [data-sidebar-panel] [data-search] {
   display: none;
+}
+
+[data-search] {
+  border-style: solid;
+}
+
+.header-action-icon {
+  border-style: solid;
+}
+
+@media (hover: hover) {
+  [data-search][data-search]:hover {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: var(--accent-foreground) !important;
+  }
+
+  [data-search][data-search]:hover kbd {
+    border-color: color-mix(in oklch, var(--accent-foreground) 25%, transparent) !important;
+    background-color: color-mix(in oklch, var(--accent-foreground) 10%, transparent) !important;
+    color: var(--accent-foreground) !important;
+  }
 }
 
 .ontology-timeline {

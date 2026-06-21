@@ -6,7 +6,7 @@ import type {
   StylesheetJson as CytoscapeStylesheetJson,
 } from "cytoscape";
 import cytoscape from "cytoscape";
-import { Maximize2, RotateCcw, X } from "lucide-react";
+import { Maximize2, RotateCcw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
@@ -258,7 +258,6 @@ export function TopologyCytoscapeGraph({
 }: TopologyCytoscapeGraphProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const cytoscapeRef = useRef<CytoscapeCore | null>(null);
-  const [isReady, setIsReady] = useState(false);
   const [selectedItem, setSelectedItem] = useState<SelectedGraphItem>(null);
   const elements = useMemo(
     () => toCytoscapeElements(graph, text),
@@ -292,20 +291,6 @@ export function TopologyCytoscapeGraph({
 
     return counts;
   }, [graph.edges]);
-  const legendItems = useMemo(
-    () =>
-      [...new Map(graph.edges.map((edge) => [edge.label, edge])).values()].map(
-        (edge) => ({
-          label: edge.label,
-          description:
-            edge.kind === "membership"
-              ? text.membershipLegendDescription
-              : text.relationshipLegendDescription,
-        }),
-      ),
-    [graph.edges, text],
-  );
-
   useEffect(() => {
     if (!selectedItem) {
       return;
@@ -328,7 +313,6 @@ export function TopologyCytoscapeGraph({
 
     const canvas = document.createElement("canvas");
     if (canvas.getContext("2d") === null) {
-      setIsReady(true);
       return;
     }
 
@@ -359,13 +343,11 @@ export function TopologyCytoscapeGraph({
     });
     cy.ready(() => {
       cy.fit(undefined, 34);
-      setIsReady(true);
     });
 
     return () => {
       cy.destroy();
       cytoscapeRef.current = null;
-      setIsReady(false);
     };
   }, [elements]);
 
@@ -414,6 +396,9 @@ export function TopologyCytoscapeGraph({
     selectedItem?.kind === "edge"
       ? edgesById.get(selectedItem.edgeId)
       : undefined;
+  const detailPanelDescription = selectedEdge
+    ? edgeSummary(selectedEdge, nodeLabelsById)
+    : text.detailPanelHint;
 
   return (
     <article
@@ -432,9 +417,6 @@ export function TopologyCytoscapeGraph({
           >
             {text.successTitle}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {text.successDescription}
-          </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <Button
@@ -467,157 +449,26 @@ export function TopologyCytoscapeGraph({
         aria-label={text.graphLabel}
       >
         <div ref={containerRef} className="h-full w-full" />
-        {isReady ? null : (
-          <div className="absolute inset-0 grid place-items-center bg-background/82 text-sm text-muted-foreground">
-            {text.loadingTitle}
-          </div>
-        )}
       </div>
 
-      <div className="mt-4 rounded-lg border border-border bg-muted/20 p-3">
-        <h3 className="text-sm font-semibold text-foreground">
-          {text.legendTitle}
-        </h3>
-        <ul className="mt-2 flex flex-wrap gap-2" aria-label={text.legendTitle}>
-          {legendItems.map((item) => (
-            <li
-              key={item.label}
-              className="rounded-md border border-border bg-background/70 px-2 py-1 text-xs text-muted-foreground"
-            >
-              <span className="font-medium text-foreground">{item.label}</span>
-              <span className="ml-1">{item.description}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="grid gap-3 lg:grid-cols-2">
-          <section
-            className="rounded-lg border border-border bg-muted/20 p-3"
-            aria-labelledby="topology-node-list-title"
-          >
-            <h3
-              id="topology-node-list-title"
-              className="text-sm font-semibold text-foreground"
-            >
-              {text.accessibleNodeListTitle}
-            </h3>
-            <ul className="mt-2 grid gap-2 text-sm text-muted-foreground">
-              {graph.nodes.map((node) => {
-                const isSelected =
-                  selectedItem?.kind === "node" &&
-                  selectedItem.nodeId === node.id;
-
-                return (
-                  <li
-                    key={node.id}
-                    className="flex flex-wrap items-center gap-2"
-                    data-registry-id={node.registryId}
-                  >
-                    <Button
-                      type="button"
-                      variant={isSelected ? "secondary" : "outline"}
-                      size="sm"
-                      aria-pressed={isSelected}
-                      onClick={() =>
-                        setSelectedItem({ kind: "node", nodeId: node.id })
-                      }
-                    >
-                      {getNodeLabel(node, text)}
-                    </Button>
-                    <span className="rounded-md border border-border px-1.5 py-0.5 text-[0.7rem] uppercase">
-                      {node.kind === "classification"
-                        ? text.classificationNodeLabel
-                        : getPageKindLabel(node.recordKind, pageKindLabels)}
-                    </span>
-                    {node.kind === "record" &&
-                    getRecordHref(node, docsPageContentByRegistryId) ? (
-                      <a
-                        className="text-xs text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:underline"
-                        href={getRecordHref(node, docsPageContentByRegistryId)}
-                      >
-                        {text.detailOpenCanonicalPage}
-                      </a>
-                    ) : null}
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-
-          <section
-            className="rounded-lg border border-border bg-muted/20 p-3"
-            aria-labelledby="topology-edge-list-title"
-          >
-            <h3
-              id="topology-edge-list-title"
-              className="text-sm font-semibold text-foreground"
-            >
-              {text.accessibleRelationshipListTitle}
-            </h3>
-            <ul className="mt-2 grid gap-2 text-sm text-muted-foreground">
-              {graph.edges.map((edge) => {
-                const isSelected =
-                  selectedItem?.kind === "edge" &&
-                  selectedItem.edgeId === edge.id;
-
-                return (
-                  <li key={edge.id}>
-                    <Button
-                      type="button"
-                      variant={isSelected ? "secondary" : "outline"}
-                      size="sm"
-                      className="h-auto min-h-8 w-full justify-start px-2 py-1.5 text-left whitespace-normal"
-                      aria-pressed={isSelected}
-                      onClick={() =>
-                        setSelectedItem({ kind: "edge", edgeId: edge.id })
-                      }
-                    >
-                      {edgeSummary(edge, nodeLabelsById)}
-                    </Button>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        </div>
-
+      <div className="mt-4">
         <section
-          className="rounded-lg border border-border bg-muted/20 p-4"
+          className="w-full rounded-lg border border-border bg-muted/20 p-4"
           aria-labelledby="topology-detail-panel-title"
         >
-          <div className="flex items-start justify-between gap-3">
-            <a
-              className="min-w-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              href="#topology-detail-panel-content"
-              aria-label={text.detailPanelTitle}
+          <div className="min-w-0">
+            <h3
+              id="topology-detail-panel-title"
+              className="text-sm font-semibold text-foreground"
             >
-              <h3
-                id="topology-detail-panel-title"
-                className="text-sm font-semibold text-foreground"
-              >
-                {text.detailPanelTitle}
-              </h3>
-              <p
-                id="topology-detail-panel-hint"
-                className="mt-1 text-xs text-muted-foreground"
-              >
-                {text.detailPanelHint}
-              </p>
-            </a>
-            {selectedItem ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label={text.detailPanelDismissLabel}
-                title={text.detailPanelDismissLabel}
-                onClick={() => setSelectedItem(null)}
-              >
-                <X />
-              </Button>
-            ) : null}
+              {text.detailPanelTitle}
+            </h3>
+            <p
+              id="topology-detail-panel-hint"
+              className="mt-1 text-xs text-muted-foreground"
+            >
+              {detailPanelDescription}
+            </p>
           </div>
 
           {!selectedNode && !selectedEdge ? (

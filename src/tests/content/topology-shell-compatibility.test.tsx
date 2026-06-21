@@ -64,8 +64,9 @@ describe("topology browse shell compatibility", () => {
 
     const primaryNav = screen.getByRole("navigation", { name: "Primary" });
     for (const label of [
-      context.messages.nav.architecture,
-      context.messages.nav.glossary,
+      context.messages.nav.home,
+      context.messages.nav.topology,
+      context.messages.nav.timeline,
       context.messages.nav.tags,
     ] as const) {
       expect(
@@ -105,12 +106,12 @@ describe("topology browse shell compatibility", () => {
     const primaryNav = screen.getByRole("navigation", { name: "Primary" });
     expect(
       within(primaryNav).getByRole("link", {
-        name: "Activation Functions Graph Map",
+        name: context.messages.nav.topology,
       }),
     ).toBeTruthy();
     expect(
       within(primaryNav).getByRole("link", {
-        name: "Feed Forward Networks Timeline",
+        name: context.messages.nav.timeline,
       }),
     ).toBeTruthy();
 
@@ -148,8 +149,9 @@ describe("topology browse shell compatibility", () => {
       );
       expect(topologyRoute.status).toBe(200);
       expect(assertDocsShellConvergence(topologyRoute.body)).toBeNull();
-      expect(topologyRoute.body).toContain('href="/docs/architecture"');
-      expect(topologyRoute.body).toContain('href="/docs/glossary"');
+      expect(topologyRoute.body).toContain('href="/"');
+      expect(topologyRoute.body).toContain('href="/topology"');
+      expect(topologyRoute.body).toContain('href="/docs/timeline"');
       expect(topologyRoute.body).toContain('href="/tags"');
       expect(topologyRoute.body).toContain('data-search=""');
       expect(topologyRoute.body).toContain('href="/docs/glossary/token"');

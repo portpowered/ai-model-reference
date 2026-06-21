@@ -205,15 +205,15 @@
     "emptyHomeLink": "Return home"
   },
   "topologyPrototype": {
-    "title": "Topology Map",
-    "description": "A constrained graph-map prototype for the activation and feed-forward neighborhood.",
+    "title": "Topology",
+    "description": "Topology relationships across published classifications, concepts, and modules.",
     "selectedViewLabel": "Selected view",
     "selectedViewValue": "activation + activation-function + feed-forward",
     "selectedViewDefault": "Default activation and feed-forward neighborhood",
     "selectedViewNone": "No classifications selected",
     "chipListLabel": "Classification filters",
     "chipHint": "Toggle one or more classifications to constrain the graph and URL.",
-    "resetToDefaultLabel": "Return to default activation view",
+    "clearSelectionLabel": "Clear classifications",
     "loadingTitle": "Preparing graph",
     "loadingDescription": "The topology surface reserves a loading region before the graph data is ready.",
     "emptyTitle": "No matching nodes",

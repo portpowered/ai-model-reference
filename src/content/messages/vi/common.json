@@ -205,15 +205,15 @@
     "emptyHomeLink": "Về trang chủ"
   },
   "topologyPrototype": {
-    "title": "Bản đồ topology",
-    "description": "Prototype bản đồ graph có giới hạn cho vùng activation và feed-forward.",
+    "title": "Topology",
+    "description": "Các quan hệ topology giữa classification, concept, và module đã xuất bản.",
     "selectedViewLabel": "Chế độ đang chọn",
     "selectedViewValue": "activation + activation-function + feed-forward",
     "selectedViewDefault": "Vùng activation và feed-forward mặc định",
     "selectedViewNone": "Chưa chọn classification nào",
     "chipListLabel": "Bộ lọc classification",
     "chipHint": "Bật hoặc tắt một hay nhiều classification để đồng bộ graph với URL.",
-    "resetToDefaultLabel": "Quay về khung nhìn activation mặc định",
+    "clearSelectionLabel": "Xóa classification",
     "loadingTitle": "Đang chuẩn bị graph",
     "loadingDescription": "Bề mặt topology dành sẵn vùng loading trước khi dữ liệu graph sẵn sàng.",
     "emptyTitle": "Không có node phù hợp",

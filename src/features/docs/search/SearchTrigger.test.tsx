@@ -35,6 +35,7 @@ describe("SearchTrigger", () => {
     const html = renderSearchTrigger(messages);
 
     expect(html).toContain("group ");
+    expect(html).toContain("hover:border-accent");
     expect(html).toContain("group-hover:text-accent-foreground");
     expect(html).toContain("group-hover:bg-accent-foreground/10");
     expect(html).toContain("group-focus-visible:text-accent-foreground");

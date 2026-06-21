@@ -279,9 +279,9 @@ describe("registry-runtime", () => {
     expect(
       getPrimaryClassificationForRecord("citation.sennrich-bpe"),
     ).toBeUndefined();
-    expect(listSecondaryClassificationsForRecord("citation.sennrich-bpe")).toEqual(
-      [],
-    );
+    expect(
+      listSecondaryClassificationsForRecord("citation.sennrich-bpe"),
+    ).toEqual([]);
     expect(listOntologyRelationshipsForRecord("citation.sennrich-bpe")).toEqual(
       [],
     );
@@ -437,10 +437,7 @@ describe("registry-runtime", () => {
         (member) => `${member.membershipType}:${member.record.id}`,
       ),
     ).toEqual(
-      expect.arrayContaining([
-        "primary:module.rope",
-        "primary:module.alibi",
-      ]),
+      expect.arrayContaining(["primary:module.rope", "primary:module.alibi"]),
     );
     expect(
       listClassificationMembers("classification.tokenization-methods").map(
@@ -456,9 +453,7 @@ describe("registry-runtime", () => {
       listClassificationMembers(
         "classification.transformer-block-structures",
       ).map((member) => `${member.membershipType}:${member.record.id}`),
-    ).toEqual([
-      "primary:module.manifold-constrained-hyper-connections",
-    ]);
+    ).toEqual(["primary:module.manifold-constrained-hyper-connections"]);
   });
 
   test("seeded ontology relationships resolve typed activation and feed-forward topology", () => {

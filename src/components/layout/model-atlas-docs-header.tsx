@@ -79,7 +79,7 @@ export function ModelAtlasDocsHeader({
           <div className="pointer-events-auto min-w-0 flex-1 md:flex-none">
             <SearchTrigger
               messages={messages}
-              className="flex w-full min-w-0 items-center justify-between px-3 py-2 md:inline-flex md:w-auto md:justify-start md:px-2 md:py-1.5"
+              className="flex w-full min-w-0 items-center justify-between !px-4 !py-2 md:inline-flex md:w-auto md:justify-start md:!px-3 md:!py-1.5"
             />
           </div>
           <div className="pointer-events-auto">
@@ -92,7 +92,7 @@ export function ModelAtlasDocsHeader({
               href={PROJECT_GITHUB_URL}
               aria-label="Open project GitHub repository"
               title="Open project GitHub repository"
-              className={buttonVariants({ variant: "outline", size: "icon" })}
+              className={`${buttonVariants({ variant: "outline", size: "icon" })} header-action-icon`}
             >
               <FaGithub className="size-4" aria-hidden />
             </Link>

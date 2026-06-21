@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   buildTopologyGraph,
-  DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS,
+  getDefaultTopologyClassificationSelectors,
 } from "./topology-data";
 
 function expectSuccessGraph(
@@ -17,18 +17,22 @@ function expectSuccessGraph(
 }
 
 describe("topology data builder", () => {
-  test("derives the default activation/feed-forward graph from ontology classifications", () => {
-    const graph = buildTopologyGraph(DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS);
+  test("derives the default topology graph from published ontology classifications", () => {
+    const graph = buildTopologyGraph(
+      getDefaultTopologyClassificationSelectors(),
+    );
     expectSuccessGraph(graph);
 
     expect(
       graph.selectedClassifications.map(
         (selection) => selection.classificationId,
       ),
-    ).toEqual([
-      "classification.activation-functions",
-      "classification.feed-forward-networks",
-    ]);
+    ).toEqual(
+      expect.arrayContaining([
+        "classification.activation-functions",
+        "classification.feed-forward-networks",
+      ]),
+    );
 
     expect(graph.nodes.map((node) => node.registryId)).toEqual(
       expect.arrayContaining([
@@ -121,7 +125,7 @@ describe("topology data builder", () => {
     expect(buildTopologyGraph(["activation", "missing-slice"])).toEqual({
       status: "error",
       invalidSelections: ["missing-slice"],
-      recoverySelection: DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS,
+      recoverySelection: getDefaultTopologyClassificationSelectors(),
       selectedClassifications: [],
       nodes: [],
       edges: [],

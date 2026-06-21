@@ -115,7 +115,7 @@ export function MobileDocsDrawer({
               area={{ className: "min-h-0 flex-1" }}
               viewport={{
                 className:
-                  "*:flex! *:flex-col! *:gap-0.5! px-4 py-5 overscroll-contain",
+                  "*:flex! *:flex-col! *:gap-1! px-4 py-5 overscroll-contain",
               }}
             >
               <div
@@ -139,7 +139,7 @@ function DrawerSidebarSeparator(props: ComponentProps<"p">) {
   return (
     <SidebarSeparator
       {...props}
-      className="mb-2 mt-6 px-2 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground first:mt-0"
+      className="mb-1.5 mt-5 px-0 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-sidebar-foreground/60 first:mt-1"
     />
   );
 }
@@ -148,7 +148,11 @@ function DrawerSidebarItem(props: ComponentProps<typeof SidebarItem>) {
   return (
     <SidebarItem
       {...props}
-      className="relative flex items-center gap-2 rounded-xl px-3 py-3 text-sm text-sidebar-foreground/78 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-primary/12 data-[active=true]:text-sidebar-primary"
+      className="relative flex items-center gap-2 rounded-xl px-0 py-2 text-sm text-sidebar-foreground/78 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-primary/12 data-[active=true]:text-sidebar-primary"
+      style={{
+        paddingInlineStart: "0rem",
+        ...props.style,
+      }}
     />
   );
 }
@@ -163,9 +167,9 @@ function DrawerSidebarFolderTrigger(
   return (
     <SidebarFolderTrigger
       {...props}
-      className="flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-sm text-sidebar-foreground/78 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+      className="flex w-full items-center gap-2 rounded-xl px-0 py-2 text-left text-sm text-sidebar-foreground/78 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
       style={{
-        paddingInlineStart: getItemOffset(0),
+        paddingInlineStart: "0rem",
         ...props.style,
       }}
     />
@@ -178,9 +182,9 @@ function DrawerSidebarFolderLink(
   return (
     <SidebarFolderLink
       {...props}
-      className="flex w-full items-center gap-2 rounded-xl px-3 py-3 text-sm text-sidebar-foreground/78 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-primary/12 data-[active=true]:text-sidebar-primary"
+      className="flex w-full items-center gap-2 rounded-xl px-0 py-2 text-sm text-sidebar-foreground/78 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-primary/12 data-[active=true]:text-sidebar-primary"
       style={{
-        paddingInlineStart: getItemOffset(0),
+        paddingInlineStart: "0rem",
         ...props.style,
       }}
     />
@@ -190,14 +194,5 @@ function DrawerSidebarFolderLink(
 function DrawerSidebarFolderContent(
   props: ComponentProps<typeof SidebarFolderContent>,
 ) {
-  return (
-    <SidebarFolderContent
-      {...props}
-      className="relative ml-2 mt-1 border-l border-sidebar-border pl-2"
-    />
-  );
-}
-
-function getItemOffset(depth: number) {
-  return `calc(${3 + 3 * depth} * var(--spacing))`;
+  return <SidebarFolderContent {...props} className="relative mt-2" />;
 }

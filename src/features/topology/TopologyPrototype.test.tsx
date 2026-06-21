@@ -11,10 +11,6 @@ import {
 } from "@/tests/a11y/mock-navigation";
 import { TopologyPrototype } from "./TopologyPrototype";
 import type { TopologyDocsPageContentByRegistryId } from "./topology-content";
-import {
-  buildTopologyGraph,
-  DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS,
-} from "./topology-data";
 
 const docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId = {
   "concept.activation": {
@@ -67,7 +63,7 @@ describe("TopologyPrototype", () => {
     resetMockNavigation();
   });
 
-  test("renders a Cytoscape-backed topology viewport with controls and accessible graph lists", async () => {
+  test("renders a quieter Cytoscape-backed topology viewport", async () => {
     const messages = await loadUiMessages();
     setMockPathname("/topology");
     setMockSearchParams(new URLSearchParams());
@@ -92,28 +88,41 @@ describe("TopologyPrototype", () => {
         name: messages.topologyPrototype.resetGraphLabel,
       }),
     ).toBeTruthy();
-    expect(screen.getByText("SwiGLU -> uses -> SiLU")).toBeTruthy();
     expect(
-      screen
-        .getByRole("button", {
-          name: messages.topologyPrototype.activationChip,
-        })
-        .getAttribute("aria-pressed"),
-    ).toBe("true");
+      screen.getByRole("button", {
+        name: messages.topologyPrototype.clearSelectionLabel,
+      }),
+    ).toBeTruthy();
     expect(
-      screen
-        .getByRole("button", {
-          name: messages.topologyPrototype.activationFunctionChip,
-        })
-        .getAttribute("aria-pressed"),
-    ).toBe("true");
+      screen.queryByText(messages.topologyPrototype.loadingTitle),
+    ).toBeNull();
     expect(
-      screen
-        .getByRole("button", {
-          name: messages.topologyPrototype.feedForwardChip,
-        })
-        .getAttribute("aria-pressed"),
-    ).toBe("true");
+      screen.queryByText(messages.topologyPrototype.emptyTitle),
+    ).toBeNull();
+    expect(
+      screen.queryByText(messages.topologyPrototype.errorTitle),
+    ).toBeNull();
+    expect(
+      screen.queryByText(messages.topologyPrototype.accessibleNodeListTitle),
+    ).toBeNull();
+    expect(
+      screen.queryByText(
+        messages.topologyPrototype.accessibleRelationshipListTitle,
+      ),
+    ).toBeNull();
+    expect(
+      screen.queryByText(messages.topologyPrototype.legendTitle),
+    ).toBeNull();
+    expect(
+      screen.getByRole("link", {
+        name: messages.topologyBrowse.classificationLabels.activationFunctions,
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("link", {
+        name: messages.topologyBrowse.classificationLabels.feedForwardNetworks,
+      }),
+    ).toBeTruthy();
   });
 
   test("reads classification chip state from the URL and updates the URL when chips change", async () => {
@@ -133,27 +142,31 @@ describe("TopologyPrototype", () => {
 
     expect(
       screen
-        .getByRole("button", {
-          name: messages.topologyPrototype.feedForwardChip,
+        .getByRole("link", {
+          name: messages.topologyBrowse.classificationLabels
+            .feedForwardNetworks,
         })
-        .getAttribute("aria-pressed"),
-    ).toBe("true");
+        .getAttribute("href"),
+    ).toBe("/topology?classification=");
     expect(
       screen
-        .getByRole("button", {
-          name: messages.topologyPrototype.activationChip,
+        .getByRole("link", {
+          name: messages.topologyBrowse.classificationLabels
+            .activationFunctions,
         })
-        .getAttribute("aria-pressed"),
-    ).toBe("false");
+        .getAttribute("href"),
+    ).toBe(
+      "/topology?classification=feed-forward&classification=activation-functions",
+    );
 
     await user.click(
-      screen.getByRole("button", {
-        name: messages.topologyPrototype.activationChip,
+      screen.getByRole("link", {
+        name: messages.topologyBrowse.classificationLabels.activationFunctions,
       }),
     );
 
     expect(router.push).toHaveBeenCalledWith(
-      "/topology?classification=feed-forward&classification=activation",
+      "/topology?classification=feed-forward&classification=activation-functions",
     );
   });
 
@@ -232,9 +245,8 @@ describe("TopologyPrototype", () => {
     ).toBeTruthy();
   });
 
-  test("shows record details with localized summary and canonical docs link when a node is selected", async () => {
+  test("renders the inspection panel shell in the default state", async () => {
     const messages = await loadUiMessages();
-    const user = userEvent.setup();
 
     setMockPathname("/topology");
     setMockSearchParams(new URLSearchParams());
@@ -246,125 +258,17 @@ describe("TopologyPrototype", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "ReLU" }));
-
-    expect(screen.getByText("Rectified Linear Unit")).toBeTruthy();
     expect(
-      screen.getByText(
-        "A simple activation function that keeps positive values and turns negative values into zero.",
-      ),
-    ).toBeTruthy();
-    expect(screen.getAllByText("activation function").length).toBeGreaterThan(
-      0,
-    );
-    const canonicalLinks = screen.getAllByRole("link", {
-      name: messages.topologyPrototype.detailOpenCanonicalPage,
-    });
-
-    expect(canonicalLinks.at(-1)?.getAttribute("href")).toBe(
-      "/docs/modules/relu",
-    );
-  });
-
-  test("shows classification scope and visible member count when a classification node is selected", async () => {
-    const messages = await loadUiMessages();
-    const user = userEvent.setup();
-    const graph = buildTopologyGraph(DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS);
-
-    if (graph.status === "error") {
-      throw new Error("Expected default topology graph to build successfully.");
-    }
-
-    const visibleMemberCount = graph.edges.filter(
-      (edge) =>
-        edge.kind === "membership" &&
-        edge.sourceId === "classification.activation-functions",
-    ).length;
-
-    setMockPathname("/topology");
-    setMockSearchParams(new URLSearchParams());
-
-    render(
-      <TopologyPrototype
-        messages={messages}
-        docsPageContentByRegistryId={docsPageContentByRegistryId}
-      />,
-    );
-
-    await user.click(
-      screen.getByRole("button", {
-        name: "activation function",
-      }),
-    );
-
-    expect(
-      screen.getByText(messages.topologyPrototype.detailLabelScope),
+      screen.getByText(messages.topologyPrototype.detailPanelTitle),
     ).toBeTruthy();
     expect(
-      screen.getByText(messages.topologyPrototype.classificationTypeFamily),
-    ).toBeTruthy();
-    expect(screen.getByText(String(visibleMemberCount))).toBeTruthy();
-  });
-
-  test("shows relationship source and target details when a relationship is selected", async () => {
-    const messages = await loadUiMessages();
-    const user = userEvent.setup();
-
-    setMockPathname("/topology");
-    setMockSearchParams(new URLSearchParams());
-
-    render(
-      <TopologyPrototype
-        messages={messages}
-        docsPageContentByRegistryId={docsPageContentByRegistryId}
-      />,
-    );
-
-    await user.click(
-      screen.getByRole("button", { name: "SwiGLU -> uses -> SiLU" }),
-    );
-
-    expect(
-      screen.getByText(messages.topologyPrototype.detailLabelRelationship),
+      screen.getByText(messages.topologyPrototype.detailPanelHint),
     ).toBeTruthy();
     expect(
-      screen.getByText(messages.topologyPrototype.detailLabelSource),
+      screen.getByText(messages.topologyPrototype.detailPanelEmptyTitle),
     ).toBeTruthy();
     expect(
-      screen.getByText(messages.topologyPrototype.detailLabelTarget),
+      screen.getByText(messages.topologyPrototype.detailPanelEmptyDescription),
     ).toBeTruthy();
-    expect(screen.getAllByText("SwiGLU").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("SiLU").length).toBeGreaterThan(0);
-  });
-
-  test("keeps the inspection panel keyboard reachable in the default state", async () => {
-    const messages = await loadUiMessages();
-    const user = userEvent.setup();
-
-    setMockPathname("/topology");
-    setMockSearchParams(new URLSearchParams());
-
-    render(
-      <TopologyPrototype
-        messages={messages}
-        docsPageContentByRegistryId={docsPageContentByRegistryId}
-      />,
-    );
-
-    const detailPanelLink = screen.getByRole("link", {
-      name: messages.topologyPrototype.detailPanelTitle,
-    });
-
-    for (let index = 0; index < 40; index += 1) {
-      await user.tab();
-      if (document.activeElement === detailPanelLink) {
-        break;
-      }
-    }
-
-    expect(document.activeElement).toBe(detailPanelLink);
-    expect(detailPanelLink.getAttribute("href")).toBe(
-      "#topology-detail-panel-content",
-    );
   });
 });

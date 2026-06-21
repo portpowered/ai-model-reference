@@ -1,6 +1,7 @@
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type { ReactNode } from "react";
 
+import { docsSidebarTreeComponents } from "@/components/layout/docs-sidebar-tree";
 import { ModelAtlasDocsHeader } from "@/components/layout/model-atlas-docs-header";
 import {
   getTopologyNavigationLabels,
@@ -48,6 +49,7 @@ export function CanonicalDocsLayout({
           slots={{ searchTrigger: false, themeSwitch: false }}
           sidebar={{
             "aria-label": messages.shell.sidebarTitle,
+            components: docsSidebarTreeComponents,
           }}
         >
           {children}

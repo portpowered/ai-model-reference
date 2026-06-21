@@ -101,6 +101,7 @@ describe("browse index page render", () => {
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Bản đồ đồ thị Hàm kích hoạt");
+    expect(html).toContain("Phân loại đã chọn");
     expect(html).toContain('href="/docs/glossary/activation"');
     expect(html).not.toContain('href="/vi/docs/glossary/activation"');
     expect(html).toContain(
@@ -126,8 +127,8 @@ describe("browse index page render", () => {
     expect(html).toMatch(
       /<a aria-current="page"[^>]*href="\/browse\?classification=feed-forward-networks&amp;mode=timeline"[^>]*>Feed Forward Networks<\/a>/,
     );
-    expect(html).toContain("Swish Gated Linear Unit");
-    expect(html).toContain('href="/docs/modules/swiglu"');
+    expect(html).toContain("Feed-Forward Network");
+    expect(html).toContain('href="/docs/modules/feed-forward-network"');
   });
 
   it("renders invalid topology state and valid seed links for unsupported URL parameters", async () => {

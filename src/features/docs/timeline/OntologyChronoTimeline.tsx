@@ -43,17 +43,17 @@ const timelineTitleClassName =
 
 const timelineSummaryClassName = "m-0 text-lg leading-8 text-zinc-400";
 
-
 const timelineStateClassName =
   "flex min-h-72 flex-col items-center justify-center gap-2 rounded-[var(--radius)] border border-border bg-card/60 p-6 text-center text-muted-foreground";
 
-const timelineStateTitleClassName = "m-0 text-base font-semibold text-foreground";
+const timelineStateTitleClassName =
+  "m-0 text-base font-semibold text-foreground";
 
 const timelineStateBodyClassName = "m-0 max-w-[32rem]";
 
 function renderTimelineItems(
   items: readonly OntologyTimelineItem[],
-  labels: OntologyChronoTimelineProps["labels"],
+  _labels: OntologyChronoTimelineProps["labels"],
 ) {
   return (
     <ol className={timelineListClassName}>
@@ -62,7 +62,10 @@ function renderTimelineItems(
           <div aria-hidden="true" className="flex justify-center">
             <span className={timelineDotClassName} />
           </div>
-          <article className={timelineCardClassName} data-registry-id={item.registryId}>
+          <article
+            className={timelineCardClassName}
+            data-registry-id={item.registryId}
+          >
             <div className="flex flex-col gap-5">
               <p className={timelineDateClassName}>
                 {item.dateKind} {item.dateLabel}
@@ -77,7 +80,6 @@ function renderTimelineItems(
                 )}
                 <p className={timelineSummaryClassName}>{item.summary}</p>
               </div>
-
             </div>
           </article>
         </li>
@@ -91,7 +93,10 @@ export function OntologyChronoTimeline({
   labels,
 }: OntologyChronoTimelineProps) {
   const [isMounted, setIsMounted] = useState(false);
-  const renderedItems = useMemo(() => renderTimelineItems(items, labels), [items, labels]);
+  const renderedItems = useMemo(
+    () => renderTimelineItems(items, labels),
+    [items, labels],
+  );
 
   useEffect(() => {
     setIsMounted(true);
@@ -113,7 +118,9 @@ export function OntologyChronoTimeline({
           role="status"
         >
           <p className={timelineStateTitleClassName}>{labels.loadingTitle}</p>
-          <p className={timelineStateBodyClassName}>{labels.loadingDescription}</p>
+          <p className={timelineStateBodyClassName}>
+            {labels.loadingDescription}
+          </p>
         </div>
       )}
     </section>

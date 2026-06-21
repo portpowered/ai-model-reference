@@ -494,7 +494,6 @@ export async function renderTopologyPrototypePage(
   return (
     <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
       <DocsTitle>{topologyPrototype.title}</DocsTitle>
-      <DocsDescription>{topologyPrototype.description}</DocsDescription>
       <DocsBody>
         <Suspense
           fallback={

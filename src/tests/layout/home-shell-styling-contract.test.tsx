@@ -57,9 +57,7 @@ describe("Phase 1 home shell styling contracts", () => {
 
     expect(getPrimaryNavItems(messages).map((item) => item.href)).toEqual([
       "/",
-      "/docs/architecture",
       "/topology",
-      "/docs/glossary",
       "/docs/timeline",
       "/tags",
     ]);

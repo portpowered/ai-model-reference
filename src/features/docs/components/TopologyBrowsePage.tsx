@@ -259,21 +259,11 @@ function TopologySelectedState({
         selectedClassificationSlug={state.option.classificationSlug}
         mode={state.mode}
       />
-
       <section
         className="mt-8 rounded-lg border border-border bg-card p-4"
-        aria-labelledby="topology-selected-heading"
+        aria-labelledby="topology-selected-state-heading"
       >
-        <h2
-          id="topology-selected-heading"
-          className="font-serif text-2xl font-semibold text-foreground"
-        >
-          {messages.topologyBrowse.membersTitle}
-        </h2>
-        <p className="mt-3 text-sm leading-7 text-muted-foreground">
-          {modeDescription}
-        </p>
-        <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+        <dl className="grid gap-3 text-sm sm:grid-cols-2">
           <div>
             <dt className="font-medium text-foreground">
               {messages.topologyBrowse.selectedClassificationLabel}
@@ -287,13 +277,20 @@ function TopologySelectedState({
             <dd className="mt-1 text-muted-foreground">{modeLabel}</dd>
           </div>
         </dl>
+        <p className="mt-4 text-sm leading-7 text-muted-foreground">
+          {modeDescription}
+        </p>
       </section>
 
-      {members.length === 0 ? (
-        <TopologyEmptyState messages={messages} />
-      ) : (
+      <section className="mt-8" aria-labelledby="topology-members-heading">
+        <h2
+          id="topology-members-heading"
+          className="font-serif text-2xl font-semibold text-foreground"
+        >
+          {messages.topologyBrowse.membersTitle}
+        </h2>
         <MemberListTag
-          className={bulletlessListClassName("mt-8")}
+          className={bulletlessListClassName("mt-4")}
           aria-label={messages.topologyBrowse.memberListLabel}
         >
           {members.map((member) => (
@@ -305,14 +302,11 @@ function TopologySelectedState({
                 <p className="mt-1 text-sm text-muted-foreground">
                   {member.summary}
                 </p>
-                <p className="mt-2 text-xs uppercase text-muted-foreground">
-                  {member.kind} / {member.membershipType}
-                </p>
               </Link>
             </li>
           ))}
         </MemberListTag>
-      )}
+      </section>
 
       <TopologyOptionLinks messages={messages} options={state.options} />
     </>

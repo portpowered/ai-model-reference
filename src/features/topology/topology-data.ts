@@ -6,6 +6,7 @@ import {
   getClassificationById,
   getPrimaryClassificationForRecord,
   listClassificationMembers,
+  listClassificationRecords,
   listOntologyRelationshipsForRecord,
   listSecondaryClassificationsForRecord,
 } from "@/lib/content/registry-runtime";
@@ -20,12 +21,13 @@ import type {
   SystemRecord,
   TrainingRegimeRecord,
 } from "@/lib/content/schemas";
+import { listTopologyNavigationOptions } from "@/lib/content/topology-navigation";
 
-export const DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS = [
-  "activation",
-  "activation-function",
-  "feed-forward",
-] as const;
+export function getDefaultTopologyClassificationSelectors(): string[] {
+  return listTopologyNavigationOptions().map(
+    (option) => option.classificationSlug,
+  );
+}
 
 const selectorClassificationIds = new Map<string, string>([
   ["activation", "classification.activation-functions"],
@@ -48,6 +50,29 @@ const selectorClassificationIds = new Map<string, string>([
     "classification.neural-network-components",
   ],
 ]);
+
+function resolveClassificationForSelector(
+  selector: string,
+): ClassificationRecord | undefined {
+  const normalizedSelector = normalizeSelector(selector);
+  const classificationId =
+    selectorClassificationIds.get(normalizedSelector) ?? normalizedSelector;
+
+  return (
+    getClassificationById(classificationId) ??
+    listClassificationRecords().find(
+      (classification) =>
+        classification.slug === normalizedSelector ||
+        classification.id === normalizedSelector,
+    )
+  );
+}
+
+export function resolveTopologyClassificationId(
+  selector: string,
+): string | undefined {
+  return resolveClassificationForSelector(selector)?.id;
+}
 
 type TopologyRecord =
   | ModuleRecord
@@ -210,9 +235,7 @@ function resolveSelections(selectors: readonly string[]): {
       continue;
     }
 
-    const classificationId =
-      selectorClassificationIds.get(normalizedSelector) ?? normalizedSelector;
-    const classification = getClassificationById(classificationId);
+    const classification = resolveClassificationForSelector(normalizedSelector);
     if (!classification) {
       invalidSelections.push(selector);
       continue;
@@ -252,7 +275,7 @@ export function buildTopologyGraph(
     return {
       status: "error",
       invalidSelections,
-      recoverySelection: DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS,
+      recoverySelection: getDefaultTopologyClassificationSelectors(),
       selectedClassifications: [],
       nodes: [],
       edges: [],

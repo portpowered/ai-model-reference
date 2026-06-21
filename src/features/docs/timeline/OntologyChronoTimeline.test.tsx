@@ -56,8 +56,12 @@ describe("OntologyChronoTimeline", () => {
       await screen.findByRole("link", { name: "Rectified Linear Unit" }),
     ).toBeTruthy();
     expect(
-      screen.getByRole("link", { name: defaultLabels.docsLink }).getAttribute("href"),
+      screen
+        .getByRole("link", { name: "Rectified Linear Unit" })
+        .getAttribute("href"),
     ).toBe("/docs/modules/relu");
-    expect(screen.getByText(/Date source:/)).toBeTruthy();
+    expect(
+      screen.getByText("Keeps positive values and clips negatives to zero."),
+    ).toBeTruthy();
   });
 });

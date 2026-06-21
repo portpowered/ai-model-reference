@@ -1,24 +1,28 @@
 "use client";
 
+import { X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import type { MouseEvent } from "react";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { FilterChipNav } from "@/features/docs/components/FilterChipNav";
+import {
+  getTopologyNavigationLabels,
+  listTopologyNavigationOptions,
+} from "@/lib/content/topology-navigation";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { TopologyCytoscapeGraph } from "./TopologyCytoscapeGraph";
 import type { TopologyDocsPageContentByRegistryId } from "./topology-content";
-import { buildTopologyGraph } from "./topology-data";
+import {
+  buildTopologyGraph,
+  resolveTopologyClassificationId,
+} from "./topology-data";
 import { buildTopologyHref, parseTopologyQuery } from "./topology-query";
 
 type TopologyPrototypeProps = {
   docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId;
   messages: UiMessages;
 };
-
-const topologyChips = [
-  { selector: "activation", labelKey: "activationChip" },
-  { selector: "activation-function", labelKey: "activationFunctionChip" },
-  { selector: "feed-forward", labelKey: "feedForwardChip" },
-] as const;
 
 export function TopologyPrototype({
   messages,
@@ -33,23 +37,22 @@ export function TopologyPrototype({
     [searchParams],
   );
   const graph = buildTopologyGraph(queryState.selectors);
-  const chips = topologyChips.map((chip) => ({
-    selector: chip.selector,
-    label: text[chip.labelKey],
-  }));
-  const activeSelectors = new Set(queryState.selectors);
-
-  const selectedViewValue =
-    queryState.selectors.length === 0
-      ? text.selectedViewNone
-      : queryState.usesDefault
-        ? text.selectedViewValue
-        : formatSelectedViewValue(
-            chips,
-            activeSelectors,
-            queryState.selectors,
-            text.selectedViewDefault,
-          );
+  const chips = useMemo(
+    () =>
+      listTopologyNavigationOptions({
+        labels: getTopologyNavigationLabels(messages),
+      }).map((option) => ({
+        classificationId: option.classificationId,
+        selector: option.classificationSlug,
+        label: option.label,
+      })),
+    [messages],
+  );
+  const activeClassificationIds = new Set(
+    graph.selectedClassifications.map(
+      (selection) => selection.classificationId,
+    ),
+  );
 
   const emptySelectionLabel =
     graph.status === "empty" && graph.selectedClassifications.length > 0
@@ -68,9 +71,12 @@ export function TopologyPrototype({
   }
 
   function toggleSelector(selector: string) {
-    if (activeSelectors.has(selector)) {
+    const classificationId = resolveTopologyClassificationId(selector);
+    if (classificationId && activeClassificationIds.has(classificationId)) {
       updateSelection(
-        queryState.selectors.filter((item) => item !== selector),
+        queryState.selectors.filter(
+          (item) => resolveTopologyClassificationId(item) !== classificationId,
+        ),
         { explicitEmpty: true },
       );
       return;
@@ -79,92 +85,55 @@ export function TopologyPrototype({
     updateSelection([...queryState.selectors, selector]);
   }
 
+  const filterItems = chips.map((chip) => {
+    const isActive = activeClassificationIds.has(chip.classificationId);
+    const href = buildTopologyHref(
+      pathname,
+      isActive
+        ? queryState.selectors.filter(
+            (item) =>
+              resolveTopologyClassificationId(item) !== chip.classificationId,
+          )
+        : [...queryState.selectors, chip.selector],
+      searchParams,
+      isActive ? { explicitEmpty: true } : undefined,
+    );
+
+    return {
+      id: chip.selector,
+      href,
+      label: chip.label,
+      active: isActive,
+      onClick: (event: MouseEvent<HTMLAnchorElement>) => {
+        event.preventDefault();
+        toggleSelector(chip.selector);
+      },
+    };
+  });
+
   return (
     <section className="space-y-6" aria-labelledby="topology-success-title">
-      <fieldset className="rounded-lg border border-border bg-card/60 p-4">
-        <legend className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {text.selectedViewLabel}
-        </legend>
-        <p className="mt-1 text-sm text-foreground">{selectedViewValue}</p>
-        <p className="mt-2 text-xs text-muted-foreground">{text.chipHint}</p>
-        <ul
-          className="mt-3 flex flex-wrap gap-2"
-          aria-label={text.chipListLabel}
-        >
-          {chips.map((chip) => {
-            const isActive = activeSelectors.has(chip.selector);
-
-            return (
-              <li key={chip.selector}>
-                <Button
-                  type="button"
-                  variant={isActive ? "default" : "outline"}
-                  size="sm"
-                  aria-pressed={isActive}
-                  onClick={() => toggleSelector(chip.selector)}
-                >
-                  {chip.label}
-                </Button>
-              </li>
-            );
-          })}
-        </ul>
-        {!queryState.usesDefault ? (
+      <div className="flex items-start gap-2">
+        <FilterChipNav
+          className="min-w-0 flex-1"
+          itemClassName="shrink-0"
+          items={filterItems}
+          labels={{ navigation: text.chipListLabel }}
+          listClassName="flex-nowrap overflow-x-auto pb-1 pr-2"
+        />
+        {activeClassificationIds.size > 0 ? (
           <Button
             type="button"
             variant="ghost"
-            size="sm"
-            className="mt-3"
-            onClick={() => updateSelection([])}
+            size="icon-sm"
+            className="shrink-0"
+            aria-label={text.clearSelectionLabel}
+            title={text.clearSelectionLabel}
+            onClick={() => updateSelection([], { explicitEmpty: true })}
           >
-            {text.resetToDefaultLabel}
+            <X />
           </Button>
         ) : null}
-      </fieldset>
-
-      <div className="grid gap-3 md:grid-cols-3">
-        <article
-          className="rounded-lg border border-border bg-muted/20 p-4"
-          aria-labelledby="topology-loading-title"
-        >
-          <h2
-            id="topology-loading-title"
-            className="text-sm font-semibold text-foreground"
-          >
-            {text.loadingTitle}
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {text.loadingDescription}
-          </p>
-        </article>
-        <article
-          className="rounded-lg border border-border bg-muted/20 p-4"
-          aria-labelledby="topology-empty-title"
-        >
-          <h2
-            id="topology-empty-title"
-            className="text-sm font-semibold text-foreground"
-          >
-            {text.emptyTitle}
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {text.emptyDescription}
-          </p>
-        </article>
-        <article
-          className="rounded-lg border border-border bg-muted/20 p-4"
-          aria-labelledby="topology-error-title"
-        >
-          <h2
-            id="topology-error-title"
-            className="text-sm font-semibold text-foreground"
-          >
-            {text.errorTitle}
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {text.errorDescription}
-          </p>
-        </article>
       </div>
 
       {graph.status === "success" ? (
@@ -231,21 +200,4 @@ export function TopologyPrototype({
       ) : null}
     </section>
   );
-}
-
-function formatSelectedViewValue(
-  chips: { selector: string; label: string }[],
-  activeSelectors: Set<string>,
-  selectors: string[],
-  fallback: string,
-): string {
-  const matchingLabels = chips
-    .filter((chip) => activeSelectors.has(chip.selector))
-    .map((chip) => chip.label);
-
-  if (matchingLabels.length > 0) {
-    return matchingLabels.join(" + ");
-  }
-
-  return selectors.join(" + ") || fallback;
 }

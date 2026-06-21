@@ -118,22 +118,20 @@ export function OntologyTimelineView({
         onSelectClassification={onSelectClassification}
       />
       {timeline.status === "success" ? (
-        <>
-          <div className="mt-8">
-            <OntologyChronoTimeline
-              items={timeline.items}
-              labels={{
-                docsLink: timelinePage.docsLink,
-                regionLabel: timelinePage.regionLabel,
-                sourcePrefix: timelinePage.sourcePrefix,
-                loadingTitle: timelinePage.loadingTitle,
-                loadingDescription: timelinePage.loadingDescription,
-                errorTitle: timelinePage.errorTitle,
-                errorDescription: timelinePage.errorDescription,
-              }}
-            />
-          </div>
-        </>
+        <div className="mt-8">
+          <OntologyChronoTimeline
+            items={timeline.items}
+            labels={{
+              docsLink: timelinePage.docsLink,
+              regionLabel: timelinePage.regionLabel,
+              sourcePrefix: timelinePage.sourcePrefix,
+              loadingTitle: timelinePage.loadingTitle,
+              loadingDescription: timelinePage.loadingDescription,
+              errorTitle: timelinePage.errorTitle,
+              errorDescription: timelinePage.errorDescription,
+            }}
+          />
+        </div>
       ) : (
         renderEmptyTimeline(timeline, messages, locale, onSelectClassification)
       )}

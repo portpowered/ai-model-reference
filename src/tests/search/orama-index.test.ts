@@ -400,7 +400,7 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "routing", expectedRank: "first" },
     { query: "request routing", expectedRank: "first" },
     { query: "inference routing", expectedRank: "first" },
-    { query: "serve request to specialist model", expectedRank: "contains" },
+    { query: "serving router", expectedRank: "contains" },
   ] as const)("Orama database resolves the canonical routing system page for %s", async ({
     query,
     expectedRank,

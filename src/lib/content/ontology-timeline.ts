@@ -313,7 +313,10 @@ function collectCandidateRecords(
   pagesByRegistryId: ReadonlyMap<string, DocsPageSource>,
 ): Map<string, OntologyTimelineRelationshipContext[]> {
   const candidates = new Map<string, OntologyTimelineRelationshipContext[]>();
-  const directMembers = memberRecordsForClassification(classification, recordsById);
+  const directMembers = memberRecordsForClassification(
+    classification,
+    recordsById,
+  );
   const directMemberIds = new Set(directMembers.map((record) => record.id));
 
   for (const source of directMembers) {
@@ -390,9 +393,7 @@ function toClassificationSlice(
 function isEligibleTimelineClassification(
   classification: ClassificationRecord,
 ): boolean {
-  return (
-    classification.status === "published"
-  );
+  return classification.status === "published";
 }
 
 function buildNearbyClassificationSlices(

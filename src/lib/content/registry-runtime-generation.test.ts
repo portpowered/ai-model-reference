@@ -61,6 +61,30 @@ async function importGeneratedRuntime(outputPath: string) {
   )) as typeof import("./registry-runtime");
 }
 
+async function writeAttentionClassificationFixture(registryRoot: string) {
+  await writeRegistryJson(
+    registryRoot,
+    "classifications",
+    "attention-mechanisms.json",
+    {
+      id: "classification.attention-mechanisms",
+      slug: "attention-mechanisms",
+      kind: "classification",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: ["attention"],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-21T00:00:00.000Z",
+      updatedAt: "2026-06-21T00:00:00.000Z",
+      classificationType: "family",
+      classifiesKinds: ["module"],
+    },
+  );
+}
+
 describe("registry-runtime generation", () => {
   test("generated runtime resolves a newly added citation without manual runtime edits", async () => {
     const { outputPath, registryRoot, tempRoot } =
@@ -269,6 +293,9 @@ describe("registry-runtime generation", () => {
         id: "module.runtime-generated-module",
         slug: "runtime-generated-module",
         aliases: ["runtime generated module"],
+        tags: [],
+        relatedIds: [],
+        citationIds: [],
       };
       const generatedConcept = {
         id: "concept.runtime-generated-concept",
@@ -294,6 +321,7 @@ describe("registry-runtime generation", () => {
         "runtime-generated-module.json",
         generatedRecord,
       );
+      await writeAttentionClassificationFixture(registryRoot);
       await writeRegistryJson(
         registryRoot,
         "concepts",
@@ -782,6 +810,7 @@ describe("registry-runtime generation", () => {
       const baseRecord = JSON.parse(
         await readFile(sourcePath, "utf8"),
       ) as Record<string, unknown>;
+      await writeAttentionClassificationFixture(registryRoot);
 
       await writeFile(
         join(registryRoot, "modules", "zeta.json"),
@@ -789,6 +818,9 @@ describe("registry-runtime generation", () => {
           ...baseRecord,
           id: "module.zeta",
           slug: "zeta",
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
         }),
       );
       await writeFile(
@@ -797,6 +829,9 @@ describe("registry-runtime generation", () => {
           ...baseRecord,
           id: "module.alpha",
           slug: "alpha",
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
         }),
       );
 
