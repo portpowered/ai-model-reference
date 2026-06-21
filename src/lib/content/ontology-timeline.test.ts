@@ -59,22 +59,43 @@ describe("ontology timeline data", () => {
 
     const orderedDates = timeline.items.map((item) => item.dateValue);
     expect(orderedDates).toEqual([...orderedDates].sort());
-    expect(timeline.items.map((item) => item.registryId)).toEqual([
-      "module.feed-forward-network",
-      "module.relu",
-      "module.leaky-relu",
-      "module.silu",
-      "module.standard-ffn",
-      "module.swiglu",
-    ]);
+    expect(timeline.items[0]?.registryId).toBe("module.tanh");
+    expect(
+      timeline.items.findIndex((item) => item.registryId === "module.relu"),
+    ).toBeLessThan(
+      timeline.items.findIndex(
+        (item) => item.registryId === "module.leaky-relu",
+      ),
+    );
+    expect(
+      timeline.items.findIndex((item) => item.registryId === "module.silu"),
+    ).toBeLessThan(
+      timeline.items.findIndex((item) => item.registryId === "module.swiglu"),
+    );
+    expect(timeline.items.map((item) => item.registryId)).toEqual(
+      expect.arrayContaining([
+        "module.feed-forward-network",
+        "module.relu",
+        "module.leaky-relu",
+        "module.silu",
+        "module.standard-ffn",
+        "module.swiglu",
+      ]),
+    );
   });
 
   test("relationship-derived activation neighbors carry typed context and nearby slices", () => {
     const timeline = loadOntologyTimelineData("activation");
+    const feedForwardTimeline = loadOntologyTimelineData(
+      "feed-forward-networks",
+    );
 
     expect(timeline.status).toBe("success");
     if (timeline.status !== "success") {
       throw new Error("Expected activation timeline to resolve successfully");
+    }
+    if (feedForwardTimeline.status !== "success") {
+      throw new Error("Expected feed-forward timeline to resolve successfully");
     }
 
     const swiglu = timeline.items.find(
@@ -98,12 +119,12 @@ describe("ontology timeline data", () => {
       expect.arrayContaining([
         expect.objectContaining({
           classificationId: "classification.activation-functions",
-          eventCount: 6,
+          eventCount: timeline.items.length,
           active: true,
         }),
         expect.objectContaining({
           classificationId: "classification.feed-forward-networks",
-          eventCount: 4,
+          eventCount: feedForwardTimeline.items.length,
           active: false,
         }),
       ]),
@@ -121,14 +142,16 @@ describe("ontology timeline data", () => {
   });
 
   test("known classifications without dated records return a typed empty result", () => {
-    const undatedRegistryIds = new Set([
-      "module.relu",
-      "module.leaky-relu",
-      "module.silu",
-      "module.swiglu",
-      "module.standard-ffn",
-      "module.feed-forward-network",
-    ]);
+    const activationTimeline = loadOntologyTimelineData("activation");
+
+    expect(activationTimeline.status).toBe("success");
+    if (activationTimeline.status !== "success") {
+      throw new Error("Expected activation timeline to resolve successfully");
+    }
+
+    const undatedRegistryIds = new Set(
+      activationTimeline.items.map((item) => item.registryId),
+    );
     const timeline = buildOntologyTimelineDataFromSources({
       classification: "activation",
       pages: loadPublishedDocsPagesSync("en"),

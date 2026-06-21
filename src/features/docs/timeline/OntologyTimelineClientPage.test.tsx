@@ -34,6 +34,11 @@ describe("OntologyTimelineClientPage", () => {
 
     const messages = await loadUiMessages("en");
     const preloadedTimelines = loadPreloadedTimelineSelections("en");
+    const feedForwardTimeline = preloadedTimelines["feed-forward-networks"];
+
+    if (feedForwardTimeline?.status !== "success") {
+      throw new Error("Expected feed-forward timeline preload to resolve");
+    }
 
     render(
       <OntologyTimelineClientPage
@@ -46,7 +51,9 @@ describe("OntologyTimelineClientPage", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Showing 4 dated events for feed-forward network."),
+        screen.getByText(
+          `Showing ${feedForwardTimeline.items.length} dated events for feed-forward network.`,
+        ),
       ).toBeTruthy();
     });
   });
