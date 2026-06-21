@@ -11,7 +11,6 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import {
   TopologyBrowsePage,
-  type TopologyClassificationEntry,
   topologyBrowseDescription,
   topologyBrowseTitle,
 } from "@/features/docs/components/TopologyBrowsePage";
@@ -20,6 +19,7 @@ import {
   type TopologyBrowseState,
 } from "@/lib/content/topology-browse";
 import type { TopologyNavigationOption } from "@/lib/content/topology-navigation";
+import type { TopologyClassificationEntry } from "@/lib/content/topology-tree-entries";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 
 type StaticExportBrowsePageProps = {

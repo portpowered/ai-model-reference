@@ -4,6 +4,10 @@ import type {
   TopologyNavigationOption,
   TopologySurfaceMode,
 } from "@/lib/content/topology-navigation";
+import type {
+  TopologyClassificationEntry,
+  TopologyMemberEntry,
+} from "@/lib/content/topology-tree-entries";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   type BulletlessListMargin,
@@ -11,30 +15,6 @@ import {
   bulletlessListMarkersClassName,
   docsResourceCardLinkClassName,
 } from "./list-decoration";
-
-export type TopologyMemberEntry = {
-  registryId: string;
-  slug: string;
-  title: string;
-  summary: string;
-  url: string;
-  kind: string;
-  membershipType: "primary" | "secondary";
-};
-
-export type TopologyClassificationEntry = {
-  nodeType: "classification";
-  classificationId: string;
-  slug: string;
-  title: string;
-  directMemberCount: number;
-  totalMemberCount: number;
-  children: TopologyTreeEntry[];
-};
-
-export type TopologyTreeEntry =
-  | TopologyClassificationEntry
-  | (TopologyMemberEntry & { nodeType: "record" });
 
 type ResolvedTopologyBrowseState = Exclude<
   TopologyBrowseState,

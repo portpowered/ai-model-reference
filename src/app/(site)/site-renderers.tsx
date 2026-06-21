@@ -16,8 +16,6 @@ import { StaticExportBrowsePage } from "@/features/docs/components/StaticExportB
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import {
   TopologyBrowsePage,
-  type TopologyClassificationEntry,
-  type TopologyTreeEntry,
   topologyBrowseDescription,
   topologyBrowseTitle,
 } from "@/features/docs/components/TopologyBrowsePage";
@@ -34,16 +32,10 @@ import { TopologyPrototype } from "@/features/topology/TopologyPrototype";
 import type { TopologyDocsPageContentByRegistryId } from "@/features/topology/topology-content";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
-import { localizeDocsHref } from "@/lib/content/localized-docs-href";
 import {
   loadPublishedDocsPages,
   loadShippedLocalizedDocsPages,
 } from "@/lib/content/pages";
-import { getPublishedDocsHrefForRecord } from "@/lib/content/published-docs-registry-ids";
-import type {
-  ClassificationTreeClassificationNode,
-  ClassificationTreeNode,
-} from "@/lib/content/registry-runtime";
 import {
   loadTagLandingContext,
   loadTagResourceGroups,
@@ -57,10 +49,13 @@ import {
   type TopologySearchParams,
 } from "@/lib/content/topology-browse";
 import {
-  getTopologyClassificationLabel,
   getTopologyNavigationLabels,
   listTopologyNavigationOptions,
 } from "@/lib/content/topology-navigation";
+import {
+  buildTopologyTreeEntries,
+  type TopologyClassificationEntry,
+} from "@/lib/content/topology-tree-entries";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import {
   buildLocalizedRoute,
@@ -115,103 +110,6 @@ function toDocsIndexEntries(
     summary: page.messages.description,
     url: page.url,
   }));
-}
-
-function formatFallbackRegistryTitle(slug: string): string {
-  return slug
-    .split("-")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function toTopologyTreeEntry(
-  node: ClassificationTreeNode,
-  localizedPages: Awaited<ReturnType<typeof loadShippedLocalizedDocsPages>>,
-  canonicalPages: Awaited<ReturnType<typeof loadPublishedDocsPages>>,
-  locale: SiteLocale,
-  topologyLabels: ReturnType<typeof getTopologyNavigationLabels>,
-): TopologyTreeEntry | null {
-  const localizedPagesByRegistryId = new Map(
-    localizedPages.map((page) => [page.frontmatter.registryId, page]),
-  );
-  const canonicalPagesByRegistryId = new Map(
-    canonicalPages.map((page) => [page.frontmatter.registryId, page]),
-  );
-
-  if (node.nodeType === "record") {
-    const docsHref = getPublishedDocsHrefForRecord(node.member.record);
-    if (node.member.record.status !== "published" || docsHref === null) {
-      return null;
-    }
-
-    const page =
-      localizedPagesByRegistryId.get(node.member.record.id) ??
-      canonicalPagesByRegistryId.get(node.member.record.id);
-    const title =
-      page?.messages.title ??
-      formatFallbackRegistryTitle(node.member.record.slug);
-    const summary = page?.messages.description ?? title;
-
-    return {
-      nodeType: "record",
-      registryId: node.member.record.id,
-      slug: page?.docsSlug ?? node.member.record.slug,
-      title,
-      summary,
-      url: localizeDocsHref(docsHref, locale),
-      kind: node.member.record.kind,
-      membershipType: node.member.membershipType,
-    };
-  }
-
-  const children = node.children
-    .map((child) =>
-      toTopologyTreeEntry(
-        child,
-        localizedPages,
-        canonicalPages,
-        locale,
-        topologyLabels,
-      ),
-    )
-    .flatMap((entry) => (entry ? [entry] : []));
-
-  return {
-    nodeType: "classification",
-    classificationId: node.classification.id,
-    slug: node.classification.slug,
-    title: getTopologyClassificationLabel(
-      node.classification.slug,
-      topologyLabels,
-    ),
-    directMemberCount: children.filter((child) => child.nodeType === "record")
-      .length,
-    totalMemberCount: children.reduce(
-      (count, child) =>
-        count + (child.nodeType === "record" ? 1 : child.totalMemberCount),
-      0,
-    ),
-    children,
-  };
-}
-
-function toTopologyTreeEntries(
-  tree: ClassificationTreeClassificationNode,
-  localizedPages: Awaited<ReturnType<typeof loadShippedLocalizedDocsPages>>,
-  canonicalPages: Awaited<ReturnType<typeof loadPublishedDocsPages>>,
-  locale: SiteLocale,
-  topologyLabels: ReturnType<typeof getTopologyNavigationLabels>,
-): TopologyClassificationEntry[] {
-  const entry = toTopologyTreeEntry(
-    tree,
-    localizedPages,
-    canonicalPages,
-    locale,
-    topologyLabels,
-  );
-
-  return entry && entry.nodeType === "classification" ? [entry] : [];
 }
 
 const BROWSE_MODELS_STARTER_SLUGS = ["models/gpt-3"] as const;
@@ -336,13 +234,13 @@ export async function renderBrowseIndexPage(
     const treeByClassificationSlug = Object.fromEntries(
       topologyOptions.map((option) => [
         option.classificationSlug,
-        toTopologyTreeEntries(
-          option.tree,
-          pages,
+        buildTopologyTreeEntries({
+          tree: option.tree,
+          localizedPages: pages,
           canonicalPages,
           locale,
           topologyLabels,
-        ),
+        }),
       ]),
     ) as Record<string, TopologyClassificationEntry[]>;
 
@@ -366,13 +264,13 @@ export async function renderBrowseIndexPage(
   if (topologyState.kind !== "not-requested") {
     const topologyTree =
       topologyState.kind === "selected"
-        ? toTopologyTreeEntries(
-            topologyState.option.tree,
-            pages,
+        ? buildTopologyTreeEntries({
+            tree: topologyState.option.tree,
+            localizedPages: pages,
             canonicalPages,
             locale,
             topologyLabels,
-          )
+          })
         : [];
 
     return (

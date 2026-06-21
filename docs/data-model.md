@@ -408,6 +408,11 @@ Precedence:
 * `sidebarGrouping` is editorial navigation metadata. It does not replace
   taxonomy fields such as `moduleType`, `conceptType`, `variantGroup`,
   `regimeType`, or `systemType`.
+* The generated `/browse` module-topology surface now derives its primary branch
+  shape from published classification parent-child edges plus
+  `primaryClassificationId` membership. Existing `moduleType` and
+  `sidebarGrouping` metadata may still support other discovery surfaces, but
+  they no longer define that topology browse tree.
 
 Supported `sidebarGrouping` sections and values:
 
