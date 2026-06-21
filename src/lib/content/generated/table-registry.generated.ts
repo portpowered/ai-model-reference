@@ -3,6 +3,7 @@
 
 import batchNormComparisonTableRecord from "@/content/registry/tables/batch-norm-comparison.json";
 import bidirectionalAttentionComparisonTableRecord from "@/content/registry/tables/bidirectional-attention-comparison.json";
+import blockSparseAttentionComparisonTableRecord from "@/content/registry/tables/block-sparse-attention-comparison.json";
 import bpeComparisonTableRecord from "@/content/registry/tables/bpe-comparison.json";
 import byteLevelTokenizationComparisonTableRecord from "@/content/registry/tables/byte-level-tokenization-comparison.json";
 import causalAttentionComparisonTableRecord from "@/content/registry/tables/causal-attention-comparison.json";
@@ -33,6 +34,7 @@ import unigramTokenizerComparisonTableRecord from "@/content/registry/tables/uni
 export const generatedTableRegistrySourceFiles = [
   "batch-norm-comparison.json",
   "bidirectional-attention-comparison.json",
+  "block-sparse-attention-comparison.json",
   "bpe-comparison.json",
   "byte-level-tokenization-comparison.json",
   "causal-attention-comparison.json",
@@ -64,6 +66,7 @@ export const generatedTableRegistrySourceFiles = [
 export const generatedTableRegistryPayloads = [
   batchNormComparisonTableRecord,
   bidirectionalAttentionComparisonTableRecord,
+  blockSparseAttentionComparisonTableRecord,
   bpeComparisonTableRecord,
   byteLevelTokenizationComparisonTableRecord,
   causalAttentionComparisonTableRecord,

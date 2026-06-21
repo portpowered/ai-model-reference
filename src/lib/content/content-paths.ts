@@ -254,6 +254,12 @@ export const SPARSE_ATTENTION_PAGE_DIR = join(
   "sparse-attention",
 );
 
+/** Block-sparse attention module page directory. */
+export const BLOCK_SPARSE_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "block-sparse-attention",
+);
+
 /** Byte-level tokenization module page directory. */
 export const BYTE_LEVEL_TOKENIZATION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,
