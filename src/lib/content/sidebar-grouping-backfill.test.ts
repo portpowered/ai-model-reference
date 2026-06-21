@@ -48,6 +48,18 @@ const MODULE_SIDEBAR_BACKFILLS = [
   ["module.manifold-constrained-hyper-connections", "attention-variants"],
 ] as const;
 
+const TRAINING_SIDEBAR_OVERRIDES = [
+  ["training-regime.dpo", "alignment"],
+  ["training-regime.on-policy-distillation", "distillation"],
+  ["training-regime.specialist-training", "post-training"],
+  ["training-regime.fp4-quantization-aware-training", "optimization"],
+] as const;
+
+const SYSTEM_SIDEBAR_OVERRIDES = [
+  ["system.on-disk-kv-cache", "memory"],
+  ["system.expert-parallel-overlap", "routing"],
+] as const;
+
 describe("sidebar grouping backfill", () => {
   test("records from slug-driven glossary groups now carry explicit registry metadata", () => {
     for (const [recordId, expectedGroup] of GLOSSARY_SIDEBAR_BACKFILLS) {
@@ -71,7 +83,21 @@ describe("sidebar grouping backfill", () => {
     }
   });
 
-  test("typed taxonomy groups stay derivable without redundant sidebar overrides", () => {
+  test("training and systems keep intentional editorial overrides where ontology detail is still incomplete", () => {
+    for (const [recordId, expectedGroup] of TRAINING_SIDEBAR_OVERRIDES) {
+      expect(getTrainingRegimeById(recordId)?.sidebarGrouping?.training).toBe(
+        expectedGroup,
+      );
+    }
+
+    for (const [recordId, expectedGroup] of SYSTEM_SIDEBAR_OVERRIDES) {
+      expect(getSystemById(recordId)?.sidebarGrouping?.systems).toBe(
+        expectedGroup,
+      );
+    }
+  });
+
+  test("ontology-derived groups stay free of redundant sidebar overrides where the classification already resolves placement", () => {
     expect(
       getConceptById("concept.calibration")?.sidebarGrouping,
     ).toBeUndefined();
@@ -81,12 +107,6 @@ describe("sidebar grouping backfill", () => {
     expect(
       getModuleById("module.grouped-query-attention")?.sidebarGrouping,
     ).toBe(undefined);
-    expect(
-      getTrainingRegimeById("training-regime.on-policy-distillation")
-        ?.sidebarGrouping,
-    ).toBeUndefined();
-    expect(
-      getSystemById("system.on-disk-kv-cache")?.sidebarGrouping,
-    ).toBeUndefined();
+    expect(getSystemById("system.routing")?.sidebarGrouping).toBeUndefined();
   });
 });

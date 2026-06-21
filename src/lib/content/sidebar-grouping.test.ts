@@ -43,7 +43,6 @@ describe("sidebar grouping contract", () => {
     expect(
       resolveModulesSidebarGroupWithSource({
         primaryClassificationId: "classification.module.feed-forward",
-        moduleType: "feed-forward",
       }),
     ).toEqual({
       groupId: "feed-forward-and-activation",
@@ -52,7 +51,6 @@ describe("sidebar grouping contract", () => {
     expect(
       resolveModulesSidebarGroupWithSource({
         primaryClassificationId: "classification.module.attention",
-        moduleType: "attention",
       }),
     ).toEqual({
       groupId: "attention-variants",
@@ -61,7 +59,6 @@ describe("sidebar grouping contract", () => {
     expect(
       resolveModulesSidebarGroupWithSource({
         primaryClassificationId: "classification.module.attention",
-        moduleType: "attention",
         sidebarGrouping: {
           modules: "attention-foundations",
         },
@@ -74,7 +71,6 @@ describe("sidebar grouping contract", () => {
       resolveModulesSidebarGroupWithSource({
         primaryClassificationId: "classification.module.attention.multi-head",
         secondaryClassificationIds: ["classification.module.attention"],
-        moduleType: "attention",
         sidebarGrouping: {
           modules: "attention-foundations",
         },
@@ -89,7 +85,6 @@ describe("sidebar grouping contract", () => {
     expect(
       resolveTrainingSidebarGroupWithSource({
         primaryClassificationId: "classification.training.alignment",
-        regimeType: "alignment",
       }),
     ).toEqual({
       groupId: "alignment",
@@ -97,7 +92,9 @@ describe("sidebar grouping contract", () => {
     });
     expect(
       resolveTrainingSidebarGroupWithSource({
-        regimeType: "distillation",
+        sidebarGrouping: {
+          training: "distillation",
+        },
       }),
     ).toEqual({
       groupId: "distillation",
@@ -107,7 +104,6 @@ describe("sidebar grouping contract", () => {
     expect(
       resolveSystemsSidebarGroupWithSource({
         primaryClassificationId: "classification.system.routing",
-        systemType: "routing",
       }),
     ).toEqual({
       groupId: "routing",
@@ -115,7 +111,9 @@ describe("sidebar grouping contract", () => {
     });
     expect(
       resolveSystemsSidebarGroupWithSource({
-        systemType: "memory",
+        sidebarGrouping: {
+          systems: "memory",
+        },
       }),
     ).toEqual({
       groupId: "memory",
@@ -123,11 +121,23 @@ describe("sidebar grouping contract", () => {
     });
   });
 
+  test("does not silently derive training or system groups without ontology detail or explicit overrides", () => {
+    expect(
+      resolveTrainingSidebarGroupWithSource({
+        primaryClassificationId: undefined,
+      }),
+    ).toBeUndefined();
+    expect(
+      resolveSystemsSidebarGroupWithSource({
+        primaryClassificationId: undefined,
+      }),
+    ).toBeUndefined();
+  });
+
   test("derives concept and glossary groups from ontology first, then explicit editorial fallback", () => {
     expect(
       resolveConceptsSidebarGroupWithSource({
         primaryClassificationId: "classification.concept.inference",
-        conceptType: "inference",
       }),
     ).toEqual({
       groupId: "inference",
@@ -147,7 +157,6 @@ describe("sidebar grouping contract", () => {
     expect(
       resolveGlossarySidebarGroupWithSource({
         primaryClassificationId: "classification.concept.math",
-        conceptType: "math",
       }),
     ).toEqual({
       groupId: "math-and-training",
