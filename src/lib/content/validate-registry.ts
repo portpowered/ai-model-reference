@@ -17,6 +17,10 @@ import {
 } from "./page-messages-load";
 import { validatePageTemplateConformance } from "./page-template-conformance";
 import {
+  getPublishedDocsHrefForRecord,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "./published-docs-registry-ids";
+import {
   loadRegistry,
   type RegistryIndexes,
   RegistryLoadError,
@@ -24,6 +28,7 @@ import {
 } from "./registry";
 import {
   type ModelRecord,
+  type ModuleGraphNode,
   type ModuleRecord,
   type PageAssetConfig,
   type PageKind,
@@ -377,6 +382,146 @@ function moduleReferenceFields(
   return fields;
 }
 
+function hasPublishedDocsPage(record: RegistryRecord): boolean {
+  return (
+    PUBLISHED_DOCS_REGISTRY_IDS.has(record.id) &&
+    Boolean(getPublishedDocsHrefForRecord(record))
+  );
+}
+
+function isValidGraphRelatedHref(href: string): boolean {
+  if (href.startsWith("/")) {
+    return true;
+  }
+
+  try {
+    const parsed = new URL(href);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function validateGraphNodeContracts(
+  record: RegistryRecord,
+  node: ModuleGraphNode,
+  indexes: RegistryIndexes,
+  filePath: string,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const hasGraphLocalSummary = Boolean(node.summaryKey?.trim());
+  const hasGraphLocalDestination = Boolean(
+    node.relatedRegistryId || node.relatedHref?.trim(),
+  );
+
+  if (node.registryId && !indexes.byId.has(node.registryId)) {
+    errors.push({
+      code: "unresolved-graph-node-registry-id",
+      message: `${record.id}: node "${node.id}" registryId references missing record "${node.registryId}"`,
+      path: filePath,
+    });
+  }
+
+  if (node.relatedRegistryId && node.relatedHref?.trim()) {
+    errors.push({
+      code: "ambiguous-graph-node-related-target",
+      message: `${record.id}: node "${node.id}" must not define both relatedRegistryId and relatedHref`,
+      path: filePath,
+    });
+  }
+
+  if (hasGraphLocalDestination && !hasGraphLocalSummary) {
+    errors.push({
+      code: "graph-local-summary-required",
+      message: `${record.id}: node "${node.id}" must define summaryKey before exposing graph-local related docs destinations`,
+      path: filePath,
+    });
+  }
+
+  if (node.relatedRegistryId) {
+    const relatedRecord = indexes.byId.get(node.relatedRegistryId);
+
+    if (!relatedRecord) {
+      errors.push({
+        code: "unresolved-graph-node-related-registry-id",
+        message: `${record.id}: node "${node.id}" relatedRegistryId references missing record "${node.relatedRegistryId}"`,
+        path: filePath,
+      });
+    } else if (!hasPublishedDocsPage(relatedRecord)) {
+      errors.push({
+        code: "unpublished-graph-node-related-registry-id",
+        message: `${record.id}: node "${node.id}" relatedRegistryId "${node.relatedRegistryId}" does not resolve to a published docs page`,
+        path: filePath,
+      });
+    }
+  }
+
+  const relatedHref = node.relatedHref?.trim();
+  if (relatedHref && !isValidGraphRelatedHref(relatedHref)) {
+    errors.push({
+      code: "invalid-graph-node-related-href",
+      message: `${record.id}: node "${node.id}" relatedHref "${node.relatedHref}" must be an absolute http(s) URL or site-relative path`,
+      path: filePath,
+    });
+  }
+
+  return errors;
+}
+
+function validateGraphRecordStructure(
+  record: RegistryRecord,
+  graph: Extract<RegistryRecord, { kind: "graph" }>,
+  indexes: RegistryIndexes,
+  filePath: string,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const nodeIds = new Set(graph.nodes.map((node) => node.id));
+
+  if (!nodeIds.has(graph.rootNodeId)) {
+    errors.push({
+      code: "unresolved-graph-root-node-id",
+      message: `${record.id}: rootNodeId references missing node "${graph.rootNodeId}"`,
+      path: filePath,
+    });
+  }
+
+  for (const node of graph.nodes) {
+    errors.push(...validateGraphNodeContracts(record, node, indexes, filePath));
+
+    for (const childNodeId of node.childNodeIds) {
+      if (nodeIds.has(childNodeId)) {
+        continue;
+      }
+
+      errors.push({
+        code: "unresolved-graph-child-node-id",
+        message: `${record.id}: node "${node.id}" childNodeIds references missing node "${childNodeId}"`,
+        path: filePath,
+      });
+    }
+  }
+
+  for (const edge of graph.edges) {
+    if (!nodeIds.has(edge.source)) {
+      errors.push({
+        code: "unresolved-graph-edge-source",
+        message: `${record.id}: edge "${edge.id}" source references missing node "${edge.source}"`,
+        path: filePath,
+      });
+    }
+
+    if (!nodeIds.has(edge.target)) {
+      errors.push({
+        code: "unresolved-graph-edge-target",
+        message: `${record.id}: edge "${edge.id}" target references missing node "${edge.target}"`,
+        path: filePath,
+      });
+    }
+  }
+
+  return errors;
+}
+
 function validateRegistryRecordReferences(
   record: RegistryRecord,
   indexes: RegistryIndexes,
@@ -490,6 +635,12 @@ function validateRegistryRecordReferences(
       message: `${record.id}: subjectId references missing record "${record.subjectId}"`,
       path: filePath,
     });
+  }
+
+  if (record.kind === "graph") {
+    errors.push(
+      ...validateGraphRecordStructure(record, record, indexes, filePath),
+    );
   }
 
   if (isPublishedSourceRecord(record)) {
