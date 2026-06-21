@@ -10,6 +10,7 @@ import {
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
+import { listRelatedRegistryRecords } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
@@ -90,12 +91,7 @@ describe("block-sparse attention canonical page contract (block-sparse-attention
 
     const relatedItems = deriveCuratedRelatedItems(
       record,
-      Array.from(registry.byId.values()).filter(
-        (candidate) =>
-          candidate.kind !== "tag" &&
-          candidate.kind !== "citation" &&
-          candidate.kind !== "graph",
-      ),
+      listRelatedRegistryRecords(),
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
 

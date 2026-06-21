@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
+import { listRelatedRegistryRecords } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
 describe("block-sparse attention registry slice (block-sparse-attention-module-page-001)", () => {
@@ -53,12 +54,7 @@ describe("block-sparse attention registry slice (block-sparse-attention-module-p
 
     const items = deriveCuratedRelatedItems(
       source,
-      Array.from(registry.byId.values()).filter(
-        (record) =>
-          record.kind !== "tag" &&
-          record.kind !== "citation" &&
-          record.kind !== "graph",
-      ),
+      listRelatedRegistryRecords(),
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
 
