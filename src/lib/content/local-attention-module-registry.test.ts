@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { modulePageHref } from "@/lib/content/content-hrefs";
 import { loadRegistry } from "@/lib/content/registry";
 import type { ModuleRecord } from "@/lib/content/schemas";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 function expectLocalAttentionRecord(
   record: ModuleRecord | undefined,
@@ -48,5 +50,14 @@ describe("local-attention registry record", () => {
     ]);
     expect(localAttention.citationIds).toEqual(["citation.longformer"]);
     expect(localAttention.improvesOnIds).toEqual(["module.attention"]);
+  });
+
+  test("registry-backed aliases resolve the canonical page in search", async () => {
+    const results = await docsSearchApi.search("windowed local attention");
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url.split("#")[0]).toBe(
+      modulePageHref("local-attention"),
+    );
   });
 });

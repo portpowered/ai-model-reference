@@ -40,7 +40,7 @@ describe("local-attention page messages", () => {
 });
 
 describe("loadModulePage local-attention", () => {
-  test("compiles MDX with local namespaces and local-attention-specific discovery links", async () => {
+  test("renders the canonical page with local namespaces, graph caption, and discovery links", async () => {
     const page = await loadModulePage("local-attention");
 
     expect(page.frontmatter.registryId).toBe("module.local-attention");
@@ -67,6 +67,7 @@ describe("loadModulePage local-attention", () => {
     expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/context-window"');
+    expect(html).toContain("Local attention neighborhood reach.");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/sliding-window-attention"');
@@ -83,7 +84,7 @@ describe("loadModulePage local-attention", () => {
 });
 
 describe("local-attention page assets", () => {
-  test("resolves graph and table assets with message-backed alt text", () => {
+  test("resolves graph and table assets with message-backed alt text and caption", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
@@ -93,6 +94,7 @@ describe("local-attention page assets", () => {
 
     expect(assets.computeFlow.type).toBe("attention-variant-graph");
     if (assets.computeFlow.type === "attention-variant-graph") {
+      expect(assets.computeFlow.captionKey).toBe("assets.computeFlow.caption");
       expect(
         assets.computeFlow.variants.map((variant) => variant.graphId),
       ).toEqual([

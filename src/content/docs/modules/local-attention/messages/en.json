@@ -48,6 +48,7 @@
   "assets": {
     "computeFlow": {
       "alt": "Dense multi-head attention versus local attention neighborhood reach",
+      "caption": "Local attention neighborhood reach. The dense baseline lets each query reach the full sequence, while the local pattern keeps each query inside a nearby band.",
       "variants": {
         "mha": {
           "label": "Multi-head"
