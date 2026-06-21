@@ -138,6 +138,14 @@ describe("sidebar grouping contract", () => {
   test("derives training and system groups from ontology when the branch is modeled", () => {
     expect(
       resolveTrainingSidebarGroupWithSource({
+        primaryClassificationId: "classification.training.pretraining",
+      }),
+    ).toEqual({
+      groupId: "pretraining",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveTrainingSidebarGroupWithSource({
         primaryClassificationId: "classification.training.alignment",
       }),
     ).toEqual({

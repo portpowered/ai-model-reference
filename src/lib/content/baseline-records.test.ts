@@ -397,6 +397,9 @@ describe("Phase 1 baseline registry records", () => {
 
     expect(regime.id).toBe("training-regime.pretraining");
     expect(regime.slug).toBe("pretraining");
+    expect(regime.primaryClassificationId).toBe(
+      "classification.training.pretraining",
+    );
     expect(regime.regimeType).toBe("pretraining");
     expect(regime.tags).toEqual(
       expect.arrayContaining(["foundations", "tokenization"]),
@@ -417,7 +420,7 @@ describe("Phase 1 baseline registry records", () => {
         "training-regime.dpo",
       ]),
     );
-    expect(regime.sidebarGrouping?.training).toBe("pretraining");
+    expect(regime.sidebarGrouping).toBeUndefined();
   });
 
   test("gpt-2-report citation JSON passes citationRecordSchema", async () => {

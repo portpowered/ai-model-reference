@@ -268,6 +268,10 @@ function resolveOntologyTrainingSidebarGroup(
     >
   | undefined {
   const membership = getCanonicalClassificationMembership(record);
+  if (membership.has("classification.training.pretraining")) {
+    return createSidebarGroupResolution("pretraining", "derived-taxonomy");
+  }
+
   if (membership.has("classification.training.alignment")) {
     return createSidebarGroupResolution("alignment", "derived-taxonomy");
   }

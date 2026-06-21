@@ -40,13 +40,11 @@
     "Ilya Sutskever"
   ],
   "sourceId": "citation.gpt-2-report",
+  "primaryClassificationId": "classification.training.pretraining",
   "regimeType": "pretraining",
   "usedByModelIds": ["model.gpt-3"],
   "relatedModuleIds": ["module.byte-level-tokenization", "module.bpe"],
   "paperIds": [],
   "conceptType": "training",
-  "variantGroup": "language-model-training-stages",
-  "sidebarGrouping": {
-    "training": "pretraining"
-  }
+  "variantGroup": "language-model-training-stages"
 }

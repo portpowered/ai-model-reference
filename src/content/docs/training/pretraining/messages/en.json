@@ -35,8 +35,14 @@
   },
   "assets": {
     "trainingFlow": {
+      "title": "Pretraining training flow",
       "alt": "A three-step pretraining flow: large token corpus, repeated next-token objective, then a broadly capable base model.",
-      "caption": "Pretraining turns huge token corpora into a base model by repeating the next-token objective at scale."
+      "caption": "Pretraining turns huge token corpora into a base model by repeating the next-token objective at scale.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
     }
   },
   "links": {

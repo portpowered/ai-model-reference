@@ -15,7 +15,9 @@ import { loadRegistry } from "@/lib/content/registry";
 import {
   getCitationById,
   getModelById,
+  getPrimaryClassificationForRecord,
   getTrainingRegimeById,
+  listClassificationMembers,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
@@ -79,9 +81,12 @@ describe("pretraining training-regime identity contracts", () => {
     expect(page?.messages.openingSummary).toContain("base model");
   });
 
-  test("registry record publishes canonical aliases, relationships, and sidebar grouping", () => {
+  test("registry record publishes canonical aliases, relationships, and ontology-backed training discovery", () => {
     const record = getTrainingRegimeById("training-regime.pretraining");
     expect(record?.status).toBe("published");
+    expect(record?.primaryClassificationId).toBe(
+      "classification.training.pretraining",
+    );
     expect(record?.aliases).toEqual([
       "Pretraining",
       "language model pretraining",
@@ -105,7 +110,15 @@ describe("pretraining training-regime identity contracts", () => {
       "module.byte-level-tokenization",
       "module.bpe",
     ]);
-    expect(record?.sidebarGrouping?.training).toBe("pretraining");
+    expect(record?.sidebarGrouping).toBeUndefined();
+    expect(
+      getPrimaryClassificationForRecord("training-regime.pretraining")?.id,
+    ).toBe("classification.training.pretraining");
+    expect(
+      listClassificationMembers("classification.training.pretraining").map(
+        (member) => `${member.membershipType}:${member.record.id}`,
+      ),
+    ).toEqual(["primary:training-regime.pretraining"]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("training-regime.pretraining")).toBe(
       true,
     );

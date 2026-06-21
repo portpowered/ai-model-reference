@@ -9,49 +9,34 @@ import { lookupAsset, resolveAssetText } from "@/lib/content/assets";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import type { ModuleGraphEdge } from "@/lib/content/schemas";
 
-const EDGE_KIND_LEGEND: Partial<
-  Record<ModuleGraphEdge["edgeKind"], GraphLegendItem>
-> = {
-  "cache-read": { color: "#2563eb", label: "Cache reuse and reads" },
-  "cache-write": { color: "#2563eb", label: "Cache writes and reuse" },
-  contains: { color: "#334155", label: "Contained subflow" },
-  "control-flow": { color: "#111111", label: "Control flow" },
-  "data-flow": { color: "#111111", label: "Request and weight flow" },
-  "parameter-sharing": { color: "#0f172a", label: "Shared parameters" },
-  residual: { color: "#7c3aed", label: "Residual connection" },
+const EDGE_KIND_COLORS: Partial<Record<ModuleGraphEdge["edgeKind"], string>> = {
+  "cache-read": "#2563eb",
+  "cache-write": "#2563eb",
+  contains: "#334155",
+  "control-flow": "#111111",
+  "data-flow": "#111111",
+  "parameter-sharing": "#0f172a",
+  residual: "#7c3aed",
 } as const;
 
-function humanizeAssetId(assetId: string): string {
-  return assetId
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .replace(/[-_]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function buildTrainingFlowTitle(
-  pageTitle: string | undefined,
-  assetId: string,
-): string {
-  const assetTitle = humanizeAssetId(assetId);
-  return pageTitle ? `${pageTitle} ${assetTitle}` : assetTitle;
-}
-
-function buildTrainingFlowLegend(graphId: string): GraphLegendItem[] {
+function buildTrainingFlowLegend(
+  graphId: string,
+  legendMessages: Record<string, { label: string }> | undefined,
+): GraphLegendItem[] {
   const graph = getGraphById(graphId);
-  if (!graph) {
+  if (!graph || !legendMessages) {
     return [];
   }
 
   const legend = new Map<string, GraphLegendItem>();
   for (const edge of graph.edges) {
-    const entry = EDGE_KIND_LEGEND[edge.edgeKind];
-    if (!entry || legend.has(entry.label)) {
+    const color = EDGE_KIND_COLORS[edge.edgeKind];
+    const label = legendMessages[edge.edgeKind]?.label;
+    if (!color || !label || legend.has(label)) {
       continue;
     }
 
-    legend.set(entry.label, entry);
+    legend.set(label, { color, label });
   }
 
   return [...legend.values()];
@@ -78,6 +63,7 @@ export function TrainingRegimeFlow({
   }
 
   const text = resolveAssetText(messages, asset);
+  const assetMessages = messages.assets?.[assetId];
 
   return (
     <RegistryGraphFlow
@@ -85,8 +71,8 @@ export function TrainingRegimeFlow({
       graphId={asset.graphId}
       alt={text.alt}
       caption={text.caption}
-      title={buildTrainingFlowTitle(messages.title, assetId)}
-      legend={buildTrainingFlowLegend(asset.graphId)}
+      title={assetMessages?.title}
+      legend={buildTrainingFlowLegend(asset.graphId, assetMessages?.legend)}
     />
   );
 }
