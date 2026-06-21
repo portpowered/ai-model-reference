@@ -464,9 +464,7 @@ describe("related-docs", () => {
     );
     expect(
       peers.every((item) =>
-        item.reasonLabel.includes(
-          "Shares parent classification: neural network components",
-        ),
+        item.reasonLabel.includes("Shares parent classification: module"),
       ),
     ).toBe(true);
   });

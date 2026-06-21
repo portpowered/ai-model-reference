@@ -116,6 +116,28 @@ function buildClassificationTerms(
   ]);
 }
 
+function resolveIndexedClassification(
+  classificationId: string | undefined,
+  indexes: RegistryIndexes,
+): ClassificationRecord | undefined {
+  if (!classificationId) {
+    return undefined;
+  }
+
+  const direct = indexes.classificationsById.get(classificationId);
+  if (direct) {
+    return direct;
+  }
+
+  for (const classification of indexes.classificationsById.values()) {
+    if (classification.legacyIds?.includes(classificationId)) {
+      return classification;
+    }
+  }
+
+  return undefined;
+}
+
 function toTopologyClassification(
   classification: ClassificationRecord | undefined,
 ): SearchDocumentTopologyClassification | undefined {
@@ -159,14 +181,14 @@ function listClassificationLineage(
   const lineage: ClassificationRecord[] = [];
   const seen = new Set<string>();
 
-  let currentId = classificationId;
+  let currentId = resolveIndexedClassification(classificationId, indexes)?.id;
   while (currentId) {
     if (seen.has(currentId)) {
       break;
     }
     seen.add(currentId);
 
-    const classification = indexes.classificationsById.get(currentId);
+    const classification = resolveIndexedClassification(currentId, indexes);
     if (classification?.status !== "published") {
       break;
     }
@@ -260,10 +282,19 @@ function buildTopology(
   }
 
   const primaryClassificationId = registryRecord.primaryClassificationId;
-  const secondaryClassificationIds =
-    registryRecord.secondaryClassificationIds ?? [];
-  const primaryClassificationLineage = listClassificationLineage(
+  const resolvedPrimaryClassificationId = resolveIndexedClassification(
     primaryClassificationId,
+    indexes,
+  )?.id;
+  const secondaryClassificationIds = unique(
+    (registryRecord.secondaryClassificationIds ?? []).map(
+      (classificationId) =>
+        resolveIndexedClassification(classificationId, indexes)?.id ??
+        classificationId,
+    ),
+  );
+  const primaryClassificationLineage = listClassificationLineage(
+    resolvedPrimaryClassificationId ?? primaryClassificationId,
     indexes,
   );
   const primaryClassification = toTopologyClassification(
@@ -277,7 +308,9 @@ function buildTopology(
     secondaryClassificationCollection.classifications;
   const classificationCollection = buildClassificationCollections(
     [
-      ...(primaryClassificationId ? [primaryClassificationId] : []),
+      ...(resolvedPrimaryClassificationId
+        ? [resolvedPrimaryClassificationId]
+        : []),
       ...secondaryClassificationIds,
     ],
     indexes,
@@ -311,7 +344,7 @@ function buildTopology(
   ]);
 
   return {
-    primaryClassificationId,
+    primaryClassificationId: resolvedPrimaryClassificationId,
     secondaryClassificationIds,
     primaryClassification,
     secondaryClassifications,

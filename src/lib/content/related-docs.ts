@@ -8,7 +8,10 @@ import {
   registryDisplayTitle,
   registryRecordHref,
 } from "@/lib/content/registry-linking";
-import { getClassificationById } from "@/lib/content/registry-runtime";
+import {
+  getClassificationById,
+  resolveClassificationId,
+} from "@/lib/content/generated/registry-runtime.generated";
 import type {
   ClassificationRecord,
   ConceptRecord,
@@ -167,7 +170,9 @@ function humanizeSlug(value: string): string {
 function resolveClassification(
   classificationId: string,
 ): ClassificationRecord | undefined {
-  return getClassificationById(classificationId);
+  return getClassificationById(
+    resolveClassificationId(classificationId) ?? classificationId,
+  );
 }
 
 function classificationLabel(classificationId: string): string {
@@ -198,12 +203,15 @@ function listClassificationIds(record: RelatedRegistryRecord): string[] {
   const ids = new Set<string>();
 
   if ("primaryClassificationId" in record && record.primaryClassificationId) {
-    ids.add(record.primaryClassificationId);
+    ids.add(
+      resolveClassificationId(record.primaryClassificationId) ??
+        record.primaryClassificationId,
+    );
   }
 
   if ("secondaryClassificationIds" in record) {
     for (const classificationId of record.secondaryClassificationIds ?? []) {
-      ids.add(classificationId);
+      ids.add(resolveClassificationId(classificationId) ?? classificationId);
     }
   }
 
@@ -278,10 +286,14 @@ function bestClassificationMatch(
   const sourcePrimary =
     "primaryClassificationId" in source
       ? source.primaryClassificationId
+        ? resolveClassificationId(source.primaryClassificationId)
+        : undefined
       : undefined;
   const candidatePrimary =
     "primaryClassificationId" in candidate
       ? candidate.primaryClassificationId
+        ? resolveClassificationId(candidate.primaryClassificationId)
+        : undefined
       : undefined;
   const sourceIds = listClassificationIds(source);
   const candidateIds = new Set(listClassificationIds(candidate));
@@ -317,10 +329,14 @@ function bestSharedParentClassificationMatch(
   const sourcePrimary =
     "primaryClassificationId" in source
       ? source.primaryClassificationId
+        ? resolveClassificationId(source.primaryClassificationId)
+        : undefined
       : undefined;
   const candidatePrimary =
     "primaryClassificationId" in candidate
       ? candidate.primaryClassificationId
+        ? resolveClassificationId(candidate.primaryClassificationId)
+        : undefined
       : undefined;
   const sourceClassificationIds = listClassificationIds(source);
   const candidateClassificationIds = listClassificationIds(candidate);

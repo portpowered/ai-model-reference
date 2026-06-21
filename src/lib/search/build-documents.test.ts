@@ -21,23 +21,25 @@ describe("buildSearchDocumentsForLocale", () => {
     const document = await loadSearchDocument("module.grouped-query-attention");
 
     expect(document.facets.primaryClassificationId).toBe(
-      "classification.attention-mechanisms",
+      "classification.module.attention.grouped-query",
     );
     expect(document.facets.primaryClassificationSlug).toBe(
-      "attention-mechanisms",
+      "attention-grouped-query",
     );
-    expect(document.facets.classificationIds).toEqual([
-      "classification.attention-mechanisms",
-    ]);
+    expect(document.facets.classificationIds).toEqual(
+      expect.arrayContaining([
+        "classification.module.attention.grouped-query",
+        "classification.module.attention",
+      ]),
+    );
     expect(document.facets.ancestorClassificationIds).toEqual([
-      "classification.neural-network-components",
+      "classification.module.attention",
+      "classification.module",
     ]);
     expect(document.facets.rootClassificationIds).toEqual([
-      "classification.neural-network-components",
+      "classification.module",
     ]);
-    expect(document.facets.rootClassificationSlugs).toEqual([
-      "neural-network-components",
-    ]);
+    expect(document.facets.rootClassificationSlugs).toEqual(["module"]);
     expect(document.facets.legacyModuleFamily).toBe("attention");
     expect(document.facets.legacyConceptType).toBe("attention-variant");
     expect(document.facets.legacyVariantGroup).toBe("attention-head-sharing");
@@ -49,16 +51,16 @@ describe("buildSearchDocumentsForLocale", () => {
   test("includes relationship targets and ancestry roots in feed-forward search topology", async () => {
     const document = await loadSearchDocument("module.feed-forward-network");
 
-    expect(document.topology.ancestorClassificationIds).toEqual([
-      "classification.neural-network-components",
-    ]);
+    expect(document.topology.ancestorClassificationIds).toEqual(
+      expect.arrayContaining(["classification.module"]),
+    );
     expect(document.topology.rootClassificationIds).toEqual([
-      "classification.neural-network-components",
+      "classification.module",
     ]);
     expect(document.facets.relatedTopologyIds).toEqual(
       expect.arrayContaining([
-        "classification.feed-forward-networks",
-        "classification.neural-network-components",
+        "classification.module.feed-forward",
+        "classification.module",
         "concept.activation",
       ]),
     );
@@ -67,8 +69,9 @@ describe("buildSearchDocumentsForLocale", () => {
     );
     expect(document.topology.terms).toEqual(
       expect.arrayContaining([
-        "feed-forward-networks",
-        "neural-network-components",
+        "classification.module.feed-forward",
+        "feed-forward network",
+        "module",
         "uses",
         "concept.activation",
       ]),

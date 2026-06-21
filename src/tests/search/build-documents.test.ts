@@ -254,9 +254,7 @@ describe("buildSearchDocuments", () => {
       indexes,
     )[0];
 
-    expect(document?.topology.primaryClassificationId).toBe(
-      "classification.missing-family",
-    );
+    expect(document?.topology.primaryClassificationId).toBeUndefined();
     expect(document?.topology.primaryClassification).toBeUndefined();
     expect(document?.topology.secondaryClassificationIds).toEqual([
       "classification.draft-family",
