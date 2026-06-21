@@ -18,6 +18,7 @@ import type { ModuleRecord } from "@/lib/content/schemas";
 
 /** Attention modules with a published docs page and variantGroup after batch 017. */
 const ATTENTION_VARIANT_MODULE_IDS = [
+  "module.causal-attention",
   "module.bidirectional-attention",
   "module.multi-head-attention",
   "module.multi-query-attention",
@@ -166,12 +167,14 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     expect(html).toContain("curated");
   });
 
-  test("RelatedDocs prioritizes shipped self-attention, causal fallback, and encoder-side links on bidirectional attention", () => {
+  test("RelatedDocs adds the shipped causal peer before encoder-side curated links on bidirectional attention", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="module.bidirectional-attention" />,
     );
 
-    expect(html).not.toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('href="/docs/modules/causal-attention"');
+    expect(html).toContain("Same variant group");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');

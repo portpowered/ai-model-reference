@@ -59,6 +59,33 @@ describe("registry-runtime", () => {
     ]);
   });
 
+  test("getModuleById returns causal attention with mask and generation neighbors", () => {
+    const record = getModuleById("module.causal-attention");
+    expect(record?.slug).toBe("causal-attention");
+    expect(record?.tags).toEqual(["attention"]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "causal attention",
+        "causal self-attention",
+        "causal mask",
+        "look-ahead mask",
+        "look ahead mask",
+      ]),
+    );
+    expect(record?.relatedIds).toEqual([
+      "module.attention",
+      "module.bidirectional-attention",
+      "concept.autoregressive-generation",
+      "concept.decoder",
+      "concept.token",
+      "concept.decode",
+      "concept.prefill-decode-split",
+    ]);
+    expect(record?.variantGroup).toBe("attention-mask-patterns");
+    expect(record?.moduleFamily).toBe("attention");
+    expect(record?.moduleType).toBe("attention");
+  });
+
   test("getModuleById returns bidirectional attention with encoder-side links", () => {
     const record = getModuleById("module.bidirectional-attention");
     expect(record?.slug).toBe("bidirectional-attention");
@@ -124,6 +151,10 @@ describe("registry-runtime", () => {
     ]);
   });
 
+  test("getRegistryTags returns tags for causal attention", () => {
+    expect(getRegistryTags("module.causal-attention")).toEqual(["attention"]);
+  });
+
   test("getRegistryTags returns tags for a known concept", () => {
     expect(getRegistryTags("concept.token")).toEqual([
       "attention",
@@ -167,6 +198,12 @@ describe("registry-runtime", () => {
     ]);
     expect(getRegistryCitationIds("module.multi-query-attention")).toEqual([
       "citation.shazeer-mqa-paper",
+    ]);
+  });
+
+  test("getRegistryCitationIds returns citations for causal attention", () => {
+    expect(getRegistryCitationIds("module.causal-attention")).toEqual([
+      "citation.attention-is-all-you-need",
     ]);
   });
 
