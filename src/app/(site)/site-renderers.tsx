@@ -426,10 +426,9 @@ export async function renderSearchPage(
 
 export async function renderTimelinePage(
   locale: SiteLocale = defaultLocale,
-  { searchParams }: TimelinePageProps = {},
+  _props: TimelinePageProps = {},
 ) {
   const messages = await loadUiMessages(locale);
-  const classification = await resolveTimelineClassification(searchParams);
   const { timelinePage } = messages;
 
   return (
@@ -437,11 +436,7 @@ export async function renderTimelinePage(
       <DocsTitle>{timelinePage.title}</DocsTitle>
       <DocsDescription>{timelinePage.description}</DocsDescription>
       <DocsBody>
-        <OntologyTimelinePage
-          classification={classification}
-          locale={locale}
-          messages={messages}
-        />
+        <OntologyTimelinePage locale={locale} messages={messages} />
       </DocsBody>
     </DocsPage>
   );

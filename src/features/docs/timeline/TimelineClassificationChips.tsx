@@ -12,6 +12,7 @@ type TimelineClassificationChipsProps = {
     navigation: string;
     eventCount: string;
   };
+  onSelectClassification?: (classification: string) => void;
 };
 
 function moveChipFocus(
@@ -76,6 +77,7 @@ export function TimelineClassificationChips({
   basePath,
   chips,
   labels,
+  onSelectClassification,
 }: TimelineClassificationChipsProps) {
   return (
     <nav aria-label={labels.navigation} className="mt-6">
@@ -98,6 +100,7 @@ export function TimelineClassificationChips({
                 ].join(" ")}
                 data-classification-chip="true"
                 href={href}
+                onClick={() => onSelectClassification?.(chip.slug)}
               >
                 <span>{chip.title}</span>
                 <span className="sr-only">
