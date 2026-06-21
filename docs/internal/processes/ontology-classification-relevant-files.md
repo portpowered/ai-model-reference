@@ -105,7 +105,11 @@ the temporary legacy-id bridge.
   Machine-checkable contract for remaining typed-taxonomy consumer clusters,
   ownership, compatibility status, the recommended next migration target, and
   the targeted deprecation fence across runtime, generation, and authoring
-  surfaces.
+  surfaces. For related-doc work specifically, ontology-first behavior should
+  appear here as either a migrated consumer or an explicitly named
+  compatibility-only bridge; it should not remain listed as an unresolved
+  primary consumer once direct relationships and classification peers define the
+  default reader path.
 * `src/lib/governance/legacy-taxonomy-compatibility-budget.ts`
   Shared reviewer-facing budget contract that records the approved baseline for
   one explicit legacy classification-id bridge inventory and one explicit

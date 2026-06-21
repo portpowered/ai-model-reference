@@ -6,6 +6,9 @@ import {
 import {
   applyRelatedDocMessageOverrides,
   CLASSIFICATION_SIBLINGS,
+  COMPATIBILITY_RELATED_DOC_GROUP_IDS,
+  COMPATIBILITY_SAME_CONCEPT_TYPE,
+  COMPATIBILITY_SAME_VARIANT_GROUP,
   CURATED_RELATED,
   DIRECT_RELATIONSHIPS,
   deriveClassificationSiblingPeers,
@@ -19,6 +22,7 @@ import {
   excludeRelatedDocItems,
   hasPublishedDocsPage,
   isPlannedRelatedTarget,
+  ONTOLOGY_RELATED_DOC_GROUP_IDS,
   PLANNED_RELATED_REASON_LABEL,
   registryDisplayTitle,
   SAME_CONCEPT_TYPE,
@@ -229,7 +233,9 @@ describe("related-docs", () => {
       "module.multi-query-attention",
     ]);
     expect(
-      peers.every((item) => item.reasonLabel === "Same variant group"),
+      peers.every(
+        (item) => item.reasonLabel === "Compatibility: same variant group",
+      ),
     ).toBe(true);
     expect(peers.every((item) => item.href?.includes("/docs/modules/"))).toBe(
       true,
@@ -291,7 +297,7 @@ describe("related-docs", () => {
     );
     expect(peers).toHaveLength(1);
     expect(peers[0]?.href).toBe("/docs/glossary/architecture");
-    expect(peers[0]?.reasonLabel).toBe("Same concept type");
+    expect(peers[0]?.reasonLabel).toBe("Compatibility: same concept type");
     expect(peers[0]?.isPlanned).toBe(false);
   });
 
@@ -545,7 +551,7 @@ describe("related-docs", () => {
     );
 
     expect(groups.map((group) => group.id)).toEqual([
-      SAME_CONCEPT_TYPE,
+      COMPATIBILITY_SAME_CONCEPT_TYPE,
       SHARED_TAGS,
     ]);
     expect(groups[0]?.items.map((item) => item.registryId)).toEqual([
@@ -626,8 +632,25 @@ describe("related-docs", () => {
     );
 
     expect(groups).toHaveLength(1);
-    expect(groups[0]?.id).toBe(SAME_VARIANT_GROUP);
+    expect(groups[0]?.id).toBe(COMPATIBILITY_SAME_VARIANT_GROUP);
     expect(groups[0]?.items).toHaveLength(2);
+  });
+
+  test("deriveRelatedDocGroups keeps legacy variant-group requests on the explicit compatibility branch when ontology data is absent", () => {
+    const groups = deriveRelatedDocGroups(
+      gqa,
+      [gqa, mqa, mha, sparse],
+      [SAME_VARIANT_GROUP],
+      publishedRegistryIds,
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      COMPATIBILITY_SAME_VARIANT_GROUP,
+    ]);
+    expect(groups[0]?.items.map((item) => item.registryId)).toEqual([
+      "module.multi-head-attention",
+      "module.multi-query-attention",
+    ]);
   });
 
   test("deriveRelatedDocGroups returns shared-tags for concept sources", () => {
@@ -639,10 +662,12 @@ describe("related-docs", () => {
     );
 
     expect(groups.map((group) => group.id)).toEqual([
-      SAME_CONCEPT_TYPE,
+      COMPATIBILITY_SAME_CONCEPT_TYPE,
       SHARED_TAGS,
     ]);
-    const plannedGroup = groups.find((group) => group.id === SAME_CONCEPT_TYPE);
+    const plannedGroup = groups.find(
+      (group) => group.id === COMPATIBILITY_SAME_CONCEPT_TYPE,
+    );
     expect(plannedGroup?.items[0]?.isPlanned).toBe(true);
   });
 
@@ -657,7 +682,7 @@ describe("related-docs", () => {
     ).toEqual([]);
   });
 
-  test("deriveRelatedDocGroups upgrades legacy module groups to ontology-derived siblings when ancestry exists", () => {
+  test("deriveRelatedDocGroups upgrades legacy module groups to ontology-derived peers when ancestry exists", () => {
     const source = getRegistryRecordById("module.grouped-query-attention");
     if (source?.kind !== "module") {
       throw new Error(
@@ -680,7 +705,83 @@ describe("related-docs", () => {
     expect(groups.map((group) => group.id)).toEqual([
       CURATED_RELATED,
       CLASSIFICATION_SIBLINGS,
+      SHARED_PARENT_CLASSIFICATION,
     ]);
+  });
+
+  test("deriveRelatedDocGroups expands legacy module peer aliases into ontology groups before shared tags", () => {
+    const source = getRegistryRecordById("module.grouped-query-attention");
+    if (source?.kind !== "module") {
+      throw new Error(
+        "expected module.grouped-query-attention to exist in the runtime",
+      );
+    }
+
+    const groups = deriveRelatedDocGroups(
+      source,
+      listRelatedRegistryRecords(),
+      [SAME_VARIANT_GROUP, SHARED_TAGS],
+      new Set([
+        "module.grouped-query-attention",
+        "module.multi-head-attention",
+        "module.multi-query-attention",
+        "module.feed-forward-network",
+        "concept.token",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      CLASSIFICATION_SIBLINGS,
+      SHARED_PARENT_CLASSIFICATION,
+      SHARED_TAGS,
+    ]);
+    expect(groups[0]?.items.map((item) => item.registryId)).toContain(
+      "module.multi-head-attention",
+    );
+    expect(groups[1]?.items.map((item) => item.registryId)).toContain(
+      "module.feed-forward-network",
+    );
+    expect(groups[2]?.items.map((item) => item.registryId)).toContain(
+      "concept.token",
+    );
+  });
+
+  test("deriveRelatedDocGroups expands legacy same-concept-type requests into the full ontology-first branch for ontology-backed records", () => {
+    const source = getRegistryRecordById("module.standard-ffn");
+    if (source?.kind !== "module") {
+      throw new Error("expected module.standard-ffn to exist in the runtime");
+    }
+
+    const groups = deriveRelatedDocGroups(
+      source,
+      listRelatedRegistryRecords(),
+      [SAME_CONCEPT_TYPE],
+      new Set([
+        "module.standard-ffn",
+        "module.feed-forward-network",
+        "module.swiglu",
+        "concept.activation",
+        "module.relu",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      DIRECT_RELATIONSHIPS,
+      CLASSIFICATION_SIBLINGS,
+      SHARED_PARENT_CLASSIFICATION,
+    ]);
+    expect(groups[0]?.items.map((item) => item.registryId)).toContain(
+      "module.feed-forward-network",
+    );
+    expect(groups[1]?.items.map((item) => item.registryId)).toEqual(
+      expect.arrayContaining([
+        "module.deepseekmoe",
+        "module.mixture-of-experts",
+      ]),
+    );
+    expect(groups[2]?.items.map((item) => item.registryId)).toContain(
+      "module.grouped-query-attention",
+    );
   });
 
   test("deriveRelatedDocGroups keeps explicit ontology groups in policy order", () => {
@@ -710,6 +811,18 @@ describe("related-docs", () => {
       DIRECT_RELATIONSHIPS,
       CLASSIFICATION_SIBLINGS,
       SHARED_PARENT_CLASSIFICATION,
+    ]);
+  });
+
+  test("related-doc contract exposes ontology and compatibility group inventories separately", () => {
+    expect(ONTOLOGY_RELATED_DOC_GROUP_IDS).toEqual([
+      DIRECT_RELATIONSHIPS,
+      CLASSIFICATION_SIBLINGS,
+      SHARED_PARENT_CLASSIFICATION,
+    ]);
+    expect(COMPATIBILITY_RELATED_DOC_GROUP_IDS).toEqual([
+      COMPATIBILITY_SAME_VARIANT_GROUP,
+      COMPATIBILITY_SAME_CONCEPT_TYPE,
     ]);
   });
 });

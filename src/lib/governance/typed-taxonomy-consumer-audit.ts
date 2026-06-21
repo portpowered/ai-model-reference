@@ -187,16 +187,17 @@ export const typedTaxonomyConsumerAuditContract: readonly TypedTaxonomyConsumerC
       id: "related-doc-legacy-peer-fallbacks",
       path: "src/lib/content/related-docs.ts",
       cluster: "related-doc-derivation",
-      status: "unresolved-migration-target",
+      status: "approved-compatibility-bridge",
       owner: "docs/discovery",
       fields: ["conceptType", "variantGroup"],
       evidence: [
-        "return record.conceptType;",
+        "normalized.add(COMPATIBILITY_SAME_VARIANT_GROUP);",
+        "normalized.add(COMPATIBILITY_SAME_CONCEPT_TYPE);",
         "if (!source.variantGroup) {",
         "candidate.variantGroup === source.variantGroup",
       ],
       rationale:
-        "Related-doc derivation still exposes legacy same-concept-type and same-variant-group peer fallback paths after ontology-first peer sources.",
+        "Related-doc derivation is now ontology-first by default; the remaining conceptType and variantGroup reads are confined to explicitly named compatibility-only peer groups for records that still lack usable ontology peers.",
     },
     {
       id: "page-spec-legacy-authoring-fields",
