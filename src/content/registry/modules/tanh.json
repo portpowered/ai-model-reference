@@ -42,15 +42,11 @@
       "targetId": "module.relu"
     }
   ],
-  "moduleType": "activation",
   "optimizes": ["centered-activation"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "light",
-  "moduleFamily": "activation-functions",
-  "conceptType": "activation-function",
-  "variantGroup": "activation-variants"
+  "mathLevel": "light"
 }

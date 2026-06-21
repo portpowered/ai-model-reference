@@ -845,7 +845,10 @@ describe("related-docs", () => {
       COMPATIBILITY_SAME_CONCEPT_TYPE,
     ]);
     expect(groups[2]?.items.map((item) => item.registryId)).toEqual(
-      expect.arrayContaining(["concept.activation", "concept.embedding"]),
+      expect.arrayContaining(["concept.embedding"]),
+    );
+    expect(groups[2]?.items.map((item) => item.registryId)).not.toContain(
+      "concept.activation",
     );
   });
 

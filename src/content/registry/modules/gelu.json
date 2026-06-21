@@ -47,15 +47,11 @@
       "targetId": "module.swiglu"
     }
   ],
-  "moduleType": "activation",
   "optimizes": ["smooth-gating"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "light",
-  "moduleFamily": "activation-functions",
-  "conceptType": "activation-function",
-  "variantGroup": "activation-variants"
+  "mathLevel": "light"
 }

@@ -26,7 +26,6 @@
       "targetId": "module.feed-forward-network"
     }
   ],
-  "conceptType": "architecture",
   "prerequisiteIds": ["concept.parameter"],
   "explainsIds": []
 }

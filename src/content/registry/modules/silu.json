@@ -34,15 +34,11 @@
       "targetId": "module.swiglu"
     }
   ],
-  "moduleType": "activation",
   "optimizes": ["activation-smoothness"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "none",
-  "moduleFamily": "activation-functions",
-  "conceptType": "activation-function",
-  "variantGroup": "activation-variants"
+  "mathLevel": "none"
 }

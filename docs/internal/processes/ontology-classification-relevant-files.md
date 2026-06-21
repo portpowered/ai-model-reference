@@ -136,6 +136,10 @@ the temporary legacy-id bridge.
   runtime regeneration.
 * `src/lib/content/ontology-foundation-regression.test.ts`
   Focused proving-ground regression coverage for the migrated ontology slice.
+* `src/lib/content/architecture.ts`
+  Architecture browse/index classification should treat ontology architecture
+  membership, including descendant branches such as activation, as canonical
+  evidence before any legacy `conceptType` fallback.
 * `src/lib/governance/typed-taxonomy-consumer-audit.ts`
   Machine-checkable contract for remaining typed-taxonomy consumer clusters,
   ownership, compatibility status, the recommended next migration target, and

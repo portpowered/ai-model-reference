@@ -28,15 +28,11 @@
   ],
   "sourceId": "citation.sparsely-gated-mixture-of-experts-layer",
   "primaryClassificationId": "classification.module.feed-forward",
-  "moduleType": "feed-forward",
   "optimizes": ["parameter-capacity", "compute-efficiency"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "none",
-  "moduleFamily": "feed-forward-network",
-  "conceptType": "feed-forward-variant",
-  "variantGroup": "feed-forward-family"
+  "mathLevel": "none"
 }

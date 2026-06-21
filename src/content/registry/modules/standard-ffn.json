@@ -38,15 +38,11 @@
       "targetId": "concept.activation"
     }
   ],
-  "moduleType": "feed-forward",
   "optimizes": ["per-token-capacity"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "none",
-  "moduleFamily": "feed-forward-network",
-  "conceptType": "feed-forward-variant",
-  "variantGroup": "feed-forward-family"
+  "mathLevel": "none"
 }
