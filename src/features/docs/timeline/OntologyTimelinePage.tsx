@@ -7,13 +7,12 @@ import { getClassificationById } from "@/lib/content/registry-runtime";
 import type { UiMessages } from "@/lib/content/ui-messages";
 import type { SiteLocale } from "@/lib/i18n/locale-routing";
 import { OntologyTimelineClientPage } from "./OntologyTimelineClientPage";
+import { getDefaultTimelineClassificationSelector } from "./timeline-query";
 
 type OntologyTimelinePageProps = {
   locale: SiteLocale;
   messages: UiMessages;
 };
-
-const DEFAULT_TIMELINE_CLASSIFICATION = "activation";
 
 function normalizeRequestedClassification(value: string): string {
   return value.trim().toLowerCase();
@@ -50,7 +49,7 @@ function registerPreloadedTimeline(
 export function loadPreloadedTimelineSelections(
   locale: SiteLocale,
 ): Record<string, OntologyTimelineResult> {
-  const queue = [DEFAULT_TIMELINE_CLASSIFICATION];
+  const queue = [getDefaultTimelineClassificationSelector()];
   const seen = new Set<string>();
   const preloadedTimelines: Record<string, OntologyTimelineResult> = {};
 
@@ -99,10 +98,12 @@ export function OntologyTimelinePage({
   locale,
   messages,
 }: OntologyTimelinePageProps) {
+  const defaultTimelineClassification =
+    getDefaultTimelineClassificationSelector();
   const preloadedTimelines = loadPreloadedTimelineSelections(locale);
   const initialTimeline =
-    preloadedTimelines[DEFAULT_TIMELINE_CLASSIFICATION] ??
-    loadOntologyTimelineData(DEFAULT_TIMELINE_CLASSIFICATION, locale);
+    preloadedTimelines[defaultTimelineClassification] ??
+    loadOntologyTimelineData(defaultTimelineClassification, locale);
 
   return (
     <OntologyTimelineClientPage

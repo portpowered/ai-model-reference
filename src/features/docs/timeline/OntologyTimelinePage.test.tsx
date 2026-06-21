@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { renderTimelinePage } from "@/app/(site)/site-renderers";
 import { loadPreloadedTimelineSelections } from "@/features/docs/timeline/OntologyTimelinePage";
+import { getDefaultTimelineClassificationSelector } from "@/features/docs/timeline/timeline-query";
 import { loadOntologyTimelineData } from "@/lib/content/ontology-timeline";
 
 async function renderTimeline() {
@@ -48,6 +49,7 @@ describe("OntologyTimelinePage", () => {
 
   test("defaults to the activation prototype when no classification parameter is provided", async () => {
     const html = await renderTimeline();
+    const defaultClassification = getDefaultTimelineClassificationSelector();
     const activationTimeline = loadOntologyTimelineData("activation");
     const feedForwardTimeline = loadOntologyTimelineData(
       "feed-forward-networks",
@@ -72,6 +74,9 @@ describe("OntologyTimelinePage", () => {
     }
 
     expect(html).toContain('aria-current="page"');
+    expect(html).not.toContain(
+      'href="/docs/timeline?classification=activation"',
+    );
     expect(html).toContain(
       'href="/docs/timeline?classification=attention-mechanisms"',
     );
@@ -126,6 +131,7 @@ describe("OntologyTimelinePage", () => {
       "module.swiglu",
       "module.deepseekmoe",
     ]);
+    expect(defaultClassification).toBe("activation-functions");
   });
 
   test("does not depend on searchParams during static prerender", async () => {
@@ -161,6 +167,14 @@ describe("OntologyTimelinePage", () => {
   test("preloads canonical and legacy selectors for client-side timeline hydration", () => {
     const preloaded = loadPreloadedTimelineSelections("en");
 
+    expect(preloaded[getDefaultTimelineClassificationSelector()]).toMatchObject(
+      {
+        status: "success",
+        classification: {
+          classificationId: "classification.module.activation",
+        },
+      },
+    );
     expect(preloaded["classification.module.feed-forward"]).toMatchObject({
       status: "success",
       classification: {

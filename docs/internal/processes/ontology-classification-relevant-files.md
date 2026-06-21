@@ -67,6 +67,11 @@ the temporary legacy-id bridge.
   Timeline static preload registration. Any selector the timeline route accepts
   must be preloaded here as well or the client route will drift from the
   server-resolved contract.
+* `src/features/docs/timeline/timeline-query.ts`
+  Timeline-specific selector parsing and outbound URL normalization. Keep the
+  accepted selector set and the emitted steady-state selector URLs separate
+  here so legacy or shorthand entry compatibility does not leak back into
+  canonical chip and recovery links.
 
 ## Remaining compatibility fallback outside the proving consumer
 
