@@ -105,12 +105,12 @@ describe("topology browse shell compatibility", () => {
     const primaryNav = screen.getByRole("navigation", { name: "Primary" });
     expect(
       within(primaryNav).getByRole("link", {
-        name: "Activation Functions graph map",
+        name: "Activation Functions Graph Map",
       }),
     ).toBeTruthy();
     expect(
       within(primaryNav).getByRole("link", {
-        name: "Feed Forward Networks timeline",
+        name: "Feed Forward Networks Timeline",
       }),
     ).toBeTruthy();
 

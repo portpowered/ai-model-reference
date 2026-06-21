@@ -94,8 +94,13 @@
   "topologyBrowse": {
     "titleTemplate": "{classification} {mode}",
     "descriptionTemplate": "A prototype ontology view for {classification}, derived from the shared classification layer and opened directly from the URL state.",
+    "navigationLabelTemplate": "{classification} {mode}",
     "graphMapLabel": "Graph Map",
     "timelineLabel": "Timeline",
+    "classificationLabels": {
+      "activationFunctions": "Activation Functions",
+      "feedForwardNetworks": "Feed Forward Networks"
+    },
     "classificationSelectorTitle": "Seed classifications",
     "classificationSelectorDescription": "Switch between the activation and feed-forward seed slices without leaving the topology surface.",
     "classificationSelectorLabel": "Topology seed classifications",

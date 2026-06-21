@@ -42,6 +42,17 @@ function formatTemplate(
   );
 }
 
+function formatNavigationLabel(
+  messages: UiMessages,
+  classificationLabel: string,
+  modeLabel: string,
+): string {
+  return formatTemplate(messages.topologyBrowse.navigationLabelTemplate, {
+    classification: classificationLabel,
+    mode: modeLabel,
+  });
+}
+
 function formatModeLabel(
   messages: UiMessages,
   mode: TopologySurfaceMode,
@@ -148,7 +159,11 @@ function TopologyOptionLinks({
                 className={docsResourceCardLinkClassName}
               >
                 <span className="font-medium text-foreground">
-                  {option.label} {destination.label}
+                  {formatNavigationLabel(
+                    messages,
+                    option.label,
+                    destination.label,
+                  )}
                 </span>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {option.memberCount}{" "}

@@ -7,7 +7,10 @@ import {
   PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS,
   PRIMARY_NAV_MOBILE_PANEL_CLASS,
 } from "@/components/layout/primary-nav";
-import { listTopologyNavigationOptions } from "@/lib/content/topology-navigation";
+import {
+  getTopologyNavigationLabels,
+  listTopologyNavigationOptions,
+} from "@/lib/content/topology-navigation";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("getPrimaryNavItems", () => {
@@ -59,10 +62,10 @@ describe("getPrimaryNavItems", () => {
     expect(items.map((item) => item.label)).toEqual([
       messages.nav.home,
       messages.nav.architecture,
-      "Activation Functions graph map",
-      "Activation Functions timeline",
-      "Feed Forward Networks graph map",
-      "Feed Forward Networks timeline",
+      "Activation Functions Graph map",
+      "Activation Functions Timeline",
+      "Feed Forward Networks Graph map",
+      "Feed Forward Networks Timeline",
       messages.nav.glossary,
       messages.nav.tags,
     ]);
@@ -81,8 +84,11 @@ describe("getPrimaryNavItems", () => {
   });
 
   it("localizes topology routes through the derived navigation options", async () => {
-    const messages = await loadUiMessages();
-    const topologyOptions = listTopologyNavigationOptions({ locale: "vi" });
+    const messages = await loadUiMessages("vi");
+    const topologyOptions = listTopologyNavigationOptions({
+      locale: "vi",
+      labels: getTopologyNavigationLabels(messages),
+    });
     const items = getPrimaryNavItems(messages, "vi", { topologyOptions });
 
     expect(items.map((item) => item.href)).toContain(
@@ -90,6 +96,12 @@ describe("getPrimaryNavItems", () => {
     );
     expect(items.map((item) => item.href)).toContain(
       "/vi/browse?classification=feed-forward-networks&mode=timeline",
+    );
+    expect(items.map((item) => item.label)).toContain(
+      "Bản đồ đồ thị Hàm kích hoạt",
+    );
+    expect(items.map((item) => item.label)).toContain(
+      "Dòng thời gian Mạng feed-forward",
     );
   });
 

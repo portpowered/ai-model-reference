@@ -29,19 +29,23 @@ type PrimaryNavOptions = {
 };
 
 function formatTopologyNavLabel(
+  messages: UiMessages,
   option: TopologyNavigationOption,
-  destinationLabel: string,
+  destination: TopologyNavigationOption["destinations"][number],
 ): string {
-  return `${option.label} ${destinationLabel.toLowerCase()}`;
+  return messages.topologyBrowse.navigationLabelTemplate
+    .replaceAll("{classification}", option.label)
+    .replaceAll("{mode}", destination.label);
 }
 
 function getTopologyPrimaryNavItems(
+  messages: UiMessages,
   topologyOptions: readonly TopologyNavigationOption[] = [],
 ): PrimaryNavItem[] {
   return topologyOptions.flatMap((option) =>
     option.destinations.map((destination) => ({
       href: destination.href,
-      label: formatTopologyNavLabel(option, destination.label),
+      label: formatTopologyNavLabel(messages, option, destination),
     })),
   );
 }
@@ -51,7 +55,10 @@ export function getPrimaryNavItems(
   locale: SiteLocale = defaultLocale,
   options: PrimaryNavOptions = {},
 ): PrimaryNavItem[] {
-  const topologyItems = getTopologyPrimaryNavItems(options.topologyOptions);
+  const topologyItems = getTopologyPrimaryNavItems(
+    messages,
+    options.topologyOptions,
+  );
 
   return [
     {

@@ -1,9 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import type { ClassificationRecord } from "@/lib/content/schemas";
 import {
+  getTopologyNavigationLabels,
   listTopologyNavigationOptions,
   TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
 } from "@/lib/content/topology-navigation";
+import { loadUiMessages } from "@/lib/content/ui-messages";
 
 function publishedClassification(
   overrides: Partial<ClassificationRecord>,
@@ -82,17 +84,22 @@ describe("topology navigation model", () => {
     ]);
   });
 
-  test("preserves locale-aware browse routes in destination URLs", () => {
-    const options = listTopologyNavigationOptions({ locale: "vi" });
+  test("preserves locale-aware browse routes and localized labels when provided", async () => {
+    const messages = await loadUiMessages("vi");
+    const options = listTopologyNavigationOptions({
+      locale: "vi",
+      labels: getTopologyNavigationLabels(messages),
+    });
 
+    expect(options[0]?.label).toBe("Hàm kích hoạt");
     expect(options[0]?.destinations).toContainEqual({
       mode: "graph-map",
-      label: "Graph map",
+      label: "Bản đồ đồ thị",
       href: "/vi/browse?classification=activation-functions&mode=graph-map",
     });
     expect(options[1]?.destinations).toContainEqual({
       mode: "timeline",
-      label: "Timeline",
+      label: "Dòng thời gian",
       href: "/vi/browse?classification=feed-forward-networks&mode=timeline",
     });
   });

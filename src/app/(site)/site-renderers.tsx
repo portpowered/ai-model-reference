@@ -45,7 +45,10 @@ import {
   resolveTopologyBrowseState,
   type TopologySearchParams,
 } from "@/lib/content/topology-browse";
-import { listTopologyNavigationOptions } from "@/lib/content/topology-navigation";
+import {
+  getTopologyNavigationLabels,
+  listTopologyNavigationOptions,
+} from "@/lib/content/topology-navigation";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import {
   buildLocalizedRoute,
@@ -207,7 +210,10 @@ export async function renderBrowseIndexPage(
 ) {
   const messages = await loadUiMessages(locale);
   const pages = await loadShippedLocalizedDocsPages(locale);
-  const topologyOptions = listTopologyNavigationOptions({ locale });
+  const topologyOptions = listTopologyNavigationOptions({
+    locale,
+    labels: getTopologyNavigationLabels(messages),
+  });
   const isStaticExport = process.env.NEXT_STATIC_EXPORT === "1";
   const defaultPage = (
     <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>

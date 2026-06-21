@@ -94,8 +94,13 @@
   "topologyBrowse": {
     "titleTemplate": "{classification} {mode}",
     "descriptionTemplate": "Một chế độ xem ontology nguyên mẫu cho {classification}, lấy từ lớp phân loại chung và mở trực tiếp từ trạng thái URL.",
+    "navigationLabelTemplate": "{mode} {classification}",
     "graphMapLabel": "Bản đồ đồ thị",
     "timelineLabel": "Dòng thời gian",
+    "classificationLabels": {
+      "activationFunctions": "Hàm kích hoạt",
+      "feedForwardNetworks": "Mạng feed-forward"
+    },
     "classificationSelectorTitle": "Phân loại seed",
     "classificationSelectorDescription": "Chuyển giữa lát cắt activation và feed-forward mà không rời khỏi bề mặt topology.",
     "classificationSelectorLabel": "Các phân loại seed topology",

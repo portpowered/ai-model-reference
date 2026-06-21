@@ -94,8 +94,13 @@
   "topologyBrowse": {
     "titleTemplate": "{classification} {mode}",
     "descriptionTemplate": "{classification} のための ontology ビューのプロトタイプです。共有 classification レイヤーから導出され、URL 状態から直接開かれます。",
+    "navigationLabelTemplate": "{classification}の{mode}",
     "graphMapLabel": "グラフマップ",
     "timelineLabel": "タイムライン",
+    "classificationLabels": {
+      "activationFunctions": "活性化関数",
+      "feedForwardNetworks": "フィードフォワードネットワーク"
+    },
     "classificationSelectorTitle": "シード分類",
     "classificationSelectorDescription": "topology サーフェスを離れずに activation と feed-forward のシードスライスを切り替えます。",
     "classificationSelectorLabel": "Topology シード分類",

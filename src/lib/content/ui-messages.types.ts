@@ -90,8 +90,13 @@ export type UiMessages = {
   topologyBrowse: {
     titleTemplate: string;
     descriptionTemplate: string;
+    navigationLabelTemplate: string;
     graphMapLabel: string;
     timelineLabel: string;
+    classificationLabels: {
+      activationFunctions: string;
+      feedForwardNetworks: string;
+    };
     classificationSelectorTitle: string;
     classificationSelectorDescription: string;
     classificationSelectorLabel: string;

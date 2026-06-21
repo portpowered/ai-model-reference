@@ -5,6 +5,7 @@ import {
   listClassificationRecords,
 } from "@/lib/content/registry-runtime";
 import type { ClassificationRecord } from "@/lib/content/schemas";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   buildLocalizedRoute,
   defaultLocale,
@@ -32,10 +33,26 @@ export type TopologyNavigationOption = {
   destinations: TopologyNavigationDestination[];
 };
 
+const TOPOLOGY_SEED_CLASSIFICATION_KEYS = {
+  "activation-functions": "activationFunctions",
+  "feed-forward-networks": "feedForwardNetworks",
+} as const;
+
+type TopologySeedClassificationSlug =
+  keyof typeof TOPOLOGY_SEED_CLASSIFICATION_KEYS;
+
+export type TopologyNavigationLabels = {
+  classificationLabels?: Partial<
+    Record<TopologySeedClassificationSlug, string>
+  >;
+  surfaceLabels?: Partial<Record<TopologySurfaceMode, string>>;
+};
+
 type TopologyNavigationInput = {
   locale?: SiteLocale;
   classifications?: readonly ClassificationRecord[];
   listMembers?: (classificationId: string) => readonly ClassificationMember[];
+  labels?: TopologyNavigationLabels;
 };
 
 const topologySurfaceLabels: Record<TopologySurfaceMode, string> = {
@@ -43,12 +60,39 @@ const topologySurfaceLabels: Record<TopologySurfaceMode, string> = {
   timeline: "Timeline",
 };
 
+export function getTopologyNavigationLabels(
+  messages: UiMessages,
+): TopologyNavigationLabels {
+  return {
+    classificationLabels: {
+      "activation-functions":
+        messages.topologyBrowse.classificationLabels.activationFunctions,
+      "feed-forward-networks":
+        messages.topologyBrowse.classificationLabels.feedForwardNetworks,
+    },
+    surfaceLabels: {
+      "graph-map": messages.topologyBrowse.graphMapLabel,
+      timeline: messages.topologyBrowse.timelineLabel,
+    },
+  };
+}
+
 function formatClassificationLabel(slug: string): string {
   return slug
     .split("-")
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function getClassificationLabel(
+  slug: string,
+  labels?: TopologyNavigationLabels,
+): string {
+  return (
+    labels?.classificationLabels?.[slug as TopologySeedClassificationSlug] ??
+    formatClassificationLabel(slug)
+  );
 }
 
 function isEligibleSeedClassification(record: ClassificationRecord): boolean {
@@ -87,10 +131,11 @@ export function buildTopologyDestinationHref(
 function buildDestinations(
   classificationSlug: string,
   locale: SiteLocale,
+  labels?: TopologyNavigationLabels,
 ): TopologyNavigationDestination[] {
   return TOPOLOGY_SURFACE_MODES.map((mode) => ({
     mode,
-    label: topologySurfaceLabels[mode],
+    label: labels?.surfaceLabels?.[mode] ?? topologySurfaceLabels[mode],
     href: buildTopologyDestinationHref(classificationSlug, mode, locale),
   }));
 }
@@ -99,6 +144,7 @@ export function listTopologyNavigationOptions({
   locale = defaultLocale,
   classifications = listClassificationRecords(),
   listMembers = listClassificationMembers,
+  labels,
 }: TopologyNavigationInput = {}): TopologyNavigationOption[] {
   return classifications.flatMap((classification) => {
     if (!isEligibleSeedClassification(classification)) {
@@ -116,9 +162,9 @@ export function listTopologyNavigationOptions({
       {
         classificationId: classification.id,
         classificationSlug: classification.slug,
-        label: formatClassificationLabel(classification.slug),
+        label: getClassificationLabel(classification.slug, labels),
         memberCount: publishedMembers.length,
-        destinations: buildDestinations(classification.slug, locale),
+        destinations: buildDestinations(classification.slug, locale, labels),
       },
     ];
   });
