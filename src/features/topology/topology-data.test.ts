@@ -154,6 +154,41 @@ describe("topology data builder", () => {
     ]);
   });
 
+  test("keeps legacy classification ids on an explicit temporary compatibility path", () => {
+    const graph = buildTopologyGraph([
+      "classification.activation-functions",
+      "classification.feed-forward-networks",
+    ]);
+    expectSuccessGraph(graph);
+
+    expect(
+      graph.selectedClassifications.map((selection) => ({
+        selector: selection.selector,
+        classificationId: selection.classificationId,
+      })),
+    ).toEqual([
+      {
+        selector: "classification.activation-functions",
+        classificationId: "classification.module.activation",
+      },
+      {
+        selector: "classification.feed-forward-networks",
+        classificationId: "classification.module.feed-forward",
+      },
+    ]);
+  });
+
+  test("does not accept unrelated shorthand selectors outside the explicit compatibility set", () => {
+    expect(buildTopologyGraph(["attention"])).toEqual({
+      status: "error",
+      invalidSelections: ["attention"],
+      recoverySelection: getDefaultTopologyClassificationSelectors(),
+      selectedClassifications: [],
+      nodes: [],
+      edges: [],
+    });
+  });
+
   test("returns a stable empty result for empty selections", () => {
     expect(buildTopologyGraph([])).toEqual({
       status: "empty",

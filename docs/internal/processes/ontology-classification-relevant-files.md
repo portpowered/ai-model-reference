@@ -19,8 +19,10 @@ the temporary legacy-id bridge.
   discoverable during migration.
 * `src/features/topology/topology-data.ts`
   Selector-to-classification resolution and graph assembly for the customer-
-  visible topology surface, including any temporary compatibility selector
-  handling.
+  visible topology surface. Canonical ids/slugs should resolve before any
+  temporary compatibility branch, and accepted legacy ids or shorthand
+  selectors should stay on one explicit temporary path instead of piggybacking
+  on generic runtime lookup.
 * `src/lib/content/topology-navigation.ts`
   Registry-driven browse navigation options that expose classification slugs to
   the topology and timeline entry points.

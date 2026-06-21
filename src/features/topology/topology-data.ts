@@ -7,6 +7,7 @@ import {
   getPrimaryClassificationForRecord,
   listClassificationMembers,
   listClassificationRecords,
+  listLegacyClassificationBridges,
   listOntologyRelationshipsForRecord,
   listSecondaryClassificationsForRecord,
 } from "@/lib/content/registry-runtime";
@@ -36,23 +37,52 @@ const TEMPORARY_TOPOLOGY_LEGACY_SELECTOR_ALIASES = new Map<string, string>([
   ["feed-forward-network", "classification.module.feed-forward"],
 ]);
 
+function resolveCanonicalClassificationForSelector(
+  selector: string,
+): ClassificationRecord | undefined {
+  return listClassificationRecords().find(
+    (classification) =>
+      classification.slug === selector || classification.id === selector,
+  );
+}
+
+function listTemporaryTopologyLegacyCompatibilitySelectors(): Map<
+  string,
+  string
+> {
+  const activeClassificationIds = new Set(
+    listTopologyNavigationOptions().map((option) => option.classificationId),
+  );
+  const selectors = new Map(TEMPORARY_TOPOLOGY_LEGACY_SELECTOR_ALIASES);
+
+  for (const bridge of listLegacyClassificationBridges()) {
+    if (activeClassificationIds.has(bridge.canonicalId)) {
+      selectors.set(bridge.legacyId, bridge.canonicalId);
+    }
+  }
+
+  return selectors;
+}
+
+function resolveLegacyCompatibilityClassificationForSelector(
+  selector: string,
+): ClassificationRecord | undefined {
+  const compatibilityClassificationId =
+    listTemporaryTopologyLegacyCompatibilitySelectors().get(selector);
+
+  return compatibilityClassificationId
+    ? getClassificationById(compatibilityClassificationId)
+    : undefined;
+}
+
 function resolveClassificationForSelector(
   selector: string,
 ): ClassificationRecord | undefined {
   const normalizedSelector = normalizeSelector(selector);
-  const compatibilityClassificationId =
-    TEMPORARY_TOPOLOGY_LEGACY_SELECTOR_ALIASES.get(normalizedSelector);
 
   return (
-    getClassificationById(normalizedSelector) ??
-    (compatibilityClassificationId
-      ? getClassificationById(compatibilityClassificationId)
-      : undefined) ??
-    listClassificationRecords().find(
-      (classification) =>
-        classification.slug === normalizedSelector ||
-        classification.id === normalizedSelector,
-    )
+    resolveCanonicalClassificationForSelector(normalizedSelector) ??
+    resolveLegacyCompatibilityClassificationForSelector(normalizedSelector)
   );
 }
 
