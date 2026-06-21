@@ -18,6 +18,7 @@ export type UiMessages = {
     architecture: string;
     topology: string;
     glossary: string;
+    timeline: string;
     tags: string;
   };
   language: {
@@ -37,6 +38,24 @@ export type UiMessages = {
     emptySuggestionPrefix: string;
     emptySuggestionMiddle: string;
     emptySuggestionSuffix: string;
+  };
+  timelinePage: {
+    title: string;
+    description: string;
+    eyebrow: string;
+    successSummary: string;
+    loadingTitle: string;
+    loadingDescription: string;
+    errorTitle: string;
+    errorDescription: string;
+    selectorLabel: string;
+    eventCountLabel: string;
+    regionLabel: string;
+    docsLink: string;
+    sourcePrefix: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    activationLink: string;
   };
   shell: {
     sidebarTitle: string;

@@ -6,6 +6,7 @@
 @import "../features/docs/styles/docs-page-footer-chrome.css";
 @import "../features/docs/styles/registry-graph-flow-theme.css";
 @import "@xyflow/react/dist/style.css";
+@import "react-chrono/dist/style.css";
 
 :root {
   --radius: 0.5rem;
@@ -90,4 +91,146 @@ article[data-registry-id] > section:first-of-type > h2 {
  */
 [data-sidebar-panel] [data-search] {
   display: none;
+}
+
+.ontology-timeline {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.ontology-timeline .timeline-wrapper {
+  min-height: 680px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: color-mix(in oklch, var(--card) 62%, transparent);
+}
+
+.ontology-timeline__chrono-shell {
+  min-height: 680px;
+}
+
+.ontology-timeline__state {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 18rem;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in oklch, var(--card) 62%, transparent);
+  text-align: center;
+  color: var(--muted-foreground);
+}
+
+.ontology-timeline__state-title {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ontology-timeline__state p:last-child {
+  margin: 0;
+  max-width: 32rem;
+}
+
+.ontology-timeline .timeline-main-wrapper {
+  padding-block: 1rem;
+}
+
+.ontology-timeline .rc-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+
+.ontology-timeline .rc-card-title {
+  letter-spacing: 0;
+}
+
+.ontology-timeline__event-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.ontology-timeline__event {
+  min-width: 0;
+}
+
+.ontology-timeline__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  height: 100%;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in oklch, var(--card) 62%, transparent);
+  color: var(--foreground);
+}
+
+.ontology-timeline__card h2 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1.15rem;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.ontology-timeline__card p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.ontology-timeline__date {
+  color: var(--primary) !important;
+  font-size: 0.8rem !important;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.ontology-timeline__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+}
+
+.ontology-timeline__meta a {
+  border-radius: calc(var(--radius) - 2px);
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.ontology-timeline__meta a:hover {
+  text-decoration: underline;
+}
+
+.ontology-timeline__meta a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .ontology-timeline .timeline-wrapper {
+    min-height: 760px;
+  }
+
+  .ontology-timeline__chrono-shell {
+    min-height: 760px;
+  }
+
+  .ontology-timeline .timeline-main-wrapper {
+    padding-inline: 0.25rem;
+  }
 }

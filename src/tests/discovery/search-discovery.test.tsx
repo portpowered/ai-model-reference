@@ -7,6 +7,7 @@ import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
 import SearchEntryPage from "@/app/(site)/search/page";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import TagsIndexPage from "@/app/(site)/tags/page";
+import TimelinePage from "@/app/docs/timeline/page";
 import { HomeArticle } from "@/components/home/home-article";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
@@ -63,6 +64,15 @@ const PHASE_1_DISCOVERY_ROUTES = [
     render: () => GlossaryIndexPage(),
     expectInHtml: "Glossary",
     alsoExpectInHtml: "Token",
+  },
+  {
+    path: "/docs/timeline",
+    render: () =>
+      TimelinePage({
+        searchParams: Promise.resolve({ classification: "activation" }),
+      }),
+    expectInHtml: "Activation Timeline",
+    alsoExpectInHtml: "Rectified Linear Unit",
   },
   {
     path: "/tags",

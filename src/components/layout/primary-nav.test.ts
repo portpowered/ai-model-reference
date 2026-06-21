@@ -23,6 +23,7 @@ describe("getPrimaryNavItems", () => {
       "/docs/architecture",
       "/topology",
       "/docs/glossary",
+      "/docs/timeline",
       "/tags",
     ]);
     expect(items.map((item) => item.label)).toEqual([
@@ -30,6 +31,7 @@ describe("getPrimaryNavItems", () => {
       messages.nav.architecture,
       messages.nav.topology,
       messages.nav.glossary,
+      messages.nav.timeline,
       messages.nav.tags,
     ]);
   });
@@ -43,6 +45,7 @@ describe("getPrimaryNavItems", () => {
       "/vi/docs/architecture",
       "/vi/topology",
       "/vi/docs/glossary",
+      "/vi/docs/timeline",
       "/vi/tags",
     ]);
   });
@@ -59,7 +62,9 @@ describe("getPrimaryNavItems", () => {
       "/browse?classification=activation-functions&mode=timeline",
       "/browse?classification=feed-forward-networks&mode=graph-map",
       "/browse?classification=feed-forward-networks&mode=timeline",
+      "/topology",
       "/docs/glossary",
+      "/docs/timeline",
       "/tags",
     ]);
     expect(items.map((item) => item.label)).toEqual([
@@ -69,7 +74,9 @@ describe("getPrimaryNavItems", () => {
       "Activation Functions Timeline",
       "Feed Forward Networks Graph map",
       "Feed Forward Networks Timeline",
+      messages.nav.topology,
       messages.nav.glossary,
+      messages.nav.timeline,
       messages.nav.tags,
     ]);
   });
@@ -81,7 +88,9 @@ describe("getPrimaryNavItems", () => {
     expect(items.map((item) => item.href)).toEqual([
       "/",
       "/docs/architecture",
+      "/topology",
       "/docs/glossary",
+      "/docs/timeline",
       "/tags",
     ]);
   });

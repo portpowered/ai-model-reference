@@ -110,6 +110,7 @@ describe("Phase 1 discovery search handoffs", () => {
       "/docs/architecture",
       "/topology",
       "/docs/glossary",
+      "/docs/timeline",
       "/tags",
     ]);
     expect(items.some((item) => item.href === "/search")).toBe(false);

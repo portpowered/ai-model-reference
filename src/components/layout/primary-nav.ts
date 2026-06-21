@@ -79,6 +79,13 @@ export function getPrimaryNavItems(
       label: messages.nav.glossary,
     },
     {
+      href: buildLocalizedRoute(
+        { surface: "docs-page", slug: "timeline" },
+        locale,
+      ),
+      label: messages.nav.timeline,
+    },
+    {
       href: buildLocalizedRoute({ surface: "tags-index" }, locale),
       label: messages.nav.tags,
     },
