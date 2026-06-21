@@ -819,6 +819,36 @@ describe("related-docs", () => {
     ]);
   });
 
+  test("deriveRelatedDocGroups only adds compatibility peer groups for ontology-backed records when they are explicitly requested", () => {
+    const source = getRegistryRecordById("concept.transformer-architecture");
+    if (source?.kind !== "concept") {
+      throw new Error(
+        "expected concept.transformer-architecture to exist in the runtime",
+      );
+    }
+
+    const groups = deriveRelatedDocGroups(
+      source,
+      listRelatedRegistryRecords(),
+      [SAME_CONCEPT_TYPE, COMPATIBILITY_SAME_CONCEPT_TYPE],
+      new Set([
+        "concept.transformer-architecture",
+        "concept.tokenizers-overview",
+        "concept.activation",
+        "concept.embedding",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      CLASSIFICATION_SIBLINGS,
+      SHARED_PARENT_CLASSIFICATION,
+      COMPATIBILITY_SAME_CONCEPT_TYPE,
+    ]);
+    expect(groups[2]?.items.map((item) => item.registryId)).toEqual(
+      expect.arrayContaining(["concept.activation", "concept.embedding"]),
+    );
+  });
+
   test("deriveRelatedDocGroups keeps explicit ontology groups in policy order", () => {
     const source = getRegistryRecordById("module.standard-ffn");
     if (source?.kind !== "module") {

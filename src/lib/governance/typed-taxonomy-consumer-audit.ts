@@ -228,9 +228,9 @@ export const typedTaxonomyConsumerAuditContract: readonly TypedTaxonomyConsumerC
       fields: ["conceptType", "variantGroup"],
       evidence: [
         "const shouldPreferOntologyPeerGroups = hasOntologyPeerData(source);",
-        "function compatibilityGroupForLegacyPeerAlias(",
-        "normalized.add(compatibilityGroupForLegacyPeerAlias(",
-        "if (!source.variantGroup) {",
+        "function deriveRequestedCompatibilityGroups(",
+        "function deriveCompatibilityRelatedDocGroups(",
+        "if (!shouldRouteLegacyAliasesToCompatibility) {",
         "candidate.variantGroup === source.variantGroup",
       ],
       rationale:
