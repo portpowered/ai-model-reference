@@ -1,0 +1,58 @@
+{
+  "id": "table.cross-attention-comparison",
+  "subjectId": "module.cross-attention",
+  "columns": [
+    {
+      "moduleId": "module.cross-attention",
+      "titleKey": "tables.comparison.columns.cross.title"
+    },
+    {
+      "moduleId": "module.attention",
+      "titleKey": "tables.comparison.columns.attention.title"
+    },
+    {
+      "moduleId": "module.multi-head-attention",
+      "titleKey": "tables.comparison.columns.mha.title"
+    },
+    {
+      "moduleId": "module.bidirectional-attention",
+      "titleKey": "tables.comparison.columns.bidirectional.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "querySource",
+      "labelKey": "tables.comparison.dimensions.querySource"
+    },
+    {
+      "id": "memorySource",
+      "labelKey": "tables.comparison.dimensions.memorySource"
+    },
+    {
+      "id": "mainUse",
+      "labelKey": "tables.comparison.dimensions.mainUse"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.cross-attention": {
+      "querySource": "tables.comparison.values.cross.querySource",
+      "memorySource": "tables.comparison.values.cross.memorySource",
+      "mainUse": "tables.comparison.values.cross.mainUse"
+    },
+    "module.attention": {
+      "querySource": "tables.comparison.values.attention.querySource",
+      "memorySource": "tables.comparison.values.attention.memorySource",
+      "mainUse": "tables.comparison.values.attention.mainUse"
+    },
+    "module.multi-head-attention": {
+      "querySource": "tables.comparison.values.mha.querySource",
+      "memorySource": "tables.comparison.values.mha.memorySource",
+      "mainUse": "tables.comparison.values.mha.mainUse"
+    },
+    "module.bidirectional-attention": {
+      "querySource": "tables.comparison.values.bidirectional.querySource",
+      "memorySource": "tables.comparison.values.bidirectional.memorySource",
+      "mainUse": "tables.comparison.values.bidirectional.mainUse"
+    }
+  }
+}

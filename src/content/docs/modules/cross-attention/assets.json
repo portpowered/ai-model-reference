@@ -1,0 +1,25 @@
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "cross",
+    "variants": [
+      {
+        "variantId": "self",
+        "graphId": "graph.multi-head-attention-time-pattern",
+        "labelKey": "assets.computeFlow.variants.self.label"
+      },
+      {
+        "variantId": "cross",
+        "graphId": "graph.cross-attention-memory-pattern",
+        "labelKey": "assets.computeFlow.variants.cross.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.cross-attention-comparison"
+  }
+}
