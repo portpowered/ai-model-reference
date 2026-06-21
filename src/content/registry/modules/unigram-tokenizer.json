@@ -23,7 +23,7 @@
   "releaseDate": "2018-08-19",
   "authors": ["Taku Kudo", "John Richardson"],
   "sourceId": "citation.kudo-sentencepiece",
-  "primaryClassificationId": "classification.tokenization-methods",
+  "primaryClassificationId": "classification.module.tokenization",
   "moduleType": "tokenizer",
   "moduleFamily": "tokenization",
   "conceptType": "tokenizer-variant",

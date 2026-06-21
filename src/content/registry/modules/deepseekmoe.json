@@ -18,7 +18,7 @@
   "releaseDate": "2026-06-13",
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
-  "primaryClassificationId": "classification.feed-forward-networks",
+  "primaryClassificationId": "classification.module.feed-forward",
   "moduleType": "feed-forward",
   "optimizes": [
     "parameter-capacity",

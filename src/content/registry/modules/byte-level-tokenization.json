@@ -36,7 +36,7 @@
     "Ilya Sutskever"
   ],
   "sourceId": "citation.gpt-2-report",
-  "primaryClassificationId": "classification.tokenization-methods",
+  "primaryClassificationId": "classification.module.tokenization",
   "moduleType": "tokenizer",
   "moduleFamily": "tokenization",
   "conceptType": "tokenizer-algorithm",

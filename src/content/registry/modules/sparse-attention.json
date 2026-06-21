@@ -18,7 +18,7 @@
   "releaseDate": "2019-04-01",
   "authors": ["Rewon Child", "Scott Gray", "Alec Radford", "Ilya Sutskever"],
   "sourceId": "citation.sparse-transformers",
-  "primaryClassificationId": "classification.attention-mechanisms",
+  "primaryClassificationId": "classification.module.attention",
   "moduleType": "attention",
   "moduleFamily": "attention",
   "conceptType": "attention-variant",

@@ -15,8 +15,15 @@ the temporary legacy-id bridge.
   Generated runtime source contract for canonical lookup, legacy-id
   canonicalization, parent-child traversal, and `listLegacyClassificationBridges`.
 * `src/lib/search/build-documents.ts`
-  Search facet assembly, including ontology-first topology promotion into the
-  indexed document contract.
+  Search-term expansion that keeps canonical and legacy classification terms
+  discoverable during migration.
+* `src/features/topology/topology-data.ts`
+  Selector-to-classification resolution and graph assembly for the customer-
+  visible topology surface, including any temporary compatibility selector
+  handling.
+* `src/lib/content/topology-navigation.ts`
+  Registry-driven browse navigation options that expose classification slugs to
+  the topology and timeline entry points.
 * `src/lib/search/legacy-taxonomy-compat.ts`
   Explicit compatibility adapter for search surfaces that still emit legacy
   typed-taxonomy facets while downstream filters migrate.
@@ -51,5 +58,8 @@ the temporary legacy-id bridge.
 * `scripts/verify-typed-taxonomy-consumer-fence.ts`
   Maintainer and CI entrypoint that fails when new targeted typed-taxonomy
   usage lands outside the approved audit contract.
+* `src/features/topology/topology-data.test.ts`
+  Topology-surface assertions for canonical selection, invalid-selector
+  recovery, and membership/relationship graph output.
 * `docs/data-model.md`
   Human-readable ontology contract and temporary bridge rules.

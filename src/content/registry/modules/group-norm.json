@@ -18,7 +18,7 @@
   "releaseDate": "2018-03-01",
   "authors": ["Yuxin Wu", "Kaiming He"],
   "sourceId": "citation.group-normalization",
-  "primaryClassificationId": "classification.normalization-layers",
+  "primaryClassificationId": "classification.module.normalization",
   "moduleType": "normalization",
   "optimizes": ["small-batch-stability"],
   "exampleModelIds": [],

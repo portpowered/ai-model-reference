@@ -573,7 +573,7 @@ describe("registry-runtime", () => {
     }
 
     expect(
-      listClassificationMembers("classification.feed-forward-networks").map(
+      listClassificationMembers("classification.module.feed-forward").map(
         (member) =>
           `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
@@ -614,7 +614,7 @@ describe("registry-runtime", () => {
     ).toBe("classification.module.attention.grouped-query");
 
     expect(
-      listClassificationMembers("classification.attention-mechanisms").map(
+      listClassificationMembers("classification.module.attention").map(
         (member) =>
           `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
@@ -625,7 +625,7 @@ describe("registry-runtime", () => {
       ]),
     );
     expect(
-      listClassificationMembers("classification.attention-mechanisms", {
+      listClassificationMembers("classification.module.attention", {
         includeSecondary: true,
       }).map(
         (member) =>
@@ -638,7 +638,7 @@ describe("registry-runtime", () => {
       ]),
     );
     expect(
-      listClassificationMembers("classification.attention-mechanisms", {
+      listClassificationMembers("classification.module.attention", {
         includeDescendants: true,
       }).map(
         (member) =>
@@ -651,7 +651,7 @@ describe("registry-runtime", () => {
       ]),
     );
     expect(
-      listClassificationMembers("classification.normalization-layers").map(
+      listClassificationMembers("classification.module.normalization").map(
         (member) =>
           `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
@@ -662,7 +662,9 @@ describe("registry-runtime", () => {
       ]),
     );
     expect(
-      listClassificationMembers("classification.position-encoding-methods").map(
+      listClassificationMembers(
+        "classification.module.positional-encoding",
+      ).map(
         (member) =>
           `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
@@ -673,7 +675,7 @@ describe("registry-runtime", () => {
       ]),
     );
     expect(
-      listClassificationMembers("classification.tokenization-methods").map(
+      listClassificationMembers("classification.module.tokenization").map(
         (member) =>
           `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
@@ -684,9 +686,7 @@ describe("registry-runtime", () => {
       ]),
     );
     expect(
-      listClassificationMembers(
-        "classification.transformer-block-structures",
-      ).map(
+      listClassificationMembers("classification.module.transformer-block").map(
         (member) =>
           `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),

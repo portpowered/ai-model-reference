@@ -30,9 +30,9 @@ type SelectedGraphItem =
   | null;
 
 const topologyNodePositions: Record<string, { x: number; y: number }> = {
-  "classification.neural-network-components": { x: 360, y: 40 },
-  "classification.activation-functions": { x: 160, y: 120 },
-  "classification.feed-forward-networks": { x: 560, y: 120 },
+  "classification.module": { x: 360, y: 40 },
+  "classification.module.activation": { x: 160, y: 120 },
+  "classification.module.feed-forward": { x: 560, y: 120 },
   "concept.activation": { x: 120, y: 300 },
   "module.relu": { x: 300, y: 230 },
   "module.leaky-relu": { x: 455, y: 245 },

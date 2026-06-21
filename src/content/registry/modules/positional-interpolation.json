@@ -30,7 +30,7 @@
     "Yuandong Tian"
   ],
   "sourceId": "citation.chen-positional-interpolation",
-  "primaryClassificationId": "classification.position-encoding-methods",
+  "primaryClassificationId": "classification.module.positional-encoding",
   "moduleType": "position-encoding",
   "optimizes": ["long-context-extrapolation"],
   "exampleModelIds": [],
