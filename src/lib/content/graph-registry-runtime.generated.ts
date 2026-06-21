@@ -4,6 +4,7 @@
  */
 import batchNormComputeFlowGraphRecord from "@/content/registry/graphs/batch-norm-compute-flow.json";
 import bidirectionalAttentionTimePatternGraphRecord from "@/content/registry/graphs/bidirectional-attention-time-pattern.json";
+import blockSparseAttentionTimeBlockPatternGraphRecord from "@/content/registry/graphs/block-sparse-attention-time-block-pattern.json";
 import bpeComputeFlowGraphRecord from "@/content/registry/graphs/bpe-compute-flow.json";
 import byteLevelTokenizationComputeFlowGraphRecord from "@/content/registry/graphs/byte-level-tokenization-compute-flow.json";
 import compressedSparseAttentionFlowGraphRecord from "@/content/registry/graphs/compressed-sparse-attention-flow.json";
@@ -56,6 +57,7 @@ import { type GraphRecord, graphRecordSchema } from "@/lib/content/schemas";
 export const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(batchNormComputeFlowGraphRecord),
   graphRecordSchema.parse(bidirectionalAttentionTimePatternGraphRecord),
+  graphRecordSchema.parse(blockSparseAttentionTimeBlockPatternGraphRecord),
   graphRecordSchema.parse(bpeComputeFlowGraphRecord),
   graphRecordSchema.parse(byteLevelTokenizationComputeFlowGraphRecord),
   graphRecordSchema.parse(compressedSparseAttentionFlowGraphRecord),

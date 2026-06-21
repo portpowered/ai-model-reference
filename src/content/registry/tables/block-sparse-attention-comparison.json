@@ -1,0 +1,58 @@
+{
+  "id": "table.block-sparse-attention-comparison",
+  "subjectId": "module.block-sparse-attention",
+  "columns": [
+    {
+      "moduleId": "module.block-sparse-attention",
+      "titleKey": "tables.comparison.columns.blockSparse.title"
+    },
+    {
+      "moduleId": "module.multi-head-attention",
+      "titleKey": "tables.comparison.columns.mha.title"
+    },
+    {
+      "moduleId": "module.sparse-attention",
+      "titleKey": "tables.comparison.columns.sparse.title"
+    },
+    {
+      "moduleId": "module.sliding-window-attention",
+      "titleKey": "tables.comparison.columns.window.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "connectivityPattern",
+      "labelKey": "tables.comparison.dimensions.connectivityPattern"
+    },
+    {
+      "id": "computeScaling",
+      "labelKey": "tables.comparison.dimensions.computeScaling"
+    },
+    {
+      "id": "distantReach",
+      "labelKey": "tables.comparison.dimensions.distantReach"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.block-sparse-attention": {
+      "connectivityPattern": "tables.comparison.values.blockSparse.connectivityPattern",
+      "computeScaling": "tables.comparison.values.blockSparse.computeScaling",
+      "distantReach": "tables.comparison.values.blockSparse.distantReach"
+    },
+    "module.multi-head-attention": {
+      "connectivityPattern": "tables.comparison.values.mha.connectivityPattern",
+      "computeScaling": "tables.comparison.values.mha.computeScaling",
+      "distantReach": "tables.comparison.values.mha.distantReach"
+    },
+    "module.sparse-attention": {
+      "connectivityPattern": "tables.comparison.values.sparse.connectivityPattern",
+      "computeScaling": "tables.comparison.values.sparse.computeScaling",
+      "distantReach": "tables.comparison.values.sparse.distantReach"
+    },
+    "module.sliding-window-attention": {
+      "connectivityPattern": "tables.comparison.values.window.connectivityPattern",
+      "computeScaling": "tables.comparison.values.window.computeScaling",
+      "distantReach": "tables.comparison.values.window.distantReach"
+    }
+  }
+}

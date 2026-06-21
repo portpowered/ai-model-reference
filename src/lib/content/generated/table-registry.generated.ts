@@ -3,6 +3,7 @@
 
 import batchNormComparisonTableRecord from "@/content/registry/tables/batch-norm-comparison.json";
 import bidirectionalAttentionComparisonTableRecord from "@/content/registry/tables/bidirectional-attention-comparison.json";
+import blockSparseAttentionComparisonTableRecord from "@/content/registry/tables/block-sparse-attention-comparison.json";
 import bpeComparisonTableRecord from "@/content/registry/tables/bpe-comparison.json";
 import byteLevelTokenizationComparisonTableRecord from "@/content/registry/tables/byte-level-tokenization-comparison.json";
 import feedForwardNetworkComparisonTableRecord from "@/content/registry/tables/feed-forward-network-comparison.json";
@@ -27,6 +28,7 @@ import swigluComparisonTableRecord from "@/content/registry/tables/swiglu-compar
 export const generatedTableRegistrySourceFiles = [
   "batch-norm-comparison.json",
   "bidirectional-attention-comparison.json",
+  "block-sparse-attention-comparison.json",
   "bpe-comparison.json",
   "byte-level-tokenization-comparison.json",
   "feed-forward-network-comparison.json",
@@ -52,6 +54,7 @@ export const generatedTableRegistrySourceFiles = [
 export const generatedTableRegistryPayloads = [
   batchNormComparisonTableRecord,
   bidirectionalAttentionComparisonTableRecord,
+  blockSparseAttentionComparisonTableRecord,
   bpeComparisonTableRecord,
   byteLevelTokenizationComparisonTableRecord,
   feedForwardNetworkComparisonTableRecord,

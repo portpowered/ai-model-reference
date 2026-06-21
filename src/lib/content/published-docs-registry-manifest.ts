@@ -987,6 +987,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "modules",
   },
   {
+    registryId: "module.block-sparse-attention",
+    slug: "block-sparse-attention",
+    docsSlug: "modules/block-sparse-attention",
+    url: "/docs/modules/block-sparse-attention",
+    pageKind: "module",
+    section: "modules",
+  },
+  {
     registryId: "module.compressed-sparse-attention",
     slug: "compressed-sparse-attention",
     docsSlug: "modules/compressed-sparse-attention",
@@ -1119,6 +1127,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "module.attention",
   "module.batch-norm",
   "module.bidirectional-attention",
+  "module.block-sparse-attention",
   "module.bpe",
   "module.byte-level-tokenization",
   "module.compressed-sparse-attention",
