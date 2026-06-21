@@ -1,7 +1,7 @@
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
-import { listClassificationAncestors } from "./registry-runtime";
 import type { DocsPageSource } from "./pages";
 import { getRegistryRecord, type RegistryIndexes } from "./registry-index";
+import { listClassificationAncestors } from "./registry-runtime";
 import type { ConceptRecord } from "./schemas";
 
 export type ArchitectureEntry = {
@@ -38,7 +38,8 @@ function isArchitectureConceptRecord(
   }
 
   return listClassificationAncestors(primaryClassificationId).some(
-    (classification) => classification.id === "classification.concept.architecture",
+    (classification) =>
+      classification.id === "classification.concept.architecture",
   );
 }
 
