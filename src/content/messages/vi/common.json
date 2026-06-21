@@ -64,7 +64,8 @@
   "shell": {
     "sidebarTitle": "Tham chiếu",
     "sidebarDescription": "Duyệt module, khái niệm, và thẻ.",
-    "onThisPage": "Trên trang này"
+    "onThisPage": "Trên trang này",
+    "openingSummary": "Tóm tắt mở đầu"
   },
   "home": {
     "title": "Model Atlas",

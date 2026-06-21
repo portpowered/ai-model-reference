@@ -8,8 +8,8 @@ import { createRelativeLink } from "fumadocs-ui/mdx";
 import { notFound } from "next/navigation";
 import type { ComponentProps, ComponentType } from "react";
 import { DocsAutoLinkedDescription } from "@/features/docs/components/DocsAutoLinkedDescription";
-import { DocsOpeningSummary } from "@/features/docs/components/DocsOpeningSummary";
 import { DocsPageBreadcrumb } from "@/features/docs/components/DocsPageBreadcrumb";
+import { FoldedOpeningSummary } from "@/features/docs/components/FoldedOpeningSummary";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
   loadLocalDocsPage,
@@ -74,8 +74,6 @@ async function renderLocalDocsPage(
     ) : (
       loadedPage.messages.description
     );
-  const openingSummary =
-    localRef.section === "systems" ? loadedPage.messages.openingSummary : null;
 
   return (
     <DocsPage breadcrumb={{ enabled: false }} toc={loadedPage.toc}>
@@ -92,8 +90,13 @@ async function renderLocalDocsPage(
         />
         <DocsTitle>{loadedPage.messages.title}</DocsTitle>
         <DocsDescription>{description}</DocsDescription>
-        {openingSummary ? <DocsOpeningSummary text={openingSummary} /> : null}
         <DocsBody>
+          {localRef.section === "systems" ? (
+            <FoldedOpeningSummary
+              label={uiMessages.shell.openingSummary}
+              summary={loadedPage.messages.openingSummary}
+            />
+          ) : null}
           <article data-registry-id={loadedPage.frontmatter.registryId}>
             {loadedPage.content}
           </article>

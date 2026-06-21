@@ -64,7 +64,8 @@
   "shell": {
     "sidebarTitle": "Reference",
     "sidebarDescription": "Browse modules, concepts, and tags.",
-    "onThisPage": "On this page"
+    "onThisPage": "On this page",
+    "openingSummary": "Opening summary"
   },
   "home": {
     "title": "Model Atlas",
