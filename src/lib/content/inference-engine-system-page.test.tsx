@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { T } from "@/features/docs/components/T";
+import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { loadPublishedDocsPagesSync } from "@/lib/content/pages";
@@ -89,6 +90,33 @@ describe("inference engine system page", () => {
     expect(html).toContain("batching");
     expect(html).toContain("routing");
     expect(html).toContain("deployment");
+  });
+
+  test("renders the system flow graph with a dedicated title and legend", async () => {
+    const page = await loadSystemPageFromDisk("inference-engine");
+    const html = renderToStaticMarkup(
+      createElement(
+        ModulePageProviders,
+        {
+          messages: page.messages,
+          assets: page.assets,
+        },
+        createElement(SystemFlowGraph, {
+          registryId: "system.inference-engine",
+          assetId: "systemFlow",
+        }),
+      ),
+    );
+
+    expect(html).toContain(
+      'data-graph-title="graph.inference-engine-system-flow"',
+    );
+    expect(html).toContain("Inference Engine System Flow");
+    expect(html).toContain(
+      'data-graph-legend="graph.inference-engine-system-flow"',
+    );
+    expect(html).toContain("Request and weight flow");
+    expect(html).toContain("Cache writes and reuse");
   });
 
   test("renders curated nearby serving links for cache, quantization, systems, and models", () => {
