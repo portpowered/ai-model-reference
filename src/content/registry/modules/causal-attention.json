@@ -1,0 +1,51 @@
+{
+  "id": "module.causal-attention",
+  "slug": "causal-attention",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "causal attention",
+    "causal self-attention",
+    "causal mask",
+    "look-ahead mask",
+    "look ahead mask"
+  ],
+  "tags": ["attention"],
+  "relatedIds": [
+    "module.attention",
+    "module.bidirectional-attention",
+    "concept.autoregressive-generation",
+    "concept.decoder",
+    "concept.token",
+    "concept.decode",
+    "concept.prefill-decode-split"
+  ],
+  "citationIds": ["citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "releaseDate": "2017-06-12",
+  "authors": [
+    "Ashish Vaswani",
+    "Noam Shazeer",
+    "Niki Parmar",
+    "Jakob Uszkoreit",
+    "Llion Jones",
+    "Aidan N. Gomez",
+    "Łukasz Kaiser",
+    "Illia Polosukhin"
+  ],
+  "sourceId": "citation.attention-is-all-you-need",
+  "moduleType": "attention",
+  "moduleFamily": "attention",
+  "conceptType": "attention-variant",
+  "variantGroup": "attention-mask-patterns",
+  "optimizes": ["autoregressive-generation", "next-token-prediction"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}
