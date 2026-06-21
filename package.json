@@ -56,6 +56,8 @@
     "report:legacy-taxonomy-compatibility-budget": "bun ./scripts/report-legacy-taxonomy-compatibility-budget.ts",
     "preverify:legacy-classification-budget": "bun run prepare:content-runtime",
     "verify:legacy-classification-budget": "bun ./scripts/verify-legacy-classification-budget.ts",
+    "preverify:typed-taxonomy-budget": "bun run prepare:content-runtime",
+    "verify:typed-taxonomy-budget": "bun ./scripts/verify-typed-taxonomy-budget.ts",
     "audit:typed-taxonomy-consumers": "bun ./scripts/audit-typed-taxonomy-consumers.ts",
     "verify:typed-taxonomy-consumer-fence": "bun ./scripts/verify-typed-taxonomy-consumer-fence.ts",
     "scaffold:doc-page": "bun ./scripts/scaffold-doc-page.ts",

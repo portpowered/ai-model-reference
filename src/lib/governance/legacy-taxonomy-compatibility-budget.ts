@@ -23,12 +23,20 @@ export type TypedTaxonomyBudgetSurfaceContract = {
   approvedCluster: string;
   approvedEntryCount: number;
   approvedEntryIds: readonly string[];
+  approvedEntries: readonly TypedTaxonomyBudgetEntryContract[];
   approvedFieldInventory: readonly LegacyTypedTaxonomyField[];
   approvedFieldReferenceCount: number;
   owner: string;
   rationale: string;
   surfaceId: string;
   surfaceLabel: string;
+};
+
+export type TypedTaxonomyBudgetEntryContract = {
+  approvedFieldInventory: readonly LegacyTypedTaxonomyField[];
+  approvedFieldReferenceCount: number;
+  id: string;
+  path: string;
 };
 
 export const legacyTaxonomyCompatibilityBudgetContract = {
@@ -43,6 +51,30 @@ export const legacyTaxonomyCompatibilityBudgetContract = {
       "search-document-ontology-first-facet-builder",
       "search-document-public-facet-shape",
     ],
+    approvedEntries: [
+      {
+        id: "search-document-facet-compatibility",
+        path: "src/lib/search/legacy-taxonomy-compat.ts",
+        approvedFieldInventory: [
+          "conceptType",
+          "moduleType",
+          "variantGroup",
+        ] as const,
+        approvedFieldReferenceCount: 13,
+      },
+      {
+        id: "search-document-ontology-first-facet-builder",
+        path: "src/lib/search/build-documents.ts",
+        approvedFieldInventory: [] as const,
+        approvedFieldReferenceCount: 0,
+      },
+      {
+        id: "search-document-public-facet-shape",
+        path: "src/lib/search/types.ts",
+        approvedFieldInventory: ["moduleType"] as const,
+        approvedFieldReferenceCount: 1,
+      },
+    ] as const,
     approvedFieldInventory: [
       "conceptType",
       "moduleType",
@@ -112,9 +144,11 @@ export type LegacyClassificationBudgetMeasurement = {
 export type TypedTaxonomyBudgetMeasurement = {
   approvedCluster: string;
   approvedEntryCount: number;
+  approvedEntries: readonly TypedTaxonomyBudgetEntryMeasurement[];
   approvedEntryIds: readonly string[];
   approvedFieldInventory: readonly LegacyTypedTaxonomyField[];
   approvedFieldReferenceCount: number;
+  currentEntries: readonly TypedTaxonomyBudgetEntryMeasurement[];
   currentEntryCount: number;
   currentEntryIds: readonly string[];
   currentFieldInventory: readonly LegacyTypedTaxonomyField[];
@@ -125,6 +159,13 @@ export type TypedTaxonomyBudgetMeasurement = {
   status: LegacyTaxonomyCompatibilityBudgetStatus;
   surfaceId: string;
   surfaceLabel: string;
+};
+
+export type TypedTaxonomyBudgetEntryMeasurement = {
+  fieldInventory: readonly LegacyTypedTaxonomyField[];
+  fieldReferenceCount: number;
+  id: string;
+  path: string;
 };
 
 export type LegacyTaxonomyCompatibilityBudgetSnapshot = {
@@ -139,6 +180,25 @@ export type LegacyClassificationBudgetGuardResult = {
   drift: readonly string[];
   approvedBridgeCount: number;
   currentBridgeCount: number;
+  owner: string;
+  rationale: string;
+  status: LegacyTaxonomyCompatibilityBudgetStatus;
+  surfaceId: string;
+  surfaceLabel: string;
+};
+
+export type TypedTaxonomyBudgetGuardResult = {
+  approvedCluster: string;
+  approvedEntries: readonly TypedTaxonomyBudgetEntryMeasurement[];
+  approvedEntryCount: number;
+  approvedFieldInventory: readonly LegacyTypedTaxonomyField[];
+  approvedFieldReferenceCount: number;
+  auditedAtUtc: string;
+  currentEntries: readonly TypedTaxonomyBudgetEntryMeasurement[];
+  currentEntryCount: number;
+  currentFieldInventory: readonly LegacyTypedTaxonomyField[];
+  currentFieldReferenceCount: number;
+  drift: readonly string[];
   owner: string;
   rationale: string;
   status: LegacyTaxonomyCompatibilityBudgetStatus;
@@ -183,6 +243,42 @@ function compareStringSets(
     .map((value) => `${surfaceLabel} removed "${value}"`);
 
   return [...added, ...removed];
+}
+
+function toTypedTaxonomyBudgetEntryMeasurement(
+  entry:
+    | TypedTaxonomyBudgetEntryContract
+    | Pick<
+        TypedTaxonomyConsumerAuditResult["entries"][number],
+        "fieldReferences" | "id" | "path"
+      >,
+): TypedTaxonomyBudgetEntryMeasurement {
+  const fieldInventory =
+    "approvedFieldInventory" in entry
+      ? [...entry.approvedFieldInventory].sort()
+      : [
+          ...new Set(entry.fieldReferences.map((reference) => reference.field)),
+        ].sort();
+  const fieldReferenceCount =
+    "approvedFieldReferenceCount" in entry
+      ? entry.approvedFieldReferenceCount
+      : entry.fieldReferences.length;
+
+  return {
+    fieldInventory,
+    fieldReferenceCount,
+    id: entry.id,
+    path: entry.path,
+  };
+}
+
+function sortTypedTaxonomyBudgetEntries(
+  entries: readonly TypedTaxonomyBudgetEntryMeasurement[],
+): TypedTaxonomyBudgetEntryMeasurement[] {
+  return [...entries].sort(
+    (left, right) =>
+      left.id.localeCompare(right.id) || left.path.localeCompare(right.path),
+  );
 }
 
 function collectLegacyClassificationSurfaceMeasurement(
@@ -235,6 +331,18 @@ function collectTypedTaxonomySurfaceMeasurement(
     (count, entry) => count + entry.fieldReferences.length,
     0,
   );
+  const approvedEntries = sortTypedTaxonomyBudgetEntries(
+    contract.approvedEntries.map(toTypedTaxonomyBudgetEntryMeasurement),
+  );
+  const currentEntries = sortTypedTaxonomyBudgetEntries(
+    matchingEntries.map(toTypedTaxonomyBudgetEntryMeasurement),
+  );
+  const approvedEntryById = new Map(
+    approvedEntries.map((entry) => [entry.id, entry]),
+  );
+  const currentEntryById = new Map(
+    currentEntries.map((entry) => [entry.id, entry]),
+  );
   const drift = [
     ...(contract.approvedEntryCount === matchingEntries.length
       ? []
@@ -256,10 +364,45 @@ function collectTypedTaxonomySurfaceMeasurement(
       currentFieldInventory,
       `${contract.surfaceLabel} fields`,
     ),
+    ...currentEntries.flatMap((entry) => {
+      const approvedEntry = approvedEntryById.get(entry.id);
+      if (!approvedEntry) {
+        return [
+          `${contract.surfaceLabel} entry "${entry.id}" at ${entry.path} is outside the approved budget`,
+        ];
+      }
+
+      return [
+        ...(approvedEntry.path === entry.path
+          ? []
+          : [
+              `${contract.surfaceLabel} entry "${entry.id}" moved from ${approvedEntry.path} to ${entry.path}`,
+            ]),
+        ...(approvedEntry.fieldReferenceCount === entry.fieldReferenceCount
+          ? []
+          : [
+              `${contract.surfaceLabel} entry "${entry.id}" at ${entry.path} approved ${approvedEntry.fieldReferenceCount} field references but found ${entry.fieldReferenceCount}`,
+            ]),
+        ...compareStringSets(
+          approvedEntry.fieldInventory,
+          entry.fieldInventory,
+          `${contract.surfaceLabel} entry "${entry.id}" fields`,
+        ),
+      ];
+    }),
+    ...approvedEntries.flatMap((entry) =>
+      currentEntryById.has(entry.id)
+        ? []
+        : [
+            `${contract.surfaceLabel} entry "${entry.id}" at ${entry.path} is missing from the current inventory`,
+          ],
+    ),
   ];
 
   return {
     ...contract,
+    approvedEntries,
+    currentEntries,
     currentEntryCount: matchingEntries.length,
     currentEntryIds,
     currentFieldInventory,
@@ -308,6 +451,32 @@ export function collectLegacyClassificationBudgetGuard(
     drift: surface.drift,
     approvedBridgeCount: surface.approvedBridgeCount,
     currentBridgeCount: surface.currentBridgeCount,
+    owner: surface.owner,
+    rationale: surface.rationale,
+    status: surface.status,
+    surfaceId: surface.surfaceId,
+    surfaceLabel: surface.surfaceLabel,
+  };
+}
+
+export function collectTypedTaxonomyBudgetGuard(
+  options: CollectLegacyTaxonomyCompatibilityBudgetOptions = {},
+): TypedTaxonomyBudgetGuardResult {
+  const snapshot = collectLegacyTaxonomyCompatibilityBudget(options);
+  const surface = snapshot.deprecatedTypedTaxonomySurface;
+
+  return {
+    approvedCluster: surface.approvedCluster,
+    approvedEntries: surface.approvedEntries,
+    approvedEntryCount: surface.approvedEntryCount,
+    approvedFieldInventory: surface.approvedFieldInventory,
+    approvedFieldReferenceCount: surface.approvedFieldReferenceCount,
+    auditedAtUtc: snapshot.auditedAtUtc,
+    currentEntries: surface.currentEntries,
+    currentEntryCount: surface.currentEntryCount,
+    currentFieldInventory: surface.currentFieldInventory,
+    currentFieldReferenceCount: surface.currentFieldReferenceCount,
+    drift: surface.drift,
     owner: surface.owner,
     rationale: surface.rationale,
     status: surface.status,
@@ -371,6 +540,31 @@ export function formatLegacyClassificationBudgetGuard(
     "Drift details:",
     ...(result.status === "aligned"
       ? ["No legacy classification bridge growth detected."]
+      : result.drift.map((drift) => `- ${drift}`)),
+  ].join("\n");
+}
+
+export function formatTypedTaxonomyBudgetGuard(
+  result: TypedTaxonomyBudgetGuardResult,
+): string {
+  return [
+    "Deprecated typed-taxonomy compatibility budget guard",
+    `Audited at (UTC): ${result.auditedAtUtc}`,
+    `Status: ${result.status}`,
+    `Surface: ${result.surfaceLabel}`,
+    `Owner: ${result.owner}`,
+    `Approved cluster: ${result.approvedCluster}`,
+    `Approved baseline: ${result.approvedEntryCount} entries, ${result.approvedFieldReferenceCount} field references`,
+    `Current measured: ${result.currentEntryCount} entries, ${result.currentFieldReferenceCount} field references`,
+    `Approved field inventory: ${result.approvedFieldInventory.join(", ")}`,
+    `Current field inventory: ${result.currentFieldInventory.join(", ")}`,
+    `Approved entry budgets: ${result.approvedEntries.map((entry) => `${entry.id} @ ${entry.path} (${entry.fieldReferenceCount} refs; fields: ${entry.fieldInventory.join(", ") || "none"})`).join("; ")}`,
+    `Current entry inventory: ${result.currentEntries.map((entry) => `${entry.id} @ ${entry.path} (${entry.fieldReferenceCount} refs; fields: ${entry.fieldInventory.join(", ") || "none"})`).join("; ")}`,
+    `Rationale: ${result.rationale}`,
+    "",
+    "Drift details:",
+    ...(result.status === "aligned"
+      ? ["No deprecated typed-taxonomy budget growth detected."]
       : result.drift.map((drift) => `- ${drift}`)),
   ].join("\n");
 }

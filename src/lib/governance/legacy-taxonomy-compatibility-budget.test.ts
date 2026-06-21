@@ -2,8 +2,10 @@ import { describe, expect, test } from "bun:test";
 import {
   collectLegacyClassificationBudgetGuard,
   collectLegacyTaxonomyCompatibilityBudget,
+  collectTypedTaxonomyBudgetGuard,
   formatLegacyClassificationBudgetGuard,
   formatLegacyTaxonomyCompatibilityBudget,
+  formatTypedTaxonomyBudgetGuard,
   legacyTaxonomyCompatibilityBudgetContract,
 } from "./legacy-taxonomy-compatibility-budget";
 import type { TypedTaxonomyConsumerAuditResult } from "./typed-taxonomy-consumer-audit";
@@ -42,6 +44,11 @@ function createTypedTaxonomyAuditResult(
             line: 3,
             text: "variantGroup",
           },
+          ...Array.from({ length: 10 }, () => ({
+            field: "moduleType" as const,
+            line: 4,
+            text: "moduleType",
+          })),
         ],
       },
       {
@@ -66,7 +73,7 @@ function createTypedTaxonomyAuditResult(
         evidence: [],
         rationale: "Public facet shape.",
         contractDrift: [],
-        fieldReferences: Array.from({ length: 11 }, () => ({
+        fieldReferences: Array.from({ length: 1 }, () => ({
           field: "moduleType" as const,
           line: 1,
           text: "moduleType",
@@ -206,5 +213,130 @@ describe("legacy taxonomy compatibility budget", () => {
     expect(report).toContain("Status: drifted");
     expect(report).toContain("Approved baseline: 8 bridges");
     expect(report).toContain("Current measured: 9 bridges");
+  });
+
+  test("passes the typed-taxonomy guard when the governed search cluster stays within budget", () => {
+    const result = collectTypedTaxonomyBudgetGuard({
+      auditedAtUtc: "2026-06-21T00:00:00.000Z",
+      typedTaxonomyAudit: createTypedTaxonomyAuditResult(),
+    });
+
+    expect(result.status).toBe("aligned");
+    expect(result.currentEntryCount).toBe(3);
+    expect(result.currentFieldReferenceCount).toBe(14);
+    expect(result.currentEntries).toEqual([
+      {
+        id: "search-document-facet-compatibility",
+        path: "src/lib/search/legacy-taxonomy-compat.ts",
+        fieldInventory: ["conceptType", "moduleType", "variantGroup"],
+        fieldReferenceCount: 13,
+      },
+      {
+        id: "search-document-ontology-first-facet-builder",
+        path: "src/lib/search/build-documents.ts",
+        fieldInventory: [],
+        fieldReferenceCount: 0,
+      },
+      {
+        id: "search-document-public-facet-shape",
+        path: "src/lib/search/types.ts",
+        fieldInventory: ["moduleType"],
+        fieldReferenceCount: 1,
+      },
+    ]);
+
+    const report = formatTypedTaxonomyBudgetGuard(result);
+    expect(report).toContain(
+      "Deprecated typed-taxonomy compatibility budget guard",
+    );
+    expect(report).toContain("Status: aligned");
+    expect(report).toContain(
+      "Approved baseline: 3 entries, 14 field references",
+    );
+    expect(report).toContain(
+      "No deprecated typed-taxonomy budget growth detected.",
+    );
+  });
+
+  test("fails the typed-taxonomy guard when the governed search cluster grows", () => {
+    const result = collectTypedTaxonomyBudgetGuard({
+      auditedAtUtc: "2026-06-21T00:00:00.000Z",
+      typedTaxonomyAudit: createTypedTaxonomyAuditResult({
+        entries: [
+          {
+            id: "search-document-facet-compatibility",
+            path: "src/lib/search/legacy-taxonomy-compat.ts",
+            cluster: "search",
+            status: "approved-compatibility-bridge",
+            owner: "search/discovery",
+            fields: ["moduleType", "conceptType", "variantGroup"],
+            evidence: [],
+            rationale: "Compatibility bridge.",
+            contractDrift: [],
+            fieldReferences: [
+              {
+                field: "moduleType",
+                line: 1,
+                text: "moduleType",
+              },
+              {
+                field: "conceptType",
+                line: 2,
+                text: "conceptType",
+              },
+              {
+                field: "variantGroup",
+                line: 3,
+                text: "variantGroup",
+              },
+              {
+                field: "moduleType",
+                line: 4,
+                text: "moduleType",
+              },
+            ],
+          },
+          ...createTypedTaxonomyAuditResult().entries.slice(1),
+          {
+            id: "search-extra-compatibility-consumer",
+            path: "src/lib/search/extra.ts",
+            cluster: "search",
+            status: "approved-compatibility-bridge",
+            owner: "search/discovery",
+            fields: ["conceptType"],
+            evidence: [],
+            rationale: "Unexpected extra consumer.",
+            contractDrift: [],
+            fieldReferences: [
+              {
+                field: "conceptType",
+                line: 1,
+                text: "conceptType",
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    expect(result.status).toBe("drifted");
+    expect(result.drift).toEqual(
+      expect.arrayContaining([
+        "approved 3 search-cluster entries but found 4",
+        "approved 14 search-cluster field references but found 6",
+        'search typed-taxonomy compatibility cluster entries added "search-extra-compatibility-consumer"',
+        'search typed-taxonomy compatibility cluster entry "search-document-facet-compatibility" at src/lib/search/legacy-taxonomy-compat.ts approved 13 field references but found 4',
+        'search typed-taxonomy compatibility cluster entry "search-extra-compatibility-consumer" at src/lib/search/extra.ts is outside the approved budget',
+      ]),
+    );
+
+    const report = formatTypedTaxonomyBudgetGuard(result);
+    expect(report).toContain("Status: drifted");
+    expect(report).toContain(
+      "Current entry inventory: search-document-facet-compatibility @ src/lib/search/legacy-taxonomy-compat.ts (4 refs; fields: conceptType, moduleType, variantGroup)",
+    );
+    expect(report).toContain(
+      'search typed-taxonomy compatibility cluster entry "search-extra-compatibility-consumer" at src/lib/search/extra.ts is outside the approved budget',
+    );
   });
 });
