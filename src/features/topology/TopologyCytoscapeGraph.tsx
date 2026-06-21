@@ -586,20 +586,26 @@ export function TopologyCytoscapeGraph({
         <section
           className="rounded-lg border border-border bg-muted/20 p-4"
           aria-labelledby="topology-detail-panel-title"
-          tabIndex={-1}
         >
           <div className="flex items-start justify-between gap-3">
-            <div>
+            <a
+              className="min-w-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              href="#topology-detail-panel-content"
+              aria-label={text.detailPanelTitle}
+            >
               <h3
                 id="topology-detail-panel-title"
                 className="text-sm font-semibold text-foreground"
               >
                 {text.detailPanelTitle}
               </h3>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p
+                id="topology-detail-panel-hint"
+                className="mt-1 text-xs text-muted-foreground"
+              >
                 {text.detailPanelHint}
               </p>
-            </div>
+            </a>
             {selectedItem ? (
               <Button
                 type="button"
@@ -615,7 +621,7 @@ export function TopologyCytoscapeGraph({
           </div>
 
           {!selectedNode && !selectedEdge ? (
-            <div className="mt-4 space-y-2">
+            <div id="topology-detail-panel-content" className="mt-4 space-y-2">
               <p className="text-sm font-medium text-foreground">
                 {text.detailPanelEmptyTitle}
               </p>
@@ -626,7 +632,7 @@ export function TopologyCytoscapeGraph({
           ) : null}
 
           {selectedNode?.kind === "record" ? (
-            <div className="mt-4 space-y-3">
+            <div id="topology-detail-panel-content" className="mt-4 space-y-3">
               <div>
                 <p className="text-lg font-semibold text-foreground">
                   {getRecordTitle(
@@ -694,7 +700,7 @@ export function TopologyCytoscapeGraph({
           ) : null}
 
           {selectedNode?.kind === "classification" ? (
-            <div className="mt-4 space-y-3">
+            <div id="topology-detail-panel-content" className="mt-4 space-y-3">
               <div>
                 <p className="text-lg font-semibold text-foreground">
                   {getNodeLabel(selectedNode, text)}
@@ -742,7 +748,7 @@ export function TopologyCytoscapeGraph({
           ) : null}
 
           {selectedEdge ? (
-            <div className="mt-4 space-y-3">
+            <div id="topology-detail-panel-content" className="mt-4 space-y-3">
               <div>
                 <p className="text-lg font-semibold text-foreground">
                   {selectedEdge.label}

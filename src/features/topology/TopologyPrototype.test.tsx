@@ -336,4 +336,35 @@ describe("TopologyPrototype", () => {
     expect(screen.getAllByText("SwiGLU").length).toBeGreaterThan(0);
     expect(screen.getAllByText("SiLU").length).toBeGreaterThan(0);
   });
+
+  test("keeps the inspection panel keyboard reachable in the default state", async () => {
+    const messages = await loadUiMessages();
+    const user = userEvent.setup();
+
+    setMockPathname("/topology");
+    setMockSearchParams(new URLSearchParams());
+
+    render(
+      <TopologyPrototype
+        messages={messages}
+        docsPageContentByRegistryId={docsPageContentByRegistryId}
+      />,
+    );
+
+    const detailPanelLink = screen.getByRole("link", {
+      name: messages.topologyPrototype.detailPanelTitle,
+    });
+
+    for (let index = 0; index < 40; index += 1) {
+      await user.tab();
+      if (document.activeElement === detailPanelLink) {
+        break;
+      }
+    }
+
+    expect(document.activeElement).toBe(detailPanelLink);
+    expect(detailPanelLink.getAttribute("href")).toBe(
+      "#topology-detail-panel-content",
+    );
+  });
 });
