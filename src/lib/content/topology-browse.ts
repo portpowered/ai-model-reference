@@ -3,6 +3,7 @@ import {
   type TopologyNavigationOption,
   type TopologySurfaceMode,
 } from "@/lib/content/topology-navigation";
+import { resolveTopologyNavigationOption } from "@/lib/content/topology-selector-resolution";
 
 export type TopologySearchParams = Record<
   string,
@@ -79,9 +80,9 @@ export function resolveTopologyBrowseState(
     };
   }
 
-  const selectedOption = options.find(
-    (option) => option.classificationSlug === requestedClassification,
-  );
+  const selectedOption = requestedClassification
+    ? resolveTopologyNavigationOption(requestedClassification, options)
+    : undefined;
   const selectedMode = isTopologySurfaceMode(requestedMode)
     ? requestedMode
     : undefined;

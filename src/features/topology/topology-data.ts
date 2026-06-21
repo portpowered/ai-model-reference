@@ -1,5 +1,6 @@
 import {
   listOntologyClassificationCompatibilitySelectors,
+  resolveCanonicalOntologyClassificationSelector,
   resolveOntologyClassificationSelector,
 } from "@/lib/content/ontology-classification-selectors";
 import {
@@ -60,6 +61,19 @@ function resolveClassificationForSelector(
 ): ClassificationRecord | undefined {
   const normalizedSelector = normalizeSelector(selector);
   const classifications = listClassificationRecords();
+  const canonicalClassification =
+    resolveCanonicalOntologyClassificationSelector(
+      normalizedSelector,
+      classifications,
+    );
+
+  if (canonicalClassification) {
+    return canonicalClassification;
+  }
+
+  const supportedCompatibilitySelectors =
+    listTemporaryTopologyLegacyCompatibilitySelectors();
+
   const classification = resolveOntologyClassificationSelector(
     normalizedSelector,
     classifications,
@@ -68,9 +82,6 @@ function resolveClassificationForSelector(
   if (!classification) {
     return undefined;
   }
-
-  const supportedCompatibilitySelectors =
-    listTemporaryTopologyLegacyCompatibilitySelectors();
 
   if (
     classification.id === normalizedSelector ||

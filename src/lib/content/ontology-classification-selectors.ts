@@ -22,6 +22,16 @@ function resolveCanonicalClassification(
   );
 }
 
+export function resolveCanonicalOntologyClassificationSelector(
+  selector: string,
+  classifications: readonly ClassificationRecord[],
+): ClassificationRecord | undefined {
+  return resolveCanonicalClassification(
+    classifications,
+    normalizeOntologyClassificationSelector(selector),
+  );
+}
+
 function buildCompatibilitySelectorMap(
   classifications: readonly ClassificationRecord[],
 ): Map<string, string> {
@@ -64,16 +74,14 @@ export function resolveOntologyClassificationSelector(
   selector: string,
   classifications: readonly ClassificationRecord[],
 ): ClassificationRecord | undefined {
-  const normalizedSelector = normalizeOntologyClassificationSelector(selector);
-  const canonicalClassification = resolveCanonicalClassification(
-    classifications,
-    normalizedSelector,
-  );
+  const canonicalClassification =
+    resolveCanonicalOntologyClassificationSelector(selector, classifications);
 
   if (canonicalClassification) {
     return canonicalClassification;
   }
 
+  const normalizedSelector = normalizeOntologyClassificationSelector(selector);
   const compatibilityClassificationId =
     buildCompatibilitySelectorMap(classifications).get(normalizedSelector);
 
