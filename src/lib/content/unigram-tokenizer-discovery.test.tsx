@@ -107,22 +107,19 @@ describe("unigram tokenizer discovery registry", () => {
     ["unigram tokenizer", true],
     ["SentencePiece unigram", true],
     ["merge-based tokenizer", false],
-  ] as const)(
-    "search query %s returns unigram tokenizer through the normal discovery path",
-    async (query, expectsTopHit) => {
-      const results = await docsSearchApi.search(query);
+  ] as const)("search query %s returns unigram tokenizer through the normal discovery path", async (query, expectsTopHit) => {
+    const results = await docsSearchApi.search(query);
 
-      expect(results.length).toBeGreaterThan(0);
-      if (expectsTopHit) {
-        expect(pageBaseUrl(results[0]?.url ?? "")).toBe(UNIGRAM_TOKENIZER_URL);
-        return;
-      }
+    expect(results.length).toBeGreaterThan(0);
+    if (expectsTopHit) {
+      expect(pageBaseUrl(results[0]?.url ?? "")).toBe(UNIGRAM_TOKENIZER_URL);
+      return;
+    }
 
-      expect(
-        results.some(
-          (result) => pageBaseUrl(result.url ?? "") === UNIGRAM_TOKENIZER_URL,
-        ),
-      ).toBe(true);
-    },
-  );
+    expect(
+      results.some(
+        (result) => pageBaseUrl(result.url ?? "") === UNIGRAM_TOKENIZER_URL,
+      ),
+    ).toBe(true);
+  });
 });
