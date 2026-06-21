@@ -787,6 +787,12 @@ Search rules:
 * Full-text search indexes title, description, headings, body text, aliases, and tag aliases.
 * Facets come from registry fields and tag records, not from prose scraping.
 * Ontology-backed pages should publish classification ancestry and related topology ids as the primary facet contract for grouping, filtering, and reranking.
+* Search scope should resolve from the same topology payload rather than a
+  separate taxonomy table, including ancestor and root classifications when no
+  page uses the requested scope as its immediate primary classification.
+* Search ranking should treat ontology relationships such as `variant`,
+  `part-of`, and `explains` as stronger than generic sibling proximity whenever
+  the shared peer policy marks them as outranking classification siblings.
 * Tags are always indexed as both searchable text and filterable facets.
 * Legacy taxonomy strings such as `moduleFamily`, `conceptType`, and `variantGroup` should only survive as explicit `legacy*` compatibility fields when ontology ancestry already exists.
 * Relationship fields such as `relatedIds`, `moduleIds`, and `paperIds` are indexed for result enrichment and optional filtering, but the registry remains the source of truth.

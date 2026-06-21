@@ -1,3 +1,5 @@
+import type { OntologyRelationship } from "@/lib/content/schemas";
+
 export type SearchDocumentFacets = {
   kind: string;
   tags: string[];
@@ -31,7 +33,7 @@ export type SearchDocumentTopologyClassification = {
 };
 
 export type SearchDocumentTopologyRelationship = {
-  relationshipType: string;
+  relationshipType: OntologyRelationship["relationshipType"];
   targetId: string;
   targetKind?: string;
   targetSlug?: string;

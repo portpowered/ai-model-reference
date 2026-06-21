@@ -224,6 +224,12 @@ Registry topology contributes:
 * ancestor and root classification ancestry for ontology-backed pages
 * related topology ids and relationship types used for filtering and reranking
 
+Search scope and reranking should consume that same topology runtime directly.
+Classification scope resolution may bind to primary, secondary, ancestor, or
+root classifications, then prefer exact classification matches first,
+descendants second, and direct ontology relationships ahead of generic sibling
+matches when the shared peer policy says the relationship outranks siblings.
+
 Registry records contribute:
 
 * stable `registryId`
