@@ -17,8 +17,12 @@ describe("typed taxonomy consumer audit command", () => {
     expect(result.status).toBe(0);
     expect(result.stderr ?? "").toBe("");
     expect(result.stdout ?? "").toContain("Typed taxonomy consumer audit");
+    expect(result.stdout ?? "").toContain("Contract status: aligned");
     expect(result.stdout ?? "").toContain("Cluster summary");
     expect(result.stdout ?? "").toContain("Recommended next migration target");
+    expect(result.stdout ?? "").toContain(
+      "none: no unresolved migration targets remain in the audit",
+    );
     expect(result.stdout ?? "").toContain("search");
     expect(result.stdout ?? "").toContain("sidebar/topology");
     expect(result.stdout ?? "").toContain("related-doc derivation");

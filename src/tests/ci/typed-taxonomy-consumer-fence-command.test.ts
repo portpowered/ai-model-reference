@@ -23,6 +23,7 @@ describe("typed taxonomy consumer deprecation fence command", () => {
     expect(result.stdout ?? "").toContain(
       "Typed taxonomy consumer deprecation fence",
     );
+    expect(result.stdout ?? "").toContain("Contract status: aligned");
     expect(result.stdout ?? "").toContain("Violation status: clear");
     expect(result.stdout ?? "").toContain(
       "No uncategorized or undeclared typed-taxonomy usage",
