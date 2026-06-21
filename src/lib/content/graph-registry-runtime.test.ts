@@ -161,7 +161,7 @@ describe("graph-registry-runtime", () => {
   test("lists all bundled graph records", () => {
     const records = listGraphRecords();
 
-    expect(records.length).toBe(50);
+    expect(records.length).toBe(56);
     expect(records.map((record) => record.id)).toContain(
       "graph.bpe-compute-flow",
     );

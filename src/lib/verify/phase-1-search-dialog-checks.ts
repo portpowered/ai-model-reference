@@ -32,7 +32,9 @@ export const VERIFY_SEARCH_DIALOG_STUB_ENV = "VERIFY_SEARCH_DIALOG_STUB";
 export type RunPhase1SearchDialogChecksOptions = {
   timeoutMs?: number;
   queries?: readonly string[];
+  browser?: Browser;
   launchBrowser?: () => Promise<Browser>;
+  logger?: (message: string) => void;
   /**
    * Test hook: when set, overrides the dialog opener used before query checks run.
    */
@@ -294,17 +296,21 @@ export async function runPhase1SearchDialogChecks(
   }
 
   const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
-  const browser = await launchBrowser();
+  const browser = options.browser ?? (await launchBrowser());
+  const logger = options.logger;
 
   try {
+    logger?.("[phase-1-search-dialog] opening browser page");
     const page = await browser.newPage();
     page.setDefaultTimeout(timeoutMs);
     const openDialog = options.openDialog ?? openHeaderSearchDialog;
 
     try {
+      logger?.("[phase-1-search-dialog] opening header search dialog");
       const dialog = await openDialog(page, baseUrl, timeoutMs);
 
       for (const query of queries) {
+        logger?.(`[phase-1-search-dialog] checking query "${query}"`);
         const reason = await checkSearchDialogQuery(
           page,
           baseUrl,
@@ -326,7 +332,9 @@ export async function runPhase1SearchDialogChecks(
       }
     }
   } finally {
-    await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
+    if (!options.browser) {
+      await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
+    }
   }
 
   return failures;
