@@ -197,6 +197,7 @@ describe("registry-runtime", () => {
     expect(record?.relatedIds).toEqual([
       "module.attention",
       "module.multi-head-attention",
+      "module.causal-attention",
       "module.bidirectional-attention",
       "concept.transformer-architecture",
       "concept.encoder-decoder",

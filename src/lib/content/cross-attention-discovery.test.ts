@@ -22,6 +22,7 @@ describe("cross-attention discovery wiring", () => {
     expect(items.map((item) => item.registryId)).toEqual([
       "module.attention",
       "module.multi-head-attention",
+      "module.causal-attention",
       "module.bidirectional-attention",
       "concept.transformer-architecture",
       "concept.encoder-decoder",
@@ -30,6 +31,7 @@ describe("cross-attention discovery wiring", () => {
     expect(items.map((item) => item.href)).toEqual([
       "/docs/modules/attention",
       "/docs/modules/multi-head-attention",
+      "/docs/modules/causal-attention",
       "/docs/modules/bidirectional-attention",
       "/docs/concepts/transformer-architecture",
       "/docs/glossary/encoder-decoder",
