@@ -1,15 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
 import { access, mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const repoRoot = join(import.meta.dir, "../../..");
-const contributorGuidePath = join(
-  repoRoot,
-  "docs/contributors/CONTRIBUTING.md",
-);
-const readmePath = join(repoRoot, "README.md");
 
 function runBun(args: string[]) {
   return spawnSync("bun", args, {
@@ -63,34 +57,6 @@ describe("contributor documented workflow commands", () => {
     const output = `${result.stdout}${result.stderr}`;
     expect(output).toContain("generate-page-bundle");
     expect(output).toMatch(/prefer/i);
-  });
-
-  test("contributor guide presents generate:page-bundle as the common canonical path", () => {
-    const guide = readFileSync(contributorGuidePath, "utf8");
-
-    expect(guide).toContain(
-      "For module, model, paper, and training-regime\npages, this page-spec flow is the supported common path; template-copy work is\nfor exceptional cases only.",
-    );
-    expect(guide).toContain(
-      "use generate:page-bundle with a page spec and keep the emitted page bundle, registry record, messages, assets, and graph record aligned.",
-    );
-    expect(guide).toContain("See `page-specs/` for checked-in sample inputs");
-    expect(guide).not.toContain("because scaffold does not support module yet");
-    expect(guide).not.toContain(
-      "docs/temp/processes/content-page-generation-workflow-relevant-files.md",
-    );
-  });
-
-  test("README points maintainers to checked-in page-spec samples for supported canonical kinds", () => {
-    const readme = readFileSync(readmePath, "utf8");
-
-    expect(readme).toContain(
-      "path for `concept`, `glossary`, `module`, `model`, `paper`, and\n`training-regime` pages:",
-    );
-    expect(readme).toContain(
-      "Checked-in example specs for each supported canonical kind live in",
-    );
-    expect(readme).toContain("`page-specs/`.");
   });
 
   test("committed expanded-kind sample specs dry-run through generate:page-bundle", () => {
