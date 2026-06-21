@@ -26,6 +26,7 @@ import {
   listClassificationRoots,
   listConceptRecords,
   listDatasetRecords,
+  listLegacyClassificationBridges,
   listModelRecords,
   listModuleRecords,
   listOntologyRelationshipsForRecord,
@@ -502,6 +503,21 @@ describe("registry-runtime", () => {
         totalMemberCount: 0,
       },
     ]);
+  });
+
+  test("legacy classification bridge remains explicit and measurable", () => {
+    expect(listLegacyClassificationBridges()).toEqual(
+      expect.arrayContaining([
+        {
+          legacyId: "classification.attention-mechanisms",
+          canonicalId: "classification.module.attention",
+        },
+        {
+          legacyId: "classification.activation-functions",
+          canonicalId: "classification.module.activation",
+        },
+      ]),
+    );
   });
 
   test("seeded activation records resolve through ontology classification helpers", () => {

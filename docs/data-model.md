@@ -133,6 +133,19 @@ Rules:
   the classification record through `legacyIds`; do not treat legacy ids as the
   canonical contract.
 
+Temporary bridge rules:
+
+* A legacy flat id is supported only when a canonical classification record
+  declares it in `legacyIds`.
+* Runtime consumers should canonicalize legacy ids through
+  `resolveClassificationId(...)` and may inspect the current bridge inventory
+  through `listLegacyClassificationBridges(...)`.
+* New content must not introduce fresh legacy flat ids. The bridge exists only
+  to keep pre-migration records searchable and resolvable while the remaining
+  registry files are migrated.
+* The measurable migration target is to drive `listLegacyClassificationBridges()`
+  to an empty result over time rather than expanding it.
+
 ## Page Model
 
 MDX pages define structure and references. Canonical docs pages should not contain raw user-visible prose. They should reference localized text through message keys and reference media, graphs, charts, code schemas, and tables through asset IDs or registry-backed components. Blog posts may contain raw MDX prose because they are narrative content. Published docs pages should include:

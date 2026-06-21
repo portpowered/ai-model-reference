@@ -377,6 +377,11 @@ export type ResolvedOntologyRelationship = {
   target: RuntimeRegistryRecord | undefined;
 };
 
+export type LegacyClassificationBridge = {
+  legacyId: string;
+  canonicalId: string;
+};
+
 type OntologyParticipantKind = OntologyParticipatingRegistryRecord["kind"];
 
 export type ClassificationTraversalOptions = {
@@ -674,6 +679,15 @@ export function resolveClassificationId(
   registryId: string,
 ): string | undefined {
   return classificationsById.get(registryId)?.id;
+}
+
+export function listLegacyClassificationBridges(): LegacyClassificationBridge[] {
+  return classificationRecords.flatMap((record) =>
+    (record.legacyIds ?? []).map((legacyId) => ({
+      legacyId,
+      canonicalId: record.id,
+    })),
+  );
 }
 
 export function getPaperById(registryId: string): PaperRecord | undefined {

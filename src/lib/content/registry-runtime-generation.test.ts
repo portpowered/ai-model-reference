@@ -524,6 +524,14 @@ describe("registry-runtime generation", () => {
           "classification.activation-functions",
         )?.id,
       ).toBe("classification.module");
+      expect(generatedRuntime.listLegacyClassificationBridges()).toEqual(
+        expect.arrayContaining([
+          {
+            legacyId: "classification.activation-functions",
+            canonicalId: "classification.module.activation",
+          },
+        ]),
+      );
       expect(
         generatedRuntime
           .listChildClassifications("classification.module")
