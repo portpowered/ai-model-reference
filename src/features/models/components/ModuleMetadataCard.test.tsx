@@ -18,6 +18,35 @@ describe("ModuleMetadataCard", () => {
     expect(html).not.toContain("Variant group");
   });
 
+  test("renders useful ontology-backed labels for activation and feed-forward proving records", () => {
+    const activationHtml = renderToStaticMarkup(
+      <ModuleMetadataCard registryId="module.silu" />,
+    );
+    const feedForwardHtml = renderToStaticMarkup(
+      <ModuleMetadataCard registryId="module.swiglu" />,
+    );
+
+    expect(activationHtml).toContain('data-registry-id="module.silu"');
+    expect(activationHtml).toContain("Classification");
+    expect(activationHtml).toContain("Activation Functions");
+    expect(activationHtml).toContain("Math level");
+    expect(activationHtml).toContain("None");
+    expect(activationHtml).not.toContain("Module type");
+    expect(activationHtml).not.toContain("Module family");
+    expect(activationHtml).not.toContain("Concept type");
+    expect(activationHtml).not.toContain("Variant group");
+
+    expect(feedForwardHtml).toContain('data-registry-id="module.swiglu"');
+    expect(feedForwardHtml).toContain("Classification");
+    expect(feedForwardHtml).toContain("Feed Forward Networks");
+    expect(feedForwardHtml).toContain("Math level");
+    expect(feedForwardHtml).toContain("None");
+    expect(feedForwardHtml).not.toContain("Module type");
+    expect(feedForwardHtml).not.toContain("Module family");
+    expect(feedForwardHtml).not.toContain("Concept type");
+    expect(feedForwardHtml).not.toContain("Variant group");
+  });
+
   test("uses tighter dt/dd row spacing contract", () => {
     const html = renderToStaticMarkup(
       <ModuleMetadataCard registryId="module.deepseekmoe" />,

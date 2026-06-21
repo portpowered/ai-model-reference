@@ -38,6 +38,26 @@ describe("metadata-labels", () => {
     });
   });
 
+  test("derives stable module labels for activation and feed-forward proving records", () => {
+    const activationRecord = requireValue(
+      getModuleById("module.silu"),
+      "module.silu",
+    );
+    const feedForwardRecord = requireValue(
+      getModuleById("module.swiglu"),
+      "module.swiglu",
+    );
+
+    expect(deriveOntologyMetadataLabels(activationRecord)).toEqual({
+      primaryLabel: "Activation Functions",
+      secondaryLabels: [],
+    });
+    expect(deriveOntologyMetadataLabels(feedForwardRecord)).toEqual({
+      primaryLabel: "Feed Forward Networks",
+      secondaryLabels: [],
+    });
+  });
+
   test("derives a training regime classification label from ontology membership", () => {
     const record = requireValue(
       getTrainingRegimeById("training-regime.dpo"),
