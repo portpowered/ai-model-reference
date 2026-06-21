@@ -177,11 +177,32 @@ describe("OntologyTimelineClientPage", () => {
       expect(screen.getByText("No dated timeline events")).toBeTruthy();
     });
     expect(screen.getByText(/classification\.activation/)).toBeTruthy();
+    const timelineLinks = screen
+      .getAllByRole("link")
+      .map((element) => element.getAttribute("href"))
+      .filter((href): href is string => href !== null);
+
     expect(
       screen
         .getByRole("link", { name: messages.timelinePage.activationLink })
         .getAttribute("href"),
     ).toBe("/docs/timeline?classification=activation-functions");
+    expect(timelineLinks).toContain(
+      "/docs/timeline?classification=activation-functions",
+    );
+    expect(timelineLinks).toContain(
+      "/docs/timeline?classification=feed-forward-networks",
+    );
+    expect(
+      timelineLinks.some((href) =>
+        href.includes("classification.activation-functions"),
+      ),
+    ).toBe(false);
+    expect(
+      timelineLinks.some((href) =>
+        href.includes("classification.feed-forward-networks"),
+      ),
+    ).toBe(false);
   });
 
   test("hydrates an invalid classification into the recoverable empty state", async () => {

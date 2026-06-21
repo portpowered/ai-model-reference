@@ -82,12 +82,17 @@ the temporary legacy-id bridge.
 * `src/lib/content/timeline-selector-compatibility.ts`
   Timeline-specific temporary selector fence. Keep any still-supported legacy
   timeline ids or shorthand selectors here so canonical timeline resolution can
-  stay separate from explicit compatibility handling.
+  stay separate from explicit compatibility handling. When timeline query or
+  preload code needs to turn an accepted selector back into the steady-state
+  browser output, route that through this helper too so customer-path files do
+  not hardcode legacy aliases outside the named fence.
 * `src/features/docs/timeline/timeline-query.ts`
   Timeline-specific selector parsing and outbound URL normalization. Keep the
   accepted selector set and the emitted steady-state selector URLs separate
   here so legacy or shorthand entry compatibility does not leak back into
-  canonical chip and recovery links.
+  canonical chip and recovery links. Timeline defaults should resolve from the
+  canonical activation classification id first rather than depending on the
+  incidental ordering of runtime navigation options.
 * `src/features/docs/timeline/timeline-query.test.ts`
   Focused proof that timeline query normalization keeps accepted compatibility
   selectors on the input side while chip and recovery href builders emit only
@@ -210,7 +215,10 @@ the temporary legacy-id bridge.
   server-to-client handoff.
 * `src/features/docs/timeline/OntologyTimelineClientPage.test.tsx`
   Hydration coverage for canonical ids, legacy ids, and invalid timeline
-  selectors read from the browser URL.
+  selectors read from the browser URL. Keep the recoverable empty-state
+  assertions focused on rendered chip and recovery-link hrefs so customer-path
+  output stays canonical even when compatibility selectors remain accepted on
+  input.
 * `docs/data-model.md`
   Human-readable ontology contract, runtime ordering rules, empty-branch
   behavior, and temporary bridge rules.

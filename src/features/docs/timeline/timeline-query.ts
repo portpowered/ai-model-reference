@@ -1,9 +1,13 @@
 import { normalizeOntologyClassificationSelector } from "@/lib/content/ontology-classification-selectors";
 import { listClassificationRecords } from "@/lib/content/registry-runtime";
-import { resolveTimelineClassificationSelector } from "@/lib/content/timeline-selector-compatibility";
+import {
+  getCanonicalTimelineSelectorForOutput as getCanonicalTimelineSelectorForOutputFromFence,
+  resolveTimelineClassification,
+} from "@/lib/content/timeline-selector-compatibility";
 import { listTopologyNavigationOptions } from "@/lib/content/topology-navigation";
 
 export const TIMELINE_CLASSIFICATION_QUERY_KEY = "classification";
+const DEFAULT_TIMELINE_CLASSIFICATION_ID = "classification.module.activation";
 
 function findCanonicalTimelineOption(classificationId: string) {
   return listTopologyNavigationOptions().find(
@@ -12,14 +16,19 @@ function findCanonicalTimelineOption(classificationId: string) {
 }
 
 export function getDefaultTimelineClassificationSelector(): string {
-  const defaultOption = listTopologyNavigationOptions()[0];
+  const defaultOption = findCanonicalTimelineOption(
+    DEFAULT_TIMELINE_CLASSIFICATION_ID,
+  );
   if (defaultOption) {
     return defaultOption.classificationSlug;
   }
 
-  const fallbackClassification = listClassificationRecords().find(
-    (classification) => classification.status === "published",
-  );
+  const fallbackClassification =
+    resolveTimelineClassification(DEFAULT_TIMELINE_CLASSIFICATION_ID) ??
+    listClassificationRecords().find(
+      (classification) => classification.status === "published",
+    );
+
   return fallbackClassification?.slug ?? "";
 }
 
@@ -36,20 +45,7 @@ export function normalizeTimelineClassificationSelector(
 export function getCanonicalTimelineSelectorForOutput(
   selector: string,
 ): string {
-  const normalizedSelector = normalizeOntologyClassificationSelector(selector);
-  const classification = resolveTimelineClassificationSelector(
-    normalizedSelector,
-    listClassificationRecords(),
-  );
-
-  if (!classification) {
-    return normalizedSelector;
-  }
-
-  return (
-    findCanonicalTimelineOption(classification.id)?.classificationSlug ??
-    classification.slug
-  );
+  return getCanonicalTimelineSelectorForOutputFromFence(selector);
 }
 
 export function buildTimelineClassificationHref(
