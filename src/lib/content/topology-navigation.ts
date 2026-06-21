@@ -1,7 +1,7 @@
 import { getPublishedDocsHrefForRecord } from "@/lib/content/published-docs-registry-ids";
 import {
-  buildClassificationTree,
-  type ClassificationTreeClassificationNode,
+  buildClassificationSubtree,
+  type ClassificationSubtreeClassificationNode,
 } from "@/lib/content/registry-runtime";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
@@ -9,8 +9,6 @@ import {
   defaultLocale,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
-
-export const TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID = "classification.module";
 
 export const TOPOLOGY_SURFACE_MODES = ["graph-map", "timeline"] as const;
 
@@ -27,7 +25,7 @@ export type TopologyNavigationOption = {
   classificationSlug: string;
   label: string;
   memberCount: number;
-  tree: ClassificationTreeClassificationNode;
+  tree: ClassificationSubtreeClassificationNode;
   destinations: TopologyNavigationDestination[];
 };
 
@@ -48,7 +46,7 @@ export type TopologyNavigationLabels = {
 
 type TopologyNavigationInput = {
   locale?: SiteLocale;
-  tree?: readonly ClassificationTreeClassificationNode[];
+  tree?: readonly ClassificationSubtreeClassificationNode[];
   labels?: TopologyNavigationLabels;
 };
 
@@ -119,23 +117,17 @@ function buildDestinations(
 
 export function listTopologyNavigationOptions({
   locale = defaultLocale,
-  tree = buildClassificationTree({
-    rootClassificationIds: [TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID],
+  tree = buildClassificationSubtree({
+    classificationTraversal: {
+      classifiesKinds: ["module"],
+      statuses: ["published"],
+    },
     memberKinds: ["module"],
-  }),
+  }).roots,
   labels,
 }: TopologyNavigationInput = {}): TopologyNavigationOption[] {
-  const topologyRoot = tree.find(
-    (classification) =>
-      classification.classification.id ===
-      TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
-  );
-
-  if (!topologyRoot) {
-    return [];
-  }
-
-  return topologyRoot.classificationChildren
+  return tree
+    .flatMap((rootClassification) => rootClassification.classificationChildren)
     .filter(
       (classification) =>
         classification.totalMemberCount > 0 &&

@@ -18,6 +18,11 @@ the temporary legacy-id bridge.
   (`sortOrder -> slug -> id` for classifications; record-aware ordering for
   members), explicit empty-branch behavior, and
   `listLegacyClassificationBridges`.
+* `src/lib/content/topology-navigation.ts`
+  Current proving consumer for runtime-owned module-branch discovery on the
+  `/browse` topology surface; this consumer should derive candidate branches
+  from `buildClassificationSubtree(...)` roots rather than a hardcoded parent
+  classification id.
 * `src/lib/search/build-documents.ts`
   Search-term expansion that keeps canonical and legacy classification terms
   discoverable during migration.

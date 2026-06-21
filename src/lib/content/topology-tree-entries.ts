@@ -4,6 +4,7 @@ import {
   type PublishedDocsRecordRef,
 } from "@/lib/content/published-docs-registry-ids";
 import type {
+  ClassificationSubtreeClassificationNode,
   ClassificationTreeClassificationNode,
   ClassificationTreeNode,
 } from "@/lib/content/registry-runtime";
@@ -49,7 +50,9 @@ type DocsPageEntry = {
 };
 
 type BuildTopologyTreeEntriesInput = {
-  tree: ClassificationTreeClassificationNode;
+  tree:
+    | ClassificationTreeClassificationNode
+    | ClassificationSubtreeClassificationNode;
   localizedPages: readonly DocsPageEntry[];
   canonicalPages: readonly DocsPageEntry[];
   locale: SiteLocale;

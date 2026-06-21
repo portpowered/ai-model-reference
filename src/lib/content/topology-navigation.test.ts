@@ -1,15 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import type { ClassificationTreeClassificationNode } from "@/lib/content/registry-runtime";
+import type { ClassificationSubtreeClassificationNode } from "@/lib/content/registry-runtime";
 import {
   getTopologyNavigationLabels,
   listTopologyNavigationOptions,
-  TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
 } from "@/lib/content/topology-navigation";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 function publishedClassificationNode(
-  overrides: Partial<ClassificationTreeClassificationNode>,
-): ClassificationTreeClassificationNode {
+  overrides: Partial<ClassificationSubtreeClassificationNode>,
+): ClassificationSubtreeClassificationNode {
   return {
     nodeType: "classification",
     classification: {
@@ -27,19 +26,21 @@ function publishedClassificationNode(
       updatedAt: "2026-06-20T00:00:00.000Z",
       classificationType: "family",
       classifiesKinds: ["module"],
-      parentClassificationId: TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
+      parentClassificationId: "classification.module-root",
     },
     children: [],
     classificationChildren: [],
     recordChildren: [],
     directMemberCount: 0,
+    descendantMemberCount: 0,
+    hasMatchingMembers: false,
     totalMemberCount: 0,
     ...overrides,
   };
 }
 
 describe("topology navigation model", () => {
-  test("derives graph-map and timeline destinations from seeded classifications", () => {
+  test("derives graph-map and timeline destinations from runtime-discovered classifications", () => {
     const options = listTopologyNavigationOptions();
 
     expect(options.map((option) => option.classificationId)).toEqual(
@@ -145,8 +146,8 @@ describe("topology navigation model", () => {
           publishedClassificationNode({
             classification: {
               ...publishedClassificationNode({}).classification,
-              id: TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
-              slug: "neural-network-components",
+              id: "classification.module-root",
+              slug: "module-root",
             },
             classificationChildren: [
               publishedClassificationNode({
@@ -188,8 +189,8 @@ describe("topology navigation model", () => {
         publishedClassificationNode({
           classification: {
             ...publishedClassificationNode({}).classification,
-            id: TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
-            slug: "neural-network-components",
+            id: "classification.module-root",
+            slug: "module-root",
           },
           classificationChildren: [optionTree],
           children: [optionTree],
