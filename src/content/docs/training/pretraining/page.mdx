@@ -19,6 +19,7 @@ updatedAt: "2026-06-20"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { BlockMath } from "@/features/docs/components/Math";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
@@ -116,38 +117,25 @@ import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeF
 >
   <T k="sections.comparedToNearbyRegimes.body" />
   <T k="links.gpt2Bridge" />
-  <ul className="mt-3 list-disc pl-6">
-    <li>
-      <a href="/docs/models/gpt-3">
-        <T k="links.gpt3ModelPage" />
-      </a>
-    </li>
-    <li>
-      <a href="/docs/concepts/transformer-architecture">
-        <T k="links.transformerArchitecture" />
-      </a>
-    </li>
-    <li>
-      <a href="/docs/modules/byte-level-tokenization">
-        <T k="links.byteLevelTokenization" />
-      </a>
-    </li>
-    <li>
-      <a href="/docs/glossary/alignment">
-        <T k="links.alignmentOverview" />
-      </a>
-    </li>
-    <li>
-      <a href="/docs/training/dpo">
-        <T k="links.dpo" />
-      </a>
-    </li>
-    <li>
-      <a href="/search?q=RLHF">
-        <T k="links.rlhfSearch" />
-      </a>
-    </li>
-  </ul>
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/models/gpt-3", labelKey: "links.gpt3ModelPage" },
+      {
+        href: "/docs/concepts/transformer-architecture",
+        labelKey: "links.transformerArchitecture",
+      },
+      {
+        href: "/docs/modules/byte-level-tokenization",
+        labelKey: "links.byteLevelTokenization",
+      },
+      {
+        href: "/docs/glossary/alignment",
+        labelKey: "links.alignmentOverview",
+      },
+      { href: "/docs/training/dpo", labelKey: "links.dpo" },
+      { href: "/search?q=RLHF", labelKey: "links.rlhfSearch" },
+    ]}
+  />
 </Section>
 <Section
   id="limitations-and-failure-modes"

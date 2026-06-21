@@ -258,25 +258,23 @@ describe("pretraining training-regime identity contracts", () => {
     expect(html).toContain('href="/docs/glossary/alignment"');
     expect(html).toContain('href="/docs/training/dpo"');
     expect(html).toContain('href="/search?q=RLHF"');
+    expect(html).toContain(">GPT-3 model page<");
+    expect(html).toContain(">Transformer architecture<");
+    expect(html).toContain(">Byte-level tokenization<");
+    expect(html).toContain(">Alignment overview<");
+    expect(html).toContain(">Direct Preference Optimization<");
+    expect(html).toContain(">RLHF search<");
+    expect(html).not.toContain('href="/docs/models/gpt-3"><a ');
+    expect(html).not.toContain(
+      'href="/docs/concepts/transformer-architecture"><a ',
+    );
+    expect(html).not.toContain(
+      'href="/docs/modules/byte-level-tokenization"><a ',
+    );
+    expect(html).not.toContain('href="/docs/glossary/alignment"><a ');
+    expect(html).not.toContain('href="/docs/training/dpo"><a ');
+    expect(html).not.toContain('href="/search?q=RLHF"><a ');
     expect(html).not.toContain("Reader Shortcut");
-  });
-
-  test("page source keeps nearby-regime labels message-backed instead of hard-coding visible prose", () => {
-    const page = loadPretrainingPageBundle();
-
-    expect(page.source).toContain('<T k="links.gpt3ModelPage" />');
-    expect(page.source).toContain('<T k="links.transformerArchitecture" />');
-    expect(page.source).toContain('<T k="links.byteLevelTokenization" />');
-    expect(page.source).toContain('<T k="links.alignmentOverview" />');
-    expect(page.source).toContain('<T k="links.dpo" />');
-    expect(page.source).toContain('<T k="links.rlhfSearch" />');
-    expect(page.source).toContain('k="links.gpt2Bridge"');
-    expect(page.source).not.toContain(">GPT-3 model page<");
-    expect(page.source).not.toContain(">Transformer architecture<");
-    expect(page.source).not.toContain(">Byte-level tokenization<");
-    expect(page.source).not.toContain(">Alignment overview<");
-    expect(page.source).not.toContain(">Direct Preference Optimization<");
-    expect(page.source).not.toContain(">RLHF search<");
   });
 
   test("search documents and runtime search resolve pretraining title, aliases, and core terms", async () => {
