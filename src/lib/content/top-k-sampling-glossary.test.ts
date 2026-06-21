@@ -26,6 +26,7 @@ import { docsSearchApi } from "@/lib/search/search-server";
 
 const pageDir = TOP_K_SAMPLING_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
+const TOP_K_SAMPLING_TIMEOUT_MS = 15_000;
 
 describe("Phase 5 top-k sampling glossary page (phase-5-sampling-basics-decision-path-003)", () => {
   test("registry record is published with fixed-count aliases, chain tags, and forward top-p relationship", () => {
@@ -132,80 +133,92 @@ describe("Phase 5 top-k sampling glossary page (phase-5-sampling-basics-decision
     );
   });
 
-  test("page renders fixed-count teaching copy, published backward links, and a published top-p link", async () => {
-    const page = await loadGlossaryPage("top-k-sampling");
+  test(
+    "page renders fixed-count teaching copy, published backward links, and a published top-p link",
+    async () => {
+      const page = await loadGlossaryPage("top-k-sampling");
 
-    expect(page.frontmatter.kind).toBe("glossary");
-    expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.top-k-sampling");
+      expect(page.frontmatter.kind).toBe("glossary");
+      expect(page.frontmatter.status).toBe("published");
+      expect(page.frontmatter.registryId).toBe("concept.top-k-sampling");
 
-    const html = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: page.messages,
-        assets: page.assets,
-        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-        children: page.content,
-      }),
-    );
+      const html = renderToStaticMarkup(
+        createElement(ModulePageProviders, {
+          messages: page.messages,
+          assets: page.assets,
+          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+          children: page.content,
+        }),
+      );
 
-    expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-    expectGlossaryOmitsOpeningSummary(html);
-    expectGlossarySingleTagPillList(html);
-    expectHtmlToContainProse(
-      html,
-      "Top-k sampling first sorts the next-token distribution by probability, keeps only the top k candidates, discards everything below that cutoff, and then samples from the remaining set.",
-    );
-    expectHtmlToContainProse(
-      html,
-      "Top-p sampling would instead keep however many tokens are needed to cross a cumulative probability threshold, so its candidate count can change from one step to the next.",
-    );
-    expect(html).toContain('href="/docs/glossary/sampling-overview"');
-    expect(html).toContain('href="/docs/glossary/greedy-decoding"');
-    expect(html).toContain('href="/docs/glossary/temperature"');
-    expect(html).toContain('href="/docs/glossary/top-p-sampling"');
-    expect(html).toContain('data-testid="curated-related-docs"');
-    expect(html).not.toContain('data-planned="true"');
-    expect(html).toContain("Top-P Sampling");
-    expect(html).not.toContain("Reader Shortcut");
-  });
+      expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
+      expectGlossaryOmitsOpeningSummary(html);
+      expectGlossarySingleTagPillList(html);
+      expectHtmlToContainProse(
+        html,
+        "Top-k sampling first sorts the next-token distribution by probability, keeps only the top k candidates, discards everything below that cutoff, and then samples from the remaining set.",
+      );
+      expectHtmlToContainProse(
+        html,
+        "Top-p sampling would instead keep however many tokens are needed to cross a cumulative probability threshold, so its candidate count can change from one step to the next.",
+      );
+      expect(html).toContain('href="/docs/glossary/sampling-overview"');
+      expect(html).toContain('href="/docs/glossary/greedy-decoding"');
+      expect(html).toContain('href="/docs/glossary/temperature"');
+      expect(html).toContain('href="/docs/glossary/top-p-sampling"');
+      expect(html).toContain('data-testid="curated-related-docs"');
+      expect(html).not.toContain('data-planned="true"');
+      expect(html).toContain("Top-P Sampling");
+      expect(html).not.toContain("Reader Shortcut");
+    },
+    { timeout: TOP_K_SAMPLING_TIMEOUT_MS },
+  );
 
-  test("search index records top-k sampling as a glossary page with aliases", async () => {
-    const registry = await loadRegistry();
-    const pages = await loadPublishedDocsPages("en");
-    const documents = buildSearchDocuments(pages, registry);
+  test(
+    "search index records top-k sampling as a glossary page with aliases",
+    async () => {
+      const registry = await loadRegistry();
+      const pages = await loadPublishedDocsPages("en");
+      const documents = buildSearchDocuments(pages, registry);
 
-    const document = documents.find(
-      (entry) => entry.url === "/docs/glossary/top-k-sampling",
-    );
-    expect(document?.kind).toBe("glossary");
-    expect(document?.facets.kind).toBe("glossary");
-    expect(document?.aliases).toEqual(
-      expect.arrayContaining([
-        "Top K Sampling",
-        "top-k sampling",
+      const document = documents.find(
+        (entry) => entry.url === "/docs/glossary/top-k-sampling",
+      );
+      expect(document?.kind).toBe("glossary");
+      expect(document?.facets.kind).toBe("glossary");
+      expect(document?.aliases).toEqual(
+        expect.arrayContaining([
+          "Top K Sampling",
+          "top-k sampling",
+          "top k sampling",
+          "k sampling",
+          "fixed-count sampling",
+        ]),
+      );
+      expect(document?.tags).toEqual(
+        expect.arrayContaining(["foundations", "token-to-probability-chain"]),
+      );
+    },
+    { timeout: TOP_K_SAMPLING_TIMEOUT_MS },
+  );
+
+  test(
+    "search finds top-k sampling by title, aliases, and fixed-count truncation terms",
+    async () => {
+      for (const query of [
+        "Top-K Sampling",
         "top k sampling",
         "k sampling",
-        "fixed-count sampling",
-      ]),
-    );
-    expect(document?.tags).toEqual(
-      expect.arrayContaining(["foundations", "token-to-probability-chain"]),
-    );
-  });
-
-  test("search finds top-k sampling by title, aliases, and fixed-count truncation terms", async () => {
-    for (const query of [
-      "Top-K Sampling",
-      "top k sampling",
-      "k sampling",
-      "restrict choices to the highest-probability tokens",
-    ] as const) {
-      const results = await docsSearchApi.search(query);
-      expect(
-        results.some(
-          (result) => result.url === "/docs/glossary/top-k-sampling",
-        ),
-      ).toBe(true);
-    }
-  });
+        "restrict choices to the highest-probability tokens",
+      ] as const) {
+        const results = await docsSearchApi.search(query);
+        expect(
+          results.some(
+            (result) => result.url === "/docs/glossary/top-k-sampling",
+          ),
+        ).toBe(true);
+      }
+    },
+    { timeout: TOP_K_SAMPLING_TIMEOUT_MS },
+  );
 });

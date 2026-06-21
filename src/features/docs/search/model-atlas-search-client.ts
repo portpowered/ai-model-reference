@@ -1,5 +1,9 @@
 import type { StaticOptions } from "fumadocs-core/search/client";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
+import {
+  resolveClassificationSearchQuery,
+  resolveSearchClassificationScope,
+} from "@/lib/search/classification-scope";
 import type { SearchResultMetaForCollapse } from "@/lib/search/collapse-search-results-from-meta";
 import {
   collapseSearchResultsWithMeta,
@@ -17,6 +21,7 @@ const DEFAULT_STATIC_SEARCH_OPTIONS = {
 export function modelAtlasOramaSearchClient(
   options: StaticOptions,
   metaByUrl: Record<string, SearchResultMetaForCollapse>,
+  searchOptions: { classification?: string | null } = {},
 ) {
   const mergedSearchOptions = {
     ...DEFAULT_STATIC_SEARCH_OPTIONS,
@@ -32,12 +37,33 @@ export function modelAtlasOramaSearchClient(
     search: mergedSearchOptions,
   });
   const documentsByUrl = documentsByUrlFromMeta(metaByUrl);
+  const classificationScope = resolveSearchClassificationScope(
+    searchOptions.classification,
+    documentsByUrl,
+  );
 
   return {
     deps: base.deps,
     async search(query: string) {
-      const results = await base.search(query);
-      const reranked = rerankSearchResults(query, results, documentsByUrl);
+      const effectiveQuery = resolveClassificationSearchQuery(
+        query,
+        searchOptions.classification,
+        classificationScope,
+      );
+      if (!effectiveQuery) {
+        return [];
+      }
+
+      const results = await base.search(effectiveQuery);
+      const rerankQuery = query.trim() || effectiveQuery;
+      const reranked = rerankSearchResults(
+        rerankQuery,
+        results,
+        documentsByUrl,
+        {
+          classificationScope,
+        },
+      );
       return collapseSearchResultsWithMeta(reranked, metaByUrl);
     },
   };

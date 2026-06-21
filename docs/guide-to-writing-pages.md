@@ -77,3 +77,6 @@ Some examples could be like:
 1. loss
 2. training
 3. neural network
+
+## Code/Documentation separation
+in as much as possible, we want to make as minimal code changes as we can when adding new docs. sometimes its necessary, but its preferable to have zero test/code changes.

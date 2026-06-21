@@ -1,8 +1,16 @@
 import { describe, expect, test } from "bun:test";
+import {
+  getGraphById,
+  listGraphRecords,
+} from "@/lib/content/graph-registry-runtime";
 import { buildPageReleaseMetadata } from "@/lib/content/page-release-metadata";
 import { loadPublishedDocsPagesSync } from "@/lib/content/pages";
 import { resolvePublishedResourceTags } from "@/lib/content/phase-1-published-resources";
-import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import {
+  getPublishedDocsEntryByRegistryId,
+  getPublishedDocsHrefForRecord,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
 import {
   getModuleById,
@@ -10,6 +18,8 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { loadTagResourceEntries } from "@/lib/content/tag-resources";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { source } from "@/lib/source";
 
 function findPageByRegistryId(registryId: string) {
@@ -24,7 +34,36 @@ function findPageByRegistryId(registryId: string) {
 }
 
 describe("registry-runtime downstream behavior", () => {
-  test("derived runtime continues to feed related docs, tags, and release metadata", async () => {
+  test("authored runtime entrypoints expose relocated generated artifacts", () => {
+    const groupedQueryAttention = getModuleById(
+      "module.grouped-query-attention",
+    );
+    expect(groupedQueryAttention?.slug).toBe("grouped-query-attention");
+    if (!groupedQueryAttention) {
+      throw new Error("expected grouped-query attention registry record");
+    }
+    expect(getRegistryRecordById("module.grouped-query-attention")?.kind).toBe(
+      "module",
+    );
+
+    const computeFlow = getGraphById(
+      "graph.grouped-query-attention-compute-flow",
+    );
+    expect(computeFlow?.subjectId).toBe("module.grouped-query-attention");
+    expect(listGraphRecords().map((record) => record.id)).toContain(
+      "graph.grouped-query-attention-compute-flow",
+    );
+
+    expect(
+      getPublishedDocsEntryByRegistryId("module.grouped-query-attention")
+        ?.docsSlug,
+    ).toBe("modules/grouped-query-attention");
+    expect(getPublishedDocsHrefForRecord(groupedQueryAttention)).toBe(
+      "/docs/modules/grouped-query-attention",
+    );
+  });
+
+  test("derived runtime continues to feed related docs, tag landing resources, release metadata, and search metadata", async () => {
     const registryIndexes = await loadRegistry();
     const groupedQueryAttention = getModuleById(
       "module.grouped-query-attention",
@@ -38,6 +77,12 @@ describe("registry-runtime downstream behavior", () => {
     expect(resolvePublishedResourceTags(page, registryIndexes)).toEqual(
       expect.arrayContaining(["attention", "kv-cache"]),
     );
+    const attentionTagEntries = await loadTagResourceEntries("attention", "en");
+    expect(
+      attentionTagEntries.some(
+        (entry) => entry.url === "/docs/modules/grouped-query-attention",
+      ),
+    ).toBe(true);
 
     const curatedRelated = deriveCuratedRelatedItems(
       groupedQueryAttention,
@@ -67,6 +112,32 @@ describe("registry-runtime downstream behavior", () => {
         "GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints",
       url: "https://arxiv.org/abs/2305.13245",
     });
+
+    const searchDocuments = buildSearchDocuments(
+      loadPublishedDocsPagesSync("en"),
+      registryIndexes,
+    );
+    const groupedQueryAttentionDocument = searchDocuments.find(
+      (document) => document.registryId === groupedQueryAttention.id,
+    );
+    expect(groupedQueryAttentionDocument).toBeDefined();
+    expect(groupedQueryAttentionDocument?.aliases).toEqual(
+      expect.arrayContaining([
+        "GQA",
+        "grouped-query attention",
+        "grouped query attention",
+      ]),
+    );
+    expect(groupedQueryAttentionDocument?.tags).toEqual(
+      expect.arrayContaining(["attention", "kv-cache"]),
+    );
+    expect(groupedQueryAttentionDocument?.relatedIds).toEqual(
+      expect.arrayContaining([
+        "module.multi-query-attention",
+        "concept.kv-cache",
+        "concept.prefill-decode-split",
+      ]),
+    );
   });
 
   test("derived runtime records still drive generated navigation for published pages", () => {

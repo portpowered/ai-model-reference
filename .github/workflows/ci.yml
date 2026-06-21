@@ -3,6 +3,10 @@
 # status for branch protection. It does not deploy or run preview steps.
 name: CI
 
+env:
+  CI_COMMAND_TIMEOUT_SECONDS: 300
+  CI_SCRIPT_TIMEOUT_MS: 300000
+
 on:
   push:
     branches:
@@ -61,9 +65,12 @@ jobs:
         run: bunx playwright install chromium --with-deps
 
       - name: Run ${{ matrix.name }}
+        timeout-minutes: 5
         env:
+          CI_SCRIPT_TIMEOUT_MS: ${{ env.CI_SCRIPT_TIMEOUT_MS }}
           WEBSITE_TEST_PARALLEL_WORKERS: ${{ matrix.website_test_parallel_workers }}
-        run: ${{ matrix.command }}
+        run: |
+          timeout --signal=TERM --kill-after=30s "${CI_COMMAND_TIMEOUT_SECONDS}s" bash -lc "${{ matrix.command }}"
 
   ci:
     name: ci

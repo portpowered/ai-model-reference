@@ -1,0 +1,96 @@
+{
+  "id": "graph.wordpiece-compute-flow",
+  "slug": "wordpiece-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "subjectId": "module.wordpiece",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "rawWord",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "rawWord",
+      "labelKey": "graph.nodes.rawWord.label",
+      "moduleKind": "input",
+      "childNodeIds": ["lookupWholeWord"]
+    },
+    {
+      "id": "lookupWholeWord",
+      "labelKey": "graph.nodes.lookupWholeWord.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["emitKnownPiece", "fallbackSmallerPiece"]
+    },
+    {
+      "id": "emitKnownPiece",
+      "labelKey": "graph.nodes.emitKnownPiece.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["continueRemainder"]
+    },
+    {
+      "id": "fallbackSmallerPiece",
+      "labelKey": "graph.nodes.fallbackSmallerPiece.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["continueRemainder"]
+    },
+    {
+      "id": "continueRemainder",
+      "labelKey": "graph.nodes.continueRemainder.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["tokenOutput"]
+    },
+    {
+      "id": "tokenOutput",
+      "labelKey": "graph.nodes.tokenOutput.label",
+      "moduleKind": "output",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "raw-to-lookup",
+      "source": "rawWord",
+      "target": "lookupWholeWord",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "lookup-to-emit",
+      "source": "lookupWholeWord",
+      "target": "emitKnownPiece",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "lookup-to-fallback",
+      "source": "lookupWholeWord",
+      "target": "fallbackSmallerPiece",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "emit-to-continue",
+      "source": "emitKnownPiece",
+      "target": "continueRemainder",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "fallback-to-continue",
+      "source": "fallbackSmallerPiece",
+      "target": "continueRemainder",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "continue-to-output",
+      "source": "continueRemainder",
+      "target": "tokenOutput",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

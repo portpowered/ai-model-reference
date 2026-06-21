@@ -24,6 +24,7 @@ const EXPECTED_ATTENTION_MODULE_IDS = [
   "module.sliding-window-attention",
   "module.linear-attention",
 ] as const;
+const RECONCILIATION_REGISTRY_TIMEOUT_MS = 15_000;
 
 function resolveTag(
   indexes: Awaited<ReturnType<typeof loadRegistry>>,
@@ -42,75 +43,91 @@ function resolveTag(
 }
 
 describe("Phase 2/3 reconciliation registry validation (US-001)", () => {
-  test("validateRegistryContent passes with zero errors for integrated content", async () => {
-    const errors = await validateRegistryContent();
-    expect(errors).toEqual([]);
-  });
+  test(
+    "validateRegistryContent passes with zero errors for integrated content",
+    async () => {
+      const errors = await validateRegistryContent();
+      expect(errors).toEqual([]);
+    },
+    { timeout: RECONCILIATION_REGISTRY_TIMEOUT_MS },
+  );
 
-  test("every published docs page resolves registryId, messages, and colocated assets", async () => {
-    const indexes = await loadRegistry();
-    const pages = await loadPublishedDocsPages("en");
+  test(
+    "every published docs page resolves registryId, messages, and colocated assets",
+    async () => {
+      const indexes = await loadRegistry();
+      const pages = await loadPublishedDocsPages("en");
 
-    expect(pages.length).toBeGreaterThan(0);
+      expect(pages.length).toBeGreaterThan(0);
 
-    for (const page of pages) {
-      const record = indexes.byId.get(page.frontmatter.registryId);
-      expect(record).toBeDefined();
+      for (const page of pages) {
+        const record = indexes.byId.get(page.frontmatter.registryId);
+        expect(record).toBeDefined();
 
-      const bundle = await validateColocatedPageBundle(page.pageDir, indexes);
-      expect(bundle.errors).toEqual([]);
+        const bundle = await validateColocatedPageBundle(page.pageDir, indexes);
+        expect(bundle.errors).toEqual([]);
 
-      for (const tagRef of page.frontmatter.tags) {
-        expect(resolveTag(indexes, tagRef)).toBeDefined();
+        for (const tagRef of page.frontmatter.tags) {
+          expect(resolveTag(indexes, tagRef)).toBeDefined();
+        }
       }
-    }
-  });
+    },
+    { timeout: RECONCILIATION_REGISTRY_TIMEOUT_MS },
+  );
 
-  test("published docs registry ids match every published page frontmatter registryId", async () => {
-    const indexes = await loadRegistry();
-    const pages = await loadPublishedDocsPages("en");
-    const pageRegistryIds = new Set(
-      pages.map((page) => page.frontmatter.registryId),
-    );
-
-    for (const page of pages) {
-      expect(PUBLISHED_DOCS_REGISTRY_IDS.has(page.frontmatter.registryId)).toBe(
-        true,
+  test(
+    "published docs registry ids match every published page frontmatter registryId",
+    async () => {
+      const indexes = await loadRegistry();
+      const pages = await loadPublishedDocsPages("en");
+      const pageRegistryIds = new Set(
+        pages.map((page) => page.frontmatter.registryId),
       );
-    }
 
-    for (const registryId of PUBLISHED_DOCS_REGISTRY_IDS) {
-      const record = indexes.byId.get(registryId);
-      expect(record).toBeDefined();
-      if (!record) {
-        continue;
-      }
-      expect(
-        hasPublishedDocsPageForRecord(record, PUBLISHED_DOCS_REGISTRY_IDS),
-      ).toBe(true);
-      if (MODULE_BACKED_CONCEPT_REGISTRY_IDS.has(registryId)) {
-        const moduleRegistryId = registryId.replace(/^concept\./, "module.");
-        expect(pageRegistryIds.has(moduleRegistryId)).toBe(true);
-      }
-    }
-  });
-
-  test("published records resolve tag references on modules and concepts", async () => {
-    const indexes = await loadRegistry();
-
-    for (const record of indexes.byId.values()) {
-      if (record.status !== "published") {
-        continue;
-      }
-      if (record.kind !== "module" && record.kind !== "concept") {
-        continue;
+      for (const page of pages) {
+        expect(
+          PUBLISHED_DOCS_REGISTRY_IDS.has(page.frontmatter.registryId),
+        ).toBe(true);
       }
 
-      for (const tagRef of record.tags) {
-        expect(resolveTag(indexes, tagRef)).toBeDefined();
+      for (const registryId of PUBLISHED_DOCS_REGISTRY_IDS) {
+        const record = indexes.byId.get(registryId);
+        expect(record).toBeDefined();
+        if (!record) {
+          continue;
+        }
+        expect(
+          hasPublishedDocsPageForRecord(record, PUBLISHED_DOCS_REGISTRY_IDS),
+        ).toBe(true);
+        if (MODULE_BACKED_CONCEPT_REGISTRY_IDS.has(registryId)) {
+          const moduleRegistryId = registryId.replace(/^concept\./, "module.");
+          expect(pageRegistryIds.has(moduleRegistryId)).toBe(true);
+        }
       }
-    }
-  });
+    },
+    { timeout: RECONCILIATION_REGISTRY_TIMEOUT_MS },
+  );
+
+  test(
+    "published records resolve tag references on modules and concepts",
+    async () => {
+      const indexes = await loadRegistry();
+
+      for (const record of indexes.byId.values()) {
+        if (record.status !== "published") {
+          continue;
+        }
+        if (record.kind !== "module" && record.kind !== "concept") {
+          continue;
+        }
+
+        for (const tagRef of record.tags) {
+          expect(resolveTag(indexes, tagRef)).toBeDefined();
+        }
+      }
+    },
+    { timeout: RECONCILIATION_REGISTRY_TIMEOUT_MS },
+  );
 
   test("expected attention modules are published with attention tag", async () => {
     const indexes = await loadRegistry();

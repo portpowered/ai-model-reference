@@ -159,7 +159,7 @@ function toRelatedItem(
   };
 }
 
-/** Peers sharing `variantGroup` with the source module and a published docs page. */
+/** Published peers sharing `variantGroup` with the source module, excluding the source. */
 export function deriveSameVariantGroupPeers(
   source: ModuleRecord,
   modules: ModuleRecord[],

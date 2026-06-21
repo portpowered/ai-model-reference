@@ -5,11 +5,11 @@ import {
   publishedDocsHrefFromEntry,
 } from "@/lib/content/published-docs-registry-contract";
 import {
-  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS,
-  GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
-  GENERATED_PUBLISHED_DOCS_ENTRIES,
-  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS,
-} from "@/lib/content/published-docs-registry-manifest";
+  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS as GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS_DATA,
+  GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS as GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS_DATA,
+  GENERATED_PUBLISHED_DOCS_ENTRIES as GENERATED_PUBLISHED_DOCS_ENTRIES_DATA,
+  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS as GENERATED_PUBLISHED_DOCS_REGISTRY_IDS_DATA,
+} from "./generated/published-docs-registry.generated";
 
 export type {
   PublishedDocsEntry,
@@ -22,6 +22,7 @@ export type PublishedDocsIndex = {
   bySlug: ReadonlyMap<string, readonly PublishedDocsEntry[]>;
   registryIds: PublishedDocsRegistryIds;
 };
+
 function getModuleBackedConceptEntryBySlug(
   slug: string,
 ): PublishedDocsEntry | undefined {
@@ -67,18 +68,20 @@ function buildRuntimePublishedDocsIndex(
 }
 
 export const publishedDocsIndex = buildRuntimePublishedDocsIndex(
-  GENERATED_PUBLISHED_DOCS_ENTRIES,
+  GENERATED_PUBLISHED_DOCS_ENTRIES_DATA as readonly PublishedDocsEntry[],
 );
 
 export const PUBLISHED_DOCS_REGISTRY_IDS: ReadonlySet<string> = new Set(
-  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS,
+  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS_DATA as readonly string[],
 );
 
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS: ReadonlySet<string> =
-  new Set(GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS);
+  new Set(
+    GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS_DATA as readonly string[],
+  );
 
 export const MODULE_BACKED_CONCEPT_REGISTRY_IDS: ReadonlySet<string> = new Set(
-  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS,
+  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS_DATA as readonly string[],
 );
 
 export function listPublishedDocsEntries(): readonly PublishedDocsEntry[] {

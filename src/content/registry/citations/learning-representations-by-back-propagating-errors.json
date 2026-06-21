@@ -1,0 +1,24 @@
+{
+  "id": "citation.learning-representations-by-back-propagating-errors",
+  "slug": "learning-representations-by-back-propagating-errors",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "back-propagating errors paper",
+    "Rumelhart Hinton Williams backpropagation paper",
+    "Learning representations by back-propagating errors"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["David E. Rumelhart", "Geoffrey E. Hinton", "Ronald J. Williams"],
+  "title": "Learning representations by back-propagating errors",
+  "year": 1986,
+  "url": "https://www.semanticscholar.org/paper/Learning-representations-by-back-propagating-errors-Rumelhart-Hinton/052b1d8ce63b07fec3de9dbb583772d860b7c769",
+  "mla": "Rumelhart, David E., Geoffrey E. Hinton, and Ronald J. Williams. \"Learning Representations by Back-Propagating Errors.\" Nature, vol. 323, 1986, pp. 533-536, https://www.semanticscholar.org/paper/Learning-representations-by-back-propagating-errors-Rumelhart-Hinton/052b1d8ce63b07fec3de9dbb583772d860b7c769."
+}

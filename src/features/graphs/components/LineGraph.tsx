@@ -86,7 +86,7 @@ export function LineGraph({
         body={
           <ChartContainer
             config={chartConfig}
-            className="min-h-[22rem] rounded-none border-0 border-b border-border/70 shadow-none"
+            className="h-[22rem] rounded-none border-0 border-b border-border/70 shadow-none"
           >
             <Recharts.LineChart
               accessibilityLayer

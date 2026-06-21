@@ -114,14 +114,14 @@ describe("special tokens registry record", () => {
     const tokenizersOverview = items.find(
       (item) => item.registryId === "concept.tokenizers-overview",
     );
-    expect(tokenizersOverview?.href).toBeUndefined();
-    expect(tokenizersOverview?.isPlanned).toBe(true);
+    expect(tokenizersOverview?.href).toBe("/docs/concepts/tokenizers-overview");
+    expect(tokenizersOverview?.isPlanned).toBe(false);
 
     const wordpiece = items.find(
       (item) => item.registryId === "module.wordpiece",
     );
-    expect(wordpiece?.href).toBeUndefined();
-    expect(wordpiece?.isPlanned).toBe(true);
+    expect(wordpiece?.href).toBe("/docs/modules/wordpiece");
+    expect(wordpiece?.isPlanned).toBe(false);
 
     const sentencepiece = items.find(
       (item) => item.registryId === "module.sentencepiece",

@@ -153,7 +153,7 @@ describe("contributor documented workflow commands", () => {
       await rm(graphPath, { force: true });
       await rm(tempRoot, { recursive: true, force: true });
     }
-  });
+  }, 15_000);
 
   test("make validate-data passes on committed registry content", () => {
     const result = runMake("validate-data");

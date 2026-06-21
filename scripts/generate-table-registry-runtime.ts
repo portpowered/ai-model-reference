@@ -1,9 +1,9 @@
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import {
-  getContentRoot,
+  getGeneratedContentRuntimeRoot,
   getProjectRoot,
-  getRegistryRoot,
+  getRegistryCollectionRoot,
 } from "@/lib/content/content-paths";
 import {
   createTableRegistrySourceEntries,
@@ -11,13 +11,10 @@ import {
 } from "@/lib/content/table-registry-generation";
 
 const projectRoot = getProjectRoot();
-const tablesRegistryRoot = join(
-  getRegistryRoot(getContentRoot(projectRoot)),
-  "tables",
-);
+const tablesRegistryRoot = getRegistryCollectionRoot("tables");
 const outputPath = join(
-  projectRoot,
-  "src/lib/content/generated/table-registry.generated.ts",
+  getGeneratedContentRuntimeRoot(projectRoot),
+  "table-registry.generated.ts",
 );
 
 async function main(): Promise<void> {

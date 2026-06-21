@@ -1,4 +1,5 @@
 import type { Browser, Locator, Page } from "playwright";
+import { CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PAGE_SEARCH_QUERIES } from "@/lib/content/critical-docs-smoke";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import {
   closePlaywrightBrowserWithTimeout,
@@ -17,12 +18,9 @@ import {
   waitForSearchPageInputHydrationBeforeQuery,
 } from "./static-export-search-input-hydration-http";
 
-/** Phase 1 manual-gate queries exercised on the built `/search` page. */
-export const PHASE_1_SEARCH_PAGE_QUERIES = [
-  "GQA",
-  "attention",
-  "KV cache",
-] as const;
+/** Representative `/search` page probes shared with the critical-doc smoke contract. */
+export const PHASE_1_SEARCH_PAGE_QUERIES =
+  CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PAGE_SEARCH_QUERIES;
 
 export type Phase1SearchPageQuery =
   (typeof PHASE_1_SEARCH_PAGE_QUERIES)[number];
@@ -48,7 +46,9 @@ export const VERIFY_SEARCH_PAGE_STUB_ENV = "VERIFY_SEARCH_PAGE_STUB";
 export type RunPhase1SearchPageChecksOptions = {
   timeoutMs?: number;
   queries?: readonly string[];
+  browser?: Browser;
   launchBrowser?: () => Promise<Browser>;
+  logger?: (message: string) => void;
   /**
    * Test hook: when set, skips Playwright and runs this checker per query instead.
    */
@@ -333,24 +333,42 @@ export async function runPhase1SearchPageChecks(
   const queries = options.queries ?? PHASE_1_SEARCH_PAGE_QUERIES;
   const timeoutMs = options.timeoutMs ?? DEFAULT_SEARCH_PAGE_TIMEOUT_MS;
   const failures: Phase1SearchPageCheckFailure[] = [];
+  const log = options.logger ?? (() => {});
 
   if (options.runQueryCheck) {
     for (const query of queries) {
+      log(`[phase-1-search-page] running stubbed query "${query}"`);
       const reason = await options.runQueryCheck(baseUrl, query, timeoutMs);
       if (reason) {
+        log(`[phase-1-search-page] query "${query}" failed: ${reason}`);
         failures.push({ query, surface: "/search", reason });
+        continue;
       }
+      log(`[phase-1-search-page] query "${query}" passed`);
     }
     return failures;
   }
 
-  const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
-  const browser = await launchBrowser();
+  const browser = options.browser;
+  const ownsBrowser = browser === undefined;
+  if (ownsBrowser) {
+    log(
+      `[phase-1-search-page] launching browser for ${queries.length} quer${queries.length === 1 ? "y" : "ies"} at ${baseUrl}`,
+    );
+  } else {
+    log("[phase-1-search-page] using shared browser");
+  }
+  const activeBrowser =
+    browser ?? (await (options.launchBrowser ?? defaultLaunchBrowser)());
+  if (ownsBrowser) {
+    log("[phase-1-search-page] browser launched");
+  }
 
   try {
     const queryFailures = await Promise.all(
       queries.map(async (query) => {
-        const context = await browser.newContext();
+        log(`[phase-1-search-page] starting query "${query}"`);
+        const context = await activeBrowser.newContext();
         try {
           const page = await context.newPage();
           page.setDefaultTimeout(timeoutMs);
@@ -363,10 +381,13 @@ export async function runPhase1SearchPageChecks(
             timeoutMs,
           );
           if (reason) {
+            log(`[phase-1-search-page] query "${query}" failed: ${reason}`);
             return { query, surface: "/search" as const, reason };
           }
+          log(`[phase-1-search-page] query "${query}" passed`);
           return null;
         } finally {
+          log(`[phase-1-search-page] closing browser context for "${query}"`);
           await Promise.race([context.close(), sleep(timeoutMs)]);
         }
       }),
@@ -378,7 +399,11 @@ export async function runPhase1SearchPageChecks(
       }
     }
   } finally {
-    await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
+    if (ownsBrowser) {
+      log("[phase-1-search-page] closing browser");
+      await closePlaywrightBrowserWithTimeout(activeBrowser, timeoutMs);
+      log("[phase-1-search-page] browser closed");
+    }
   }
 
   return failures;

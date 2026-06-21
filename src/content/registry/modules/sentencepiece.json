@@ -8,17 +8,20 @@
     "SentencePiece",
     "sentencepiece",
     "sentence piece",
+    "sentencepiece tokenizer",
+    "SentencePiece tokenizer",
     "multilingual tokenizer",
     "whitespace-agnostic tokenizer",
     "whitespace agnostic tokenizer",
     "raw-text tokenizer",
     "raw text tokenizer"
   ],
-  "tags": ["tokenization", "foundations"],
+  "tags": ["tokenization", "foundations", "token-to-probability-chain"],
   "relatedIds": [
     "concept.tokenizers-overview",
     "concept.token",
     "module.bpe",
+    "module.unigram-tokenizer",
     "module.wordpiece"
   ],
   "citationIds": ["citation.kudo-sentencepiece"],
@@ -32,7 +35,16 @@
   "moduleFamily": "tokenization",
   "conceptType": "subword-tokenization",
   "variantGroup": "subword-tokenizers",
-  "optimizes": ["open-vocabulary-coverage", "pretokenization-independence"],
+  "optimizes": [
+    "open-vocabulary-coverage",
+    "pretokenization-independence",
+    "language-independent tokenization",
+    "raw-text preprocessing"
+  ],
+  "practicalBenefits": [
+    "trains directly from raw text without a separate word splitter",
+    "packages unigram and BPE tokenization in one widely used workflow"
+  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

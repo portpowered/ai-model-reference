@@ -37,6 +37,11 @@
       "title": "References"
     }
   },
+  "relatedDocs": {
+    "concept.tokenizers-overview": {
+      "reason": "GPT-3 reads token pieces rather than raw characters, so this overview is the right bridge if you want the tokenizer step before the decoder stack."
+    }
+  },
   "assets": {
     "architectureGraph": {
       "alt": "GPT-3 architecture diagram with token embeddings, learned positional embeddings, a repeated decoder block containing masked attention and feed-forward layers, then a linear head and softmax."
