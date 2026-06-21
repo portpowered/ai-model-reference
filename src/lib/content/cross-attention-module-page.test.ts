@@ -11,7 +11,12 @@ import {
 import { MODULES_DOCS_ROOT } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import { loadRegistry } from "@/lib/content/registry";
+import { getModuleById } from "@/lib/content/registry-runtime";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
 
 const pageDir = join(MODULES_DOCS_ROOT, "cross-attention");
 const messagesPath = join(pageDir, "messages/en.json");
@@ -110,5 +115,43 @@ describe("cross-attention page assets", () => {
     }
     expect(assets.comparisonTable.type).toBe("table");
     expect(validatePageAssetReferences(assets, messages)).toEqual([]);
+  });
+});
+
+describe("cross-attention published discovery contract", () => {
+  test("keeps the canonical route discoverable through the published docs bundle and search documents", async () => {
+    const record = getModuleById("module.cross-attention");
+    if (!record) {
+      throw new Error("expected module.cross-attention in registry runtime");
+    }
+
+    expect(record.status).toBe("published");
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has(record.id)).toBe(true);
+
+    const pages = await loadPublishedDocsPages("en");
+    const registry = await loadRegistry();
+    const documents = buildSearchDocuments(pages, registry);
+    const document = documents.find(
+      (entry) => entry.url === "/docs/modules/cross-attention",
+    );
+
+    expect(document).toBeDefined();
+    expect(document?.kind).toBe("module");
+    expect(document?.aliases).toEqual(
+      expect.arrayContaining([
+        "cross attention",
+        "cross-attention",
+        "encoder-decoder attention",
+      ]),
+    );
+    expect(document?.tags).toContain("attention");
+    expect(document?.relatedIds).toEqual(
+      expect.arrayContaining([
+        "module.attention",
+        "module.multi-head-attention",
+        "concept.encoder-decoder",
+        "concept.multimodal-model",
+      ]),
+    );
   });
 });
