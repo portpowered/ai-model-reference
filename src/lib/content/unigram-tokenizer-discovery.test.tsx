@@ -73,13 +73,16 @@ describe("unigram tokenizer discovery registry", () => {
       <RelatedDocs registryId="module.unigram-tokenizer" />,
     );
 
-    expect(html).toContain('data-testid="variant-group-related-docs"');
+    expect(html).toContain(
+      'data-testid="classification-siblings-related-docs"',
+    );
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain("Tokenizer overview");
     expect(html).toContain("SentencePiece");
     expect(html).toContain("BPE");
     expect(html).toContain("WordPiece");
+    expect(html).toContain("Same classification: tokenization methods");
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).not.toContain('data-planned="true"');
     expect(html).toContain('href="/docs/modules/sentencepiece"');

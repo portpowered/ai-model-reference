@@ -262,7 +262,12 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
           children: alibiPage.content,
         }),
       );
-      expect(alibiHtml).toContain('data-testid="variant-group-related-docs"');
+      expect(alibiHtml).toContain(
+        'data-testid="classification-siblings-related-docs"',
+      );
+      expect(alibiHtml).toContain(
+        "Same classification: position encoding methods",
+      );
       expect(alibiHtml).toContain(
         'href="/docs/modules/relative-position-bias"',
       );
