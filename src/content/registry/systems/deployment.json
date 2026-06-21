@@ -11,7 +11,9 @@
     "concept.prefill-decode-split",
     "concept.kv-cache",
     "concept.kv-cache-quantization",
+    "system.routing",
     "system.on-disk-kv-cache",
+    "system.expert-parallel-overlap",
     "model.gpt-3",
     "model.deepseek-v4-pro"
   ],

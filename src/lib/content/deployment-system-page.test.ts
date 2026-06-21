@@ -35,7 +35,9 @@ describe("Deployment system page (deployment-system-page-001)", () => {
       "concept.prefill-decode-split",
       "concept.kv-cache",
       "concept.kv-cache-quantization",
+      "system.routing",
       "system.on-disk-kv-cache",
+      "system.expert-parallel-overlap",
       "model.gpt-3",
       "model.deepseek-v4-pro",
     ]);
@@ -61,8 +63,15 @@ describe("Deployment system page (deployment-system-page-001)", () => {
     );
 
     expect(
+      items.find((item) => item.registryId === "system.routing")?.href,
+    ).toBe("/docs/systems/routing");
+    expect(
       items.find((item) => item.registryId === "concept.quantization")?.href,
     ).toBe("/docs/concepts/quantization");
+    expect(
+      items.find((item) => item.registryId === "system.expert-parallel-overlap")
+        ?.href,
+    ).toBe("/docs/systems/expert-parallel-overlap");
     expect(
       items.find((item) => item.registryId === "concept.prefill-decode-split")
         ?.href,
@@ -142,8 +151,10 @@ describe("Deployment system page (deployment-system-page-001)", () => {
     );
 
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/systems/routing"');
     expect(html).toContain('href="/docs/concepts/quantization"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
+    expect(html).toContain('href="/docs/systems/expert-parallel-overlap"');
     expect(html).toContain('href="/docs/systems/on-disk-kv-cache"');
     expect(html).toContain('href="/docs/models/gpt-3"');
     expect(html).toContain('href="/docs/models/deepseek-v4-pro"');
