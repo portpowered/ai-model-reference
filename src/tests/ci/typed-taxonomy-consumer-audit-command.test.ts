@@ -21,6 +21,10 @@ describe("typed taxonomy consumer audit command", () => {
     expect(result.stdout ?? "").toContain("Recommended next migration target");
     expect(result.stdout ?? "").toContain("search");
     expect(result.stdout ?? "").toContain("sidebar/topology");
+    expect(result.stdout ?? "").toContain("related-doc derivation");
     expect(result.stdout ?? "").toContain("page-spec authoring");
+    expect(result.stdout ?? "").toContain(
+      "related-doc-legacy-peer-fallbacks (approved compatibility bridge)",
+    );
   });
 });
