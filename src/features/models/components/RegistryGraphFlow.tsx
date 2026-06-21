@@ -487,28 +487,28 @@ export function CanonicalReferenceNode({
   return <RegistryGraphFlowNodeBody nodeId={id} data={data} />;
 }
 
-function StructuralNode({
+export function StructuralNode({
   id,
   data,
 }: NodeProps<Node<RegistryFlowNodeData, "structural">>) {
   return <RegistryGraphFlowNodeBody nodeId={id} data={data} />;
 }
 
-function AnnotationNode({
+export function AnnotationNode({
   id,
   data,
 }: NodeProps<Node<RegistryFlowNodeData, "annotation">>) {
   return <RegistryGraphFlowNodeBody nodeId={id} data={data} />;
 }
 
-function OperatorNode({
+export function OperatorNode({
   id,
   data,
 }: NodeProps<Node<RegistryFlowNodeData, "operator">>) {
   return <RegistryGraphFlowNodeBody nodeId={id} data={data} />;
 }
 
-function ArchitectureBlockNode({
+export function ArchitectureBlockNode({
   id,
   data,
 }: NodeProps<Node<RegistryFlowNodeData, "architectureBlock">>) {

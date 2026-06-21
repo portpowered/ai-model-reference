@@ -14,14 +14,20 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PageAssetsProvider } from "@/features/docs/components/page-assets-context";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import {
+  AnnotationNode,
+  ArchitectureBlockNode,
   CanonicalReferenceNode,
   FallbackNode,
   GraphNodeLabel,
+  InteractiveDependencyEdge,
   nodeVisualRoleHasHandles,
+  OperatorNode,
   RegistryGraphFlow,
+  RegistryGraphFlowEdgeInteractionContext,
   RegistryGraphFlowEdgePopup,
   RegistryGraphFlowInteractionContext,
   RegistryGraphFlowNodePopup,
+  StructuralNode,
 } from "@/features/models/components/RegistryGraphFlow";
 import { REGISTRY_GRAPH_FLOW_INTERACTION } from "@/features/models/components/registry-graph-flow-theme";
 import {
@@ -164,6 +170,26 @@ function CanonicalNodeHarness({ data }: { data: RegistryFlowNodeData }) {
         popupId="graph-node-popup"
       />
     </RegistryGraphFlowInteractionContext.Provider>
+  );
+}
+
+function EdgePopupHarness({
+  activeEdge,
+}: {
+  activeEdge: NonNullable<
+    Parameters<typeof RegistryGraphFlowEdgePopup>[0]["activeEdge"]
+  >;
+}) {
+  const [currentEdge, setCurrentEdge] = useState<typeof activeEdge | null>(
+    activeEdge,
+  );
+
+  return (
+    <RegistryGraphFlowEdgePopup
+      activeEdge={currentEdge}
+      onClose={() => setCurrentEdge(null)}
+      popupId="graph-edge-popup"
+    />
   );
 }
 
@@ -538,6 +564,48 @@ describe("RegistryGraphFlow", () => {
     ).toBeTruthy();
   });
 
+  test("supports space-key activation and close-button dismissal for canonical node popups", () => {
+    const graph = getGraphById("graph.gpt-3-architecture");
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const { nodes } = buildRegistryFlowGraph(
+      graph,
+      gpt3Messages as PageMessages,
+    );
+    const inputEmbeddingNode = nodes.find(
+      (node) => node.id === "input-embedding",
+    );
+    expect(inputEmbeddingNode).toBeDefined();
+    if (!inputEmbeddingNode) {
+      return;
+    }
+
+    renderRegistryGraph(
+      <CanonicalNodeHarness data={inputEmbeddingNode.data} />,
+    );
+
+    const nodeButton = screen.getByRole("button", {
+      name: /Open Input\s+Embedding details/,
+    });
+    fireEvent.keyDown(nodeButton, { key: " " });
+
+    const popup = screen.getByRole("dialog", {
+      name: /Input\s+Embedding details/,
+    });
+    fireEvent.click(
+      within(popup).getByRole("button", {
+        name: /Close Input\s+Embedding details/,
+      }),
+    );
+
+    expect(
+      screen.queryByRole("dialog", { name: /Input\s+Embedding details/ }),
+    ).toBeNull();
+  });
+
   test("opens graph-local fallback popups and exposes related docs destinations", () => {
     const fallbackNodeData = {
       label: "Gate branch",
@@ -576,6 +644,91 @@ describe("RegistryGraphFlow", () => {
         .getByRole("link", { name: "Open SwiGLU" })
         .getAttribute("href"),
     ).toBe("/docs/concepts/swiglu");
+  });
+
+  test("renders popup fallback copy for graph-local and canonical nodes when summaries or links are missing", () => {
+    const { rerender } = renderRegistryGraph(
+      <RegistryGraphFlowNodePopup
+        activeNode={{
+          id: "local-node",
+          resolvedTitle: "Local node",
+          hasCanonicalPage: false,
+          interactionKind: "graph-local",
+          relatedPageHref: "/docs/modules/swiglu",
+        }}
+        onClose={() => {}}
+        popupId="graph-node-popup"
+      />,
+    );
+
+    const localPopup = screen.getByRole("dialog", {
+      name: /Local node details/,
+    });
+    expect(
+      within(localPopup).getByText("Graph-local explanation"),
+    ).toBeTruthy();
+    expect(
+      within(localPopup).getByText(
+        "This graph node has local context, but its short explanation is not available yet.",
+      ),
+    ).toBeTruthy();
+    expect(
+      within(localPopup)
+        .getByRole("link", { name: "Open related docs page" })
+        .getAttribute("href"),
+    ).toBe("/docs/modules/swiglu");
+
+    rerender(
+      <PageMessagesProvider messages={messages} isDev={false}>
+        <PageAssetsProvider assets={assets} isDev={false}>
+          <RegistryGraphFlowNodePopup
+            activeNode={{
+              id: "canonical-node",
+              resolvedTitle: "Dataset node",
+              entityKind: "dataset",
+              hasCanonicalPage: false,
+              interactionKind: "canonical",
+            }}
+            onClose={() => {}}
+            popupId="graph-node-popup"
+          />
+        </PageAssetsProvider>
+      </PageMessagesProvider>,
+    );
+
+    const canonicalPopup = screen.getByRole("dialog", {
+      name: /Dataset node details/,
+    });
+    expect(within(canonicalPopup).getByText("Dataset")).toBeTruthy();
+    expect(
+      within(canonicalPopup).getByText(
+        "This graph node has a canonical target, but its short summary is not available yet.",
+      ),
+    ).toBeTruthy();
+    expect(
+      within(canonicalPopup).queryByRole("link", {
+        name: "Open canonical docs page",
+      }),
+    ).toBeNull();
+  });
+
+  test("returns null when node or edge popups are inactive", () => {
+    const { container } = renderRegistryGraph(
+      <>
+        <RegistryGraphFlowNodePopup
+          activeNode={null}
+          onClose={() => {}}
+          popupId="graph-node-popup"
+        />
+        <RegistryGraphFlowEdgePopup
+          activeEdge={null}
+          onClose={() => {}}
+          popupId="graph-edge-popup"
+        />
+      </>,
+    );
+
+    expect(container.innerHTML).toBe("");
   });
 
   test("keeps fallback nodes non-clickable when no graph-local summary exists", () => {
@@ -620,6 +773,117 @@ describe("RegistryGraphFlow", () => {
     expect(html).toContain('data-graph-node-interactive="false"');
     expect(html).not.toContain('data-graph-node-button="true"');
     expect(html).not.toContain("Summary available");
+  });
+
+  test("renders explicit structural, annotation, operator, and architecture node wrappers", () => {
+    const wrapperNodeData = {
+      label: "Wrapper node",
+      moduleKind: "other",
+      nodeFamily: "fallback",
+      visualRole: "annotation",
+      semantic: {
+        resolvedTitle: "Wrapper node",
+        summarySource: "none",
+        hasCanonicalPage: false,
+        interactionKind: "none",
+      },
+    } satisfies RegistryFlowNodeData;
+
+    const html = renderToStaticMarkup(
+      <ReactFlowProvider>
+        {[
+          StructuralNode({
+            id: "structural-node",
+            data: { ...wrapperNodeData, visualRole: "group-container" },
+            type: "structural",
+            selected: false,
+            dragging: false,
+            zIndex: 0,
+            isConnectable: false,
+            positionAbsoluteX: 0,
+            positionAbsoluteY: 0,
+            xPos: 0,
+            yPos: 0,
+            draggingHandle: null,
+            targetPosition: undefined,
+            sourcePosition: undefined,
+            width: 220,
+            height: 82,
+            parentId: undefined,
+            dragHandle: undefined,
+          } as never),
+          AnnotationNode({
+            id: "annotation-node",
+            data: wrapperNodeData,
+            type: "annotation",
+            selected: false,
+            dragging: false,
+            zIndex: 0,
+            isConnectable: false,
+            positionAbsoluteX: 0,
+            positionAbsoluteY: 0,
+            xPos: 0,
+            yPos: 0,
+            draggingHandle: null,
+            targetPosition: undefined,
+            sourcePosition: undefined,
+            width: 220,
+            height: 82,
+            parentId: undefined,
+            dragHandle: undefined,
+          } as never),
+          OperatorNode({
+            id: "operator-node",
+            data: { ...wrapperNodeData, visualRole: "operator-circle" },
+            type: "operator",
+            selected: false,
+            dragging: false,
+            zIndex: 0,
+            isConnectable: false,
+            positionAbsoluteX: 0,
+            positionAbsoluteY: 0,
+            xPos: 0,
+            yPos: 0,
+            draggingHandle: null,
+            targetPosition: undefined,
+            sourcePosition: undefined,
+            width: 220,
+            height: 82,
+            parentId: undefined,
+            dragHandle: undefined,
+          } as never),
+          ArchitectureBlockNode({
+            id: "architecture-node",
+            data: {
+              ...wrapperNodeData,
+              visualRole: "architecture-linear",
+            },
+            type: "architectureBlock",
+            selected: false,
+            dragging: false,
+            zIndex: 0,
+            isConnectable: false,
+            positionAbsoluteX: 0,
+            positionAbsoluteY: 0,
+            xPos: 0,
+            yPos: 0,
+            draggingHandle: null,
+            targetPosition: undefined,
+            sourcePosition: undefined,
+            width: 220,
+            height: 82,
+            parentId: undefined,
+            dragHandle: undefined,
+          } as never),
+        ]}
+      </ReactFlowProvider>,
+    );
+
+    expect(html).toContain("Wrapper node");
+    expect(html).toContain('data-graph-visual-role="group-container"');
+    expect(html).toContain('data-graph-visual-role="annotation"');
+    expect(html).toContain('data-graph-visual-role="operator-circle"');
+    expect(html).toContain('data-graph-visual-role="architecture-linear"');
   });
 
   test("renders dependency edge popups with relationship text and available docs links", () => {
@@ -673,6 +937,100 @@ describe("RegistryGraphFlow", () => {
         .getByRole("link", { name: "Open SiLU" })
         .getAttribute("href"),
     ).toBe("/docs/modules/silu");
+  });
+
+  test("renders dependency edge popups with both docs links and close-button dismissal", () => {
+    renderRegistryGraph(
+      <EdgePopupHarness
+        activeEdge={{
+          id: "dependency-edge",
+          relationshipSummary: "Elementwise multiply depends on SiLU.",
+          sourceTitle: "SiLU",
+          targetTitle: "Elementwise multiply",
+          sourcePageHref: "/docs/modules/silu",
+          sourcePageTitle: "SiLU",
+          targetPageHref: "/docs/modules/swiglu",
+          targetPageTitle: "Elementwise multiply",
+        }}
+      />,
+      swigluMessages,
+    );
+
+    const popup = screen.getByRole("dialog", {
+      name: /SiLU and Elementwise multiply relationship details/,
+    });
+    expect(
+      within(popup)
+        .getByRole("link", { name: "Open Elementwise multiply" })
+        .getAttribute("href"),
+    ).toBe("/docs/modules/swiglu");
+    expect(
+      within(popup)
+        .getByRole("link", { name: "Open SiLU" })
+        .getAttribute("href"),
+    ).toBe("/docs/modules/silu");
+
+    fireEvent.click(
+      within(popup).getByRole("button", {
+        name: /Close SiLU and Elementwise multiply relationship details/,
+      }),
+    );
+    expect(
+      screen.queryByRole("dialog", {
+        name: /SiLU and Elementwise multiply relationship details/,
+      }),
+    ).toBeNull();
+  });
+
+  test("renders interactive dependency edge controls when interaction metadata is enabled", () => {
+    const html = renderToStaticMarkup(
+      <RegistryGraphFlowEdgeInteractionContext.Provider
+        value={{
+          activeEdgeId: "dependency-edge",
+          openEdgePopup: () => {},
+          popupId: "graph-edge-popup",
+        }}
+      >
+        <ReactFlowProvider>
+          <InteractiveDependencyEdge
+            id="dependency-edge"
+            sourceX={0}
+            sourceY={0}
+            targetX={120}
+            targetY={48}
+            sourcePosition={"right" as never}
+            targetPosition={"left" as never}
+            markerEnd={undefined}
+            style={undefined}
+            selected={false}
+            source="source"
+            target="target"
+            sourceHandleId={null}
+            targetHandleId={null}
+            data={{
+              edgeFamily: "depends-on",
+              semantic: {
+                edgeFamily: "depends-on",
+                edgeKind: "depends-on",
+                sourceNodeId: "source",
+                sourceTitle: "SiLU",
+                targetNodeId: "target",
+                targetTitle: "Elementwise multiply",
+                sourcePageHref: "/docs/modules/silu",
+                sourcePageTitle: "SiLU",
+                targetPageHref: "/docs/modules/swiglu",
+                targetPageTitle: "Elementwise multiply",
+                interactionEnabled: true,
+              },
+            }}
+          />
+        </ReactFlowProvider>
+      </RegistryGraphFlowEdgeInteractionContext.Provider>,
+    );
+
+    expect(html).toContain('id="dependency-edge"');
+    expect(html).toContain("react-flow__edge-path");
+    expect(html).toContain("react-flow__edge-interaction");
   });
 
   test("renders published SwiGLU proof nodes with canonical and graph-local popup behavior", () => {
