@@ -1,6 +1,8 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
+import { cleanup, screen } from "@testing-library/react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { CanonicalDocsLayout } from "@/components/layout/canonical-docs-layout";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
@@ -13,9 +15,15 @@ import {
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
+import {
+  loadAppTestContext,
+  renderWithAppProviders,
+} from "@/tests/a11y/render";
 import { loadSystemPage } from "./system-page";
-import { renderSystemDocsShell } from "./system-shell-render";
-import { loadUiMessages } from "./ui-messages";
+
+afterEach(() => {
+  cleanup();
+});
 
 describe("Deployment system page (deployment-system-page-001)", () => {
   test("registry record publishes deployment as a serving system with canonical discovery metadata", () => {
@@ -130,17 +138,34 @@ describe("Deployment system page (deployment-system-page-001)", () => {
     ]);
   });
 
-  test("system docs shell renders the folded opening summary for deployment", async () => {
-    const page = await loadSystemPage("deployment");
-    const uiMessages = await loadUiMessages();
-    const html = renderSystemDocsShell(page, {
-      articleChildren: null,
-      openingSummaryLabel: uiMessages.shell.openingSummary,
-    });
+  test("docs route renders one folded opening summary for deployment", async () => {
+    const { renderDocsSlugPage } = await import(
+      "@/app/docs/docs-slug-renderer"
+    );
+    const context = await loadAppTestContext();
+    const page = await renderDocsSlugPage(["systems", "deployment"]);
+    const rendered = await renderWithAppProviders(
+      createElement(CanonicalDocsLayout, {
+        messages: context.messages,
+        children: page,
+      }),
+      {
+        context,
+        SearchDialog: () => null,
+      },
+    );
+    const { container } = rendered;
 
-    expect(html).toContain('data-testid="folded-opening-summary"');
-    expect(html).toContain(uiMessages.shell.openingSummary);
-    expect(html).toContain(
+    expect(
+      container.querySelectorAll('[data-testid="folded-opening-summary"]'),
+    ).toHaveLength(1);
+    expect(
+      container.querySelectorAll('[data-opening-summary="folded"]'),
+    ).toHaveLength(0);
+    expect(
+      screen.getByText(context.messages.shell.openingSummary),
+    ).toBeTruthy();
+    expect(container.textContent).toContain(
       "The job is not just to copy weights onto a machine.",
     );
   });
