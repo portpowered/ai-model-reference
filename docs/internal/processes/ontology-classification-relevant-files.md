@@ -215,7 +215,10 @@ the temporary legacy-id bridge.
   server-to-client handoff.
 * `src/features/docs/timeline/OntologyTimelineClientPage.test.tsx`
   Hydration coverage for canonical ids, legacy ids, and invalid timeline
-  selectors read from the browser URL.
+  selectors read from the browser URL. Keep the recoverable empty-state
+  assertions focused on rendered chip and recovery-link hrefs so customer-path
+  output stays canonical even when compatibility selectors remain accepted on
+  input.
 * `docs/data-model.md`
   Human-readable ontology contract, runtime ordering rules, empty-branch
   behavior, and temporary bridge rules.
