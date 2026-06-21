@@ -592,6 +592,80 @@ describe("runGeneratePageBundleCli", () => {
     }
   });
 
+  test("ontology-first dry-run stays warning-free for concept, module, training-regime, and system specs", async () => {
+    const tempRoot = await createFixtureRoot();
+    const cases = [
+      {
+        spec: {
+          kind: "concept",
+          slug: `cli-ontology-concept-${crypto.randomUUID()}`,
+          title: "CLI Ontology Concept",
+          summary: "Canonical concept dry-run review.",
+          primaryClassificationId: "classification.concept.architecture",
+        },
+        registryId: (slug: string) => `concept.${slug}`,
+        route: (slug: string) => `/docs/concepts/${slug}`,
+      },
+      {
+        spec: {
+          kind: "module",
+          slug: `cli-ontology-module-${crypto.randomUUID()}`,
+          title: "CLI Ontology Module",
+          summary: "Canonical module dry-run review.",
+          primaryClassificationId: "classification.module.attention",
+        },
+        registryId: (slug: string) => `module.${slug}`,
+        route: (slug: string) => `/docs/modules/${slug}`,
+      },
+      {
+        spec: {
+          kind: "training-regime",
+          slug: `cli-ontology-training-${crypto.randomUUID()}`,
+          title: "CLI Ontology Training",
+          summary: "Canonical training dry-run review.",
+          primaryClassificationId: "classification.training.alignment",
+        },
+        registryId: (slug: string) => `training-regime.${slug}`,
+        route: (slug: string) => `/docs/training/${slug}`,
+      },
+      {
+        spec: {
+          kind: "system",
+          slug: `cli-ontology-system-${crypto.randomUUID()}`,
+          title: "CLI Ontology System",
+          summary: "Canonical system dry-run review.",
+          primaryClassificationId: "classification.system.routing",
+        },
+        registryId: (slug: string) => `system.${slug}`,
+        route: (slug: string) => `/docs/systems/${slug}`,
+      },
+    ] as const;
+
+    try {
+      for (const testCase of cases) {
+        const specPath = join(tempRoot, `${testCase.spec.kind}-ontology.json`);
+        await writeFile(specPath, JSON.stringify(testCase.spec));
+
+        const result = await runGeneratePageBundleCli({
+          specPath,
+          dryRun: true,
+          projectRoot: tempRoot,
+        });
+
+        expect(result.dryRun).toBe(true);
+        expect(result.plan).toContain(
+          `Registry id: ${testCase.registryId(testCase.spec.slug)}`,
+        );
+        expect(result.plan).toContain(
+          `Route: ${testCase.route(testCase.spec.slug)}`,
+        );
+        expect(result.plan).not.toContain("Warnings:");
+      }
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   test("generation CLI writes and validates expanded canonical kind bundles from committed sample specs with temporary compatibility fields where still required", async () => {
     const tempRoot = await createFixtureRoot();
     const samplePaths = [

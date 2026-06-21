@@ -71,6 +71,11 @@ the temporary legacy-id bridge.
   Committed ontology-first starter specs should prefer canonical
   `primaryClassificationId` values; leave legacy ids only in explicitly named
   compatibility fixtures.
+* `src/lib/content/generate-page-bundle.test.ts`
+  When validating generated canonical bundles in a temporary fixture root, seed
+  the required canonical classification parents into that fixture first so the
+  generated-bundle validator proves the ontology-first path instead of failing
+  on missing local registry context.
 * `src/lib/content/registry-runtime.test.ts`
   Runtime assertions against the committed registry data.
 * `src/lib/content/registry-runtime-generation.test.ts`
