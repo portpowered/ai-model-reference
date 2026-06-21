@@ -36,6 +36,8 @@ import {
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
 
+const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 15_000;
+
 const PHASE_1_DISCOVERY_ROUTES = [
   {
     path: "/",
@@ -303,7 +305,7 @@ describe("Phase 1 discovery route smoke", () => {
         expect(html, discoveredPage.url).not.toContain("lorem");
       }
     },
-    { timeout: 15_000 },
+    { timeout: CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS },
   );
 
   test("/docs/training/dpo loads published local docs content", async () => {

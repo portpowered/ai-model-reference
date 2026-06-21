@@ -41,6 +41,7 @@ describe("graph-registry-runtime", () => {
 
     expect(ids).toContain(CANONICAL_GRAPH_ID);
     expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toContain("graph.inference-engine-system-flow");
     expect(
       records.find((record) => record.id === CANONICAL_GRAPH_ID)?.subjectId,
     ).toBe("model.gpt-3");
