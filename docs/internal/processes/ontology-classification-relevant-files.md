@@ -27,5 +27,16 @@ the temporary legacy-id bridge.
   runtime regeneration.
 * `src/lib/content/ontology-foundation-regression.test.ts`
   Focused proving-ground regression coverage for the migrated ontology slice.
+* `src/lib/governance/typed-taxonomy-consumer-audit.ts`
+  Machine-checkable contract for remaining typed-taxonomy consumer clusters,
+  ownership, and compatibility status across runtime, generation, and authoring
+  surfaces.
+* `src/lib/governance/typed-taxonomy-consumer-audit.test.ts`
+  Regression coverage for grouped audit summaries and contract-drift detection.
+* `src/tests/ci/typed-taxonomy-consumer-audit-command.test.ts`
+  CLI-level proof that maintainers can render the current audit summary from the
+  repository root.
+* `scripts/audit-typed-taxonomy-consumers.ts`
+  Maintainer entrypoint for printing the typed-taxonomy consumer inventory.
 * `docs/data-model.md`
   Human-readable ontology contract and temporary bridge rules.
