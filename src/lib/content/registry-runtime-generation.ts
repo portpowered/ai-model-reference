@@ -260,6 +260,18 @@ function buildGeneratedSource(
       );
     }
 
+    if (directory.directory === "classifications") {
+      mapLines.push(
+        `const ${directory.mapConst} = new Map<string, ${directory.recordType}>(`,
+        `  ${directory.recordsConst}.flatMap((record) => [`,
+        "    [record.id, record] as const,",
+        "    ...((record.legacyIds ?? []).map((legacyId) => [legacyId, record] as const)),",
+        "  ]),",
+        ");",
+      );
+      continue;
+    }
+
     mapLines.push(
       `const ${directory.mapConst} = new Map<string, ${directory.recordType}>(`,
       `  ${directory.recordsConst}.map((record) => [record.id, record]),`,
@@ -622,6 +634,12 @@ export function getClassificationById(
   return classificationsById.get(registryId);
 }
 
+export function resolveClassificationId(
+  registryId: string,
+): string | undefined {
+  return classificationsById.get(registryId)?.id;
+}
+
 export function getPaperById(registryId: string): PaperRecord | undefined {
   return papersById.get(registryId);
 }
@@ -915,24 +933,34 @@ export function listClassificationMembers(
   classificationId: string,
   options: ClassificationMemberQueryOptions = {},
 ): ClassificationMember[] {
-  if (!classificationsById.has(classificationId)) {
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
     return [];
   }
 
-  const directMembers = listDirectClassificationMembers(classificationId, options);
+  const directMembers = listDirectClassificationMembers(
+    resolvedClassificationId,
+    options,
+  );
   if (!options.includeDescendants) {
     return directMembers;
   }
 
-  const inheritedMembers = listClassificationDescendants(classificationId, {
-  }).flatMap((classification) =>
-    listDirectClassificationMembers(classification.id, options).map((member) => ({
-      ...member,
-      isInherited: true,
-    })),
+  const inheritedMembers = listClassificationDescendants(
+    resolvedClassificationId,
+    {},
+  ).flatMap((classification) =>
+    listDirectClassificationMembers(classification.id, options).map(
+      (member) => ({
+        ...member,
+        isInherited: true,
+      }),
+    ),
   );
 
-  return [...directMembers, ...inheritedMembers].sort(compareClassificationMembers);
+  return [...directMembers, ...inheritedMembers].sort(
+    compareClassificationMembers,
+  );
 }
 
 function buildClassificationTreeNode(

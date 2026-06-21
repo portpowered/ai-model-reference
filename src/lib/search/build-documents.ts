@@ -110,6 +110,7 @@ function buildClassificationTerms(
     classification.id,
     classification.slug,
     humanizeSlug(classification.slug),
+    ...(classification.legacyIds ?? []),
     ...classification.aliases,
     ...classification.tags,
   ]);

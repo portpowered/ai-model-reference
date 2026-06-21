@@ -1,5 +1,5 @@
 {
-  "id": "classification.transformer-block-structures",
+  "id": "classification.module.transformer-block",
   "slug": "transformer-block-structures",
   "kind": "classification",
   "defaultTitleKey": "title",
@@ -7,7 +7,8 @@
   "aliases": [
     "transformer block structure",
     "transformer block wiring",
-    "block structure family"
+    "block structure family",
+    "transformer-block-structures"
   ],
   "tags": ["foundations"],
   "relatedIds": [
@@ -20,5 +21,6 @@
   "updatedAt": "2026-06-21T00:00:00.000Z",
   "classificationType": "topology",
   "classifiesKinds": ["module"],
-  "parentClassificationId": "classification.neural-network-components"
+  "parentClassificationId": "classification.module",
+  "legacyIds": ["classification.transformer-block-structures"]
 }

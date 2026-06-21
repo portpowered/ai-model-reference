@@ -1,0 +1,16 @@
+{
+  "id": "classification.system",
+  "slug": "system",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["system classification root", "serving taxonomy root"],
+  "tags": ["foundations"],
+  "relatedIds": ["system.routing"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "domain",
+  "classifiesKinds": ["system"]
+}

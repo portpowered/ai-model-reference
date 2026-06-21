@@ -62,12 +62,28 @@ async function importGeneratedRuntime(outputPath: string) {
 }
 
 async function writeAttentionClassificationFixture(registryRoot: string) {
+  await writeRegistryJson(registryRoot, "classifications", "module.json", {
+    id: "classification.module",
+    slug: "module",
+    kind: "classification",
+    defaultTitleKey: "title",
+    defaultSummaryKey: "description",
+    aliases: [],
+    tags: [],
+    relatedIds: [],
+    citationIds: [],
+    status: "published",
+    createdAt: "2026-06-21T00:00:00.000Z",
+    updatedAt: "2026-06-21T00:00:00.000Z",
+    classificationType: "domain",
+    classifiesKinds: ["module"],
+  });
   await writeRegistryJson(
     registryRoot,
     "classifications",
     "attention-mechanisms.json",
     {
-      id: "classification.attention-mechanisms",
+      id: "classification.module.attention",
       slug: "attention-mechanisms",
       kind: "classification",
       defaultTitleKey: "title",
@@ -81,6 +97,8 @@ async function writeAttentionClassificationFixture(registryRoot: string) {
       updatedAt: "2026-06-21T00:00:00.000Z",
       classificationType: "family",
       classifiesKinds: ["module"],
+      parentClassificationId: "classification.module",
+      legacyIds: ["classification.attention-mechanisms"],
     },
   );
 }
@@ -389,8 +407,8 @@ describe("registry-runtime generation", () => {
           introducedByPaperIds: [],
           mathLevel: "light",
           sortOrder: 5,
-          primaryClassificationId: "classification.activation-functions",
-          secondaryClassificationIds: ["classification.feed-forward-blocks"],
+          primaryClassificationId: "classification.module.activation",
+          secondaryClassificationIds: ["classification.module.feed-forward"],
           relationships: [
             {
               relationshipType: "uses",
@@ -404,7 +422,7 @@ describe("registry-runtime generation", () => {
         "classifications",
         "activation-functions.json",
         {
-          id: "classification.activation-functions",
+          id: "classification.module.activation",
           slug: "activation-functions",
           kind: "classification",
           defaultTitleKey: "title",
@@ -418,7 +436,9 @@ describe("registry-runtime generation", () => {
           updatedAt: "2026-06-02T00:00:00.000Z",
           sortOrder: 20,
           classificationType: "family",
-          classifiesKinds: ["module", "concept"],
+          classifiesKinds: ["module"],
+          parentClassificationId: "classification.module",
+          legacyIds: ["classification.activation-functions"],
         },
       );
       await writeRegistryJson(
@@ -426,7 +446,7 @@ describe("registry-runtime generation", () => {
         "classifications",
         "feed-forward-blocks.json",
         {
-          id: "classification.feed-forward-blocks",
+          id: "classification.module.feed-forward",
           slug: "feed-forward-blocks",
           kind: "classification",
           defaultTitleKey: "title",
@@ -439,10 +459,27 @@ describe("registry-runtime generation", () => {
           createdAt: "2026-06-01T00:00:00.000Z",
           updatedAt: "2026-06-02T00:00:00.000Z",
           sortOrder: 10,
-          classificationType: "topology",
+          classificationType: "family",
           classifiesKinds: ["module"],
+          parentClassificationId: "classification.module",
         },
       );
+      await writeRegistryJson(registryRoot, "classifications", "module.json", {
+        id: "classification.module",
+        slug: "module",
+        kind: "classification",
+        defaultTitleKey: "title",
+        defaultSummaryKey: "description",
+        aliases: [],
+        tags: [],
+        relatedIds: [],
+        citationIds: [],
+        status: "published",
+        createdAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-02T00:00:00.000Z",
+        classificationType: "domain",
+        classifiesKinds: ["module"],
+      });
       await writeRegistryJson(
         registryRoot,
         "citations",
@@ -480,20 +517,20 @@ describe("registry-runtime generation", () => {
       expect(
         generatedRuntime.getClassificationById(
           "classification.activation-functions",
-        )?.slug,
-      ).toBe("activation-functions");
+        )?.id,
+      ).toBe("classification.module.activation");
       expect(
         generatedRuntime.getPrimaryClassificationForRecord(
           "module.runtime-generated-activation",
         )?.id,
-      ).toBe("classification.activation-functions");
+      ).toBe("classification.module.activation");
       expect(
         generatedRuntime.listSecondaryClassificationsForRecord(
           "module.runtime-generated-activation",
         ),
       ).toEqual([
         expect.objectContaining({
-          id: "classification.feed-forward-blocks",
+          id: "classification.module.feed-forward",
         }),
       ]);
       expect(
@@ -523,7 +560,7 @@ describe("registry-runtime generation", () => {
       ]);
       expect(
         generatedRuntime.listClassificationMembers(
-          "classification.feed-forward-blocks",
+          "classification.module.feed-forward",
         ),
       ).toEqual([]);
       expect(

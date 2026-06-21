@@ -23,7 +23,7 @@
   "releaseDate": "1986-10-01",
   "authors": ["David E. Rumelhart", "Geoffrey E. Hinton", "Ronald J. Williams"],
   "sourceId": "citation.learning-representations-by-back-propagating-errors",
-  "primaryClassificationId": "classification.activation-functions",
+  "primaryClassificationId": "classification.module.activation",
   "relationships": [
     {
       "relationshipType": "variant",

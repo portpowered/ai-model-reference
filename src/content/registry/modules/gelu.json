@@ -24,7 +24,7 @@
   "releaseDate": "2016-06-27",
   "authors": ["Dan Hendrycks", "Kevin Gimpel"],
   "sourceId": "citation.gaussian-error-linear-units",
-  "primaryClassificationId": "classification.activation-functions",
+  "primaryClassificationId": "classification.module.activation",
   "relationships": [
     {
       "relationshipType": "variant",

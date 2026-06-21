@@ -19,7 +19,7 @@ describe("ontology timeline data", () => {
     }
 
     expect(timeline.classification.classificationId).toBe(
-      "classification.activation-functions",
+      "classification.module.activation",
     );
     expect(timeline.items.map((item) => item.registryId)).toEqual([
       "module.tanh",
@@ -42,7 +42,7 @@ describe("ontology timeline data", () => {
       href: "/docs/modules/relu",
     });
     expect(relu?.classificationMemberships).toContainEqual({
-      classificationId: "classification.activation-functions",
+      classificationId: "classification.module.activation",
       classificationSlug: "activation-functions",
       classificationTitle: "activation function",
       membershipType: "primary",
@@ -75,7 +75,7 @@ describe("ontology timeline data", () => {
         item.classificationMemberships.some(
           (membership) =>
             membership.classificationId ===
-              "classification.activation-functions" &&
+              "classification.module.activation" &&
             membership.membershipType === "primary",
         ),
       ),
@@ -115,7 +115,7 @@ describe("ontology timeline data", () => {
         item.classificationMemberships.some(
           (membership) =>
             membership.classificationId ===
-              "classification.feed-forward-networks" &&
+              "classification.module.feed-forward" &&
             membership.membershipType === "primary",
         ),
       ),
@@ -124,24 +124,24 @@ describe("ontology timeline data", () => {
     expect(timeline.nearbyClassifications).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          classificationId: "classification.activation-functions",
+          classificationId: "classification.module.activation",
           eventCount: timeline.items.length,
           active: true,
         }),
         expect.objectContaining({
-          classificationId: "classification.attention-mechanisms",
+          classificationId: "classification.module.attention",
           active: false,
         }),
         expect.objectContaining({
-          classificationId: "classification.normalization-layers",
+          classificationId: "classification.module.normalization",
           active: false,
         }),
         expect.objectContaining({
-          classificationId: "classification.position-encoding-methods",
+          classificationId: "classification.module.positional-encoding",
           active: false,
         }),
         expect.objectContaining({
-          classificationId: "classification.tokenization-methods",
+          classificationId: "classification.module.tokenization",
           active: false,
         }),
       ]),
@@ -191,7 +191,7 @@ describe("ontology timeline data", () => {
       items: [],
     });
     expect(timeline.classification?.classificationId).toBe(
-      "classification.activation-functions",
+      "classification.module.activation",
     );
   });
 

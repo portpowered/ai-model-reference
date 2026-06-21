@@ -1,5 +1,5 @@
 {
-  "id": "classification.position-encoding-methods",
+  "id": "classification.module.positional-encoding",
   "slug": "position-encoding-methods",
   "kind": "classification",
   "defaultTitleKey": "title",
@@ -7,7 +7,8 @@
   "aliases": [
     "position encoding",
     "position encoding method",
-    "positional encoding family"
+    "positional encoding family",
+    "position-encoding-methods"
   ],
   "tags": ["position-encoding", "foundations"],
   "relatedIds": ["concept.positional-encodings", "module.rope"],
@@ -17,5 +18,6 @@
   "updatedAt": "2026-06-21T00:00:00.000Z",
   "classificationType": "family",
   "classifiesKinds": ["module"],
-  "parentClassificationId": "classification.neural-network-components"
+  "parentClassificationId": "classification.module",
+  "legacyIds": ["classification.position-encoding-methods"]
 }

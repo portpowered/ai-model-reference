@@ -22,7 +22,7 @@
   "releaseDate": "2010-01-01",
   "authors": ["Vinod Nair", "Geoffrey E. Hinton"],
   "sourceId": "citation.rectified-linear-units-improve-restricted-boltzmann-machines",
-  "primaryClassificationId": "classification.activation-functions",
+  "primaryClassificationId": "classification.module.activation",
   "relationships": [
     {
       "relationshipType": "variant",

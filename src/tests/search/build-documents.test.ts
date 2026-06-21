@@ -135,12 +135,12 @@ describe("buildSearchDocuments", () => {
 
     expect(relu).toBeDefined();
     expect(relu?.topology.primaryClassificationId).toBe(
-      "classification.activation-functions",
+      "classification.module.activation",
     );
     expect(relu?.topology.secondaryClassificationIds).toEqual([]);
     expect(relu?.topology.primaryClassification).toEqual(
       expect.objectContaining({
-        id: "classification.activation-functions",
+        id: "classification.module.activation",
         slug: "activation-functions",
         label: "activation functions",
         aliases: expect.arrayContaining([
@@ -148,6 +148,7 @@ describe("buildSearchDocuments", () => {
           "activation family",
         ]),
         terms: expect.arrayContaining([
+          "classification.module.activation",
           "classification.activation-functions",
           "activation-functions",
           "activation functions",

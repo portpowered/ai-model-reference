@@ -173,6 +173,7 @@ function buildIndexes(files: ParsedRegistryFile[]): RegistryIndexes {
   const tagsBySlug = new Map<string, TagRecord>();
   const idPaths = new Map<string, string[]>();
   const slugPathsByKind = new Map<string, string[]>();
+  const classificationAliasPaths = new Map<string, string[]>();
 
   for (const { path, record } of files) {
     const existingIdPaths = idPaths.get(record.id) ?? [];
@@ -194,6 +195,11 @@ function buildIndexes(files: ParsedRegistryFile[]): RegistryIndexes {
 
     if (record.kind === "classification") {
       classificationsById.set(record.id, record);
+      for (const legacyId of record.legacyIds ?? []) {
+        const existingAliasPaths = classificationAliasPaths.get(legacyId) ?? [];
+        existingAliasPaths.push(path);
+        classificationAliasPaths.set(legacyId, existingAliasPaths);
+      }
     }
   }
 
@@ -209,12 +215,37 @@ function buildIndexes(files: ParsedRegistryFile[]): RegistryIndexes {
       details.push({ type: "duplicate-slug", slug, paths });
     }
   }
+  for (const [legacyId, paths] of classificationAliasPaths) {
+    if (idPaths.has(legacyId)) {
+      details.push({
+        type: "parse-error",
+        path: paths[0] ?? "",
+        message: `legacyIds must not reuse an existing registry id "${legacyId}"`,
+      });
+      continue;
+    }
+
+    if (paths.length > 1) {
+      details.push({
+        type: "parse-error",
+        path: paths[0] ?? "",
+        message: `legacyIds must be unique across classification records, found duplicate "${legacyId}"`,
+      });
+    }
+  }
 
   if (details.length > 0) {
     throw new RegistryLoadError(
       "Duplicate registry id or slug detected",
       details,
     );
+  }
+
+  for (const record of classificationsById.values()) {
+    for (const legacyId of record.legacyIds ?? []) {
+      byId.set(legacyId, record);
+      classificationsById.set(legacyId, record);
+    }
   }
 
   return { byId, bySlug, classificationsById, tagsById, tagsBySlug };
@@ -248,6 +279,8 @@ function validateOntologyReferences(
   indexes: RegistryIndexes,
 ): void {
   const details: RegistryLoadErrorDetail[] = [];
+  const normalizeClassificationId = (classificationId: string): string =>
+    indexes.classificationsById.get(classificationId)?.id ?? classificationId;
 
   for (const { path, record } of files) {
     if (record.kind === "classification" && record.parentClassificationId) {
@@ -283,11 +316,15 @@ function validateOntologyReferences(
 
     const seenClassificationIds = new Set<string>();
     if (primaryClassificationId) {
-      seenClassificationIds.add(primaryClassificationId);
+      seenClassificationIds.add(
+        normalizeClassificationId(primaryClassificationId),
+      );
     }
 
     for (const classificationId of secondaryClassificationIds) {
-      if (seenClassificationIds.has(classificationId)) {
+      const normalizedClassificationId =
+        normalizeClassificationId(classificationId);
+      if (seenClassificationIds.has(normalizedClassificationId)) {
         details.push({
           type: "parse-error",
           path,
@@ -296,7 +333,7 @@ function validateOntologyReferences(
         });
         continue;
       }
-      seenClassificationIds.add(classificationId);
+      seenClassificationIds.add(normalizedClassificationId);
     }
 
     if (primaryClassificationId) {

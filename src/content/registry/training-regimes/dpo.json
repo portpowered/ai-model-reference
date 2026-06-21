@@ -26,6 +26,7 @@
     "Chelsea Finn"
   ],
   "sourceId": "citation.direct-preference-optimization",
+  "primaryClassificationId": "classification.training.alignment",
   "regimeType": "alignment",
   "usedByModelIds": [],
   "relatedModuleIds": [],

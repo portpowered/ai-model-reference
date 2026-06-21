@@ -95,11 +95,13 @@ describe("registry schemas", () => {
   test("accepts a valid classification record", () => {
     const result = classificationRecordSchema.safeParse({
       ...validBaseFields,
-      id: "classification.activation-functions",
+      id: "classification.module.activation",
       slug: "activation-functions",
       kind: "classification",
       classificationType: "family",
-      classifiesKinds: ["module", "concept"],
+      classifiesKinds: ["module"],
+      parentClassificationId: "classification.module",
+      legacyIds: ["classification.activation-functions"],
     });
     expect(result.success).toBe(true);
   });
@@ -149,8 +151,8 @@ describe("registry schemas", () => {
       usedByModelIds: [],
       introducedByPaperIds: [],
       mathLevel: "none",
-      primaryClassificationId: "classification.activation-functions",
-      secondaryClassificationIds: ["classification.feed-forward-family"],
+      primaryClassificationId: "classification.module.activation",
+      secondaryClassificationIds: ["classification.module.feed-forward"],
       relationships: [
         {
           relationshipType: "uses",

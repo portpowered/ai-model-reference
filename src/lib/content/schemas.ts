@@ -208,6 +208,7 @@ export const classificationRecordSchema = z.object({
   classificationType: classificationTypeSchema,
   classifiesKinds: z.array(ontologyParticipantKindSchema).min(1),
   parentClassificationId: z.string().min(1).optional(),
+  legacyIds: z.array(z.string().min(1)).optional(),
 });
 
 export const modelSourceTypeSchema = z.enum([

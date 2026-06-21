@@ -44,13 +44,13 @@ describe("topology navigation model", () => {
 
     expect(options.map((option) => option.classificationId)).toEqual(
       expect.arrayContaining([
-        "classification.activation-functions",
-        "classification.attention-mechanisms",
-        "classification.feed-forward-networks",
-        "classification.normalization-layers",
-        "classification.position-encoding-methods",
-        "classification.tokenization-methods",
-        "classification.transformer-block-structures",
+        "classification.module.activation",
+        "classification.module.attention",
+        "classification.module.feed-forward",
+        "classification.module.normalization",
+        "classification.module.positional-encoding",
+        "classification.module.tokenization",
+        "classification.module.transformer-block",
       ]),
     );
     expect(options.map((option) => option.classificationSlug)).toEqual(
@@ -74,7 +74,7 @@ describe("topology navigation model", () => {
 
     const activation = options.find(
       (option) =>
-        option.classificationId === "classification.activation-functions",
+        option.classificationId === "classification.module.activation",
     );
     expect(activation?.memberCount).toBeGreaterThan(0);
     expect(activation?.destinations).toEqual([
@@ -92,7 +92,7 @@ describe("topology navigation model", () => {
 
     const feedForward = options.find(
       (option) =>
-        option.classificationId === "classification.feed-forward-networks",
+        option.classificationId === "classification.module.feed-forward",
     );
     expect(feedForward?.memberCount).toBeGreaterThan(0);
     expect(feedForward?.destinations).toEqual([

@@ -10,8 +10,7 @@ import {
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
 
-export const TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID =
-  "classification.neural-network-components";
+export const TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID = "classification.module";
 
 export const TOPOLOGY_SURFACE_MODES = ["graph-map", "timeline"] as const;
 

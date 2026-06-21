@@ -108,6 +108,31 @@ Rules:
 * `relatedIds` is an optional curated override for high-value links that cannot be derived from taxonomy, shared tags, or typed fields.
 * `citationIds` points to citation records that support factual claims.
 
+## Classification Contract
+
+Classification records are now ontology-first and use canonical dotted ids under
+the `classification.*` namespace.
+
+Examples:
+
+* `classification.module`
+* `classification.module.attention`
+* `classification.module.attention.grouped-query`
+* `classification.concept.architecture.activation`
+* `classification.training.alignment`
+* `classification.system.routing`
+
+Rules:
+
+* `parentClassificationId` is the explicit hierarchy edge. Tree shape must not
+  be inferred from string prefixes alone.
+* Content records should prefer canonical `primaryClassificationId` and
+  `secondaryClassificationIds` values over legacy typed taxonomy fields when a
+  slice has migrated.
+* Temporary compatibility for legacy flat ids must be expressed explicitly on
+  the classification record through `legacyIds`; do not treat legacy ids as the
+  canonical contract.
+
 ## Page Model
 
 MDX pages define structure and references. Canonical docs pages should not contain raw user-visible prose. They should reference localized text through message keys and reference media, graphs, charts, code schemas, and tables through asset IDs or registry-backed components. Blog posts may contain raw MDX prose because they are narrative content. Published docs pages should include:

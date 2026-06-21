@@ -62,7 +62,7 @@ const validConceptRecord = {
 };
 
 const validClassificationRecord = {
-  id: "classification.activation-functions",
+  id: "classification.module.activation",
   slug: "activation-functions",
   kind: "classification",
   defaultTitleKey: "title",
@@ -75,7 +75,9 @@ const validClassificationRecord = {
   createdAt: "2026-06-01T00:00:00.000Z",
   updatedAt: "2026-06-02T00:00:00.000Z",
   classificationType: "family",
-  classifiesKinds: ["module", "concept"],
+  classifiesKinds: ["module"],
+  parentClassificationId: "classification.module",
+  legacyIds: ["classification.activation-functions"],
 };
 
 const validCitationRecord = {
@@ -263,7 +265,20 @@ describe("loadRegistry", () => {
       join(tempRoot, "modules", "grouped-query-attention.json"),
       JSON.stringify({
         ...validModuleRecord,
-        primaryClassificationId: "classification.activation-functions",
+        primaryClassificationId: "classification.module.activation",
+      }),
+    );
+    await writeFile(
+      join(tempRoot, "classifications", "module.json"),
+      JSON.stringify({
+        ...validClassificationRecord,
+        id: "classification.module",
+        slug: "module",
+        aliases: [],
+        classificationType: "domain",
+        classifiesKinds: ["module"],
+        parentClassificationId: undefined,
+        legacyIds: ["classification.neural-network-components"],
       }),
     );
     await writeFile(
@@ -280,12 +295,18 @@ describe("loadRegistry", () => {
     );
 
     const indexes = await loadRegistry({ registryRoot: tempRoot });
+    expect(indexes.byId.get("classification.module.activation")?.kind).toBe(
+      "classification",
+    );
     expect(indexes.byId.get("classification.activation-functions")?.kind).toBe(
       "classification",
     );
     expect(
       indexes.classificationsById.get("classification.activation-functions")
-        ?.slug,
+        ?.id,
+    ).toBe("classification.module.activation");
+    expect(
+      indexes.classificationsById.get("classification.module.activation")?.slug,
     ).toBe("activation-functions");
 
     await rm(tempRoot, { recursive: true, force: true });
