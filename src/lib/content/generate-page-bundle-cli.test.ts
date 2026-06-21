@@ -42,6 +42,12 @@ async function createFixtureRoot(): Promise<string> {
   await mkdir(join(tempRoot, "src", "content", "registry", "concepts"), {
     recursive: true,
   });
+  await mkdir(join(tempRoot, "src", "content", "registry", "classifications"), {
+    recursive: true,
+  });
+  await mkdir(join(tempRoot, "src", "content", "registry", "citations"), {
+    recursive: true,
+  });
   await mkdir(join(tempRoot, "src", "content", "registry", "modules"), {
     recursive: true,
   });
@@ -153,6 +159,51 @@ async function writeReferenceModuleFixture(
   );
 }
 
+async function writeClassificationFixture(
+  tempRoot: string,
+  input: {
+    slug: string;
+    classificationType:
+      | "domain"
+      | "family"
+      | "mechanism"
+      | "topology"
+      | "behavior";
+    classifiesKinds: string[];
+    parentClassificationId?: string;
+  },
+): Promise<void> {
+  await writeFile(
+    join(
+      tempRoot,
+      "src",
+      "content",
+      "registry",
+      "classifications",
+      `${input.slug}.json`,
+    ),
+    JSON.stringify({
+      id: `classification.${input.slug}`,
+      slug: input.slug,
+      kind: "classification",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "draft",
+      createdAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-02T00:00:00.000Z",
+      classificationType: input.classificationType,
+      classifiesKinds: input.classifiesKinds,
+      ...(input.parentClassificationId
+        ? { parentClassificationId: input.parentClassificationId }
+        : {}),
+    }),
+  );
+}
+
 async function seedExpandedKindValidationFixtures(
   tempRoot: string,
 ): Promise<void> {
@@ -168,13 +219,43 @@ async function seedExpandedKindValidationFixtures(
     kindDirectory: "tags",
     slug: "model-family",
   });
+  await copyRegistryFixture(tempRoot, {
+    kindDirectory: "classifications",
+    slug: "attention-mechanisms",
+  });
+  await copyRegistryFixture(tempRoot, {
+    kindDirectory: "citations",
+    slug: "attention-is-all-you-need",
+  });
+  await writeClassificationFixture(tempRoot, {
+    slug: "neural-network-components",
+    classificationType: "family",
+    classifiesKinds: ["module"],
+  });
+  await writeClassificationFixture(tempRoot, {
+    slug: "kv-cache-optimizations",
+    classificationType: "behavior",
+    classifiesKinds: ["module"],
+    parentClassificationId: "classification.attention-mechanisms",
+  });
+  await writeClassificationFixture(tempRoot, {
+    slug: "training-behaviors",
+    classificationType: "behavior",
+    classifiesKinds: ["training-regime"],
+  });
   await writeReferenceModuleFixture(tempRoot, {
     slug: "multi-head-attention",
     aliases: ["MHA"],
   });
   await writeReferenceModuleFixture(tempRoot, {
+    slug: "attention",
+  });
+  await writeReferenceModuleFixture(tempRoot, {
     slug: "multi-query-attention",
     aliases: ["MQA"],
+  });
+  await writeReferenceModuleFixture(tempRoot, {
+    slug: "next-token-prediction",
   });
   await writeFile(
     join(
@@ -408,7 +489,47 @@ describe("runGeneratePageBundleCli", () => {
     }
   });
 
-  test("generation CLI writes and validates expanded canonical kind bundles from committed sample specs", async () => {
+  test("dry-run prints deprecated taxonomy warnings for compatibility inputs", async () => {
+    const tempRoot = await createFixtureRoot();
+    const slug = `cli-warning-${crypto.randomUUID()}`;
+    const specPath = join(tempRoot, "warning-page-spec.json");
+
+    try {
+      await writeFile(
+        specPath,
+        JSON.stringify({
+          kind: "module",
+          slug,
+          title: "CLI Warning Module",
+          summary: "Summary for warning review.",
+          moduleType: "attention",
+          moduleFamily: "attention",
+          variantGroup: "attention-head-sharing",
+        }),
+      );
+
+      const result = await runGeneratePageBundleCli({
+        specPath,
+        dryRun: true,
+        projectRoot: tempRoot,
+      });
+
+      expect(result.plan).toContain("Warnings:");
+      expect(result.plan).toContain(
+        "moduleType is deprecated for module page specs",
+      );
+      expect(result.plan).toContain(
+        "moduleFamily is deprecated for module page specs",
+      );
+      expect(result.plan).toContain(
+        "variantGroup is deprecated for module page specs",
+      );
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("generation CLI writes and validates expanded canonical kind bundles from committed sample specs with temporary compatibility fields where still required", async () => {
     const tempRoot = await createFixtureRoot();
     const samplePaths = [
       "module-page-spec-workflow-sample.json",
@@ -452,8 +573,21 @@ describe("runGeneratePageBundleCli", () => {
       await seedExpandedKindValidationFixtures(tempRoot);
 
       for (const specPath of samplePaths) {
+        const sampleSpec = JSON.parse(
+          await readFile(specPath, "utf8"),
+        ) as Record<string, unknown> & { kind: string; slug: string };
+        const compatibilitySpec = {
+          ...sampleSpec,
+          ...(sampleSpec.kind === "module" ? { moduleType: "attention" } : {}),
+          ...(sampleSpec.kind === "training-regime"
+            ? { regimeType: "pretraining" }
+            : {}),
+        };
+        const tempSpecPath = join(tempRoot, `${sampleSpec.slug}.spec.json`);
+        await writeFile(tempSpecPath, JSON.stringify(compatibilitySpec));
+
         const result = await runGeneratePageBundleCli({
-          specPath,
+          specPath: tempSpecPath,
           projectRoot: tempRoot,
         });
         expect(result.dryRun).toBe(false);
@@ -666,6 +800,8 @@ describe("formatGeneratePageBundleUsage", () => {
     expect(usage).toContain("--spec");
     expect(usage).toContain("--dry-run");
     expect(usage).toContain("scaffold-doc-page");
+    expect(usage).toContain("primaryClassificationId");
+    expect(usage).toContain("Ontology-first example page spec");
   });
 });
 
@@ -690,5 +826,20 @@ describe("committed page-spec workflow sample", () => {
     );
     expect(result.plan).toContain("page-spec-workflow-sample/page.mdx");
     expect(result.plan).toContain("Planned files:");
+  });
+
+  test("dry-run keeps the ontology-first sample free of deprecated taxonomy warnings", async () => {
+    const specPath = join(
+      getProjectRoot(),
+      "page-specs",
+      "page-spec-workflow-sample.json",
+    );
+    const result = await runGeneratePageBundleCli({
+      specPath,
+      dryRun: true,
+    });
+
+    expect(result.plan).not.toContain("Warnings:");
+    expect(result.plan).not.toContain("deprecated");
   });
 });

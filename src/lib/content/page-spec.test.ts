@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  collectDeprecatedTaxonomyWarnings,
   deriveDefaultSummaryKey,
   deriveDefaultTitleKey,
   derivePageFrontmatter,
@@ -87,6 +88,38 @@ describe("validatePageSpec", () => {
     }
   });
 
+  test("accepts an ontology-first concept page spec without conceptType", () => {
+    const spec = validatePageSpec({
+      ...baseFields,
+      kind: "concept",
+      primaryClassificationId: "classification.attention-mechanisms",
+      secondaryClassificationIds: ["classification.attention-variants"],
+      relationships: [
+        {
+          relationshipType: "explains",
+          targetId: "module.grouped-query-attention",
+        },
+      ],
+    });
+
+    expect(spec.kind).toBe("concept");
+    if (spec.kind === "concept") {
+      expect(spec.primaryClassificationId).toBe(
+        "classification.attention-mechanisms",
+      );
+      expect(spec.secondaryClassificationIds).toEqual([
+        "classification.attention-variants",
+      ]);
+      expect(spec.relationships).toEqual([
+        {
+          relationshipType: "explains",
+          targetId: "module.grouped-query-attention",
+        },
+      ]);
+      expect(spec.conceptType).toBeUndefined();
+    }
+  });
+
   test("accepts a valid glossary page spec with concept registry kind", () => {
     const spec = validatePageSpec({
       ...baseFields,
@@ -124,6 +157,74 @@ describe("validatePageSpec", () => {
       expect(spec.sourceId).toBe("citation.gqa-paper");
       expect(spec.assets?.computeFlow.type).toBe("graph");
     }
+  });
+
+  test("accepts an ontology-first module page spec without moduleType", () => {
+    const spec = validatePageSpec({
+      ...baseFields,
+      kind: "module",
+      primaryClassificationId: "classification.attention-mechanisms",
+      secondaryClassificationIds: ["classification.kv-cache-optimizations"],
+      relationships: [
+        {
+          relationshipType: "variant",
+          targetId: "module.multi-head-attention",
+        },
+      ],
+    });
+
+    expect(spec.kind).toBe("module");
+    if (spec.kind === "module") {
+      expect(spec.primaryClassificationId).toBe(
+        "classification.attention-mechanisms",
+      );
+      expect(spec.moduleType).toBeUndefined();
+      expect(spec.relationships).toEqual([
+        {
+          relationshipType: "variant",
+          targetId: "module.multi-head-attention",
+        },
+      ]);
+    }
+  });
+
+  test("reports deprecated taxonomy warnings for legacy module fields", () => {
+    const spec = validatePageSpec({
+      ...baseFields,
+      kind: "module",
+      moduleType: "attention",
+      moduleFamily: "attention",
+      variantGroup: "attention-head-sharing",
+    });
+
+    expect(collectDeprecatedTaxonomyWarnings(spec)).toEqual([
+      expect.objectContaining({
+        field: "moduleType",
+      }),
+      expect.objectContaining({
+        field: "moduleFamily",
+      }),
+      expect.objectContaining({
+        field: "variantGroup",
+      }),
+    ]);
+  });
+
+  test("does not report deprecated taxonomy warnings for ontology-first module inputs", () => {
+    const spec = validatePageSpec({
+      ...baseFields,
+      kind: "module",
+      primaryClassificationId: "classification.attention-mechanisms",
+      secondaryClassificationIds: ["classification.kv-cache-optimizations"],
+      relationships: [
+        {
+          relationshipType: "variant",
+          targetId: "module.multi-head-attention",
+        },
+      ],
+    });
+
+    expect(collectDeprecatedTaxonomyWarnings(spec)).toEqual([]);
   });
 
   test("accepts a valid model page spec", () => {
@@ -174,6 +275,28 @@ describe("validatePageSpec", () => {
     expect(registryIdForPageSpec(spec)).toBe("training-regime.example-page");
   });
 
+  test("accepts an ontology-first training-regime page spec without regimeType", () => {
+    const spec = validatePageSpec({
+      ...baseFields,
+      kind: "training-regime",
+      primaryClassificationId: "classification.training-behaviors",
+      relationships: [
+        {
+          relationshipType: "uses",
+          targetId: "module.next-token-prediction",
+        },
+      ],
+    });
+
+    expect(spec.kind).toBe("training-regime");
+    if (spec.kind === "training-regime") {
+      expect(spec.primaryClassificationId).toBe(
+        "classification.training-behaviors",
+      );
+      expect(spec.regimeType).toBeUndefined();
+    }
+  });
+
   test("accepts a valid system page spec", () => {
     const spec = validatePageSpec({
       ...baseFields,
@@ -187,6 +310,28 @@ describe("validatePageSpec", () => {
       expect(spec.systemType).toBe("serving");
     }
     expect(registryIdForPageSpec(spec)).toBe("system.example-page");
+  });
+
+  test("accepts an ontology-first system page spec without systemType", () => {
+    const spec = validatePageSpec({
+      ...baseFields,
+      kind: "system",
+      primaryClassificationId: "classification.serving-systems",
+      relationships: [
+        {
+          relationshipType: "used-by",
+          targetId: "model.gpt-2",
+        },
+      ],
+    });
+
+    expect(spec.kind).toBe("system");
+    if (spec.kind === "system") {
+      expect(spec.primaryClassificationId).toBe(
+        "classification.serving-systems",
+      );
+      expect(spec.systemType).toBeUndefined();
+    }
   });
 
   test("derives canonical frontmatter fields from a page spec", () => {
@@ -213,7 +358,7 @@ describe("validatePageSpec", () => {
     expect(deriveDefaultSummaryKey()).toBe("description");
   });
 
-  test("reports missing conceptType for concept pages", () => {
+  test("reports missing ontology and conceptType for concept pages", () => {
     expect(() =>
       validatePageSpec({
         ...baseFields,
@@ -229,13 +374,15 @@ describe("validatePageSpec", () => {
     } catch (error) {
       expect(error).toBeInstanceOf(PageSpecValidationError);
       const validationError = error as PageSpecValidationError;
-      expect(
-        validationError.issues.some((issue) => issue.field === "conceptType"),
-      ).toBe(true);
+      expect(validationError.issues).toContainEqual({
+        field: "primaryClassificationId",
+        message:
+          "Provide primaryClassificationId for ontology-first authoring or conceptType as a temporary compatibility field.",
+      });
     }
   });
 
-  test("reports missing moduleType for module pages", () => {
+  test("reports missing ontology and moduleType for module pages", () => {
     try {
       validatePageSpec({
         ...baseFields,
@@ -244,9 +391,11 @@ describe("validatePageSpec", () => {
     } catch (error) {
       expect(error).toBeInstanceOf(PageSpecValidationError);
       const validationError = error as PageSpecValidationError;
-      expect(
-        validationError.issues.some((issue) => issue.field === "moduleType"),
-      ).toBe(true);
+      expect(validationError.issues).toContainEqual({
+        field: "primaryClassificationId",
+        message:
+          "Provide primaryClassificationId for ontology-first authoring or moduleType as a temporary compatibility field.",
+      });
     }
   });
 
@@ -282,7 +431,7 @@ describe("validatePageSpec", () => {
     }
   });
 
-  test("reports missing regimeType for training-regime pages", () => {
+  test("reports missing ontology and regimeType for training-regime pages", () => {
     try {
       validatePageSpec({
         ...baseFields,
@@ -291,13 +440,15 @@ describe("validatePageSpec", () => {
     } catch (error) {
       expect(error).toBeInstanceOf(PageSpecValidationError);
       const validationError = error as PageSpecValidationError;
-      expect(
-        validationError.issues.some((issue) => issue.field === "regimeType"),
-      ).toBe(true);
+      expect(validationError.issues).toContainEqual({
+        field: "primaryClassificationId",
+        message:
+          "Provide primaryClassificationId for ontology-first authoring or regimeType as a temporary compatibility field.",
+      });
     }
   });
 
-  test("reports missing systemType for system pages", () => {
+  test("reports missing ontology and systemType for system pages", () => {
     try {
       validatePageSpec({
         ...baseFields,
@@ -306,9 +457,29 @@ describe("validatePageSpec", () => {
     } catch (error) {
       expect(error).toBeInstanceOf(PageSpecValidationError);
       const validationError = error as PageSpecValidationError;
-      expect(
-        validationError.issues.some((issue) => issue.field === "systemType"),
-      ).toBe(true);
+      expect(validationError.issues).toContainEqual({
+        field: "primaryClassificationId",
+        message:
+          "Provide primaryClassificationId for ontology-first authoring or systemType as a temporary compatibility field.",
+      });
+    }
+  });
+
+  test("reports missing primaryClassificationId when secondary classifications are provided", () => {
+    try {
+      validatePageSpec({
+        ...baseFields,
+        kind: "module",
+        secondaryClassificationIds: ["classification.attention-mechanisms"],
+      });
+    } catch (error) {
+      expect(error).toBeInstanceOf(PageSpecValidationError);
+      const validationError = error as PageSpecValidationError;
+      expect(validationError.issues).toContainEqual({
+        field: "primaryClassificationId",
+        message:
+          "primaryClassificationId is required when secondaryClassificationIds or relationships are provided.",
+      });
     }
   });
 

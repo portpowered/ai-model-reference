@@ -92,7 +92,10 @@ describe("Phase 2 token-to-probability chain registry (US-001)", () => {
       expect(concept.id).toBe(id);
       expect(concept.kind).toBe("concept");
       expect(concept.tags).toContain(CHAIN_TAG_SLUG);
-      expect(ALLOWED_CHAIN_CONCEPT_TYPES.has(concept.conceptType)).toBe(true);
+      expect(concept.conceptType).toBeDefined();
+      expect(ALLOWED_CHAIN_CONCEPT_TYPES.has(concept.conceptType ?? "")).toBe(
+        true,
+      );
     }
   });
 

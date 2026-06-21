@@ -4,7 +4,14 @@
   "title": "Module Page Spec Workflow Sample",
   "summary": "A generated module page spec that exercises the canonical bundle workflow for modules.",
   "status": "draft",
-  "moduleType": "attention",
+  "primaryClassificationId": "classification.attention-mechanisms",
+  "secondaryClassificationIds": ["classification.kv-cache-optimizations"],
+  "relationships": [
+    {
+      "relationshipType": "variant",
+      "targetId": "module.multi-head-attention"
+    }
+  ],
   "tags": ["attention"],
   "aliases": ["module workflow sample"],
   "optimizes": ["kv-cache"],

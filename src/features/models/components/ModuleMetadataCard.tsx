@@ -19,10 +19,16 @@ function MetadataRow({ label, value }: { label: string; value: string }) {
 
 function buildRows(record: ModuleRecord) {
   const rows: Array<{ label: string; value: string }> = [
-    { label: "Module type", value: formatLabel(record.moduleType) },
     { label: "Status", value: formatLabel(record.status) },
     { label: "Math level", value: formatLabel(record.mathLevel) },
   ];
+
+  if (record.moduleType) {
+    rows.unshift({
+      label: "Module type",
+      value: formatLabel(record.moduleType),
+    });
+  }
 
   if (record.moduleFamily) {
     rows.push({

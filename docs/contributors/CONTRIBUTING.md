@@ -132,6 +132,43 @@ Templates in `docs/templates/` remain the production structures behind the
 generator and the fallback path for exceptional manual work, but contributors
 should not need template copy plus multi-file hand edits in the common case.
 
+## Ontology-first taxonomy contract
+
+Canonical authoring for **modules**, **concepts/glossary entries**,
+**training regimes**, and **systems** is moving to the ontology-backed shape:
+
+- `primaryClassificationId`
+- `secondaryClassificationIds`
+- `relationships`
+
+Use [the convergence plan](../temp/ontology-classification-topology-convergence-plan.md)
+as the source design for this staged deprecation.
+
+For this convergence slice, treat those ontology fields as the long-term
+contract you should author toward. Legacy typed taxonomy fields still exist in
+some compatibility paths, but they are no longer the preferred way to describe
+structure for new content.
+
+### Deprecation matrix
+
+The table below defines the staged role of each legacy taxonomy field at
+contributor touchpoints. "No longer generated" means starter templates and new
+authoring guidance must not tell contributors to fill that field for fresh
+pages. "Temporarily accepted with warnings" is the planned transition state for
+compatibility inputs. "Compatibility-only fallback" means the field may still
+exist in older records or downstream derivations, but it is not part of the
+preferred authoring contract.
+
+| Field | Record kinds | Deprecation state | Contributor guidance |
+| --- | --- | --- | --- |
+| `moduleType` | module | Temporarily accepted with warnings | Existing page-spec and registry flows may still read it, but new authoring should prefer classification membership and explicit relationships. |
+| `conceptType` | concept, glossary, training-regime, system | Temporarily accepted with warnings | Existing page-spec and registry flows may still read it, but new authoring should prefer classification membership and explicit relationships. |
+| `regimeType` | training-regime | Temporarily accepted with warnings | Existing page-spec and registry flows may still read it, but new authoring should prefer classification membership and explicit relationships. |
+| `systemType` | system | Temporarily accepted with warnings | Existing page-spec and registry flows may still read it, but new authoring should prefer classification membership and explicit relationships. |
+| `variantGroup` | module, training-regime, system | Compatibility-only fallback | Keep only when compatibility or derived grouping still needs it; do not use it as the primary way to express nearby variants for new pages. |
+| `moduleFamily` | module | Compatibility-only fallback | Keep only when compatibility or derived grouping still needs it; do not use it as the primary way to express structure for new pages. |
+| `sidebarGrouping` | concept, module, training-regime, system | No longer generated | Editorial navigation metadata only. Do not add it to new starter content unless a later workflow explicitly requires it. |
+
 Runtime registry lookups are derived automatically from the authoritative JSON
 records under `src/content/registry/`. Those registry JSON files are the
 authored source of truth for the main registry runtime. Do not hand-edit or
@@ -180,15 +217,20 @@ resolve to published records in `src/content/registry/tags/` (for example
 `attention` maps to `tag.attention`). Repeat the same slugs in frontmatter and in
 the registry record `tags` array.
 
-When using `generate:page-bundle`, set `conceptType` in the page spec for
-concept and glossary pages, `moduleType` for modules, `family` plus
-`sourceType` and `modalities` for models, `authors` plus `publishedAt` and
-`url` for papers, and `regimeType` for training-regime pages. Valid
-`conceptType` values are `architecture`, `math`, `training`, `inference`,
-`systems`, `evaluation`, and `general`. Optional spec fields (`tags`,
-`aliases`, `relatedIds`, `citationIds`) seed registry and frontmatter fields in
-one step. The legacy `scaffold:doc-page` CLI accepts the concept/glossary
-subset through `--concept-type` and comma-separated optional flags.
+When using `generate:page-bundle`, the checked-in page-spec validator now
+accepts ontology-first inputs for module, concept, glossary, training-regime,
+and system pages through `primaryClassificationId` plus optional
+`secondaryClassificationIds` and `relationships`. Legacy typed taxonomy fields
+such as `conceptType`, `moduleType`, `regimeType`, and `systemType` are still
+accepted as temporary compatibility inputs, but they are no longer required for
+those ontology-backed authoring paths. Model pages still require `family`,
+`sourceType`, and `modalities`, and paper pages still require `authors`,
+`publishedAt`, and `url`. Valid `conceptType` values remain `architecture`,
+`math`, `training`, `inference`, `systems`, `evaluation`, and `general` when a
+compatibility input is still needed. Optional spec fields (`tags`, `aliases`,
+`relatedIds`, `citationIds`) seed registry and frontmatter fields in one step.
+The legacy `scaffold:doc-page` CLI accepts the concept/glossary subset through
+`--concept-type` and comma-separated optional flags.
 
 ## Canonical content requirements
 

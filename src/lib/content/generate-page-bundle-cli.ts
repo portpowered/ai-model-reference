@@ -103,11 +103,15 @@ export function formatGeneratePageBundleUsage(): string {
     "Use this as the preferred canonical page generator for concept, glossary,",
     "module, model, paper, training-regime, and system bundles so title,",
     "summary, sections, registry fields, and assets stay aligned in one page-spec input.",
+    "Canonical taxonomy guidance is ontology-first (`primaryClassificationId`,",
+    "`secondaryClassificationIds`, and `relationships`), but the current",
+    "checked-in page-spec validator still accepts some legacy typed taxonomy",
+    "fields as temporary compatibility inputs during convergence.",
     "Legacy concept/glossary scaffold flows still exist through scaffold-doc-page,",
     "but new canonical bundles should start here.",
     "",
-    "Example page spec:",
-    '  { "kind": "concept", "slug": "example", "title": "Example", "summary": "Short summary.", "conceptType": "general" }',
+    "Ontology-first example page spec:",
+    '  { "kind": "concept", "slug": "example", "title": "Example", "summary": "Short summary.", "primaryClassificationId": "classification.example" }',
   ].join("\n");
 }
 

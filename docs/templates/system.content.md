@@ -2,6 +2,13 @@
 
 Use `system.mdx` as the production page structure. Put localized reader-facing text in `messages/<locale>.json` using the keys from `system.messages.en.json`. Put system flow diagrams and page-specific visuals in `assets.json` using `system.assets.json`.
 
+Canonical taxonomy authoring for systems should start with
+`primaryClassificationId`, optional `secondaryClassificationIds`, and
+`relationships`. Use [the ontology convergence plan](../temp/ontology-classification-topology-convergence-plan.md)
+for the staged deprecation matrix. Treat `systemType`, `conceptType`,
+`variantGroup`, and `sidebarGrouping` as deprecated compatibility fields in
+this slice rather than the preferred path for new starter content.
+
 ## Required Content
 
 * `title`: canonical system or runtime component name.

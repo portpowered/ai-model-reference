@@ -20,7 +20,10 @@ import { loadGlossaryPageFromDisk } from "./glossary-page-load";
 import { type PageSpec, validatePageSpec } from "./page-spec";
 import { loadRegistry } from "./registry";
 import { readScaffoldedPageRegistryId } from "./scaffold-doc-page";
-import { validateGeneratedPageBundle } from "./validate-generated-page-bundle";
+import {
+  parseGeneratedRegistryRecord,
+  validateGeneratedPageBundle,
+} from "./validate-generated-page-bundle";
 
 async function pathExists(path: string): Promise<boolean> {
   try {
@@ -53,6 +56,7 @@ async function prepareContentRoots(tempRoot: string): Promise<string> {
   await mkdir(join(contentRoot, "registry", "modules"), { recursive: true });
   await mkdir(join(contentRoot, "registry", "models"), { recursive: true });
   await mkdir(join(contentRoot, "registry", "papers"), { recursive: true });
+  await mkdir(join(contentRoot, "registry", "systems"), { recursive: true });
   await mkdir(join(contentRoot, "registry", "training-regimes"), {
     recursive: true,
   });
@@ -61,6 +65,7 @@ async function prepareContentRoots(tempRoot: string): Promise<string> {
   await mkdir(join(contentRoot, "docs", "modules"), { recursive: true });
   await mkdir(join(contentRoot, "docs", "models"), { recursive: true });
   await mkdir(join(contentRoot, "docs", "papers"), { recursive: true });
+  await mkdir(join(contentRoot, "docs", "systems"), { recursive: true });
   await mkdir(join(contentRoot, "docs", "training"), { recursive: true });
   return contentRoot;
 }
@@ -122,6 +127,8 @@ describe("generatePageBundle", () => {
     expect(result.registryId).toBe(`concept.${slug}`);
     expect(result.route).toBe(`/docs/concepts/${slug}`);
     expect(result.writtenFiles).toEqual([]);
+    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings[0]?.field).toBe("conceptType");
     expect(result.plannedFiles).toHaveLength(5);
     expect(
       result.plannedFiles.some((file) => file.label.includes("graph registry")),
@@ -132,6 +139,31 @@ describe("generatePageBundle", () => {
     }
 
     expect(formatGeneratePageBundlePlan(result)).toContain(result.route);
+    expect(formatGeneratePageBundlePlan(result)).toContain("Warnings:");
+  });
+
+  test("ontology-first dry-run avoids deprecated taxonomy warnings", async () => {
+    const slug = `ontology-first-${crypto.randomUUID()}`;
+    const result = await generatePageBundle({
+      spec: {
+        ...baseSpecFields,
+        slug,
+        kind: "module",
+        primaryClassificationId: "classification.attention-mechanisms",
+        secondaryClassificationIds: ["classification.kv-cache-optimizations"],
+        relationships: [
+          {
+            relationshipType: "variant",
+            targetId: "module.multi-head-attention",
+          },
+        ],
+      },
+      dryRun: true,
+      projectRoot: getProjectRoot(),
+    });
+
+    expect(result.warnings).toEqual([]);
+    expect(formatGeneratePageBundlePlan(result)).not.toContain("Warnings:");
   });
 
   test("writes glossary bundle with substituted ids and page-spec messages", async () => {
@@ -669,6 +701,136 @@ describe("generatePageBundle", () => {
     });
 
     await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  test("writes ontology-first registry records without deprecated typed taxonomy fields", async () => {
+    const tempRoot = await createTemplateFixtureRoot();
+    const contentRoot = await prepareContentRoots(tempRoot);
+
+    const cases: Array<{
+      kind: "concept" | "module" | "training-regime" | "system";
+      slug: string;
+      registrySegments: string[];
+      spec: PageSpec;
+      absentLegacyFields: string[];
+    }> = [
+      {
+        kind: "concept",
+        slug: "generated-ontology-first-concept",
+        registrySegments: ["concepts", "generated-ontology-first-concept.json"],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-ontology-first-concept",
+          kind: "concept",
+          primaryClassificationId: "classification.reference-workflows",
+          secondaryClassificationIds: ["classification.authoring-systems"],
+          relationships: [
+            {
+              relationshipType: "related",
+              targetId: "concept.token",
+            },
+          ],
+        }),
+        absentLegacyFields: ["conceptType", "sidebarGrouping"],
+      },
+      {
+        kind: "module",
+        slug: "generated-ontology-first-module",
+        registrySegments: ["modules", "generated-ontology-first-module.json"],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-ontology-first-module",
+          kind: "module",
+          primaryClassificationId: "classification.attention-mechanisms",
+          secondaryClassificationIds: ["classification.kv-cache-optimizations"],
+          relationships: [
+            {
+              relationshipType: "related",
+              targetId: "module.grouped-query-attention",
+            },
+          ],
+        }),
+        absentLegacyFields: [
+          "moduleType",
+          "moduleFamily",
+          "variantGroup",
+          "sidebarGrouping",
+        ],
+      },
+      {
+        kind: "training-regime",
+        slug: "generated-ontology-first-training",
+        registrySegments: [
+          "training-regimes",
+          "generated-ontology-first-training.json",
+        ],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-ontology-first-training",
+          kind: "training-regime",
+          primaryClassificationId: "classification.training-behaviors",
+          relationships: [
+            {
+              relationshipType: "used-by",
+              targetId: "model.gpt-2",
+            },
+          ],
+        }),
+        absentLegacyFields: ["regimeType", "variantGroup", "sidebarGrouping"],
+      },
+      {
+        kind: "system",
+        slug: "generated-ontology-first-system",
+        registrySegments: ["systems", "generated-ontology-first-system.json"],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-ontology-first-system",
+          kind: "system",
+          primaryClassificationId: "classification.serving-systems",
+          relationships: [
+            {
+              relationshipType: "uses",
+              targetId: "module.kv-cache",
+            },
+          ],
+        }),
+        absentLegacyFields: ["systemType", "variantGroup", "sidebarGrouping"],
+      },
+    ];
+
+    try {
+      for (const testCase of cases) {
+        await generatePageBundle({
+          spec: testCase.spec,
+          projectRoot: tempRoot,
+        });
+
+        const registryPath = join(
+          contentRoot,
+          "registry",
+          ...testCase.registrySegments,
+        );
+        const registry = parseGeneratedRegistryRecord(
+          JSON.parse(await readFile(registryPath, "utf8")),
+        ) as Record<string, unknown>;
+
+        expect(registry.primaryClassificationId).toBeDefined();
+        expect(registry.secondaryClassificationIds ?? []).toEqual(
+          "secondaryClassificationIds" in testCase.spec
+            ? testCase.spec.secondaryClassificationIds
+            : [],
+        );
+        expect(registry.relationships ?? []).toEqual(
+          "relationships" in testCase.spec ? testCase.spec.relationships : [],
+        );
+
+        for (const field of testCase.absentLegacyFields) {
+          expect(registry).not.toHaveProperty(field);
+        }
+      }
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
   });
 
   test("refuses to overwrite existing bundle files", async () => {

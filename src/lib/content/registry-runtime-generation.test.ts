@@ -1475,7 +1475,7 @@ describe("registry-runtime generation", () => {
           registryRoot,
         }),
       ).rejects.toThrow(
-        /invalid-module\.json:[\s\S]*defaultSummaryKey: Required[\s\S]*moduleType: Required/,
+        /invalid-module\.json:[\s\S]*defaultSummaryKey: Required[\s\S]*mathLevel: Required/,
       );
     } finally {
       await rm(tempRoot, { recursive: true, force: true });

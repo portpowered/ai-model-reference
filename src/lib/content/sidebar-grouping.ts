@@ -63,24 +63,24 @@ export type SidebarGroupingValidationIssue = {
 };
 
 type GlossarySidebarRecord = {
-  conceptType: string;
+  conceptType?: string;
   sidebarGrouping?: SidebarGrouping;
 };
 
 type ConceptsSidebarRecord = GlossarySidebarRecord;
 
 type ModulesSidebarRecord = {
-  moduleType: string;
+  moduleType?: string;
   sidebarGrouping?: SidebarGrouping;
 };
 
 type TrainingSidebarRecord = {
-  regimeType: string;
+  regimeType?: string;
   sidebarGrouping?: SidebarGrouping;
 };
 
 type SystemsSidebarRecord = {
-  systemType: string;
+  systemType?: string;
   sidebarGrouping?: SidebarGrouping;
 };
 
