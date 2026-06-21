@@ -9,7 +9,9 @@
     "block sparse attention",
     "block-sparse self-attention",
     "block sparse self-attention",
-    "structured sparse attention"
+    "structured sparse attention",
+    "sparse attention blocks",
+    "long-context sparse attention"
   ],
   "tags": ["attention", "context-window"],
   "relatedIds": [
