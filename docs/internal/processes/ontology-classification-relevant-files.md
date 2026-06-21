@@ -79,14 +79,29 @@ the temporary legacy-id bridge.
   ownership, compatibility status, the recommended next migration target, and
   the targeted deprecation fence across runtime, generation, and authoring
   surfaces.
+* `src/lib/governance/legacy-taxonomy-compatibility-budget.ts`
+  Shared reviewer-facing budget contract that records the approved baseline for
+  one explicit legacy classification-id bridge inventory and one explicit
+  deprecated typed-taxonomy compatibility cluster before any no-growth
+  enforcement narrows further.
+* `src/lib/governance/legacy-taxonomy-compatibility-budget.test.ts`
+  Coverage that proves the committed repo still matches the recorded
+  compatibility-budget baselines and that budget drift is reported in maintainer
+  terms when either governed surface grows.
 * `src/lib/governance/typed-taxonomy-consumer-audit.test.ts`
   Regression coverage for grouped audit summaries and contract-drift detection.
 * `src/lib/governance/typed-taxonomy-consumer-fence.test.ts`
   Regression coverage proving that new uncategorized or undeclared typed-taxonomy
   usage fails in the targeted surfaces.
+* `src/tests/ci/legacy-taxonomy-compatibility-budget-command.test.ts`
+  CLI-level proof that maintainers can print the current approved compatibility
+  budget for both governed legacy surfaces from the repository root.
 * `src/tests/ci/typed-taxonomy-consumer-audit-command.test.ts`
   CLI-level proof that maintainers can render the current audit summary from the
   repository root.
+* `scripts/report-legacy-taxonomy-compatibility-budget.ts`
+  Maintainer entrypoint for printing the approved legacy taxonomy compatibility
+  budget and the current measured result for each governed surface.
 * `src/tests/ci/typed-taxonomy-consumer-fence-command.test.ts`
   CLI-level proof that the targeted deprecation fence stays green for the
   committed compatibility contract.
