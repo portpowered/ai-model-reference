@@ -4,28 +4,22 @@ import {
   AtAGlanceCard,
   AtAGlanceListSection,
 } from "@/features/models/components/AtAGlanceCard";
+import { deriveOntologyMetadataLabels } from "@/lib/content/metadata-labels";
 import { buildPageReleaseMetadata } from "@/lib/content/page-release-metadata";
-import { loadRegistry } from "@/lib/content/registry";
+import { getTrainingRegimeById } from "@/lib/content/registry-runtime";
 
-function formatToken(value: string): string {
-  return value
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-export async function TrainingRegimeAtAGlance({
+export function TrainingRegimeAtAGlance({
   registryId,
 }: {
   registryId: string;
 }) {
-  const registry = await loadRegistry();
-  const record = registry.byId.get(registryId);
-  if (record?.kind !== "training-regime") {
+  const record = getTrainingRegimeById(registryId);
+  if (!record) {
     return null;
   }
 
   const releaseMetadata = buildPageReleaseMetadata(record);
+  const metadataLabels = deriveOntologyMetadataLabels(record);
 
   return (
     <AtAGlanceCard registryId={registryId}>
@@ -52,10 +46,10 @@ export async function TrainingRegimeAtAGlance({
             </p>
           </div>
         ) : null}
-        {record.regimeType ? (
+        {metadataLabels.primaryLabel ? (
           <AtAGlanceListSection title="Regime type">
             <p className="text-sm text-foreground">
-              {formatToken(record.regimeType)}
+              {metadataLabels.primaryLabel}
             </p>
           </AtAGlanceListSection>
         ) : null}

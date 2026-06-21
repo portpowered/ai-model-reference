@@ -53,6 +53,28 @@ the temporary legacy-id bridge.
   `primaryClassificationId`, prefer asserting that ontology classification in
   regression coverage and removing redundant `conceptType` values from the
   record instead of keeping both fields aligned by hand.
+* `src/lib/content/metadata-labels.ts`
+  Shared reader-facing metadata label derivation for ontology-backed module,
+  training-regime, and system cards. Keep classification-to-label formatting on
+  this single helper path instead of reintroducing ad hoc `slug`, `regimeType`,
+  or `systemType` display logic inside individual metadata components. If a
+  published training-regime or system record still lacks canonical
+  classification membership, keep any temporary typed-taxonomy fallback on this
+  helper path so the card remains readable without reopening component-level
+  legacy field reads, and keep the typed-taxonomy audit/fence contract pointed
+  at this helper because it owns the remaining metadata UI compatibility reads.
+* `src/features/models/components/ModuleMetadataCard.tsx`
+  Module metadata UI. Classification and secondary-classification rows should
+  resolve through the shared metadata label helper rather than direct legacy
+  typed-taxonomy reads or component-local token formatting.
+* `src/features/models/components/TrainingRegimeAtAGlance.tsx`
+  Training-regime metadata UI. Regime labels should come from canonical
+  classification membership through the shared metadata label helper before any
+  temporary compatibility fallback is considered.
+* `src/features/models/components/SystemAtAGlance.tsx`
+  System metadata UI. System category labels should come from canonical
+  classification membership through the shared metadata label helper before any
+  temporary compatibility fallback is considered.
 * `src/lib/content/topology-selector-compatibility.ts`
   Topology-specific temporary selector fence. Keep any remaining shorthand or
   legacy topology-only aliases here instead of expanding the generic

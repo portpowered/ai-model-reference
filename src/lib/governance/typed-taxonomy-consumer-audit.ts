@@ -307,33 +307,46 @@ export const typedTaxonomyConsumerAuditContract: readonly TypedTaxonomyConsumerC
       owner: "reader-experience",
       fields: [],
       evidence: [
-        "const primaryClassification = getPrimaryClassificationForRecord(record.id);",
-        "const secondaryClassifications = listSecondaryClassificationsForRecord(",
+        "const metadataLabels = deriveOntologyMetadataLabels(record);",
       ],
       rationale:
-        "Module detail metadata now renders ontology classification labels directly from the generated registry runtime.",
+        "Module detail metadata now renders reader-facing classification labels through the shared ontology metadata helper instead of direct legacy taxonomy reads.",
     },
     {
       id: "training-regime-at-a-glance-legacy-display",
-      path: "src/features/models/components/TrainingRegimeAtAGlance.tsx",
+      path: "src/lib/content/metadata-labels.ts",
       cluster: "metadata-ui",
       status: "approved-compatibility-bridge",
       owner: "reader-experience",
       fields: ["regimeType"],
-      evidence: ["{record.regimeType ? ("],
+      evidence: [
+        'if (record.kind === "training-regime" && record.regimeType) {',
+        "return formatMetadataToken(record.regimeType);",
+      ],
+      fieldReferenceScopeSnippets: [
+        'if (record.kind === "training-regime" && record.regimeType) {',
+        "return formatMetadataToken(record.regimeType);",
+      ],
       rationale:
-        "Training regime detail cards still show regimeType as compatibility metadata for published pages.",
+        "Training regime metadata cards now route their last compatibility-only regimeType fallback through the shared ontology metadata helper.",
     },
     {
       id: "system-at-a-glance-legacy-display",
-      path: "src/features/models/components/SystemAtAGlance.tsx",
+      path: "src/lib/content/metadata-labels.ts",
       cluster: "metadata-ui",
       status: "approved-compatibility-bridge",
       owner: "reader-experience",
       fields: ["systemType"],
-      evidence: ["{record.systemType ? ("],
+      evidence: [
+        'if (record.kind === "system" && record.systemType) {',
+        "return formatMetadataToken(record.systemType);",
+      ],
+      fieldReferenceScopeSnippets: [
+        'if (record.kind === "system" && record.systemType) {',
+        "return formatMetadataToken(record.systemType);",
+      ],
       rationale:
-        "System detail cards still show systemType as compatibility metadata for published pages.",
+        "System metadata cards now route their last compatibility-only systemType fallback through the shared ontology metadata helper.",
     },
     {
       id: "contributor-guide-legacy-authoring-matrix",
@@ -472,6 +485,11 @@ const TYPED_TAXONOMY_CONSUMER_FENCE_TARGETS: readonly TypedTaxonomyConsumerFence
       cluster: "metadata-ui",
       path: "src/features/models/components",
       type: "directory",
+    },
+    {
+      cluster: "metadata-ui",
+      path: "src/lib/content/metadata-labels.ts",
+      type: "file",
     },
     {
       cluster: "authoring-guidance",
