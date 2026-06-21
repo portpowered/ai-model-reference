@@ -151,6 +151,92 @@ function toTopologyRelationship(
   };
 }
 
+function listClassificationLineage(
+  classificationId: string | undefined,
+  indexes: RegistryIndexes,
+): ClassificationRecord[] {
+  const lineage: ClassificationRecord[] = [];
+  const seen = new Set<string>();
+
+  let currentId = classificationId;
+  while (currentId) {
+    if (seen.has(currentId)) {
+      break;
+    }
+    seen.add(currentId);
+
+    const classification = indexes.classificationsById.get(currentId);
+    if (classification?.status !== "published") {
+      break;
+    }
+
+    lineage.push(classification);
+    currentId = classification.parentClassificationId;
+  }
+
+  return lineage;
+}
+
+function buildClassificationCollections(
+  classificationIds: string[],
+  indexes: RegistryIndexes,
+): {
+  classifications: SearchDocumentTopologyClassification[];
+  ancestorClassifications: SearchDocumentTopologyClassification[];
+  rootClassifications: SearchDocumentTopologyClassification[];
+  classificationIds: string[];
+  ancestorClassificationIds: string[];
+  rootClassificationIds: string[];
+} {
+  const classifications: SearchDocumentTopologyClassification[] = [];
+  const ancestors: SearchDocumentTopologyClassification[] = [];
+  const roots: SearchDocumentTopologyClassification[] = [];
+  const seenClassifications = new Set<string>();
+  const seenAncestors = new Set<string>();
+  const seenRoots = new Set<string>();
+
+  for (const classificationId of classificationIds) {
+    const lineage = listClassificationLineage(classificationId, indexes);
+    const [self, ...ancestorLineage] = lineage;
+    const selfClassification = toTopologyClassification(self);
+    if (selfClassification && !seenClassifications.has(selfClassification.id)) {
+      seenClassifications.add(selfClassification.id);
+      classifications.push(selfClassification);
+    }
+
+    for (const ancestor of ancestorLineage) {
+      const ancestorClassification = toTopologyClassification(ancestor);
+      if (
+        ancestorClassification &&
+        !seenAncestors.has(ancestorClassification.id)
+      ) {
+        seenAncestors.add(ancestorClassification.id);
+        ancestors.push(ancestorClassification);
+      }
+    }
+
+    const root = lineage.at(-1);
+    const rootClassification = toTopologyClassification(root);
+    if (rootClassification && !seenRoots.has(rootClassification.id)) {
+      seenRoots.add(rootClassification.id);
+      roots.push(rootClassification);
+    }
+  }
+
+  return {
+    classifications,
+    ancestorClassifications: ancestors,
+    rootClassifications: roots,
+    classificationIds: classifications.map(
+      (classification) => classification.id,
+    ),
+    ancestorClassificationIds: ancestors.map(
+      (classification) => classification.id,
+    ),
+    rootClassificationIds: roots.map((classification) => classification.id),
+  };
+}
+
 function buildTopology(
   registryRecord: RegistryRecord | undefined,
   indexes: RegistryIndexes,
@@ -158,7 +244,13 @@ function buildTopology(
   const emptyTopology: SearchDocumentTopology = {
     secondaryClassificationIds: [],
     secondaryClassifications: [],
+    classificationIds: [],
+    ancestorClassificationIds: [],
+    ancestorClassifications: [],
+    rootClassificationIds: [],
+    rootClassifications: [],
     relationships: [],
+    relatedTopologyIds: [],
     terms: [],
   };
 
@@ -169,23 +261,44 @@ function buildTopology(
   const primaryClassificationId = registryRecord.primaryClassificationId;
   const secondaryClassificationIds =
     registryRecord.secondaryClassificationIds ?? [];
-  const primaryClassification = toTopologyClassification(
-    primaryClassificationId
-      ? indexes.classificationsById.get(primaryClassificationId)
-      : undefined,
+  const primaryClassificationLineage = listClassificationLineage(
+    primaryClassificationId,
+    indexes,
   );
-  const secondaryClassifications = secondaryClassificationIds.flatMap((id) => {
-    const classification = toTopologyClassification(
-      indexes.classificationsById.get(id),
-    );
-    return classification ? [classification] : [];
-  });
+  const primaryClassification = toTopologyClassification(
+    primaryClassificationLineage[0],
+  );
+  const secondaryClassificationCollection = buildClassificationCollections(
+    secondaryClassificationIds,
+    indexes,
+  );
+  const secondaryClassifications =
+    secondaryClassificationCollection.classifications;
+  const classificationCollection = buildClassificationCollections(
+    [
+      ...(primaryClassificationId ? [primaryClassificationId] : []),
+      ...secondaryClassificationIds,
+    ],
+    indexes,
+  );
   const relationships = (registryRecord.relationships ?? []).map(
     (relationship) => toTopologyRelationship(relationship, indexes),
   );
+  const relatedTopologyIds = unique([
+    ...classificationCollection.classificationIds,
+    ...classificationCollection.ancestorClassificationIds,
+    ...classificationCollection.rootClassificationIds,
+    ...relationships.map((relationship) => relationship.targetId),
+  ]);
   const terms = unique([
     ...(primaryClassification?.terms ?? []),
     ...secondaryClassifications.flatMap(
+      (classification) => classification.terms,
+    ),
+    ...classificationCollection.ancestorClassifications.flatMap(
+      (classification) => classification.terms,
+    ),
+    ...classificationCollection.rootClassifications.flatMap(
       (classification) => classification.terms,
     ),
     ...relationships.flatMap((relationship) => [
@@ -201,7 +314,14 @@ function buildTopology(
     secondaryClassificationIds,
     primaryClassification,
     secondaryClassifications,
+    classificationIds: classificationCollection.classificationIds,
+    ancestorClassificationIds:
+      classificationCollection.ancestorClassificationIds,
+    ancestorClassifications: classificationCollection.ancestorClassifications,
+    rootClassificationIds: classificationCollection.rootClassificationIds,
+    rootClassifications: classificationCollection.rootClassifications,
     relationships,
+    relatedTopologyIds,
     terms,
   };
 }
@@ -209,20 +329,45 @@ function buildTopology(
 function buildFacets(
   pageKind: string,
   tags: string[],
+  topology: SearchDocumentTopology,
   registryRecord?: RegistryRecord,
 ): SearchDocumentFacets {
   const facets: SearchDocumentFacets = { kind: pageKind, tags };
 
+  facets.primaryClassificationId = topology.primaryClassificationId;
+  facets.primaryClassificationSlug = topology.primaryClassification?.slug;
+  facets.classificationIds = topology.classificationIds ?? [];
+  facets.classificationSlugs = [
+    ...(topology.primaryClassification
+      ? [topology.primaryClassification.slug]
+      : []),
+    ...topology.secondaryClassifications.map(
+      (classification) => classification.slug,
+    ),
+  ];
+  facets.ancestorClassificationIds = topology.ancestorClassificationIds ?? [];
+  facets.ancestorClassificationSlugs = (
+    topology.ancestorClassifications ?? []
+  ).map((classification) => classification.slug);
+  facets.rootClassificationIds = topology.rootClassificationIds ?? [];
+  facets.rootClassificationSlugs = (topology.rootClassifications ?? []).map(
+    (classification) => classification.slug,
+  );
+  facets.relatedTopologyIds = topology.relatedTopologyIds ?? [];
+  facets.relationshipTypes = topology.relationships.map(
+    (relationship) => relationship.relationshipType,
+  );
+
   if (registryRecord && isModuleRecord(registryRecord)) {
     facets.moduleType = registryRecord.moduleType;
-    facets.moduleFamily = registryRecord.moduleFamily;
-    facets.conceptType = registryRecord.conceptType;
-    facets.variantGroup = registryRecord.variantGroup;
     facets.optimizes = registryRecord.optimizes;
+    facets.legacyModuleFamily = registryRecord.moduleFamily;
+    facets.legacyConceptType = registryRecord.conceptType;
+    facets.legacyVariantGroup = registryRecord.variantGroup;
   }
 
   if (registryRecord && isConceptRecord(registryRecord)) {
-    facets.conceptType = registryRecord.conceptType;
+    facets.legacyConceptType = registryRecord.conceptType;
   }
 
   if (registryRecord && isModelRecord(registryRecord)) {
@@ -233,8 +378,8 @@ function buildFacets(
   }
 
   if (registryRecord && isTrainingRegimeRecord(registryRecord)) {
-    facets.conceptType = registryRecord.conceptType;
-    facets.variantGroup = registryRecord.variantGroup;
+    facets.legacyConceptType = registryRecord.conceptType;
+    facets.legacyVariantGroup = registryRecord.variantGroup;
   }
 
   return facets;
@@ -273,7 +418,12 @@ export function buildSearchDocument(
     aliases,
     tags: pageTags,
     relatedIds: registryRecord?.relatedIds ?? [],
-    facets: buildFacets(page.frontmatter.kind, pageTags, registryRecord),
+    facets: buildFacets(
+      page.frontmatter.kind,
+      pageTags,
+      topology,
+      registryRecord,
+    ),
     topology,
   };
 }

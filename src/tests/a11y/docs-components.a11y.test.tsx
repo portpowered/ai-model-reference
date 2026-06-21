@@ -143,7 +143,8 @@ describe("DerivedRelatedDocs accessibility smoke", () => {
     );
 
     expect(screen.getByTestId("derived-related-docs")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "MHA" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "attention" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Show 8 more" })).toBeTruthy();
     await expectNoSeriousAxeViolations(container);
   });
 

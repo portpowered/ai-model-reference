@@ -11,4 +11,19 @@ describe("RelatedDocs", () => {
     expect(html).toContain('href="/docs/systems/routing"');
     expect(html).toContain(">Routing<");
   });
+
+  test("renders ontology-derived groups ahead of curated links on grouped-query attention", () => {
+    const html = renderToStaticMarkup(
+      <RelatedDocs registryId="module.grouped-query-attention" />,
+    );
+
+    expect(html).toContain('data-related-group="classification-siblings"');
+    expect(html).toContain("Same classification: attention mechanisms");
+    expect(html).toContain('href="/docs/modules/multi-head-attention"');
+    expect(html).toContain('href="/docs/modules/multi-query-attention"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html.indexOf('data-testid="curated-related-docs"')).toBeLessThan(
+      html.indexOf('data-related-group="classification-siblings"'),
+    );
+  });
 });

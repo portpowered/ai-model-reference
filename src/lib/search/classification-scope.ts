@@ -58,6 +58,8 @@ function documentClassifications(
   return [
     document.topology.primaryClassification,
     ...document.topology.secondaryClassifications,
+    ...(document.topology.ancestorClassifications ?? []),
+    ...(document.topology.rootClassifications ?? []),
   ].filter(
     (classification): classification is SearchDocumentTopologyClassification =>
       classification !== undefined,

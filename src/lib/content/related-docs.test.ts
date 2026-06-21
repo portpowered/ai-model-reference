@@ -1,11 +1,20 @@
 import { describe, expect, test } from "bun:test";
 import {
+  getRegistryRecordById,
+  listRelatedRegistryRecords,
+} from "@/lib/content/registry-runtime";
+import {
   applyRelatedDocMessageOverrides,
+  CLASSIFICATION_SIBLINGS,
   CURATED_RELATED,
+  DIRECT_RELATIONSHIPS,
+  deriveClassificationSiblingPeers,
   deriveCuratedRelatedItems,
+  deriveDirectRelationshipPeers,
   deriveRelatedDocGroups,
   deriveSameConceptTypePeers,
   deriveSameVariantGroupPeers,
+  deriveSharedParentClassificationPeers,
   deriveSharedTagPeers,
   excludeRelatedDocItems,
   hasPublishedDocsPage,
@@ -14,6 +23,7 @@ import {
   registryDisplayTitle,
   SAME_CONCEPT_TYPE,
   SAME_VARIANT_GROUP,
+  SHARED_PARENT_CLASSIFICATION,
   SHARED_TAGS,
 } from "@/lib/content/related-docs";
 import type {
@@ -367,6 +377,100 @@ describe("related-docs", () => {
     expect(peers[0]?.href).toBe("/docs/modules/learned-positional-embeddings");
   });
 
+  test("deriveDirectRelationshipPeers prioritizes explicit ontology links before generic siblings", () => {
+    const source = getRegistryRecordById("module.standard-ffn");
+    if (source?.kind !== "module") {
+      throw new Error("expected module.standard-ffn to exist in the runtime");
+    }
+
+    const peers = deriveDirectRelationshipPeers(
+      source,
+      listRelatedRegistryRecords(),
+      new Set([
+        "module.standard-ffn",
+        "module.feed-forward-network",
+        "concept.activation",
+        "module.relu",
+      ]),
+    );
+
+    expect(peers[0]?.registryId).toBe("module.feed-forward-network");
+    expect(peers[0]?.reasonLabel).toBe("Direct variant relationship");
+    expect(peers[1]?.registryId).toBe("module.swiglu");
+    expect(peers[1]?.reasonLabel).toBe("Variant of this page");
+    expect(peers.map((item) => item.registryId)).toContain(
+      "concept.activation",
+    );
+    expect(peers.map((item) => item.registryId)).toContain("module.relu");
+  });
+
+  test("deriveClassificationSiblingPeers labels same-branch peers with ontology classifications", () => {
+    const source = getRegistryRecordById("module.grouped-query-attention");
+    if (source?.kind !== "module") {
+      throw new Error(
+        "expected module.grouped-query-attention to exist in the runtime",
+      );
+    }
+
+    const peers = deriveClassificationSiblingPeers(
+      source,
+      listRelatedRegistryRecords(),
+      new Set([
+        "module.grouped-query-attention",
+        "module.multi-head-attention",
+        "module.multi-query-attention",
+      ]),
+    );
+
+    expect(peers.map((item) => item.registryId)).toContain(
+      "module.multi-head-attention",
+    );
+    expect(peers.map((item) => item.registryId)).toContain(
+      "module.multi-query-attention",
+    );
+    expect(
+      peers.every((item) =>
+        item.reasonLabel.startsWith(
+          "Same classification: attention mechanisms",
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  test("deriveSharedParentClassificationPeers only falls back when exact classification siblings differ", () => {
+    const source = getRegistryRecordById("module.grouped-query-attention");
+    if (source?.kind !== "module") {
+      throw new Error(
+        "expected module.grouped-query-attention to exist in the runtime",
+      );
+    }
+
+    const peers = deriveSharedParentClassificationPeers(
+      source,
+      listRelatedRegistryRecords(),
+      new Set([
+        "module.grouped-query-attention",
+        "module.feed-forward-network",
+        "module.relu",
+      ]),
+    );
+
+    expect(peers.map((item) => item.registryId)).toContain(
+      "module.feed-forward-network",
+    );
+    expect(peers.map((item) => item.registryId)).toContain("module.relu");
+    expect(peers.map((item) => item.registryId)).not.toContain(
+      "module.multi-head-attention",
+    );
+    expect(
+      peers.every((item) =>
+        item.reasonLabel.includes(
+          "Shares parent classification: neural network components",
+        ),
+      ),
+    ).toBe(true);
+  });
+
   test("excludeRelatedDocItems removes already-rendered peers without reordering the rest", () => {
     const source: ConceptRecord = {
       ...token,
@@ -553,5 +657,61 @@ describe("related-docs", () => {
         publishedRegistryIds,
       ),
     ).toEqual([]);
+  });
+
+  test("deriveRelatedDocGroups upgrades legacy module groups to ontology-derived siblings when ancestry exists", () => {
+    const source = getRegistryRecordById("module.grouped-query-attention");
+    if (source?.kind !== "module") {
+      throw new Error(
+        "expected module.grouped-query-attention to exist in the runtime",
+      );
+    }
+
+    const groups = deriveRelatedDocGroups(
+      source,
+      listRelatedRegistryRecords(),
+      [SAME_VARIANT_GROUP, CURATED_RELATED],
+      new Set([
+        "module.grouped-query-attention",
+        "module.multi-head-attention",
+        "module.multi-query-attention",
+        "module.attention",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      CURATED_RELATED,
+      CLASSIFICATION_SIBLINGS,
+    ]);
+  });
+
+  test("deriveRelatedDocGroups keeps explicit ontology groups in policy order", () => {
+    const source = getRegistryRecordById("module.standard-ffn");
+    if (source?.kind !== "module") {
+      throw new Error("expected module.standard-ffn to exist in the runtime");
+    }
+
+    const groups = deriveRelatedDocGroups(
+      source,
+      listRelatedRegistryRecords(),
+      [
+        SHARED_PARENT_CLASSIFICATION,
+        DIRECT_RELATIONSHIPS,
+        CLASSIFICATION_SIBLINGS,
+      ],
+      new Set([
+        "module.standard-ffn",
+        "module.feed-forward-network",
+        "concept.activation",
+        "module.relu",
+        "module.swiglu",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      DIRECT_RELATIONSHIPS,
+      CLASSIFICATION_SIBLINGS,
+      SHARED_PARENT_CLASSIFICATION,
+    ]);
   });
 });
