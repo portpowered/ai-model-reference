@@ -827,4 +827,19 @@ describe("committed page-spec workflow sample", () => {
     expect(result.plan).toContain("page-spec-workflow-sample/page.mdx");
     expect(result.plan).toContain("Planned files:");
   });
+
+  test("dry-run keeps the ontology-first sample free of deprecated taxonomy warnings", async () => {
+    const specPath = join(
+      getProjectRoot(),
+      "page-specs",
+      "page-spec-workflow-sample.json",
+    );
+    const result = await runGeneratePageBundleCli({
+      specPath,
+      dryRun: true,
+    });
+
+    expect(result.plan).not.toContain("Warnings:");
+    expect(result.plan).not.toContain("deprecated");
+  });
 });
