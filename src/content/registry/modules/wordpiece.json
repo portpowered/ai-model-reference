@@ -12,10 +12,27 @@
     "module.bpe",
     "module.sentencepiece"
   ],
-  "citationIds": [],
-  "status": "draft",
+  "citationIds": [
+    "citation.gnmt-wordpiece",
+    "citation.bert-pre-training-of-deep-bidirectional-transformers"
+  ],
+  "status": "published",
   "createdAt": "2026-06-19T00:00:00.000Z",
-  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "releaseDate": "2016-09-26",
+  "authors": [
+    "Yonghui Wu",
+    "Mike Schuster",
+    "Zhifeng Chen",
+    "Quoc V. Le",
+    "Mohammad Norouzi",
+    "Wolfgang Macherey",
+    "Maxim Krikun",
+    "Yuan Cao",
+    "Qin Gao",
+    "Klaus Macherey"
+  ],
+  "sourceId": "citation.gnmt-wordpiece",
   "moduleType": "tokenizer",
   "moduleFamily": "tokenization",
   "conceptType": "subword-tokenization",

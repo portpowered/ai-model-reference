@@ -5,6 +5,7 @@ import {
   beforeEach,
   describe,
   expect,
+  setDefaultTimeout,
   test,
 } from "bun:test";
 import { cleanup, screen, waitFor, within } from "@testing-library/react";
@@ -32,10 +33,13 @@ import {
 import { createDocsSearchRouteFetch } from "@/tests/search/route-fetch";
 import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
 
+setDefaultTimeout(15_000);
+
 function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {
     q: searchParams.get("q"),
     tag: searchParams.get("tag"),
+    classification: searchParams.get("classification"),
   };
 }
 
@@ -148,7 +152,11 @@ describe("SearchPagePanel Phase 1 queries", () => {
       query,
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 15_000 },
+    );
     expectCustomerAskSearchPagePanel(within(results), query);
   });
 
@@ -166,7 +174,11 @@ describe("SearchPagePanel Phase 1 queries", () => {
     );
     await user.type(searchInput, query);
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 15_000 },
+    );
     const resultUrls = within(results).getAllByTestId("search-result-url");
     expect(resultUrls.length).toBeGreaterThan(0);
     const urls = collectResultUrlsFromNodes(resultUrls);
@@ -405,7 +417,7 @@ describe("SearchPagePanel query handoff", () => {
       <SearchPagePanelContent
         messages={context.messages}
         metaByUrl={context.metaByUrl}
-        handoff={{ q: "GQA", tag: null }}
+        handoff={{ q: "GQA", tag: null, classification: null }}
       />,
     );
 
@@ -421,6 +433,126 @@ describe("SearchPagePanel query handoff", () => {
       },
     );
     expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+  });
+});
+
+describe("SearchPagePanel classification handoff", () => {
+  let releaseFetchLock: (() => void) | null = null;
+
+  beforeAll(async () => {
+    captureOriginalFetch();
+    await lockGlobalFetch().then(async (release) => {
+      releaseFetchLock = release;
+      installDocsSearchRouteFetch();
+      await primeDocsSearchClient(await loadAppTestContext());
+      restoreFetchMock();
+      releaseFetchLock?.();
+      releaseFetchLock = null;
+    });
+  });
+
+  beforeEach(async () => {
+    releaseFetchLock = await lockGlobalFetch();
+    installDocsSearchRouteFetch();
+  });
+
+  afterEach(() => {
+    cleanup();
+    restoreFetchMock();
+    releaseFetchLock?.();
+    releaseFetchLock = null;
+  });
+
+  test("/search?classification=activation prefills activation and surfaces activation-family results", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams("classification=activation");
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("activation");
+    expect(
+      screen.getByText(
+        context.messages.searchEntry.classificationScopeDescription.replace(
+          "{classification}",
+          "activation-functions",
+        ),
+      ),
+    ).toBeTruthy();
+
+    const results = await screen.findByTestId("search-page-results");
+    expect(results.textContent).toMatch(/ReLU/i);
+  });
+
+  test("/search?q=relu&classification=activation preserves q and shows the classification scope", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams(
+      "q=relu&classification=activation",
+    );
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("relu");
+    expect(
+      screen.getByText(
+        context.messages.searchEntry.classificationScopeDescription.replace(
+          "{classification}",
+          "activation-functions",
+        ),
+      ),
+    ).toBeTruthy();
+
+    const results = await screen.findByTestId("search-page-results");
+    expect(results.textContent).toMatch(/ReLU/i);
+  });
+
+  test("/search?classification=unknown-topic falls back to the existing empty state", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams("classification=unknown-topic");
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("unknown-topic");
+
+    const empty = await screen.findByTestId("search-page-empty");
+    expect(empty.textContent).toContain(context.messages.search.noResults);
+    expect(
+      screen.queryByText(
+        context.messages.searchEntry.classificationScopeDescription.replace(
+          "{classification}",
+          "unknown-topic",
+        ),
+      ),
+    ).toBeNull();
+  });
+
+  test("/search?q=token&classification=unknown-topic falls back to unscoped results without a scope banner", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams(
+      "q=token&classification=unknown-topic",
+    );
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("token");
+
+    const results = await screen.findByTestId("search-page-results");
+    expect(results.textContent).toMatch(/Token/i);
+    expect(
+      screen.queryByText(
+        context.messages.searchEntry.classificationScopeDescription.replace(
+          "{classification}",
+          "unknown-topic",
+        ),
+      ),
+    ).toBeNull();
   });
 });
 

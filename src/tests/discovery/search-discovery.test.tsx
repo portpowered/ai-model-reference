@@ -1,6 +1,6 @@
 import "@/tests/a11y/mock-navigation";
 import { describe, expect, test } from "bun:test";
-import type { ReactElement } from "react";
+import { createElement, type ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ArchitectureIndexPage from "@/app/(site)/docs/architecture/page";
 import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
@@ -8,7 +8,15 @@ import SearchEntryPage from "@/app/(site)/search/page";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import TagsIndexPage from "@/app/(site)/tags/page";
 import { HomeArticle } from "@/components/home/home-article";
-import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import {
+  loadCriticalDocsSmokePages,
+  toCriticalDocsSmokeLocalRef,
+} from "@/lib/content/critical-docs-smoke";
+import {
+  loadLocalDocsPage,
+  localDocsRoute,
+} from "@/lib/content/local-docs-page";
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -23,6 +31,7 @@ import { expectHomeArticleHeaderOnlySearchEntry } from "@/tests/discovery/home-s
 import {
   resultsIncludeMultiQueryAttention,
   resultsIncludeSampleModule,
+  resultsIncludeTokenizersOverview,
   resultsIncludeUrl,
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
@@ -74,6 +83,19 @@ function expectRouteRendersOk(
   }
 }
 
+function renderLoadedPageHtml(
+  page: Awaited<ReturnType<typeof loadLocalDocsPage>>,
+) {
+  return renderToStaticMarkup(
+    createElement(ModulePageProviders, {
+      messages: page.messages,
+      assets: page.assets,
+      // biome-ignore lint/correctness/noChildrenProp: createElement children are passed through props in this test helper
+      children: page.content,
+    }),
+  );
+}
+
 describe("Phase 1 search discovery", () => {
   test("GQA query ranks grouped-query attention first", async () => {
     const results = await docsSearchApi.search("GQA");
@@ -110,6 +132,18 @@ describe("Phase 1 search discovery", () => {
     expect(results.length).toBeGreaterThan(0);
     expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
     expect(resultsIncludeUrl(results, "/docs/training/dpo")).toBe(true);
+  });
+
+  test.each([
+    "tokenizer",
+    "tokenizers",
+    "text tokenization",
+  ] as const)("%s query returns tokenizers overview as a direct relevant hit", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(results[0]?.url).toBe("/docs/concepts/tokenizers-overview");
+    expect(resultsIncludeTokenizersOverview(results)).toBe(true);
   });
 
   test("vector query returns canonical vector glossary hit without duplicate pages", async () => {
@@ -177,7 +211,32 @@ describe("Phase 1 discovery route smoke", () => {
     expect(html).not.toContain("lorem");
   });
 
-  test("/docs/glossary/token loads published local docs content", async () => {
+  test("critical canonical docs autodiscovery loads published local docs content", async () => {
+    const pages = await loadCriticalDocsSmokePages();
+
+    expect(pages.length).toBeGreaterThan(0);
+
+    for (const discoveredPage of pages) {
+      const localRef = toCriticalDocsSmokeLocalRef(discoveredPage);
+      const page = await loadLocalDocsPage(localRef);
+
+      expect(page.frontmatter.registryId).toBe(
+        discoveredPage.frontmatter.registryId,
+      );
+      expect(page.messages.title).toBe(discoveredPage.messages.title);
+      expect(page.toc.length).toBeGreaterThan(0);
+      expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+
+      if (discoveredPage.frontmatter.kind === "module") {
+        expect(
+          page.toc.some((item) => item.url === "#compared-to-nearby-modules"),
+          discoveredPage.url,
+        ).toBe(true);
+      }
+    }
+  });
+
+  test("/docs/glossary/token loads published local docs content with tokenizer overview handoff", async () => {
     const page = await loadLocalDocsPage({
       section: "glossary",
       slug: "token",
@@ -186,79 +245,66 @@ describe("Phase 1 discovery route smoke", () => {
     expect(page.messages.title).toBe("Token");
     expect(page.frontmatter.registryId).toBe("concept.token");
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+    const html = renderLoadedPageHtml(page);
+    expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
   });
 
-  test("/docs/modules/attention loads published local docs content", async () => {
+  test("/docs/concepts/transformer-architecture loads published local docs content with tokenizer overview handoff", async () => {
     const page = await loadLocalDocsPage({
-      section: "modules",
-      slug: "attention",
+      section: "concepts",
+      slug: "transformer-architecture",
     });
 
-    expect(page.messages.title).toBe("Attention");
-    expect(page.frontmatter.registryId).toBe("module.attention");
-    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
-    expect(page.messages.callouts?.phase1Bridge).toBeUndefined();
-    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
-    expect(
-      page.toc.some((item) => item.url === "#compared-to-nearby-modules"),
-    ).toBe(true);
-  });
-
-  test("/docs/glossary/vector loads published local docs content", async () => {
-    const page = await loadLocalDocsPage({
-      section: "glossary",
-      slug: "vector",
-    });
-
-    expect(page.messages.title).toBe("Vector");
-    expect(page.frontmatter.registryId).toBe("concept.vector");
-    expect(page.messages.callouts).toBeUndefined();
-    expect(page.messages.sections?.whyItMatters.body).toContain(
-      "tensor and embedding glossary entries",
+    expect(page.messages.title).toBe("Transformer architecture");
+    expect(page.frontmatter.registryId).toBe(
+      "concept.transformer-architecture",
     );
-    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+    expect(page.toc.some((item) => item.url === "#related")).toBe(true);
+    const html = renderLoadedPageHtml(page);
+    expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
   });
 
-  test("/docs/glossary/hidden-size loads published local docs content", async () => {
+  test("/docs/models/gpt-3 loads published local docs content with tokenizer overview handoff", async () => {
     const page = await loadLocalDocsPage({
-      section: "glossary",
-      slug: "hidden-size",
+      section: "models",
+      slug: "gpt-3",
     });
 
-    expect(page.messages.title).toBe("Hidden Size");
-    expect(page.frontmatter.registryId).toBe("concept.hidden-size");
-    expect(page.messages.callouts).toBeUndefined();
-    expect(page.messages.sections?.whyItMatters.body).toContain(
-      "model capacity glossary entry",
-    );
-    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+    expect(page.messages.title).toBe("GPT-3");
+    expect(page.frontmatter.registryId).toBe("model.gpt-3");
+    expect(page.toc.some((item) => item.url === "#related")).toBe(true);
+    const html = renderLoadedPageHtml(page);
+    expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
   });
 
-  test("/docs/glossary/vocabulary-size loads published local docs content", async () => {
-    const page = await loadLocalDocsPage({
-      section: "glossary",
-      slug: "vocabulary-size",
-    });
+  test(
+    "critical canonical docs autodiscovery renders discovered docs content without bespoke inventories",
+    async () => {
+      const pages = await loadCriticalDocsSmokePages();
 
-    expect(page.messages.title).toBe("Vocabulary Size");
-    expect(page.frontmatter.registryId).toBe("concept.vocabulary-size");
-    expect(page.messages.callouts).toBeUndefined();
-    expect(
-      page.messages.sections?.commonConfusions.body?.toLowerCase(),
-    ).toContain("reserved tokens");
-    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
-  });
+      expect(pages.length).toBeGreaterThan(0);
 
-  test("/docs/modules/grouped-query-attention loads published local docs content", async () => {
-    const page = await loadLocalDocsPage({
-      section: "modules",
-      slug: "grouped-query-attention",
-    });
+      for (const discoveredPage of pages) {
+        const localRef = toCriticalDocsSmokeLocalRef(discoveredPage);
+        const page = await loadLocalDocsPage(localRef);
+        const html = renderToStaticMarkup(
+          <ModulePageProviders messages={page.messages} assets={page.assets}>
+            {page.content}
+          </ModulePageProviders>,
+        );
 
-    expect(page.messages.title).toBe("Grouped-Query Attention");
-    expect(page.frontmatter.registryId).toBe("module.grouped-query-attention");
-    expect(page.toc.some((item) => item.url === "#how-it-works")).toBe(true);
-  });
+        expect(html.length, discoveredPage.url).toBeGreaterThan(0);
+        expect(localDocsRoute(localRef)).toBe(discoveredPage.url);
+        expect(html, discoveredPage.url).toContain(
+          'data-testid="tag-pill-list"',
+        );
+        expect(html, discoveredPage.url).toContain('id="related"');
+        expect(html, discoveredPage.url).not.toContain("Reader Shortcut");
+        expect(html, discoveredPage.url).not.toContain("lorem");
+      }
+    },
+    { timeout: 15_000 },
+  );
 
   test("/docs/training/dpo loads published local docs content", async () => {
     const page = await loadLocalDocsPage({

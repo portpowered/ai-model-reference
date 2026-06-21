@@ -42,7 +42,7 @@ export function RelatedDocs({ registryId }: { registryId: string }) {
       variantGroupItems.map((item) => item.registryId),
     ),
     messages,
-  );
+  ).filter((item) => item.href);
 
   if (variantGroupItems.length === 0 && curatedItems.length === 0) {
     return null;

@@ -21,10 +21,7 @@ import {
   getRegistryRecordById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import {
-  deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
-} from "@/lib/content/related-docs";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -101,6 +98,7 @@ describe("loadModulePage sentencepiece", () => {
     expect(html).toContain(
       "SentencePiece keeps whitespace in the tokenization stream and can train from raw text",
     );
+    expect(html).not.toContain("No published example models are linked yet.");
     expect(html).toContain('data-comparison-column="module.bpe"');
     expect(html).toContain('data-comparison-column="module.wordpiece"');
     expect(html).toContain('data-comparison-column="module.sentencepiece"');
@@ -176,9 +174,11 @@ describe("loadModulePage sentencepiece", () => {
     const tokenizersOverviewItem = items.find(
       (item) => item.registryId === "concept.tokenizers-overview",
     );
-    expect(tokenizersOverviewItem?.reasonLabel).toBe(
-      PLANNED_RELATED_REASON_LABEL,
+    expect(tokenizersOverviewItem?.href).toBe(
+      "/docs/concepts/tokenizers-overview",
     );
+    expect(tokenizersOverviewItem?.isPlanned).toBe(false);
+    expect(tokenizersOverviewItem?.reasonLabel).toBe("curated");
   });
 });
 

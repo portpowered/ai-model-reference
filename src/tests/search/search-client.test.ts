@@ -34,6 +34,14 @@ const JAPANESE_ATTENTION_PROOF_SET_URLS = [
   "/ja/docs/glossary/token",
   "/ja/docs/concepts/transformer-architecture",
 ] as const;
+const CROSS_SURFACE_PARITY_QUERIES: string[] = [
+  "activation",
+  "relu",
+  "feed forward",
+  "GQA",
+  "attention",
+  "Token",
+];
 
 describe("createModelAtlasSearchClient", () => {
   let metaByUrl: ReturnType<typeof searchResultMetaMapToRecord>;
@@ -179,6 +187,20 @@ describe("createModelAtlasSearchClient", () => {
     });
   });
 
+  test("uses a classification scope when the static client searches without q text", async () => {
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const client = createModelAtlasSearchClient({
+        metaByUrl,
+        client: { from: TEST_DOCS_SEARCH_URL },
+        classification: "activation",
+      });
+      const results = await client.search("");
+
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeUrl(results, "/docs/modules/relu")).toBe(true);
+    });
+  });
+
   test("returns at most one hit per canonical page URL for KV cache query", async () => {
     await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
       const client = createModelAtlasSearchClient({
@@ -219,6 +241,31 @@ describe("createModelAtlasSearchClient", () => {
 
       expect(results.length).toBeGreaterThan(0);
       expect(resultsIncludeTokenGlossary(results)).toBe(true);
+    });
+  });
+
+  test.each(
+    CROSS_SURFACE_PARITY_QUERIES,
+  )("matches server search results for representative %s queries", async (query) => {
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const client = createModelAtlasSearchClient({
+        metaByUrl,
+        client: { from: TEST_DOCS_SEARCH_URL },
+      });
+
+      const [serverResults, staticResults] = await Promise.all([
+        docsSearchApi.search(query),
+        client.search(query),
+      ]);
+
+      const serverUrls = serverResults.map((result) => result.url);
+      const staticUrls = staticResults.map((result) => result.url);
+
+      expect(serverUrls.length).toBeGreaterThan(0);
+      expect(staticUrls.length).toBeGreaterThan(0);
+      expectUniqueCanonicalPageUrls(serverUrls);
+      expectUniqueCanonicalPageUrls(staticUrls);
+      expect(staticUrls.slice(0, 5)).toEqual(serverUrls.slice(0, 5));
     });
   });
 });

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { renderTagLandingPage } from "@/app/(site)/site-renderers";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
   parsePageAssetConfig,
@@ -147,6 +148,19 @@ describe("causal-attention discovery", () => {
     expect(
       results.some((result) => result.url === "/docs/modules/causal-attention"),
     ).toBe(true);
+  });
+
+  test("the attention tag landing renders a visible causal-attention link", async () => {
+    const page = await renderTagLandingPage(
+      {
+        params: Promise.resolve({ slug: "attention" }),
+      },
+      "en",
+    );
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Causal Attention");
+    expect(html).toContain('href="/docs/modules/causal-attention"');
   });
 });
 

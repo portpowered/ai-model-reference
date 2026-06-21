@@ -30,7 +30,16 @@ import {
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
+const ACTIVATION_GLOSSARY_URL = "/docs/glossary/activation";
 const BIDIRECTIONAL_ATTENTION_URL = "/docs/modules/bidirectional-attention";
+const FEED_FORWARD_NETWORK_URL = "/docs/modules/feed-forward-network";
+const STANDARD_FFN_URL = "/docs/modules/standard-ffn";
+const EXPERT_PARALLEL_OVERLAP_URL = "/docs/systems/expert-parallel-overlap";
+const ACTIVATION_QUANTIZATION_URL = "/docs/concepts/activation-quantization";
+const RELU_URL = "/docs/modules/relu";
+const LEAKY_RELU_URL = "/docs/modules/leaky-relu";
+const SILU_URL = "/docs/modules/silu";
+const SWIGLU_URL = "/docs/modules/swiglu";
 const JAPANESE_ATTENTION_PROOF_SET_URLS = [
   "/ja/docs/modules/attention",
   "/ja/docs/modules/linear-attention",
@@ -41,6 +50,22 @@ const JAPANESE_ATTENTION_PROOF_SET_URLS = [
   "/ja/docs/glossary/token",
   "/ja/docs/concepts/transformer-architecture",
 ] as const;
+
+function expectUrlsBefore(
+  urls: string[],
+  promotedUrls: readonly string[],
+  laterUrl: string,
+) {
+  const laterIndex = urls.indexOf(laterUrl);
+
+  for (const promotedUrl of promotedUrls) {
+    const promotedIndex = urls.indexOf(promotedUrl);
+    expect(promotedIndex).toBeGreaterThanOrEqual(0);
+    if (laterIndex >= 0) {
+      expect(promotedIndex).toBeLessThan(laterIndex);
+    }
+  }
+}
 
 describe("Phase 1 /api/search regression", () => {
   for (const assertion of PHASE_1_SEARCH_ASSERTIONS) {
@@ -165,6 +190,41 @@ describe("live /api/search HTTP contract", () => {
     const results = (await response.json()) as Array<{ url: string }>;
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe(SAMPLE_URL);
+  });
+
+  test("GET accepts classification=activation without a query and returns activation-family results", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?classification=activation"),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    const urls = results.map((result) => result.url);
+    expect(urls).toEqual(expect.arrayContaining([RELU_URL, LEAKY_RELU_URL]));
+  });
+
+  test("GET accepts canonical classification IDs and combines query text with the classification scope", async () => {
+    const response = await GET(
+      new Request(
+        "http://localhost/api/search?query=relu&classification=classification.activation-functions",
+      ),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    const urls = results.map((result) => result.url);
+    expect(results[0]?.url).toBe(RELU_URL);
+    expect(urls).toEqual(expect.arrayContaining([RELU_URL, LEAKY_RELU_URL]));
+  });
+
+  test("GET with an unknown classification falls back to empty search results instead of crashing", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?classification=unknown-topic"),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    expect(results).toEqual([]);
   });
 
   test("GET returns multi-head attention for MHA query", async () => {
@@ -323,6 +383,84 @@ describe("docsSearchApi", () => {
     expect(resultsIncludeSampleModule(results)).toBe(true);
   });
 
+  test.each([
+    {
+      query: "activation",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "relu",
+      expectedUrls: [RELU_URL, LEAKY_RELU_URL, SILU_URL],
+    },
+    {
+      query: "gelu",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "feed forward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+    {
+      query: "feedforward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+    {
+      query: "ffn",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+  ] as const)("search includes topology-aware seed results for $query", async ({
+    query,
+    expectedUrls,
+  }) => {
+    const results = await docsSearchApi.search(query);
+    const urls = results.map((result) => result.url);
+
+    expect(urls.length).toBeGreaterThan(0);
+    expect(urls).toEqual(expect.arrayContaining([...expectedUrls]));
+    expectUniqueCanonicalPageUrls(urls);
+  });
+
+  test("search promotes activation-function modules above incidental activation body matches", async () => {
+    const results = await docsSearchApi.search("activation");
+    const urls = results.map((result) => result.url);
+
+    expectUrlsBefore(
+      urls,
+      [RELU_URL, LEAKY_RELU_URL, SILU_URL],
+      ACTIVATION_QUANTIZATION_URL,
+    );
+  });
+
+  test.each([
+    "feed forward",
+    "feedforward",
+  ] as const)("search promotes feed-forward family modules above unrelated tag matches for %s", async (query) => {
+    const results = await docsSearchApi.search(query);
+    const urls = results.map((result) => result.url);
+
+    expectUrlsBefore(
+      urls,
+      [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+      EXPERT_PARALLEL_OVERLAP_URL,
+    );
+  });
+
+  test("search ranks the canonical feed-forward network page first for the direct FFN alias", async () => {
+    const results = await docsSearchApi.search("ffn");
+
+    expect(results[0]?.url).toBe(FEED_FORWARD_NETWORK_URL);
+  });
+
   test("staticGET exports an advanced Orama index", async () => {
     const response = await docsSearchApi.staticGET();
     expect(response.ok).toBe(true);
@@ -389,6 +527,36 @@ describe("docs search static client", () => {
 
       expect(results.length).toBeGreaterThan(0);
       expect(resultsIncludeSampleModule(results)).toBe(true);
+    });
+  });
+
+  test.each([
+    {
+      query: "gelu",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "feedforward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+  ] as const)("orama static client includes topology-aware seed results for $query", async ({
+    query,
+    expectedUrls,
+  }) => {
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const results = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, query),
+        (candidateResults) =>
+          expectedUrls.every((url) => resultsIncludeUrl(candidateResults, url)),
+      );
+      const urls = results.map((result) => result.url);
+
+      expect(urls).toEqual(expect.arrayContaining([...expectedUrls]));
     });
   });
 });

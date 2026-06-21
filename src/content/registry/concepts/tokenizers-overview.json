@@ -7,21 +7,32 @@
   "aliases": [
     "Tokenizer overview",
     "tokenizer overview",
-    "tokenizers overview"
+    "tokenizers",
+    "tokenizers overview",
+    "text tokenization",
+    "tokenization overview"
   ],
   "tags": ["tokenization", "foundations"],
   "relatedIds": [
     "concept.token",
+    "concept.transformer-architecture",
     "module.bpe",
     "module.wordpiece",
     "module.sentencepiece",
     "model.gpt-3"
   ],
-  "citationIds": [],
-  "status": "draft",
-  "createdAt": "2026-06-19T00:00:00.000Z",
-  "updatedAt": "2026-06-19T00:00:00.000Z",
-  "conceptType": "general",
+  "citationIds": [
+    "citation.sennrich-bpe",
+    "citation.gnmt-wordpiece",
+    "citation.kudo-sentencepiece"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-18T20:45:43Z",
+  "updatedAt": "2026-06-21T00:00:00Z",
+  "conceptType": "architecture",
+  "sidebarGrouping": {
+    "concepts": "architecture"
+  },
   "prerequisiteIds": ["concept.token"],
-  "explainsIds": ["module.bpe", "module.wordpiece", "module.sentencepiece"]
+  "explainsIds": []
 }

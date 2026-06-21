@@ -4,6 +4,7 @@ import {
 } from "@/lib/content/published-docs-registry-ids";
 import type {
   CitationRecord,
+  ClassificationRecord,
   ConceptRecord,
   DatasetRecord,
   GraphRecord,
@@ -19,6 +20,7 @@ import type {
 export type LinkableRegistryRecord =
   | ModuleRecord
   | ConceptRecord
+  | ClassificationRecord
   | ModelRecord
   | PaperRecord
   | TrainingRegimeRecord
@@ -60,7 +62,11 @@ export function hasPublishedDocsPageForRecord(
   record: LinkableRegistryRecord,
   publishedRegistryIds: PublishedDocsRegistryIds,
 ): boolean {
-  if (record.kind === "dataset" || record.kind === "organization") {
+  if (
+    record.kind === "dataset" ||
+    record.kind === "organization" ||
+    record.kind === "classification"
+  ) {
     return false;
   }
   return publishedRegistryIds.has(record.id);

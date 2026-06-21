@@ -27,6 +27,20 @@
     "Illia Polosukhin"
   ],
   "sourceId": "citation.attention-is-all-you-need",
+  "primaryClassificationId": "classification.feed-forward-networks",
+  "secondaryClassificationIds": [
+    "classification.transformer-feed-forward-components"
+  ],
+  "relationships": [
+    {
+      "relationshipType": "variant",
+      "targetId": "module.feed-forward-network"
+    },
+    {
+      "relationshipType": "uses",
+      "targetId": "concept.activation"
+    }
+  ],
   "moduleType": "feed-forward",
   "optimizes": ["per-token-capacity"],
   "exampleModelIds": [],

@@ -1,13 +1,23 @@
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join, relative } from "node:path";
-import { getProjectRoot } from "@/lib/content/content-paths";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
+import { dirname, join, relative } from "node:path";
+import {
+  getGeneratedContentRuntimeRoot,
+  getProjectRoot,
+  getRegistryCollectionRoot,
+} from "@/lib/content/content-paths";
 import { parseGraphRegistryRecords } from "@/lib/content/graph-registry-validation";
 
 const projectRoot = getProjectRoot();
-const graphRegistryRoot = join(projectRoot, "src/content/registry/graphs");
+const graphRegistryRoot = getRegistryCollectionRoot("graphs");
 const outputPath = join(
-  projectRoot,
-  "src/lib/content/graph-registry-runtime.generated.ts",
+  getGeneratedContentRuntimeRoot(projectRoot),
+  "graph-registry-runtime.generated.ts",
 );
 
 type GraphModuleDescriptor = {
@@ -107,6 +117,7 @@ export function syncGraphRegistryRuntimeModule(
     };
   }
 
+  mkdirSync(dirname(resolvedOutputPath), { recursive: true });
   writeFileSync(resolvedOutputPath, source, "utf8");
   return {
     changed: true,

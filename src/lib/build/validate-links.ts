@@ -20,9 +20,6 @@ export const LINK_VALIDATION_MARKDOWN_COMPONENTS: Record<
   RelatedLink: { attributes: ["href"] },
 };
 
-const MARKDOWN_HEADING_PATTERN = /^#{1,6}\s+(.+)$/gm;
-const SECTION_TAG_PATTERN = /<Section\b([^>]*)\/?>/g;
-
 export type SectionAnchor = {
   id: string;
   titleKey: string;
@@ -41,7 +38,8 @@ export function slugifyHeading(title: string): string {
 /** Extracts markdown heading hashes from raw MDX or markdown content. */
 export function extractMarkdownHeadingHashes(content: string): string[] {
   const hashes: string[] = [];
-  for (const match of content.matchAll(MARKDOWN_HEADING_PATTERN)) {
+  const markdownHeadingPattern = /^#{1,6}\s+(.+)$/gm;
+  for (const match of content.matchAll(markdownHeadingPattern)) {
     const title = match[1]?.trim();
     if (!title) {
       continue;
@@ -63,8 +61,9 @@ function parseSectionTagAttributes(attributes: string): {
 /** Extracts `<Section id="..." titleKey="...">` anchors in document order. */
 export function extractSectionAnchorsFromMdx(content: string): SectionAnchor[] {
   const anchors: SectionAnchor[] = [];
+  const sectionTagPattern = /<Section\b([^>]*)\/?>/g;
 
-  for (const match of content.matchAll(SECTION_TAG_PATTERN)) {
+  for (const match of content.matchAll(sectionTagPattern)) {
     const { id, titleKey } = parseSectionTagAttributes(match[1] ?? "");
     if (id && titleKey) {
       anchors.push({ id, titleKey });
