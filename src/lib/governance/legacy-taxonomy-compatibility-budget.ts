@@ -227,22 +227,18 @@ function toBridgeKey(bridge: LegacyClassificationBridge): string {
   return `${bridge.legacyId} -> ${bridge.canonicalId}`;
 }
 
-function compareStringSets(
+function collectAddedValues(
   approvedValues: readonly string[],
   currentValues: readonly string[],
   surfaceLabel: string,
 ): string[] {
   const approved = new Set(approvedValues);
-  const current = new Set(currentValues);
 
   const added = currentValues
     .filter((value) => !approved.has(value))
     .map((value) => `${surfaceLabel} added "${value}"`);
-  const removed = approvedValues
-    .filter((value) => !current.has(value))
-    .map((value) => `${surfaceLabel} removed "${value}"`);
 
-  return [...added, ...removed];
+  return added;
 }
 
 function toTypedTaxonomyBudgetEntryMeasurement(
@@ -289,12 +285,12 @@ function collectLegacyClassificationSurfaceMeasurement(
   const approvedBridges = sortBridgeInventory(contract.approvedBridges);
   const currentBridges = sortBridgeInventory(bridges);
   const drift = [
-    ...(contract.approvedBridgeCount === currentBridges.length
+    ...(currentBridges.length <= contract.approvedBridgeCount
       ? []
       : [
           `approved ${contract.approvedBridgeCount} bridges but found ${currentBridges.length}`,
         ]),
-    ...compareStringSets(
+    ...collectAddedValues(
       approvedBridges.map(toBridgeKey),
       currentBridges.map(toBridgeKey),
       contract.surfaceLabel,
@@ -340,26 +336,23 @@ function collectTypedTaxonomySurfaceMeasurement(
   const approvedEntryById = new Map(
     approvedEntries.map((entry) => [entry.id, entry]),
   );
-  const currentEntryById = new Map(
-    currentEntries.map((entry) => [entry.id, entry]),
-  );
   const drift = [
-    ...(contract.approvedEntryCount === matchingEntries.length
+    ...(matchingEntries.length <= contract.approvedEntryCount
       ? []
       : [
           `approved ${contract.approvedEntryCount} search-cluster entries but found ${matchingEntries.length}`,
         ]),
-    ...(contract.approvedFieldReferenceCount === currentFieldReferenceCount
+    ...(currentFieldReferenceCount <= contract.approvedFieldReferenceCount
       ? []
       : [
           `approved ${contract.approvedFieldReferenceCount} search-cluster field references but found ${currentFieldReferenceCount}`,
         ]),
-    ...compareStringSets(
+    ...collectAddedValues(
       contract.approvedEntryIds,
       currentEntryIds,
       `${contract.surfaceLabel} entries`,
     ),
-    ...compareStringSets(
+    ...collectAddedValues(
       contract.approvedFieldInventory,
       currentFieldInventory,
       `${contract.surfaceLabel} fields`,
@@ -378,25 +371,18 @@ function collectTypedTaxonomySurfaceMeasurement(
           : [
               `${contract.surfaceLabel} entry "${entry.id}" moved from ${approvedEntry.path} to ${entry.path}`,
             ]),
-        ...(approvedEntry.fieldReferenceCount === entry.fieldReferenceCount
+        ...(entry.fieldReferenceCount <= approvedEntry.fieldReferenceCount
           ? []
           : [
               `${contract.surfaceLabel} entry "${entry.id}" at ${entry.path} approved ${approvedEntry.fieldReferenceCount} field references but found ${entry.fieldReferenceCount}`,
             ]),
-        ...compareStringSets(
+        ...collectAddedValues(
           approvedEntry.fieldInventory,
           entry.fieldInventory,
           `${contract.surfaceLabel} entry "${entry.id}" fields`,
         ),
       ];
     }),
-    ...approvedEntries.flatMap((entry) =>
-      currentEntryById.has(entry.id)
-        ? []
-        : [
-            `${contract.surfaceLabel} entry "${entry.id}" at ${entry.path} is missing from the current inventory`,
-          ],
-    ),
   ];
 
   return {

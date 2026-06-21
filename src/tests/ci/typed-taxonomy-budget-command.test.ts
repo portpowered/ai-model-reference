@@ -110,4 +110,55 @@ describe("typed taxonomy compatibility budget command", () => {
       rmSync(snapshotRoot, { recursive: true, force: true });
     }
   });
+
+  test("stays green when the governed search cluster shrinks", () => {
+    const workspaceRoot = resolve(import.meta.dir, "../../..");
+    const snapshotRoot = mkdtempSync(
+      join(tmpdir(), "typed-taxonomy-budget-guard-shrink-"),
+    );
+
+    try {
+      for (const entry of typedTaxonomyConsumerAuditContract) {
+        const sourcePath = join(workspaceRoot, entry.path);
+        const targetPath = join(snapshotRoot, entry.path);
+        mkdirSync(dirname(targetPath), { recursive: true });
+        let source = readFileSync(sourcePath, "utf8");
+
+        if (entry.path === "src/lib/search/types.ts") {
+          source = source.replace("  moduleType?: string;\n", "");
+        }
+
+        writeFileSync(targetPath, source);
+      }
+
+      const result = spawnSync(
+        "bun",
+        [
+          "run",
+          "verify:typed-taxonomy-budget",
+          "--",
+          "--repo-root",
+          snapshotRoot,
+        ],
+        {
+          cwd: workspaceRoot,
+          encoding: "utf8",
+        },
+      );
+
+      expect(result.status).toBe(0);
+      expect(result.stdout ?? "").toContain("Status: aligned");
+      expect(result.stdout ?? "").toContain(
+        "Approved baseline: 3 entries, 14 field references",
+      );
+      expect(result.stdout ?? "").toContain(
+        "Current measured: 3 entries, 13 field references",
+      );
+      expect(result.stdout ?? "").toContain(
+        "No deprecated typed-taxonomy budget growth detected.",
+      );
+    } finally {
+      rmSync(snapshotRoot, { recursive: true, force: true });
+    }
+  });
 });

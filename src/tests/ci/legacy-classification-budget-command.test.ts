@@ -86,4 +86,53 @@ describe("legacy classification compatibility budget guard command", () => {
       rmSync(fixtureDir, { recursive: true, force: true });
     }
   });
+
+  test("stays green when the approved bridge inventory shrinks", () => {
+    const repoRoot = resolve(import.meta.dir, "../../..");
+    const fixtureDir = mkdtempSync(
+      join(tmpdir(), "legacy-classification-budget-shrink-"),
+    );
+    const fixturePath = join(fixtureDir, "bridges.json");
+
+    try {
+      writeFileSync(
+        fixturePath,
+        JSON.stringify(
+          legacyTaxonomyCompatibilityBudgetContract.legacyClassificationSurface.approvedBridges.slice(
+            0,
+            -1,
+          ),
+          null,
+          2,
+        ),
+      );
+
+      const result = spawnSync(
+        "bun",
+        [
+          "run",
+          "verify:legacy-classification-budget",
+          "--",
+          "--repo-root",
+          repoRoot,
+          "--legacy-bridge-inventory-file",
+          fixturePath,
+        ],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+        },
+      );
+
+      expect(result.status).toBe(0);
+      expect(result.stdout ?? "").toContain("Status: aligned");
+      expect(result.stdout ?? "").toContain("Approved baseline: 8 bridges");
+      expect(result.stdout ?? "").toContain("Current measured: 7 bridges");
+      expect(result.stdout ?? "").toContain(
+        "No legacy classification bridge growth detected.",
+      );
+    } finally {
+      rmSync(fixtureDir, { recursive: true, force: true });
+    }
+  });
 });

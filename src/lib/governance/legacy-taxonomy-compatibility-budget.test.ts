@@ -182,6 +182,42 @@ describe("legacy taxonomy compatibility budget", () => {
     );
   });
 
+  test("allows shrinkage without reporting drift", () => {
+    const approvedBridges =
+      legacyTaxonomyCompatibilityBudgetContract.legacyClassificationSurface
+        .approvedBridges;
+    const result = collectLegacyTaxonomyCompatibilityBudget({
+      auditedAtUtc: "2026-06-21T00:00:00.000Z",
+      legacyClassificationBridges: approvedBridges.slice(0, -1),
+      typedTaxonomyAudit: createTypedTaxonomyAuditResult({
+        entries: createTypedTaxonomyAuditResult()
+          .entries.filter(
+            (entry) => entry.id !== "search-document-public-facet-shape",
+          )
+          .map((entry) =>
+            entry.id === "search-document-facet-compatibility"
+              ? {
+                  ...entry,
+                  fieldReferences: entry.fieldReferences.slice(0, 4),
+                }
+              : entry,
+          ),
+      }),
+    });
+
+    expect(result.status).toBe("aligned");
+    expect(result.legacyClassificationSurface.currentBridgeCount).toBe(7);
+    expect(result.legacyClassificationSurface.drift).toEqual([]);
+    expect(result.deprecatedTypedTaxonomySurface.currentEntryCount).toBe(2);
+    expect(
+      result.deprecatedTypedTaxonomySurface.currentFieldReferenceCount,
+    ).toBe(4);
+    expect(result.deprecatedTypedTaxonomySurface.currentFieldInventory).toEqual(
+      ["conceptType", "moduleType", "variantGroup"],
+    );
+    expect(result.deprecatedTypedTaxonomySurface.drift).toEqual([]);
+  });
+
   test("fails the legacy bridge guard when the approved bridge inventory grows", () => {
     const result = collectLegacyClassificationBudgetGuard({
       auditedAtUtc: "2026-06-21T00:00:00.000Z",
@@ -213,6 +249,28 @@ describe("legacy taxonomy compatibility budget", () => {
     expect(report).toContain("Status: drifted");
     expect(report).toContain("Approved baseline: 8 bridges");
     expect(report).toContain("Current measured: 9 bridges");
+  });
+
+  test("keeps the legacy bridge guard green when the approved bridge inventory shrinks", () => {
+    const result = collectLegacyClassificationBudgetGuard({
+      auditedAtUtc: "2026-06-21T00:00:00.000Z",
+      legacyClassificationBridges:
+        legacyTaxonomyCompatibilityBudgetContract.legacyClassificationSurface.approvedBridges.slice(
+          0,
+          -1,
+        ),
+    });
+
+    expect(result.status).toBe("aligned");
+    expect(result.currentBridgeCount).toBe(7);
+    expect(result.drift).toEqual([]);
+
+    const report = formatLegacyClassificationBudgetGuard(result);
+    expect(report).toContain("Status: aligned");
+    expect(report).toContain("Current measured: 7 bridges");
+    expect(report).toContain(
+      "No legacy classification bridge growth detected.",
+    );
   });
 
   test("passes the typed-taxonomy guard when the governed search cluster stays within budget", () => {
@@ -323,9 +381,7 @@ describe("legacy taxonomy compatibility budget", () => {
     expect(result.drift).toEqual(
       expect.arrayContaining([
         "approved 3 search-cluster entries but found 4",
-        "approved 14 search-cluster field references but found 6",
         'search typed-taxonomy compatibility cluster entries added "search-extra-compatibility-consumer"',
-        'search typed-taxonomy compatibility cluster entry "search-document-facet-compatibility" at src/lib/search/legacy-taxonomy-compat.ts approved 13 field references but found 4',
         'search typed-taxonomy compatibility cluster entry "search-extra-compatibility-consumer" at src/lib/search/extra.ts is outside the approved budget',
       ]),
     );
@@ -337,6 +393,38 @@ describe("legacy taxonomy compatibility budget", () => {
     );
     expect(report).toContain(
       'search typed-taxonomy compatibility cluster entry "search-extra-compatibility-consumer" at src/lib/search/extra.ts is outside the approved budget',
+    );
+  });
+
+  test("keeps the typed-taxonomy guard green when the governed search cluster shrinks", () => {
+    const result = collectTypedTaxonomyBudgetGuard({
+      auditedAtUtc: "2026-06-21T00:00:00.000Z",
+      typedTaxonomyAudit: createTypedTaxonomyAuditResult({
+        entries: createTypedTaxonomyAuditResult()
+          .entries.filter(
+            (entry) => entry.id !== "search-document-public-facet-shape",
+          )
+          .map((entry) =>
+            entry.id === "search-document-facet-compatibility"
+              ? {
+                  ...entry,
+                  fieldReferences: entry.fieldReferences.slice(0, 4),
+                }
+              : entry,
+          ),
+      }),
+    });
+
+    expect(result.status).toBe("aligned");
+    expect(result.currentEntryCount).toBe(2);
+    expect(result.currentFieldReferenceCount).toBe(4);
+    expect(result.drift).toEqual([]);
+
+    const report = formatTypedTaxonomyBudgetGuard(result);
+    expect(report).toContain("Status: aligned");
+    expect(report).toContain("Current measured: 2 entries, 4 field references");
+    expect(report).toContain(
+      "No deprecated typed-taxonomy budget growth detected.",
     );
   });
 });

@@ -84,15 +84,18 @@ the temporary legacy-id bridge.
   one explicit legacy classification-id bridge inventory and one explicit
   deprecated typed-taxonomy compatibility cluster, including the approved
   search-cluster entry inventory and per-entry field-reference budgets used by
-  the narrow no-growth guards.
+  the narrow no-growth guards. The contract is shrink-only: removals stay
+  green, while additions, path moves, or field-reference growth fail.
 * `src/lib/governance/legacy-taxonomy-compatibility-budget.test.ts`
   Coverage that proves the committed repo still matches the recorded
   compatibility-budget baselines and that budget drift is reported in maintainer
-  terms when either governed surface grows.
+  terms when either governed surface grows, while explicit shrink-path fixtures
+  stay aligned.
 * `src/tests/ci/legacy-classification-budget-command.test.ts`
   CLI-level proof that the dedicated legacy bridge no-growth verifier stays
   green for the committed runtime bridge inventory and fails red when a fixture
-  bridge inventory grows beyond the approved baseline.
+  bridge inventory grows beyond the approved baseline; shrink fixtures should
+  remain green.
 * `src/lib/governance/typed-taxonomy-consumer-audit.test.ts`
   Regression coverage for grouped audit summaries and contract-drift detection.
 * `src/lib/governance/typed-taxonomy-consumer-fence.test.ts`
@@ -104,8 +107,9 @@ the temporary legacy-id bridge.
 * `src/tests/ci/typed-taxonomy-budget-command.test.ts`
   CLI-level proof that the dedicated search typed-taxonomy budget guard stays
   green for the committed approved consumer inventory and field-reference
-  counts, and fails red when an approved search-cluster entry grows beyond its
-  recorded field-reference budget.
+  counts, remains green for shrink-only reductions, and fails red when an
+  approved search-cluster entry grows beyond its recorded field-reference
+  budget.
 * `src/tests/ci/typed-taxonomy-consumer-audit-command.test.ts`
   CLI-level proof that maintainers can render the current audit summary from the
   repository root.
