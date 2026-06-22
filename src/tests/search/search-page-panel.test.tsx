@@ -27,6 +27,7 @@ import {
   expectUniqueCanonicalPageUrls,
   MULTI_HEAD_ATTENTION_URL,
   MULTI_QUERY_ATTENTION_URL,
+  PREFILL_URL,
   resultsIncludeSampleModule,
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
@@ -274,6 +275,29 @@ describe("SearchPagePanel Phase 1 queries", () => {
     const results = await screen.findByTestId("search-page-results");
     const firstUrl = within(results).getAllByTestId("search-result-url")[0];
     expect(firstUrl?.textContent).toContain(SAMPLE_MODULE_URL);
+  });
+
+  test.each([
+    "prefill",
+    "prompt processing",
+    "prompt pass",
+    "first token latency",
+  ] as const)("%s query ranks the canonical prefill concept page first on /search", async (query) => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      query,
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    const firstRow = within(results).getAllByTestId("search-result-row")[0];
+    const firstUrl = within(results).getAllByTestId("search-result-url")[0];
+
+    expect(firstUrl?.textContent).toContain(PREFILL_URL);
+    expect(firstRow?.textContent).toMatch(/prefill/i);
   });
 
   test.each([
