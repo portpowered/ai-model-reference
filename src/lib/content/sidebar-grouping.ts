@@ -24,6 +24,7 @@ export const SIDEBAR_GROUP_LABELS = {
     "positional-and-sequence-encoding": "Positional And Sequence Encoding",
   },
   training: {
+    pretraining: "Pretraining",
     alignment: "Alignment",
     "post-training": "Post-Training",
     distillation: "Distillation",
@@ -267,6 +268,10 @@ function resolveOntologyTrainingSidebarGroup(
     >
   | undefined {
   const membership = getCanonicalClassificationMembership(record);
+  if (membership.has("classification.training.pretraining")) {
+    return createSidebarGroupResolution("pretraining", "derived-taxonomy");
+  }
+
   if (membership.has("classification.training.alignment")) {
     return createSidebarGroupResolution("alignment", "derived-taxonomy");
   }

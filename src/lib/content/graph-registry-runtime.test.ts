@@ -30,7 +30,6 @@ describe("graph-registry-runtime", () => {
       "rollout",
       "rollback",
     ]);
-
     const computeFlow = getGraphById(
       "graph.grouped-query-attention-compute-flow",
     );
@@ -63,6 +62,8 @@ describe("graph-registry-runtime", () => {
     const bundledIds = listGraphRecords().map((record) => record.id);
     expect(new Set(bundledIds).size).toBe(bundledIds.length);
     expect(bundledIds).toContain(CANONICAL_GRAPH_ID);
+    expect(bundledIds).toContain("graph.batching-system-flow");
+    expect(bundledIds).toContain("graph.pretraining-training-flow");
     expect(bundledIds).toContain("graph.deployment-system-flow");
     expect(bundledIds).toContain("graph.unigram-tokenizer-segmentation-flow");
 
@@ -74,6 +75,10 @@ describe("graph-registry-runtime", () => {
     expect(listGraphRecords().map((record) => record.id)).not.toContain(
       "graph.runtime-override-only",
     );
+
+    clearRegisteredGraphRecords();
+
+    expect(getGraphById("graph.runtime-override-only")).toBeUndefined();
   });
 
   test("lets registered records override bundled lookup and reset to canonical records", () => {

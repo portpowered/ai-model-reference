@@ -41,6 +41,17 @@ describe("sidebar grouping contract", () => {
     );
   });
 
+  test("exposes stable subgroup labels for training navigation", () => {
+    expect(getSidebarGroupIdsForSection("training")).toEqual([
+      "pretraining",
+      "alignment",
+      "post-training",
+      "distillation",
+      "optimization",
+    ]);
+    expect(SIDEBAR_GROUP_LABELS.training.pretraining).toBe("Pretraining");
+  });
+
   test("derives covered module groups from ontology membership before compatibility fallback", () => {
     expect(
       resolveModulesSidebarGroupWithSource({
@@ -125,6 +136,14 @@ describe("sidebar grouping contract", () => {
   });
 
   test("derives training and system groups from ontology when the branch is modeled", () => {
+    expect(
+      resolveTrainingSidebarGroupWithSource({
+        primaryClassificationId: "classification.training.pretraining",
+      }),
+    ).toEqual({
+      groupId: "pretraining",
+      source: "derived-taxonomy",
+    });
     expect(
       resolveTrainingSidebarGroupWithSource({
         primaryClassificationId: "classification.training.alignment",

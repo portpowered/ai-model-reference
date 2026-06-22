@@ -26,6 +26,9 @@ describe("sentencepiece tokenization discovery surfaces (sentencepiece-page-003)
     );
     const conceptGroup = groups.find((group) => group.kind === "concept");
     const moduleGroup = groups.find((group) => group.kind === "module");
+    const trainingGroup = groups.find(
+      (group) => group.kind === "training-regime",
+    );
 
     expect(context?.title).toBe("Tokenization");
     expect(context?.summary.length).toBeGreaterThan(0);
@@ -33,10 +36,12 @@ describe("sentencepiece tokenization discovery surfaces (sentencepiece-page-003)
     expect(groups.map((group) => group.kind)).toEqual([
       "module",
       "concept",
+      "training-regime",
       "glossary",
     ]);
     expect(moduleGroup?.kindLabel).toBe("Module");
     expect(conceptGroup?.kindLabel).toBe("Concept");
+    expect(trainingGroup?.kindLabel).toBe("Training");
     expect(conceptGroup?.resources).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -54,6 +59,16 @@ describe("sentencepiece tokenization discovery surfaces (sentencepiece-page-003)
           slug: "sentencepiece",
           title: "SentencePiece",
           url: SENTENCEPIECE_URL,
+        }),
+      ]),
+    );
+    expect(trainingGroup?.resources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "training-regime",
+          slug: "pretraining",
+          title: "Pretraining",
+          url: "/docs/training/pretraining",
         }),
       ]),
     );

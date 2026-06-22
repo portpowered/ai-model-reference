@@ -90,6 +90,8 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/yarn/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "training/pretraining/page.mdx":
+    "Canonical pretraining needs a message-backed custom reader-journey link list in the comparison section to avoid nested auto-linked anchors while preserving localized navigation labels.",
 };
 
 const templateStructureCache = new Map<

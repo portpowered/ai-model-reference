@@ -343,6 +343,7 @@ describe("registry-runtime", () => {
         "classification.concept.architecture.activation",
         "classification.training",
         "classification.training.alignment",
+        "classification.training.pretraining",
         "classification.system",
         "classification.system.routing",
       ]),
@@ -383,6 +384,16 @@ describe("registry-runtime", () => {
       expect.arrayContaining([
         "classification.module.attention.grouped-query",
         "classification.module.attention.multi-head",
+      ]),
+    );
+    expect(
+      listChildClassifications("classification.training").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "classification.training.alignment",
+        "classification.training.pretraining",
       ]),
     );
     expect(

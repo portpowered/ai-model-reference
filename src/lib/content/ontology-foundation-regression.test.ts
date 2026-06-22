@@ -49,6 +49,7 @@ const seededPrimaryClassifications = new Map([
     "classification.module.transformer-block",
   ],
   ["training-regime.dpo", "classification.training.alignment"],
+  ["training-regime.pretraining", "classification.training.pretraining"],
   ["system.routing", "classification.system.routing"],
 ]);
 
@@ -421,6 +422,9 @@ describe("ontology foundation regression coverage", () => {
     expect(getPrimaryClassificationForRecord("training-regime.dpo")?.id).toBe(
       "classification.training.alignment",
     );
+    expect(
+      getPrimaryClassificationForRecord("training-regime.pretraining")?.id,
+    ).toBe("classification.training.pretraining");
     expect(getPrimaryClassificationForRecord("system.routing")?.id).toBe(
       "classification.system.routing",
     );
@@ -505,6 +509,11 @@ describe("ontology foundation regression coverage", () => {
         (member) => `${member.membershipType}:${member.record.id}`,
       ),
     ).toEqual(["primary:training-regime.dpo"]);
+    expect(
+      listClassificationMembers("classification.training.pretraining").map(
+        (member) => `${member.membershipType}:${member.record.id}`,
+      ),
+    ).toEqual(["primary:training-regime.pretraining"]);
     expect(
       listClassificationMembers("classification.system.routing").map(
         (member) => `${member.membershipType}:${member.record.id}`,

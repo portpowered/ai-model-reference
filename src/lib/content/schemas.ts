@@ -532,9 +532,15 @@ const pageAssetVariantLabelSchema = z.object({
   label: z.string().min(1),
 });
 
+const pageAssetLegendItemSchema = z.object({
+  label: z.string().min(1),
+});
+
 const pageAssetMessageSchema = z.object({
   alt: z.string().optional(),
   caption: z.string().optional(),
+  title: z.string().optional(),
+  legend: z.record(z.string(), pageAssetLegendItemSchema).optional(),
   variants: z.record(z.string(), pageAssetVariantLabelSchema).optional(),
 });
 
