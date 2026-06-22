@@ -10,6 +10,7 @@ import type { ComponentProps, ComponentType } from "react";
 import { DocsAutoLinkedDescription } from "@/features/docs/components/DocsAutoLinkedDescription";
 import { DocsPageBreadcrumb } from "@/features/docs/components/DocsPageBreadcrumb";
 import { FoldedOpeningSummary } from "@/features/docs/components/FoldedOpeningSummary";
+import { FoldedSummary } from "@/features/docs/components/FoldedSummary";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
   loadLocalDocsPage,
@@ -90,6 +91,7 @@ async function renderLocalDocsPage(
         />
         <DocsTitle>{loadedPage.messages.title}</DocsTitle>
         <DocsDescription>{description}</DocsDescription>
+        <FoldedSummary />
         <DocsBody>
           {localRef.section === "systems" ? (
             <FoldedOpeningSummary

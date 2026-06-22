@@ -1,12 +1,28 @@
 import { describe, expect, setDefaultTimeout, test } from "bun:test";
+import { afterEach, describe, expect, setDefaultTimeout, test } from "bun:test";
+import { cleanup, screen } from "@testing-library/react";
+import { act } from "react";
 import {
   buildDocsPageMetadata,
   renderDocsSlugPage,
 } from "@/app/docs/docs-slug-renderer";
+import { CanonicalDocsLayout } from "@/components/layout/canonical-docs-layout";
+import {
+  captureOriginalFetch,
+  installDocsSearchFetchMock,
+  loadAppTestContext,
+  renderWithAppProviders,
+  restoreFetchMock,
+} from "@/tests/a11y/render";
 
 setDefaultTimeout(15_000);
 
 describe("docs slug renderer locale gating", () => {
+  afterEach(() => {
+    cleanup();
+    restoreFetchMock();
+  });
+
   test.each([
     ["glossary", "sampling-overview"],
     ["glossary", "greedy-decoding"],
@@ -244,5 +260,28 @@ describe("docs slug renderer locale gating", () => {
         /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
       );
     }
+  });
+
+  test("local docs routes render the folded opening summary for canonical pages", async () => {
+    const page = await renderDocsSlugPage(["concepts", "prefill"]);
+    captureOriginalFetch();
+    await installDocsSearchFetchMock();
+    const context = await loadAppTestContext();
+
+    await act(async () => {
+      await renderWithAppProviders(
+        <CanonicalDocsLayout messages={context.messages}>
+          {page}
+        </CanonicalDocsLayout>,
+        { context },
+      );
+    });
+
+    const summary = screen.getByTestId("folded-summary");
+    expect(summary.getAttribute("data-opening-summary")).toBe("folded");
+    expect(screen.getByText("Summary")).toBeTruthy();
+    expect(summary.textContent).toContain(
+      "The first generated token often feels slow because the model must process the whole prompt before it can begin replying",
+    );
   });
 });
