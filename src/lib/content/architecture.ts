@@ -11,6 +11,49 @@ export type ArchitectureEntry = {
   slug: string;
 };
 
+function preferArchitecturePageCandidate(
+  current: DocsPageSource,
+  candidate: DocsPageSource,
+): DocsPageSource {
+  if (
+    current.frontmatter.kind !== "concept" &&
+    candidate.frontmatter.kind === "concept"
+  ) {
+    return candidate;
+  }
+
+  return current;
+}
+
+function dedupeArchitecturePagesByRegistryId(
+  pages: DocsPageSource[],
+): DocsPageSource[] {
+  const dedupedPages: DocsPageSource[] = [];
+  const pagesByRegistryId = new Map<string, number>();
+
+  for (const page of pages) {
+    const { registryId } = page.frontmatter;
+    if (!registryId) {
+      dedupedPages.push(page);
+      continue;
+    }
+
+    const existingIndex = pagesByRegistryId.get(registryId);
+    if (existingIndex === undefined) {
+      pagesByRegistryId.set(registryId, dedupedPages.length);
+      dedupedPages.push(page);
+      continue;
+    }
+
+    dedupedPages[existingIndex] = preferArchitecturePageCandidate(
+      dedupedPages[existingIndex],
+      page,
+    );
+  }
+
+  return dedupedPages;
+}
+
 function isConceptRecord(
   record: ReturnType<typeof getRegistryRecord>,
 ): record is ConceptRecord {
@@ -112,5 +155,8 @@ export async function loadPublishedArchitectureEntries(
   const pages = (await loadShippedLocalizedDocsPages(locale)).filter((page) =>
     isArchitectureRelatedPage(page, indexes),
   );
-  return sortArchitectureEntriesByTitle(pages.map(toArchitectureEntry), locale);
+  return sortArchitectureEntriesByTitle(
+    dedupeArchitecturePagesByRegistryId(pages).map(toArchitectureEntry),
+    locale,
+  );
 }
