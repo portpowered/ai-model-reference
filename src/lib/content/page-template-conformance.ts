@@ -64,12 +64,16 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/positional-interpolation/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/sigmoid/page.mdx":
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/relu/page.mdx":
     "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/relative-position-bias/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/rope/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/tanh/page.mdx":
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/sinusoidal-positional-embeddings/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/silu/page.mdx":
@@ -80,10 +84,14 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module page predates the variants-and-nearby-modules section.",
   "modules/superhot-rope/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/gelu/page.mdx":
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/t5-relative-position-bias/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/yarn/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "training/pretraining/page.mdx":
+    "Canonical pretraining needs a message-backed custom reader-journey link list in the comparison section to avoid nested auto-linked anchors while preserving localized navigation labels.",
 };
 
 const templateStructureCache = new Map<

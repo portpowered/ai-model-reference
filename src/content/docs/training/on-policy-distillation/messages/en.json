@@ -29,8 +29,14 @@
   },
   "assets": {
     "trainingFlow": {
+      "title": "On-Policy Distillation training flow",
       "alt": "A loop from current policy to sampled trajectories to student update.",
-      "caption": "On-policy distillation keeps refreshing supervision from the student's current behavior."
+      "caption": "On-policy distillation keeps refreshing supervision from the student's current behavior.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
     }
   },
   "graph": {

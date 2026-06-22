@@ -96,10 +96,11 @@ They differ in frontmatter `kind: glossary`, route prefix
 (`/docs/glossary/<slug>`), and glossary-specific message rules described in
 `glossary.content.md`.
 
-### Page generation for concept and glossary
+### Page generation for canonical bundles
 
-For **concept** and **glossary** pages, the preferred direct-authoring path is
-the page-spec workflow:
+For **concept**, **glossary**, **module**, **model**, **paper**, and
+**training-regime** pages, the preferred direct-authoring path is the page-spec
+workflow:
 
 ```sh
 bun run generate:page-bundle -- --help
@@ -113,9 +114,9 @@ the registry record:
 bun run generate:page-bundle -- --spec page-specs/page-spec-workflow-sample.json --dry-run
 ```
 
-See `page-specs/page-spec-workflow-sample.json` for the input shape and
-`docs/temp/processes/content-page-generation-workflow-relevant-files.md` for the
-full contract.
+See `page-specs/` for checked-in sample inputs across the supported canonical
+kinds and `bun run generate:page-bundle -- --help` for the full checked-in
+contract.
 
 **Legacy scaffold** — `scaffold:doc-page` still generates concept and glossary
 bundles from CLI flags for backward compatibility. Its `--help` output points
@@ -126,18 +127,55 @@ unless you are reproducing an older scaffold-only workflow.
 bun run scaffold:doc-page -- --help
 ```
 
-### Template copy for other canonical kinds
+The page-spec generator is the supported common path for those canonical kinds.
+Templates in `docs/templates/` remain the production structures behind the
+generator and the fallback path for exceptional manual work, but contributors
+should not need template copy plus multi-file hand edits in the common case.
 
-All other canonical kinds (**model**, **module**, **paper**, **training-regime**)
-still start from the template bundle in `docs/templates/`. Copy
-`<kind>.mdx` to `page.mdx`, rename the starter JSON files into the published
-folder, create the matching registry record under `src/content/registry/`, and
-follow `<kind>.content.md` until page-spec or scaffold support expands.
+## Ontology-first taxonomy contract
+
+Canonical authoring for **modules**, **concepts/glossary entries**,
+**training regimes**, and **systems** is moving to the ontology-backed shape:
+
+- `primaryClassificationId`
+- `secondaryClassificationIds`
+- `relationships`
+
+Use [the convergence plan](../temp/ontology-classification-topology-convergence-plan.md)
+as the source design for this staged deprecation.
+
+For this convergence slice, treat those ontology fields as the long-term
+contract you should author toward. Legacy typed taxonomy fields still exist in
+some compatibility paths, but they are no longer the preferred way to describe
+structure for new content.
+
+### Deprecation matrix
+
+The table below defines the staged role of each legacy taxonomy field at
+contributor touchpoints. "No longer generated" means starter templates and new
+authoring guidance must not tell contributors to fill that field for fresh
+pages. "Temporarily accepted with warnings" is the planned transition state for
+compatibility inputs. "Compatibility-only fallback" means the field may still
+exist in older records or downstream derivations, but it is not part of the
+preferred authoring contract.
+
+| Field | Record kinds | Deprecation state | Contributor guidance |
+| --- | --- | --- | --- |
+| `moduleType` | module | Temporarily accepted with warnings | Existing page-spec and registry flows may still read it, but new authoring should prefer classification membership and explicit relationships. |
+| `conceptType` | concept, glossary, training-regime, system | Temporarily accepted with warnings | Existing page-spec and registry flows may still read it, but new authoring should prefer classification membership and explicit relationships. |
+| `regimeType` | training-regime | Temporarily accepted with warnings | Existing page-spec and registry flows may still read it, but new authoring should prefer classification membership and explicit relationships. |
+| `systemType` | system | Temporarily accepted with warnings | Existing page-spec and registry flows may still read it, but new authoring should prefer classification membership and explicit relationships. |
+| `variantGroup` | module, training-regime, system | Compatibility-only fallback | Keep only when compatibility or derived grouping still needs it; do not use it as the primary way to express nearby variants for new pages. |
+| `moduleFamily` | module | Compatibility-only fallback | Keep only when compatibility or derived grouping still needs it; do not use it as the primary way to express structure for new pages. |
+| `sidebarGrouping` | concept, module, training-regime, system | No longer generated | Editorial navigation metadata only. Do not add it to new starter content unless a later workflow explicitly requires it. |
 
 Runtime registry lookups are derived automatically from the authoritative JSON
-records under `src/content/registry/`. Do not hand-edit
-`src/lib/content/registry-runtime.generated.ts`; normal `dev`, `build`,
-`typecheck`, and `test` commands regenerate or verify it for you.
+records under `src/content/registry/`. Those registry JSON files are the
+authored source of truth for the main registry runtime. Do not hand-edit or
+commit `src/lib/content/generated/registry-runtime.generated.ts`; use
+`bun run prepare:content-runtime` when you need to recreate it locally, and let
+the normal `dev`, `build`, `typecheck`, and `test` command paths regenerate or
+verify it for you.
 
 ### Choosing slug, title, aliases, tags, and registryId
 
@@ -179,12 +217,20 @@ resolve to published records in `src/content/registry/tags/` (for example
 `attention` maps to `tag.attention`). Repeat the same slugs in frontmatter and in
 the registry record `tags` array.
 
-When using `generate:page-bundle`, set `conceptType` in the page spec for
-concept and glossary pages. Valid values are `architecture`, `math`, `training`,
-`inference`, `systems`, `evaluation`, and `general`. Optional spec fields
-(`tags`, `aliases`, `relatedIds`, `citationIds`) seed registry and frontmatter
-fields in one step. The legacy `scaffold:doc-page` CLI accepts the same values
-through `--concept-type` and comma-separated optional flags.
+When using `generate:page-bundle`, the checked-in page-spec validator now
+accepts ontology-first inputs for module, concept, glossary, training-regime,
+and system pages through `primaryClassificationId` plus optional
+`secondaryClassificationIds` and `relationships`. Legacy typed taxonomy fields
+such as `conceptType`, `moduleType`, `regimeType`, and `systemType` are still
+accepted as temporary compatibility inputs, but they are no longer required for
+those ontology-backed authoring paths. Model pages still require `family`,
+`sourceType`, and `modalities`, and paper pages still require `authors`,
+`publishedAt`, and `url`. Valid `conceptType` values remain `architecture`,
+`math`, `training`, `inference`, `systems`, `evaluation`, and `general` when a
+compatibility input is still needed. Optional spec fields (`tags`, `aliases`,
+`relatedIds`, `citationIds`) seed registry and frontmatter fields in one step.
+The legacy `scaffold:doc-page` CLI accepts the concept/glossary subset through
+`--concept-type` and comma-separated optional flags.
 
 ## Canonical content requirements
 
@@ -350,6 +396,7 @@ run these lightweight checks often:
 | Command | Equivalent Bun script | What it validates |
 | --- | --- | --- |
 | `make validate-data` | `bun ./scripts/validate-registry.ts` | Registry schema, frontmatter ↔ registry alignment, message keys referenced from MDX, asset ids, graph/table references, tag and citation resolution, and colocated `messages/` + `assets.json` bundles under `src/content/docs/` |
+| `bun run audit:canonical-page-surface` | `bun ./scripts/audit-canonical-page-surface.ts` | Whether one canonical-page branch still fits the routine owned-file budget or has spilled into shared hotspot surfaces that need either a visible exception or a broader throughput lane |
 | `make linkcheck` | `bun ./scripts/validate-links.ts` | Internal links and `#section` anchors in published docs pages served through the Fumadocs catch-all route (`src/content/docs/**/page.mdx`) |
 
 `make validate-data` is the primary gate for docs content work. It catches the
@@ -366,16 +413,92 @@ between docs routes resolve (for example
 `/docs/modules/grouped-query-attention`, `/docs/glossary/token`, and in-page
 `#section` anchors). Fix broken relative links in MDX before review.
 
+`bun run audit:canonical-page-surface` fits between the content checks and PR
+review for ordinary canonical-page work. Run it after `make validate-data`
+confirms the page bundle and registry shape, rerun
+`bun run prepare:content-runtime` locally if you needed generated artifacts for
+validation, and use the audit to confirm the review commit stays on the owned
+page surface instead of carrying shared tests, generated runtime churn, or
+other hotspot edits into review.
+
 Optional during iteration:
 
 ```sh
 make lint          # Biome check — same as bun run lint
-make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
+make typecheck     # prepare:content-runtime + fumadocs-mdx, then tsc --noEmit
+bun run prepare:content-runtime # recreate generated content runtime artifacts locally
 ```
 
 `make lint` helps when you edit TypeScript, MDX components, or scripts alongside
 docs content. `make typecheck` matters when your change touches typed loaders,
 registry code, or MDX component props.
+
+When a maintainer wants one repeatable content-branch proof before review,
+prefer `bun run doctor:content-pr`. It is intentionally narrower than `make ci`:
+the doctor flow checks tracked cleanliness for `src/content` plus
+the generated runtime modules owned by `bun run prepare:content-runtime`,
+reruns that canonical entrypoint, fails immediately if that generation step
+leaves tracked derived-artifact drift, verifies the full generated-runtime
+completeness/freshness contract, and finishes with the lightweight content
+checks `validate-data` and `linkcheck`. It reports scoped tracked-path drift
+and tells you to review, commit, stash, or discard those changes before
+rerunning; if the supported preparation path still leaves stale deleted-route
+generated state behind, it now fails with a targeted generated-source
+completeness/freshness invariant instead of only surfacing generic clean-path
+or linkcheck errors. It does not attempt unrelated cleanup for the rest of the
+repository. The ignored
+`src/lib/content/generated/published-docs-registry.generated.ts` manifest is
+also regenerated by that preparation flow for browser-safe published-doc
+lookups, but it stays outside the tracked clean-tree proof because the file is
+derived and gitignored.
+
+### Discovery and navigation test strategy
+
+When a docs change affects discovery surfaces such as the sidebar, browse
+indexes, tag landing pages, taxonomy pages, or search, prefer tests that track
+the runtime contract instead of freezing the entire current corpus.
+
+Use these patterns:
+
+- **Structural invariants** for stable shape rules. Example: assert that the
+  required top-level docs folders exist, that configured subgroup separators are
+  present, or that a generated page tree stays aligned with the runtime-derived
+  published-page set for one section.
+- **Representative anchors** for reader journeys. Example: assert that one or a
+  few canonical routes per behavior class appear in the sidebar, browse page,
+  tag landing, or taxonomy/search flow instead of listing every page in that
+  class. Prefer runtime-derived positions such as the first and last visible
+  route in a section when the contract is about discovery order rather than a
+  specific page slug.
+- **Grouped-sidebar bounds** for separator-driven sections. Example: in grouped
+  page-tree tests, assert that each runtime-derived subgroup stays contiguous
+  after its separator and that the subgroup's first and last runtime-derived
+  pages remain the visible anchors, rather than snapshotting every page in the
+  subgroup.
+- **Shared discovery-contract checks** when multiple surfaces should agree about
+  the same content. Example: reuse the same representative route across
+  published-doc loading, tag-group membership, and search-document assertions so
+  one contract proves the surfaces stay aligned.
+
+Avoid broad exact inventories when the product behavior under test is
+discoverability. New published pages should usually land without unrelated edits
+to `src/lib/source.test.ts`,
+`src/lib/navigation/generated-docs-page-tree.test.ts`, tag landing tests,
+browse-index tests, or search discovery tests, as long as the new page follows
+existing grouping and discovery rules.
+
+An exact manual list is still appropriate when the list itself is the intended
+reader-visible contract. Examples include:
+
+- a fixed ordered command list documented for contributors
+- a small curated set of top-level navigation items where every entry is
+  intentionally hand-chosen
+- a deliberately limited proof set whose membership is itself the behavior under
+  review
+
+If you keep a manual list in a test, document the behavior class it protects so
+future contributors can tell that it is curated on purpose rather than acting as
+hidden whole-site inventory.
 
 For a visual pass on a published page, start the dev server after installing
 dependencies:
@@ -404,7 +527,7 @@ make ci
 `make ci` runs, in order:
 
 1. `make lint` — Biome check
-2. `make typecheck` — `fumadocs-mdx`, then `tsc --noEmit`
+2. `make typecheck` — `prepare:content-runtime`, then `fumadocs-mdx`, then `tsc --noEmit`
 3. `make test` — `bun test`
 4. `make coverage` — manifest-scoped reusable component coverage gate
 5. `make test-build-contract` — production build contract plus one GitHub Pages base-path export artifact contract
@@ -412,13 +535,134 @@ make ci
 7. `make validate-data` — registry and content validation (same as the fast loop above)
 8. `make linkcheck` — internal docs link validation
 
-You do not need to run `fumadocs-mdx` manually. `pretypecheck` and `pretest` in
-`package.json` generate `.source/` automatically on fresh checkouts.
+You do not need to run `fumadocs-mdx` manually. Supported command paths invoke
+`prepare:content-runtime` first and then run `fumadocs-mdx` automatically when
+`.source/` is required on fresh checkouts.
+
+When you need to recreate generated content runtime artifacts locally, use
+`bun run prepare:content-runtime`. It is the canonical entrypoint for shipped
+localized docs, graph runtime data, the generated published-docs manifest, the
+generated main registry runtime, and table registry runtime data.
+
+The authoritative generated-runtime contract lives in
+`src/lib/content/content-runtime-preparation.ts` as
+`CONTENT_RUNTIME_COMPLETENESS_CONTRACT`. That one list defines each supported
+runtime-preparation step, the generated output path, and whether the file is
+expected to be committed or intentionally ignored in git.
+
+When a reviewer needs one narrow generated-runtime proof, run
+`make verify-content-runtime-completeness`. That target calls
+`bun run verify:content-runtime-completeness`, which reruns
+`bun run prepare:content-runtime`, then fails non-zero if any required runtime
+module is missing or if its tracked-versus-ignored git classification no longer
+matches the completeness contract.
+
+For the main registry runtime specifically, author changes in
+`src/content/registry/` and do not manually edit or commit
+`src/lib/content/generated/registry-runtime.generated.ts`.
+
+For the published docs registry manifest specifically, author changes in the
+published docs pages, colocated messages/assets, and registry JSON inputs rather
+than editing the generated manifest. `src/lib/content/generated/published-docs-registry.generated.ts`
+is scanner-derived, regenerated by `bun run prepare:content-runtime` or
+`bun run generate:published-docs-registry`, and stays out of routine commits.
 
 For most docs-only pull requests, the **fast content loop** (`make validate-data`
 and `make linkcheck`) catches registry and linking regressions early. Run
 `make ci` once before opening the PR so you match the required GitHub **ci**
 check.
+
+## Routine canonical-page PR surface budget
+
+Use one visible default contract for ordinary canonical-page pull requests: keep
+the authored surface centered on one page bundle and its directly paired
+structured data, and treat shared collision surfaces as an exception path rather
+than the routine case.
+
+### What counts as page-owned work
+
+For one canonical page, the routine owned surface is:
+
+- The page bundle under `src/content/docs/<group>/<slug>/`, including
+  `page.mdx`, `messages/en.json`, `assets.json`, and page-local asset files.
+- The matching primary structured record for that page under
+  `src/content/registry/<group>/<slug>.json`.
+- Page-specific supporting records that only exist to render that same page,
+  such as a matching graph or table registry record when the page bundle
+  declares one.
+- Generated outputs recreated by supported commands such as
+  `bun run prepare:content-runtime`, as long as you regenerate them locally and
+  leave generated runtime artifacts out of the routine commit.
+
+This is the narrow default reviewers should expect from ordinary page work:
+authored content, colocated messages/assets, the matching registry record, and
+no unrelated shared-surface churn.
+
+### What counts as a shared hotspot surface
+
+`bun run report:planner-conflict-hotspots` is the maintained evidence source for
+collision-prone surfaces. Today it groups recurrent conflict areas into these
+review-relevant categories:
+
+- `generated artifact/runtime churn` such as
+  `src/lib/content/generated/*.generated.ts`
+- `shared test/verification` such as `src/lib/content/*.test.ts`,
+  `src/tests/ci`, and `scripts/validate-*.ts`
+- `shared registry/manifest` such as broad `src/content/registry/` edits beyond
+  the page's own primary record
+- `shared helper` such as `src/lib/content`, `src/lib/search`, `package.json`,
+  and `Makefile`
+
+The current hotspot snapshot shows why these categories need separate handling:
+`src/lib/content` test files, `src/tests/search`, `src/tests/ci`, generated
+runtime artifacts, and broad registry/helper paths are touched more often than
+an individual page bundle.
+
+### Expected budget for routine page work
+
+Treat the budget as three lanes:
+
+| Lane | What belongs there | Review expectation |
+| --- | --- | --- |
+| **Default pass** | One page bundle, its localized messages, page-local assets, the matching primary registry record, and page-specific supporting graph/table records | Normal canonical-page PR. No extra justification needed. |
+| **Allowed with justification** | A small shared touch that is directly required to ship the page, such as a narrowly scoped shared helper adjustment or one additional registry/support file | Call out the reason in the PR so reviewers can see why the page could not stay fully owned. |
+| **Redirect to a broader throughput lane** | Generated runtime artifacts committed as authored output, broad validator or verification churn, shared test suites, manifest/runtime rewrites, build/search/tooling changes, or multiple shared hotspot categories at once | Split the work or open/use a dedicated throughput PRD instead of hiding it inside a routine page PR. |
+
+In practice, a routine canonical-page branch should normally avoid:
+
+- Shared test and verification files
+- Generated runtime artifacts checked in as authored changes
+- Broad registry sweeps, manifest rewrites, or validator updates
+- Build, search, factory, or repository tooling files unless the work item is
+  explicitly broader than one page
+
+Run `bun run audit:canonical-page-surface` before review when you need a quick
+branch-local check against this budget. The command audits the current branch by
+default, or you can pass an explicit file set with
+`bun run audit:canonical-page-surface -- --page-dir src/content/docs/<group>/<slug> --files <path...>`.
+It reads the canonical page frontmatter, classifies each changed path as
+page-owned, declared generated output, or a shared hotspot surface, then
+prints one recommended action:
+
+- `keep-routine` when the branch stays inside the default owned page surface
+- `split-to-page-owned-work` when the diff mainly includes generated outputs
+  that should be removed from the routine review commit
+- `declare-exception` when one narrow shared touch can stay in the PR with an
+  explicit justification
+- `redirect-to-throughput-prd` when the branch crosses broader shared hotspot
+  categories or multiple shared surfaces at once
+
+The audit fails clearly only when it cannot determine one page scope or current
+hotspot evidence.
+
+When a page truly needs cross-surface work, keep the exception visible. State
+which shared category was touched, why the owned page surface was insufficient,
+and whether the change still fits one narrow PR or should move into a dedicated
+throughput/factory lane. Use
+`bun run audit:canonical-page-surface -- --exception-reason "<why this shared touch is required>"`
+for those cases. The guard still reports `over-budget`, but it echoes the
+exception so you can paste the same wording into the PR conversation comment and
+keep the broader touch reviewable instead of silently downgrading the warning.
 
 ### Checks that are not the default contributor path
 
@@ -438,7 +682,7 @@ convergence review. The checked-in scripts (`validate-registry.ts`,
 `validate-links.ts`, build verifiers inside `make build` / `make build-export`)
 are the supported validation surface.
 
-### After page generation, scaffolding, or template copy
+### After page generation or exceptional manual fallback
 
 When you add a new page with `generate:page-bundle`, the legacy
 `scaffold:doc-page` command, or by copying a template bundle:
@@ -448,10 +692,61 @@ When you add a new page with `generate:page-bundle`, the legacy
 3. Set `status: published` in `page.mdx` frontmatter when the page is ready for
    published checks (keep `draft` while tags or citations still point at
    unpublished targets).
-4. Run `make validate-data`, then `make linkcheck`.
-5. Run `make ci` before opening the pull request.
+4. Run `make validate-data`.
+5. If the branch is meant to stay one routine canonical-page PR, run
+   `bun run audit:canonical-page-surface` and keep the review commit in the
+   `keep-routine` lane unless you are carrying a visible exception or moving
+   the work into a broader throughput PRD.
+6. Run `make linkcheck`.
+7. Run `make ci` before opening the pull request.
 
 This matches the post-scaffolding checklist in [README.md](../../README.md).
+
+### Critical docs smoke autodiscovery
+
+The critical-doc smoke path is metadata-driven. Contributors should treat it as
+an extension of the normal published canonical page workflow, not as a set of
+hand-maintained route lists.
+
+The shared contract in `src/lib/content/critical-docs-smoke.ts` derives smoke
+coverage from three supported inputs:
+
+1. `loadShippedLocalizedDocsPages` loads the published canonical page set.
+2. `resolvePublishedResourceTags` merges page frontmatter tags with registry
+   tags.
+3. The published-docs registry/discovery manifest remains the supported route
+   inventory for those published pages.
+
+This means a normal page addition should be picked up automatically when all of
+the following are true:
+
+- the page is a published canonical docs page that already participates in the
+  shipped published-docs workflow
+- its `kind`, `registryId`, and route are valid under `make validate-data`
+- its merged page-plus-registry tags satisfy an existing critical smoke rule
+
+Current examples:
+
+- published module pages with the merged `attention` tag enter the critical
+  attention smoke set automatically
+- published glossary pages with the merged `token-to-probability-chain` tag
+  enter the glossary smoke set automatically
+
+Do not add a bespoke smoke entry just because a new eligible page exists. A
+manual smoke update is expected only when behavior changes. Common cases are:
+
+- adding or changing a representative search probe because the reader-facing
+  discovery behavior under test changed
+- changing the critical-rule definitions in
+  `src/lib/content/critical-docs-smoke.ts`
+- adding a new export-facing route expectation or a new smoke behavior class
+  that is not covered by the existing projections
+
+Keep the ownership boundary explicit. If a docs change is correctly discovered
+by the shared contract but a built-app or GitHub Pages static-export verifier
+still fails, do not broaden the docs-authoring change into unrelated verifier
+repair unless you have reproduced a concrete customer-visible coverage gap that
+belongs to the current work item.
 
 ## Choose your path
 
@@ -467,8 +762,8 @@ Use direct authoring when you can implement the page yourself in a pull request:
 - The work fits an existing template or the current page-generation support
   boundary.
 
-For **glossary** and **concept** pages, start with the page-spec generator
-(see [Page generation for concept and glossary](#page-generation-for-concept-and-glossary)):
+For canonical page bundles, start with the page-spec generator
+(see [Page generation for canonical bundles](#page-generation-for-canonical-bundles)):
 
 ```sh
 bun run generate:page-bundle -- --help
@@ -481,8 +776,10 @@ bun run generate:page-bundle -- --spec page-specs/page-spec-workflow-sample.json
 ```
 
 For a new page, copy `page-specs/page-spec-workflow-sample.json`, adjust
-`kind`, `slug`, `title`, `summary`, and section bodies, then dry-run before
-writing files.
+`kind`, `slug`, `title`, `summary`, and the kind-specific required fields, then
+dry-run before writing files. For module, model, paper, and training-regime
+pages, this page-spec flow is the supported common path; template-copy work is
+for exceptional cases only.
 
 **Legacy scaffold** — when you need the older CLI-flag workflow, `scaffold:doc-page`
 still supports concept and glossary dry runs:
@@ -497,10 +794,6 @@ Equivalent Make entry:
 ```sh
 make scaffold ARGS='--kind glossary --slug my-term --title "My term" --concept-type general --dry-run'
 ```
-
-For **model**, **module**, **paper**, and **training-regime** pages, copy the
-matching template bundle from `docs/templates/` and create the registry record
-manually until page-spec or scaffold support expands.
 
 After generating, scaffolding, or copying a template bundle, replace placeholder copy in
 `messages/en.json`, add or update registry records the page references, and set
@@ -521,19 +814,17 @@ pages.
 
 | Path | When to use it | What you deliver |
 | --- | --- | --- |
-| **Direct pull request** | One page (or a small, tightly related set) you can implement yourself with `generate:page-bundle`, template copy, or the legacy scaffold | MDX, registry records, messages, assets, and passing local checks in a PR |
-| **Factory request** | Generator-assisted page creation for kinds the page-spec workflow does not support yet, broad conversions across many pages, or coordinated multi-page batches | A clear **idea** work item (or batch of ideas) that maintainers can route through the factory pipeline |
+| **Direct pull request** | One page (or a small, tightly related set) you can implement yourself with `generate:page-bundle`, or the legacy scaffold when reproducing older concept/glossary-only flows | MDX, registry records, messages, assets, and passing local checks in a PR |
+| **Factory request** | Broad conversions across many pages, coordinated multi-page batches, or work that goes beyond the current checked-in generator/templates | A clear **idea** work item (or batch of ideas) that maintainers can route through the factory pipeline |
 
 Direct authoring ends in a normal GitHub pull request you can review page by page.
 Factory work ends in one or more executor pull requests produced after planning
 and batch submission. Do not mix the two paths casually: if you can land the page
-with `generate:page-bundle`, template copy, or legacy scaffold plus
-`make validate-data`, prefer a direct PR.
+with `generate:page-bundle` plus `make validate-data`, prefer a direct PR. Use
+the legacy scaffold only when reproducing the older concept/glossary-only flow.
 
 Examples of factory-appropriate requests:
 
-- Generator-assisted page creation for **model**, **module**, **paper**, or
-  **training-regime** kinds before scaffold support expands.
 - Broad content conversions that touch many registry records, templates, or
   message bundles at once.
 - Planned documentation batches tracked in
@@ -570,7 +861,7 @@ Minimal request shape contributors and maintainers should recognize:
     {
       "name": "module-flash-attention-page",
       "workTypeName": "idea",
-      "payload": "Add a canonical module page for flash-attention: kind module, slug flash-attention, source paper and existing attention concept links, start from docs/templates/module.mdx because scaffold does not support module yet."
+      "payload": "Add a canonical module page for flash-attention: kind module, slug flash-attention, source paper and existing attention concept links, use generate:page-bundle with a page spec and keep the emitted page bundle, registry record, messages, assets, and graph record aligned."
     }
   ]
 }
@@ -602,8 +893,9 @@ fields an `idea` payload needs:
 - **Page kind and slug** — for example `module` / `flash-attention`.
 - **Source material** — paper links, existing pages to align with, or draft
   outline.
-- **Starting path** — `generate:page-bundle` (concept/glossary), template sidecar
-  copy (other kinds), legacy scaffold, or generator-assisted creation.
+- **Starting path** — `generate:page-bundle` for canonical bundles in the
+  common case, legacy scaffold only for older concept/glossary flows, or a
+  broader factory transformation.
 - **Scope** — single page vs multi-page batch; whether registry or template
   changes are in scope.
 
@@ -617,8 +909,8 @@ request reviewer-ready:
 
 1. Name the **page kind** and **slug** using the rules in
    [Choosing slug, title, aliases, tags, and registryId](#choosing-slug-title-aliases-tags-and-registryid).
-2. State whether **page-spec generation**, **template copy**, **legacy scaffold**,
-   or broader **generator-assisted** creation applies today.
+2. State whether **page-spec generation**, **legacy scaffold**, or a broader
+   **generator-assisted** transformation applies today.
 3. List **source references** (papers, upstream docs, related registry IDs).
 4. Call out **tags, citations, and related IDs** you already know.
 5. Say whether the work is **one page** or part of a **larger batch** listed in

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import {
   expectGlossaryBodyOmitsTitleHeading,
   stripHtmlTags,
@@ -12,6 +12,11 @@ import {
   assertGroupedQueryAttentionTitleConvergence,
   GROUPED_QUERY_ATTENTION_MODULE_TITLE,
 } from "@/lib/verify/grouped-query-attention-module-convergence";
+
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
 
 function countH1BlocksContaining(html: string, text: string): number {
   const h1Pattern = /<h1\b[^>]*>[\s\S]*?<\/h1>/gi;
@@ -45,7 +50,7 @@ describe("grouped-query-attention module shell chrome", () => {
 
   test("published GQA page omits in-body title heading and pre-repair opening chrome", () => {
     const raw = readFileSync(
-      join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "page.mdx"),
+      join(groupedQueryAttentionPageDir, "page.mdx"),
       "utf8",
     );
 

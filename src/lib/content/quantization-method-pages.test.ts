@@ -18,7 +18,9 @@ describe("Phase 5 quantization method concept pages (chapter-5-quantization-002)
   test("registry records publish the three quantization methods with expected related docs and citations", () => {
     const weightOnly = getConceptById("concept.weight-only-quantization");
     expect(weightOnly?.status).toBe("published");
-    expect(weightOnly?.conceptType).toBe("inference");
+    expect(weightOnly?.primaryClassificationId).toBe(
+      "classification.concept.inference",
+    );
     expect(weightOnly?.tags).toEqual(["quantization"]);
     expect(weightOnly?.citationIds).toEqual([
       "citation.quantization-integer-only-inference",
@@ -27,7 +29,9 @@ describe("Phase 5 quantization method concept pages (chapter-5-quantization-002)
 
     const activation = getConceptById("concept.activation-quantization");
     expect(activation?.status).toBe("published");
-    expect(activation?.conceptType).toBe("inference");
+    expect(activation?.primaryClassificationId).toBe(
+      "classification.concept.inference",
+    );
     expect(activation?.tags).toEqual(["quantization"]);
     expect(activation?.citationIds).toEqual([
       "citation.quantization-integer-only-inference",
@@ -36,7 +40,9 @@ describe("Phase 5 quantization method concept pages (chapter-5-quantization-002)
 
     const kvCache = getConceptById("concept.kv-cache-quantization");
     expect(kvCache?.status).toBe("published");
-    expect(kvCache?.conceptType).toBe("inference");
+    expect(kvCache?.primaryClassificationId).toBe(
+      "classification.concept.inference",
+    );
     expect(kvCache?.tags).toEqual(["quantization", "kv-cache"]);
     expect(kvCache?.citationIds).toEqual([
       "citation.kivi-kv-cache-quantization",

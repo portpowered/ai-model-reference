@@ -1,0 +1,40 @@
+{
+  "title": "Deployment",
+  "description": "A serving system practice that turns a trained model plus its runtime stack into a live, versioned inference service on real hardware.",
+  "openingSummary": "Deployment is the step where a trained model stops being only a checkpoint and becomes a service other systems can actually call. The job is not just to copy weights onto a machine. The job is to fit the model, its runtime, its key-value (KV) cache, its traffic policy, and its rollback plan into hardware that stays reliable under real traffic.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Deployment means turning a trained model and its serving stack into a live inference service. The stack usually includes the weights, tokenizer, runtime, memory plan, request path, monitoring, and release policy needed to answer real requests safely."
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": "It sits after training and after architecture design. Training changes the weights. Architecture design decides what kind of model exists. Deployment does neither. Deployment decides whether that finished model can run acceptably on the target hardware, under the target latency and memory limits, with a release path that can move forward or roll back safely."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Teams package a model with a serving runtime, check that the model and its live state fit the chosen hardware, then expose the system behind a controlled rollout. Hardware shape matters because memory size, memory bandwidth, and accelerator count change how much model state can stay resident. Quantization, batching choices, and KV-cache strategy matter because they change whether the service can hold enough concurrent work without running out of memory or missing latency goals."
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": "Deployment is where abstract serving ideas meet operational reality. A model that looked fine in isolation can fail in production if the weights fit but the KV cache does not, if memory pressure forces concurrency lower than expected, if rollout reaches too many users at once, or if rollback is too slow after a bad serving change. In plain language, deployment is the part that decides whether a model is merely designed, merely trained, or actually operable."
+    },
+    "related": { "title": "Related To" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "A deployment flow that packages the model, checks hardware fit, rolls traffic forward, and preserves a rollback path.",
+      "caption": "Deployment is a controlled serving transition, not a one-time file copy."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "package": { "label": "Package model and runtime" },
+      "fit": { "label": "Check hardware and memory fit" },
+      "rollout": { "label": "Roll traffic forward carefully" },
+      "rollback": { "label": "Keep a fast rollback path" }
+    }
+  }
+}

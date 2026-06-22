@@ -1,1 +1,1 @@
-export * from "./registry-runtime.generated";
+export * from "./generated/registry-runtime.generated";

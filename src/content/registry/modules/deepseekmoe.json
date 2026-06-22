@@ -18,7 +18,7 @@
   "releaseDate": "2026-06-13",
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
-  "moduleType": "feed-forward",
+  "primaryClassificationId": "classification.module.feed-forward",
   "optimizes": [
     "parameter-capacity",
     "compute-efficiency",
@@ -29,8 +29,5 @@
   "tradeoffIds": [],
   "usedByModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "introducedByPaperIds": ["paper.deepseek-v4"],
-  "mathLevel": "none",
-  "moduleFamily": "feed-forward-network",
-  "conceptType": "feed-forward-variant",
-  "variantGroup": "moe-family"
+  "mathLevel": "none"
 }

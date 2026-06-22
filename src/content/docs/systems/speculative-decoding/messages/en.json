@@ -1,0 +1,58 @@
+{
+  "title": "Speculative Decoding",
+  "description": "A serving technique that uses a cheaper draft path to propose several next tokens, then asks the main model to verify them so decode-heavy requests can finish with fewer expensive turns.",
+  "openingSummary": "Speculative decoding is a latency-reduction technique for autoregressive serving. Instead of waiting for the main model to produce one token at a time, the serving stack lets a cheaper draft path guess several tokens, then asks the stronger verifier model to accept the matching prefix or reject the rest.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Speculative decoding is a serving system around the same underlying model, not a new model architecture. Its job is to reduce reader-visible decode latency by pairing the main model with a cheaper draft model or draft path that proposes several likely next tokens before the stronger model checks them."
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": "It sits inside the inference-serving runtime alongside batching, key-value cache management, routing, and request scheduling. The model weights still define the actual language model. Speculative decoding changes how the serving stack uses those weights during decode so one expensive verifier pass can sometimes accept more than one token."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The runtime starts from the same prompt prefix that the main model would normally decode from. A cheaper draft path proposes a short run of likely next tokens, then the stronger verifier model checks that proposal in one pass. The serving stack keeps the longest prefix that matches the verifier's own next-token choices, emits those accepted tokens, and discards the rest. If the verifier disagrees early, the runtime accepts only a short prefix or none of the draft at all, then resumes ordinary decoding from the stronger model."
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": "This technique helps most on decode-heavy workloads where the main model is expensive, the draft path is much cheaper, and acceptance stays high enough that one verifier pass can approve several tokens at once. In practical terms, more accepted tokens per verifier turn usually means less reader-visible delay per emitted token on long generations or other high-volume serving paths. The costs are real: the system now pays for draft-model memory and compute, verifier coordination, and extra runtime complexity. It can underperform when requests are short, acceptance rates stay low, the draft model mismatches the verifier too often, or the verifier itself remains the main bottleneck, because in those cases the extra draft work adds overhead without enough accepted-token payoff."
+    },
+    "related": {
+      "title": "Related To",
+      "body": "Use the nearby serving pages below to trace how speculative decoding interacts with request batching, routing, inference-engine behavior, key-value cache reuse, and deployment choices."
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "A request reaches a draft path, the draft proposes several tokens, the verifier checks them, accepted tokens are emitted, and rejected tokens fall back to the main model path.",
+      "caption": "Speculative decoding speeds serving only when cheap draft guesses are often good enough that one verifier pass can approve multiple tokens."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "request": {
+        "label": "Decode step starts"
+      },
+      "draft": {
+        "label": "Cheap draft path proposes tokens"
+      },
+      "verify": {
+        "label": "Main model verifies draft"
+      },
+      "accept": {
+        "label": "Emit accepted prefix"
+      },
+      "fallback": {
+        "label": "Reject rest and resume strong decode"
+      }
+    }
+  }
+}

@@ -211,18 +211,7 @@ export function buildGeneratedDocsPageTree(baseTree: Root): Root {
     }
   }
 
-  const gettingStarted = baseTree.children.find(
-    (node) =>
-      node.type === "page" &&
-      "url" in node &&
-      node.url === "/docs/getting-started",
-  );
-
   const children: Node[] = [];
-  if (gettingStarted) {
-    children.push(gettingStarted);
-  }
-
   for (const section of SECTION_ORDER) {
     children.push({
       type: "folder",

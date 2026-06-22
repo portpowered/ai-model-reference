@@ -43,6 +43,7 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
       "concept.prefill",
       "concept.decode",
       "concept.prefill-decode-split",
+      "system.batching",
       "concept.autoregressive-generation",
       "module.attention",
       "module.multi-query-attention",

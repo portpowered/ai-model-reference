@@ -16,6 +16,10 @@ function normalizePhraseKey(phrase: string): string {
   return phrase.toLowerCase();
 }
 
+function isTagHref(href: string): boolean {
+  return href.startsWith("/tags/");
+}
+
 /** Space and hyphen forms of the same alias (e.g. KV cache / KV-cache). */
 export function expandPhraseVariants(phrase: string): string[] {
   const variants = new Set<string>([phrase]);
@@ -46,6 +50,12 @@ export function buildProseAutoLinkPhraseIndex(
   for (const [phrase, hrefs] of hrefsByPhrase) {
     if (hrefs.size === 1) {
       index.set(phrase, [...hrefs][0]);
+      continue;
+    }
+
+    const nonTagHrefs = [...hrefs].filter((href) => !isTagHref(href));
+    if (nonTagHrefs.length === 1) {
+      index.set(phrase, nonTagHrefs[0]);
     }
   }
 

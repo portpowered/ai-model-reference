@@ -83,15 +83,18 @@ describe("validateDocumentationLinks", () => {
     expect(urls).toContain("/docs/modules/sparse-attention");
     expect(urls).toContain("/docs/glossary/token");
     expect(new Set(paths).size).toBe(paths.length);
-    expect(files.length).toBeLessThan(69);
+    expect(files.length).toBeGreaterThan(100);
   });
 
-  test("reports a broken internal route with an actionable target URL", async () => {
+  test("reports a broken internal docs target with an actionable URL", async () => {
     const scanned = await scanURLs({
       preset: "next",
       populate: {
         "docs/[[...slug]]": [
-          { value: { slug: ["getting-started"] }, hashes: ["welcome"] },
+          {
+            value: { slug: ["modules", "grouped-query-attention"] },
+            hashes: ["what-it-is"],
+          },
         ],
       },
     });
@@ -100,7 +103,8 @@ describe("validateDocumentationLinks", () => {
       files: [
         {
           path: "fixture/page.mdx",
-          content: "[Broken module](/docs/modules/does-not-exist)",
+          content:
+            "[Broken section](/docs/modules/grouped-query-attention#missing-section)",
           url: "/docs/getting-started",
         },
       ],
@@ -108,8 +112,10 @@ describe("validateDocumentationLinks", () => {
     });
 
     expect(results).toHaveLength(1);
-    expect(results[0]?.errors[0]?.url).toBe("/docs/modules/does-not-exist");
-    expect(results[0]?.errors[0]?.reason).toBe("not-found");
+    expect(results[0]?.errors[0]?.url).toBe(
+      "/docs/modules/grouped-query-attention#missing-section",
+    );
+    expect(results[0]?.errors[0]?.reason).toBe("invalid-fragment");
   });
 
   test("reports invalid heading anchors on populated docs routes", async () => {
@@ -172,7 +178,10 @@ const scanned = await scanURLs({
   preset: "next",
   populate: {
     "docs/[[...slug]]": [
-      { value: { slug: ["getting-started"] }, hashes: ["welcome"] },
+      {
+        value: { slug: ["modules", "grouped-query-attention"] },
+        hashes: ["what-it-is"],
+      },
     ],
   },
 });
@@ -181,7 +190,7 @@ const results = await validateDocumentationLinks({
   files: [
     {
       path: "fixture/page.mdx",
-      content: "[Broken](/docs/modules/does-not-exist)",
+      content: "[Broken](/docs/modules/grouped-query-attention#missing-section)",
       url: "/docs/getting-started",
     },
   ],
@@ -199,7 +208,7 @@ reportDocumentationLinkValidation(results);
 
     expect(result.status).toBe(1);
     expect(result.stderr ?? result.stdout).toContain(
-      "/docs/modules/does-not-exist",
+      "/docs/modules/grouped-query-attention#missing-section",
     );
   });
 });

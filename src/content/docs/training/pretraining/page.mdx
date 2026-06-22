@@ -1,0 +1,154 @@
+---
+title: "Pretraining"
+description: "The large base-model training stage where a transformer learns broad language patterns from massive token sequences before later alignment or deployment shaping."
+kind: "training-regime"
+registryId: "training-regime.pretraining"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - tokenization
+aliases:
+  - "Pretraining"
+  - "language model pretraining"
+  - "base model training"
+  - "next-token prediction"
+  - "next-token pretraining"
+updatedAt: "2026-06-20"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
+
+
+<TrainingRegimeAtAGlance registryId="training-regime.pretraining" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
+</Section>
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+  <TrainingRegimeFlow
+    registryId="training-regime.pretraining"
+    assetId="trainingFlow"
+  />
+  <BlockMath formula="\\max_\\theta \\sum_t \\log p_\\theta(x_t \\mid x_{<t})" />
+  <div
+    className="rounded-lg border border-border bg-card p-4"
+    data-page-math-variable-definitions="nextTokenObjective"
+  >
+    <dl className="space-y-2">
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="theta"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>&theta;</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.nextTokenObjective.variableDefinitions.theta.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="t"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>t</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.nextTokenObjective.variableDefinitions.t.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="xt"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            x<sub>t</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.nextTokenObjective.variableDefinitions.xt.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="xprefix"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            x<sub>&lt;t</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.nextTokenObjective.variableDefinitions.xprefix.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="ptheta"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>p&theta;(&middot;)</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.nextTokenObjective.variableDefinitions.ptheta.definition" />
+        </dd>
+      </div>
+    </dl>
+  </div>
+</Section>
+<Section
+  id="compared-to-nearby-regimes"
+  titleKey="sections.comparedToNearbyRegimes.title"
+>
+  <T k="sections.comparedToNearbyRegimes.body" />
+  <T k="links.gpt2Bridge" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/models/gpt-3", labelKey: "links.gpt3ModelPage" },
+      {
+        href: "/docs/concepts/transformer-architecture",
+        labelKey: "links.transformerArchitecture",
+      },
+      {
+        href: "/docs/modules/byte-level-tokenization",
+        labelKey: "links.byteLevelTokenization",
+      },
+      {
+        href: "/docs/glossary/alignment",
+        labelKey: "links.alignmentOverview",
+      },
+      { href: "/docs/training/dpo", labelKey: "links.dpo" },
+      { href: "/search?q=RLHF", labelKey: "links.rlhfSearch" },
+    ]}
+  />
+</Section>
+<Section
+  id="limitations-and-failure-modes"
+  titleKey="sections.limitationsAndFailureModes.title"
+>
+  <T k="sections.limitationsAndFailureModes.body" />
+</Section>
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="training-regime.pretraining" />
+</Section>
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="training-regime.pretraining" showDescriptions />
+</Section>
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="training-regime.pretraining" />
+</Section>

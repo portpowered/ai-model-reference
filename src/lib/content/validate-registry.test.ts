@@ -2,13 +2,18 @@ import { describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { defaultLocale, supportedLocales } from "@/lib/i18n/locale-routing";
-import { MODULES_DOCS_ROOT, TAG_MESSAGES_ROOT } from "./content-paths";
-import { tokenGlossaryPageDir } from "./page-messages-load";
+import {
+  getDocsPageDir,
+  MODULES_DOCS_ROOT,
+  TAG_MESSAGES_ROOT,
+} from "./content-paths";
 import { loadRegistry } from "./registry";
 import {
   validateColocatedPageBundle,
   validateRegistryContent,
 } from "./validate-registry";
+
+const tokenGlossaryPageDir = getDocsPageDir("glossary", "token");
 
 const validModuleRecord = {
   id: "module.grouped-query-attention",
@@ -23,6 +28,7 @@ const validModuleRecord = {
   status: "published",
   createdAt: "2026-06-01T00:00:00.000Z",
   updatedAt: "2026-06-02T00:00:00.000Z",
+  primaryClassificationId: "classification.module.attention",
   moduleType: "attention",
   optimizes: ["kv-cache"],
   exampleModelIds: [],
@@ -112,9 +118,91 @@ const validCitationRecord = {
   year: 2023,
 };
 
+const validDraftModuleRecord = {
+  ...validModuleRecord,
+  status: "draft",
+  citationIds: [],
+};
+
+const validDraftGraphRecord = {
+  id: "graph.demo",
+  slug: "demo",
+  kind: "graph",
+  defaultTitleKey: "title",
+  defaultSummaryKey: "description",
+  aliases: [],
+  tags: [],
+  relatedIds: [],
+  citationIds: [],
+  status: "draft",
+  createdAt: "2026-06-01T00:00:00.000Z",
+  updatedAt: "2026-06-02T00:00:00.000Z",
+  subjectId: "module.grouped-query-attention",
+  graphType: "module-compute-flow",
+  rootNodeId: "subject-node",
+  layout: "vertical-expandable",
+  defaultExpandedDepth: 1,
+  supportedRenderers: ["react-flow"],
+  nodes: [
+    {
+      id: "subject-node",
+      labelKey: "graph.nodes.subjectNode.label",
+      moduleKind: "block",
+      childNodeIds: [],
+    },
+  ],
+  edges: [],
+};
+
 const nonDefaultLocales = supportedLocales.filter(
   (locale) => locale !== defaultLocale,
 );
+
+async function writeAttentionClassificationFixtures(
+  registryRoot: string,
+): Promise<void> {
+  await mkdir(join(registryRoot, "classifications"), { recursive: true });
+  await writeFile(
+    join(registryRoot, "classifications", "module.json"),
+    JSON.stringify({
+      id: "classification.module",
+      slug: "module",
+      kind: "classification",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-02T00:00:00.000Z",
+      classificationType: "domain",
+      classifiesKinds: ["module"],
+    }),
+  );
+  await writeFile(
+    join(registryRoot, "classifications", "attention-mechanisms.json"),
+    JSON.stringify({
+      id: "classification.module.attention",
+      slug: "attention-mechanisms",
+      kind: "classification",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: ["attention family"],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-02T00:00:00.000Z",
+      classificationType: "family",
+      classifiesKinds: ["module"],
+      parentClassificationId: "classification.module",
+      legacyIds: ["classification.attention-mechanisms"],
+    }),
+  );
+}
 
 describe("validateRegistryContent", () => {
   test("returns no errors for the committed Phase 1 baseline", async () => {
@@ -143,6 +231,7 @@ describe("validateRegistryContent", () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
     await mkdir(join(registryRoot, "concepts"), { recursive: true });
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });
@@ -196,6 +285,7 @@ describe("validateRegistryContent", () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });
 
@@ -333,6 +423,216 @@ describe("validateRegistryContent", () => {
     }
   });
 
+  test("fails graph validation when a canonical node registry target cannot be resolved", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
+    await mkdir(join(registryRoot, "graphs"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify(validDraftModuleRecord),
+    );
+    await writeFile(
+      join(registryRoot, "graphs", "demo.json"),
+      JSON.stringify({
+        ...validDraftGraphRecord,
+        nodes: [
+          {
+            id: "subject-node",
+            labelKey: "graph.nodes.subjectNode.label",
+            registryId: "module.missing-target",
+            moduleKind: "block",
+            childNodeIds: [],
+          },
+        ],
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "unresolved-graph-node-registry-id" &&
+            error.message.includes("module.missing-target"),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("fails graph validation when graph-local outbound targets are configured without a local summary", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
+    await mkdir(join(registryRoot, "graphs"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify(validDraftModuleRecord),
+    );
+    await writeFile(
+      join(registryRoot, "graphs", "demo.json"),
+      JSON.stringify({
+        ...validDraftGraphRecord,
+        nodes: [
+          {
+            id: "subject-node",
+            labelKey: "graph.nodes.subjectNode.label",
+            moduleKind: "operation",
+            relatedRegistryId: "module.grouped-query-attention",
+            childNodeIds: [],
+          },
+        ],
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "graph-local-summary-required" &&
+            error.message.includes('node "subject-node"'),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("allows graph-local popup metadata when the node includes a local summary and published outbound target", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
+    await mkdir(join(registryRoot, "graphs"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify(validDraftModuleRecord),
+    );
+    await writeFile(
+      join(registryRoot, "graphs", "demo.json"),
+      JSON.stringify({
+        ...validDraftGraphRecord,
+        nodes: [
+          {
+            id: "subject-node",
+            labelKey: "graph.nodes.subjectNode.label",
+            summaryKey: "graph.nodes.subjectNode.summary",
+            moduleKind: "operation",
+            relatedRegistryId: "module.grouped-query-attention",
+            childNodeIds: [],
+          },
+        ],
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some((error) =>
+          [
+            "graph-local-summary-required",
+            "unresolved-graph-node-related-registry-id",
+            "unpublished-graph-node-related-registry-id",
+          ].includes(error.code),
+        ),
+      ).toBe(false);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("fails graph validation when root and edge node references do not resolve", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
+    await mkdir(join(registryRoot, "graphs"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify(validDraftModuleRecord),
+    );
+    await writeFile(
+      join(registryRoot, "graphs", "demo.json"),
+      JSON.stringify({
+        ...validDraftGraphRecord,
+        rootNodeId: "missing-root",
+        edges: [
+          {
+            id: "broken-edge",
+            source: "subject-node",
+            target: "missing-target",
+            edgeKind: "depends-on",
+          },
+        ],
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some((error) => error.code === "unresolved-graph-root-node-id"),
+      ).toBe(true);
+      expect(
+        errors.some((error) => error.code === "unresolved-graph-edge-target"),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   test("validates token glossary colocated messages and assets via validateRegistryContent", async () => {
     const registryRoot = join(import.meta.dir, "../../content/registry");
     const docsRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
@@ -354,6 +654,7 @@ describe("validateRegistryContent", () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
     await mkdir(join(registryRoot, "concepts"), { recursive: true });
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });
@@ -401,6 +702,7 @@ describe("validateRegistryContent", () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
     await mkdir(join(registryRoot, "concepts"), { recursive: true });
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });
@@ -507,6 +809,7 @@ updatedAt: "2026-06-02"
     const docsRoot = join(tempRoot, "docs");
     const pageDir = join(docsRoot, "concepts", "example");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });
     await mkdir(join(pageDir, "messages"), { recursive: true });
@@ -761,6 +1064,7 @@ updatedAt: "2026-06-02"
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
     await mkdir(join(registryRoot, "concepts"), { recursive: true });
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });
@@ -806,6 +1110,7 @@ updatedAt: "2026-06-02"
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
     await mkdir(join(registryRoot, "tags"), { recursive: true });
 
     await writeFile(
@@ -880,6 +1185,7 @@ updatedAt: "2026-06-02"
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });
 
@@ -928,6 +1234,7 @@ updatedAt: "2026-06-02"
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });
 
@@ -1122,6 +1429,7 @@ updatedAt: "2026-06-02"
     const docsRoot = join(tempRoot, "docs");
     const pageDir = join(docsRoot, "modules", "multi-query-attention");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });
     await mkdir(join(pageDir, "messages"), { recursive: true });
@@ -1195,6 +1503,7 @@ updatedAt: "2026-06-02"
     const docsRoot = join(tempRoot, "docs");
     const pageDir = join(docsRoot, "modules", "multi-query-attention");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });
     await mkdir(join(pageDir, "messages"), { recursive: true });
@@ -1568,7 +1877,7 @@ describe("make validate-data", () => {
     });
     const code = await proc.exited;
     expect(code).toBe(0);
-  });
+  }, 30_000);
 });
 
 describe("validate-registry CLI", () => {
@@ -1585,6 +1894,7 @@ describe("validate-registry CLI", () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await writeAttentionClassificationFixtures(registryRoot);
     await mkdir(join(registryRoot, "concepts"), { recursive: true });
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });

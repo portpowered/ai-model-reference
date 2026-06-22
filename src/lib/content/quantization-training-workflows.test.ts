@@ -18,7 +18,9 @@ describe("Phase 5 quantization training and dynamic workflow concept pages (chap
   test("registry records publish QAT and dynamic quantization with expected links and citations", () => {
     const qat = getConceptById("concept.quantization-aware-training");
     expect(qat?.status).toBe("published");
-    expect(qat?.conceptType).toBe("training");
+    expect(qat?.primaryClassificationId).toBe(
+      "classification.concept.training",
+    );
     expect(qat?.aliases).toEqual([
       "QAT",
       "training-aware quantization",
@@ -38,7 +40,9 @@ describe("Phase 5 quantization training and dynamic workflow concept pages (chap
 
     const dynamic = getConceptById("concept.dynamic-quantization");
     expect(dynamic?.status).toBe("published");
-    expect(dynamic?.conceptType).toBe("inference");
+    expect(dynamic?.primaryClassificationId).toBe(
+      "classification.concept.inference",
+    );
     expect(dynamic?.aliases).toEqual([
       "runtime quantization",
       "on-the-fly quantization",

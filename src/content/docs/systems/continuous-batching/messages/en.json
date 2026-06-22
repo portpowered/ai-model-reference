@@ -1,0 +1,58 @@
+{
+  "title": "Continuous Batching",
+  "description": "A serving system that keeps an active decode set refilled as requests finish or become compatible, so accelerators spend less time waiting for a whole batch to turn over.",
+  "openingSummary": "Continuous batching is a serving technique for decode-heavy workloads. Instead of waiting for one fixed request batch to finish before starting another, the runtime keeps admitting new compatible work as slots open, which can keep the active decode set denser and reduce GPU idle time.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Continuous batching is a serving system, not a model architecture change. Its job is to keep a decode batch alive over many turns by refilling open slots with new compatible requests instead of treating every batch as a sealed unit that must finish all together."
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": "It sits inside the inference-serving runtime alongside request queues, batching policy, routing, inference-engine execution, and key-value cache management. The underlying model still computes the same layers. Continuous batching changes how the serving stack schedules decode work around those layers so active slots stay occupied between request completions."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Static request batching usually waits for one chosen batch to turn over before the scheduler admits more work. Continuous batching keeps a queue nearby, runs a decode step for the active set, removes requests that finish, and immediately refills those open slots with queued requests that can join the next compatible turn. The important behavior is incremental refill: the runtime does not rebuild service only at one fixed batch boundary, so decode work can stay denser across many turns."
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": "This technique helps most when many decode-heavy requests are active at once and the accelerator would otherwise spend time on half-empty turns after some requests finish early. By refilling open slots, the system can raise throughput and reduce obvious idle gaps. The tradeoffs are scheduler complexity, fairness pressure, and the risk that long or expensive requests crowd out short ones if queue policy is weak. It can help less when traffic is sparse, highly incompatible, or already underutilized, because then the refill machinery adds coordination without much density gain."
+    },
+    "related": {
+      "title": "Related To",
+      "body": "Use the nearby serving pages below to compare continuous batching with static batching, trace how refill behavior depends on decode and key-value cache state, and see where deployment, routing, and speculative decoding change the surrounding serving stack."
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "Queued requests feed an active decode set, completed requests leave, and open slots are refilled before the next decode turn instead of waiting for a whole batch reset.",
+      "caption": "Continuous batching keeps decode slots occupied by refilling compatible work between turns rather than rebuilding service only when one fixed batch fully turns over."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "queue": {
+        "label": "Queue compatible requests"
+      },
+      "active": {
+        "label": "Keep active decode set alive"
+      },
+      "decode": {
+        "label": "Run next shared decode turn"
+      },
+      "refill": {
+        "label": "Refill open slots for the next turn"
+      },
+      "complete": {
+        "label": "Remove finished requests"
+      }
+    }
+  }
+}

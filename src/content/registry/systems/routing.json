@@ -16,6 +16,7 @@
     "training-regime.specialist-training",
     "module.mixture-of-experts",
     "module.deepseekmoe",
+    "system.batching",
     "system.expert-parallel-overlap",
     "system.on-disk-kv-cache",
     "paper.deepseek-v4"
@@ -27,6 +28,7 @@
   "releaseDate": "2026-06-13",
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
+  "primaryClassificationId": "classification.system.routing",
   "systemType": "routing",
   "relatedModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "relatedModuleIds": ["module.mixture-of-experts", "module.deepseekmoe"],

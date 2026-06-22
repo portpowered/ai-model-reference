@@ -1,5 +1,6 @@
 import { create, insertMultiple, save, search } from "@orama/orama";
 import { toFumadocsIndexEntry } from "./to-structured-data";
+import { topologySearchText } from "./topology-search-terms";
 import type { FumadocsSearchIndexEntry, SearchDocument } from "./types";
 
 export type OramaSnapshotDocument = FumadocsSearchIndexEntry & {
@@ -16,6 +17,7 @@ const oramaSchema = {
   body: "string",
   aliases: "string",
   tags: "string",
+  topology: "string",
 } as const;
 
 export type OramaSearchRecord = {
@@ -27,6 +29,7 @@ export type OramaSearchRecord = {
   body: string;
   aliases: string;
   tags: string;
+  topology: string;
 };
 
 export function toOramaRecord(document: SearchDocument): OramaSearchRecord {
@@ -44,6 +47,7 @@ export function toOramaRecord(document: SearchDocument): OramaSearchRecord {
     body: [document.bodyText, structuredText].filter(Boolean).join("\n"),
     aliases: document.aliases.join(" "),
     tags: document.tags.join(" "),
+    topology: topologySearchText(document),
   };
 }
 

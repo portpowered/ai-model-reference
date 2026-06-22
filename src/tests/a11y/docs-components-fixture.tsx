@@ -11,10 +11,8 @@ import type { ReactElement, ReactNode } from "react";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { SearchResultListItem } from "@/features/docs/search/SearchResults";
 import type { SearchResultMetaRecord } from "@/features/docs/search/search-result-meta-client";
-import {
-  groupedQueryAttentionPageDir,
-  loadPageMessages,
-} from "@/lib/content/page-messages-load";
+import { getDocsPageDir } from "@/lib/content/content-paths";
+import { loadPageMessages } from "@/lib/content/page-messages-load";
 import { type PageMessages, pageMessagesSchema } from "@/lib/content/schemas";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import type { SiteLocale } from "@/lib/i18n/locale-routing";
@@ -33,6 +31,10 @@ const messageFixture = JSON.parse(
 
 let cachedGqaMessages: PageMessages | null = null;
 let cachedCalloutExampleMessages: PageMessages | null = null;
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
 
 export function loadCalloutExamplePageMessages(): PageMessages {
   if (cachedCalloutExampleMessages) {

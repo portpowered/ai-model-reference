@@ -1,5 +1,11 @@
 import type { SortedResult } from "fumadocs-core/search";
+import {
+  ontologyRelationshipPriority,
+  relationshipOutranksClassificationSibling,
+} from "@/lib/content/ontology-peer-policy";
+import type { SearchClassificationScope } from "./classification-scope";
 import { pageBaseUrl } from "./collapse-search-results-to-page-hits";
+import { expandTopologySearchTerm } from "./topology-search-terms";
 import type { SearchDocument } from "./types";
 
 function normalizeSearchTerm(value: string): string {
@@ -18,6 +24,168 @@ function hasExactTagMatch(query: string, document: SearchDocument): boolean {
   );
 }
 
+function normalizedTopologyTermVariants(value: string): string[] {
+  return expandTopologySearchTerm(value).map(normalizeSearchTerm);
+}
+
+function topologyTermMatchesQuery(query: string, term: string): boolean {
+  const queryVariants = normalizedTopologyTermVariants(query);
+  const termVariants = normalizedTopologyTermVariants(term);
+
+  return queryVariants.some((queryVariant) => {
+    if (queryVariant.length < 3) {
+      return termVariants.includes(queryVariant);
+    }
+
+    return termVariants.some(
+      (termVariant) =>
+        termVariant === queryVariant ||
+        termVariant.startsWith(queryVariant) ||
+        termVariant.includes(` ${queryVariant} `),
+    );
+  });
+}
+
+function topologyTermsMatchQuery(query: string, terms: string[]): boolean {
+  return terms.some((term) => topologyTermMatchesQuery(query, term));
+}
+
+function topologyRelationshipTerms(document: SearchDocument): string[] {
+  return document.topology.relationships.flatMap((relationship) => [
+    relationship.relationshipType,
+    relationship.targetId,
+    relationship.targetSlug ?? "",
+    ...relationship.targetAliases,
+  ]);
+}
+
+function matchingRelationshipPriority(
+  predicate: (
+    relationship: SearchDocument["topology"]["relationships"][number],
+  ) => boolean,
+  document: SearchDocument,
+): { priority: number; outranksClassificationSibling: boolean } | undefined {
+  const matchingRelationships =
+    document.topology.relationships.filter(predicate);
+  if (matchingRelationships.length === 0) {
+    return undefined;
+  }
+
+  let bestPriority = Number.POSITIVE_INFINITY;
+  let outranksSibling = false;
+
+  for (const relationship of matchingRelationships) {
+    bestPriority = Math.min(
+      bestPriority,
+      ontologyRelationshipPriority(relationship.relationshipType),
+    );
+    if (
+      relationshipOutranksClassificationSibling(relationship.relationshipType)
+    ) {
+      outranksSibling = true;
+    }
+  }
+
+  return {
+    priority: bestPriority,
+    outranksClassificationSibling: outranksSibling,
+  };
+}
+
+function topologyMatchPriority(
+  query: string,
+  document: SearchDocument | undefined,
+): number {
+  if (!document || !query.trim()) {
+    return 3;
+  }
+
+  if (
+    document.topology.primaryClassification &&
+    topologyTermsMatchQuery(
+      query,
+      document.topology.primaryClassification.terms,
+    )
+  ) {
+    return 0;
+  }
+
+  const relationshipPriority = matchingRelationshipPriority(
+    (relationship) =>
+      topologyTermsMatchQuery(query, [
+        relationship.relationshipType,
+        relationship.targetId,
+        relationship.targetSlug ?? "",
+        ...relationship.targetAliases,
+      ]),
+    document,
+  );
+  if (relationshipPriority?.outranksClassificationSibling) {
+    return 1 + relationshipPriority.priority;
+  }
+
+  if (
+    document.topology.secondaryClassifications.some((classification) =>
+      topologyTermsMatchQuery(query, classification.terms),
+    )
+  ) {
+    return 10;
+  }
+
+  if (relationshipPriority) {
+    return 20 + relationshipPriority.priority;
+  }
+
+  if (topologyTermsMatchQuery(query, topologyRelationshipTerms(document))) {
+    return 30;
+  }
+
+  return 40;
+}
+
+function classificationScopePriority(
+  scope: SearchClassificationScope | undefined,
+  document: SearchDocument | undefined,
+): number {
+  if (!scope || !document) {
+    return 3;
+  }
+
+  if (document.topology.primaryClassificationId === scope.id) {
+    return 0;
+  }
+
+  if (document.topology.secondaryClassificationIds.includes(scope.id)) {
+    return 1;
+  }
+
+  if (document.topology.ancestorClassificationIds?.includes(scope.id)) {
+    return 2;
+  }
+
+  const relationshipPriority = matchingRelationshipPriority(
+    (relationship) => relationship.targetId === scope.id,
+    document,
+  );
+  if (relationshipPriority?.outranksClassificationSibling) {
+    return 3 + relationshipPriority.priority;
+  }
+
+  if (
+    topologyTermsMatchQuery(scope.label, document.topology.terms) ||
+    topologyTermsMatchQuery(scope.slug, document.topology.terms) ||
+    topologyTermsMatchQuery(scope.requested, document.topology.terms)
+  ) {
+    return 20;
+  }
+
+  if (relationshipPriority) {
+    return 30 + relationshipPriority.priority;
+  }
+
+  return 40;
+}
+
 function scoreDocumentMatch(query: string, document: SearchDocument): number {
   const normalizedQuery = normalizeSearchTerm(query);
   const normalizedTitle = normalizeSearchTerm(document.title);
@@ -26,7 +194,7 @@ function scoreDocumentMatch(query: string, document: SearchDocument): number {
     return 100;
   }
 
-  for (const alias of document.aliases) {
+  for (const alias of document.directAliases) {
     if (normalizeSearchTerm(alias) === normalizedQuery) {
       return 95;
     }
@@ -58,44 +226,71 @@ export function findBestTitleMatchPageUrl(
   return bestScore >= 90 ? bestUrl : undefined;
 }
 
-/** Boost exact title, alias, or slug matches so glossary taxonomy pages rank above incidental body hits. */
+function resultPriority(
+  query: string,
+  scope: SearchClassificationScope | undefined,
+  bestPageUrl: string | undefined,
+  resultUrl: string,
+  document: SearchDocument | undefined,
+): number {
+  if (resultUrl === bestPageUrl) {
+    return 0;
+  }
+
+  const scopePriority = classificationScopePriority(scope, document);
+  if (scopePriority < 3) {
+    return 5 + scopePriority;
+  }
+
+  const topologyPriority = topologyMatchPriority(query, document);
+  if (topologyPriority < 3) {
+    return 10 + topologyPriority;
+  }
+
+  if (document && hasExactTagMatch(query, document)) {
+    return document.kind === "module" ? 20 : 21;
+  }
+
+  return 30;
+}
+
+/**
+ * Boost exact title, direct-alias, slug, and topology matches so canonical and
+ * ontology-near pages rank above incidental body hits.
+ */
 export function rerankSearchResults(
   query: string,
   results: SortedResult[],
   documentsByUrl: Map<string, SearchDocument>,
+  options: { classificationScope?: SearchClassificationScope } = {},
 ): SortedResult[] {
   const bestPageUrl = findBestTitleMatchPageUrl(query, documentsByUrl);
-  const hasTagMatch = [...documentsByUrl.values()].some((document) =>
-    hasExactTagMatch(query, document),
-  );
+  const { classificationScope } = options;
 
-  if (!bestPageUrl && !hasTagMatch) {
-    return results;
-  }
+  return results
+    .map((result, index) => ({ result, index }))
+    .sort((left, right) => {
+      const leftUrl = pageBaseUrl(left.result.url);
+      const rightUrl = pageBaseUrl(right.result.url);
+      const leftDocument = documentsByUrl.get(leftUrl);
+      const rightDocument = documentsByUrl.get(rightUrl);
 
-  return [...results].sort((left, right) => {
-    const leftUrl = pageBaseUrl(left.url);
-    const rightUrl = pageBaseUrl(right.url);
-    const leftDocument = documentsByUrl.get(leftUrl);
-    const rightDocument = documentsByUrl.get(rightUrl);
+      const leftPriority = resultPriority(
+        query,
+        classificationScope,
+        bestPageUrl,
+        leftUrl,
+        leftDocument,
+      );
+      const rightPriority = resultPriority(
+        query,
+        classificationScope,
+        bestPageUrl,
+        rightUrl,
+        rightDocument,
+      );
 
-    const leftPriority =
-      leftUrl === bestPageUrl
-        ? 0
-        : leftDocument && hasExactTagMatch(query, leftDocument)
-          ? leftDocument.kind === "module"
-            ? 1
-            : 2
-          : 3;
-    const rightPriority =
-      rightUrl === bestPageUrl
-        ? 0
-        : rightDocument && hasExactTagMatch(query, rightDocument)
-          ? rightDocument.kind === "module"
-            ? 1
-            : 2
-          : 3;
-
-    return leftPriority - rightPriority;
-  });
+      return leftPriority - rightPriority || left.index - right.index;
+    })
+    .map(({ result }) => result);
 }

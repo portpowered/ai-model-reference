@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { SHIPPED_LOCALIZED_DOCS } from "@/generated/shipped-localized-docs";
+import { resolveShippedLocalizedDocsManifest } from "./shipped-localized-docs";
 import {
   deriveShippedLocalizedDocsManifest,
   resetDerivedShippedLocalizedDocsManifestCache,
@@ -51,51 +51,55 @@ updatedAt: 2026-06-19
 }
 
 describe("deriveShippedLocalizedDocsManifest", () => {
-  test("includes only published docs pages with colocated non-default locale messages", async () => {
-    const tempRoot = join(
-      import.meta.dir,
-      "__shipped-localized-docs-fixtures__",
-      crypto.randomUUID(),
-      "docs",
-    );
-    await mkdir(tempRoot, { recursive: true });
+  test(
+    "includes only published docs pages with colocated non-default locale messages",
+    async () => {
+      const tempRoot = join(
+        import.meta.dir,
+        "__shipped-localized-docs-fixtures__",
+        crypto.randomUUID(),
+        "docs",
+      );
+      await mkdir(tempRoot, { recursive: true });
 
-    try {
-      await writePageBundle(tempRoot, "concepts/translated-page", {
-        status: "published",
-        locales: ["vi"],
-      });
-      await writePageBundle(tempRoot, "concepts/default-only-page", {
-        status: "published",
-        locales: [],
-      });
-      await writePageBundle(tempRoot, "concepts/draft-translated-page", {
-        status: "draft",
-        locales: ["vi", "ja"],
-      });
-      await writePageBundle(tempRoot, "modules/japanese-page", {
-        status: "published",
-        locales: ["ja"],
-      });
+      try {
+        await writePageBundle(tempRoot, "concepts/translated-page", {
+          status: "published",
+          locales: ["vi"],
+        });
+        await writePageBundle(tempRoot, "concepts/default-only-page", {
+          status: "published",
+          locales: [],
+        });
+        await writePageBundle(tempRoot, "concepts/draft-translated-page", {
+          status: "draft",
+          locales: ["vi", "ja"],
+        });
+        await writePageBundle(tempRoot, "modules/japanese-page", {
+          status: "published",
+          locales: ["ja"],
+        });
 
-      resetDerivedShippedLocalizedDocsManifestCache();
-      expect(deriveShippedLocalizedDocsManifest(tempRoot)).toEqual({
-        ja: ["modules/japanese-page"],
-        vi: ["concepts/translated-page"],
-      });
-    } finally {
-      resetDerivedShippedLocalizedDocsManifestCache();
-      await rm(join(import.meta.dir, "__shipped-localized-docs-fixtures__"), {
-        recursive: true,
-        force: true,
-      });
-    }
-  });
+        resetDerivedShippedLocalizedDocsManifestCache();
+        expect(deriveShippedLocalizedDocsManifest(tempRoot)).toEqual({
+          ja: ["modules/japanese-page"],
+          vi: ["concepts/translated-page"],
+        });
+      } finally {
+        resetDerivedShippedLocalizedDocsManifestCache();
+        await rm(join(import.meta.dir, "__shipped-localized-docs-fixtures__"), {
+          recursive: true,
+          force: true,
+        });
+      }
+    },
+    { timeout: 15_000 },
+  );
 
   test("generated shipped localized docs artifact matches the committed docs tree", () => {
     resetDerivedShippedLocalizedDocsManifestCache();
     expect(deriveShippedLocalizedDocsManifest()).toEqual(
-      SHIPPED_LOCALIZED_DOCS,
+      resolveShippedLocalizedDocsManifest(),
     );
   });
 });

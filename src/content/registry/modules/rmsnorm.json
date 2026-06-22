@@ -14,6 +14,7 @@
   "releaseDate": "2019-10-01",
   "authors": ["Biao Zhang", "Rico Sennrich"],
   "sourceId": "citation.root-mean-square-layer-normalization",
+  "primaryClassificationId": "classification.module.normalization",
   "moduleType": "normalization",
   "optimizes": ["training-stability", "inference-efficiency"],
   "exampleModelIds": [],

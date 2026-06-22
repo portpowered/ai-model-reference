@@ -29,8 +29,14 @@
   },
   "assets": {
     "trainingFlow": {
+      "title": "FP4 Quantization-Aware Training flow",
       "alt": "A flow from a float model through injected FP4 noise to a deployed low-precision model.",
-      "caption": "QAT teaches the model under the same precision pressure it will later face in deployment."
+      "caption": "QAT teaches the model under the same precision pressure it will later face in deployment.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
     }
   },
   "graph": {
