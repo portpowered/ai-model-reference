@@ -15,7 +15,8 @@
   "relatedIds": [
     "module.byte-level-tokenization",
     "concept.transformer-architecture",
-    "concept.scaling-law"
+    "concept.scaling-law",
+    "concept.sampling-overview"
   ],
   "citationIds": ["citation.gpt-2-report"],
   "status": "published",

@@ -75,6 +75,7 @@ describe("GPT-2 report paper page", () => {
     expect(html).toContain("Byte-level BPE tokenization");
     expect(html).toContain("Broad next-token pretraining");
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
+    expect(html).toContain('href="/docs/concepts/sampling-overview"');
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain('href="/docs/glossary/scaling-law"');
     expect(html).toContain('data-testid="curated-related-docs"');

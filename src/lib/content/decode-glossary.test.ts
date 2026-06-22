@@ -46,6 +46,7 @@ describe("Phase 5 decode glossary page (US-003)", () => {
         "concept.prefill-decode-split",
         "system.batching",
         "concept.autoregressive-generation",
+        "concept.sampling-overview",
         "module.attention",
         "module.multi-query-attention",
         "module.grouped-query-attention",
@@ -80,6 +81,13 @@ describe("Phase 5 decode glossary page (US-003)", () => {
         (item) =>
           item.registryId === "concept.kv-cache" &&
           item.href === "/docs/concepts/kv-cache",
+      ),
+    ).toBe(true);
+    expect(
+      items.some(
+        (item) =>
+          item.registryId === "concept.sampling-overview" &&
+          item.href === "/docs/concepts/sampling-overview",
       ),
     ).toBe(true);
     expect(
@@ -153,6 +161,7 @@ describe("Phase 5 decode glossary page (US-003)", () => {
     expectHtmlToContainProse(html, "memory bandwidth");
     expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/concepts/prefill"');
+    expect(html).toContain('href="/docs/concepts/sampling-overview"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
