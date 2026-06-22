@@ -94,7 +94,11 @@ describe("batching search and registry convergence", () => {
     );
     expect(searchDocument?.tags).toEqual(["foundations"]);
     expect(searchDocument?.relatedIds).toEqual(
-      expect.arrayContaining(["system.routing", "system.inference-engine"]),
+      expect.arrayContaining([
+        "system.continuous-batching",
+        "system.routing",
+        "system.inference-engine",
+      ]),
     );
     expect(searchDocument?.relatedIds).toEqual(record?.relatedIds ?? []);
   });
@@ -164,6 +168,7 @@ describe("batching docs route render", () => {
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain('href="/docs/systems/continuous-batching"');
     expect(html).toContain('href="/docs/systems/routing"');
     expect(html).toContain('href="/docs/systems/inference-engine"');
     expect(html).toContain('href="/docs/systems/on-disk-kv-cache"');
