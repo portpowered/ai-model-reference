@@ -286,7 +286,7 @@ describe("typed taxonomy consumer audit", () => {
       expect.objectContaining({
         id: "sidebar-group-derivation-module-training-system",
         status: "migrated-ontology-first-consumer",
-        fields: ["sidebarGrouping"],
+        fields: ["systemType", "sidebarGrouping"],
       }),
       expect.objectContaining({
         id: "sidebar-group-derivation-concept-glossary",
@@ -298,7 +298,18 @@ describe("typed taxonomy consumer audit", () => {
       sidebarEntries
         .flatMap((entry) => entry.fieldReferences)
         .map((ref) => ref.field),
-    ).toEqual(Array(6).fill("sidebarGrouping"));
+    ).toEqual([
+      "systemType",
+      "sidebarGrouping",
+      "sidebarGrouping",
+      "sidebarGrouping",
+      "systemType",
+      "systemType",
+      "systemType",
+      "sidebarGrouping",
+      "sidebarGrouping",
+      "sidebarGrouping",
+    ]);
     expect(
       audit.clusterSummaries.find(
         (entry) => entry.cluster === "sidebar-topology",
@@ -306,7 +317,7 @@ describe("typed taxonomy consumer audit", () => {
     ).toEqual(
       expect.objectContaining({
         entryCount: 2,
-        fieldCount: 6,
+        fieldCount: 10,
         statusCounts: {
           "approved-compatibility-bridge": 0,
           "migrated-ontology-first-consumer": 2,

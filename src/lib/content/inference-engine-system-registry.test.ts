@@ -27,6 +27,7 @@ describe("inference engine system registry", () => {
       "concept.prefill",
       "concept.decode",
       "concept.prefill-decode-split",
+      "system.speculative-decoding",
       "system.batching",
       "system.on-disk-kv-cache",
       "system.expert-parallel-overlap",
@@ -77,6 +78,10 @@ describe("inference engine system registry", () => {
     expect(
       items.find((item) => item.registryId === "system.batching")?.href,
     ).toBe("/docs/systems/batching");
+    expect(
+      items.find((item) => item.registryId === "system.speculative-decoding")
+        ?.href,
+    ).toBe("/docs/systems/speculative-decoding");
     expect(
       items.find((item) => item.registryId === "system.on-disk-kv-cache")?.href,
     ).toBe("/docs/systems/on-disk-kv-cache");
