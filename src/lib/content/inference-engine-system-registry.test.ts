@@ -67,7 +67,7 @@ describe("inference engine system registry", () => {
     ).toBe("/docs/concepts/quantization");
     expect(
       items.find((item) => item.registryId === "concept.prefill")?.href,
-    ).toBe("/docs/glossary/prefill");
+    ).toBe("/docs/concepts/prefill");
     expect(
       items.find((item) => item.registryId === "concept.decode")?.href,
     ).toBe("/docs/glossary/decode");

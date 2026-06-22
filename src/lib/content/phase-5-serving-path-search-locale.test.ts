@@ -19,8 +19,8 @@ const PHASE_5_SERVING_DOCS = [
     query: "key-value cache",
   },
   {
-    docsSlug: "glossary/prefill",
-    url: "/docs/glossary/prefill",
+    docsSlug: "concepts/prefill",
+    url: "/docs/concepts/prefill",
     query: "prompt processing",
   },
   {

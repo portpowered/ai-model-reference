@@ -1,91 +1,139 @@
 import { describe, expect, test } from "bun:test";
 import type { Node } from "fumadocs-core/page-tree";
-import {
-  type DocsPageSource,
-  loadPublishedDocsPagesSync,
-} from "@/lib/content/pages";
-import {
-  getConceptById,
-  getModuleById,
-  getSystemById,
-  getTrainingRegimeById,
-} from "@/lib/content/registry-runtime";
-import {
-  getSidebarGroupIdsForSection,
-  resolveConceptsSidebarGroup,
-  resolveGlossarySidebarGroup,
-  resolveModulesSidebarGroup,
-  resolveSystemsSidebarGroup,
-  resolveTrainingSidebarGroup,
-  type SidebarGroupIdBySection,
-  type SidebarGroupingSection,
-} from "@/lib/content/sidebar-grouping";
 import { source } from "@/lib/source";
 
-const SECTION_FOLDER_NAMES = {
-  glossary: "Glossary",
-  concepts: "Concepts",
-  modules: "Modules",
-  models: "Models",
-  papers: "Papers",
-  training: "Training",
-  systems: "Systems",
-} as const;
+const GLOSSARY_INDEX_URLS = [
+  "/docs/glossary/activation",
+  "/docs/glossary/alignment",
+  "/docs/glossary/architecture",
+  "/docs/glossary/autoregressive-generation",
+  "/docs/glossary/backpropagation",
+  "/docs/glossary/component",
+  "/docs/glossary/computational-graph",
+  "/docs/glossary/conditioning",
+  "/docs/glossary/context-window",
+  "/docs/glossary/decode",
+  "/docs/glossary/decoder",
+  "/docs/glossary/denoising-generation",
+  "/docs/glossary/diffusion-model",
+  "/docs/glossary/discriminative-model",
+  "/docs/glossary/embedding",
+  "/docs/glossary/emergent-behavior",
+  "/docs/glossary/encoder",
+  "/docs/glossary/encoder-decoder",
+  "/docs/glossary/entropy",
+  "/docs/glossary/foundation-model",
+  "/docs/glossary/generalization",
+  "/docs/glossary/generative-model",
+  "/docs/glossary/gradient",
+  "/docs/glossary/greedy-decoding",
+  "/docs/glossary/hidden-size",
+  "/docs/glossary/kv-cache",
+  "/docs/glossary/latent",
+  "/docs/glossary/latent-space",
+  "/docs/glossary/logit",
+  "/docs/glossary/loss-function",
+  "/docs/glossary/modality",
+  "/docs/glossary/model",
+  "/docs/glossary/model-capacity",
+  "/docs/glossary/module",
+  "/docs/glossary/multimodal-model",
+  "/docs/glossary/normalization",
+  "/docs/glossary/optimizer-state",
+  "/docs/glossary/overfitting",
+  "/docs/glossary/parameter",
+  "/docs/glossary/patch",
+  "/docs/glossary/perplexity",
+  "/docs/glossary/prefill-decode-split",
+  "/docs/glossary/representation",
+  "/docs/glossary/residual-connection",
+  "/docs/glossary/sampling-overview",
+  "/docs/glossary/scaling-law",
+  "/docs/glossary/skip-connection",
+  "/docs/glossary/softmax",
+  "/docs/glossary/special-tokens",
+  "/docs/glossary/temperature",
+  "/docs/glossary/tensor",
+  "/docs/glossary/token",
+  "/docs/glossary/top-k-sampling",
+  "/docs/glossary/top-p-sampling",
+  "/docs/glossary/transformer",
+  "/docs/glossary/vector",
+  "/docs/glossary/vocabulary-size",
+  "/docs/glossary/world-model",
+] as const;
 
-type SectionKey = keyof typeof SECTION_FOLDER_NAMES;
-type GroupedSectionConfig<Section extends SidebarGroupingSection> = {
-  section: Section;
-  resolveGroupId: (
-    page: DocsPageSource,
-  ) => SidebarGroupIdBySection[Section] | undefined;
-};
+const MODULE_INDEX_URLS = [
+  "/docs/modules/absolute-positional-embeddings",
+  "/docs/modules/alibi",
+  "/docs/modules/attention",
+  "/docs/modules/batch-norm",
+  "/docs/modules/bpe",
+  "/docs/modules/bidirectional-attention",
+  "/docs/modules/byte-level-tokenization",
+  "/docs/modules/compressed-sparse-attention",
+  "/docs/modules/deepseekmoe",
+  "/docs/modules/feed-forward-network",
+  "/docs/modules/group-norm",
+  "/docs/modules/grouped-query-attention",
+  "/docs/modules/heavily-compressed-attention",
+  "/docs/modules/layer-norm",
+  "/docs/modules/leaky-relu",
+  "/docs/modules/learned-positional-embeddings",
+  "/docs/modules/linear-attention",
+  "/docs/modules/longrope",
+  "/docs/modules/manifold-constrained-hyper-connections",
+  "/docs/modules/mixture-of-experts",
+  "/docs/modules/multi-head-attention",
+  "/docs/modules/multi-head-latent-attention",
+  "/docs/modules/multi-query-attention",
+  "/docs/modules/nope",
+  "/docs/modules/ntk-aware-rope-scaling",
+  "/docs/modules/positional-interpolation",
+  "/docs/modules/qk-norm",
+  "/docs/modules/relu",
+  "/docs/modules/relative-position-bias",
+  "/docs/modules/rmsnorm",
+  "/docs/modules/rope",
+  "/docs/modules/silu",
+  "/docs/modules/sinusoidal-positional-embeddings",
+  "/docs/modules/sliding-window-attention",
+  "/docs/modules/sparse-attention",
+  "/docs/modules/standard-ffn",
+  "/docs/modules/superhot-rope",
+  "/docs/modules/swiglu",
+  "/docs/modules/t5-relative-position-bias",
+  "/docs/modules/yarn",
+] as const;
 
-const GROUPED_SECTION_CONFIGS = {
-  glossary: {
-    section: "glossary",
-    resolveGroupId: (page) =>
-      resolveGlossarySidebarGroup(
-        getConceptById(page.frontmatter.registryId) ??
-          failMissingRecord(page.frontmatter.registryId, "glossary concept"),
-      ),
-  },
-  concepts: {
-    section: "concepts",
-    resolveGroupId: (page) =>
-      resolveConceptsSidebarGroup(
-        getConceptById(page.frontmatter.registryId) ??
-          failMissingRecord(page.frontmatter.registryId, "concept"),
-      ),
-  },
-  modules: {
-    section: "modules",
-    resolveGroupId: (page) =>
-      resolveModulesSidebarGroup(
-        getModuleById(page.frontmatter.registryId) ??
-          failMissingRecord(page.frontmatter.registryId, "module"),
-      ),
-  },
-  training: {
-    section: "training",
-    resolveGroupId: (page) =>
-      resolveTrainingSidebarGroup(
-        getTrainingRegimeById(page.frontmatter.registryId) ??
-          failMissingRecord(page.frontmatter.registryId, "training regime"),
-      ),
-  },
-  systems: {
-    section: "systems",
-    resolveGroupId: (page) =>
-      resolveSystemsSidebarGroup(
-        getSystemById(page.frontmatter.registryId) ??
-          failMissingRecord(page.frontmatter.registryId, "system"),
-      ),
-  },
-} as const satisfies Partial<{
-  [Key in SectionKey]: GroupedSectionConfig<
-    Extract<Key, SidebarGroupingSection>
-  >;
-}>;
+const CONCEPT_INDEX_URLS = [
+  "/docs/concepts/alibi",
+  "/docs/concepts/context-extension",
+  "/docs/concepts/prefill",
+  "/docs/concepts/page-spec-workflow-sample",
+  "/docs/concepts/positional-encodings",
+  "/docs/concepts/transformer-architecture",
+  "/docs/concepts/why-long-context-is-hard",
+] as const;
+
+const MODEL_INDEX_URLS = [
+  "/docs/models/deepseek-v4-flash",
+  "/docs/models/deepseek-v4-pro",
+  "/docs/models/gpt-3",
+] as const;
+
+const PAPER_INDEX_URLS = ["/docs/papers/deepseek-v4"] as const;
+
+const TRAINING_INDEX_URLS = [
+  "/docs/training/fp4-quantization-aware-training",
+  "/docs/training/on-policy-distillation",
+  "/docs/training/specialist-training",
+] as const;
+
+const SYSTEM_INDEX_URLS = [
+  "/docs/systems/expert-parallel-overlap",
+  "/docs/systems/on-disk-kv-cache",
+] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {
   const urls: string[] = [];
@@ -102,186 +150,159 @@ function collectPageUrls(nodes: Node[]): string[] {
   return urls;
 }
 
-function getFolderChildren(folderName: string): Node[] {
-  const folder = source.pageTree.children.find(
-    (node) => node.type === "folder" && node.name === folderName,
-  );
-  expect(folder?.type).toBe("folder");
-  if (folder?.type !== "folder") {
-    throw new Error(`expected ${folderName} folder in docs sidebar`);
-  }
+function collectSeparatorNames(nodes: Node[]): string[] {
+  const names: string[] = [];
 
-  return folder.children;
-}
-
-function docsSlugFromUrl(url: string): string[] {
-  return url.replace("/docs/", "").split("/");
-}
-
-function countUnique(values: string[]): number {
-  return new Set(values).size;
-}
-
-function failMissingRecord(recordId: string, kind: string): never {
-  throw new Error(`expected ${kind} record for ${recordId}`);
-}
-
-function sortPagesByTitle(pages: DocsPageSource[]): DocsPageSource[] {
-  return [...pages].sort((left, right) =>
-    left.messages.title.localeCompare(right.messages.title, "en", {
-      sensitivity: "base",
-    }),
-  );
-}
-
-function getPublishedSectionPages(
-  pages: DocsPageSource[],
-  section: SectionKey,
-): DocsPageSource[] {
-  return pages.filter((page) => page.docsSlug.startsWith(`${section}/`));
-}
-
-function getOrderedSectionPages(
-  pages: DocsPageSource[],
-  section: SectionKey,
-): DocsPageSource[] {
-  const sectionPages = getPublishedSectionPages(pages, section);
-  const groupedSection =
-    section in GROUPED_SECTION_CONFIGS
-      ? GROUPED_SECTION_CONFIGS[section as keyof typeof GROUPED_SECTION_CONFIGS]
-      : undefined;
-  if (!groupedSection) {
-    return sortPagesByTitle(sectionPages);
-  }
-
-  const groupedPages = new Map<string, DocsPageSource[]>();
-  const ungroupedPages: DocsPageSource[] = [];
-
-  for (const page of sectionPages) {
-    const groupId = groupedSection.resolveGroupId(page);
-    if (!groupId) {
-      ungroupedPages.push(page);
-      continue;
+  for (const node of nodes) {
+    if (node.type === "separator" && typeof node.name === "string") {
+      names.push(node.name);
     }
-
-    const pagesForGroup = groupedPages.get(groupId) ?? [];
-    pagesForGroup.push(page);
-    groupedPages.set(groupId, pagesForGroup);
+    if (node.type === "folder" && "children" in node) {
+      names.push(...collectSeparatorNames(node.children));
+    }
   }
 
-  const orderedPages: DocsPageSource[] = [];
-  for (const groupId of getSidebarGroupIdsForSection(groupedSection.section)) {
-    orderedPages.push(...sortPagesByTitle(groupedPages.get(groupId) ?? []));
-  }
-
-  orderedPages.push(...sortPagesByTitle(ungroupedPages));
-  return orderedPages;
-}
-
-function getRepresentativeAnchorUrls(
-  pages: DocsPageSource[],
-  section: SectionKey,
-): { first: string; last: string } {
-  const orderedPages = getOrderedSectionPages(pages, section);
-  const firstPage = orderedPages[0];
-  const lastPage = orderedPages.at(-1);
-
-  if (!firstPage || !lastPage) {
-    throw new Error(`expected published pages for ${section}`);
-  }
-
-  return {
-    first: firstPage.url,
-    last: lastPage.url,
-  };
+  return names;
 }
 
 describe("docs navigation source", () => {
-  test("page tree keeps the required published docs folders", () => {
-    const folderNames = source.pageTree.children
-      .filter((node) => node.type === "folder")
-      .map((node) => node.name);
+  test("page tree includes taxonomy glossary links under Glossary", () => {
+    const urls = collectPageUrls(source.pageTree.children);
+    for (const url of GLOSSARY_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
+    for (const url of MODULE_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
+    for (const url of CONCEPT_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
+    for (const url of MODEL_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
+    for (const url of PAPER_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
+    for (const url of TRAINING_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
+    for (const url of SYSTEM_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
 
-    for (const folderName of Object.values(SECTION_FOLDER_NAMES)) {
-      expect(folderNames).toContain(folderName);
+    const glossaryFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Glossary",
+    );
+    expect(glossaryFolder?.type).toBe("folder");
+    if (glossaryFolder?.type !== "folder") {
+      throw new Error("expected Glossary folder in docs sidebar");
+    }
+
+    const glossaryUrls = collectPageUrls(glossaryFolder.children).sort();
+    expect(glossaryUrls).toEqual([...GLOSSARY_INDEX_URLS].sort());
+
+    const modulesFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Modules",
+    );
+    expect(modulesFolder?.type).toBe("folder");
+    if (modulesFolder?.type !== "folder") {
+      throw new Error("expected Modules folder in docs sidebar");
+    }
+
+    const moduleUrls = collectPageUrls(modulesFolder.children).sort();
+    expect(moduleUrls).toEqual(expect.arrayContaining([...MODULE_INDEX_URLS]));
+
+    const conceptsFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Concepts",
+    );
+    expect(conceptsFolder?.type).toBe("folder");
+    if (conceptsFolder?.type !== "folder") {
+      throw new Error("expected Concepts folder in docs sidebar");
+    }
+
+    const conceptUrls = collectPageUrls(conceptsFolder.children);
+    for (const url of CONCEPT_INDEX_URLS) {
+      expect(conceptUrls).toContain(url);
+    }
+
+    const modelsFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Models",
+    );
+    expect(modelsFolder?.type).toBe("folder");
+    if (modelsFolder?.type !== "folder") {
+      throw new Error("expected Models folder in docs sidebar");
+    }
+
+    const modelUrls = collectPageUrls(modelsFolder.children).sort();
+    expect(modelUrls).toEqual(expect.arrayContaining([...MODEL_INDEX_URLS]));
+
+    const papersFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Papers",
+    );
+    expect(papersFolder?.type).toBe("folder");
+    if (papersFolder?.type !== "folder") {
+      throw new Error("expected Papers folder in docs sidebar");
+    }
+
+    const paperUrls = collectPageUrls(papersFolder.children).sort();
+    expect(paperUrls).toEqual(expect.arrayContaining([...PAPER_INDEX_URLS]));
+
+    const trainingFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Training",
+    );
+    expect(trainingFolder?.type).toBe("folder");
+    if (trainingFolder?.type !== "folder") {
+      throw new Error("expected Training folder in docs sidebar");
+    }
+
+    const trainingUrls = collectPageUrls(trainingFolder.children).sort();
+    expect(trainingUrls).toEqual(
+      expect.arrayContaining([...TRAINING_INDEX_URLS]),
+    );
+
+    const systemsFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Systems",
+    );
+    expect(systemsFolder?.type).toBe("folder");
+    if (systemsFolder?.type !== "folder") {
+      throw new Error("expected Systems folder in docs sidebar");
+    }
+
+    const systemUrls = collectPageUrls(systemsFolder.children).sort();
+    expect(systemUrls).toEqual(expect.arrayContaining([...SYSTEM_INDEX_URLS]));
+  });
+
+  test("glossary navigation URLs resolve through Fumadocs source entries", () => {
+    for (const url of GLOSSARY_INDEX_URLS) {
+      const slug = url.replace("/docs/", "").split("/");
+      expect(source.getPage(slug)).toBeDefined();
+    }
+
+    for (const url of [
+      ...MODEL_INDEX_URLS,
+      ...PAPER_INDEX_URLS,
+      ...TRAINING_INDEX_URLS,
+      ...SYSTEM_INDEX_URLS,
+    ]) {
+      const slug = url.replace("/docs/", "").split("/");
+      expect(source.getPage(slug)).toBeDefined();
     }
   });
 
-  test("generated folder URLs stay within their published section contract without exact inventories", () => {
-    const publishedPages = loadPublishedDocsPagesSync("en");
+  test("page tree exposes sidebar grouping separators for modules, concepts, and glossary", () => {
+    const separatorNames = collectSeparatorNames(source.pageTree.children);
 
-    for (const [section, folderName] of Object.entries(SECTION_FOLDER_NAMES)) {
-      const folderUrls = collectPageUrls(getFolderChildren(folderName));
-      const publishedSectionUrls = new Set(
-        publishedPages
-          .filter((page) => page.docsSlug.startsWith(`${section}/`))
-          .map((page) => page.url),
-      );
-      const sectionPrefix = `/docs/${section}/`;
-
-      expect(publishedSectionUrls.size).toBeGreaterThan(0);
-      expect(
-        folderUrls.length,
-        `${folderName} should expose published routes`,
-      ).toBeGreaterThan(0);
-      expect(
-        countUnique(folderUrls),
-        `${folderName} should not repeat sidebar routes`,
-      ).toBe(folderUrls.length);
-
-      for (const url of folderUrls) {
-        expect(
-          url.startsWith(sectionPrefix),
-          `${folderName} route ${url} should stay in ${sectionPrefix}`,
-        ).toBe(true);
-        expect(
-          publishedSectionUrls.has(url),
-          `${folderName} route ${url} should resolve from the published docs runtime`,
-        ).toBe(true);
-        expect(
-          source.getPage(docsSlugFromUrl(url)),
-          `${folderName} route ${url} should resolve through the Fumadocs source`,
-        ).toBeDefined();
-      }
-    }
-  });
-
-  test("section folders preserve runtime-derived first and last reader anchors", () => {
-    const publishedPages = loadPublishedDocsPagesSync("en");
-
-    for (const [section, folderName] of Object.entries(
-      SECTION_FOLDER_NAMES,
-    ) as [SectionKey, (typeof SECTION_FOLDER_NAMES)[SectionKey]][]) {
-      const folderUrls = collectPageUrls(getFolderChildren(folderName));
-      const representativeAnchors = getRepresentativeAnchorUrls(
-        publishedPages,
-        section,
-      );
-
-      expect(
-        folderUrls[0],
-        `${folderName} should keep the first reader-facing route aligned with the published runtime`,
-      ).toBe(representativeAnchors.first);
-      expect(
-        folderUrls.at(-1),
-        `${folderName} should keep the last reader-facing route aligned with the published runtime`,
-      ).toBe(representativeAnchors.last);
-
-      for (const anchorUrl of Object.values(representativeAnchors)) {
-        expect(
-          source.getPage(docsSlugFromUrl(anchorUrl)),
-          `${folderName} representative route ${anchorUrl} should resolve through the Fumadocs source`,
-        ).toBeDefined();
-      }
-    }
-  });
-
-  test("section folders expose discoverable routes without mirroring the full published corpus", () => {
-    for (const folderName of Object.values(SECTION_FOLDER_NAMES)) {
-      expect(
-        collectPageUrls(getFolderChildren(folderName)).length,
-        `${folderName} should expose at least one route in the sidebar`,
-      ).toBeGreaterThan(0);
+    for (const separatorName of [
+      "Attention Foundations",
+      "Attention Variants",
+      "Long Context",
+      "Architecture",
+      "Model Taxonomy",
+      "Sequence And Attention",
+      "Math And Training",
+      "Generation And Diffusion",
+    ]) {
+      expect(separatorNames).toContain(separatorName);
     }
   });
 });

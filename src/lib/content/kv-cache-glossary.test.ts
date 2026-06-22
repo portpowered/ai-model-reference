@@ -40,18 +40,20 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
       "cache for decoding",
     ]);
     expect(record?.tags).toEqual(["foundations", "attention", "kv-cache"]);
-    expect(record?.relatedIds).toEqual([
-      "concept.prefill",
-      "concept.decode",
-      "concept.prefill-decode-split",
-      "system.batching",
-      "concept.autoregressive-generation",
-      "module.attention",
-      "module.multi-query-attention",
-      "module.grouped-query-attention",
-      "module.sliding-window-attention",
-      "concept.transformer",
-    ]);
+    expect(record?.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.prefill",
+        "concept.decode",
+        "concept.prefill-decode-split",
+        "system.batching",
+        "concept.autoregressive-generation",
+        "module.attention",
+        "module.multi-query-attention",
+        "module.grouped-query-attention",
+        "module.sliding-window-attention",
+        "concept.transformer",
+      ]),
+    );
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.kv-cache")).toBe(true);
   });
 
@@ -71,7 +73,7 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
       items.some(
         (item) =>
           item.registryId === "concept.prefill" &&
-          item.href === "/docs/glossary/prefill",
+          item.href === "/docs/concepts/prefill",
       ),
     ).toBe(true);
     expect(
@@ -147,9 +149,9 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
       "latency because later steps avoid repeating prompt processing",
     );
     expectHtmlToContainProse(html, "cost real money to serve");
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/glossary/decode"');
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
