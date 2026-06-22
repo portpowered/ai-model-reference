@@ -92,7 +92,7 @@ async function renderLocalDocsPage(
         <DocsTitle>{loadedPage.messages.title}</DocsTitle>
         <DocsDescription>{description}</DocsDescription>
         <DocsBody>
-          {localRef.section !== "systems" ? (
+          {localRef.section !== "systems" && localRef.section !== "glossary" ? (
             <DocsOpeningSummary
               text={loadedPage.messages.openingSummary ?? ""}
             />

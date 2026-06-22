@@ -285,4 +285,26 @@ describe("docs slug renderer locale gating", () => {
       "The first generated token often feels slow because the model must process the whole prompt before it can begin replying",
     );
   });
+
+  test("glossary routes omit the folded opening summary in the shared docs shell", async () => {
+    const page = await renderDocsSlugPage(["glossary", "token"]);
+    captureOriginalFetch();
+    await installDocsSearchFetchMock();
+    const context = await loadAppTestContext();
+
+    await act(async () => {
+      await renderWithAppProviders(
+        <CanonicalDocsLayout messages={context.messages}>
+          {page}
+        </CanonicalDocsLayout>,
+        { context },
+      );
+    });
+
+    expect(screen.queryByTestId("folded-summary")).toBeNull();
+    expect(screen.queryByLabelText("Opening summary")).toBeNull();
+    expect(
+      document.querySelector('[data-opening-summary="folded"]'),
+    ).toBeNull();
+  });
 });
