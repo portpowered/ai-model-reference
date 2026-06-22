@@ -61,10 +61,10 @@ describe("Autoregressive generation concept page", () => {
     ).toBe("/docs/glossary/encoder-decoder");
     expect(
       items.find((item) => item.registryId === "concept.kv-cache")?.href,
-    ).toBe("/docs/glossary/kv-cache");
+    ).toBe("/docs/concepts/kv-cache");
     expect(
       items.find((item) => item.registryId === "concept.prefill")?.href,
-    ).toBe("/docs/glossary/prefill");
+    ).toBe("/docs/concepts/prefill");
     expect(
       items.find((item) => item.registryId === "concept.prefill-decode-split")
         ?.href,
@@ -98,8 +98,8 @@ describe("Autoregressive generation concept page", () => {
     expect(html).toContain("diffusion-style generation");
     expect(html).toContain('href="/docs/glossary/decoder"');
     expect(html).toContain('href="/docs/glossary/encoder-decoder"');
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).toContain('href="/docs/glossary/sampling-overview"');
     expect(html).toContain('data-testid="curated-related-docs"');

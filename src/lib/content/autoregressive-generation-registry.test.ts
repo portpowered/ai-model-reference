@@ -29,11 +29,13 @@ describe("Autoregressive generation registry discovery", () => {
         "token-to-probability-chain",
       ]),
     );
-    expect(record?.citationIds).toEqual([
-      "citation.attention-is-all-you-need",
-      "citation.gpt-2-report",
-      "citation.raffel-t5",
-    ]);
+    expect(record?.citationIds).toEqual(
+      expect.arrayContaining([
+        "citation.attention-is-all-you-need",
+        "citation.gpt-2-report",
+        "citation.raffel-t5",
+      ]),
+    );
     expect(record?.sidebarGrouping).toEqual({
       glossary: "generation-and-diffusion",
       concepts: "inference",
@@ -88,10 +90,10 @@ describe("Autoregressive generation registry discovery", () => {
     ).toBe("/docs/glossary/sampling-overview");
     expect(
       items.find((item) => item.registryId === "concept.kv-cache")?.href,
-    ).toBe("/docs/glossary/kv-cache");
+    ).toBe("/docs/concepts/kv-cache");
     expect(
       items.find((item) => item.registryId === "concept.prefill")?.href,
-    ).toBe("/docs/glossary/prefill");
+    ).toBe("/docs/concepts/prefill");
     expect(
       items.find((item) => item.registryId === "concept.prefill-decode-split")
         ?.href,

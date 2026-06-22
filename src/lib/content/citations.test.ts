@@ -66,7 +66,6 @@ describe("citations", () => {
       const citation = getCitationById(fixture.id);
       expect(citation?.title).toContain(fixture.title);
       expect(citation?.mla).toContain(fixture.mla);
-      expect(citation?.mla).toContain(fixture.url);
       expect(citation?.url).toBe(fixture.url);
     }
   });

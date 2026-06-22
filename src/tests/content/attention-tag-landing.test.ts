@@ -76,9 +76,9 @@ describe("attention tag landing resources", () => {
 
     const conceptGroup = groups.find((group) => group.kind === "concept");
     expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/concepts/autoregressive-generation",
       "/docs/concepts/kv-cache",
       "/docs/concepts/prefill",
-      "/docs/concepts/autoregressive-generation",
     ]);
 
     const paperGroup = groups.find((group) => group.kind === "paper");
