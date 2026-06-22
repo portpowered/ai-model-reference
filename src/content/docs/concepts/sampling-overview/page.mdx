@@ -1,0 +1,90 @@
+---
+title: "Sampling Overview"
+description: "The post-probability next-token decision step that turns one distribution into one chosen token, shaping how predictable or varied generated text feels."
+kind: "concept"
+registryId: "concept.sampling-overview"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - token-to-probability-chain
+aliases:
+  - "token sampling"
+  - "next-token sampling"
+  - "sampling basics"
+  - "decoding strategy"
+updatedAt: "2026-06-22"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="reader-path" titleKey="sections.readerPath.title">
+  <T k="sections.readerPath.body" />
+  <LocalizedLinkList
+    items={[
+      {
+        href: "/docs/glossary/autoregressive-generation",
+        labelKey: "links.autoregressiveGeneration",
+      },
+      { href: "/docs/glossary/decode", labelKey: "links.decode" },
+      { href: "/docs/glossary/temperature", labelKey: "links.temperature" },
+      {
+        href: "/docs/glossary/greedy-decoding",
+        labelKey: "links.greedyDecoding",
+      },
+      {
+        href: "/docs/glossary/top-k-sampling",
+        labelKey: "links.topKSampling",
+      },
+      {
+        href: "/docs/glossary/top-p-sampling",
+        labelKey: "links.topPSampling",
+      },
+      { href: "/docs/papers/gpt-2-report", labelKey: "links.gpt2Report" },
+    ]}
+  />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.sampling-overview"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.sampling-overview" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.sampling-overview" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.sampling-overview" />
+</Section>

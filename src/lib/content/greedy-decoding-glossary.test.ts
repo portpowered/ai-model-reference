@@ -79,7 +79,7 @@ describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decisio
       items.some(
         (item) =>
           item.registryId === "concept.sampling-overview" &&
-          item.href === "/docs/glossary/sampling-overview" &&
+          item.href === "/docs/concepts/sampling-overview" &&
           item.isPlanned === false,
       ),
     ).toBe(true);
@@ -176,7 +176,7 @@ describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decisio
       html,
       "The same prompt and model state produce the same next token each time.",
     );
-    expect(html).toContain('href="/docs/glossary/sampling-overview"');
+    expect(html).toContain('href="/docs/concepts/sampling-overview"');
     expect(html).toContain('href="/docs/glossary/temperature"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/top-k-sampling"');

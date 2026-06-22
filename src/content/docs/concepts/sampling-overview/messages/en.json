@@ -1,0 +1,45 @@
+{
+  "title": "Sampling Overview",
+  "description": "The post-probability next-token decision step that turns one distribution into one chosen token, shaping how predictable or varied generated text feels.",
+  "openingSummary": "After a model produces logits and those scores become probabilities, one more step still remains: choosing the next token. Sampling is that choice step, and its settings trade repeatable predictability against diversity without changing what the model already knows.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Sampling is the final next-token decision step in autoregressive generation. The model has already scored every token with logits, and those scores have been turned into probabilities. Sampling decides what to do next with that distribution: always take the highest-probability token, or keep several plausible options and choose among them under a rule."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "This step strongly shapes how the output feels to a reader. Stricter rules are usually more repeatable, which helps when you want the same answer each time. Looser rules usually allow more diversity, which helps when you want variation or brainstorming. These settings change the selection process, not the model's underlying knowledge; they control how the model uses its probabilities, not what the model has learned."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine the next-token probabilities heavily favor \"Paris,\" give some weight to \"Lyon,\" and leave a smaller chance for \"Marseille.\" Greedy decoding always picks \"Paris.\" Top-k sampling keeps only the top few candidates before drawing one. Top-p sampling keeps the smallest candidate set whose total probability passes a threshold, then draws from that set. All three strategies start from the same probabilities, but they make different tradeoffs between stability and variety."
+    },
+    "readerPath": {
+      "title": "Where To Go Next",
+      "body": "Use this page as the broad bridge through the generation path. Autoregressive generation and decode explain where the choice happens in the full loop. Temperature explains how probabilities can be reshaped before selection. Greedy decoding, top-k sampling, and top-p sampling go deeper into specific token-choice rules, while GPT-2 is a nearby model page that places the sampling step inside a familiar decoder-only system."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Sampling is not the same as temperature. Temperature changes the shape of the probability distribution before a token is chosen, while sampling rules decide how to choose after probabilities exist. Sampling also does not mean pure randomness: greedy decoding is a sampling rule too, but it is deterministic. This overview is broader than the deeper pages for temperature, greedy decoding, top-k sampling, or top-p sampling; those pages focus on one control or method, while this page explains the overall choice step they all belong to."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "autoregressiveGeneration": "Autoregressive generation",
+    "decode": "Decode",
+    "temperature": "Temperature",
+    "greedyDecoding": "Greedy decoding",
+    "topKSampling": "Top-k sampling",
+    "topPSampling": "Top-p sampling",
+    "gpt2Report": "GPT-2 report"
+  }
+}

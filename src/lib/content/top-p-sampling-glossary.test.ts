@@ -75,7 +75,7 @@ describe("Phase 5 top-p sampling glossary page (phase-5-sampling-basics-decision
     );
 
     for (const publishedId of [
-      ["concept.sampling-overview", "/docs/glossary/sampling-overview"],
+      ["concept.sampling-overview", "/docs/concepts/sampling-overview"],
       ["concept.greedy-decoding", "/docs/glossary/greedy-decoding"],
       ["concept.top-k-sampling", "/docs/glossary/top-k-sampling"],
       ["concept.temperature", "/docs/glossary/temperature"],
@@ -154,7 +154,7 @@ describe("Phase 5 top-p sampling glossary page (phase-5-sampling-basics-decision
       html,
       "Top-k sampling would keep a fixed number of candidates even if the distribution became much sharper or flatter on the next step.",
     );
-    expect(html).toContain('href="/docs/glossary/sampling-overview"');
+    expect(html).toContain('href="/docs/concepts/sampling-overview"');
     expect(html).toContain('href="/docs/glossary/greedy-decoding"');
     expect(html).toContain('href="/docs/glossary/top-k-sampling"');
     expect(html).toContain('href="/docs/glossary/temperature"');
