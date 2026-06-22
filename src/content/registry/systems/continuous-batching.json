@@ -1,33 +1,31 @@
 {
-  "id": "system.batching",
-  "slug": "batching",
+  "id": "system.continuous-batching",
+  "slug": "continuous-batching",
   "kind": "system",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
   "aliases": [
-    "Batching",
-    "request batching",
-    "inference batching",
-    "serving batch",
-    "throughput latency tradeoff"
+    "continuous batching",
+    "continuous decode batching",
+    "decode refill",
+    "static vs continuous batching"
   ],
-  "tags": ["foundations"],
+  "tags": ["foundations", "kv-cache"],
   "relatedIds": [
-    "concept.prefill",
     "concept.decode",
     "concept.prefill-decode-split",
     "concept.kv-cache",
-    "system.continuous-batching",
+    "system.batching",
     "system.speculative-decoding",
     "system.routing",
     "system.inference-engine",
     "system.on-disk-kv-cache",
-    "system.expert-parallel-overlap"
+    "system.deployment"
   ],
   "citationIds": ["citation.orca-serving-system"],
   "status": "published",
-  "createdAt": "2026-06-19T00:00:00.000Z",
-  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "createdAt": "2026-06-22T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
   "releaseDate": "2022-07-01",
   "authors": [
     "Gyeong-In Yu",
@@ -41,12 +39,12 @@
   "relatedModelIds": [],
   "relatedModuleIds": [],
   "relatedConceptIds": [
-    "concept.prefill",
     "concept.decode",
     "concept.prefill-decode-split",
     "concept.kv-cache"
   ],
   "paperIds": [],
   "datasetIds": [],
-  "conceptType": "systems"
+  "conceptType": "inference",
+  "variantGroup": "serving-runtime-foundations"
 }
