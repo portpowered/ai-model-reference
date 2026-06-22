@@ -77,7 +77,7 @@ describe("Phase 5 decode glossary page (US-003)", () => {
       items.some(
         (item) =>
           item.registryId === "concept.kv-cache" &&
-          item.href === "/docs/glossary/kv-cache",
+          item.href === "/docs/concepts/kv-cache",
       ),
     ).toBe(true);
     expect(
@@ -149,7 +149,7 @@ describe("Phase 5 decode glossary page (US-003)", () => {
     expectHtmlToContainProse(html, "Decode");
     expectHtmlToContainProse(html, "inter-token latency");
     expectHtmlToContainProse(html, "memory bandwidth");
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/glossary/prefill"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');

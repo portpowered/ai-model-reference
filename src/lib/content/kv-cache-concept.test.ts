@@ -3,12 +3,16 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import { loadRegistry } from "@/lib/content/registry";
 import {
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 describe("KV-cache concept page (kv-cache-concept-page-001)", () => {
   test("registry record remains published with the expected aliases, tags, and curated related ids", () => {
@@ -21,12 +25,14 @@ describe("KV-cache concept page (kv-cache-concept-page-001)", () => {
       "key value cache",
       "kv-cache",
       "attention cache",
+      "cache for decoding",
     ]);
     expect(record?.tags).toEqual(["foundations", "attention", "kv-cache"]);
     expect(record?.relatedIds).toEqual([
       "concept.prefill",
       "concept.decode",
       "concept.prefill-decode-split",
+      "system.batching",
       "concept.autoregressive-generation",
       "module.attention",
       "module.multi-query-attention",
@@ -113,5 +119,33 @@ describe("KV-cache concept page (kv-cache-concept-page-001)", () => {
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
+  });
+
+  test("search discovery prefers the concept route for representative kv-cache queries", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+
+    const conceptDocument = documents.find(
+      (entry) => entry.url === "/docs/concepts/kv-cache",
+    );
+    expect(conceptDocument?.aliases).toEqual(
+      expect.arrayContaining([
+        "KV cache",
+        "key-value cache",
+        "attention cache",
+        "cache for decoding",
+      ]),
+    );
+
+    for (const query of [
+      "KV cache",
+      "key-value cache",
+      "attention cache",
+      "cache for decoding",
+    ] as const) {
+      const results = await docsSearchApi.search(query);
+      expect(results[0]?.url).toBe("/docs/concepts/kv-cache");
+    }
   });
 });

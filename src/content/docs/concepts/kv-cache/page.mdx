@@ -16,11 +16,13 @@ aliases:
   - "key value cache"
   - "kv-cache"
   - "attention cache"
+  - "cache for decoding"
 updatedAt: "2026-06-22"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -36,6 +38,20 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="what-changes-during-generation" titleKey="sections.whatChangesDuringGeneration.title">
   <T k="sections.whatChangesDuringGeneration.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/glossary/prefill", labelKey: "links.prefill" },
+      { href: "/docs/glossary/decode", labelKey: "links.decode" },
+      {
+        href: "/docs/glossary/prefill-decode-split",
+        labelKey: "links.prefillDecodeSplit",
+      },
+      {
+        href: "/docs/glossary/autoregressive-generation",
+        labelKey: "links.autoregressiveGeneration",
+      },
+    ]}
+  />
 </Section>
 
 <Section id="memory-tradeoffs" titleKey="sections.memoryTradeoffs.title">

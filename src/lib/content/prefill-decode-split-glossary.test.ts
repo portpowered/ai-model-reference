@@ -158,7 +158,7 @@ describe("Phase 5 prefill/decode split glossary page (US-004)", () => {
     expectHtmlToContainProse(html, "serving design");
     expectHtmlToContainProse(html, "cache transfer");
     expectHtmlToContainProse(html, "queueing overhead");
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/glossary/prefill"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/search?q=paged%20attention"');

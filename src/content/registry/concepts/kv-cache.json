@@ -9,7 +9,8 @@
     "key-value cache",
     "key value cache",
     "kv-cache",
-    "attention cache"
+    "attention cache",
+    "cache for decoding"
   ],
   "tags": ["foundations", "attention", "kv-cache"],
   "relatedIds": [

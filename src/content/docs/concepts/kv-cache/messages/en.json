@@ -28,5 +28,11 @@
     "references": {
       "title": "References"
     }
+  },
+  "links": {
+    "prefill": "Prefill",
+    "decode": "Decode",
+    "prefillDecodeSplit": "Prefill/decode split",
+    "autoregressiveGeneration": "Autoregressive generation"
   }
 }

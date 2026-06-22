@@ -98,7 +98,7 @@ describe("attention tag landing resources", () => {
     expectSortedTitles(moduleGroup, "en");
   });
 
-  it("omits empty kind groups and groups model, module, and glossary resources separately", async () => {
+  it("omits empty kind groups and groups model, module, concept, paper, and glossary resources separately", async () => {
     const messages = await loadUiMessages();
     const groups = await loadTagResourceGroups("attention", messages, "en");
 
@@ -106,6 +106,7 @@ describe("attention tag landing resources", () => {
     expect(groups.map((group) => group.kind)).toEqual([
       "model",
       "module",
+      "concept",
       "paper",
       "glossary",
     ]);
@@ -124,6 +125,11 @@ describe("attention tag landing resources", () => {
       "glossary",
       REPRESENTATIVE_ATTENTION_GROUP_URLS.glossary,
     );
+
+    const conceptGroup = groups.find((group) => group.kind === "concept");
+    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/concepts/kv-cache",
+    ]);
 
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
     expect(glossaryGroup?.resources[0]?.url).toBe(
