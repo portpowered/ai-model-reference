@@ -8,16 +8,19 @@
     "sampling overview",
     "token sampling",
     "next-token sampling",
-    "sampling basics"
+    "sampling basics",
+    "decoding strategy"
   ],
   "tags": ["foundations", "token-to-probability-chain"],
   "relatedIds": [
     "concept.temperature",
     "concept.softmax",
     "concept.autoregressive-generation",
+    "concept.decode",
     "concept.greedy-decoding",
     "concept.top-k-sampling",
-    "concept.top-p-sampling"
+    "concept.top-p-sampling",
+    "paper.gpt-2-report"
   ],
   "citationIds": ["citation.curious-case-neural-text-degeneration"],
   "status": "published",

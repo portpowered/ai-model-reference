@@ -36,14 +36,17 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
       "token sampling",
       "next-token sampling",
       "sampling basics",
+      "decoding strategy",
     ]);
     expect(record?.relatedIds).toEqual([
       "concept.temperature",
       "concept.softmax",
       "concept.autoregressive-generation",
+      "concept.decode",
       "concept.greedy-decoding",
       "concept.top-k-sampling",
       "concept.top-p-sampling",
+      "paper.gpt-2-report",
     ]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.sampling-overview")).toBe(
       true,
@@ -65,7 +68,7 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
     ).toContain("concept.sampling-overview");
   });
 
-  test("curated related docs preserve published links backward and expose the completed decoding path", () => {
+  test("curated related docs preserve published links backward and expose the completed decoding and GPT-family path", () => {
     const source = getConceptById("concept.sampling-overview");
     if (!source) {
       throw new Error("expected concept.sampling-overview in registry");
@@ -105,6 +108,14 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
     expect(
       items.some(
         (item) =>
+          item.registryId === "concept.decode" &&
+          item.href === "/docs/glossary/decode" &&
+          item.isPlanned === false,
+      ),
+    ).toBe(true);
+    expect(
+      items.some(
+        (item) =>
           item.registryId === "concept.greedy-decoding" &&
           item.href === "/docs/glossary/greedy-decoding" &&
           item.isPlanned === false,
@@ -124,6 +135,14 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
         (item) =>
           item.registryId === "concept.top-p-sampling" &&
           item.href === "/docs/glossary/top-p-sampling" &&
+          item.isPlanned === false,
+      ),
+    ).toBe(true);
+    expect(
+      items.some(
+        (item) =>
+          item.registryId === "paper.gpt-2-report" &&
+          item.href === "/docs/papers/gpt-2-report" &&
           item.isPlanned === false,
       ),
     ).toBe(true);
@@ -195,18 +214,22 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
     expect(html).toContain('href="/docs/glossary/temperature"');
     expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/greedy-decoding"');
     expect(html).toContain('href="/docs/glossary/top-k-sampling"');
     expect(html).toContain('href="/docs/glossary/top-p-sampling"');
+    expect(html).toContain('href="/docs/papers/gpt-2-report"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain('data-planned="true"');
+    expect(html).toContain("Decode");
     expect(html).toContain("Greedy Decoding");
+    expect(html).toContain("GPT-2 report");
     expect(html).toContain("Top K Sampling");
     expect(html).toContain("Top-P Sampling");
     expect(html).not.toContain("Reader Shortcut");
   });
 
-  test("search index records sampling overview as a glossary page with aliases", async () => {
+  test("search index records sampling overview as a glossary page with aliases and shared chain tags", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const documents = buildSearchDocuments(pages, registry);
@@ -222,9 +245,12 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
         "token sampling",
         "next-token sampling",
         "sampling basics",
+        "decoding strategy",
       ]),
     );
-    expect(document?.tags).toEqual(expect.arrayContaining(["foundations"]));
+    expect(document?.tags).toEqual(
+      expect.arrayContaining(["foundations", "token-to-probability-chain"]),
+    );
   });
 
   test("search finds sampling overview by title, aliases, and next-token choice terms", async () => {
@@ -232,6 +258,7 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
       "Sampling Overview",
       "token sampling",
       "next-token sampling",
+      "decoding strategy",
       "choose the next token from a probability distribution",
     ] as const) {
       const results = await docsSearchApi.search(query);
