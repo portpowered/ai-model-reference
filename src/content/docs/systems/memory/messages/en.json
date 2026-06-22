@@ -1,0 +1,58 @@
+{
+  "title": "Memory",
+  "description": "A serving system concern that covers the live state the runtime must keep or move while answering requests, including model weights, KV cache growth, allocator overhead, and memory bandwidth limits.",
+  "openingSummary": "Serving memory is the live state an inference runtime must keep nearby or move quickly enough to answer requests. It is not just the advertised capacity number on a device spec sheet. What matters in practice is which weights stay resident, how the key-value cache grows as sessions stay active, and how fast the system can move that state without stalling the next token.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Memory is a serving-system concern because a model can only answer requests when the runtime can hold or fetch the state needed for the next step. That live state includes model weights, the growing key-value cache, temporary activations, and the bookkeeping overhead required to place them on usable hardware."
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": "It sits underneath visible serving choices such as batching, routing, deployment, and prefill versus decode scheduling. Those systems do not change the learned model architecture itself. They decide how work is placed so the right memory stays available, close enough, and fast enough for the inference engine to keep serving."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Before useful work begins, the runtime needs the model weights resident in a fast enough memory tier to execute the forward pass. During prefill it also has to create the first key-value cache entries for the prompt. During decode that cache keeps growing while active requests remain alive, so the serving stack constantly balances resident weights, per-request cache growth, and free space for the next step instead of treating memory as a one-time loading problem."
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": "Serving can look compute-rich and still slow down when memory is the tighter constraint. If bandwidth is limited, the runtime cannot read weights or move active cache state fast enough. If allocation becomes fragmented, enough total bytes may exist on paper while too little usable space remains in the right place for the next request. That is why operators batch carefully, spill colder cache, or split work across stages: each choice tries to fit more useful work into the memory shape the system actually has."
+    },
+    "related": {
+      "title": "Related To",
+      "body": "The related pages below cover the nearby serving systems and glossary entries that make memory pressure visible in production, from prompt processing and token generation to cache policies, routing, and deployment."
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "Resident model weights feed prefill, prefill grows the KV cache, decode keeps using and extending that cache, and both paths contribute to serving memory pressure.",
+      "caption": "Memory stays a live serving constraint after the model loads because active requests keep changing how much state must remain resident and how quickly it must move."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "weights": {
+        "label": "Resident weights"
+      },
+      "prefill": {
+        "label": "Prompt prefill"
+      },
+      "kvCache": {
+        "label": "KV cache grows"
+      },
+      "decode": {
+        "label": "Decode next tokens"
+      },
+      "pressure": {
+        "label": "Serving memory pressure"
+      }
+    }
+  }
+}
