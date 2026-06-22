@@ -3,6 +3,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
+import { renderConceptDocsShell } from "@/lib/content/concept-shell-render";
+import { stripHtmlTags } from "@/lib/content/glossary-test-helpers";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import {
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
@@ -103,6 +105,25 @@ describe("Autoregressive generation concept page", () => {
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("Phase");
+  });
+
+  test("shell render includes the folded summary and all expected references", async () => {
+    const page = await loadConceptPage("autoregressive-generation");
+
+    const html = renderConceptDocsShell(page);
+    const plainHtml = stripHtmlTags(html);
+
+    expect(html).toContain('data-testid="folded-opening-summary"');
+    expect(plainHtml).toContain("Summary");
+    expect(plainHtml).toContain(
+      "Autoregressive generation is the step-by-step next-token loop",
+    );
+    expect(html).toContain('data-testid="citation-list"');
+    expect(plainHtml).toContain("Attention Is All You Need");
+    expect(plainHtml).toContain("Language Models are Unsupervised");
+    expect(plainHtml).toContain(
+      "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer",
+    );
   });
 
   test("discovery publishes both the concept explainer and glossary bridge for autoregressive generation", async () => {
