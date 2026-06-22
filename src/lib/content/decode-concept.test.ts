@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
 import { DECODE_CONCEPT_PAGE_DIR } from "@/lib/content/content-paths";
+import { localDocsRoute } from "@/lib/content/local-docs-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import {
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
@@ -20,11 +21,32 @@ import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { validateColocatedPageBundle } from "./validate-registry";
 
 const pageDir = DECODE_CONCEPT_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
+const DECODE_ROUTE = "/docs/concepts/decode";
 
-describe("decode concept page (decode-concept-page-001)", () => {
+describe("decode concept page focused validation (decode-concept-page-004)", () => {
+  test("canonical route, registry record, and default English page bundle resolve together", async () => {
+    const route = localDocsRoute({
+      section: "concepts",
+      slug: "decode",
+    });
+    const registry = await loadRegistry();
+    const bundle = await validateColocatedPageBundle(pageDir, registry);
+    const record = registry.byId.get("concept.decode");
+
+    expect(route).toBe(DECODE_ROUTE);
+    expect(bundle.errors).toEqual([]);
+    expect(bundle.messages?.title).toBe("Decode");
+    expect(bundle.messages?.openingSummary?.length).toBeGreaterThan(0);
+    expect(bundle.assets).toBeDefined();
+    expect(record?.kind).toBe("concept");
+    expect(record?.slug).toBe("decode");
+    expect(record?.status).toBe("published");
+  });
+
   test("registry record stays published and points curated discovery at the broad concept surface", () => {
     const record = getConceptById("concept.decode");
     expect(record?.status).toBe("published");
@@ -193,7 +215,7 @@ describe("decode concept page (decode-concept-page-001)", () => {
     ] as const) {
       const results = await docsSearchApi.search(query);
       expect(results.length).toBeGreaterThan(0);
-      expect(results[0]?.url).toBe("/docs/concepts/decode");
+      expect(results[0]?.url).toBe(DECODE_ROUTE);
     }
   });
 });
