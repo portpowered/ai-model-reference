@@ -24,8 +24,8 @@ const PHASE_5_SERVING_DOCS = [
     query: "prompt processing",
   },
   {
-    docsSlug: "glossary/decode",
-    url: "/docs/glossary/decode",
+    docsSlug: "concepts/decode",
+    url: "/docs/concepts/decode",
     query: "token-by-token generation",
   },
   {

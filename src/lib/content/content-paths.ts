@@ -293,6 +293,9 @@ export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
 /** Prefill concept page directory. */
 export const PREFILL_CONCEPT_PAGE_DIR = join(CONCEPTS_DOCS_ROOT, "prefill");
 
+/** Decode concept page directory. */
+export const DECODE_CONCEPT_PAGE_DIR = join(CONCEPTS_DOCS_ROOT, "decode");
+
 /** Vocabulary size glossary page directory. */
 export const VOCABULARY_SIZE_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,

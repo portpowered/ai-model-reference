@@ -1,23 +1,26 @@
 ---
-title: Prefill/decode split
-description: The serving setup that separates prompt processing from token-by-token generation because the two stages stress hardware, memory, and latency in different ways.
-kind: "glossary"
-registryId: "concept.prefill-decode-split"
+title: Decode
+description: The repeated next-token stage that reuses saved prefix state, extends the KV cache one position at a time, and makes inter-token latency the main reader-visible cost after prefill.
+kind: "concept"
+registryId: "concept.decode"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
   - foundations
+  - attention
   - kv-cache
 aliases:
-  - "Prefill/decode split"
-  - "prefill decode split"
-  - "split serving"
-  - "disaggregated serving"
-updatedAt: "2026-06-18"
+  - "Decode"
+  - "decoding"
+  - "token-by-token generation"
+  - "next-token step"
+  - "inter-token generation"
+updatedAt: "2026-06-22"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
@@ -44,34 +47,48 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
   <T k="sections.servingPath.body" />
   <LocalizedLinkList
     items={[
-      { href: "/docs/concepts/kv-cache", labelKey: "links.kvCache" },
       { href: "/docs/concepts/prefill", labelKey: "links.prefill" },
-      { href: "/docs/concepts/decode", labelKey: "links.decode" },
+      { href: "/docs/glossary/prefill-decode-split", labelKey: "links.prefillDecodeSplit" },
+      { href: "/docs/concepts/kv-cache", labelKey: "links.kvCache" },
       {
-        href: "/search?q=paged%20attention",
-        labelKey: "links.pagedAttention",
+        href: "/docs/glossary/autoregressive-generation",
+        labelKey: "links.autoregressiveGeneration",
       },
+      { href: "/docs/systems/batching", labelKey: "links.batching" },
       {
-        href: "/search?q=chunked%20prefill",
-        labelKey: "links.chunkedPrefill",
+        href: "/docs/systems/continuous-batching",
+        labelKey: "links.continuousBatching",
       },
+      { href: "/docs/systems/memory", labelKey: "links.memory" },
       {
-        href: "/search?q=speculative%20decoding",
+        href: "/docs/systems/speculative-decoding",
         labelKey: "links.speculativeDecoding",
       },
-      { href: "/search?q=quantization", labelKey: "links.quantization" },
+      {
+        href: "/docs/glossary/sampling-overview",
+        labelKey: "links.samplingOverview",
+      },
     ]}
   />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
-  <RelatedDocs registryId="concept.prefill-decode-split" />
+  <DerivedRelatedDocs
+    registryId="concept.decode"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.decode" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList registryId="concept.prefill-decode-split" showDescriptions />
+  <TagPillList registryId="concept.decode" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.prefill-decode-split" />
+  <CitationList registryId="concept.decode" />
 </Section>

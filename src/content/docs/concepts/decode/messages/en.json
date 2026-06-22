@@ -1,0 +1,47 @@
+{
+  "title": "Decode",
+  "description": "The repeated next-token stage that reuses saved prefix state, extends the KV cache one position at a time, and makes inter-token latency the main reader-visible cost after prefill.",
+  "openingSummary": "After prefill has processed the prompt, decode is the repeated next-token loop that keeps reusing saved key-value state, adds one new position at a time, and usually turns inter-token latency plus cache growth into the dominant feel of a long response.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Decode is the stage of autoregressive generation that starts after prefill has already read the prompt and built the first key-value cache state. Each turn computes the next token from the current prefix, appends that token, writes one more cache position, and then repeats until generation stops."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Decode often controls the feel of a streamed answer because readers experience it as one token arriving after another. The model no longer has to reread the whole prompt from scratch, but each step still depends on moving through a growing cache and running another forward pass for the newest position. That is why inter-token latency, cache growth, memory bandwidth, and serving density show up so often in decode discussions."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose a prompt has already been processed and the model is about to generate a 50-token reply. Decode produces token 1, extends the prefix, updates the cache for that new position, then repeats for token 2, token 3, and the rest of the answer. Each turn is smaller than the prompt pass, but dozens of repeated turns can dominate the total user-visible wait."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Decode is not the same as the decoder module. The decoder is the model stack; decode is the runtime loop that calls that stack again and again during generation. Decode is also not the same as prefill: prefill reads the existing prompt once, while decode handles one newly generated token at a time. Finally, decode is not the same as sampling. Decode produces the next-step hidden state and logits, while sampling decides how one token is chosen from those scores."
+    },
+    "servingPath": {
+      "title": "Serving Path",
+      "body": "Use the nearby pages below to trace what decode depends on, what it changes in the serving stack, and where to go next if you want either the systems view or the token-choice view."
+    },
+    "related": {
+      "title": "Related Concepts And Systems"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "prefill": "Prefill",
+    "prefillDecodeSplit": "Prefill/decode split",
+    "kvCache": "KV cache",
+    "autoregressiveGeneration": "Autoregressive generation",
+    "batching": "Batching",
+    "continuousBatching": "Continuous batching",
+    "memory": "Memory",
+    "speculativeDecoding": "Speculative decoding",
+    "samplingOverview": "Sampling overview"
+  }
+}

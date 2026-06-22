@@ -60,7 +60,7 @@ describe("KV-cache concept page (kv-cache-concept-page-001)", () => {
     ).toBe("/docs/concepts/prefill");
     expect(
       items.find((item) => item.registryId === "concept.decode")?.href,
-    ).toBe("/docs/glossary/decode");
+    ).toBe("/docs/concepts/decode");
     expect(
       items.find((item) => item.registryId === "concept.prefill-decode-split")
         ?.href,
@@ -111,7 +111,7 @@ describe("KV-cache concept page (kv-cache-concept-page-001)", () => {
     expect(html).toContain("repeated work");
     expect(html).toContain("live memory");
     expect(html).toContain('href="/docs/glossary/prefill"');
-    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain('href="/docs/concepts/decode"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/tags/kv-cache"');
