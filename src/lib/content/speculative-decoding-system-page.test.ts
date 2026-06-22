@@ -228,6 +228,23 @@ describe("speculative decoding docs route render", () => {
     expect(html).toContain("Emit accepted prefix");
     expect(html).toContain("Reject rest and resume strong decode");
   });
+
+  test("renders speculative decoding as a reachable related doc from a nearby serving page", async () => {
+    const batchingPage = await loadSystemPage("batching");
+    const html = await renderAsyncMarkup(
+      createElement(
+        ModulePageProviders,
+        {
+          messages: batchingPage.messages,
+          assets: batchingPage.assets,
+        },
+        batchingPage.content,
+      ),
+    );
+
+    expect(html).toContain('href="/docs/systems/speculative-decoding"');
+    expect(html).toContain(">speculative decoding<");
+  });
 });
 
 describe("speculative decoding page assets", () => {
