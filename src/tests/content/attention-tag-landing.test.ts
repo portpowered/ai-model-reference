@@ -77,16 +77,12 @@ describe("attention tag landing resources", () => {
     const conceptGroup = groups.find((group) => group.kind === "concept");
     expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/concepts/prefill",
+      "/docs/concepts/kv-cache",
     ]);
 
     const paperGroup = groups.find((group) => group.kind === "paper");
     expect(paperGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/papers/deepseek-v4",
-    ]);
-
-    const conceptGroup = groups.find((group) => group.kind === "concept");
-    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
-      "/docs/concepts/kv-cache",
     ]);
 
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
