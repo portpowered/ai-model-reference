@@ -8,7 +8,7 @@ import {
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
 describe("Autoregressive generation registry discovery", () => {
-  test("record carries broad-concept metadata without switching the live canonical route yet", () => {
+  test("record carries broad-concept metadata and routes canonically to the concept page", () => {
     const record = getConceptById("concept.autoregressive-generation");
 
     expect(record?.status).toBe("published");
@@ -51,7 +51,7 @@ describe("Autoregressive generation registry discovery", () => {
       throw new Error("expected concept.autoregressive-generation in registry");
     }
     expect(registryRecordHref(record)).toBe(
-      "/docs/glossary/autoregressive-generation",
+      "/docs/concepts/autoregressive-generation",
     );
   });
 

@@ -89,7 +89,7 @@ describe("prefill concept page (prefill-concept-page-001)", () => {
       items.some(
         (item) =>
           item.registryId === "concept.autoregressive-generation" &&
-          item.href === "/docs/glossary/autoregressive-generation",
+          item.href === "/docs/concepts/autoregressive-generation",
       ),
     ).toBe(true);
     expect(
@@ -152,7 +152,7 @@ describe("prefill concept page (prefill-concept-page-001)", () => {
     expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
-    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/concepts/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/search?q=time%20to%20first%20token"');

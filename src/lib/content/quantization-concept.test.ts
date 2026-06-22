@@ -78,7 +78,7 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
       items.find(
         (item) => item.registryId === "concept.autoregressive-generation",
       )?.href,
-    ).toBe("/docs/glossary/autoregressive-generation");
+    ).toBe("/docs/concepts/autoregressive-generation");
     expect(
       items.find((item) => item.registryId === "module.multi-query-attention")
         ?.href,
@@ -121,7 +121,7 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
     );
     expect(html).toContain('href="/docs/glossary/parameter"');
     expect(html).toContain('href="/docs/glossary/activation"');
-    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/concepts/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/tags/quantization"');

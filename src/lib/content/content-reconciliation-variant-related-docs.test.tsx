@@ -243,7 +243,7 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     expect(html).toContain("Same classification: attention mechanisms");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/attention"');
-    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/concepts/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/encoder"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/glossary/encoder-decoder"');

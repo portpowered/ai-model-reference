@@ -78,6 +78,7 @@ describe("attention tag landing resources", () => {
     expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/concepts/kv-cache",
       "/docs/concepts/prefill",
+      "/docs/concepts/autoregressive-generation",
     ]);
 
     const paperGroup = groups.find((group) => group.kind === "paper");
@@ -166,6 +167,7 @@ describe("attention tag landing page render", () => {
 
     expect(html).toContain("Attention");
     expect(html).toContain("Module");
+    expect(html).toContain("Concept");
     expect(html).toContain("Glossary");
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain("Bidirectional Attention");
@@ -195,6 +197,7 @@ describe("attention tag landing page render", () => {
     expect(html).toContain("DeepSeek-V4");
     expect(html).toContain('href="/docs/papers/deepseek-v4"');
     expect(html).toContain("Autoregressive Generation");
+    expect(html).toContain('href="/docs/concepts/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain("Decode");
     expect(html).toContain('href="/docs/glossary/decode"');

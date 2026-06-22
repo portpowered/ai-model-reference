@@ -95,7 +95,7 @@ describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decisio
       items.some(
         (item) =>
           item.registryId === "concept.autoregressive-generation" &&
-          item.href === "/docs/glossary/autoregressive-generation" &&
+          item.href === "/docs/concepts/autoregressive-generation" &&
           item.isPlanned === false,
       ),
     ).toBe(true);
@@ -178,7 +178,7 @@ describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decisio
     );
     expect(html).toContain('href="/docs/glossary/sampling-overview"');
     expect(html).toContain('href="/docs/glossary/temperature"');
-    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/concepts/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/top-k-sampling"');
     expect(html).toContain('href="/docs/glossary/top-p-sampling"');
     expect(html).toContain('data-testid="curated-related-docs"');

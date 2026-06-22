@@ -107,6 +107,7 @@ const MODULE_INDEX_URLS = [
 ] as const;
 
 const CONCEPT_INDEX_URLS = [
+  "/docs/concepts/autoregressive-generation",
   "/docs/concepts/alibi",
   "/docs/concepts/context-extension",
   "/docs/concepts/prefill",

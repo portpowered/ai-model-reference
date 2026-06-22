@@ -104,6 +104,7 @@ const ENCODER_DECODER_URLS = [
   "/docs/glossary/encoder-decoder",
 ] as const;
 const GENERATION_PARADIGM_URLS = [
+  "/docs/concepts/autoregressive-generation",
   "/docs/glossary/autoregressive-generation",
   "/docs/glossary/denoising-generation",
   "/docs/glossary/conditioning",

@@ -181,7 +181,7 @@ describe("Phase 5 prefill/decode split glossary page (US-004)", () => {
     expect(html).toContain('href="/search?q=chunked%20prefill"');
     expect(html).toContain('href="/search?q=speculative%20decoding"');
     expect(html).toContain('href="/search?q=quantization"');
-    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/concepts/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');

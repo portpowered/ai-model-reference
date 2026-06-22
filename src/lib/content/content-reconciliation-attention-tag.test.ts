@@ -99,6 +99,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/concepts/kv-cache",
       "/docs/concepts/prefill",
+      "/docs/concepts/autoregressive-generation",
     ]);
 
     const paperGroup = groups.find((group) => group.kind === "paper");
@@ -162,6 +163,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
     }
 
     expect(html).toContain("Linear Attention");
+    expect(html).toContain('href="/docs/concepts/autoregressive-generation"');
     expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/decode"');
