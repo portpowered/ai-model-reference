@@ -104,7 +104,15 @@ describe("memory canonical page bundle", () => {
     expect(page.messages.sections?.howItWorks?.body).toContain(
       "weights resident",
     );
-    expect(page.messages.sections?.howItWorks?.body).toContain("During decode");
+    expect(page.messages.sections?.howItWorks?.body).toContain(
+      "sharpest one-time burst of cache growth",
+    );
+    expect(page.messages.sections?.howItWorks?.body).toContain(
+      "Decode then reuses those entries and extends them token by token",
+    );
+    expect(page.messages.sections?.howItWorks?.body).toContain(
+      "live serving concern after load",
+    );
     expect(page.messages.sections?.practicalImpact?.body).toContain(
       "bandwidth",
     );
@@ -112,11 +120,26 @@ describe("memory canonical page bundle", () => {
       "allocation becomes fragmented",
     );
     expect(page.messages.assets?.systemFlow?.alt).toContain(
-      "Resident model weights",
+      "must stay loaded before serving can begin",
+    );
+    expect(page.messages.assets?.systemFlow?.caption).toContain(
+      "Weights dominate the starting footprint",
     );
     expect(page.messages.openingSummary).toContain("device spec sheet");
     expect(getGraphById("graph.memory-system-flow")?.subjectId).toBe(
       "system.memory",
+    );
+    expect(getGraphById("graph.memory-system-flow")?.nodes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "weights",
+          size: expect.objectContaining({ width: 240 }),
+        }),
+        expect.objectContaining({
+          id: "pressure",
+          size: expect.objectContaining({ width: 260 }),
+        }),
+      ]),
     );
   });
 });
@@ -161,7 +184,11 @@ describe("memory docs route render", () => {
     expect(html).toContain("active requests remain alive");
     expect(html).toContain("KV cache");
     expect(html).toContain("batch carefully");
-    expect(html).toContain("split work across stages");
+    expect(html).toContain("split");
+    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain("sharpest one-time burst of cache growth");
+    expect(html).toContain("reuses those entries");
   });
 
   test("renders the memory system flow graph with the page-local graph asset", async () => {
@@ -184,8 +211,10 @@ describe("memory docs route render", () => {
     expect(html).toContain("Memory System Flow");
     expect(html).toContain("Request and weight flow");
     expect(html).toContain("Control flow");
-    expect(html).toContain("Resident weights");
-    expect(html).toContain("Serving memory pressure");
+    expect(html).toContain("Keep model weights resident");
+    expect(html).toContain("Prefill reads the whole prompt");
+    expect(html).toContain("Decode reuses and extends cache");
+    expect(html).toContain("Live serving memory keeps changing");
   });
 });
 
