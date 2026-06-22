@@ -23,6 +23,7 @@ describe("isArchitectureRelatedPage", () => {
     expect(urls).toEqual(
       expect.arrayContaining([
         "/docs/concepts/context-extension",
+        "/docs/concepts/decode",
         "/docs/concepts/page-spec-workflow-sample",
         "/docs/concepts/positional-encodings",
         "/docs/concepts/prefill",
@@ -123,6 +124,7 @@ describe("architecture index page render", () => {
       ["Architecture", "/docs/glossary/architecture"],
       ["Foundation Model", "/docs/glossary/foundation-model"],
       ["KV cache", "/docs/glossary/kv-cache"],
+      ["Decode", "/docs/concepts/decode"],
       ["Decode", "/docs/glossary/decode"],
       ["Prefill", "/docs/concepts/prefill"],
       ["Positional encodings", "/docs/concepts/positional-encodings"],

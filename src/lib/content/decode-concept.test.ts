@@ -103,6 +103,9 @@ describe("decode concept page (decode-concept-page-001)", () => {
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
       "autoregressive generation",
     );
+    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
+      "instead of rereading the whole prompt",
+    );
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
       "inter-token latency",
     );
@@ -134,6 +137,7 @@ describe("decode concept page (decode-concept-page-001)", () => {
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
     expect(html).toContain("Serving Path");
+    expect(html).toContain("instead of rereading the whole prompt");
     expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');

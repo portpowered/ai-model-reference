@@ -133,7 +133,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
 };
 
 const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 50;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 51;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -145,6 +145,7 @@ const GLOSSARY_SEPARATOR_TITLES = [
 const ARCHITECTURE_CONCEPT_URLS = [
   "/docs/concepts/alibi",
   "/docs/concepts/context-extension",
+  "/docs/concepts/decode",
   "/docs/concepts/kv-cache",
   "/docs/concepts/page-spec-workflow-sample",
   "/docs/concepts/positional-encodings",
@@ -271,6 +272,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Architecture", "/docs/glossary/architecture"],
       ["Foundation Model", "/docs/glossary/foundation-model"],
       ["Key-value cache", "/docs/concepts/kv-cache"],
+      ["Decode", "/docs/concepts/decode"],
       ["Decode", "/docs/glossary/decode"],
       ["Prefill", "/docs/concepts/prefill"],
       ["Positional encodings", "/docs/concepts/positional-encodings"],

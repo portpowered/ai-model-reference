@@ -5,7 +5,7 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Decode is the stage of autoregressive generation that starts after prefill has already read the prompt and built the first key-value cache state. Each turn computes the next token from the current prefix, appends that token, writes one more cache position, and then repeats until generation stops."
+      "body": "Decode is the stage of autoregressive generation that starts after prefill has already read the prompt and built the first key-value cache state. Each turn computes the next token from the current prefix, appends that token, writes one more cache position, and then repeats until generation stops. It repeats one position at a time because the saved cache already summarizes the earlier prompt, so the model only has to process the newest step instead of rereading the whole prompt on every turn."
     },
     "whyItMatters": {
       "title": "Why It Matters",
