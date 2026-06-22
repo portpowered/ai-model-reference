@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import {
+  activateSearchDialogTrigger,
   evaluateSearchDialogDomSnapshot,
   formatPhase1SearchDialogCheckFailure,
   formatSearchDialogOpenFailureReason,
@@ -123,6 +124,70 @@ describe("formatSearchDialogOpenFailureReason", () => {
     expect(formatSearchDialogOpenFailureReason(45_000)).toBe(
       "did not open the header search dialog on the home page within 45000ms",
     );
+  });
+});
+
+describe("activateSearchDialogTrigger", () => {
+  test("uses pointer click when the trigger click succeeds", async () => {
+    let focused = false;
+    let pressed = false;
+
+    await activateSearchDialogTrigger(
+      {
+        click: async () => {},
+        focus: async () => {
+          focused = true;
+        },
+        press: async () => {
+          pressed = true;
+        },
+      } as never,
+      1_000,
+    );
+
+    expect(focused).toBe(false);
+    expect(pressed).toBe(false);
+  });
+
+  test("falls back to keyboard activation when click times out", async () => {
+    let focused = false;
+    let pressKey: string | undefined;
+    let pressTimeout: number | undefined;
+
+    await activateSearchDialogTrigger(
+      {
+        click: async () => {
+          throw new Error("click: Timeout 44790ms exceeded.");
+        },
+        focus: async () => {
+          focused = true;
+        },
+        press: async (key: string, options?: { timeout?: number }) => {
+          pressKey = key;
+          pressTimeout = options?.timeout;
+        },
+      } as never,
+      1_234,
+    );
+
+    expect(focused).toBe(true);
+    expect(pressKey).toBe("Enter");
+    expect(pressTimeout).toBe(1_234);
+  });
+
+  test("rethrows non-timeout trigger activation failures", async () => {
+    await expect(
+      activateSearchDialogTrigger(
+        {
+          click: async () => {
+            throw new Error("click: page closed");
+          },
+          focus: async () => {},
+          press: async () => {},
+        } as never,
+        1_000,
+      ),
+    ).rejects.toThrow("click: page closed");
   });
 });
 
