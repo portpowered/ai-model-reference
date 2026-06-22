@@ -223,7 +223,26 @@ export function findBestTitleMatchPageUrl(
     }
   }
 
-  return bestScore >= 90 ? bestUrl : undefined;
+  if (bestScore < 90 || !bestUrl) {
+    return undefined;
+  }
+
+  const bestDocument = documentsByUrl.get(bestUrl);
+  if (bestDocument?.kind !== "glossary" || !bestDocument.registryId) {
+    return bestUrl;
+  }
+
+  for (const [url, document] of documentsByUrl) {
+    if (
+      document.kind === "concept" &&
+      document.registryId === bestDocument.registryId &&
+      scoreDocumentMatch(query, document) >= 95
+    ) {
+      return url;
+    }
+  }
+
+  return bestUrl;
 }
 
 function resultPriority(

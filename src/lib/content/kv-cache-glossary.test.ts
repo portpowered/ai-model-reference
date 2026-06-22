@@ -37,6 +37,7 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
       "key value cache",
       "kv-cache",
       "attention cache",
+      "cache for decoding",
     ]);
     expect(record?.tags).toEqual(["foundations", "attention", "kv-cache"]);
     expect(record?.relatedIds).toEqual([

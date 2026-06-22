@@ -59,12 +59,14 @@ describe("published-docs-registry-ids", () => {
     const index = buildPublishedDocsIndex(pages);
 
     expect(index.entries).toHaveLength(pages.length);
-    expect(index.registryIds.size).toBe(pages.length);
+    expect(index.registryIds.size).toBeLessThanOrEqual(pages.length);
 
     for (const page of pages) {
-      const entry = index.byRegistryId.get(page.frontmatter.registryId);
+      const entry = index.entries.find(
+        (candidate) => candidate.docsSlug === page.docsSlug,
+      );
       expect(entry).toBeDefined();
-      expect(entry?.docsSlug).toBe(page.docsSlug);
+      expect(entry?.registryId).toBe(page.frontmatter.registryId);
       expect(entry?.url).toBe(page.url);
       expect(entry?.pageKind).toBe(page.frontmatter.kind);
     }
@@ -170,6 +172,48 @@ describe("published-docs-registry-ids", () => {
     );
   });
 
+  test("concept-section entries win registry-id lookup over glossary bridge pages", () => {
+    const docsRoot = mkdtempSync(join(tmpdir(), "published-docs-canonical-"));
+
+    writePage(docsRoot, "glossary/kv-cache", {
+      kind: "glossary",
+      registryId: "concept.kv-cache",
+      status: "published",
+    });
+    writePage(docsRoot, "concepts/kv-cache", {
+      kind: "concept",
+      registryId: "concept.kv-cache",
+      status: "published",
+    });
+
+    const pages = loadPublishedDocsPagesSync("en", docsRoot);
+    const index = buildPublishedDocsIndex(pages);
+
+    expect(index.entries).toHaveLength(2);
+    expect(index.registryIds.size).toBe(1);
+    expect(index.byRegistryId.get("concept.kv-cache")).toEqual(
+      expect.objectContaining({
+        docsSlug: "concepts/kv-cache",
+        pageKind: "concept",
+        section: "concepts",
+      }),
+    );
+    expect(index.bySlug.get("kv-cache")).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          docsSlug: "glossary/kv-cache",
+          pageKind: "glossary",
+          section: "glossary",
+        }),
+        expect.objectContaining({
+          docsSlug: "concepts/kv-cache",
+          pageKind: "concept",
+          section: "concepts",
+        }),
+      ]),
+    );
+  });
+
   test("runtime manifest is derived from the scanner-backed source manifest", () => {
     const manifest = derivePublishedDocsRuntimeManifest(
       buildPublishedDocsIndex(loadPublishedDocsPagesSync("en")),
@@ -228,6 +272,20 @@ describe("published-docs-registry-ids", () => {
         kind: "concept",
       }),
     ).toBe("/docs/concepts/quantization");
+    expect(getPublishedDocsEntryByRegistryId("concept.kv-cache")).toEqual(
+      expect.objectContaining({
+        docsSlug: "concepts/kv-cache",
+        pageKind: "concept",
+        section: "concepts",
+      }),
+    );
+    expect(
+      getPublishedDocsHrefForRecord({
+        id: "concept.kv-cache",
+        slug: "kv-cache",
+        kind: "concept",
+      }),
+    ).toBe("/docs/concepts/kv-cache");
     expect(
       getPublishedDocsHrefForRecord({
         id: "concept.token",

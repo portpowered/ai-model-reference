@@ -69,7 +69,7 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
       items.some(
         (item) =>
           item.registryId === "concept.kv-cache" &&
-          item.href === "/docs/glossary/kv-cache",
+          item.href === "/docs/concepts/kv-cache",
       ),
     ).toBe(true);
     expect(
@@ -134,7 +134,7 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
     expectHtmlToContainProse(html, "Prefill");
     expectHtmlToContainProse(html, "time to first token");
     expectHtmlToContainProse(html, "serving cost");
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).toContain('href="/docs/systems/batching"');

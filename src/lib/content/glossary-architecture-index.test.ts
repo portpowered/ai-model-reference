@@ -135,7 +135,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
 };
 
 const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 49;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 50;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -147,6 +147,7 @@ const GLOSSARY_SEPARATOR_TITLES = [
 const ARCHITECTURE_CONCEPT_URLS = [
   "/docs/concepts/alibi",
   "/docs/concepts/context-extension",
+  "/docs/concepts/kv-cache",
   "/docs/concepts/page-spec-workflow-sample",
   "/docs/concepts/positional-encodings",
   "/docs/concepts/transformer-architecture",
@@ -271,7 +272,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Attention with linear biases (ALiBi)", "/docs/concepts/alibi"],
       ["Architecture", "/docs/glossary/architecture"],
       ["Foundation Model", "/docs/glossary/foundation-model"],
-      ["KV cache", "/docs/glossary/kv-cache"],
+      ["Key-value cache", "/docs/concepts/kv-cache"],
       ["Decode", "/docs/glossary/decode"],
       ["Prefill", "/docs/glossary/prefill"],
       ["Positional encodings", "/docs/concepts/positional-encodings"],

@@ -64,7 +64,7 @@ describe("RegistryComparisonTable", () => {
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain("G key heads and G value heads");
     expect(html).toContain("single shared ");
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain("key-value cache");
   });
 

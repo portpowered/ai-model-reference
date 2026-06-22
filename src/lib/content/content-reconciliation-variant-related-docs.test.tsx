@@ -319,7 +319,7 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     expect(html).toContain('href="/docs/modules/local-attention"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html.match(/href="\/docs\/modules\/local-attention"/g)).toHaveLength(
       1,
     );

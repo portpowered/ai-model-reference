@@ -30,6 +30,40 @@ export type PublishedDocsRuntimeManifest = {
   moduleBackedConceptRegistryIds: readonly string[];
 };
 
+function publishedDocsRegistryEntryPriority(entry: PublishedDocsEntry): number {
+  if (entry.pageKind === "concept" && entry.section === "concepts") {
+    return 2;
+  }
+
+  if (entry.pageKind === "glossary" && entry.section === "glossary") {
+    return 1;
+  }
+
+  return 0;
+}
+
+function resolvePublishedDocsRegistryEntryCollision(
+  existingEntry: ScannedPublishedDocsEntry,
+  candidateEntry: ScannedPublishedDocsEntry,
+): ScannedPublishedDocsEntry {
+  const existingPriority = publishedDocsRegistryEntryPriority(existingEntry);
+  const candidatePriority = publishedDocsRegistryEntryPriority(candidateEntry);
+
+  if (existingPriority === 0 || candidatePriority === 0) {
+    throw new Error(
+      `Duplicate published docs registryId "${existingEntry.registryId}" at "${existingEntry.docsSlug}" and "${candidateEntry.docsSlug}"`,
+    );
+  }
+
+  if (existingPriority === candidatePriority) {
+    throw new Error(
+      `Ambiguous published docs registryId "${existingEntry.registryId}" at "${existingEntry.docsSlug}" and "${candidateEntry.docsSlug}"`,
+    );
+  }
+
+  return candidatePriority > existingPriority ? candidateEntry : existingEntry;
+}
+
 function toScannedPublishedDocsEntry(
   page: DocsPageSource,
 ): ScannedPublishedDocsEntry {
@@ -61,12 +95,13 @@ export function buildPublishedDocsIndex(
   for (const entry of entries) {
     const existingEntry = byRegistryId.get(entry.registryId);
     if (existingEntry) {
-      throw new Error(
-        `Duplicate published docs registryId "${entry.registryId}" at "${existingEntry.docsSlug}" and "${entry.docsSlug}"`,
+      byRegistryId.set(
+        entry.registryId,
+        resolvePublishedDocsRegistryEntryCollision(existingEntry, entry),
       );
+    } else {
+      byRegistryId.set(entry.registryId, entry);
     }
-
-    byRegistryId.set(entry.registryId, entry);
 
     const slugEntries = bySlug.get(entry.slug);
     if (slugEntries) {

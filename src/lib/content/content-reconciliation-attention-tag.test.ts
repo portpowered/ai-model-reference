@@ -81,6 +81,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(groups.map((group) => group.kind)).toEqual([
       "model",
       "module",
+      "concept",
       "paper",
       "glossary",
     ]);
@@ -97,6 +98,12 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(paperGroup?.kindLabel).toBe("Paper");
     expect(paperGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/papers/deepseek-v4",
+    ]);
+
+    const conceptGroup = groups.find((group) => group.kind === "concept");
+    expect(conceptGroup?.kindLabel).toBe("Concept");
+    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/concepts/kv-cache",
     ]);
 
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
@@ -143,6 +150,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
 
     expect(html).toContain("Attention");
     expect(html).toContain("Module");
+    expect(html).toContain("Concept");
     expect(html).toContain("Glossary");
     expect(html).toContain('href="/search?tag=attention"');
     expect(html).toContain("data-search");
@@ -154,6 +162,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
     }
 
     expect(html).toContain("Linear Attention");
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/kv-cache"');

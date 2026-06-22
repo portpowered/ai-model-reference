@@ -76,7 +76,7 @@ describe("memory system registry", () => {
     ).toBe("/docs/glossary/prefill-decode-split");
     expect(
       items.find((item) => item.registryId === "concept.kv-cache")?.href,
-    ).toBe("/docs/glossary/kv-cache");
+    ).toBe("/docs/concepts/kv-cache");
     expect(
       items.find((item) => item.registryId === "system.batching")?.href,
     ).toBe("/docs/systems/batching");
