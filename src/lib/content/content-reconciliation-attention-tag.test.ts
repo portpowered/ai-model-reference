@@ -97,8 +97,8 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     const conceptGroup = groups.find((group) => group.kind === "concept");
     expect(conceptGroup?.kindLabel).toBe("Concept");
     expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
-      "/docs/concepts/prefill",
       "/docs/concepts/kv-cache",
+      "/docs/concepts/prefill",
     ]);
 
     const paperGroup = groups.find((group) => group.kind === "paper");

@@ -57,7 +57,7 @@ describe("KV-cache concept page (kv-cache-concept-page-001)", () => {
 
     expect(
       items.find((item) => item.registryId === "concept.prefill")?.href,
-    ).toBe("/docs/glossary/prefill");
+    ).toBe("/docs/concepts/prefill");
     expect(
       items.find((item) => item.registryId === "concept.decode")?.href,
     ).toBe("/docs/glossary/decode");
