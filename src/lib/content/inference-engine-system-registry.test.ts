@@ -61,7 +61,7 @@ describe("inference engine system registry", () => {
 
     expect(
       items.find((item) => item.registryId === "concept.kv-cache")?.href,
-    ).toBe("/docs/glossary/kv-cache");
+    ).toBe("/docs/concepts/kv-cache");
     expect(
       items.find((item) => item.registryId === "concept.quantization")?.href,
     ).toBe("/docs/concepts/quantization");

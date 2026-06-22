@@ -272,6 +272,20 @@ describe("published-docs-registry-ids", () => {
         kind: "concept",
       }),
     ).toBe("/docs/concepts/quantization");
+    expect(getPublishedDocsEntryByRegistryId("concept.kv-cache")).toEqual(
+      expect.objectContaining({
+        docsSlug: "concepts/kv-cache",
+        pageKind: "concept",
+        section: "concepts",
+      }),
+    );
+    expect(
+      getPublishedDocsHrefForRecord({
+        id: "concept.kv-cache",
+        slug: "kv-cache",
+        kind: "concept",
+      }),
+    ).toBe("/docs/concepts/kv-cache");
     expect(
       getPublishedDocsHrefForRecord({
         id: "concept.token",

@@ -182,7 +182,7 @@ describe("speculative decoding docs route render", () => {
 
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/systems/batching"');
     expect(html).toContain('href="/docs/systems/routing"');
     expect(html).toContain('href="/docs/systems/inference-engine"');
