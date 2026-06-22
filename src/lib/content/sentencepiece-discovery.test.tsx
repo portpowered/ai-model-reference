@@ -36,6 +36,7 @@ describe("sentencepiece tokenization discovery surfaces (sentencepiece-page-003)
     expect(groups.map((group) => group.kind)).toEqual([
       "module",
       "concept",
+      "paper",
       "training-regime",
       "glossary",
     ]);
@@ -69,6 +70,16 @@ describe("sentencepiece tokenization discovery surfaces (sentencepiece-page-003)
           slug: "pretraining",
           title: "Pretraining",
           url: "/docs/training/pretraining",
+        }),
+      ]),
+    );
+    expect(groups.find((group) => group.kind === "paper")?.resources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "paper",
+          slug: "gpt-2-report",
+          title: "GPT-2 Report",
+          url: "/docs/papers/gpt-2-report",
         }),
       ]),
     );
