@@ -290,9 +290,6 @@ export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
   "hidden-size",
 );
 
-/** Phase 5 prefill glossary bridge page directory. */
-export const PREFILL_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "prefill");
-
 /** Prefill concept page directory. */
 export const PREFILL_CONCEPT_PAGE_DIR = join(CONCEPTS_DOCS_ROOT, "prefill");
 

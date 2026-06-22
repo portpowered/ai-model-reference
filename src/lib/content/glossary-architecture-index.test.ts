@@ -31,7 +31,6 @@ const CURRENT_GLOSSARY_SLUGS = [
   "hidden-size",
   "kv-cache",
   "normalization",
-  "prefill",
   "prefill-decode-split",
   "perplexity",
   "residual-connection",
@@ -114,7 +113,6 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   parameter: "Parameter",
   patch: "Patch",
   perplexity: "Perplexity",
-  prefill: "Prefill",
   "prefill-decode-split": "Prefill/decode split",
   representation: "Representation",
   "residual-connection": "Residual connection",
@@ -239,6 +237,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "/docs/glossary/residual-connection",
       "/docs/glossary/special-tokens",
       "/docs/glossary/token",
+      "/docs/concepts/prefill",
       ...ARCHITECTURE_CONCEPT_URLS,
     ] as const) {
       expect(entries.some((entry) => entry.url === url)).toBe(true);
@@ -261,7 +260,6 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Embedding", "/docs/glossary/embedding"],
       ["KV cache", "/docs/glossary/kv-cache"],
       ["Normalization", "/docs/glossary/normalization"],
-      ["Prefill", "/docs/glossary/prefill"],
       ["Sampling Overview", "/docs/glossary/sampling-overview"],
     ] as const) {
       expect(glossaryHtml).toContain(title);
@@ -274,7 +272,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Foundation Model", "/docs/glossary/foundation-model"],
       ["Key-value cache", "/docs/concepts/kv-cache"],
       ["Decode", "/docs/glossary/decode"],
-      ["Prefill", "/docs/glossary/prefill"],
+      ["Prefill", "/docs/concepts/prefill"],
       ["Positional encodings", "/docs/concepts/positional-encodings"],
       ["Token", "/docs/glossary/token"],
       ["Transformer architecture", "/docs/concepts/transformer-architecture"],

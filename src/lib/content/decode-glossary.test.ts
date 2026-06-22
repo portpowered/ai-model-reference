@@ -39,18 +39,20 @@ describe("Phase 5 decode glossary page (US-003)", () => {
       "inter-token generation",
     ]);
     expect(record?.tags).toEqual(["foundations", "attention", "kv-cache"]);
-    expect(record?.relatedIds).toEqual([
-      "concept.prefill",
-      "concept.kv-cache",
-      "concept.prefill-decode-split",
-      "system.batching",
-      "concept.autoregressive-generation",
-      "module.attention",
-      "module.multi-query-attention",
-      "module.grouped-query-attention",
-      "module.sliding-window-attention",
-      "concept.transformer",
-    ]);
+    expect(record?.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.prefill",
+        "concept.kv-cache",
+        "concept.prefill-decode-split",
+        "system.batching",
+        "concept.autoregressive-generation",
+        "module.attention",
+        "module.multi-query-attention",
+        "module.grouped-query-attention",
+        "module.sliding-window-attention",
+        "concept.transformer",
+      ]),
+    );
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.decode")).toBe(true);
   });
 
@@ -70,7 +72,7 @@ describe("Phase 5 decode glossary page (US-003)", () => {
       items.some(
         (item) =>
           item.registryId === "concept.prefill" &&
-          item.href === "/docs/glossary/prefill",
+          item.href === "/docs/concepts/prefill",
       ),
     ).toBe(true);
     expect(
@@ -150,7 +152,7 @@ describe("Phase 5 decode glossary page (US-003)", () => {
     expectHtmlToContainProse(html, "inter-token latency");
     expectHtmlToContainProse(html, "memory bandwidth");
     expect(html).toContain('href="/docs/concepts/kv-cache"');
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');

@@ -1,4 +1,3 @@
-import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { afterEach, describe, expect, setDefaultTimeout, test } from "bun:test";
 import { cleanup, screen } from "@testing-library/react";
 import { act } from "react";
@@ -136,12 +135,12 @@ describe("docs slug renderer locale gating", () => {
   });
 
   test("English docs metadata omits unshipped Vietnamese alternate for prefill", async () => {
-    const metadata = await buildDocsPageMetadata(["glossary", "prefill"]);
+    const metadata = await buildDocsPageMetadata(["concepts", "prefill"]);
 
     expect(metadata.alternates).toEqual({
-      canonical: "/docs/glossary/prefill",
+      canonical: "/docs/concepts/prefill",
       languages: {
-        en: "/docs/glossary/prefill",
+        en: "/docs/concepts/prefill",
       },
     });
   });
@@ -278,8 +277,10 @@ describe("docs slug renderer locale gating", () => {
     });
 
     const summary = screen.getByTestId("folded-summary");
-    expect(summary.getAttribute("data-opening-summary")).toBe("folded");
-    expect(screen.getByText("Summary")).toBeTruthy();
+    expect(
+      summary.closest("section")?.getAttribute("data-opening-summary"),
+    ).toBe("folded");
+    expect(screen.getByLabelText("Opening summary")).toBeTruthy();
     expect(summary.textContent).toContain(
       "The first generated token often feels slow because the model must process the whole prompt before it can begin replying",
     );
