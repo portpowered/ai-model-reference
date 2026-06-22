@@ -13,6 +13,7 @@
   ],
   "tags": ["foundations", "model-family", "tokenization"],
   "relatedIds": [
+    "concept.decoder",
     "module.byte-level-tokenization",
     "concept.transformer-architecture",
     "concept.scaling-law"
@@ -20,7 +21,7 @@
   "citationIds": ["citation.gpt-2-report"],
   "status": "published",
   "createdAt": "2026-06-20T00:00:00.000Z",
-  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
   "authors": [
     "Alec Radford",
     "Jeffrey Wu",

@@ -7,6 +7,7 @@
   "aliases": ["GPT-3", "Generative Pre-trained Transformer 3"],
   "tags": ["foundations", "model-family", "attention", "context-window"],
   "relatedIds": [
+    "concept.decoder",
     "concept.tokenizers-overview",
     "concept.transformer-architecture",
     "concept.autoregressive-generation",
@@ -19,7 +20,7 @@
   "citationIds": ["citation.brown-gpt-3", "citation.kaplan-scaling-laws"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
-  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
   "authors": [
     "Tom B. Brown",
     "Benjamin Mann",

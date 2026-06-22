@@ -8,6 +8,7 @@
   "tags": ["taxonomy", "model-family"],
   "relatedIds": [
     "concept.architecture",
+    "concept.decoder",
     "concept.encoder-decoder",
     "concept.autoregressive-generation",
     "concept.kv-cache",
