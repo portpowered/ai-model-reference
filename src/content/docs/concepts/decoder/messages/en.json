@@ -1,0 +1,36 @@
+{
+  "title": "Decoder",
+  "description": "The part of a model that turns context into output predictions, especially the left-to-right stack used by GPT-style language models.",
+  "openingSummary": "A decoder turns the context a model already has into output predictions. In modern decoder-only language models, the same stack repeatedly reads the tokens so far and predicts the next token, which is why decoders sit at the center of GPT-style text generation.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A decoder is the part of a model that reads internal context and produces output-facing predictions. In language systems, that usually means turning token representations into the next-token distribution. In other settings, a decoder may turn a latent or encoder memory into pixels, audio, or another structured output. The shared idea is that the decoder is the readout side of the system: it consumes representations and pushes them toward a final answer."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "The word decoder explains where generation actually happens. In a GPT-style model, there is no separate encoder that first builds a frozen memory for the prompt. The decoder stack itself both builds the running context and turns that context into next-token probabilities. That is why pages about causal attention, decode, autoregressive generation, and GPT-family models keep pointing back to decoders: they are the architecture layer that makes token-by-token output possible."
+    },
+    "decoderOnlyLoop": {
+      "title": "Why Decoder-Only Fits Next-Token Generation",
+      "body": "A decoder-only transformer uses left-to-right, or causal, attention. Each position can read the tokens that already exist in the prefix, but it cannot read future tokens that have not been generated yet. That rule matches the job exactly: predict the next token from the tokens already seen. After one token is chosen, the prefix grows by one position and the same decoder stack runs again. Because the attention mask and the task follow the same left-to-right constraint, decoder-only models are a natural fit for autoregressive generation."
+    },
+    "comparedWithOtherLayouts": {
+      "title": "Compared With Encoder And Encoder-Decoder Models",
+      "body": "An encoder-only model is usually built to read the whole input and produce representations, not to keep emitting new tokens step by step. It can use bidirectional attention because every input token is already known. An encoder-decoder model splits the work: the encoder reads the full source input first, then the decoder generates outputs while attending both to earlier output tokens and to encoder memory. A decoder-only model folds those jobs into one causal stack, which is simpler for plain next-token continuation but less specialized for tasks that benefit from a separate full-input reader."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A decoder is not just the final softmax or language-model head; the head sits on top of the decoder stack. Decoder-only also does not mean the model only writes and never represents context. The same stack still builds rich internal states while it reads the prefix. Finally, not every decoder is autoregressive. Some image or latent decoders reconstruct outputs in one shot. The left-to-right token loop is specifically the language-model decoder pattern."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
