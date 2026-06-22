@@ -3,15 +3,19 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
 import {
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
   PUBLISHED_DOCS_REGISTRY_IDS,
 } from "@/lib/content/published-docs-registry-ids";
+import { loadRegistry } from "@/lib/content/registry";
 import {
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 describe("Autoregressive generation concept page", () => {
   test("canonical concept route is published for the existing registry record", () => {
@@ -99,5 +103,36 @@ describe("Autoregressive generation concept page", () => {
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("Phase");
+  });
+
+  test("discovery publishes both the concept explainer and glossary bridge for autoregressive generation", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+
+    const conceptDocument = documents.find(
+      (entry) => entry.url === "/docs/concepts/autoregressive-generation",
+    );
+    const glossaryDocument = documents.find(
+      (entry) => entry.url === "/docs/glossary/autoregressive-generation",
+    );
+
+    expect(conceptDocument?.registryId).toBe(
+      "concept.autoregressive-generation",
+    );
+    expect(conceptDocument?.kind).toBe("concept");
+    expect(conceptDocument?.facets.kind).toBe("concept");
+    expect(glossaryDocument?.registryId).toBe(
+      "concept.autoregressive-generation",
+    );
+    expect(glossaryDocument?.kind).toBe("glossary");
+    expect(glossaryDocument?.facets.kind).toBe("glossary");
+
+    const results = await docsSearchApi.search("next-token loop");
+    expect(
+      results.some(
+        (result) => result.url === "/docs/concepts/autoregressive-generation",
+      ),
+    ).toBe(true);
   });
 });
