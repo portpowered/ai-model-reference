@@ -17,7 +17,7 @@
     },
     "practicalImpact": {
       "title": "Practical Impact",
-      "body": "This technique helps most on decode-heavy workloads where the main model is expensive, the draft path is much cheaper, and acceptance stays high enough that one verifier pass can approve several tokens at once. That can lower reader-visible inter-token delay on long generations or other high-volume serving paths. The costs are real: the system now pays for draft-model memory and compute, verifier coordination, and extra runtime complexity. It can underperform when requests are short, acceptance rates stay low, the draft model mismatches the verifier too often, or the verifier itself remains the main bottleneck, because in those cases the extra draft work adds overhead without enough accepted-token payoff."
+      "body": "This technique helps most on decode-heavy workloads where the main model is expensive, the draft path is much cheaper, and acceptance stays high enough that one verifier pass can approve several tokens at once. In practical terms, more accepted tokens per verifier turn usually means less reader-visible delay per emitted token on long generations or other high-volume serving paths. The costs are real: the system now pays for draft-model memory and compute, verifier coordination, and extra runtime complexity. It can underperform when requests are short, acceptance rates stay low, the draft model mismatches the verifier too often, or the verifier itself remains the main bottleneck, because in those cases the extra draft work adds overhead without enough accepted-token payoff."
     },
     "related": {
       "title": "Related To",
