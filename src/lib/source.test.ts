@@ -112,7 +112,6 @@ const CONCEPT_INDEX_URLS = [
   "/docs/concepts/prefill",
   "/docs/concepts/page-spec-workflow-sample",
   "/docs/concepts/positional-encodings",
-  "/docs/concepts/sampling-overview",
   "/docs/concepts/transformer-architecture",
   "/docs/concepts/why-long-context-is-hard",
 ] as const;

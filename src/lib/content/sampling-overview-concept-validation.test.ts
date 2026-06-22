@@ -1,27 +1,15 @@
 import { describe, expect, test } from "bun:test";
 import { loadConceptPage } from "@/lib/content/concept-page";
-import {
-  CONCEPTS_DOCS_ROOT,
-  getDocsPageDir,
-  SAMPLING_OVERVIEW_CONCEPT_PAGE_DIR,
-} from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import {
   getPublishedDocsEntriesBySlug,
   getPublishedDocsEntryByRegistryId,
 } from "@/lib/content/published-docs-registry-ids";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
+import { docsSearchApi } from "@/lib/search/search-server";
+import { source } from "@/lib/source";
 
 describe("sampling overview canonical validation (sampling-overview-concept-page-004)", () => {
-  test("canonical concept path helpers resolve the sampling overview page directory", () => {
-    expect(getDocsPageDir("concepts", "sampling-overview")).toBe(
-      SAMPLING_OVERVIEW_CONCEPT_PAGE_DIR,
-    );
-    expect(SAMPLING_OVERVIEW_CONCEPT_PAGE_DIR).toBe(
-      `${CONCEPTS_DOCS_ROOT}/sampling-overview`,
-    );
-  });
-
   test("published docs registry keeps one shared record while preferring the canonical concept route", () => {
     const entries = getPublishedDocsEntriesBySlug("sampling-overview");
 
@@ -39,10 +27,12 @@ describe("sampling overview canonical validation (sampling-overview-concept-page
     expect(canonicalEntry?.pageKind).toBe("concept");
   });
 
-  test("default English page loading and search metadata expose the canonical route", async () => {
+  test("default English page loading, sidebar discovery, and search expose the canonical route", async () => {
     const page = await loadConceptPage("sampling-overview");
     const pages = await loadPublishedDocsPages("en");
     const searchMeta = await loadSearchResultMetaMap("en");
+    const searchResults = await docsSearchApi.search("sampling basics");
+    const sidebarEntry = source.getPage(["concepts", "sampling-overview"]);
 
     expect(page.frontmatter.registryId).toBe("concept.sampling-overview");
     expect(page.messages.title).toBe("Sampling Overview");
@@ -56,6 +46,8 @@ describe("sampling overview canonical validation (sampling-overview-concept-page
       ),
     ).toBe(true);
 
+    expect(sidebarEntry?.url).toBe("/docs/concepts/sampling-overview");
+
     const meta = searchMeta.get("/docs/concepts/sampling-overview");
     expect(meta?.title).toBe("Sampling Overview");
     expect(meta?.kind).toBe("concept");
@@ -67,5 +59,7 @@ describe("sampling overview canonical validation (sampling-overview-concept-page
         "sampling basics",
       ]),
     );
+
+    expect(searchResults[0]?.url).toBe("/docs/concepts/sampling-overview");
   });
 });

@@ -17,11 +17,11 @@
     },
     "readerPath": {
       "title": "Where To Go Next",
-      "body": "Use this page as the broad bridge through the generation path. Autoregressive generation and decode explain where the choice happens in the full loop. Temperature explains how probabilities can be reshaped before selection. Greedy decoding, top-k sampling, and top-p sampling go deeper into specific token-choice rules, while GPT-2 is a nearby model page that places the sampling step inside a familiar decoder-only system."
+      "body": "Autoregressive generation and decode explain where this choice happens in the full loop. Temperature explains how probabilities can be reshaped before selection. Greedy decoding, top-k sampling, and top-p sampling each apply a different token-choice rule, while GPT-2 shows the same step inside a familiar decoder-only system."
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Sampling is not the same as temperature. Temperature changes the shape of the probability distribution before a token is chosen, while sampling rules decide how to choose after probabilities exist. Sampling also does not mean pure randomness: greedy decoding is a sampling rule too, but it is deterministic. This overview is broader than the deeper pages for temperature, greedy decoding, top-k sampling, or top-p sampling; those pages focus on one control or method, while this page explains the overall choice step they all belong to."
+      "body": "Sampling is not the same as temperature. Temperature changes the shape of the probability distribution before a token is chosen, while sampling rules decide how to choose after probabilities exist. Sampling also does not mean pure randomness: greedy decoding is a sampling rule too, but it is deterministic. Temperature, greedy decoding, top-k sampling, and top-p sampling each isolate one control or method inside the larger next-token choice step that sampling describes."
     },
     "related": {
       "title": "Related Concepts And Modules"
