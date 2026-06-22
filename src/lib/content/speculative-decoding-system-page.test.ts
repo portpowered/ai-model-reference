@@ -4,11 +4,13 @@ import { join } from "node:path";
 import { createElement, type ReactElement } from "react";
 import { renderToReadableStream } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
 import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
 import { SYSTEMS_DOCS_ROOT } from "@/lib/content/content-paths";
+import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { getSystemById } from "@/lib/content/registry-runtime";
@@ -122,28 +124,35 @@ describe("speculative decoding canonical page bundle", () => {
     ).toBe(true);
   });
 
-  test("loads the system page with the expected section structure and empty local assets", async () => {
+  test("loads the system page with the expected section structure and local graph assets", async () => {
     const page = await loadSystemPage("speculative-decoding");
 
     expect(page.frontmatter.messageNamespace).toBe("local");
     expect(page.frontmatter.assetNamespace).toBe("local");
     expect(page.toc.some((item) => item.url === "#how-it-works")).toBe(true);
+    expect(page.assets.systemFlow).toMatchObject({
+      graphId: "graph.speculative-decoding-system-flow",
+      webRenderer: "react-flow",
+    });
     expect(page.messages.sections?.howItWorks?.body).toContain(
       "longest prefix",
     );
     expect(page.messages.sections?.howItWorks?.body).toContain(
-      "multiple accepted tokens",
+      "accepted tokens",
     );
     expect(page.messages.sections?.whereItSits?.body).toContain(
       "inference-serving runtime",
     );
     expect(page.messages.sections?.practicalImpact?.body).toContain(
-      "requests are short",
+      "acceptance rates stay low",
     );
+    expect(page.messages.assets?.systemFlow?.alt).toContain("draft path");
     expect(page.messages.openingSummary).toContain(
       "cheaper draft path guess several tokens",
     );
-    expect(page.assets).toEqual({});
+    expect(
+      getGraphById("graph.speculative-decoding-system-flow")?.subjectId,
+    ).toBe("system.speculative-decoding");
   });
 });
 
@@ -186,11 +195,43 @@ describe("speculative decoding docs route render", () => {
     expect(html).toContain("serving system around the same underlying model");
     expect(html).toContain("inference-serving runtime");
     expect(html).toContain("deployment choices");
+    expect(html).toContain("high-volume serving paths");
+    expect(html).toContain("acceptance rates stay low");
+    expect(html).toContain("discards the rest");
+  });
+
+  test("renders the speculative decoding system flow graph with both acceptance and fallback outcomes", async () => {
+    const page = await loadSystemPage("speculative-decoding");
+    const html = await renderAsyncMarkup(
+      createElement(
+        ModulePageProviders,
+        {
+          messages: page.messages,
+          assets: page.assets,
+        },
+        createElement(SystemFlowGraph, {
+          registryId: "system.speculative-decoding",
+          assetId: "systemFlow",
+        }),
+      ),
+    );
+
+    expect(html).toContain(
+      'data-graph-title="graph.speculative-decoding-system-flow"',
+    );
+    expect(html).toContain("Speculative Decoding System Flow");
+    expect(html).toContain(
+      'data-graph-legend="graph.speculative-decoding-system-flow"',
+    );
+    expect(html).toContain("Request and weight flow");
+    expect(html).toContain("Control flow");
+    expect(html).toContain("Emit accepted prefix");
+    expect(html).toContain("Reject rest and resume strong decode");
   });
 });
 
 describe("speculative decoding page assets", () => {
-  test("accepts the page's empty local asset config", () => {
+  test("accepts the page's local graph asset config", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
@@ -198,7 +239,10 @@ describe("speculative decoding page assets", () => {
       JSON.parse(readFileSync(assetsPath, "utf8")),
     );
 
-    expect(assets).toEqual({});
+    expect(assets.systemFlow).toMatchObject({
+      type: "graph",
+      graphId: "graph.speculative-decoding-system-flow",
+    });
     expect(validatePageAssetReferences(assets, messages)).toEqual([]);
   });
 });

@@ -13,11 +13,11 @@
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "The draft path predicts a short run of future tokens. The main model then evaluates that draft and keeps the longest prefix that matches its own next-token decisions. When several draft tokens survive verification, the user gets multiple accepted tokens out of one expensive decode turn. When the verifier disagrees early, the runtime falls back to fewer accepted tokens and the extra draft work becomes overhead instead of a win."
+      "body": "The runtime starts from the same prompt prefix that the main model would normally decode from. A cheaper draft path proposes a short run of likely next tokens, then the stronger verifier model checks that proposal in one pass. The serving stack keeps the longest prefix that matches the verifier's own next-token choices, emits those accepted tokens, and discards the rest. If the verifier disagrees early, the runtime accepts only a short prefix or none of the draft at all, then resumes ordinary decoding from the stronger model."
     },
     "practicalImpact": {
       "title": "Practical Impact",
-      "body": "This technique helps most on decode-heavy workloads where the main model is expensive, the draft path is much cheaper, and acceptance stays high enough that verifier turns are skipped often. It is less useful when requests are short, the verifier remains the main bottleneck, or the extra draft-model coordination adds enough memory, compute, or operational cost to cancel the latency gain."
+      "body": "This technique helps most on decode-heavy workloads where the main model is expensive, the draft path is much cheaper, and acceptance stays high enough that one verifier pass can approve several tokens at once. That can lower reader-visible inter-token delay on long generations or other high-volume serving paths. The costs are real: the system now pays for draft-model memory and compute, verifier coordination, and extra runtime complexity. It can underperform when requests are short, acceptance rates stay low, the draft model mismatches the verifier too often, or the verifier itself remains the main bottleneck, because in those cases the extra draft work adds overhead without enough accepted-token payoff."
     },
     "related": {
       "title": "Related To",
@@ -28,6 +28,31 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "A request reaches a draft path, the draft proposes several tokens, the verifier checks them, accepted tokens are emitted, and rejected tokens fall back to the main model path.",
+      "caption": "Speculative decoding speeds serving only when cheap draft guesses are often good enough that one verifier pass can approve multiple tokens."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "request": {
+        "label": "Decode step starts"
+      },
+      "draft": {
+        "label": "Cheap draft path proposes tokens"
+      },
+      "verify": {
+        "label": "Main model verifies draft"
+      },
+      "accept": {
+        "label": "Emit accepted prefix"
+      },
+      "fallback": {
+        "label": "Reject rest and resume strong decode"
+      }
     }
   }
 }

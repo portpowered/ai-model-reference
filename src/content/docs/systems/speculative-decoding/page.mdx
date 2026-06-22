@@ -25,6 +25,7 @@ import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
 import { SystemAtAGlance } from "@/features/models/components/SystemAtAGlance";
+import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
 
 
 <SystemAtAGlance registryId="system.speculative-decoding" />
@@ -39,6 +40,7 @@ import { SystemAtAGlance } from "@/features/models/components/SystemAtAGlance";
 
 <Section id="how-it-works" titleKey="sections.howItWorks.title">
   <T k="sections.howItWorks.body" />
+  <SystemFlowGraph registryId="system.speculative-decoding" assetId="systemFlow" />
 </Section>
 
 <Section id="practical-impact" titleKey="sections.practicalImpact.title">
