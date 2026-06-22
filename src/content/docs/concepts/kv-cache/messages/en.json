@@ -1,0 +1,32 @@
+{
+  "title": "Key-value cache",
+  "description": "Saved key and value tensors from earlier tokens that let later generation steps reuse attention state instead of recomputing the full prefix.",
+  "openingSummary": "A key-value cache stores the attention keys and values produced by earlier tokens so a decoder can reuse that work on each next-token step, which usually lowers latency during generation while increasing live memory use.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A key-value cache, often shortened to KV cache, is the running store of attention keys and values created from tokens the model has already processed. In a decoder, the prompt is read once, those tensors are saved layer by layer, and later decode steps look them up instead of rebuilding the whole prompt state from scratch."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Autoregressive generation adds one token at a time. Without a cache, each new token would force attention to redo most of the same prefix work again and again. Reusing saved keys and values removes that repeated work, which is why the cache is a basic serving tool for lower inter-token latency and practical long prompts."
+    },
+    "whatChangesDuringGeneration": {
+      "title": "What Changes During Generation",
+      "body": "The first prompt pass builds the cache for every earlier token. After that, each decode step usually computes fresh query, key, and value tensors only for the newest token, appends the new key and value entries, and attends over the saved prefix plus the new position. The model still scores the next token against earlier context, but it no longer has to recreate the earlier key and value tensors every time."
+    },
+    "memoryTradeoffs": {
+      "title": "Memory Tradeoffs",
+      "body": "The speedup is not free. The cache grows with sequence length, layer count, hidden layout, and key-value head structure, so longer conversations or larger batches keep more live memory tied up on the device. That is why serving discussions often connect the KV cache to multi-query attention, grouped-query attention, sliding-window attention, and prefill versus decode behavior: those pages explain different ways teams control the memory cost while keeping reuse benefits."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
