@@ -95,6 +95,12 @@ describe("memory canonical page bundle", () => {
     expect(page.frontmatter.messageNamespace).toBe("local");
     expect(page.frontmatter.assetNamespace).toBe("local");
     expect(page.toc.some((item) => item.url === "#how-it-works")).toBe(true);
+    expect(
+      page.toc.some((item) => item.url === "#bandwidth-and-fragmentation"),
+    ).toBe(true);
+    expect(page.toc.some((item) => item.url === "#operator-tradeoffs")).toBe(
+      true,
+    );
     expect(page.assets.systemFlow).toMatchObject({
       graphId: "graph.memory-system-flow",
       webRenderer: "react-flow",
@@ -114,10 +120,31 @@ describe("memory canonical page bundle", () => {
       "live serving concern after load",
     );
     expect(page.messages.sections?.practicalImpact?.body).toContain(
-      "bandwidth",
+      "first-token latency",
     );
     expect(page.messages.sections?.practicalImpact?.body).toContain(
-      "allocation becomes fragmented",
+      "inter-token latency",
+    );
+    expect(page.messages.sections?.practicalImpact?.body).toContain(
+      "lower safe concurrency",
+    );
+    expect(page.messages.sections?.bandwidthAndFragmentation?.body).toContain(
+      "Memory capacity answers how much state can exist at once",
+    );
+    expect(page.messages.sections?.bandwidthAndFragmentation?.body).toContain(
+      "enough usable memory in time",
+    );
+    expect(page.messages.sections?.operatorTradeoffs?.body).toContain(
+      "Larger or denser batches can improve throughput",
+    );
+    expect(page.messages.sections?.operatorTradeoffs?.body).toContain(
+      "Spilling colder cache to slower storage keeps longer sessions alive",
+    );
+    expect(page.messages.sections?.operatorTradeoffs?.body).toContain(
+      "Splitting prefill and decode lets one stage specialize",
+    );
+    expect(page.messages.sections?.operatorTradeoffs?.body).toContain(
+      "Deployment and routing decisions often exist for the same reason",
     );
     expect(page.messages.assets?.systemFlow?.alt).toContain(
       "must stay loaded before serving can begin",
@@ -183,10 +210,18 @@ describe("memory docs route render", () => {
     expect(html).toContain('href="/tags/context-window"');
     expect(html).toContain("active requests remain alive");
     expect(html).toContain("KV cache");
-    expect(html).toContain("batch carefully");
-    expect(html).toContain("split");
-    expect(html).toContain('href="/docs/glossary/prefill"');
-    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain("latency rises because the runtime spends longer");
+    expect(html).toContain("total throughput can flatten");
+    expect(html).toContain("Larger or denser batches can improve throughput");
+    expect(html).toContain(
+      "Spilling colder cache to slower storage keeps longer sessions alive",
+    );
+    expect(html).toContain(
+      "lets one stage specialize for prompt bursts and another for long-lived",
+    );
+    expect(html).toContain(
+      "Deployment and routing decisions often exist for the same reason",
+    );
     expect(html).toContain("sharpest one-time burst of cache growth");
     expect(html).toContain("reuses those entries");
   });
