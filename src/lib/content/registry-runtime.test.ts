@@ -1104,6 +1104,7 @@ describe("registry-runtime", () => {
       "concept.decode",
       "concept.prefill-decode-split",
       "concept.kv-cache",
+      "system.speculative-decoding",
       "system.routing",
       "system.inference-engine",
       "system.on-disk-kv-cache",

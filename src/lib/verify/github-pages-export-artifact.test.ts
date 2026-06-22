@@ -17,8 +17,12 @@ const PASSING_ROUTE_HTML: Record<string, string> = {
   "/search": `<html><body>${buildSearchPageExportShellStubBody()}</body></html>`,
   "/docs/architecture": "<html><h1>Architecture</h1><p>Token</p></html>",
   "/docs/glossary": "<html><h1>Glossary</h1><p>Token</p></html>",
+  "/docs/glossary/token":
+    '<html><h1>Token</h1><div data-registry-id="concept.token"></div></html>',
   "/docs/glossary/vector":
     '<html><h1>Vector</h1><article data-registry-id="concept.vector"></article></html>',
+  "/docs/glossary/hidden-size":
+    '<html><h1>Hidden Size</h1><article data-registry-id="concept.hidden-size"></article></html>',
   "/docs/modules/attention":
     '<html><h1>Attention</h1><article data-registry-id="module.attention"></article><a href="/docs/modules/multi-head-attention">MHA</a><a href="/docs/modules/multi-query-attention">MQA</a><a href="/docs/modules/grouped-query-attention">GQA</a></html>',
   "/tags": '<html><h1>Tags</h1><a href="/tags/attention">Attention</a></html>',
