@@ -94,7 +94,7 @@ describe("Phase 2 encoder-decoder architecture glossary pages (US-002)", () => {
     const html = await renderGlossaryHtml("encoder-decoder");
 
     expect(html).toContain('href="/docs/glossary/encoder"');
-    expect(html).toContain('href="/docs/glossary/decoder"');
+    expect(html).toContain('href="/docs/concepts/decoder"');
   });
 
   test("search index records encoder cluster with glossary kind not module", async () => {

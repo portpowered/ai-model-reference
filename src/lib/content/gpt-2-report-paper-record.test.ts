@@ -10,6 +10,7 @@ import {
 } from "@/lib/content/related-docs";
 
 const publishedRegistryIds = new Set([
+  "concept.decoder",
   "module.byte-level-tokenization",
   "concept.transformer-architecture",
   "concept.scaling-law",
@@ -79,6 +80,7 @@ describe("gpt-2 report paper registry record", () => {
       publishedRegistryIds,
     );
     expect(curated.map((item) => item.registryId)).toEqual([
+      "concept.decoder",
       "module.byte-level-tokenization",
       "concept.transformer-architecture",
       "concept.scaling-law",

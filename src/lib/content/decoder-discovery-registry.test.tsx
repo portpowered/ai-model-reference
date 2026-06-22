@@ -100,7 +100,7 @@ describe("decoder discovery registry alignment", () => {
     ).toBe(true);
   });
 
-  test("gpt-3 and the GPT-2 report expose decoder as a published related destination", () => {
+  test("gpt-3 and the GPT-2 report expose the canonical decoder concept as a published related destination", () => {
     const gpt3 = getModelById("model.gpt-3");
     const gpt2Report = getPaperById("paper.gpt-2-report");
 
@@ -119,11 +119,11 @@ describe("decoder discovery registry alignment", () => {
         ]}
       />,
     );
-    expect(gpt3Html).toContain('href="/docs/glossary/decoder"');
+    expect(gpt3Html).toContain('href="/docs/concepts/decoder"');
 
     const gpt2Html = renderToStaticMarkup(
       <RelatedDocs registryId="paper.gpt-2-report" />,
     );
-    expect(gpt2Html).toContain('href="/docs/glossary/decoder"');
+    expect(gpt2Html).toContain('href="/docs/concepts/decoder"');
   });
 });

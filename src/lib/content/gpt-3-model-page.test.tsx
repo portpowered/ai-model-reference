@@ -66,6 +66,7 @@ describe("gpt-3 model page related docs", () => {
 
     expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).not.toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/concepts/decoder"');
     expect(html).toContain('href="/docs/modules/bpe"');
   });
 

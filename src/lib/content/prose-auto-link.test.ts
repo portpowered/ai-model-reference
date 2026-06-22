@@ -96,7 +96,7 @@ describe("prose auto-link", () => {
 
   test("segmentProseWithAutoLinks does not link slug prefixes inside hyphen compounds", () => {
     const phrases = buildProseAutoLinkPhrases([
-      { phrase: "Decoder", href: "/docs/glossary/decoder" },
+      { phrase: "Decoder", href: "/docs/concepts/decoder" },
     ]);
 
     const segments = segmentProseWithAutoLinks(

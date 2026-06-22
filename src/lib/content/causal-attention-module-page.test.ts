@@ -82,7 +82,7 @@ describe("loadModulePage causal-attention", () => {
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/bidirectional-attention"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
-    expect(html).toContain('href="/docs/glossary/decoder"');
+    expect(html).toContain('href="/docs/concepts/decoder"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).not.toContain("Reader Shortcut");

@@ -165,7 +165,11 @@ the temporary legacy-id bridge.
 * `src/lib/content/architecture.ts`
   Architecture browse/index classification should treat ontology architecture
   membership, including descendant branches such as activation, as canonical
-  evidence before any legacy `conceptType` fallback.
+  evidence before any legacy `conceptType` fallback. When a concept-backed
+  glossary term also gains a published concept-section page, architecture
+  browse expectations should move to the canonical concept route and index
+  counts should be updated from the runtime-derived published entries rather
+  than preserved as glossary-era constants.
 * `src/lib/governance/typed-taxonomy-consumer-audit.ts`
   Machine-checkable contract for remaining typed-taxonomy consumer clusters,
   ownership, compatibility status, the recommended next migration target, and
