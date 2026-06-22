@@ -34,6 +34,7 @@ describe("decode concept page (decode-concept-page-001)", () => {
       "token-by-token generation",
       "next-token step",
       "inter-token generation",
+      "inter-token latency",
     ]);
     expect(record?.tags).toEqual(["foundations", "attention", "kv-cache"]);
     expect(record?.relatedIds).toEqual(
@@ -137,6 +138,9 @@ describe("decode concept page (decode-concept-page-001)", () => {
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
     expect(html).toContain("Serving Path");
+    expect(html).toContain("Related Concepts And Systems");
+    expect(html).toContain("Tags");
+    expect(html).toContain("References");
     expect(html).toContain("instead of rereading the whole prompt");
     expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/concepts/kv-cache"');
@@ -174,6 +178,7 @@ describe("decode concept page (decode-concept-page-001)", () => {
         "decoding",
         "token-by-token generation",
         "next-token step",
+        "inter-token latency",
       ]),
     );
   });
@@ -184,6 +189,7 @@ describe("decode concept page (decode-concept-page-001)", () => {
       "decoding",
       "token-by-token generation",
       "next-token step",
+      "inter-token latency",
     ] as const) {
       const results = await docsSearchApi.search(query);
       expect(results.length).toBeGreaterThan(0);

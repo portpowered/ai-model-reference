@@ -9,7 +9,8 @@
     "decoding",
     "token-by-token generation",
     "next-token step",
-    "inter-token generation"
+    "inter-token generation",
+    "inter-token latency"
   ],
   "tags": ["foundations", "attention", "kv-cache"],
   "relatedIds": [
