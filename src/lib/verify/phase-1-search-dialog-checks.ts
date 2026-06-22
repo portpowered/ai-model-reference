@@ -36,6 +36,14 @@ export type RunPhase1SearchDialogChecksOptions = {
   launchBrowser?: () => Promise<Browser>;
   logger?: (message: string) => void;
   /**
+   * Test hook: when set, overrides the dialog opener used before query checks run.
+   */
+  openDialog?: (
+    page: Page,
+    baseUrl: string,
+    timeoutMs: number,
+  ) => Promise<Locator>;
+  /**
    * Test hook: when set, skips Playwright and runs this checker per query instead.
    */
   runQueryCheck?: (
@@ -73,6 +81,10 @@ export function formatPhase1SearchDialogCheckFailure(
   failure: Phase1SearchDialogCheckFailure,
 ): string {
   return `${failure.surface}?query=${encodeURIComponent(failure.query)}: ${failure.reason}`;
+}
+
+export function formatSearchDialogOpenFailureReason(timeoutMs: number): string {
+  return `did not open the header search dialog on the home page within ${timeoutMs}ms`;
 }
 
 /**
@@ -184,8 +196,7 @@ async function openHeaderSearchDialog(
     }
   }
 
-  await dialog.waitFor({ state: "visible", timeout: 1 });
-  return dialog;
+  throw new Error(formatSearchDialogOpenFailureReason(timeoutMs));
 }
 
 async function waitForSearchDialogOutcome(
@@ -273,66 +284,56 @@ export async function runPhase1SearchDialogChecks(
   const queries = options.queries ?? PHASE_1_SEARCH_DIALOG_QUERIES;
   const timeoutMs = options.timeoutMs ?? DEFAULT_SEARCH_DIALOG_TIMEOUT_MS;
   const failures: Phase1SearchDialogCheckFailure[] = [];
-  const log = options.logger ?? (() => {});
 
   if (options.runQueryCheck) {
     for (const query of queries) {
-      log(`[phase-1-search-dialog] running stubbed query "${query}"`);
       const reason = await options.runQueryCheck(baseUrl, query, timeoutMs);
       if (reason) {
-        log(`[phase-1-search-dialog] query "${query}" failed: ${reason}`);
         failures.push({ query, surface: "header-dialog", reason });
-        continue;
       }
-      log(`[phase-1-search-dialog] query "${query}" passed`);
     }
     return failures;
   }
 
-  const browser = options.browser;
-  const ownsBrowser = browser === undefined;
-  if (ownsBrowser) {
-    log(
-      `[phase-1-search-dialog] launching browser for ${queries.length} quer${queries.length === 1 ? "y" : "ies"} at ${baseUrl}`,
-    );
-  } else {
-    log("[phase-1-search-dialog] using shared browser");
-  }
-  const activeBrowser =
-    browser ?? (await (options.launchBrowser ?? defaultLaunchBrowser)());
-  if (ownsBrowser) {
-    log("[phase-1-search-dialog] browser launched");
-  }
+  const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
+  const browser = options.browser ?? (await launchBrowser());
+  const logger = options.logger;
 
   try {
-    const page = await activeBrowser.newPage();
+    logger?.("[phase-1-search-dialog] opening browser page");
+    const page = await browser.newPage();
     page.setDefaultTimeout(timeoutMs);
+    const openDialog = options.openDialog ?? openHeaderSearchDialog;
 
-    log("[phase-1-search-dialog] opening header search dialog");
-    const dialog = await openHeaderSearchDialog(page, baseUrl, timeoutMs);
-    log("[phase-1-search-dialog] header search dialog opened");
+    try {
+      logger?.("[phase-1-search-dialog] opening header search dialog");
+      const dialog = await openDialog(page, baseUrl, timeoutMs);
 
-    for (const query of queries) {
-      log(`[phase-1-search-dialog] starting query "${query}"`);
-      const reason = await checkSearchDialogQuery(
-        page,
-        baseUrl,
-        query,
-        timeoutMs,
-        dialog,
-      );
-      if (reason) {
-        log(`[phase-1-search-dialog] query "${query}" failed: ${reason}`);
-        failures.push({ query, surface: "header-dialog", reason });
-        continue;
+      for (const query of queries) {
+        logger?.(`[phase-1-search-dialog] checking query "${query}"`);
+        const reason = await checkSearchDialogQuery(
+          page,
+          baseUrl,
+          query,
+          timeoutMs,
+          dialog,
+        );
+        if (reason) {
+          failures.push({ query, surface: "header-dialog", reason });
+        }
       }
-      log(`[phase-1-search-dialog] query "${query}" passed`);
+    } catch (error) {
+      const reason =
+        error instanceof Error
+          ? error.message
+          : formatSearchDialogOpenFailureReason(timeoutMs);
+      for (const query of queries) {
+        failures.push({ query, surface: "header-dialog", reason });
+      }
     }
   } finally {
-    if (ownsBrowser) {
-      log("[phase-1-search-dialog] closing browser");
-      await closePlaywrightBrowserWithTimeout(activeBrowser, timeoutMs);
-      log("[phase-1-search-dialog] browser closed");
+    if (!options.browser) {
+      await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
     }
   }
 

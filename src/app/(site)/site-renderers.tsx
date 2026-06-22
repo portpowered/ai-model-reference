@@ -136,6 +136,7 @@ const BROWSE_TRAINING_STARTER_SLUGS = [
   "training/fp4-quantization-aware-training",
 ] as const;
 const BROWSE_SYSTEMS_STARTER_SLUGS = [
+  "systems/deployment",
   "systems/routing",
   "systems/on-disk-kv-cache",
   "systems/expert-parallel-overlap",

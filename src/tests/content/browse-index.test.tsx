@@ -29,6 +29,7 @@ describe("browse index page render", () => {
       "/docs/concepts/transformer-architecture",
       "/docs/papers/deepseek-v4",
       "/docs/training/on-policy-distillation",
+      "/docs/systems/deployment",
       "/docs/systems/routing",
       "/docs/systems/batching",
       "/docs/systems/on-disk-kv-cache",
