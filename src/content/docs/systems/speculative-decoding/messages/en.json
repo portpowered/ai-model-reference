@@ -1,23 +1,23 @@
 {
   "title": "Speculative Decoding",
   "description": "A serving technique that uses a cheaper draft path to propose several next tokens, then asks the main model to verify them so decode-heavy requests can finish with fewer expensive turns.",
-  "openingSummary": "Speculative decoding is a latency-reduction technique for autoregressive serving. Instead of waiting for the main model to produce one token at a time, the system lets a cheaper draft path guess several tokens, then has the stronger verifier model accept the matching prefix or reject the rest.",
+  "openingSummary": "Speculative decoding is a latency-reduction technique for autoregressive serving. Instead of waiting for the main model to produce one token at a time, the serving stack lets a cheaper draft path guess several tokens, then asks the stronger verifier model to accept the matching prefix or reject the rest.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Speculative decoding is a serving system around the same underlying model, not a new model architecture. Its job is to reduce reader-visible decode latency by pairing the main model with a cheaper draft model or draft path that proposes multiple next tokens before the main model checks them."
+      "body": "Speculative decoding is a serving system around the same underlying model, not a new model architecture. Its job is to reduce reader-visible decode latency by pairing the main model with a cheaper draft model or draft path that proposes several likely next tokens before the stronger model checks them."
     },
     "whereItSits": {
       "title": "Where It Sits",
-      "body": "It sits inside the inference-serving runtime alongside batching, key-value cache management, and request scheduling. The model weights still define the actual language model. Speculative decoding changes how the serving stack uses those weights during decode so one expensive verifier pass can accept more than one token."
+      "body": "It sits inside the inference-serving runtime alongside batching, key-value cache management, routing, and request scheduling. The model weights still define the actual language model. Speculative decoding changes how the serving stack uses those weights during decode so one expensive verifier pass can sometimes accept more than one token."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "The draft path predicts a short run of future tokens. The main model then evaluates that draft in parallel and keeps the longest prefix that matches its own next-token decisions. Accepted draft tokens let the system skip some slow one-token-at-a-time verifier turns. Rejected tokens still cost draft work plus verification, so the speedup depends on keeping acceptance high."
+      "body": "The draft path predicts a short run of future tokens. The main model then evaluates that draft and keeps the longest prefix that matches its own next-token decisions. When several draft tokens survive verification, the user gets multiple accepted tokens out of one expensive decode turn. When the verifier disagrees early, the runtime falls back to fewer accepted tokens and the extra draft work becomes overhead instead of a win."
     },
     "practicalImpact": {
       "title": "Practical Impact",
-      "body": "This technique helps most on decode-heavy workloads where the main model is expensive and the draft path is much cheaper. It is less useful when acceptance is low, the verifier remains the main bottleneck, or the extra draft-model coordination adds memory, compute, or operational cost that outweighs the latency reduction."
+      "body": "This technique helps most on decode-heavy workloads where the main model is expensive, the draft path is much cheaper, and acceptance stays high enough that verifier turns are skipped often. It is less useful when requests are short, the verifier remains the main bottleneck, or the extra draft-model coordination adds enough memory, compute, or operational cost to cancel the latency gain."
     },
     "related": {
       "title": "Related To",

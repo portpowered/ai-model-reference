@@ -131,8 +131,17 @@ describe("speculative decoding canonical page bundle", () => {
     expect(page.messages.sections?.howItWorks?.body).toContain(
       "longest prefix",
     );
+    expect(page.messages.sections?.howItWorks?.body).toContain(
+      "multiple accepted tokens",
+    );
+    expect(page.messages.sections?.whereItSits?.body).toContain(
+      "inference-serving runtime",
+    );
     expect(page.messages.sections?.practicalImpact?.body).toContain(
-      "acceptance is low",
+      "requests are short",
+    );
+    expect(page.messages.openingSummary).toContain(
+      "cheaper draft path guess several tokens",
     );
     expect(page.assets).toEqual({});
   });
@@ -174,6 +183,9 @@ describe("speculative decoding docs route render", () => {
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain("draft path");
     expect(html).toContain("decode latency");
+    expect(html).toContain("serving system around the same underlying model");
+    expect(html).toContain("inference-serving runtime");
+    expect(html).toContain("deployment choices");
   });
 });
 
