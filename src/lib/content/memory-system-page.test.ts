@@ -95,10 +95,7 @@ describe("memory canonical page bundle", () => {
     expect(page.frontmatter.messageNamespace).toBe("local");
     expect(page.frontmatter.assetNamespace).toBe("local");
     expect(page.toc.some((item) => item.url === "#how-it-works")).toBe(true);
-    expect(
-      page.toc.some((item) => item.url === "#bandwidth-and-fragmentation"),
-    ).toBe(true);
-    expect(page.toc.some((item) => item.url === "#operator-tradeoffs")).toBe(
+    expect(page.toc.some((item) => item.url === "#practical-impact")).toBe(
       true,
     );
     expect(page.assets.systemFlow).toMatchObject({
@@ -119,6 +116,12 @@ describe("memory canonical page bundle", () => {
     expect(page.messages.sections?.howItWorks?.body).toContain(
       "live serving concern after load",
     );
+    expect(page.messages.sections?.howItWorks?.body).toContain(
+      "Memory capacity answers how much state can exist at once",
+    );
+    expect(page.messages.sections?.howItWorks?.body).toContain(
+      "enough usable memory in time",
+    );
     expect(page.messages.sections?.practicalImpact?.body).toContain(
       "first-token latency",
     );
@@ -128,22 +131,16 @@ describe("memory canonical page bundle", () => {
     expect(page.messages.sections?.practicalImpact?.body).toContain(
       "lower safe concurrency",
     );
-    expect(page.messages.sections?.bandwidthAndFragmentation?.body).toContain(
-      "Memory capacity answers how much state can exist at once",
-    );
-    expect(page.messages.sections?.bandwidthAndFragmentation?.body).toContain(
-      "enough usable memory in time",
-    );
-    expect(page.messages.sections?.operatorTradeoffs?.body).toContain(
+    expect(page.messages.sections?.practicalImpact?.body).toContain(
       "Larger or denser batches can improve throughput",
     );
-    expect(page.messages.sections?.operatorTradeoffs?.body).toContain(
+    expect(page.messages.sections?.practicalImpact?.body).toContain(
       "Spilling colder cache to slower storage keeps longer sessions alive",
     );
-    expect(page.messages.sections?.operatorTradeoffs?.body).toContain(
+    expect(page.messages.sections?.practicalImpact?.body).toContain(
       "Splitting prefill and decode lets one stage specialize",
     );
-    expect(page.messages.sections?.operatorTradeoffs?.body).toContain(
+    expect(page.messages.sections?.practicalImpact?.body).toContain(
       "Deployment and routing decisions often exist for the same reason",
     );
     expect(page.messages.assets?.systemFlow?.alt).toContain(
