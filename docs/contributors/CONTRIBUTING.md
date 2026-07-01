@@ -395,7 +395,7 @@ run these lightweight checks often:
 
 | Command | Equivalent Bun script | What it validates |
 | --- | --- | --- |
-| `make validate-data` | `bun ./scripts/validate-registry.ts` | Registry schema, frontmatter ↔ registry alignment, message keys referenced from MDX, asset ids, graph/table references, tag and citation resolution, and colocated `messages/` + `assets.json` bundles under `src/content/docs/` |
+| `make validate-data` | `bun ./scripts/validate-registry.ts` | Registry schema, frontmatter ↔ registry alignment, derived published-page bundle coverage for ordinary docs pages, message keys referenced from MDX, asset ids, graph/table references, tag and citation resolution, and colocated `messages/` + `assets.json` bundles under `src/content/docs/` |
 | `bun run audit:canonical-page-surface` | `bun ./scripts/audit-canonical-page-surface.ts` | Whether one canonical-page branch still fits the routine owned-file budget or has spilled into shared hotspot surfaces that need either a visible exception or a broader throughput lane |
 | `make linkcheck` | `bun ./scripts/validate-links.ts` | Internal links and `#section` anchors in published docs pages served through the Fumadocs catch-all route (`src/content/docs/**/page.mdx`) |
 
@@ -404,6 +404,7 @@ structural mistakes contributors make most often:
 
 - Missing or unknown `registryId`, tags, citations, or related record ids
 - Frontmatter `kind`, slug, or `aliases` out of sync with the registry record
+- Missing default-locale messages, route metadata, or declared local assets on ordinary published page bundles (derived scanner-backed coverage)
 - Message keys in MDX that do not exist in colocated `messages/<locale>.json`
 - `assetId` references missing from `assets.json` or graph/table registry records
 - Invalid or incomplete registry JSON under `src/content/registry/`
@@ -499,6 +500,49 @@ reader-visible contract. Examples include:
 If you keep a manual list in a test, document the behavior class it protects so
 future contributors can tell that it is curated on purpose rather than acting as
 hidden whole-site inventory.
+
+### Derived published-page validation
+
+Ordinary content-only published page bundles receive standard validation from
+scanner-backed **derived published-page coverage** in
+`validateDerivedPublishedPageBundles`. The contract runs inside
+`make validate-data` through `validateRegistryContent` and discovers published
+docs pages from the same scanner source as runtime docs loading, not from a
+hand-maintained page list.
+
+For each ordinary published page, derived validation checks:
+
+- Valid frontmatter and route metadata
+- Default-locale `messages/en.json`
+- Resolvable `registryId` with page-kind alignment (including supported bridges
+  such as glossary → concept)
+- Declared frontmatter tags, registry-backed citations, and local assets when
+  present
+
+**Do not add a new per-page test** for an ordinary page bundle that only
+re-checks those relationships. Use `make validate-data` as validation evidence
+instead. When you change the derived contract itself, also run
+`bun test src/lib/content/validate-derived-published-page-bundles.test.ts`.
+
+Add or keep per-page tests only when the page introduces:
+
+- new rendering behavior or component contracts
+- search, sidebar, browse, tag, or taxonomy discovery wiring
+- graph/table asset registry runtime behavior
+- page-generation workflow validation
+- a focused regression guard that cannot be expressed as a derived bundle
+  invariant
+
+Fence retained per-page tests with a file- or describe-level comment that
+states why the coverage is special rather than routine page-bundle validation.
+
+This policy is process-focused: derived coverage does not require maintaining
+broad route inventories, docs link topology inventories, or asset-bundle
+internals unless those are the product behavior under test (see
+[Discovery and navigation test strategy](#discovery-and-navigation-test-strategy)).
+
+Maintainer reference:
+[derived page validation relevant files](../internal/processes/derived-page-validation-relevant-files.md).
 
 For a visual pass on a published page, start the dev server after installing
 dependencies:

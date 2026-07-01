@@ -12,8 +12,13 @@ import { docsSearchApi } from "@/lib/search/search-server";
 
 const LOCAL_ATTENTION_URL = modulePageHref("local-attention");
 
-describe("local-attention page contract", () => {
-  test("route, registry, messages, and assets resolve together for the canonical page slice", async () => {
+/**
+ * Routine page-bundle checks for published pages are covered by
+ * `validateDerivedPublishedPageBundles`. These tests cover search, discovery,
+ * and rendered related-doc wiring that are special to the local-attention slice.
+ */
+describe("local-attention discovery and rendering contract", () => {
+  test("search and discovery metadata stay aligned for the canonical page slice", async () => {
     const [page, indexes, pages] = await Promise.all([
       loadModulePage("local-attention"),
       loadRegistry(),

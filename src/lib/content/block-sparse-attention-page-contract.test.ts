@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { BLOCK_SPARSE_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
 import {
   loadLocalDocsPage,
   localDocsRoute,
@@ -15,13 +14,18 @@ import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import { docsSearchApi } from "@/lib/search/search-server";
-import { validateColocatedPageBundle } from "./validate-registry";
 
 const BLOCK_SPARSE_SLUG = "block-sparse-attention";
 const BLOCK_SPARSE_ROUTE = "/docs/modules/block-sparse-attention";
 
-describe("block-sparse attention canonical page contract (block-sparse-attention-module-page-004)", () => {
-  test("canonical route, registry record, and default English page bundle resolve together", async () => {
+/**
+ * Routine page-bundle checks (frontmatter, messages, registryId, tags, assets)
+ * are covered by `validateDerivedPublishedPageBundles` via `validateRegistryContent`.
+ * These tests stay focused on search, discovery, related-doc wiring, and rendered
+ * surface contracts that are special to this page slice.
+ */
+describe("block-sparse attention discovery and rendering contract (block-sparse-attention-module-page-004)", () => {
+  test("canonical route and shipped copy stay wired for the block-sparse module slice", async () => {
     const route = localDocsRoute({
       section: "modules",
       slug: BLOCK_SPARSE_SLUG,
@@ -30,32 +34,12 @@ describe("block-sparse attention canonical page contract (block-sparse-attention
       section: "modules",
       slug: BLOCK_SPARSE_SLUG,
     });
-    const registry = await loadRegistry();
-    const bundle = await validateColocatedPageBundle(
-      BLOCK_SPARSE_ATTENTION_PAGE_DIR,
-      registry,
-    );
-    const record = registry.byId.get("module.block-sparse-attention");
 
     expect(route).toBe(BLOCK_SPARSE_ROUTE);
-    expect(page.frontmatter.kind).toBe("module");
-    expect(page.frontmatter.registryId).toBe("module.block-sparse-attention");
-    expect(page.frontmatter.messageNamespace).toBe("local");
-    expect(page.frontmatter.assetNamespace).toBe("local");
-    expect(page.frontmatter.status).toBe("published");
-    expect(bundle.errors).toEqual([]);
-    expect(bundle.messages?.title).toBe("Block-Sparse Attention");
-    expect(bundle.messages?.openingSummary).toContain(
-      "groups tokens into blocks",
-    );
-    expect(bundle.assets?.computeFlow).toBeDefined();
-    expect(bundle.assets?.comparisonTable).toBeDefined();
-
-    expect(record?.kind).toBe("module");
-    expect(record?.slug).toBe(BLOCK_SPARSE_SLUG);
-    expect(
-      PUBLISHED_DOCS_REGISTRY_IDS.has("module.block-sparse-attention"),
-    ).toBe(true);
+    expect(page.messages.title).toBe("Block-Sparse Attention");
+    expect(page.messages.openingSummary).toContain("groups tokens into blocks");
+    expect(page.assets.computeFlow).toBeDefined();
+    expect(page.assets.comparisonTable).toBeDefined();
   });
 
   test("discovery metadata and live search resolve the canonical page for representative reader queries", async () => {
