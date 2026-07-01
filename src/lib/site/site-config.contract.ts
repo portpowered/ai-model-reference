@@ -54,9 +54,32 @@ export type SiteCollectionPlaceholder = {
   family: SiteCollectionFamily;
 };
 
+/** UI message keys for home featured link titles under `messages.home`. */
+export type HomeFeaturedLinkTitleKey = Extract<
+  keyof UiMessages["home"],
+  "atlasLinkTitle" | "gqaLinkTitle" | "swigluLinkTitle" | "reluLinkTitle"
+>;
+
+/** UI message keys for home featured link descriptions under `messages.home`. */
+export type HomeFeaturedLinkDescriptionKey = Extract<
+  keyof UiMessages["home"],
+  | "atlasLinkDescription"
+  | "gqaLinkDescription"
+  | "swigluLinkDescription"
+  | "reluLinkDescription"
+>;
+
+type HomeFeaturedLinkCopyBinding = {
+  titleKey: HomeFeaturedLinkTitleKey;
+  descriptionKey: HomeFeaturedLinkDescriptionKey;
+};
+
 export type HomeFeaturedLinkPlaceholder =
-  | { kind: "route"; routeSurface: Extract<SiteNamedRouteSurface, "browse"> }
-  | { kind: "docs-page"; slug: string };
+  | ({
+      kind: "route";
+      routeSurface: Extract<SiteNamedRouteSurface, "browse">;
+    } & HomeFeaturedLinkCopyBinding)
+  | ({ kind: "docs-page"; slug: string } & HomeFeaturedLinkCopyBinding);
 
 export type SiteConfig = {
   brand: SiteBrandConfig;

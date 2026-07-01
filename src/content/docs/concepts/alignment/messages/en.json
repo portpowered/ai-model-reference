@@ -1,0 +1,43 @@
+{
+  "title": "Alignment",
+  "description": "The post-pretraining goal of shaping a broadly capable base model toward helpful, safer, preference-following behavior before or during deployment.",
+  "openingSummary": "Alignment is the broad training-and-deployment goal of steering a pretrained language model so its answers follow human preferences, stay helpful, and avoid unsafe or off-policy behavior—without replacing the base model that pretraining already built.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Alignment is behavior shaping applied after a model has already learned broad language patterns from large-scale pretraining. The base model can predict plausible text, but that alone does not guarantee polite assistance, honest refusals, or answers that match product policy. Alignment work nudges weights, reward signals, preference data, and runtime guardrails so the finished system follows intended use: helpful replies, safer boundaries, and responses that track what humans or organizations prefer over raw next-token likelihood."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "A capable base model is not automatically a good assistant. Pretraining optimizes for statistical fit on massive text; alignment optimizes for how the model should act when a person asks for help. Product teams need both layers: pretraining supplies general knowledge and fluency, while alignment supplies policy fit, tone, and safety boundaries. Without the alignment layer, teams rely on brittle prompt tricks or filters alone, and small deployment changes can produce surprising violations even when benchmark scores look strong."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a chat model pretrained on web text. Left alone, it may answer a harmful request with detailed steps because that pattern appeared in training data. An alignment pass might fine-tune on curated assistant transcripts, train a reward model from human preference comparisons, and add a moderation filter at serve time. After alignment, the same base weights are still underneath, but the model is more likely to refuse, redirect, or give a policy-safe answer when the prompt crosses a boundary."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Pretraining is the earlier stage that builds a broad base model from large-scale token sequences. It teaches general language patterns, facts, and style from massive data, but it does not by itself guarantee helpful assistance, honest refusals, or answers that match product policy. Alignment is the later behavior-shaping goal that steers that pretrained base toward human preferences, helpfulness, and safety before or during deployment.\n\nDirect Preference Optimization (DPO) and reinforcement learning from human feedback (RLHF) describe nearby post-training workflows that teams use to move a model toward aligned behavior. They can support alignment, but they are not synonyms for alignment itself—alignment is the broad outcome, while DPO and RLHF are specific recipe families built from preference data, reward models, or policy updates.\n\nProximal Policy Optimization (PPO) and Group Relative Policy Optimization (GRPO) are nearby reinforcement-learning optimization patterns that often appear inside RLHF-style training loops. PPO is a classic policy-update method; GRPO compares sampled answer groups rather than relying on a fixed pairwise preference dataset alone. Naming them helps you place a headline method in context without treating any one optimizer as the full definition of alignment.\n\nFinally, alignment is not a benchmark leaderboard page. This explainer teaches the behavior-shaping idea and how it sits next to pretraining and post-training methods—not model ranking tables or score-comparison outcomes."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Alignment is not pretraining: pretraining builds the base model, while alignment shapes how that base should act in use. Alignment is also not identical to any single method—supervised fine-tuning, DPO, RLHF loops, constitutional critics, and inference-time filters are tools that can support the goal rather than names for the goal itself. Treating a benchmark score as proof of alignment misses the point: strong leaderboard numbers do not guarantee polite assistance, safe refusals, or policy-following behavior in production."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "pretraining": "Pretraining",
+    "dpo": "Direct Preference Optimization",
+    "rlhfSearch": "RLHF search",
+    "ppoSearch": "PPO search",
+    "grpoSearch": "GRPO search"
+  }
+}

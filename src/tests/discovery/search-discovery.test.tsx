@@ -21,6 +21,7 @@ import {
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { modelAtlasSiteConfig } from "@/lib/site/model-atlas-site-config";
 import { assertSearchPageBuiltAppShell } from "@/lib/verify/phase-1-search-built-app-shell-checks";
 import {
   assertCanonicalPageLevelApiResults,
@@ -47,7 +48,9 @@ const PHASE_1_DISCOVERY_ROUTES = [
     path: "/",
     render: async () => {
       const messages = await loadUiMessages();
-      return <HomeArticle messages={messages} />;
+      return (
+        <HomeArticle messages={messages} siteConfig={modelAtlasSiteConfig} />
+      );
     },
     expectInHtml: "Model Atlas",
   },
