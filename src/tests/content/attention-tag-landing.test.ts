@@ -92,6 +92,7 @@ describe("attention tag landing resources", () => {
     const paperGroup = groups.find((group) => group.kind === "paper");
     expect(paperGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/papers/attention-is-all-you-need",
+      "/docs/papers/bert-pre-training-of-deep-bidirectional-transformers",
       "/docs/papers/deepseek-v4",
     ]);
 
@@ -204,6 +205,10 @@ describe("attention tag landing page render", () => {
     );
     expect(html).toContain("Attention Is All You Need");
     expect(html).toContain('href="/docs/papers/attention-is-all-you-need"');
+    expect(html).toContain("BERT Paper");
+    expect(html).toContain(
+      'href="/docs/papers/bert-pre-training-of-deep-bidirectional-transformers"',
+    );
     expect(html).toContain("DeepSeek-V4");
     expect(html).toContain('href="/docs/papers/deepseek-v4"');
     expect(html).toContain("Autoregressive Generation");
