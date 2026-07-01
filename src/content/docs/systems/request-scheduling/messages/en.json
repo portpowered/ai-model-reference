@@ -1,0 +1,58 @@
+{
+  "title": "Request Scheduling",
+  "description": "A serving system that decides which queued request work runs next so operators can balance latency, fairness, throughput, and memory pressure.",
+  "openingSummary": "Request scheduling is the serving control that orders queued work before the accelerator runs it. When many readers send prompts at once, the scheduler decides which prefill or decode step gets the next turn, and those ordering choices shape how long each request waits and how fully the hardware stays busy.",
+  "links": {
+    "systemFlowTitle": "System flow: how queued work gets scheduled",
+    "systemFlowLegend": "Legend: the top and bottom boxes are per-request lifecycle steps, while the middle boxes are the shared scheduler decisions that pick the next unit of work."
+  },
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Request scheduling is a serving-time control decision. It does not change model weights or layer math. Its job is to decide what queued work should run next once a request has already been admitted into the serving runtime."
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": "It sits inside the inference serving stack between admission and execution. After routing picks a serving path and admission accepts a request, the scheduler orders that request's prefill and decode work against every other active request competing for the same accelerator, memory, and batch slots."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Incoming requests enter a queue. The scheduler inspects waiting work—prefill bursts, decode turns, deadlines, memory pressure, and batching opportunities—and selects the next item or group to execute. Prefill work processes prompt tokens in one larger pass. Decode work extends active sequences one token at a time. The scheduler keeps switching between those stages according to policy until each request finishes or is cancelled."
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": "Scheduler choices directly affect how long requests wait, whether short jobs get crowded out by long ones, how many tokens the system completes per second, and whether memory limits force rejection or preemption. Strict first-come-first-served order can protect fairness but leave accelerators idle. Aggressive batching-friendly ordering can raise throughput while stretching tail latency."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "Admitted requests wait in a queue, the scheduler picks the next prefill or decode step, the accelerator runs that work, and active requests continue until they finish.",
+      "caption": "Request scheduling orders queued work before execution so the serving runtime can balance latency, fairness, throughput, and memory pressure."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "queue": {
+        "label": "Queue admitted requests"
+      },
+      "schedule": {
+        "label": "Pick next work"
+      },
+      "run": {
+        "label": "Run prefill or decode step"
+      },
+      "continue": {
+        "label": "Continue active requests"
+      }
+    }
+  }
+}
