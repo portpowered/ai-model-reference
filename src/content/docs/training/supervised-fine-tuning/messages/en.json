@@ -60,7 +60,7 @@
         },
         "ptheta": {
           "term": "p_\\theta(\\cdot)",
-          "definition": "the model probability distribution given weights \\theta"
+          "definition": "the model probability distribution parameterized by those weights"
         }
       }
     }
