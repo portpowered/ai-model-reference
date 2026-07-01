@@ -25,6 +25,7 @@ import {
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { source } from "@/lib/source";
 
 const REGISTRY_ID = "concept.time-to-first-token";
 const PAGE_URL = "/docs/glossary/time-to-first-token";
@@ -107,5 +108,30 @@ describe("time to first token slice verification (time-to-first-token-serving-me
       const results = await docsSearchApi.search(query);
       expect(results.some((result) => result.url === PAGE_URL)).toBe(true);
     }
+
+    const glossaryFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Glossary",
+    );
+    expect(glossaryFolder?.type).toBe("folder");
+    if (glossaryFolder?.type !== "folder") {
+      throw new Error("expected Glossary folder in docs sidebar");
+    }
+
+    const glossaryUrls = glossaryFolder.children
+      .filter(
+        (
+          node,
+        ): node is Extract<
+          (typeof glossaryFolder.children)[number],
+          { type: "page" }
+        > => node.type === "page",
+      )
+      .map((node) => node.url);
+    expect(glossaryUrls).toContain(PAGE_URL);
+    expect(
+      glossaryFolder.children.some(
+        (node) => node.type === "page" && node.name === "Time To First Token",
+      ),
+    ).toBe(true);
   });
 });

@@ -86,6 +86,8 @@ describe("dynamic batching canonical page bundle", () => {
         "dynamic batching",
         "batch window",
         "request batching",
+        "latency",
+        "throughput",
       ]),
     );
     expect(searchDocument?.tags).toEqual(["foundations"]);
