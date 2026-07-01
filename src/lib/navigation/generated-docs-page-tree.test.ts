@@ -255,6 +255,21 @@ function getPageNodeEntries(
   });
 }
 
+function expectTitleSortedPageNames(names: string[], label: string): void {
+  const sortedNames = [...names].sort((left, right) =>
+    left.localeCompare(right, "en", { sensitivity: "base" }),
+  );
+  expect(names, label).toEqual(sortedNames);
+}
+
+function collectUngroupedPages<Section extends SidebarGroupingSection>(
+  sectionConfig: GroupedSection<Section>,
+): DocsPageSource[] {
+  return loadPublishedDocsPagesSync("en")
+    .filter((page) => page.docsSlug.startsWith(`${sectionConfig.section}/`))
+    .filter((page) => !sectionConfig.resolveGroupId(page));
+}
+
 const UNGROUPED_COLLECTIONS = [
   { folderName: "Models", collectionId: "models", routeSlug: "models" },
   { folderName: "Papers", collectionId: "papers", routeSlug: "papers" },
@@ -377,6 +392,103 @@ describe("generated docs page tree", () => {
 
       expect(actualLabels, sectionConfig.folderName).toEqual(
         expectedGroups.map((group) => group.label),
+      );
+    }
+  });
+
+  test("grouped pages within each separator stay title-sorted by localized page name", () => {
+    for (const sectionConfig of GROUPED_SECTIONS) {
+      const children = getFolderChildren(sectionConfig.folderName);
+
+      for (const group of collectExpectedGroups(sectionConfig)) {
+        const separatorIndex = expectIndex(
+          `${sectionConfig.folderName} separator ${group.label}`,
+          findNodeIndex(children, { name: group.label }),
+        );
+        const nextSeparatorIndex = findNextSeparatorIndex(
+          children,
+          separatorIndex,
+        );
+        const groupEndIndex =
+          nextSeparatorIndex >= 0 ? nextSeparatorIndex : children.length;
+        const groupUrlSet = new Set(group.pageUrls);
+        const groupedPageUrls = children
+          .slice(separatorIndex + 1, groupEndIndex)
+          .flatMap((node) =>
+            node.type === "page" &&
+            "url" in node &&
+            typeof node.url === "string" &&
+            groupUrlSet.has(node.url)
+              ? [node.url]
+              : [],
+          );
+        const groupedPageNames = children
+          .slice(separatorIndex + 1, groupEndIndex)
+          .flatMap((node) =>
+            node.type === "page" &&
+            typeof node.name === "string" &&
+            "url" in node &&
+            typeof node.url === "string" &&
+            groupUrlSet.has(node.url)
+              ? [node.name]
+              : [],
+          );
+
+        expect(
+          groupedPageUrls,
+          `${sectionConfig.folderName} ${group.label} page URLs`,
+        ).toEqual(group.pageUrls);
+        expectTitleSortedPageNames(
+          groupedPageNames,
+          `${sectionConfig.folderName} ${group.label}`,
+        );
+      }
+    }
+  });
+
+  test("pages without a resolved group render after grouped pages in title order", () => {
+    for (const sectionConfig of GROUPED_SECTIONS) {
+      const ungroupedPages = collectUngroupedPages(sectionConfig);
+      if (ungroupedPages.length === 0) {
+        continue;
+      }
+
+      const children = getFolderChildren(sectionConfig.folderName);
+      const ungroupedUrls = new Set(ungroupedPages.map((page) => page.url));
+      const groupedPageIndexes = children.flatMap((node, index) =>
+        node.type === "page" &&
+        "url" in node &&
+        typeof node.url === "string" &&
+        !ungroupedUrls.has(node.url)
+          ? [index]
+          : [],
+      );
+      const lastGroupedPageIndex = Math.max(...groupedPageIndexes);
+      const trailingUngroupedNodes = children
+        .slice(lastGroupedPageIndex + 1)
+        .flatMap((node) =>
+          node.type === "page" &&
+          "url" in node &&
+          typeof node.url === "string" &&
+          typeof node.name === "string" &&
+          ungroupedUrls.has(node.url)
+            ? [{ name: node.name, url: node.url }]
+            : [],
+        );
+      const expectedTrailingPages = sortPagesByTitle(ungroupedPages).map(
+        (page) => ({
+          name: page.messages.title,
+          url: page.url,
+        }),
+      );
+
+      expect(
+        trailingUngroupedNodes,
+        `${sectionConfig.folderName} trailing ungrouped pages`,
+      ).toEqual(expectedTrailingPages);
+      expectTitleSortedPageNames(
+        trailingUngroupedNodes.map((node) => node.name),
+        `${sectionConfig.folderName} trailing ungrouped pages`,
       );
     }
   });
