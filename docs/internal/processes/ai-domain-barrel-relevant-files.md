@@ -24,3 +24,7 @@
 - Import `@/features/ai` when shell or server code needs helpers without pulling client graph bundles into module evaluation.
 - Import `@/features/ai/models`, `@/features/ai/topology`, or `@/features/ai/timeline` when wiring renderers through the AI domain boundary.
 - Keep original feature paths working as transitional re-exports until migration stories complete.
+
+## Verification
+
+- `src/features/ai/ai-domain-import-surfaces.test.ts` — focused import-surface tests for the AI namespace and transitional barrels; asserts export availability and representative helper behavior without source-file inventories.
