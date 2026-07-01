@@ -20,6 +20,7 @@ import { loadSystemPage } from "@/lib/content/system-page";
 import { renderSystemDocsShell } from "@/lib/content/system-shell-render";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { resultsIncludeUrl } from "@/tests/search/helpers";
 
 const pageDir = getDocsPageDir("systems", "request-scheduling");
 const messagesPath = join(pageDir, "messages/en.json");
@@ -193,14 +194,13 @@ describe("request scheduling search and registry convergence", () => {
   test.each([
     "latency",
     "throughput",
-  ] as const)("%s query includes the request scheduling system page in search results", async (query) => {
+  ] as const)("%s query includes the canonical request scheduling system page", async (query) => {
     const results = await docsSearchApi.search(query);
 
-    expect(
-      results.some(
-        (result) => result.url === "/docs/systems/request-scheduling",
-      ),
-    ).toBe(true);
+    expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeUrl(results, "/docs/systems/request-scheduling")).toBe(
+      true,
+    );
   });
 });
 

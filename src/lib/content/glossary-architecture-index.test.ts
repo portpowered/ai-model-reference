@@ -5,7 +5,135 @@ import ArchitectureIndexPage from "@/app/(site)/docs/architecture/page";
 import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
-import { source as docsSource } from "@/lib/source";
+import { source } from "@/lib/source";
+
+const CURRENT_GLOSSARY_SLUGS = [
+  "model",
+  "architecture",
+  "module",
+  "component",
+  "modality",
+  "foundation-model",
+  "generative-model",
+  "discriminative-model",
+  "representation",
+  "patch",
+  "latent",
+  "latent-space",
+  "model-capacity",
+  "multimodal-model",
+  "world-model",
+  "context-window",
+  "decoder",
+  "decode",
+  "encoder",
+  "encoder-decoder",
+  "hidden-size",
+  "kv-cache",
+  "normalization",
+  "prefill-decode-split",
+  "perplexity",
+  "residual-connection",
+  "skip-connection",
+  "token",
+  "transformer",
+  "activation",
+  "alignment",
+  "backpropagation",
+  "computational-graph",
+  "embedding",
+  "entropy",
+  "emergent-behavior",
+  "generalization",
+  "gradient",
+  "logit",
+  "loss-function",
+  "optimizer-state",
+  "overfitting",
+  "parameter",
+  "scaling-law",
+  "special-tokens",
+  "softmax",
+  "temperature",
+  "tensor",
+  "vector",
+  "autoregressive-generation",
+  "greedy-decoding",
+  "sampling-overview",
+  "top-k-sampling",
+  "top-p-sampling",
+  "conditioning",
+  "denoising-generation",
+  "diffusion-model",
+  "vocabulary-size",
+] as const;
+
+const EXPECTED_GLOSSARY_TITLES: Record<
+  (typeof CURRENT_GLOSSARY_SLUGS)[number],
+  string
+> = {
+  activation: "Activation",
+  alignment: "Alignment",
+  architecture: "Architecture",
+  "autoregressive-generation": "Autoregressive Generation",
+  backpropagation: "Backpropagation",
+  component: "Component",
+  "computational-graph": "Computational Graph",
+  conditioning: "Conditioning",
+  "context-window": "Context window",
+  decode: "Decode",
+  decoder: "Decoder",
+  "denoising-generation": "Denoising Generation",
+  "diffusion-model": "Diffusion Model",
+  "discriminative-model": "Discriminative Model",
+  embedding: "Embedding",
+  entropy: "Entropy",
+  "emergent-behavior": "Emergent Behavior",
+  encoder: "Encoder",
+  "encoder-decoder": "Encoder-Decoder",
+  "foundation-model": "Foundation Model",
+  generalization: "Generalization",
+  "generative-model": "Generative Model",
+  "greedy-decoding": "Greedy Decoding",
+  gradient: "Gradient",
+  "hidden-size": "Hidden Size",
+  "kv-cache": "KV cache",
+  latent: "Latent",
+  "latent-space": "Latent Space",
+  logit: "Logit",
+  "loss-function": "Loss Function",
+  modality: "Modality",
+  model: "Model",
+  "model-capacity": "Model Capacity",
+  module: "Module",
+  "multimodal-model": "Multimodal Model",
+  normalization: "Normalization",
+  "optimizer-state": "Optimizer State",
+  overfitting: "Overfitting",
+  parameter: "Parameter",
+  patch: "Patch",
+  perplexity: "Perplexity",
+  "prefill-decode-split": "Prefill/decode split",
+  representation: "Representation",
+  "residual-connection": "Residual connection",
+  "sampling-overview": "Sampling Overview",
+  "scaling-law": "Scaling Law",
+  "special-tokens": "Special Tokens",
+  "skip-connection": "Skip connection",
+  softmax: "Softmax",
+  temperature: "Temperature",
+  tensor: "Tensor",
+  token: "Token",
+  "top-k-sampling": "Top-K Sampling",
+  "top-p-sampling": "Top-P Sampling",
+  transformer: "Transformer",
+  vector: "Vector",
+  "vocabulary-size": "Vocabulary Size",
+  "world-model": "World Model",
+};
+
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 50;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -39,21 +167,15 @@ function collectPageUrls(nodes: Node[]): string[] {
   return urls;
 }
 
-function getGlossaryFolder() {
-  const glossaryFolder = docsSource.pageTree.children.find(
-    (node) => node.type === "folder" && node.name === "Glossary",
-  );
-  expect(glossaryFolder?.type).toBe("folder");
-  if (glossaryFolder?.type !== "folder") {
-    throw new Error("expected Glossary folder in docs sidebar");
-  }
-  return glossaryFolder;
-}
-
 describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
-  test("generated glossary sidebar lists current glossary families and separators", async () => {
-    const entries = await loadPublishedGlossaryEntries("en");
-    const glossaryFolder = getGlossaryFolder();
+  test("generated glossary sidebar lists current glossary families and separators", () => {
+    const glossaryFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Glossary",
+    );
+    expect(glossaryFolder?.type).toBe("folder");
+    if (glossaryFolder?.type !== "folder") {
+      throw new Error("expected Glossary folder in docs sidebar");
+    }
 
     const separatorTitles = glossaryFolder.children
       .filter((node) => node.type === "separator")
@@ -62,44 +184,51 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       (node): node is Extract<Node, { type: "page" }> => node.type === "page",
     );
 
-    expect(linkNodes).toHaveLength(entries.length);
+    expect(linkNodes).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
     expect(separatorTitles).toEqual(
       expect.arrayContaining([...GLOSSARY_SEPARATOR_TITLES]),
     );
 
-    for (const entry of entries) {
-      expect(linkNodes.some((node) => node.url === entry.url)).toBe(true);
-      expect(linkNodes.some((node) => node.name === entry.title)).toBe(true);
+    for (const slug of CURRENT_GLOSSARY_SLUGS) {
+      const title = EXPECTED_GLOSSARY_TITLES[slug];
+      expect(
+        linkNodes.some((entry) => entry.url === `/docs/glossary/${slug}`),
+      ).toBe(true);
+      expect(linkNodes.some((entry) => entry.name === title)).toBe(true);
     }
   });
 
-  test("fumadocs glossary sidebar includes the shipped glossary surface", async () => {
-    const entries = await loadPublishedGlossaryEntries("en");
-    const glossaryFolder = getGlossaryFolder();
-    const glossaryUrls = collectPageUrls(glossaryFolder.children);
-
-    for (const entry of entries) {
-      expect(glossaryUrls).toContain(entry.url);
+  test("fumadocs glossary sidebar includes the shipped glossary surface", () => {
+    const glossaryFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Glossary",
+    );
+    expect(glossaryFolder?.type).toBe("folder");
+    if (glossaryFolder?.type !== "folder") {
+      throw new Error("expected Glossary folder in docs sidebar");
     }
-    expect(glossaryUrls).toHaveLength(entries.length);
+
+    const glossaryUrls = collectPageUrls(glossaryFolder.children);
+    for (const slug of CURRENT_GLOSSARY_SLUGS) {
+      expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
+    }
+    expect(glossaryUrls).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
   });
 
   test("glossary index lists shipped published entries with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    const glossaryFolder = getGlossaryFolder();
-    const glossaryUrls = collectPageUrls(glossaryFolder.children).sort();
+    expect(entries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
 
-    expect(entries.map((entry) => entry.url).sort()).toEqual(glossaryUrls);
-
-    for (const entry of entries) {
-      const indexEntry = entries.find((item) => item.url === entry.url);
-      expect(indexEntry?.title).toBe(entry.title);
+    for (const slug of CURRENT_GLOSSARY_SLUGS) {
+      const entry = entries.find(
+        (item) => item.url === `/docs/glossary/${slug}`,
+      );
+      expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
     }
   });
 
   test("architecture index includes current architecture-related glossary and concept entries", async () => {
     const entries = await loadPublishedArchitectureEntries("en");
-    expect(entries.length).toBeGreaterThan(0);
+    expect(entries).toHaveLength(PUBLISHED_ARCHITECTURE_ENTRY_COUNT);
 
     for (const url of [
       "/docs/glossary/architecture",
