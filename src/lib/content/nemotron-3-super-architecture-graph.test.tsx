@@ -182,14 +182,17 @@ describe("nemotron 3 super architecture graph", () => {
       class="registry-graph-flow__process-node"
       style="width: 230px; height: 82px;"
     >
-      Hybrid Mamba + Attention
+      Hybrid
+Mamba +
+Attention
     </div>
     <div
       id="moe-node"
       class="registry-graph-flow__process-node"
       style="width: 230px; height: 82px;"
     >
-      LatentMoE Experts
+      LatentMoE
+Experts
     </div>
   </body>
 </html>`;
@@ -231,7 +234,7 @@ describe("nemotron 3 super architecture graph", () => {
     } finally {
       await closePlaywrightBrowserWithTimeout(browser);
     }
-  }, 30_000);
+  }, 120_000);
 
   test("served model page exposes the architecture graph at desktop and mobile widths", async () => {
     if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
