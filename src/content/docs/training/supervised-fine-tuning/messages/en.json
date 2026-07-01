@@ -21,7 +21,7 @@
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
-      "body": "Supervised fine-tuning inherits whatever quality and coverage exist in the demonstration data. Small, biased, or inconsistent datasets can push the model toward narrow imitation, memorization, or loss of broader behavior learned earlier."
+      "body": "Supervised fine-tuning inherits whatever quality and coverage exist in the demonstration data. Noisy labels, missing edge cases, or examples that contradict each other teach the wrong habits just as strongly as good demonstrations teach the right ones.\n\nWhen the dataset is too small, biased, or inconsistent, the model may overfit by memorizing training phrasing instead of learning a general pattern. That narrow imitation can look strong on the training distribution but fail when real inputs shift in topic, format, or user intent.\n\nDistribution shift is a common failure mode: the model adapts to the examples it saw, so new prompts, new domains, or safety-sensitive situations outside that coverage may regress. Heavy supervised updates can also erode broader behavior learned during pretraining if the new examples dominate the update budget and do not represent the full product surface."
     },
     "related": {
       "title": "Related To"
