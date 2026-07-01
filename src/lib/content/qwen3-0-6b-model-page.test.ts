@@ -72,6 +72,8 @@ describe("Qwen3-0.6B model page", () => {
     expect(html).toContain("instruction-following");
     expect(html).toContain("Qwen3.6-27B");
     expect(html).toContain('data-graph-id="graph.qwen3-0-6b-architecture"');
+    expect(html).toContain("Grouped-Query");
+    expect(html).toContain("Dense");
     expect(html).toContain(
       "Qwen3-0.6B architecture diagram with token embeddings, RoPE position encoding",
     );

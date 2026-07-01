@@ -68,11 +68,11 @@
       },
       "rmsnormAttention": {
         "label": "RMSNorm",
-        "summary": "Normalizes the residual stream before the attention step"
+        "summary": "Normalizes the residual stream before grouped-query attention"
       },
-      "decoderAttention": {
-        "label": "Decoder\nAttention",
-        "summary": "Each token reads earlier context under the model's attention mask"
+      "groupedQueryAttention": {
+        "label": "Grouped-Query\nAttention",
+        "summary": "Causal attention with 16 query heads and 8 shared key-value heads per the Qwen3 release table"
       },
       "rmsnormFfn": {
         "label": "RMSNorm",

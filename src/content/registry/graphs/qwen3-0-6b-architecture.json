@@ -108,10 +108,10 @@
       "childNodeIds": []
     },
     {
-      "id": "decoder-attention",
-      "labelKey": "graph.nodes.decoderAttention.label",
-      "summaryKey": "graph.nodes.decoderAttention.summary",
-      "registryId": "concept.transformer-architecture",
+      "id": "grouped-query-attention",
+      "labelKey": "graph.nodes.groupedQueryAttention.label",
+      "summaryKey": "graph.nodes.groupedQueryAttention.summary",
+      "registryId": "module.grouped-query-attention",
       "moduleKind": "attention",
       "position": { "x": 260, "y": 366 },
       "size": { "width": 230, "height": 82 },
@@ -242,17 +242,17 @@
       "targetHandleSide": "right"
     },
     {
-      "id": "decoder-attention-to-rmsnorm-attention",
-      "source": "decoder-attention",
+      "id": "grouped-query-attention-to-rmsnorm-attention",
+      "source": "grouped-query-attention",
       "target": "rmsnorm-attention",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },
     {
-      "id": "rope-inject-to-decoder-attention",
+      "id": "rope-inject-to-grouped-query-attention",
       "source": "rope-inject",
-      "target": "decoder-attention",
+      "target": "grouped-query-attention",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
