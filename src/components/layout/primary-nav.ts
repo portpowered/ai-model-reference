@@ -1,9 +1,12 @@
+import type { TopologyNavigationOption } from "@/lib/content/topology-navigation";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   buildLocalizedRoute,
   defaultLocale,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
+import { modelAtlasSiteConfig } from "@/lib/site/model-atlas-site-config";
+import type { SiteConfig } from "@/lib/site/site-config.contract";
 
 export const PRIMARY_NAV_LINK_CLASS =
   "text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -23,30 +26,23 @@ export type PrimaryNavItem = {
   label: string;
 };
 
+export type GetPrimaryNavItemsOptions = {
+  topologyOptions?: readonly TopologyNavigationOption[];
+  siteConfig?: SiteConfig;
+};
+
 export function getPrimaryNavItems(
   messages: UiMessages,
   locale: SiteLocale = defaultLocale,
-  _options = {},
+  options: GetPrimaryNavItemsOptions = {},
 ): PrimaryNavItem[] {
-  return [
-    {
-      href: buildLocalizedRoute({ surface: "home" }, locale),
-      label: messages.nav.home,
-    },
-    {
-      href: buildLocalizedRoute({ surface: "topology" }, locale),
-      label: messages.nav.topology,
-    },
-    {
-      href: buildLocalizedRoute(
-        { surface: "docs-page", slug: "timeline" },
-        locale,
-      ),
-      label: messages.nav.timeline,
-    },
-    {
-      href: buildLocalizedRoute({ surface: "tags-index" }, locale),
-      label: messages.nav.tags,
-    },
-  ];
+  const { siteConfig = modelAtlasSiteConfig } = options;
+
+  return siteConfig.primaryNav.map((entry) => ({
+    href: buildLocalizedRoute(
+      siteConfig.routeSurfaces[entry.routeSurface],
+      locale,
+    ),
+    label: messages.nav[entry.labelKey],
+  }));
 }

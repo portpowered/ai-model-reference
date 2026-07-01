@@ -40,6 +40,7 @@ export function ModelAtlasDocsHeader({
 }: ModelAtlasDocsHeaderProps) {
   const repositoryUrl = siteConfig.repositoryUrl;
   const primaryNavItems = getPrimaryNavItems(messages, locale, {
+    siteConfig,
     topologyOptions,
   });
   const [menuOpen, setMenuOpen] = useState(false);
