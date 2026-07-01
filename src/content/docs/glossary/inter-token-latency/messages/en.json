@@ -1,0 +1,31 @@
+{
+  "title": "Inter-Token Latency",
+  "description": "The serving latency metric that measures the delay between streamed output tokens after generation has started.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Inter-token latency is the elapsed time between consecutive streamed output tokens after generation has started."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Readers feel inter-token latency as the rhythm of a streaming reply after the first token appears."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Once a chat answer begins streaming, each gap between visible tokens is one inter-token latency interval."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Inter-token latency is not time to first token or tokens per second."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
