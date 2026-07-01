@@ -5,6 +5,7 @@ import {
   readWorktreeLaneMetadata,
   refreshWorktreeLaneMetadata,
   type WorktreeLaneMetadataLinkageField,
+  type WorktreeLaneMetadataPullRequest,
 } from "@/lib/factory/worktree-lane-metadata";
 
 export type QueueLaneState = "active" | "failed";
@@ -69,6 +70,7 @@ export interface WorktreeLaneRecord {
   metadataStatus: "present" | "missing" | "incomplete" | "conflicting";
   metadataIssues: string[];
   metadataSessionId?: string | null;
+  metadataPullRequest?: WorktreeLaneMetadataPullRequest | null;
   metadataBranchLinkage?: WorktreeLaneMetadataLinkageField;
   metadataPullRequestLinkage?: WorktreeLaneMetadataLinkageField;
 }
@@ -519,6 +521,7 @@ export function discoverWorktreeLaneRecords(
         metadataStatus,
         metadataIssues,
         metadataSessionId,
+        metadataPullRequest: metadata?.pullRequest ?? null,
         metadataBranchLinkage: metadata?.linkage.branch,
         metadataPullRequestLinkage: metadata?.linkage.pullRequest,
       } satisfies WorktreeLaneRecord;
@@ -565,6 +568,54 @@ function toRefreshableBranchMetadataSource(
   source: WorktreeLaneRecord["branchMetadataSource"],
 ): "git" | "prd" | undefined {
   return source === "git" || source === "prd" ? source : undefined;
+}
+
+function hasCurrentStampedPullRequestEvidence(
+  worktree: WorktreeLaneRecord,
+): worktree is WorktreeLaneRecord & {
+  metadataPullRequest: WorktreeLaneMetadataPullRequest;
+} {
+  return (
+    typeof worktree.metadataPullRequest?.number === "number" &&
+    worktree.metadataPullRequestLinkage?.status === "current"
+  );
+}
+
+function pullRequestRecordFromMetadata(
+  metadataPullRequest: WorktreeLaneMetadataPullRequest,
+  branchName: string,
+): PullRequestRecord {
+  return {
+    number: metadataPullRequest.number,
+    url: metadataPullRequest.url,
+    headRefName: branchName,
+  };
+}
+
+export function resolvePullRequestEvidence(
+  worktree: WorktreeLaneRecord,
+  branchName: string,
+  lookupPullRequest: (
+    branchName: string,
+    runCommand: RunCommand,
+  ) => PullRequestLookupResult,
+  runCommand: RunCommand,
+): PullRequestLookupResult {
+  const lookupResult = lookupPullRequest(branchName, runCommand);
+  if (lookupResult.pullRequest) {
+    return lookupResult;
+  }
+
+  if (hasCurrentStampedPullRequestEvidence(worktree)) {
+    return {
+      pullRequest: pullRequestRecordFromMetadata(
+        worktree.metadataPullRequest,
+        branchName,
+      ),
+    };
+  }
+
+  return lookupResult;
 }
 
 function parseIntegerPair(stdout: string): [number, number] | null {
@@ -1047,7 +1098,12 @@ export function discoverActivePrLaneReport(
       options.repoRoot ?? worktree.worktreePath,
     );
 
-    const pullRequestLookup = lookupPullRequest(branchName, runCommand);
+    const pullRequestLookup = resolvePullRequestEvidence(
+      worktree,
+      branchName,
+      lookupPullRequest,
+      runCommand,
+    );
     const pullRequest = pullRequestLookup.pullRequest;
     if (!pullRequest) {
       if (worktree.metadataPullRequestLinkage?.status === "stale") {

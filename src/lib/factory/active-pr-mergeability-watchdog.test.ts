@@ -587,6 +587,160 @@ describe("discoverActivePrLaneReport", () => {
   });
 });
 
+describe("active-pr-watchdog-worktree-linkage-repair-001", () => {
+  test("classifies active lanes as PR-backed from stamped lane metadata when live PR lookup fails", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-metadata-pr-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const alphaPath = createWorktree(worktreesRoot, "alpha", "alpha");
+    writeLaneMetadata(alphaPath, {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: alphaPath,
+      sessionId: "sess-1",
+      pullRequest: {
+        number: 42,
+        url: "https://example.com/pull/42",
+      },
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+      linkage: {
+        branch: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+        pullRequest: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+      },
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "alpha", state: "active", sessionId: "sess-1" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(new Map([[alphaPath, "alpha"]])),
+      lookupPullRequest: () => ({
+        pullRequest: null,
+        failureKind: "not-found",
+        failureReason: "no open PR metadata found for branch alpha",
+      }),
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        workItemName: "alpha",
+        queueState: "active",
+        rawQueueState: "active",
+        worktreePath: ".claude/worktrees/alpha",
+        branchName: "alpha",
+        prNumber: 42,
+        prUrl: "https://example.com/pull/42",
+        workItemNameSource: "metadata",
+        branchMetadataSource: "metadata",
+        metadataStatus: "present",
+        sessionId: "sess-1",
+        sessionIdSource: "queue",
+      }),
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  test("keeps PR-backed classification on one lane when another lane lacks PR metadata", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-metadata-pr-mix-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const alphaPath = createWorktree(worktreesRoot, "alpha", "alpha");
+    const betaPath = createWorktree(worktreesRoot, "beta", "beta");
+    writeLaneMetadata(alphaPath, {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: alphaPath,
+      sessionId: null,
+      pullRequest: {
+        number: 42,
+        url: "https://example.com/pull/42",
+      },
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+      linkage: {
+        branch: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+        pullRequest: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+      },
+    });
+    writeLaneMetadata(betaPath, {
+      schemaVersion: 1,
+      workItemName: "beta",
+      branchName: "beta",
+      branchMetadataSource: "setup",
+      worktreePath: betaPath,
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [
+          { name: "alpha", state: "active" },
+          { name: "beta", state: "failed" },
+        ],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(
+        new Map([
+          [alphaPath, "alpha"],
+          [betaPath, "beta"],
+        ]),
+      ),
+      lookupPullRequest: () => ({
+        pullRequest: null,
+        failureKind: "not-found",
+        failureReason: "no open PR metadata found for branch",
+      }),
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        workItemName: "alpha",
+        prNumber: 42,
+        prUrl: "https://example.com/pull/42",
+      }),
+      expect.objectContaining({
+        status: "unclassified",
+        workItemName: "beta",
+        prLookupFailureKind: "not-found",
+      }),
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+});
+
 describe("story 002 classification helpers", () => {
   test("prefers stamped metadata before git and prd fallback metadata", () => {
     const repoRoot = mkdtempSync(join(tmpdir(), "worktree-branch-resolution-"));
@@ -641,6 +795,7 @@ describe("story 002 classification helpers", () => {
           "stamped branch alpha-metadata disagrees with prd branch alpha-prd",
         ],
         metadataSessionId: "sess-1",
+        metadataPullRequest: null,
         metadataBranchLinkage: {
           status: "current",
           refreshedAtUtc: "2026-06-20T21:08:34.000Z",
@@ -664,6 +819,7 @@ describe("story 002 classification helpers", () => {
           "stamped lane metadata is incomplete: missing branch name",
         ],
         metadataSessionId: null,
+        metadataPullRequest: null,
         metadataBranchLinkage: {
           status: "missing",
           refreshedAtUtc: "2026-06-20T21:08:34.000Z",
@@ -687,6 +843,7 @@ describe("story 002 classification helpers", () => {
           "stamped lane metadata missing; fell back to worktree heuristics",
         ],
         metadataSessionId: undefined,
+        metadataPullRequest: null,
         metadataBranchLinkage: undefined,
         metadataPullRequestLinkage: undefined,
       },
