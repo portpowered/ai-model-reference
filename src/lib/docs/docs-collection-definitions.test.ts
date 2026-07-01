@@ -1,11 +1,55 @@
 import { describe, expect, test } from "bun:test";
-import { DOCS_COLLECTION_IDS } from "@/lib/docs/collection-definition-contract";
+import { loadUiMessages } from "@/lib/content/ui-messages";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
+import {
+  DOCS_COLLECTION_IDS,
+  type DocsCollectionMessageKeys,
+} from "@/lib/docs/collection-definition-contract";
 import {
   assertDocsCollectionInventory,
   DOCS_COLLECTION_DEFINITIONS,
   getDocsCollectionDefinition,
   listDocsCollectionDefinitions,
 } from "@/lib/docs/docs-collection-definitions";
+
+function resolveUiMessagePath(messages: UiMessages, path: string): string {
+  const value = path
+    .split(".")
+    .reduce<unknown>(
+      (current, segment) =>
+        current !== null &&
+        typeof current === "object" &&
+        segment in (current as Record<string, unknown>)
+          ? (current as Record<string, unknown>)[segment]
+          : undefined,
+      messages,
+    );
+
+  if (typeof value !== "string" || value.length === 0) {
+    throw new Error(`Missing UI message for path: ${path}`);
+  }
+
+  return value;
+}
+
+function expectResolvableMessageKeys(
+  messages: UiMessages,
+  messageKeys: DocsCollectionMessageKeys,
+): void {
+  for (const path of [
+    messageKeys.browse.sectionTitle,
+    messageKeys.browse.sectionDescription,
+    messageKeys.browse.sectionLinkLabel,
+    messageKeys.index.title,
+    messageKeys.index.description,
+    messageKeys.index.listLabel,
+    messageKeys.index.emptyTitle,
+    messageKeys.index.emptyDescription,
+    messageKeys.index.emptyHomeLink,
+  ]) {
+    expect(resolveUiMessagePath(messages, path).length).toBeGreaterThan(0);
+  }
+}
 
 describe("docs collection definitions config", () => {
   test("represents every current AI collection exactly once", () => {
@@ -60,5 +104,64 @@ describe("docs collection definitions config", () => {
       frontmatterKind: "training-regime",
       registryKind: "training-regime",
     });
+  });
+
+  test("preserves current browse starter slugs as route-relative docs slugs", () => {
+    expect(getDocsCollectionDefinition("models").starterSlugs).toEqual([
+      "models/gpt-3",
+    ]);
+    expect(getDocsCollectionDefinition("modules").starterSlugs).toEqual([
+      "modules/grouped-query-attention",
+      "modules/attention",
+      "modules/swiglu",
+      "modules/relu",
+      "modules/multi-head-attention",
+      "modules/feed-forward-network",
+    ]);
+    expect(getDocsCollectionDefinition("concepts").starterSlugs).toEqual([
+      "concepts/transformer-architecture",
+      "concepts/positional-encodings",
+      "concepts/context-extension",
+      "concepts/quantization",
+      "concepts/why-long-context-is-hard",
+      "concepts/kv-cache-quantization",
+    ]);
+    expect(getDocsCollectionDefinition("papers").starterSlugs).toEqual([
+      "papers/deepseek-v4",
+    ]);
+    expect(getDocsCollectionDefinition("training").starterSlugs).toEqual([
+      "training/on-policy-distillation",
+      "training/specialist-training",
+      "training/fp4-quantization-aware-training",
+    ]);
+    expect(getDocsCollectionDefinition("systems").starterSlugs).toEqual([
+      "systems/deployment",
+      "systems/routing",
+      "systems/on-disk-kv-cache",
+      "systems/expert-parallel-overlap",
+    ]);
+    expect(getDocsCollectionDefinition("glossary").starterSlugs).toEqual([
+      "glossary/token",
+      "glossary/embedding",
+      "glossary/logit",
+      "glossary/softmax",
+      "glossary/kv-cache",
+      "glossary/architecture",
+    ]);
+
+    for (const definition of DOCS_COLLECTION_DEFINITIONS) {
+      expect(definition.starterSlugs.length).toBeGreaterThan(0);
+      for (const slug of definition.starterSlugs) {
+        expect(slug.startsWith(`${definition.routeSlug}/`)).toBe(true);
+      }
+    }
+  });
+
+  test("includes message keys that resolve to current browse and index copy", async () => {
+    const messages = await loadUiMessages();
+
+    for (const definition of DOCS_COLLECTION_DEFINITIONS) {
+      expectResolvableMessageKeys(messages, definition.messageKeys);
+    }
   });
 });

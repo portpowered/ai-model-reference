@@ -36,7 +36,14 @@ export const DOCS_COLLECTION_DEFINITIONS = [
     routeSlug: "glossary",
     registryKind: "concept",
     frontmatterKind: "glossary",
-    starterSlugs: [],
+    starterSlugs: [
+      "glossary/token",
+      "glossary/embedding",
+      "glossary/logit",
+      "glossary/softmax",
+      "glossary/kv-cache",
+      "glossary/architecture",
+    ],
     messageKeys: collectionMessageKeys("glossary", "glossary"),
   },
   {
@@ -44,7 +51,14 @@ export const DOCS_COLLECTION_DEFINITIONS = [
     routeSlug: "concepts",
     registryKind: "concept",
     frontmatterKind: "concept",
-    starterSlugs: [],
+    starterSlugs: [
+      "concepts/transformer-architecture",
+      "concepts/positional-encodings",
+      "concepts/context-extension",
+      "concepts/quantization",
+      "concepts/why-long-context-is-hard",
+      "concepts/kv-cache-quantization",
+    ],
     messageKeys: collectionMessageKeys("concepts", "concepts"),
   },
   {
@@ -52,7 +66,14 @@ export const DOCS_COLLECTION_DEFINITIONS = [
     routeSlug: "modules",
     registryKind: "module",
     frontmatterKind: "module",
-    starterSlugs: [],
+    starterSlugs: [
+      "modules/grouped-query-attention",
+      "modules/attention",
+      "modules/swiglu",
+      "modules/relu",
+      "modules/multi-head-attention",
+      "modules/feed-forward-network",
+    ],
     messageKeys: collectionMessageKeys("modules", "modules"),
   },
   {
@@ -60,7 +81,7 @@ export const DOCS_COLLECTION_DEFINITIONS = [
     routeSlug: "models",
     registryKind: "model",
     frontmatterKind: "model",
-    starterSlugs: [],
+    starterSlugs: ["models/gpt-3"],
     messageKeys: collectionMessageKeys("models", "models"),
   },
   {
@@ -68,7 +89,7 @@ export const DOCS_COLLECTION_DEFINITIONS = [
     routeSlug: "papers",
     registryKind: "paper",
     frontmatterKind: "paper",
-    starterSlugs: [],
+    starterSlugs: ["papers/deepseek-v4"],
     messageKeys: collectionMessageKeys("papers", "papers"),
   },
   {
@@ -76,7 +97,11 @@ export const DOCS_COLLECTION_DEFINITIONS = [
     routeSlug: "training",
     registryKind: "training-regime",
     frontmatterKind: "training-regime",
-    starterSlugs: [],
+    starterSlugs: [
+      "training/on-policy-distillation",
+      "training/specialist-training",
+      "training/fp4-quantization-aware-training",
+    ],
     messageKeys: collectionMessageKeys("training", "training"),
   },
   {
@@ -84,7 +109,12 @@ export const DOCS_COLLECTION_DEFINITIONS = [
     routeSlug: "systems",
     registryKind: "system",
     frontmatterKind: "system",
-    starterSlugs: [],
+    starterSlugs: [
+      "systems/deployment",
+      "systems/routing",
+      "systems/on-disk-kv-cache",
+      "systems/expert-parallel-overlap",
+    ],
     messageKeys: collectionMessageKeys("systems", "systems"),
   },
 ] as const satisfies readonly DocsCollectionDefinition[];
