@@ -94,6 +94,8 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Request scheduling adds a focused scheduler-decision teaching graph in practical-impact alongside the latency and throughput equation.",
   "training/pretraining/page.mdx":
     "Canonical pretraining needs a message-backed custom reader-journey link list in the comparison section to avoid nested auto-linked anchors while preserving localized navigation labels.",
+  "training/post-training/page.mdx":
+    "Canonical post-training needs a message-backed reader-journey link list in the comparison section so discovery paths stay localized without nested auto-linked anchors.",
 };
 
 const templateStructureCache = new Map<

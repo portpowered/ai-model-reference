@@ -1,0 +1,72 @@
+{
+  "title": "Post-Training",
+  "description": "The training stages after base pretraining that reshape how a language model behaves in use, including instruction following, preference alignment, and safety shaping before deployment.",
+  "openingSummary": "Post-training is everything that happens after a base model finishes large-scale pretraining: teams add demonstrations, preferences, safety rules, and task-specific data so the model becomes a helpful assistant instead of only a next-token predictor.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Post-training is the family of training stages that come after base pretraining. A pretrained model already knows broad language patterns, but it is not yet tuned for how a product wants it to act. Post-training updates the weights using narrower datasets and sharper objectives so the model follows instructions, respects preferences, refuses unsafe requests more reliably, and matches the tone or skills a deployment needs."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Pretraining optimizes for predicting text, not for being a polite, policy-following assistant. Without post-training, a capable base model may still ignore instructions, answer in the wrong format, repeat training-data habits, or behave unpredictably on sensitive topics. Post-training exists because product teams need a deliberate stage where behavior is shaped before users see the model, instead of hoping raw pretraining output is already safe and useful."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Teams usually start from a pretrained checkpoint and run one or more narrower training passes. Supervised fine-tuning, often shortened to SFT, shows the model curated prompt-and-answer demonstrations so it learns instruction-following patterns. Reinforcement learning from human feedback, or RLHF, ranks model outputs and nudges the policy toward answers people prefer. Direct Preference Optimization, or DPO, learns from preferred-versus-rejected answer pairs without a separate reward-model loop. Other post-training passes may add safety critics, tool-use traces, reasoning traces, or domain-specific corpora. Each pass changes weights; the order and mixture depend on the product goal."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Pretraining builds the shared base model; post-training reshapes behavior on top of that base. Post-training is broader than any single method inside it: DPO, RLHF, and supervised fine-tuning are tools within post-training, not synonyms for the whole stage. Inference-time guardrails such as safety classifiers, allow-lists, or system prompts can steer output at runtime, but they do not replace post-training because they do not change the underlying weights. Strong guardrails help, yet a model that never received behavior shaping may still be harder to steer consistently."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "Post-training can only teach what its datasets and objectives encode. Narrow demonstration data can make the model brittle outside those patterns. Preference data can be inconsistent, shallow, or biased, and the model will copy those limits. Stacking many post-training passes without careful evaluation can also wash out useful base-model capability or make the model overly cautious. Post-training improves behavior, but it does not remove pretraining data limits, factual errors, or the need for runtime monitoring."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "pretraining": "Pretraining",
+    "dpo": "Direct Preference Optimization",
+    "alignment": "Alignment",
+    "instructionTuning": "Instruction tuning",
+    "rlhfSearch": "RLHF search",
+    "gpt3ModelPage": "GPT-3 model page",
+    "llama3ModelPage": "Llama 3 model page",
+    "deepseekV4ProModelPage": "DeepSeek-V4-Pro model page",
+    "specialistTraining": "Specialist training"
+  },
+  "assets": {
+    "trainingFlow": {
+      "title": "Post-training flow",
+      "alt": "A three-step post-training flow: pretrained base model, post-training data and objectives, then a behavior-shaped model.",
+      "caption": "Post-training reshapes a pretrained base model by applying narrower data and sharper objectives.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "baseModel": {
+        "label": "Pretrained\nbase model"
+      },
+      "objectives": {
+        "label": "Post-training\ndata and objectives"
+      },
+      "shapedModel": {
+        "label": "Behavior-shaped\nmodel"
+      }
+    }
+  }
+}
