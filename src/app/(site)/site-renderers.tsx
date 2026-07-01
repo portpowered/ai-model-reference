@@ -58,13 +58,15 @@ import {
   type TopologyClassificationEntry,
 } from "@/lib/content/topology-tree-entries";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { buildBrowseCollectionSections } from "@/lib/docs/browse-collection-sections";
+import type { ShellCollectionDefinition } from "@/lib/docs/collection-definition-contract";
 import { toDocsIndexEntries } from "@/lib/docs/docs-index-entries";
 import {
   type DocsCollectionInput,
-  resolveDocsCollectionIndexMessages,
   resolveDocsCollectionInput,
   resolveSectionKindCollectionId,
+  resolveShellCollectionIndexMessages,
   type SectionIndexFrontmatterKind,
 } from "@/lib/docs/section-collection-index";
 import {
@@ -211,17 +213,35 @@ export async function renderBrowseIndexPage(
   return defaultPage;
 }
 
-export async function renderSectionCollectionIndexPage(
-  collection: DocsCollectionInput,
-  locale: SiteLocale = defaultLocale,
-) {
-  const definition = resolveDocsCollectionInput(collection);
-  const messages = await loadUiMessages(locale);
-  const sectionMessages = resolveDocsCollectionIndexMessages(
+export type ShellSectionCollectionIndexDefinition = Pick<
+  ShellCollectionDefinition,
+  "frontmatterKind" | "messageKeys"
+>;
+
+export type ShellSectionCollectionIndexPageInput = {
+  definition: ShellSectionCollectionIndexDefinition;
+  pages: readonly {
+    docsSlug: string;
+    url: string;
+    messages: { title: string; description: string };
+    frontmatter: { kind: string };
+  }[];
+  messages: Record<string, unknown>;
+  locale?: SiteLocale;
+  emptyStateMessages: UiMessages;
+};
+
+export function renderShellSectionCollectionIndexPage({
+  definition,
+  pages,
+  messages,
+  locale = defaultLocale,
+  emptyStateMessages,
+}: ShellSectionCollectionIndexPageInput) {
+  const sectionMessages = resolveShellCollectionIndexMessages(
     messages,
     definition,
   );
-  const pages = await loadShippedLocalizedDocsPages(locale);
   const entries = toDocsIndexEntries(
     pages.filter(
       (page) => page.frontmatter.kind === definition.frontmatterKind,
@@ -241,7 +261,7 @@ export async function renderSectionCollectionIndexPage(
             title={sectionMessages.emptyTitle}
             description={sectionMessages.emptyDescription}
             homeLinkLabel={sectionMessages.emptyHomeLink}
-            messages={messages}
+            messages={emptyStateMessages}
             locale={locale}
           />
         ) : (
@@ -253,6 +273,23 @@ export async function renderSectionCollectionIndexPage(
       </DocsBody>
     </DocsPage>
   );
+}
+
+export async function renderSectionCollectionIndexPage(
+  collection: DocsCollectionInput,
+  locale: SiteLocale = defaultLocale,
+) {
+  const definition = resolveDocsCollectionInput(collection);
+  const messages = await loadUiMessages(locale);
+  const pages = await loadShippedLocalizedDocsPages(locale);
+
+  return renderShellSectionCollectionIndexPage({
+    definition,
+    pages,
+    messages,
+    locale,
+    emptyStateMessages: messages,
+  });
 }
 
 export async function renderSectionKindIndexPage(
