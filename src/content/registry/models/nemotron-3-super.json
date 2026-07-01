@@ -11,7 +11,18 @@
     "nvidia/nemotron-3-super-120b-a12b"
   ],
   "tags": ["foundations", "model-family", "context-window", "quantization"],
-  "relatedIds": [],
+  "relatedIds": [
+    "paper.nemotron-3-super",
+    "organization.nvidia",
+    "module.mixture-of-experts",
+    "concept.context-window",
+    "concept.context-extension",
+    "concept.transformer-architecture",
+    "concept.quantization",
+    "system.routing",
+    "system.inference-engine",
+    "system.deployment"
+  ],
   "citationIds": [
     "citation.nemotron-3-super-technical-report",
     "citation.nemotron-3-super-research-page",
@@ -20,7 +31,7 @@
   ],
   "status": "published",
   "createdAt": "2026-07-01T00:00:00.000Z",
-  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T18:00:00.000Z",
   "releaseDate": "2026-03-11",
   "authors": ["NVIDIA"],
   "sourceId": "citation.nemotron-3-super-technical-report",

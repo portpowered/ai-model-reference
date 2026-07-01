@@ -10,7 +10,7 @@
     "NVIDIA Nemotron 3 Super"
   ],
   "tags": ["foundations", "model-family", "context-window", "quantization"],
-  "relatedIds": [],
+  "relatedIds": ["model.nemotron-3-super"],
   "citationIds": [
     "citation.nemotron-3-super-technical-report",
     "citation.nemotron-3-super-research-page",
@@ -19,7 +19,7 @@
   ],
   "status": "published",
   "createdAt": "2026-07-01T00:00:00.000Z",
-  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T18:00:00.000Z",
   "authors": ["NVIDIA"],
   "publishedAt": "2026-03-11",
   "url": "https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Super-Technical-Report.pdf",

@@ -33,6 +33,7 @@ describe("inference engine system registry", () => {
       "system.expert-parallel-overlap",
       "model.gpt-3",
       "model.deepseek-v4-pro",
+      "model.nemotron-3-super",
     ]);
     expect(record?.relatedConceptIds).toEqual([
       "concept.kv-cache",
@@ -44,6 +45,7 @@ describe("inference engine system registry", () => {
     expect(record?.relatedModelIds).toEqual([
       "model.gpt-3",
       "model.deepseek-v4-pro",
+      "model.nemotron-3-super",
     ]);
   });
 
