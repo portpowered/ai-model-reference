@@ -1,0 +1,71 @@
+---
+title: Tokens Per Second
+description: The serving metric that measures how quickly a model generates output tokens once streaming has begun.
+kind: "glossary"
+registryId: "concept.tokens-per-second"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - kv-cache
+aliases:
+  - "Tokens Per Second"
+  - "tokens per second"
+  - "tok/s"
+  - "output tokens per second"
+  - "generation rate"
+  - "throughput"
+  - "streaming speed"
+updatedAt: "2026-07-01"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="serving-path" titleKey="sections.servingPath.title">
+  <T k="sections.servingPath.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/concepts/prefill", labelKey: "links.prefill" },
+      { href: "/docs/glossary/decode", labelKey: "links.decode" },
+      { href: "/docs/concepts/kv-cache", labelKey: "links.kvCache" },
+      {
+        href: "/docs/glossary/prefill-decode-split",
+        labelKey: "links.prefillDecodeSplit",
+      },
+    ]}
+  />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="concept.tokens-per-second" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.tokens-per-second" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.tokens-per-second" />
+</Section>
