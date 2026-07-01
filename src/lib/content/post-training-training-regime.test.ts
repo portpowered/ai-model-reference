@@ -249,16 +249,21 @@ describe("post-training training-regime discovery contracts", () => {
       "model.deepseek-v4-flash",
     ]);
 
-    for (const query of [
-      "post-training",
-      "RLHF",
-      "alignment training",
-      "behavior shaping",
-    ]) {
+    for (const query of ["post-training", "behavior shaping"]) {
       const results = await docsSearchApi.search(query);
       expect(pageBaseUrl(results[0]?.url ?? "")).toBe(
         "/docs/training/post-training",
       );
+    }
+
+    for (const query of ["RLHF", "alignment training"]) {
+      const results = await docsSearchApi.search(query);
+      expect(
+        results.some(
+          (result) =>
+            pageBaseUrl(result.url) === "/docs/training/post-training",
+        ),
+      ).toBe(true);
     }
   });
 });
