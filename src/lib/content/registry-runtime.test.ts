@@ -1054,6 +1054,8 @@ describe("registry-runtime", () => {
       "system.expert-parallel-overlap",
       "system.on-disk-kv-cache",
       "paper.deepseek-v4",
+      "paper.nemotron-3-super",
+      "model.nemotron-3-super",
     ]);
     expect(record?.relatedModuleIds).toEqual([
       "module.mixture-of-experts",

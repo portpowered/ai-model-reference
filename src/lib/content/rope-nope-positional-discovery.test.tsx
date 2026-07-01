@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
