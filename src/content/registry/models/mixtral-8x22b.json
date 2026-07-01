@@ -1,0 +1,23 @@
+{
+  "id": "model.mixtral-8x22b",
+  "slug": "mixtral-8x22b",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Mixtral 8x22B", "open-mixtral-8x22b"],
+  "tags": ["foundations", "model-family", "feed-forward", "context-window"],
+  "relatedIds": ["model.mixtral-8x7b"],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "family": "mistral",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [],
+  "moduleIds": [],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "organizationId": "organization.mistral-ai"
+}
