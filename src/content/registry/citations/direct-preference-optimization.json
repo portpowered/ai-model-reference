@@ -1,0 +1,27 @@
+{
+  "id": "citation.direct-preference-optimization",
+  "slug": "direct-preference-optimization",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["DPO paper", "Direct Preference Optimization paper"],
+  "tags": ["alignment", "foundations"],
+  "relatedIds": ["concept.alignment"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Rafael Rafailov",
+    "Archit Sharma",
+    "Eric Mitchell",
+    "Stefano Ermon",
+    "Christopher D. Manning",
+    "Chelsea Finn"
+  ],
+  "title": "Direct Preference Optimization: Your Language Model is Secretly a Reward Model",
+  "year": 2023,
+  "url": "https://arxiv.org/abs/2305.18290",
+  "mla": "Rafailov, Rafael, et al. \"Direct Preference Optimization: Your Language Model is Secretly a Reward Model.\" arXiv, 2023, https://arxiv.org/abs/2305.18290."
+}

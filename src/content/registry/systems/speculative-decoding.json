@@ -1,0 +1,44 @@
+{
+  "id": "system.speculative-decoding",
+  "slug": "speculative-decoding",
+  "kind": "system",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "speculative decoding",
+    "draft and verify decoding",
+    "draft-and-verify decoding",
+    "draft model serving",
+    "assisted decoding"
+  ],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [
+    "concept.decode",
+    "concept.prefill-decode-split",
+    "concept.kv-cache",
+    "system.batching",
+    "system.routing",
+    "system.inference-engine",
+    "system.on-disk-kv-cache",
+    "system.deployment"
+  ],
+  "citationIds": ["citation.speculative-decoding-paper"],
+  "status": "published",
+  "createdAt": "2026-06-22T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
+  "releaseDate": "2023-05-18",
+  "authors": ["Yaniv Leviathan", "Matan Kalman", "Yossi Matias"],
+  "sourceId": "citation.speculative-decoding-paper",
+  "systemType": "serving",
+  "relatedModelIds": [],
+  "relatedModuleIds": [],
+  "relatedConceptIds": [
+    "concept.decode",
+    "concept.prefill-decode-split",
+    "concept.kv-cache"
+  ],
+  "paperIds": [],
+  "datasetIds": [],
+  "conceptType": "inference",
+  "variantGroup": "serving-runtime-foundations"
+}

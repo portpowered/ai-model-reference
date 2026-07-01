@@ -1,7 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import {
+  getNextProductionBuildBunTestTimeoutMs,
+  runNextProductionBuild,
+} from "@/lib/build/run-next-production-build";
 import {
   buildOutputHasTurbopackWholeProjectTracingWarning,
   firstMatchingTurbopackTracingWarningPattern,
@@ -36,6 +40,7 @@ const BUILT_APP_CONVERGENCE_SCRIPT = join(
 );
 const BUILT_APP_CONVERGENCE_E2E_TIMEOUT_MS =
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 600_000;
+const NEXT_BUILD_CONTRACT_TIMEOUT_MS = getNextProductionBuildBunTestTimeoutMs();
 
 function runBuiltAppConvergenceScript(
   options: { cwd?: string; env?: Record<string, string | undefined> } = {},
@@ -86,11 +91,9 @@ describe("next build turbopack NFT tracing warning", () => {
       }
 
       try {
-        const result = spawnSync("bun", ["run", "build"], {
+        const result = runNextProductionBuild({
           cwd: repoRoot,
-          encoding: "utf8",
           env: {
-            ...process.env,
             GITHUB_PAGES_BASE_PATH: undefined,
             NEXT_STATIC_EXPORT: undefined,
           },
@@ -116,7 +119,7 @@ describe("next build turbopack NFT tracing warning", () => {
         }
       }
     },
-    { timeout: 180_000 },
+    { timeout: NEXT_BUILD_CONTRACT_TIMEOUT_MS },
   );
 });
 

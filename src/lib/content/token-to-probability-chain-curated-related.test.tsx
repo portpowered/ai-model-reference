@@ -16,7 +16,7 @@ import {
 } from "@/lib/content/related-docs";
 
 describe("Phase 2 token-to-probability chain curated related docs (US-002)", () => {
-  test("token registry curated related resolves special tokens plus the published probability-chain forward steps", () => {
+  test("token registry curated related keeps tokenizer overview, special tokens, and the published forward chain", () => {
     const source = getRegistryRecordById("concept.token");
     if (!source) {
       throw new Error("expected concept.token in registry runtime");
@@ -28,10 +28,11 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
       getPublishedDocsRegistryIds(),
     );
 
-    expect(items).toHaveLength(6);
+    expect(items).toHaveLength(7);
     expect(items.map((item) => item.registryId)).toEqual([
       "module.byte-level-tokenization",
       "concept.special-tokens",
+      "concept.tokenizers-overview",
       "concept.embedding",
       "concept.vocabulary-size",
       "concept.logit",
@@ -53,8 +54,16 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(items[1]?.reasonLabel).toBe(
       DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED],
     );
-    expect(items[2]?.registryId).toBe("concept.embedding");
-    expect(items[2]?.href).toBe("/docs/concepts/embedding");
+    expect(items[2]?.registryId).toBe("concept.tokenizers-overview");
+    expect(items[2]?.slug).toBe("tokenizers-overview");
+    expect(items[2]?.title).toBe("Tokenizer overview");
+    expect(items[2]?.isPlanned).toBe(false);
+    expect(items[2]?.href).toBe("/docs/concepts/tokenizers-overview");
+    expect(items[2]?.reasonLabel).toBe(
+      DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED],
+    );
+    expect(items[3]?.registryId).toBe("concept.embedding");
+    expect(items[3]?.href).toBe("/docs/concepts/embedding");
   });
 
   test("DerivedRelatedDocs renders curated-related group with reason labels for token", () => {
@@ -76,6 +85,9 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain('href="/docs/glossary/special-tokens"');
+    expect(html).toContain("Tokenizer overview");
+    expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
+    expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
     expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
@@ -97,8 +109,9 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain("special token");
     expect(html).toContain('href="/docs/glossary/special-tokens"');
-    expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain("embeddings");
+    expect(html).toContain("Tokenizer overview");
+    expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
     expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');

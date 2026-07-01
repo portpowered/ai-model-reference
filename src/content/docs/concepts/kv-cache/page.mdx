@@ -1,0 +1,80 @@
+---
+title: Key-value cache
+description: Saved key and value tensors from earlier tokens that let later generation steps reuse attention state instead of recomputing the full prefix.
+kind: "concept"
+registryId: "concept.kv-cache"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - attention
+  - kv-cache
+aliases:
+  - "KV cache"
+  - "key-value cache"
+  - "key value cache"
+  - "kv-cache"
+  - "attention cache"
+  - "cache for decoding"
+updatedAt: "2026-06-22"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="what-changes-during-generation" titleKey="sections.whatChangesDuringGeneration.title">
+  <T k="sections.whatChangesDuringGeneration.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/glossary/prefill", labelKey: "links.prefill" },
+      { href: "/docs/glossary/decode", labelKey: "links.decode" },
+      {
+        href: "/docs/glossary/prefill-decode-split",
+        labelKey: "links.prefillDecodeSplit",
+      },
+      {
+        href: "/docs/glossary/autoregressive-generation",
+        labelKey: "links.autoregressiveGeneration",
+      },
+    ]}
+  />
+</Section>
+
+<Section id="memory-tradeoffs" titleKey="sections.memoryTradeoffs.title">
+  <T k="sections.memoryTradeoffs.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.kv-cache"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.kv-cache" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.kv-cache" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.kv-cache" />
+</Section>

@@ -2,7 +2,6 @@ import { DocsDescription, DocsTitle } from "fumadocs-ui/layouts/docs/page";
 import type { ReactNode } from "react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { FoldedSummary } from "@/features/docs/components/FoldedSummary";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import type { LoadedModulePage } from "@/lib/content/module-page-load";
 
@@ -24,7 +23,6 @@ export function renderModuleDocsShell(
         children: createElement(
           "div",
           null,
-          createElement(FoldedSummary),
           createElement(
             "article",
             { "data-registry-id": loadedPage.frontmatter.registryId },

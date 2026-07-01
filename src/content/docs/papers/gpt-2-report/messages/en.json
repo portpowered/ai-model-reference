@@ -1,0 +1,54 @@
+{
+  "title": "GPT-2 Report",
+  "description": "A technical report that introduced GPT-2 as a large decoder-only language model trained with broad next-token pretraining and byte-level BPE tokenization.",
+  "openingSummary": "Language Models are Unsupervised Multitask Learners, usually called the GPT-2 report, became a reference point because it showed that one large decoder-only transformer trained on broad internet text could display useful zero-shot behavior without task-specific fine-tuning for every example.",
+  "sections": {
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "The GPT-2 report mattered because it made scale feel concrete to a wide audience. Earlier transformers already existed, but this report showed how a bigger decoder-only model, broad next-token pretraining, and a robust tokenizer could turn one language-model objective into a surprisingly general system. That combination helped set the template later GPT-style language models kept following."
+    },
+    "methodOrArchitecture": {
+      "title": "Method Or Architecture",
+      "body": "At a high level, the report keeps the familiar transformer architecture in a decoder-only form: each token predicts the next one while attending only to earlier positions. The tokenizer uses byte-level byte pair encoding (BPE), so arbitrary UTF-8 text can still be represented instead of failing on unusual characters. Training stays broad rather than task-specific: the model reads a large internet text mixture and learns by next-token prediction, then the paper studies what kinds of behavior appear when that same objective is scaled up."
+    },
+    "evidence": {
+      "title": "Evidence",
+      "body": "The paper's key evidence is not a leaderboard tour. It is the pattern that one large pretrained model can transfer across summarization, translation-style prompting, question answering, and other language tasks without a separate supervised training run for each one. That helped turn zero-shot and prompt-based evaluation into a more serious reader journey for later language-model work."
+    },
+    "limitations": {
+      "title": "Limitations",
+      "body": "The report does not prove that scale alone solves language understanding, and several behaviors are shown through selective tasks rather than one unified benchmark story. It also predates many later refinements around instruction tuning, alignment, data curation, and compute-optimal scaling, so readers should treat it as a foundational decoder-only reference point, not as the final recipe modern systems use unchanged."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "contributionGraph": {
+      "alt": "A contribution graph that breaks the GPT-2 report into decoder-only transformer architecture, byte-level BPE tokenization, and broad next-token pretraining.",
+      "caption": "The GPT-2 report is easiest to understand as three linked choices: a decoder-only transformer, byte-level BPE tokenization, and broad next-token pretraining at larger scale."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "paper": {
+        "label": "GPT-2 report"
+      },
+      "architecture": {
+        "label": "Decoder-only transformer"
+      },
+      "tokenization": {
+        "label": "Byte-level BPE tokenization"
+      },
+      "pretraining": {
+        "label": "Broad next-token pretraining"
+      }
+    }
+  }
+}

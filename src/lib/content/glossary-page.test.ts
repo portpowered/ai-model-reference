@@ -8,12 +8,12 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
-import { TOKEN_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import { expectGlossaryPresentationConvergence } from "@/lib/content/glossary-test-helpers";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const pageDir = TOKEN_GLOSSARY_PAGE_DIR;
+const pageDir = getDocsPageDir("glossary", "token");
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
 
@@ -59,7 +59,7 @@ describe("loadGlossaryPage token", () => {
     expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('data-testid="curated-related-docs"');
-    expect(html).not.toContain('data-testid="citation-list"');
+    expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("What It Is");
     expect(html).toContain("128k context");
     expect(html).toContain('data-page-asset="conceptMap"');

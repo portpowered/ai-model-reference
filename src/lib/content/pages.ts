@@ -8,7 +8,8 @@ import {
   pageFrontmatterSchema,
   pageMessagesSchema,
 } from "@/lib/content/schemas";
-import { isShippedLocalizedDocsSlug } from "@/lib/content/shipped-localized-docs";
+import type { NonDefaultLocale } from "@/lib/content/shipped-localized-docs";
+import { deriveShippedLocalizedDocsManifest } from "@/lib/content/shipped-localized-docs.server";
 import { parseYamlFrontmatterBlock } from "@/lib/content/yaml-frontmatter";
 import {
   buildLocalizedRoute,
@@ -63,10 +64,6 @@ export function docsUrlFromSlug(docsSlug: string, locale: SiteLocale): string {
   return buildLocalizedRoute({ surface: "docs-page", slug: docsSlug }, locale);
 }
 
-function hasPageMessagesFile(pageDir: string, locale: SiteLocale): boolean {
-  return existsSync(path.join(pageDir, "messages", `${locale}.json`));
-}
-
 function loadPageMessagesSync(
   pageDirectory: string,
   locale: SiteLocale,
@@ -85,10 +82,9 @@ export function isDocsPageShippedForLocale(
     return true;
   }
 
-  return (
-    isShippedLocalizedDocsSlug(docsSlug, locale) &&
-    hasPageMessagesFile(path.join(rootDir, docsSlug), locale)
-  );
+  return deriveShippedLocalizedDocsManifest(rootDir)[
+    locale as NonDefaultLocale
+  ].includes(docsSlug);
 }
 
 export async function loadPublishedDocsPages(
@@ -145,6 +141,47 @@ export function loadPublishedDocsPagesSync(
   return pages;
 }
 
+export function loadShippedLocalizedDocsPagesSync(
+  locale: SiteLocale,
+  rootDir = DOCS_ROOT,
+): DocsPageSource[] {
+  if (locale === defaultLocale) {
+    return loadPublishedDocsPagesSync(locale, rootDir);
+  }
+
+  const pages: DocsPageSource[] = [];
+
+  for (const pageDir of findPageDirectories(rootDir)) {
+    const pageMdx = path.join(pageDir, "page.mdx");
+    const frontmatter = parseFrontmatter(pageMdx);
+    if (frontmatter.status !== "published") {
+      continue;
+    }
+
+    if (
+      !isDocsPageShippedForLocale(
+        path.relative(rootDir, pageDir),
+        locale,
+        rootDir,
+      )
+    ) {
+      continue;
+    }
+
+    const docsSlug = path.relative(rootDir, pageDir);
+    const url = docsUrlFromSlug(docsSlug, locale);
+    pages.push({
+      pageDir,
+      docsSlug,
+      url,
+      frontmatter,
+      messages: loadPageMessagesSync(pageDir, locale),
+    });
+  }
+
+  return pages;
+}
+
 /**
  * Loads the docs pages that are actually shippable for the requested locale.
  * Non-default locales only include pages declared in the shipped-docs manifest.
@@ -166,7 +203,13 @@ export async function loadShippedLocalizedDocsPages(
       continue;
     }
 
-    if (!isDocsPageShippedForLocale(path.relative(rootDir, pageDir), locale)) {
+    if (
+      !isDocsPageShippedForLocale(
+        path.relative(rootDir, pageDir),
+        locale,
+        rootDir,
+      )
+    ) {
       continue;
     }
 

@@ -317,6 +317,13 @@ export const CUSTOMER_ASK_CONVERGENCE_PASSING_STUB_HTML: Record<
   string
 > = {
   "/": CUSTOMER_ASK_PASSING_HOME_HTML,
+  "/docs/architecture": buildPhase1DocsRouteStubHtml(`
+    <h1>Architecture</h1>
+    <p>
+      Architectural overviews link foundational glossary pages such as
+      <a href="${TOKEN_GLOSSARY_URL}" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>Token</a>.
+    </p>
+  `),
   [TAG_LIST_CUSTOMER_ASK_ROUTES.tagsIndex]: `<html><header>${PRIMARY_NAV}</header>${POST_REPAIR_TAGS_INDEX_BODY}</html>`,
   [TAG_LIST_CUSTOMER_ASK_ROUTES.attentionLanding]: `<html><header>${PRIMARY_NAV}</header><h1>Attention</h1><a href="/docs/modules/grouped-query-attention">GQA</a><a href="${TOKEN_GLOSSARY_URL}">Token</a><a href="${ATTENTION_TAG_SCOPED_SEARCH_URL}">Search</a>${POST_REPAIR_ATTENTION_LANDING_BODY}</html>`,
   [TOKEN_GLOSSARY_URL]: CUSTOMER_ASK_PASSING_GLOSSARY_HTML,

@@ -1,4 +1,5 @@
 import { glossaryPageHref, modulePageHref } from "@/lib/content/content-hrefs";
+import { CRITICAL_DOCS_SMOKE_REPRESENTATIVE_API_SEARCH_PROBES } from "@/lib/content/critical-docs-smoke";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import {
   DEFAULT_FETCH_TIMEOUT_MS,
@@ -112,97 +113,58 @@ function parseSearchResultsJson(body: string): {
   return { results: parsed as SearchResultHit[], reason: null };
 }
 
-/** Phase 1 manual-gate /api/search queries and ranking expectations. */
-export const PHASE_1_SEARCH_ASSERTIONS: readonly Phase1SearchAssertion[] = [
-  {
-    query: "GQA",
-    label: "/api/search?query=GQA",
+function assertNonEmptyCanonicalSearchResults(
+  results: readonly SearchResultHit[],
+): string | null {
+  if (results.length === 0) {
+    return "expected at least one search hit";
+  }
+  return assertCanonicalPageLevelApiResults(results);
+}
+
+/** Representative Phase 1 /api/search probes projected from critical-doc smoke coverage. */
+export const PHASE_1_SEARCH_ASSERTIONS: readonly Phase1SearchAssertion[] =
+  CRITICAL_DOCS_SMOKE_REPRESENTATIVE_API_SEARCH_PROBES.map((probe) => ({
+    query: probe.searchQuery,
+    label: `/api/search?query=${encodeURIComponent(probe.searchQuery)}`,
     assertResults: (results) => {
-      if (results.length === 0) {
-        return "expected at least one search hit";
-      }
-      const canonicalReason = assertCanonicalPageLevelApiResults(results);
+      const canonicalReason = assertNonEmptyCanonicalSearchResults(results);
       if (canonicalReason) {
         return canonicalReason;
       }
-      if (results[0]?.url !== PHASE_1_GROUPED_QUERY_ATTENTION_URL) {
-        return `first hit URL must be ${PHASE_1_GROUPED_QUERY_ATTENTION_URL}, got ${results[0]?.url ?? "none"}`;
+
+      switch (probe.id) {
+        case "gqa-abbreviation":
+          if (results[0]?.url !== PHASE_1_GROUPED_QUERY_ATTENTION_URL) {
+            return `first hit URL must be ${PHASE_1_GROUPED_QUERY_ATTENTION_URL}, got ${results[0]?.url ?? "none"}`;
+          }
+          return null;
+        case "attention-family-overview":
+          if (!resultsIncludeAttentionModule(results)) {
+            return `expected hit for ${PHASE_1_ATTENTION_MODULE_URL}`;
+          }
+          if (!resultsIncludeGroupedQueryAttention(results)) {
+            return `expected hit for ${PHASE_1_GROUPED_QUERY_ATTENTION_URL}`;
+          }
+          return null;
+        case "vector-foundation":
+          if (!resultsIncludeVectorGlossary(results)) {
+            return `expected hit for ${PHASE_1_VECTOR_GLOSSARY_URL}`;
+          }
+          return null;
+        case "hidden-size-multiword":
+          if (!resultsIncludeHiddenSizeGlossary(results)) {
+            return `expected hit for ${PHASE_1_HIDDEN_SIZE_GLOSSARY_URL}`;
+          }
+          return null;
+        case "gqa-kv-cache-variant":
+          if (!resultsIncludeGroupedQueryAttention(results)) {
+            return `expected hit for ${PHASE_1_GROUPED_QUERY_ATTENTION_URL}`;
+          }
+          return null;
       }
-      return null;
     },
-  },
-  {
-    query: "attention",
-    label: "/api/search?query=attention",
-    assertResults: (results) => {
-      if (results.length === 0) {
-        return "expected at least one search hit";
-      }
-      const canonicalReason = assertCanonicalPageLevelApiResults(results);
-      if (canonicalReason) {
-        return canonicalReason;
-      }
-      if (!resultsIncludeAttentionModule(results)) {
-        return `expected hit for ${PHASE_1_ATTENTION_MODULE_URL}`;
-      }
-      if (!resultsIncludeGroupedQueryAttention(results)) {
-        return `expected hit for ${PHASE_1_GROUPED_QUERY_ATTENTION_URL}`;
-      }
-      return null;
-    },
-  },
-  {
-    query: "vector",
-    label: "/api/search?query=vector",
-    assertResults: (results) => {
-      if (results.length === 0) {
-        return "expected at least one search hit";
-      }
-      const canonicalReason = assertCanonicalPageLevelApiResults(results);
-      if (canonicalReason) {
-        return canonicalReason;
-      }
-      if (!resultsIncludeVectorGlossary(results)) {
-        return `expected hit for ${PHASE_1_VECTOR_GLOSSARY_URL}`;
-      }
-      return null;
-    },
-  },
-  {
-    query: "hidden size",
-    label: "/api/search?query=hidden%20size",
-    assertResults: (results) => {
-      if (results.length === 0) {
-        return "expected at least one search hit";
-      }
-      const canonicalReason = assertCanonicalPageLevelApiResults(results);
-      if (canonicalReason) {
-        return canonicalReason;
-      }
-      if (!resultsIncludeHiddenSizeGlossary(results)) {
-        return `expected hit for ${PHASE_1_HIDDEN_SIZE_GLOSSARY_URL}`;
-      }
-      return null;
-    },
-  },
-  {
-    query: "KV cache",
-    label: "/api/search?query=KV%20cache",
-    assertResults: (results) => {
-      if (results.length === 0) {
-        return "expected at least one search hit";
-      }
-      const canonicalReason = assertCanonicalPageLevelApiResults(results);
-      if (canonicalReason) {
-        return canonicalReason;
-      }
-      if (!resultsIncludeGroupedQueryAttention(results)) {
-        return `expected hit for ${PHASE_1_GROUPED_QUERY_ATTENTION_URL}`;
-      }
-      return null;
-    },
-  },
-] as const;
+  }));
 
 export type RunPhase1SearchChecksOptions = {
   timeoutMs?: number;

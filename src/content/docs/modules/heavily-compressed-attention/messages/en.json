@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Heavily compressed attention is the more aggressively compressed side of the DeepSeek-V4 hybrid attention story. Instead of preserving broad access to detailed tokens, it leans harder on a compact representation of old context."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "The module targets extreme long-context efficiency, especially KV-cache growth and memory bandwidth pressure."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Readers should care because not every long-context step deserves expensive detailed lookup. HCA gives the system a cheaper path for broad distant memory when the full-resolution route would cost too much."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -39,21 +35,32 @@
       "title": "Why It Still Matters",
       "body": "It is a useful reference because it shows that long-context design is not one knob. Systems can mix multiple memory paths with different cost and fidelity."
     },
-    "related": { "title": "Related" },
-    "tags": { "title": "Tags" },
-    "references": { "title": "References" }
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
   },
   "assets": {
     "computeFlow": {
-      "alt": "A flow from long token history into a heavily compressed memory path and then into a compact query stage.",
-      "caption": "HCA favors a very compact memory path for distant context."
+      "alt": "A flow from long token history into a heavily compressed memory path and then into a compact query stage."
     }
   },
   "graph": {
     "nodes": {
-      "tokens": { "label": "Long token history" },
-      "compress": { "label": "Heavily compressed memory" },
-      "query": { "label": "Compact long-range query" }
+      "tokens": {
+        "label": "Long token history"
+      },
+      "compress": {
+        "label": "Heavily compressed memory"
+      },
+      "query": {
+        "label": "Compact long-range query"
+      }
     }
   }
 }

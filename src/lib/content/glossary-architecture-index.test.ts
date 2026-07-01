@@ -31,7 +31,6 @@ const CURRENT_GLOSSARY_SLUGS = [
   "hidden-size",
   "kv-cache",
   "normalization",
-  "prefill",
   "prefill-decode-split",
   "perplexity",
   "residual-connection",
@@ -114,7 +113,6 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   parameter: "Parameter",
   patch: "Patch",
   perplexity: "Perplexity",
-  prefill: "Prefill",
   "prefill-decode-split": "Prefill/decode split",
   representation: "Representation",
   "residual-connection": "Residual connection",
@@ -134,8 +132,8 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   "world-model": "World Model",
 };
 
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 52;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -147,6 +145,8 @@ const GLOSSARY_SEPARATOR_TITLES = [
 const ARCHITECTURE_CONCEPT_URLS = [
   "/docs/concepts/alibi",
   "/docs/concepts/context-extension",
+  "/docs/concepts/embedding",
+  "/docs/concepts/kv-cache",
   "/docs/concepts/page-spec-workflow-sample",
   "/docs/concepts/positional-encodings",
   "/docs/concepts/transformer-architecture",
@@ -238,6 +238,8 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "/docs/glossary/residual-connection",
       "/docs/glossary/special-tokens",
       "/docs/glossary/token",
+      "/docs/concepts/prefill",
+      "/docs/concepts/alignment",
       ...ARCHITECTURE_CONCEPT_URLS,
     ] as const) {
       expect(entries.some((entry) => entry.url === url)).toBe(true);
@@ -260,7 +262,6 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Embedding", "/docs/glossary/embedding"],
       ["KV cache", "/docs/glossary/kv-cache"],
       ["Normalization", "/docs/glossary/normalization"],
-      ["Prefill", "/docs/glossary/prefill"],
       ["Sampling Overview", "/docs/glossary/sampling-overview"],
     ] as const) {
       expect(glossaryHtml).toContain(title);
@@ -271,9 +272,9 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Attention with linear biases (ALiBi)", "/docs/concepts/alibi"],
       ["Architecture", "/docs/glossary/architecture"],
       ["Foundation Model", "/docs/glossary/foundation-model"],
-      ["KV cache", "/docs/glossary/kv-cache"],
+      ["Key-value cache", "/docs/concepts/kv-cache"],
       ["Decode", "/docs/glossary/decode"],
-      ["Prefill", "/docs/glossary/prefill"],
+      ["Prefill", "/docs/concepts/prefill"],
       ["Positional encodings", "/docs/concepts/positional-encodings"],
       ["Token", "/docs/glossary/token"],
       ["Transformer architecture", "/docs/concepts/transformer-architecture"],

@@ -1,0 +1,10 @@
+{
+  "systemFlow": {
+    "type": "graph",
+    "graphId": "graph.memory-system-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.systemFlow.alt",
+    "captionKey": "assets.systemFlow.caption"
+  }
+}

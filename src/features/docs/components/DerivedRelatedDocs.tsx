@@ -26,7 +26,12 @@ export function DerivedRelatedDocs({
     listRelatedRegistryRecords(),
     groups,
     publishedRegistryIds,
-  );
+  )
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => item.href),
+    }))
+    .filter((group) => group.items.length > 0);
   if (derivedGroups.length === 0) {
     return null;
   }

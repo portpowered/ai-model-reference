@@ -3,44 +3,14 @@ import {
   type DocsPageSource,
   loadPublishedDocsPagesSync,
 } from "@/lib/content/pages";
-import {
-  getConceptById,
-  getModuleById,
-  getSystemById,
-  getTrainingRegimeById,
-} from "@/lib/content/registry-runtime";
-import {
-  getSidebarGroupIdsForSection,
-  getSidebarGroupLabel,
-  resolveConceptsSidebarGroup,
-  resolveGlossarySidebarGroup,
-  resolveModulesSidebarGroup,
-  resolveSystemsSidebarGroup,
-  resolveTrainingSidebarGroup,
-  type SidebarGroupIdBySection,
-  type SidebarGroupingSection,
-} from "@/lib/content/sidebar-grouping";
+import type {
+  DocsCollectionId,
+  DocsCollectionSidebarGroupingResolverId,
+} from "@/lib/docs/collection-definition-contract";
+import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
+import { buildGroupedSidebarNodes } from "@/lib/navigation/docs-sidebar-grouping-adapter";
 
-type SectionKey =
-  | "glossary"
-  | "concepts"
-  | "modules"
-  | "models"
-  | "papers"
-  | "training"
-  | "systems";
-
-const SECTION_ORDER: readonly SectionKey[] = [
-  "glossary",
-  "concepts",
-  "modules",
-  "models",
-  "papers",
-  "training",
-  "systems",
-];
-
-const SECTION_TITLES: Record<SectionKey, string> = {
+const SIDEBAR_FOLDER_TITLES: Record<DocsCollectionId, string> = {
   glossary: "Glossary",
   concepts: "Concepts",
   modules: "Modules",
@@ -58,13 +28,6 @@ function createPageNode(page: DocsPageSource): Node {
   };
 }
 
-function createSeparator(name: string): Node {
-  return {
-    type: "separator",
-    name,
-  };
-}
-
 function sortPages(pages: DocsPageSource[]): DocsPageSource[] {
   return [...pages].sort((left, right) =>
     left.messages.title.localeCompare(right.messages.title, "en", {
@@ -73,163 +36,62 @@ function sortPages(pages: DocsPageSource[]): DocsPageSource[] {
   );
 }
 
-function groupPages(
-  pages: DocsPageSource[],
-  groups: ReadonlyArray<{
-    name: string;
-    matchesPage: (page: DocsPageSource) => boolean;
-  }>,
-): Node[] {
-  const remaining = new Set(pages.map((page) => page.docsSlug));
-  const nodes: Node[] = [];
-
-  for (const group of groups) {
-    const groupedPages = sortPages(
-      pages.filter(
-        (page) => remaining.has(page.docsSlug) && group.matchesPage(page),
-      ),
-    );
-    if (groupedPages.length === 0) {
-      continue;
-    }
-
-    nodes.push(createSeparator(group.name));
-    for (const page of groupedPages) {
-      remaining.delete(page.docsSlug);
-      nodes.push(createPageNode(page));
-    }
-  }
-
-  for (const page of sortPages(
-    pages.filter((page) => remaining.has(page.docsSlug)),
-  )) {
-    nodes.push(createPageNode(page));
-  }
-
-  return nodes;
-}
-
-function groupPagesBySection<Section extends SidebarGroupingSection>(
-  section: Section,
-  pages: DocsPageSource[],
-  resolveGroupId: (
-    page: DocsPageSource,
-  ) => SidebarGroupIdBySection[Section] | undefined,
-): Node[] {
-  return groupPages(
-    pages,
-    getSidebarGroupIdsForSection(section).map((groupId) => ({
-      name: getSidebarGroupLabel(section, groupId),
-      matchesPage: (page) => resolveGroupId(page) === groupId,
-    })),
-  );
-}
-
-function generateGlossaryNodes(pages: DocsPageSource[]): Node[] {
-  return groupPagesBySection("glossary", pages, (page) => {
-    const record = getConceptById(page.frontmatter.registryId);
-    return record ? resolveGlossarySidebarGroup(record) : undefined;
-  });
-}
-
-function generateConceptNodes(pages: DocsPageSource[]): Node[] {
-  return groupPagesBySection("concepts", pages, (page) => {
-    const record = getConceptById(page.frontmatter.registryId);
-    return record ? resolveConceptsSidebarGroup(record) : undefined;
-  });
-}
-
-function generateModuleNodes(pages: DocsPageSource[]): Node[] {
-  return groupPagesBySection("modules", pages, (page) => {
-    const record = getModuleById(page.frontmatter.registryId);
-    return record ? resolveModulesSidebarGroup(record) : undefined;
-  });
-}
-
-function generateTrainingNodes(pages: DocsPageSource[]): Node[] {
-  return groupPagesBySection("training", pages, (page) => {
-    const record = getTrainingRegimeById(page.frontmatter.registryId);
-    return record ? resolveTrainingSidebarGroup(record) : undefined;
-  });
-}
-
-function generateSystemNodes(pages: DocsPageSource[]): Node[] {
-  return groupPagesBySection("systems", pages, (page) => {
-    const record = getSystemById(page.frontmatter.registryId);
-    return record ? resolveSystemsSidebarGroup(record) : undefined;
-  });
-}
-
-function generateModelNodes(pages: DocsPageSource[]): Node[] {
+function generateUngroupedNodes(pages: DocsPageSource[]): Node[] {
   return sortPages(pages).map(createPageNode);
 }
 
-function generatePaperNodes(pages: DocsPageSource[]): Node[] {
-  return sortPages(pages).map(createPageNode);
-}
-
-function generateSectionNodes(
-  section: SectionKey,
+function generateCollectionNodes(
+  sidebarGroupingResolverId:
+    | DocsCollectionSidebarGroupingResolverId
+    | undefined,
   pages: DocsPageSource[],
 ): Node[] {
-  switch (section) {
-    case "glossary":
-      return generateGlossaryNodes(pages);
-    case "concepts":
-      return generateConceptNodes(pages);
-    case "modules":
-      return generateModuleNodes(pages);
-    case "models":
-      return generateModelNodes(pages);
-    case "papers":
-      return generatePaperNodes(pages);
-    case "training":
-      return generateTrainingNodes(pages);
-    case "systems":
-      return generateSystemNodes(pages);
+  if (!sidebarGroupingResolverId) {
+    return generateUngroupedNodes(pages);
   }
+
+  return buildGroupedSidebarNodes(sidebarGroupingResolverId, pages);
+}
+
+function assignPageToCollection(
+  pagesByCollection: Map<DocsCollectionId, DocsPageSource[]>,
+  collectionIdByRouteSlug: ReadonlyMap<string, DocsCollectionId>,
+  page: DocsPageSource,
+): void {
+  const [routeSlug] = page.docsSlug.split("/", 1);
+  const collectionId = collectionIdByRouteSlug.get(routeSlug);
+  if (!collectionId) {
+    return;
+  }
+
+  pagesByCollection.get(collectionId)?.push(page);
 }
 
 export function buildGeneratedDocsPageTree(baseTree: Root): Root {
+  const collectionDefinitions = listDocsCollectionDefinitions();
+  const collectionIdByRouteSlug = new Map(
+    collectionDefinitions.map((definition) => [
+      definition.routeSlug,
+      definition.id,
+    ]),
+  );
   const pages = loadPublishedDocsPagesSync("en");
-  const pagesBySection = new Map<SectionKey, DocsPageSource[]>(
-    SECTION_ORDER.map((section) => [section, []]),
+  const pagesByCollection = new Map<DocsCollectionId, DocsPageSource[]>(
+    collectionDefinitions.map((definition) => [definition.id, []]),
   );
 
   for (const page of pages) {
-    const [section] = page.docsSlug.split("/", 1);
-    if (
-      section === "glossary" ||
-      section === "concepts" ||
-      section === "modules" ||
-      section === "models" ||
-      section === "papers" ||
-      section === "training" ||
-      section === "systems"
-    ) {
-      pagesBySection.get(section)?.push(page);
-    }
+    assignPageToCollection(pagesByCollection, collectionIdByRouteSlug, page);
   }
-
-  const gettingStarted = baseTree.children.find(
-    (node) =>
-      node.type === "page" &&
-      "url" in node &&
-      node.url === "/docs/getting-started",
-  );
 
   const children: Node[] = [];
-  if (gettingStarted) {
-    children.push(gettingStarted);
-  }
-
-  for (const section of SECTION_ORDER) {
+  for (const definition of collectionDefinitions) {
     children.push({
       type: "folder",
-      name: SECTION_TITLES[section],
-      children: generateSectionNodes(
-        section,
-        pagesBySection.get(section) ?? [],
+      name: SIDEBAR_FOLDER_TITLES[definition.id],
+      children: generateCollectionNodes(
+        definition.sidebarGroupingResolverId,
+        pagesByCollection.get(definition.id) ?? [],
       ),
     });
   }

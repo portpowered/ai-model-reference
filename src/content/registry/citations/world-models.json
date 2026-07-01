@@ -1,0 +1,20 @@
+{
+  "id": "citation.world-models",
+  "slug": "world-models",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["world models paper", "Ha Schmidhuber world models"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["David Ha", "Jürgen Schmidhuber"],
+  "title": "World Models",
+  "year": 2018,
+  "url": "https://arxiv.org/abs/1803.10122",
+  "mla": "Ha, David, and Jürgen Schmidhuber. \"World Models.\" arXiv, 2018, https://arxiv.org/abs/1803.10122."
+}

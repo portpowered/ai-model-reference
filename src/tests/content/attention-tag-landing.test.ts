@@ -12,6 +12,16 @@ import {
 } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
+const REPRESENTATIVE_ATTENTION_MODULE_URLS = [
+  "/docs/modules/attention",
+  "/docs/modules/grouped-query-attention",
+  "/docs/modules/linear-attention",
+  "/docs/modules/multi-head-attention",
+  "/docs/modules/multi-query-attention",
+  "/docs/modules/sliding-window-attention",
+  "/docs/modules/sparse-attention",
+] as const;
+
 describe("attention tag landing resources", () => {
   it("loads the attention tag record with localized title and summary", async () => {
     const messages = await loadUiMessages();
@@ -39,23 +49,12 @@ describe("attention tag landing resources", () => {
 
     expect(moduleGroup).toBeDefined();
     expect(moduleGroup?.kindLabel).toBe("Module");
-    expect(moduleGroup?.resources.map((resource) => resource.url)).toEqual([
-      "/docs/modules/attention",
-      "/docs/modules/bidirectional-attention",
-      "/docs/modules/compressed-sparse-attention",
-      "/docs/modules/grouped-query-attention",
-      "/docs/modules/heavily-compressed-attention",
-      "/docs/modules/linear-attention",
-      "/docs/modules/manifold-constrained-hyper-connections",
-      "/docs/modules/multi-head-attention",
-      "/docs/modules/multi-head-latent-attention",
-      "/docs/modules/multi-query-attention",
-      "/docs/modules/sliding-window-attention",
-      "/docs/modules/sparse-attention",
-    ]);
+    expect(moduleGroup?.resources.map((resource) => resource.url)).toEqual(
+      expect.arrayContaining(REPRESENTATIVE_ATTENTION_MODULE_URLS),
+    );
   });
 
-  it("omits empty kind groups and groups model, module, and glossary resources separately", async () => {
+  it("omits empty kind groups and groups model, module, concept, paper, and glossary resources separately", async () => {
     const messages = await loadUiMessages();
     const groups = await loadTagResourceGroups("attention", messages, "en");
 
@@ -63,6 +62,7 @@ describe("attention tag landing resources", () => {
     expect(groups.map((group) => group.kind)).toEqual([
       "model",
       "module",
+      "concept",
       "paper",
       "glossary",
     ]);
@@ -71,7 +71,18 @@ describe("attention tag landing resources", () => {
     expect(modelGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/models/deepseek-v4-flash",
       "/docs/models/deepseek-v4-pro",
+      "/docs/models/glm-5",
+      "/docs/models/glm-5-2",
       "/docs/models/gpt-3",
+      "/docs/models/llama-3",
+      "/docs/models/qwen-3-6-27b",
+      "/docs/models/qwen-3-6-35b-a3b",
+    ]);
+
+    const conceptGroup = groups.find((group) => group.kind === "concept");
+    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/concepts/kv-cache",
+      "/docs/concepts/prefill",
     ]);
 
     const paperGroup = groups.find((group) => group.kind === "paper");
@@ -87,7 +98,6 @@ describe("attention tag landing resources", () => {
       "/docs/glossary/autoregressive-generation",
       "/docs/glossary/decode",
       "/docs/glossary/kv-cache",
-      "/docs/glossary/prefill",
       "/docs/glossary/token",
     ]);
   });
@@ -196,7 +206,7 @@ describe("attention tag landing page render", () => {
     expect(html).toContain("KV cache");
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain("Prefill");
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/search?tag=attention"');

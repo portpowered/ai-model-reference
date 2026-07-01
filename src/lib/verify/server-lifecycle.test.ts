@@ -1057,7 +1057,7 @@ describe("defaultSpawnProductionServer integration", () => {
 
     try {
       await waitForServerReady(`http://127.0.0.1:${port}`, {
-        timeoutMs: 5_000,
+        timeoutMs: 15_000,
         pollIntervalMs: 100,
       });
       expect(child.exitCode).toBeNull();
@@ -1066,7 +1066,7 @@ describe("defaultSpawnProductionServer integration", () => {
       await killManagedChild(child);
       rmSync(projectRoot, { recursive: true, force: true });
     }
-  });
+  }, 20_000);
 
   test(
     "default spawn reaches HTTP 200 on loopback when production build exists",

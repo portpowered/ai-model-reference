@@ -1,0 +1,4 @@
+{
+  "title": "Alignment",
+  "summary": "Post-training methods that steer model behavior toward preferred responses, policies, or safety goals."
+}

@@ -59,6 +59,49 @@ describe("contributor documented workflow commands", () => {
     expect(output).toMatch(/prefer/i);
   });
 
+  test("committed expanded-kind sample specs dry-run through generate:page-bundle", () => {
+    const cases = [
+      {
+        specPath: "page-specs/module-page-spec-workflow-sample.json",
+        registryId: "module.module-page-spec-workflow-sample",
+        route: "/docs/modules/module-page-spec-workflow-sample",
+      },
+      {
+        specPath: "page-specs/model-page-spec-workflow-sample.json",
+        registryId: "model.model-page-spec-workflow-sample",
+        route: "/docs/models/model-page-spec-workflow-sample",
+      },
+      {
+        specPath: "page-specs/paper-page-spec-workflow-sample.json",
+        registryId: "paper.paper-page-spec-workflow-sample",
+        route: "/docs/papers/paper-page-spec-workflow-sample",
+      },
+      {
+        specPath: "page-specs/training-regime-page-spec-workflow-sample.json",
+        registryId: "training-regime.training-regime-page-spec-workflow-sample",
+        route: "/docs/training/training-regime-page-spec-workflow-sample",
+      },
+    ] as const;
+
+    for (const testCase of cases) {
+      const result = runBun([
+        "run",
+        "generate:page-bundle",
+        "--",
+        "--spec",
+        testCase.specPath,
+        "--dry-run",
+      ]);
+
+      expect(result.status).toBe(0);
+      const output = `${result.stdout}${result.stderr}`;
+      expect(output).toContain(`Registry id: ${testCase.registryId}`);
+      expect(output).toContain(testCase.route);
+      expect(output).toContain("Planned files:");
+      expect(output).toContain("Dry run complete");
+    }
+  });
+
   test("scaffold:doc-page dry-run prints planned paths without writing files", () => {
     const slug = `contrib-dry-run-${crypto.randomUUID()}`;
     const result = runBun([
@@ -153,7 +196,7 @@ describe("contributor documented workflow commands", () => {
       await rm(graphPath, { force: true });
       await rm(tempRoot, { recursive: true, force: true });
     }
-  });
+  }, 15_000);
 
   test("make validate-data passes on committed registry content", () => {
     const result = runMake("validate-data");

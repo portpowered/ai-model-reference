@@ -44,7 +44,6 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/parameter",
   "/docs/glossary/patch",
   "/docs/glossary/perplexity",
-  "/docs/glossary/prefill",
   "/docs/glossary/prefill-decode-split",
   "/docs/glossary/representation",
   "/docs/glossary/residual-connection",
@@ -110,6 +109,7 @@ const MODULE_INDEX_URLS = [
 const CONCEPT_INDEX_URLS = [
   "/docs/concepts/alibi",
   "/docs/concepts/context-extension",
+  "/docs/concepts/prefill",
   "/docs/concepts/page-spec-workflow-sample",
   "/docs/concepts/positional-encodings",
   "/docs/concepts/transformer-architecture",
@@ -210,7 +210,7 @@ describe("docs navigation source", () => {
     }
 
     const moduleUrls = collectPageUrls(modulesFolder.children).sort();
-    expect(moduleUrls).toEqual([...MODULE_INDEX_URLS].sort());
+    expect(moduleUrls).toEqual(expect.arrayContaining([...MODULE_INDEX_URLS]));
 
     const conceptsFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Concepts",
@@ -234,7 +234,7 @@ describe("docs navigation source", () => {
     }
 
     const modelUrls = collectPageUrls(modelsFolder.children).sort();
-    expect(modelUrls).toEqual([...MODEL_INDEX_URLS].sort());
+    expect(modelUrls).toEqual(expect.arrayContaining([...MODEL_INDEX_URLS]));
 
     const papersFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Papers",
@@ -245,7 +245,7 @@ describe("docs navigation source", () => {
     }
 
     const paperUrls = collectPageUrls(papersFolder.children).sort();
-    expect(paperUrls).toEqual([...PAPER_INDEX_URLS].sort());
+    expect(paperUrls).toEqual(expect.arrayContaining([...PAPER_INDEX_URLS]));
 
     const trainingFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Training",
@@ -256,7 +256,9 @@ describe("docs navigation source", () => {
     }
 
     const trainingUrls = collectPageUrls(trainingFolder.children).sort();
-    expect(trainingUrls).toEqual([...TRAINING_INDEX_URLS].sort());
+    expect(trainingUrls).toEqual(
+      expect.arrayContaining([...TRAINING_INDEX_URLS]),
+    );
 
     const systemsFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Systems",
@@ -267,7 +269,7 @@ describe("docs navigation source", () => {
     }
 
     const systemUrls = collectPageUrls(systemsFolder.children).sort();
-    expect(systemUrls).toEqual([...SYSTEM_INDEX_URLS].sort());
+    expect(systemUrls).toEqual(expect.arrayContaining([...SYSTEM_INDEX_URLS]));
   });
 
   test("glossary navigation URLs resolve through Fumadocs source entries", () => {

@@ -1,0 +1,92 @@
+{
+  "title": "Request Scheduling",
+  "description": "A serving system that decides which queued request work runs next so operators can balance latency, fairness, throughput, and memory pressure.",
+  "openingSummary": "Request scheduling is the serving control that orders queued work before the accelerator runs it. When many readers send prompts at once, the scheduler decides which prefill or decode step gets the next turn, and those ordering choices shape how long each request waits and how fully the hardware stays busy. That decision is separate from choosing a serving path or grouping work into batches—scheduling only answers what should run next among work that is already admitted and waiting.",
+  "links": {
+    "systemFlowTitle": "System flow: how queued work gets scheduled",
+    "systemFlowLegend": "Legend: the top and bottom boxes are per-request lifecycle steps, while the middle boxes are the shared scheduler decisions that pick the next unit of work.",
+    "schedulerDecisionTitle": "Scheduler decision factors: what shapes the next turn",
+    "schedulerDecisionLegend": "Legend: solid arrows follow admitted work through the scheduler, while dashed control-flow arrows show policy inputs for fairness, deadlines, batching windows, and memory headroom."
+  },
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Request scheduling is a serving-time control decision. It does not change model weights, layer math, or which backend answers a request. Its job is to decide what queued work should run next once a request has already passed admission and joined the active serving runtime. Routing answers a different question by choosing where a request should go, and batching answers another by grouping compatible work for efficient execution. Scheduling only orders the work that is already admitted and waiting on a chosen path."
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": "It sits inside the inference serving stack between admission and execution, after routing has already placed a request on a concrete path. Admission decides whether a request may enter the runtime at all. Routing decides which model, hardware tier, or serving path should receive the request. Once that path is chosen, the scheduler orders that request's prefill and decode work against every other active request competing for the same accelerator, memory budget, and batch slots. Batching then decides how much of that scheduled work is packed together when the accelerator actually runs a step."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Incoming requests enter a queue once admission accepts them. Queue order may follow first-come-first-served rules, priority tiers, deadlines, or policies that favor shorter jobs. The scheduler inspects waiting work and selects the next item or compatible group to execute. Prefill work processes prompt tokens in one larger pass that builds the first key-value cache entries. Decode work extends active sequences one token at a time, reusing that cache. The scheduler keeps switching between those stages according to policy until each request finishes or is cancelled. Fairness policies try to stop long-running requests from permanently blocking short ones. Deadline-aware policies may move urgent work ahead even when it arrived later. Batching opportunities appear when the scheduler deliberately waits a short window so compatible prefill or decode steps can run together. Memory limits can force the scheduler to defer, preempt, or reject work when live cache state would exceed what the device can hold. Cancellation removes stopped requests from the queue so their slots and cache blocks can be reclaimed. Admission control marks the boundary before scheduling begins: once a request is inside the queue, scheduling governs ordering; before that point, admission decides whether the runtime can accept the work at all."
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": "Scheduler choices directly affect observable serving outcomes. Latency rises when queue wait grows, when decode turns keep getting deferred, or when memory pressure triggers reloads before the next step can run. Fairness breaks when one long request or one greedy batching window keeps shorter jobs waiting at the back of the queue. Throughput rises when the scheduler keeps the accelerator busy with useful prefill and decode work, but falls when policy overhead, idle gaps, or overly conservative memory deferrals leave hardware underused. Memory pressure shows up as queue growth, forced preemption, or admission rejecting new work even while compute still looks available. Strict first-come-first-served order can protect fairness but leave accelerators idle between incompatible steps. Aggressive batching-friendly ordering can raise throughput while stretching tail latency for requests that just missed a formation window. These layers interact even though they answer different questions. Prefill and decode coordination is one example: two admitted requests may both be active, but the scheduler still chooses whether the next turn is a prompt-heavy prefill step or a cache-extending decode step, and that choice changes tail latency for long chats waiting behind a burst of new prompts. Batching and memory pressure are another: the scheduler may pause briefly so compatible decode steps can form a denser batch, or it may defer new prefill when live KV-cache growth would exceed the memory budget, even though routing already picked a valid backend and batching could raise throughput if more work were packed together."
+    },
+    "related": {
+      "title": "Related To",
+      "body": "The related pages below cover routing, batching, continuous batching, prefill and decode generation stages, memory limits, and deployment choices that shape how scheduling decisions play out in production."
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "Admitted requests wait in a queue, the scheduler picks the next prefill or decode step, the accelerator runs that work, and active requests continue until they finish.",
+      "caption": "Request scheduling orders queued work before execution so the serving runtime can balance latency, fairness, throughput, and memory pressure."
+    },
+    "schedulerDecision": {
+      "alt": "Queued requests enter the scheduler, which weighs fairness, deadlines, batching windows, and memory headroom before choosing the next prefill or decode step.",
+      "caption": "Scheduler decisions combine queue state with serving policy signals before the runtime runs the next prefill or decode step."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "queue": {
+        "label": "Queue admitted requests"
+      },
+      "schedule": {
+        "label": "Pick next work"
+      },
+      "run": {
+        "label": "Run prefill or decode step"
+      },
+      "continue": {
+        "label": "Continue active requests"
+      },
+      "queuedRequests": {
+        "label": "Queued requests"
+      },
+      "scheduler": {
+        "label": "Scheduler inspects queue"
+      },
+      "fairness": {
+        "label": "Fairness policy"
+      },
+      "deadlines": {
+        "label": "Deadline pressure"
+      },
+      "batchingWindow": {
+        "label": "Batching window"
+      },
+      "memoryPressure": {
+        "label": "Memory headroom"
+      },
+      "pickStep": {
+        "label": "Pick next step"
+      },
+      "prefillStep": {
+        "label": "Run prefill step"
+      },
+      "decodeStep": {
+        "label": "Run decode step"
+      }
+    }
+  }
+}

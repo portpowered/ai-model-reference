@@ -18,6 +18,10 @@
   "status": "published",
   "createdAt": "2026-06-08T00:00:00.000Z",
   "updatedAt": "2026-06-08T00:00:00.000Z",
+  "releaseDate": "2020-04-01",
+  "authors": ["Iz Beltagy", "Matthew E. Peters", "Arman Cohan"],
+  "sourceId": "citation.longformer",
+  "primaryClassificationId": "classification.module.attention",
   "moduleType": "attention",
   "moduleFamily": "attention",
   "conceptType": "attention-variant",
@@ -26,10 +30,6 @@
     "attention-compute",
     "memory-bandwidth",
     "local-context-inference"
-  ],
-  "practicalBenefits": [
-    "lower attention cost from fixed local windows",
-    "predictable memory use for long sequences with bounded reach"
   ],
   "exampleModelIds": [],
   "improvesOnIds": [],

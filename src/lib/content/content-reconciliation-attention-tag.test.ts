@@ -81,6 +81,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(groups.map((group) => group.kind)).toEqual([
       "model",
       "module",
+      "concept",
       "paper",
       "glossary",
     ]);
@@ -90,7 +91,19 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(modelGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/models/deepseek-v4-flash",
       "/docs/models/deepseek-v4-pro",
+      "/docs/models/glm-5",
+      "/docs/models/glm-5-2",
       "/docs/models/gpt-3",
+      "/docs/models/llama-3",
+      "/docs/models/qwen-3-6-27b",
+      "/docs/models/qwen-3-6-35b-a3b",
+    ]);
+
+    const conceptGroup = groups.find((group) => group.kind === "concept");
+    expect(conceptGroup?.kindLabel).toBe("Concept");
+    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/concepts/kv-cache",
+      "/docs/concepts/prefill",
     ]);
 
     const paperGroup = groups.find((group) => group.kind === "paper");
@@ -105,7 +118,6 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
       "/docs/glossary/autoregressive-generation",
       "/docs/glossary/decode",
       "/docs/glossary/kv-cache",
-      "/docs/glossary/prefill",
       "/docs/glossary/token",
     ]);
   });
@@ -143,6 +155,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
 
     expect(html).toContain("Attention");
     expect(html).toContain("Module");
+    expect(html).toContain("Concept");
     expect(html).toContain("Glossary");
     expect(html).toContain('href="/search?tag=attention"');
     expect(html).toContain("data-search");
@@ -154,10 +167,11 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
     }
 
     expect(html).toContain("Linear Attention");
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/kv-cache"');
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/glossary/token"');
   });
 });

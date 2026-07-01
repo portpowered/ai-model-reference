@@ -106,7 +106,7 @@ describe("special tokens registry record", () => {
     expect(conditioning?.href).toBe("/docs/glossary/conditioning");
 
     const prefill = items.find((item) => item.registryId === "concept.prefill");
-    expect(prefill?.href).toBe("/docs/glossary/prefill");
+    expect(prefill?.href).toBe("/docs/concepts/prefill");
 
     const gpt3 = items.find((item) => item.registryId === "model.gpt-3");
     expect(gpt3?.href).toBe("/docs/models/gpt-3");
@@ -114,20 +114,17 @@ describe("special tokens registry record", () => {
     const tokenizersOverview = items.find(
       (item) => item.registryId === "concept.tokenizers-overview",
     );
-    expect(tokenizersOverview?.href).toBeUndefined();
-    expect(tokenizersOverview?.isPlanned).toBe(true);
+    expect(tokenizersOverview?.href).toBe("/docs/concepts/tokenizers-overview");
 
     const wordpiece = items.find(
       (item) => item.registryId === "module.wordpiece",
     );
-    expect(wordpiece?.href).toBeUndefined();
-    expect(wordpiece?.isPlanned).toBe(true);
+    expect(wordpiece?.href).toBe("/docs/modules/wordpiece");
 
     const sentencepiece = items.find(
       (item) => item.registryId === "module.sentencepiece",
     );
-    expect(sentencepiece?.href).toBeUndefined();
-    expect(sentencepiece?.isPlanned).toBe(true);
+    expect(sentencepiece?.href).toBe("/docs/modules/sentencepiece");
   });
 
   test("registry validation accepts the special-tokens record", async () => {

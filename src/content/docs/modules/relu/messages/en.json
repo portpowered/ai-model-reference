@@ -1,19 +1,15 @@
 {
   "title": "Rectified Linear Unit",
   "description": "A simple activation function that keeps positive values and turns negative values into zero.",
-  "openingSummary": "The rectified linear unit (ReLU) is a simple activation function that leaves positive values alone and turns negative values into zero, making it a useful baseline for understanding how later activation variants trade simplicity for smoother or leakier behavior.",
+  "openingSummary": "The rectified linear unit (ReLU) is a simple activation function that leaves positive values alone and turns negative values into zero. It became important because deep networks needed a cheap way to add nonlinearity without the training slowdown that older saturating activations such as sigmoid or tanh often caused.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
       "body": "The rectified linear unit (ReLU) is an activation function used in many neural networks. It applies one simple rule to each value: keep positive numbers and replace negative numbers with zero. In transformer feed-forward layers, that rule decides which hidden features stay active before the layer projects back to the model width."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
-      "body": "ReLU optimizes for a very cheap and very sharp nonlinearity. It is easy to compute, easy to implement, and naturally creates sparse activity because only positive values pass through fully."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "ReLU gives readers a clean reference point. Once you understand its hard zero cutoff, it becomes much easier to see what later variants change when they add a small negative path, a smoother curve, or a learned gate."
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "ReLU exists because neural networks need nonlinearity to model the curved, conditional patterns that show up in real data. Without an activation rule like this, stacked linear layers still collapse into one linear transform. ReLU also became popular because it gave that nonlinearity in a very cheap form that often trained more easily than older saturating activations such as sigmoid or tanh, helping deeper models reduce training loss more reliably."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -29,7 +25,7 @@
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
-      "body": "ReLU mattered most in earlier deep networks and remains a common baseline in papers, even though many newer language models now prefer smoother or gated feed-forward activations."
+      "body": "ReLU became famous in the wave of early deep vision and speech models that needed a simpler activation to train reliably. It still appears across many baseline architectures and educational examples, even though many newer language models now prefer smoother or gated feed-forward activations."
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
@@ -37,7 +33,7 @@
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
-      "body": "ReLU remains the cleanest reference point for activation discussions. When a paper says an activation is smoother, leakier, or more selective, ReLU is usually the baseline sitting underneath that comparison."
+      "body": "ReLU still matters because it explains two core lessons in deep learning: models need nonlinearity to represent real-world structure, and the shape of that nonlinearity affects how well deep networks train. Even when newer models choose smoother or gated activations, they are still solving the same problem ReLU helped solve clearly and cheaply."
     },
     "related": {
       "title": "Related"
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Activation comparison chart showing how rectified linear unit, leaky rectified linear unit, and sigmoid linear unit treat positive and negative values",
-      "caption": "This chart compares the hard zero cutoff in ReLU, the small negative slope in LeakyReLU, and the smooth negative-side shrinkage in SiLU.",
       "variants": {
         "relu": {
           "label": "ReLU"
@@ -65,9 +60,11 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How rectified linear unit compares with nearby activation variants"
-    }
+    "hiddenStateHeatmap": {
+      "alt": "Two heatmaps compare a hidden state before rectified linear unit and after rectified linear unit, showing negative activations removed while positive activations remain.",
+      "caption": "These heatmaps show the same hidden state before and after ReLU. Negative cells collapse to zero, while positive cells keep their strength."
+    },
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

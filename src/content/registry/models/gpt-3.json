@@ -7,8 +7,10 @@
   "aliases": ["GPT-3", "Generative Pre-trained Transformer 3"],
   "tags": ["foundations", "model-family", "attention", "context-window"],
   "relatedIds": [
+    "concept.tokenizers-overview",
     "concept.transformer-architecture",
     "concept.autoregressive-generation",
+    "training-regime.pretraining",
     "module.bpe",
     "module.multi-head-attention",
     "module.standard-ffn",
@@ -17,7 +19,7 @@
   "citationIds": ["citation.brown-gpt-3", "citation.kaplan-scaling-laws"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
-  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
   "authors": [
     "Tom B. Brown",
     "Benjamin Mann",
@@ -66,7 +68,7 @@
     "module.layer-norm",
     "module.learned-positional-embeddings"
   ],
-  "trainingRegimeIds": [],
+  "trainingRegimeIds": ["training-regime.pretraining"],
   "datasetIds": [],
   "paperIds": [],
   "releaseDate": "2020-05-28",

@@ -4,12 +4,10 @@
     "graphId": "graph.bpe-compute-flow",
     "webRenderer": "react-flow",
     "printRenderer": "mermaid",
-    "altKey": "assets.computeFlow.alt",
-    "captionKey": "assets.computeFlow.caption"
+    "altKey": "assets.computeFlow.alt"
   },
   "comparisonTable": {
     "type": "table",
-    "tableId": "table.bpe-comparison",
-    "captionKey": "assets.comparisonTable.caption"
+    "tableId": "table.bpe-comparison"
   }
 }

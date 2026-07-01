@@ -19,11 +19,9 @@
   "releaseDate": "2026-06-13",
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
+  "primaryClassificationId": "classification.module.attention",
   "moduleType": "attention",
   "optimizes": ["kv-cache", "long-context-inference", "memory-bandwidth"],
-  "practicalBenefits": [
-    "keeps long-context attention usable by combining compression with selective sparse access"
-  ],
   "exampleModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "improvesOnIds": ["module.sparse-attention"],
   "tradeoffIds": [],

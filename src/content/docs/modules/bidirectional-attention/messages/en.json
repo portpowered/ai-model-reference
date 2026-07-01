@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Bidirectional attention is the full-context version of self-attention. When the mask allows it, each token can compare itself with tokens to its left and right instead of looking in only one direction."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "Bidirectional attention optimizes for representation quality when the model's job is to understand an entire sequence at once. It helps each position build a richer hidden state before any downstream prediction head reads it."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "This pattern is useful for encoder-style reading tasks because the model can use both past and future words to decide what a token means in context. That is why the same word can get a different representation depending on the sentence around it."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Causal attention versus bidirectional attention time reach",
-      "caption": "Toggle causal attention and bidirectional attention to compare next-token-only reach against full left-and-right context on one canvas.",
       "variants": {
         "causal": {
           "label": "Causal"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How bidirectional attention compares with nearby attention patterns"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

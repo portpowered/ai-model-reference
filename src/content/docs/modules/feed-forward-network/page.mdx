@@ -21,7 +21,6 @@ import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
-import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
 import { ModuleGraph } from "@/features/models/components/ModuleGraph";
 import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
 import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
@@ -33,12 +32,8 @@ import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModul
   <T k="sections.whatItIs.body" />
 </Section>
 
-<Section id="what-it-optimizes" titleKey="sections.whatItOptimizes.title">
-  <T k="sections.whatItOptimizes.body" />
-</Section>
-
-<Section id="practical-benefit" titleKey="sections.practicalBenefit.title">
-  <T k="sections.practicalBenefit.body" />
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
 </Section>
 
 <Section id="how-it-works" titleKey="sections.howItWorks.title">
@@ -49,16 +44,7 @@ import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModul
 
 <Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
   <T k="sections.mathOrComputeSchema.body" />
-  <ModuleAttentionSchemaComparison schemaIds={["standard", "swiglu"]} />
-</Section>
-
-<Section id="compared-to-nearby-modules" titleKey="sections.comparedToNearbyModules.title">
-  <T k="sections.comparedToNearbyModules.body" />
-
-  <ModuleComparisonTable
-    registryId="module.feed-forward-network"
-    assetId="comparisonTable"
-  />
+  <ModuleAttentionSchemaComparison schemaIds={["standard"]} />
 </Section>
 
 <Section id="example-architectures" titleKey="sections.exampleArchitectures.title">

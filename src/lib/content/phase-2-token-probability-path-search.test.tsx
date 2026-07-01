@@ -30,6 +30,7 @@ import {
   restoreFetchMock,
 } from "@/tests/a11y/render";
 import { createDocsSearchRouteFetch } from "@/tests/search/route-fetch";
+import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
 
 type TargetPathPage = {
   slug: string;
@@ -103,7 +104,7 @@ async function primeDocsSearchClient(
     <SearchPagePanelContent
       messages={context.messages}
       metaByUrl={context.metaByUrl}
-      handoff={{ q: null, tag: null }}
+      handoff={{ q: null, tag: null, classification: null }}
     />,
     { context },
   );
@@ -228,19 +229,30 @@ describe("Phase 2 token-probability path search UI labels (phase-2-token-probabi
 });
 
 describe("Phase 2 token-probability path search panel verification (phase-2-token-probability-path-convergence-004)", () => {
+  let releaseFetchLock: (() => void) | null = null;
+
   beforeAll(async () => {
     captureOriginalFetch();
-    installDocsSearchRouteFetch();
-    await primeDocsSearchClient(await loadAppTestContext());
+    await lockGlobalFetch().then(async (release) => {
+      releaseFetchLock = release;
+      installDocsSearchRouteFetch();
+      await primeDocsSearchClient(await loadAppTestContext());
+      restoreFetchMock();
+      releaseFetchLock?.();
+      releaseFetchLock = null;
+    });
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    releaseFetchLock = await lockGlobalFetch();
     installDocsSearchRouteFetch();
   });
 
   afterEach(() => {
     cleanup();
     restoreFetchMock();
+    releaseFetchLock?.();
+    releaseFetchLock = null;
   });
 
   test.each(
@@ -254,7 +266,7 @@ describe("Phase 2 token-probability path search panel verification (phase-2-toke
       <SearchPagePanelContent
         messages={context.messages}
         metaByUrl={context.metaByUrl}
-        handoff={{ q: null, tag: null }}
+        handoff={{ q: null, tag: null, classification: null }}
       />,
       { context },
     );
@@ -265,7 +277,11 @@ describe("Phase 2 token-probability path search panel verification (phase-2-toke
       title,
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 15_000 },
+    );
     const firstUrl = within(results).getAllByTestId("search-result-url")[0];
     expect(firstUrl?.textContent).toContain(url);
 
