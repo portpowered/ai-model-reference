@@ -1058,7 +1058,6 @@ describe("registry-runtime", () => {
       "model.mixtral-8x22b",
       "model.mixtral-8x7b",
       "model.nemotron-3-super",
-      "model.qwen-3-6-35b-a3b",
     ]);
     expect(record?.relatedModuleIds).toEqual([
       "module.mixture-of-experts",
