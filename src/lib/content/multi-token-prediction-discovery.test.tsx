@@ -1,8 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { loadModulePage } from "@/lib/content/module-page";
+import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
+import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
@@ -74,15 +72,11 @@ describe("multi-token prediction discovery surfaces (multi-token-prediction-004)
   });
 
   test("rendered page shell exposes summary, graph, tags, citations, and related docs without placeholders", async () => {
-    const page = await loadModulePage("multi-token-prediction");
-    const html = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: page.messages,
-        assets: page.assets,
-        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-        children: page.content,
-      }),
-    );
+    const page = await loadLocalDocsPage({
+      section: "modules",
+      slug: "multi-token-prediction",
+    });
+    const html = renderModuleDocsShell(page);
 
     expect(html).toContain("Multi-Token Prediction");
     expect(html).toContain("At a glance");
