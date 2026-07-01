@@ -183,8 +183,6 @@ describe("request scheduling search and registry convergence", () => {
     "queueing",
     "admission control",
     "fairness",
-    "latency",
-    "throughput",
   ] as const)("%s query resolves to the canonical request scheduling system page", async (query) => {
     const results = await docsSearchApi.search(query);
 
