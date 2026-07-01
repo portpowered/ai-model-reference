@@ -24,16 +24,43 @@
       "id": "paper",
       "labelKey": "graph.nodes.paper.label",
       "moduleKind": "other",
-      "position": { "x": 250, "y": 0 },
+      "position": { "x": 340, "y": 0 },
       "size": { "width": 220, "height": 72 },
       "visualRole": "summary-node",
-      "childNodeIds": ["encoder", "pretraining", "tokenization"]
+      "childNodeIds": [
+        "inputs",
+        "encoder",
+        "bidirectional-attention",
+        "pretraining",
+        "downstream"
+      ]
+    },
+    {
+      "id": "inputs",
+      "labelKey": "graph.nodes.inputs.label",
+      "registryId": "module.wordpiece",
+      "moduleKind": "tokenizer",
+      "position": { "x": 0, "y": 150 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
     },
     {
       "id": "encoder",
       "labelKey": "graph.nodes.encoder.label",
+      "registryId": "concept.transformer-architecture",
       "moduleKind": "block",
-      "position": { "x": 20, "y": 150 },
+      "position": { "x": 190, "y": 150 },
+      "size": { "width": 190, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "bidirectional-attention",
+      "labelKey": "graph.nodes.bidirectionalAttention.label",
+      "registryId": "module.bidirectional-attention",
+      "moduleKind": "attention",
+      "position": { "x": 390, "y": 150 },
       "size": { "width": 200, "height": 72 },
       "visualRole": "process-node",
       "childNodeIds": []
@@ -41,17 +68,18 @@
     {
       "id": "pretraining",
       "labelKey": "graph.nodes.pretraining.label",
+      "registryId": "training-regime.pretraining",
       "moduleKind": "block",
-      "position": { "x": 250, "y": 150 },
+      "position": { "x": 600, "y": 150 },
       "size": { "width": 200, "height": 72 },
       "visualRole": "process-node",
       "childNodeIds": []
     },
     {
-      "id": "tokenization",
-      "labelKey": "graph.nodes.tokenization.label",
-      "moduleKind": "block",
-      "position": { "x": 480, "y": 150 },
+      "id": "downstream",
+      "labelKey": "graph.nodes.downstream.label",
+      "moduleKind": "other",
+      "position": { "x": 810, "y": 150 },
       "size": { "width": 200, "height": 72 },
       "visualRole": "process-node",
       "childNodeIds": []
@@ -59,9 +87,25 @@
   ],
   "edges": [
     {
+      "id": "paper-inputs",
+      "source": "paper",
+      "target": "inputs",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
       "id": "paper-encoder",
       "source": "paper",
       "target": "encoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-bidirectional-attention",
+      "source": "paper",
+      "target": "bidirectional-attention",
       "edgeKind": "data-flow",
       "sourceHandleSide": "bottom",
       "targetHandleSide": "top"
@@ -75,12 +119,36 @@
       "targetHandleSide": "top"
     },
     {
-      "id": "paper-tokenization",
+      "id": "paper-downstream",
       "source": "paper",
-      "target": "tokenization",
+      "target": "downstream",
       "edgeKind": "data-flow",
       "sourceHandleSide": "bottom",
       "targetHandleSide": "top"
+    },
+    {
+      "id": "inputs-encoder",
+      "source": "inputs",
+      "target": "encoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "encoder-bidirectional-attention",
+      "source": "encoder",
+      "target": "bidirectional-attention",
+      "edgeKind": "contains",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "pretraining-downstream",
+      "source": "pretraining",
+      "target": "downstream",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
     }
   ]
 }

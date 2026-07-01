@@ -31,8 +31,8 @@
   },
   "assets": {
     "contributionGraph": {
-      "alt": "A contribution graph that breaks the BERT paper into bidirectional encoder blocks, masked language model pretraining, and WordPiece tokenization.",
-      "caption": "The BERT paper is easiest to understand as three linked choices: bidirectional encoder blocks, masked language model pretraining, and WordPiece tokenization for the input text."
+      "alt": "A contribution graph that links WordPiece inputs, transformer encoder blocks, bidirectional attention, masked language modeling pretraining, and encoder-only fine-tuning for the BERT paper.",
+      "caption": "The BERT paper combines WordPiece inputs, transformer encoder blocks with bidirectional attention, masked language modeling pretraining, and encoder-only fine-tuning for downstream understanding tasks."
     }
   },
   "graph": {
@@ -40,14 +40,20 @@
       "paper": {
         "label": "BERT paper"
       },
+      "inputs": {
+        "label": "WordPiece inputs"
+      },
       "encoder": {
-        "label": "Bidirectional encoder blocks"
+        "label": "Transformer encoder stack"
+      },
+      "bidirectionalAttention": {
+        "label": "Bidirectional attention"
       },
       "pretraining": {
-        "label": "Masked language model pretraining"
+        "label": "Masked language modeling"
       },
-      "tokenization": {
-        "label": "WordPiece tokenization"
+      "downstream": {
+        "label": "Encoder-only fine-tuning"
       }
     }
   }

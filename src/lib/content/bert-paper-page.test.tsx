@@ -95,9 +95,14 @@ describe("BERT paper page", () => {
     expect(html).toContain("Method Or Architecture");
     expect(html).toContain("Evidence");
     expect(html).toContain("Limitations");
-    expect(html).toContain("Bidirectional encoder blocks");
-    expect(html).toContain("Masked language model pretraining");
-    expect(html).toContain("WordPiece tokenization");
+    expect(html).toContain("WordPiece inputs");
+    expect(html).toContain("Transformer encoder stack");
+    expect(html).toContain("Bidirectional attention");
+    expect(html).toContain("Masked language modeling");
+    expect(html).toContain("Encoder-only fine-tuning");
+    expect(html).toContain(
+      "The BERT paper combines WordPiece inputs, transformer encoder blocks with bidirectional attention, masked language modeling pretraining, and encoder-only fine-tuning for downstream understanding tasks.",
+    );
     expect(html).toContain(
       "Pre-training of Deep Bidirectional Transformers for Language Understanding",
     );
