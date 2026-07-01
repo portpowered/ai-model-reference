@@ -20,6 +20,14 @@ import {
   PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS,
 } from "@/components/layout/primary-nav";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import {
+  MODEL_ATLAS_REPOSITORY_URL,
+  modelAtlasSiteConfig,
+} from "@/lib/site/model-atlas-site-config";
+import {
+  SITE_COLLECTION_FAMILIES,
+  type SiteConfig,
+} from "@/lib/site/site-config.contract";
 import { source } from "@/lib/source";
 import { assertPrimaryNavNoDuplicateSearchLink } from "@/lib/verify/customer-ask-home-header-convergence";
 import {
@@ -29,6 +37,35 @@ import {
 } from "@/tests/a11y/mock-navigation";
 import { NextNavigationTestProvider } from "@/tests/a11y/next-navigation-test-provider";
 import { renderWithAppProviders } from "@/tests/a11y/render";
+
+const alternateSiteConfig = {
+  brand: {
+    scaffoldId: "example-scaffold",
+    brandName: "Example Atlas",
+    siteHeading: "Example Reference",
+  },
+  repositoryUrl: "https://github.com/example/example",
+  routeSurfaces: {
+    home: { surface: "home" },
+    browse: { surface: "browse" },
+    topology: { surface: "topology" },
+    timeline: { surface: "docs-page", slug: "timeline" },
+    tagsIndex: { surface: "tags-index" },
+  },
+  primaryNav: [
+    { routeSurface: "home", labelKey: "home" },
+    { routeSurface: "topology", labelKey: "topology" },
+    { routeSurface: "timeline", labelKey: "timeline" },
+    { routeSurface: "tagsIndex", labelKey: "tags" },
+  ],
+  collections: SITE_COLLECTION_FAMILIES.map((family) => ({ family })),
+  homeFeaturedLinks: [
+    { kind: "route", routeSurface: "browse" },
+    { kind: "docs-page", slug: "modules/grouped-query-attention" },
+    { kind: "docs-page", slug: "modules/swiglu" },
+    { kind: "docs-page", slug: "modules/relu" },
+  ],
+} satisfies SiteConfig;
 
 function renderHeaderWithNavigation(
   ui: ReactNode,
@@ -89,10 +126,44 @@ describe("ModelAtlasDocsHeader", () => {
     expect(html).toContain(`aria-label="${messages.search.open}"`);
     expect(html).toContain(messages.search.shortcut);
     expect(html).toContain(`aria-label="${messages.language.open}"`);
-    expect(html).toContain(
-      'href="https://github.com/portpowered/ai-model-reference"',
-    );
+    expect(html).toContain(`href="${MODEL_ATLAS_REPOSITORY_URL}"`);
     expect(html).toContain('aria-label="Open project GitHub repository"');
+  });
+
+  test("sources the repository link href from site config", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    const html = renderToStaticMarkup(
+      <RootProvider search={{ SearchDialog, enabled: true }}>
+        <ModelAtlasDocsHeader
+          messages={messages}
+          pageTree={source.pageTree}
+          siteConfig={alternateSiteConfig}
+        />
+      </RootProvider>,
+    );
+
+    expect(html).toContain('href="https://github.com/example/example"');
+    expect(html).not.toContain(`href="${MODEL_ATLAS_REPOSITORY_URL}"`);
+    expect(html).toContain('aria-label="Open project GitHub repository"');
+    expect(html).toContain('title="Open project GitHub repository"');
+  });
+
+  test("keeps the default repository URL from model atlas site config", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    const html = renderToStaticMarkup(
+      <RootProvider search={{ SearchDialog, enabled: true }}>
+        <ModelAtlasDocsHeader
+          messages={messages}
+          pageTree={source.pageTree}
+          siteConfig={modelAtlasSiteConfig}
+        />
+      </RootProvider>,
+    );
+
+    expect(html).toContain(`href="${modelAtlasSiteConfig.repositoryUrl}"`);
+    expect(modelAtlasSiteConfig.repositoryUrl).toBe(MODEL_ATLAS_REPOSITORY_URL);
   });
 
   test("mobile width markup hides desktop inline nav links and exposes the menu control", async () => {

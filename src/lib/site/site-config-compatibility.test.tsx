@@ -17,6 +17,7 @@ import {
 import {
   resolveSiteConfigHomeFeaturedLinkHrefs,
   resolveSiteConfigPrimaryNavHrefs,
+  resolveSiteConfigRepositoryUrl,
 } from "./site-config-resolution";
 
 const PROJECT_GITHUB_URL = "https://github.com/portpowered/ai-model-reference";
@@ -42,6 +43,9 @@ describe("site config scaffold compatibility", () => {
   test("keeps the default repository URL aligned with the current header link", () => {
     expect(modelAtlasSiteConfig.repositoryUrl).toBe(MODEL_ATLAS_REPOSITORY_URL);
     expect(modelAtlasSiteConfig.repositoryUrl).toBe(PROJECT_GITHUB_URL);
+    expect(resolveSiteConfigRepositoryUrl(modelAtlasSiteConfig)).toBe(
+      PROJECT_GITHUB_URL,
+    );
   });
 
   test("keeps the default home route surface aligned with layout nav title link", () => {

@@ -20,6 +20,10 @@ export function resolveSiteConfigLayoutNav(
   };
 }
 
+export function resolveSiteConfigRepositoryUrl(config: SiteConfig): string {
+  return config.repositoryUrl;
+}
+
 function resolveRouteSurfaceHref(
   config: SiteConfig,
   routeSurface: SitePrimaryNavEntry["routeSurface"],
