@@ -87,3 +87,12 @@ of adding a page-specific exported constant. Shared roots and section roots in
 that helper remain the right surface for tree-wide or section-wide operations.
 See
 [content-page-generation-workflow-relevant-files](./internal/processes/content-page-generation-workflow-relevant-files.md).
+
+Ordinary content-only published page bundles do not need new per-page tests for
+registry alignment, messages, tags, citations, or local assets. Run
+`make validate-data` for scanner-backed derived validation instead. See
+[derived-page-validation-relevant-files](./internal/processes/derived-page-validation-relevant-files.md).
+Add per-page tests only when the page introduces special rendering, graph/table
+runtime behavior, search/discovery wiring, page-generation workflow behavior,
+or a focused regression guard that cannot be expressed as a derived bundle
+invariant.

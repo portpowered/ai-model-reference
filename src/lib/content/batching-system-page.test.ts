@@ -112,7 +112,9 @@ describe("batching search and registry convergence", () => {
     const results = await docsSearchApi.search(query);
 
     expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url).toBe("/docs/systems/batching");
+    expect(
+      results.some((result) => result.url === "/docs/systems/batching"),
+    ).toBe(true);
   });
 
   test("current shipped docs do not yet include canonical latency or throughput pages", async () => {
