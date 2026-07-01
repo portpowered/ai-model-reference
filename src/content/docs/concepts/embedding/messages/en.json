@@ -1,0 +1,36 @@
+{
+  "title": "Embedding",
+  "description": "A dense vector that represents a token or other discrete item so the model can run continuous math on it.",
+  "openingSummary": "An embedding table maps each discrete token ID to a learned vector so the model can mix information in continuous space before deeper layers run.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "An embedding is a fixed-size list of numbers (a vector) associated with a discrete symbol such as a token ID. In transformer language models, the input embedding layer converts each position's token ID into a vector of model width (hidden size)."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Embeddings are where text becomes geometry: similar tokens can end up with nearby vectors after training, and every later layer operates on those vectors. Context length, batching, and memory all count embedding rows when you size a deployment."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose token ID 42 maps to a 768-dimensional vector. A sequence of three tokens becomes a 3×768 tensor of embeddings before the first attention block runs."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Embeddings sit at the bottom of decoder-only transformers, in encoder inputs for seq2seq models, and in retrieval systems that compare query and document vectors. Positional information is usually added to embeddings before attention."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "An embedding is not the same as a one-hot vector: the table stores dense learned weights rather than a single 1 in a huge sparse vector. Embeddings are also not logits or probabilities—they are inputs, not outputs of the vocabulary head."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
