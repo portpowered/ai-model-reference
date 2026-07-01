@@ -4,7 +4,7 @@
   "kind": "model",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["GLM-5.2"],
+  "aliases": ["GLM-5.2", "glm-5-2"],
   "tags": ["foundations", "attention", "context-window", "model-family"],
   "relatedIds": ["model.glm-5", "paper.glm-5"],
   "citationIds": ["citation.glm-5-technical-report", "citation.glm-5-2-blog"],
