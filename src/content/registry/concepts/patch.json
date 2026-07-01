@@ -6,7 +6,11 @@
   "defaultSummaryKey": "description",
   "aliases": ["image patch", "vision patch", "token patch"],
   "tags": ["foundations", "taxonomy"],
-  "relatedIds": ["concept.latent", "concept.modality"],
+  "relatedIds": [
+    "concept.latent",
+    "concept.modality",
+    "module.clip-image-tokenization"
+  ],
   "citationIds": ["citation.image-is-worth-16x16-words"],
   "status": "published",
   "createdAt": "2026-06-04T11:31:47.893Z",

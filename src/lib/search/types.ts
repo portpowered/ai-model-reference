@@ -55,6 +55,41 @@ export type SearchDocumentTopology = {
   terms: string[];
 };
 
+export type GenericSearchDocumentFacets = Pick<
+  SearchDocumentFacets,
+  "kind" | "tags"
+>;
+
+export const EMPTY_SEARCH_DOCUMENT_TOPOLOGY: SearchDocumentTopology = {
+  secondaryClassificationIds: [],
+  secondaryClassifications: [],
+  classificationIds: [],
+  ancestorClassificationIds: [],
+  ancestorClassifications: [],
+  rootClassificationIds: [],
+  rootClassifications: [],
+  relationships: [],
+  relatedTopologyIds: [],
+  terms: [],
+};
+
+export type BaseSearchDocument = {
+  id: string;
+  registryId?: string;
+  url: string;
+  kind: string;
+  title: string;
+  description: string;
+  bodyText: string;
+  headings: string[];
+  directAliases: string[];
+  aliases: string[];
+  tags: string[];
+  relatedIds: string[];
+  facets: GenericSearchDocumentFacets;
+  topology: SearchDocumentTopology;
+};
+
 export type SearchDocument = {
   id: string;
   registryId?: string;

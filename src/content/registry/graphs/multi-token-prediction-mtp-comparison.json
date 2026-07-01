@@ -1,0 +1,161 @@
+{
+  "id": "graph.multi-token-prediction-mtp-comparison",
+  "slug": "multi-token-prediction-mtp-comparison",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.multi-token-prediction-paper"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "module.multi-token-prediction",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "mtp-context",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "mtp-context",
+      "labelKey": "graph.nodes.contextPrefix.label",
+      "moduleKind": "input",
+      "position": { "x": 40, "y": 200 },
+      "size": { "width": 170, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["mtp-hidden"]
+    },
+    {
+      "id": "mtp-hidden",
+      "labelKey": "graph.nodes.sharedTrunk.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 200 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["mtp-head-1", "mtp-head-2", "mtp-head-n"]
+    },
+    {
+      "id": "mtp-head-1",
+      "labelKey": "graph.nodes.outputHeadK1.label",
+      "moduleKind": "projection",
+      "position": { "x": 470, "y": 70 },
+      "size": { "width": 150, "height": 64 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["mtp-target-1"]
+    },
+    {
+      "id": "mtp-head-2",
+      "labelKey": "graph.nodes.outputHeadK2.label",
+      "moduleKind": "projection",
+      "position": { "x": 470, "y": 200 },
+      "size": { "width": 150, "height": 64 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["mtp-target-2"]
+    },
+    {
+      "id": "mtp-head-n",
+      "labelKey": "graph.nodes.outputHeadKN.label",
+      "moduleKind": "projection",
+      "position": { "x": 470, "y": 330 },
+      "size": { "width": 150, "height": 64 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["mtp-target-n"]
+    },
+    {
+      "id": "mtp-target-1",
+      "labelKey": "graph.nodes.targetTPlusOne.label",
+      "moduleKind": "output",
+      "position": { "x": 680, "y": 70 },
+      "size": { "width": 130, "height": 64 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "mtp-target-2",
+      "labelKey": "graph.nodes.targetTPlusTwo.label",
+      "moduleKind": "output",
+      "position": { "x": 680, "y": 200 },
+      "size": { "width": 130, "height": 64 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "mtp-target-n",
+      "labelKey": "graph.nodes.targetTPlusN.label",
+      "moduleKind": "output",
+      "position": { "x": 680, "y": 330 },
+      "size": { "width": 130, "height": 64 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "mtp-heads-legend",
+      "labelKey": "graph.nodes.independentHeadsNote.label",
+      "moduleKind": "other",
+      "position": { "x": 470, "y": 420 },
+      "size": { "width": 340, "height": 48 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "mtp-context-hidden",
+      "source": "mtp-context",
+      "target": "mtp-hidden",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "mtp-hidden-head-1",
+      "source": "mtp-hidden",
+      "target": "mtp-head-1",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "mtp-hidden-head-2",
+      "source": "mtp-hidden",
+      "target": "mtp-head-2",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "mtp-hidden-head-n",
+      "source": "mtp-hidden",
+      "target": "mtp-head-n",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "mtp-head-1-target",
+      "source": "mtp-head-1",
+      "target": "mtp-target-1",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "mtp-head-2-target",
+      "source": "mtp-head-2",
+      "target": "mtp-target-2",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "mtp-head-n-target",
+      "source": "mtp-head-n",
+      "target": "mtp-target-n",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    }
+  ]
+}

@@ -37,8 +37,10 @@ import {
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
 
-// Renders every autodiscovered critical docs page; allow headroom on slower local runs.
-const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 30_000;
+// Renders every metadata-discovered critical docs page; budget grows with the
+// attention and token-to-probability smoke sets without bespoke route lists.
+const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 45_000;
+const PHASE_1_TAG_BROWSE_GATE_TIMEOUT_MS = 15_000;
 
 const PHASE_1_DISCOVERY_ROUTES = [
   {
@@ -347,21 +349,26 @@ describe("Phase 1 discovery route smoke", () => {
 });
 
 describe("Phase 1 tag browse helpers", () => {
-  test("attention tag includes attention bridge and grouped-query attention under modules", async () => {
-    const messages = await loadUiMessages();
-    const groups = await loadTagResourceGroups("attention", messages, "en");
-    const moduleGroup = groups.find((group) => group.kind === "module");
+  test(
+    "attention tag includes attention bridge and grouped-query attention under modules",
+    async () => {
+      const messages = await loadUiMessages();
+      const groups = await loadTagResourceGroups("attention", messages, "en");
+      const moduleGroup = groups.find((group) => group.kind === "module");
 
-    expect(moduleGroup).toBeDefined();
-    expect(
-      moduleGroup?.resources.some(
-        (resource) => resource.url === PHASE_1_ATTENTION_MODULE_URL,
-      ),
-    ).toBe(true);
-    expect(
-      moduleGroup?.resources.some(
-        (resource) => resource.url === "/docs/modules/grouped-query-attention",
-      ),
-    ).toBe(true);
-  });
+      expect(moduleGroup).toBeDefined();
+      expect(
+        moduleGroup?.resources.some(
+          (resource) => resource.url === PHASE_1_ATTENTION_MODULE_URL,
+        ),
+      ).toBe(true);
+      expect(
+        moduleGroup?.resources.some(
+          (resource) =>
+            resource.url === "/docs/modules/grouped-query-attention",
+        ),
+      ).toBe(true);
+    },
+    { timeout: PHASE_1_TAG_BROWSE_GATE_TIMEOUT_MS },
+  );
 });

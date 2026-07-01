@@ -10,7 +10,6 @@ import { Suspense } from "react";
 import { HomeArticle } from "@/components/home/home-article";
 import { BrowseAtlasPage } from "@/features/docs/components/BrowseAtlasPage";
 import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
-import type { DocsIndexEntry } from "@/features/docs/components/DocsIndexEntryList";
 import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
 import { StaticExportBrowsePage } from "@/features/docs/components/StaticExportBrowsePage";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
@@ -57,6 +56,8 @@ import {
   type TopologyClassificationEntry,
 } from "@/lib/content/topology-tree-entries";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import { buildBrowseCollectionSections } from "@/lib/docs/browse-collection-sections";
+import { toDocsIndexEntries } from "@/lib/docs/docs-index-entries";
 import {
   buildLocalizedRoute,
   defaultLocale,
@@ -80,75 +81,6 @@ export type TimelinePageProps = SearchPageProps;
 export type TagLandingPageProps = {
   params: Promise<{ slug: string }>;
 };
-
-function toDocsIndexEntries(
-  pages: Array<{
-    docsSlug: string;
-    url: string;
-    messages: { title: string; description: string };
-  }>,
-  locale: SiteLocale,
-  preferredSlugs: string[] = [],
-  limit = 6,
-): DocsIndexEntry[] {
-  const sortedPages = [...pages].sort((left, right) =>
-    left.messages.title.localeCompare(right.messages.title, locale, {
-      sensitivity: "base",
-    }),
-  );
-  const pagesBySlug = new Map(sortedPages.map((page) => [page.docsSlug, page]));
-  const preferredPages = preferredSlugs
-    .map((slug) => pagesBySlug.get(slug))
-    .filter((page): page is (typeof sortedPages)[number] => Boolean(page));
-  const remainingPages = sortedPages.filter(
-    (page) => !preferredSlugs.includes(page.docsSlug),
-  );
-
-  return [...preferredPages, ...remainingPages].slice(0, limit).map((page) => ({
-    slug: page.docsSlug,
-    title: page.messages.title,
-    summary: page.messages.description,
-    url: page.url,
-  }));
-}
-
-const BROWSE_MODELS_STARTER_SLUGS = ["models/gpt-3"] as const;
-const BROWSE_MODULES_STARTER_SLUGS = [
-  "modules/grouped-query-attention",
-  "modules/attention",
-  "modules/swiglu",
-  "modules/relu",
-  "modules/multi-head-attention",
-  "modules/feed-forward-network",
-] as const;
-const BROWSE_CONCEPTS_STARTER_SLUGS = [
-  "concepts/transformer-architecture",
-  "concepts/positional-encodings",
-  "concepts/context-extension",
-  "concepts/quantization",
-  "concepts/why-long-context-is-hard",
-  "concepts/kv-cache-quantization",
-] as const;
-const BROWSE_PAPERS_STARTER_SLUGS = ["papers/deepseek-v4"] as const;
-const BROWSE_TRAINING_STARTER_SLUGS = [
-  "training/on-policy-distillation",
-  "training/specialist-training",
-  "training/fp4-quantization-aware-training",
-] as const;
-const BROWSE_SYSTEMS_STARTER_SLUGS = [
-  "systems/deployment",
-  "systems/routing",
-  "systems/on-disk-kv-cache",
-  "systems/expert-parallel-overlap",
-] as const;
-const BROWSE_GLOSSARY_STARTER_SLUGS = [
-  "glossary/token",
-  "glossary/embedding",
-  "glossary/logit",
-  "glossary/softmax",
-  "glossary/kv-cache",
-  "glossary/architecture",
-] as const;
 
 export async function renderHomePage(locale: SiteLocale = defaultLocale) {
   const messages = await loadUiMessages(locale);
@@ -183,6 +115,11 @@ export async function renderBrowseIndexPage(
     labels: topologyLabels,
   });
   const isStaticExport = process.env.NEXT_STATIC_EXPORT === "1";
+  const browseSections = buildBrowseCollectionSections({
+    pages,
+    locale,
+    messages,
+  });
   const defaultPage = (
     <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
       <DocsTitle>{messages.browseIndex.title}</DocsTitle>
@@ -191,41 +128,7 @@ export async function renderBrowseIndexPage(
         <BrowseAtlasPage
           messages={messages}
           locale={locale}
-          models={toDocsIndexEntries(
-            pages.filter((page) => page.frontmatter.kind === "model"),
-            locale,
-            [...BROWSE_MODELS_STARTER_SLUGS],
-          )}
-          modules={toDocsIndexEntries(
-            pages.filter((page) => page.frontmatter.kind === "module"),
-            locale,
-            [...BROWSE_MODULES_STARTER_SLUGS],
-          )}
-          concepts={toDocsIndexEntries(
-            pages.filter((page) => page.frontmatter.kind === "concept"),
-            locale,
-            [...BROWSE_CONCEPTS_STARTER_SLUGS],
-          )}
-          papers={toDocsIndexEntries(
-            pages.filter((page) => page.frontmatter.kind === "paper"),
-            locale,
-            [...BROWSE_PAPERS_STARTER_SLUGS],
-          )}
-          training={toDocsIndexEntries(
-            pages.filter((page) => page.frontmatter.kind === "training-regime"),
-            locale,
-            [...BROWSE_TRAINING_STARTER_SLUGS],
-          )}
-          systems={toDocsIndexEntries(
-            pages.filter((page) => page.frontmatter.kind === "system"),
-            locale,
-            [...BROWSE_SYSTEMS_STARTER_SLUGS],
-          )}
-          glossary={toDocsIndexEntries(
-            pages.filter((page) => page.frontmatter.kind === "glossary"),
-            locale,
-            [...BROWSE_GLOSSARY_STARTER_SLUGS],
-          )}
+          sections={browseSections}
         />
       </DocsBody>
     </DocsPage>

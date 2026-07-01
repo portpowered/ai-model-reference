@@ -1,0 +1,23 @@
+{
+  "id": "citation.qwen36-35b-a3b-blog",
+  "slug": "qwen36-35b-a3b-blog",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Qwen3.6-35B-A3B release blog",
+    "Qwen3.6-35B-A3B: Agentic Coding Power, Now Open to All"
+  ],
+  "tags": ["model-family", "foundations", "feed-forward"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["Qwen Team"],
+  "title": "Qwen3.6-35B-A3B: Agentic Coding Power, Now Open to All",
+  "url": "https://qwen.ai/blog?id=qwen3.6-35b-a3b",
+  "mla": "Qwen Team. \"Qwen3.6-35B-A3B: Agentic Coding Power, Now Open to All.\" Qwen, April 2026.",
+  "year": 2026
+}
