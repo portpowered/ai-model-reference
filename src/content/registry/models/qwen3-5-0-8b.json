@@ -1,14 +1,22 @@
 {
-  "id": "model.qwen-3-6-27b",
-  "slug": "qwen-3-6-27b",
+  "id": "model.qwen3-5-0-8b",
+  "slug": "qwen3-5-0-8b",
   "kind": "model",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["Qwen3.6-27B", "Qwen 3.6 27B"],
+  "aliases": [
+    "Qwen3.5-0.8B",
+    "Qwen 3.5 0.8B",
+    "Qwen3.5 small model",
+    "Qwen3.5 multimodal model",
+    "Qwen multimodal small model"
+  ],
   "tags": ["foundations", "model-family", "context-window", "attention"],
   "relatedIds": [
-    "model.qwen3-5-0-8b",
+    "model.qwen-3-6-27b",
     "model.qwen-3-6-35b-a3b",
+    "concept.multimodal-model",
+    "concept.modality",
     "concept.transformer-architecture",
     "concept.context-window",
     "concept.transformer",
@@ -16,19 +24,20 @@
     "system.inference-engine"
   ],
   "citationIds": [
-    "citation.qwen36-github",
-    "citation.qwen36-27b-blog",
-    "citation.qwen36-27b-huggingface"
+    "citation.qwen35-announcement",
+    "citation.qwen35-0-8b-huggingface",
+    "citation.qwen35-0-8b-base-huggingface"
   ],
   "status": "published",
   "createdAt": "2026-07-01T00:00:00.000Z",
-  "updatedAt": "2026-07-01T12:00:00.000Z",
+  "updatedAt": "2026-07-01T16:00:00.000Z",
   "authors": ["Qwen Team"],
-  "sourceId": "citation.qwen36-27b-blog",
+  "sourceId": "citation.qwen35-announcement",
   "family": "qwen",
   "sourceType": "open-weights",
   "modalities": ["text", "image", "video"],
   "architectureIds": [
+    "concept.multimodal-model",
     "concept.transformer-architecture",
     "concept.context-window"
   ],
@@ -37,7 +46,7 @@
   "datasetIds": [],
   "paperIds": [],
   "organizationId": "organization.qwen-team",
-  "releaseDate": "2026-04-22",
-  "parameterCount": "27 billion parameters",
+  "releaseDate": "2026-03-02",
+  "parameterCount": "0.8 billion parameters",
   "contextLength": 262144
 }
