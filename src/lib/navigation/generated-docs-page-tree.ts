@@ -1,14 +1,19 @@
-import type { Node, Root } from "fumadocs-core/page-tree";
+import type { Root } from "fumadocs-core/page-tree";
 import {
   type DocsPageSource,
   loadPublishedDocsPagesSync,
 } from "@/lib/content/pages";
 import type {
+  DocsCollectionDefinition,
   DocsCollectionId,
-  DocsCollectionSidebarGroupingResolverId,
 } from "@/lib/docs/collection-definition-contract";
 import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
 import { buildGroupedSidebarNodes } from "@/lib/navigation/docs-sidebar-grouping-adapter";
+import {
+  buildShellCollectionPageTree,
+  type ShellCollectionSidebarDefinition,
+  type ShellSidebarGroupingResolver,
+} from "@/lib/navigation/shell-collection-page-tree";
 
 const SIDEBAR_FOLDER_TITLES: Record<DocsCollectionId, string> = {
   glossary: "Glossary",
@@ -20,84 +25,42 @@ const SIDEBAR_FOLDER_TITLES: Record<DocsCollectionId, string> = {
   systems: "Systems",
 };
 
-function createPageNode(page: DocsPageSource): Node {
+function toShellSidebarDefinition(
+  definition: DocsCollectionDefinition,
+): ShellCollectionSidebarDefinition {
   return {
-    type: "page",
-    name: page.messages.title,
-    url: page.url,
+    id: definition.id,
+    routeSlug: definition.routeSlug,
+    frontmatterKind: definition.frontmatterKind,
+    sidebarLabel: SIDEBAR_FOLDER_TITLES[definition.id],
+    sidebarGroupingResolverId: definition.sidebarGroupingResolverId,
   };
 }
 
-function sortPages(pages: DocsPageSource[]): DocsPageSource[] {
-  return [...pages].sort((left, right) =>
-    left.messages.title.localeCompare(right.messages.title, "en", {
-      sensitivity: "base",
-    }),
-  );
-}
-
-function generateUngroupedNodes(pages: DocsPageSource[]): Node[] {
-  return sortPages(pages).map(createPageNode);
-}
-
-function generateCollectionNodes(
-  sidebarGroupingResolverId:
-    | DocsCollectionSidebarGroupingResolverId
-    | undefined,
-  pages: DocsPageSource[],
-): Node[] {
-  if (!sidebarGroupingResolverId) {
-    return generateUngroupedNodes(pages);
-  }
-
-  return buildGroupedSidebarNodes(sidebarGroupingResolverId, pages);
-}
-
-function assignPageToCollection(
-  pagesByCollection: Map<DocsCollectionId, DocsPageSource[]>,
-  collectionIdByRouteSlug: ReadonlyMap<string, DocsCollectionId>,
-  page: DocsPageSource,
-): void {
-  const [routeSlug] = page.docsSlug.split("/", 1);
-  const collectionId = collectionIdByRouteSlug.get(routeSlug);
-  if (!collectionId) {
-    return;
-  }
-
-  pagesByCollection.get(collectionId)?.push(page);
-}
+const AI_SIDEBAR_GROUPING_RESOLVERS: Record<
+  string,
+  ShellSidebarGroupingResolver
+> = {
+  glossary: (pages) =>
+    buildGroupedSidebarNodes("glossary", pages as DocsPageSource[]),
+  concepts: (pages) =>
+    buildGroupedSidebarNodes("concepts", pages as DocsPageSource[]),
+  modules: (pages) =>
+    buildGroupedSidebarNodes("modules", pages as DocsPageSource[]),
+  training: (pages) =>
+    buildGroupedSidebarNodes("training", pages as DocsPageSource[]),
+  systems: (pages) =>
+    buildGroupedSidebarNodes("systems", pages as DocsPageSource[]),
+};
 
 export function buildGeneratedDocsPageTree(baseTree: Root): Root {
   const collectionDefinitions = listDocsCollectionDefinitions();
-  const collectionIdByRouteSlug = new Map(
-    collectionDefinitions.map((definition) => [
-      definition.routeSlug,
-      definition.id,
-    ]),
-  );
   const pages = loadPublishedDocsPagesSync("en");
-  const pagesByCollection = new Map<DocsCollectionId, DocsPageSource[]>(
-    collectionDefinitions.map((definition) => [definition.id, []]),
-  );
 
-  for (const page of pages) {
-    assignPageToCollection(pagesByCollection, collectionIdByRouteSlug, page);
-  }
-
-  const children: Node[] = [];
-  for (const definition of collectionDefinitions) {
-    children.push({
-      type: "folder",
-      name: SIDEBAR_FOLDER_TITLES[definition.id],
-      children: generateCollectionNodes(
-        definition.sidebarGroupingResolverId,
-        pagesByCollection.get(definition.id) ?? [],
-      ),
-    });
-  }
-
-  return {
-    ...baseTree,
-    children,
-  };
+  return buildShellCollectionPageTree(baseTree, {
+    pages,
+    definitions: collectionDefinitions.map(toShellSidebarDefinition),
+    collectionIds: collectionDefinitions.map((definition) => definition.id),
+    groupingResolvers: AI_SIDEBAR_GROUPING_RESOLVERS,
+  });
 }

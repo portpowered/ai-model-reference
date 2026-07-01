@@ -4,6 +4,7 @@ import {
   DOCS_COLLECTION_IDS,
   type DocsCollectionDefinition,
   type DocsCollectionId,
+  type ShellCollectionDefinition,
 } from "@/lib/docs/collection-definition-contract";
 import { getDocsCollectionDefinition } from "@/lib/docs/docs-collection-definitions";
 
@@ -55,7 +56,7 @@ export function resolveSectionKindCollectionId(
 }
 
 export function resolveUiMessagePath(
-  messages: UiMessages,
+  messages: Record<string, unknown>,
   path: string,
 ): string {
   const value = path
@@ -77,9 +78,9 @@ export function resolveUiMessagePath(
   return value;
 }
 
-export function resolveDocsCollectionIndexMessages(
-  messages: UiMessages,
-  definition: DocsCollectionDefinition,
+export function resolveShellCollectionIndexMessages(
+  messages: Record<string, unknown>,
+  definition: Pick<ShellCollectionDefinition, "messageKeys">,
 ): DocsCollectionIndexMessages {
   const { index } = definition.messageKeys;
 
@@ -91,4 +92,11 @@ export function resolveDocsCollectionIndexMessages(
     emptyDescription: resolveUiMessagePath(messages, index.emptyDescription),
     emptyHomeLink: resolveUiMessagePath(messages, index.emptyHomeLink),
   };
+}
+
+export function resolveDocsCollectionIndexMessages(
+  messages: UiMessages,
+  definition: DocsCollectionDefinition,
+): DocsCollectionIndexMessages {
+  return resolveShellCollectionIndexMessages(messages, definition);
 }
