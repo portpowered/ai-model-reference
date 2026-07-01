@@ -124,7 +124,7 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
@@ -146,7 +146,7 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
       "/docs/modules/byte-level-tokenization",
       "/docs/glossary/special-tokens",
       "/docs/concepts/tokenizers-overview",
-      "/docs/glossary/embedding",
+      "/docs/concepts/embedding",
       "/docs/glossary/vocabulary-size",
       "/docs/glossary/logit",
       "/docs/glossary/softmax",

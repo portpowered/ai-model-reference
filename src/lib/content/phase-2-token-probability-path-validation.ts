@@ -77,7 +77,9 @@ export async function runTargetPathRouteGate(): Promise<TokenProbabilityPathVali
     const slug = registryId.replace("concept.", "");
     const canonicalRoute = glossaryPageHref(slug);
     const page = pages.find(
-      (entry) => entry.frontmatter.registryId === registryId,
+      (entry) =>
+        entry.url === canonicalRoute &&
+        entry.frontmatter.registryId === registryId,
     );
 
     if (!page) {
@@ -235,11 +237,11 @@ export async function runTokenRelatedDocsGate(): Promise<TokenProbabilityPathVal
         `token curated related item ${registryId} missing relationship explanation`,
       );
     }
-    if (!item?.href?.startsWith("/docs/glossary/")) {
+    if (!item?.href?.startsWith("/docs/")) {
       return failResult(
         domainId,
         label,
-        `token curated related item ${registryId} href is not a published glossary route`,
+        `token curated related item ${registryId} href is not a published docs route`,
       );
     }
   }

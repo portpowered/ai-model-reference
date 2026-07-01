@@ -17,6 +17,7 @@ const GLOSSARY_SEPARATOR_TITLES = [
 const ARCHITECTURE_CONCEPT_URLS = [
   "/docs/concepts/alibi",
   "/docs/concepts/context-extension",
+  "/docs/concepts/embedding",
   "/docs/concepts/kv-cache",
   "/docs/concepts/page-spec-workflow-sample",
   "/docs/concepts/positional-encodings",
