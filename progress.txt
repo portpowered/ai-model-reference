@@ -1,5 +1,7 @@
 ## Codebase Patterns
 - Docs sidebar folder generation iterates `listDocsCollectionDefinitions()` from `src/lib/docs/docs-collection-definitions.ts`; assign published pages to folders by matching the first `docsSlug` segment to each definition's `routeSlug`.
+- Grouped sidebar collections delegate to `buildGroupedSidebarNodes()` in `src/lib/navigation/docs-sidebar-grouping-adapter.ts`, which owns AI registry lookup and sidebar grouping resolver dispatch; the generic builder in `generated-docs-page-tree.ts` only handles ungrouped title sorting.
+- When asserting grouped sidebar pages for the final separator in a section, filter nodes by the expected group's page URLs because trailing pages without a resolved group follow grouped content without their own separator.
 - New registry records under `src/content/registry/` are picked up by `bun run prepare:content-runtime`, which regenerates `src/lib/content/generated/registry-runtime.generated.ts` before typecheck, lint, and tests run.
 - Model registry records use typed relationship fields (`architectureIds`, `moduleIds`, `trainingRegimeIds`, `relatedIds`) plus backing `citation`, `paper`, and `organization` records; update reciprocal `usedByModelIds` / `relatedIds` on linked training regimes when adding model consumers.
 - For post-training discovery when no generic `training-regime.post-training` record exists, link models to `concept.alignment` in `relatedIds` and keep `training-regime.pretraining` in `trainingRegimeIds`.
@@ -46,4 +48,33 @@
   - Story 001 only drives folder iteration and page bucketing; AI registry imports and grouping resolvers remain in the generic builder until story 002 introduces the adapter.
   - `collectSidebarPageLinks` from `docs-sidebar-contract.ts` is the preferred helper for asserting sidebar page coverage without scraping HTML.
   - Folder display names are still a local English map; browse `messageKeys.browse.sectionTitle` could replace it later if sidebar localization is needed.
+---
+
+## 2026-07-01T15:40:00Z - generic-sidebar-collection-builder-002
+- Added `docs-sidebar-grouping-adapter.ts` with `buildGroupedSidebarNodes()` owning AI registry lookup (`getConceptById`, `getModuleById`, `getTrainingRegimeById`, `getSystemById`) and sidebar grouping resolver dispatch for glossary, concepts, modules, training, and systems.
+- Refactored `generated-docs-page-tree.ts` to route grouped collections through the adapter via each definition's `sidebarGroupingResolverId`; ungrouped collections (models, papers) remain title-sorted in the generic builder.
+- Added adapter tests for configured resolver ids and explicit rejection of unsupported resolver ids.
+- **Learnings for future iterations:**
+  - Keep generic node construction (`createPageNode`, `sortPages`) in the generic builder; move registry-backed grouping and separator assembly into the adapter.
+  - `assertSupportedSidebarGroupingResolverId()` provides a runtime guard when resolver ids cross string boundaries; typed `DocsCollectionSidebarGroupingResolverId` covers the happy path at compile time.
+  - Existing `generated-docs-page-tree.test.ts` behavioral assertions remain valid without changes because sidebar output is unchanged.
+---
+
+## 2026-07-01T16:55:00Z - generic-sidebar-collection-builder-003
+- Added focused page-tree tests asserting models and papers (collections without `sidebarGroupingResolverId`) render title-sorted page nodes with no separator entries.
+- Added `GPT_3_MODEL_URL` and `DEEPSEEK_V4_PAPER_URL` constants to `docs-sidebar-contract.ts` and asserted representative ungrouped link names/URLs through `collectSidebarPageLinks`.
+- Verified existing `generateUngroupedNodes()` behavior already satisfies story acceptance criteria; no production code changes required.
+- **Learnings for future iterations:**
+  - Use `getPageNodeEntries()` plus `sortPagesByTitle()` against `loadPublishedDocsPagesSync("en")` to assert ungrouped sidebar ordering without hardcoding every page URL.
+  - Ungrouped collection verification belongs in `generated-docs-page-tree.test.ts`; `source.test.ts` still checks URL presence but not title order or separator absence.
+---
+
+## 2026-07-01T17:35:00Z - generic-sidebar-collection-builder-004
+- Added page-tree tests asserting grouped separator labels and page contiguity (existing), per-group title sorting by localized page name, and trailing placement of pages without a resolved group after all grouped content.
+- Verified grouped collection behavior already satisfied story acceptance criteria through the adapter's `groupPages()` implementation; no production code changes required.
+- Files changed: `src/lib/navigation/generated-docs-page-tree.test.ts`
+- **Learnings for future iterations:**
+  - Concepts, modules, and systems currently have published pages without a resolved sidebar group; they render in a title-sorted tail after the last grouped separator.
+  - For the final group in a grouped folder, slice assertions must filter by `group.pageUrls` or stop before trailing ungrouped pages because `findNextSeparatorIndex` returns `-1`.
+  - Reuse `collectUngroupedPages()` with each `GROUPED_SECTIONS` resolver to assert tail placement without hardcoding every fallback page slug.
 ---
