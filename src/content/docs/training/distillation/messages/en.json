@@ -1,15 +1,15 @@
 {
   "title": "Distillation",
   "description": "A teacher-student training regime where a smaller model learns from supervision produced by a larger or stronger teacher model.",
-  "openingSummary": "Large models can be strong teachers but expensive to run at scale. Distillation trains a smaller student model to imitate teacher behavior so teams can deploy a cheaper model that keeps much of the teacher's useful output quality.",
+  "openingSummary": "Distillation is a teacher-student training regime. A stronger teacher model produces supervision, and a smaller student model learns to match it so teams can deploy a cheaper model that keeps much of the teacher's useful behavior.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Distillation is a training regime built around two models: a teacher that provides supervision and a student that learns from that supervision. The student is usually smaller or cheaper to run than the teacher."
+      "body": "Distillation is a teacher-student training regime. A larger or stronger teacher model produces supervision, and a smaller student model learns to match that supervision. The teacher signal can appear as soft targets that spread probability across many plausible tokens, generated traces the teacher writes for the student to imitate, or labeled examples where the teacher marks the outputs the student should copy."
     },
     "whyItExists": {
       "title": "Why It Exists",
-      "body": "Teams use distillation when they want a model that is easier to serve in production without giving up behavior they already trust from a stronger teacher."
+      "body": "Teams distill when they need a model they can run cheaply at scale. The student usually costs less per request, responds with lower latency than the full teacher, and fits deployment constraints such as smaller GPUs, on-device serving, or tighter serving budgets. Distillation trades extra training time and teacher compute for a model that keeps much of the teacher's useful behavior after deployment."
     },
     "howItWorks": {
       "title": "How It Works",
