@@ -1055,7 +1055,10 @@ describe("registry-runtime", () => {
       "system.on-disk-kv-cache",
       "paper.deepseek-v4",
       "paper.nemotron-3-super",
+      "model.mixtral-8x22b",
+      "model.mixtral-8x7b",
       "model.nemotron-3-super",
+      "model.qwen-3-6-35b-a3b",
     ]);
     expect(record?.relatedModuleIds).toEqual([
       "module.mixture-of-experts",
