@@ -150,6 +150,18 @@ Full contracts live in maintainer references—not duplicated here:
 See [Local validation](#local-validation) for the complete fast content loop
 including `make linkcheck`.
 
+#### PR-head mergeability (process executors)
+
+When page PRD story work is otherwise complete but the current blocker is
+PR-head mergeability, autonomous process executors should follow the existing
+mergeability phase in
+[factory/workstations/process/AGENTS.md](../../factory/workstations/process/AGENTS.md)
+(rules 5.2.1–5.2.5)—not a second policy. Run
+`bun run watch:active-pr-mergeability` to diagnose active lane mergeability and
+attempt the smallest disciplined mergeability fix allowed by those rules before
+returning continue. Command routing and planner preflight:
+[content page generation workflow relevant files](../internal/processes/content-page-generation-workflow-relevant-files.md#pr-head-mergeability-for-page-branches-process-executors).
+
 ## Routine canonical page policies
 
 Ordinary canonical page work should stay on the low-collision path defined by

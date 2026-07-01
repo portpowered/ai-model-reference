@@ -23,6 +23,33 @@ Derived validation contract and exceptions:
 Contributor-facing walkthrough:
 [CONTRIBUTING.md#review-preflight-before-opening-a-page-pr](../../contributors/CONTRIBUTING.md#review-preflight-before-opening-a-page-pr).
 
+## PR-head mergeability for page branches (process executors)
+
+When a routine canonical page branch has finished its page PRD stories but the
+current blocker is PR-head mergeability—failed required checks, merge
+conflicts, inherited test failures, or a non-mergeable PR head—do not stall in
+passive continue states. Follow the existing process workstation mergeability
+phase in
+[factory/workstations/process/AGENTS.md](../../../factory/workstations/process/AGENTS.md)
+(rules 5.2.1–5.2.5). Attempt the smallest disciplined mergeability fix those
+rules allow before returning continue.
+
+| When | Command |
+| --- | --- |
+| Diagnose mergeability class, linkage gaps, and action queue for active PR-backed lanes | `bun run watch:active-pr-mergeability` |
+| Planner batch dispatch: collision preflight before scheduling overlapping page lanes | `bun run report:planner-batch-collision-preflight` |
+
+These are existing owned commands. Do not invent a second mergeability policy,
+new command, or new enforcement mechanism—the process workstation owns
+mergeability phase expectations.
+
+Valid mergeability work on the current PR head includes fixing required test,
+lint, typecheck, build, contract, or browser-check failures; resolving merge
+conflicts or merging the current base branch; and updating shared files outside
+the original page slice when they are the concrete reason the reviewed head is
+blocked. Document mergeability-only follow-ups in `progress.txt` and PR
+conversation comments.
+
 **Do not add** page-specific directory exports for ordinary page work. A focused
 guard in `content-paths.test.ts` fails when new `export const *_PAGE_DIR`
 constants appear outside the grandfathered allowlist.

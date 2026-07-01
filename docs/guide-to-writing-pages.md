@@ -31,6 +31,17 @@ Maintainer references for the full contracts (do not duplicate them here):
 See [CONTRIBUTING local validation](./contributors/CONTRIBUTING.md#local-validation)
 for the full fast content loop including `make linkcheck`.
 
+### PR-head mergeability (process executors)
+
+When page PRD stories are complete but the remaining blocker is PR-head
+mergeability, use the existing process workstation mergeability phase—not a
+second policy. Run `bun run watch:active-pr-mergeability` to diagnose active
+lane mergeability, follow
+[factory/workstations/process/AGENTS.md](../factory/workstations/process/AGENTS.md)
+rules 5.2.1–5.2.5, and attempt the smallest disciplined fix before returning
+continue. Full command routing:
+[content-page-generation-workflow-relevant-files](./internal/processes/content-page-generation-workflow-relevant-files.md#pr-head-mergeability-for-page-branches-process-executors).
+
 Examples: 
 1. there was an FFN page that explained the FFN as a concept, but what we wanted when we compared it to the MOE page is the variant in the expert count and the router, rather than the internal activation behavior.Therefore we added a new graph to the FFN. 
 
