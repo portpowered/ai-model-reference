@@ -1,0 +1,35 @@
+{
+  "id": "model.qwen-3-6-27b",
+  "slug": "qwen-3-6-27b",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Qwen3.6-27B", "Qwen 3.6 27B"],
+  "tags": ["foundations", "model-family", "context-window"],
+  "relatedIds": ["model.qwen-3-6-35b-a3b"],
+  "citationIds": [
+    "citation.qwen36-github",
+    "citation.qwen36-27b-blog",
+    "citation.qwen36-27b-huggingface"
+  ],
+  "status": "draft",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "authors": ["Qwen Team"],
+  "sourceId": "citation.qwen36-27b-blog",
+  "family": "qwen",
+  "sourceType": "open-weights",
+  "modalities": ["text", "image"],
+  "architectureIds": [
+    "concept.transformer-architecture",
+    "concept.context-window"
+  ],
+  "moduleIds": ["module.rope", "module.rmsnorm"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "organizationId": "organization.qwen-team",
+  "releaseDate": "2026-04-22",
+  "parameterCount": "27 billion parameters",
+  "contextLength": 262144
+}
