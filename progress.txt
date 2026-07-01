@@ -21,6 +21,66 @@
 - Add the `attention` tag to model records when connecting them to the attention tag landing; MoE models can also use `feed-forward` for MoE module discovery.
 - Critical docs autodiscovery render smoke walks every metadata-discovered page (currently 36+); keep `CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS` at or above 45s when the attention or token-to-probability smoke sets grow.
 - When merging `main` into a model-page branch, attention tag landing inventory tests may need both new models (e.g. llama-3 and Qwen 3.6) in the expected model-group list.
+- New serving system registry records follow the memory/batching pattern: `systemType: "serving"`, `conceptType: "inference"`, `variantGroup: "serving-runtime-foundations"`, Orca citation for release metadata, and focused tests in `src/lib/content/*-system-registry.test.ts` using `getSystemById`, `resolveCitations` from `@/lib/content/citations`, and `deriveCuratedRelatedItems`.
+- There is no `system.dynamic-batching` registry record; link `system.continuous-batching` when the PRD mentions dynamic batching.
+- Canonical system pages must include `SystemFlowGraph` in the `how-it-works` section per `validate-data`; ship `graph.<slug>-system-flow.json`, page `assets.json`, and graph node labels in `messages/en.json` even when a richer teaching asset arrives in a later story.
+- Expand serving system page teaching copy in `messages/en.json` following the memory page pattern: isolation-first opening, admission boundary in `whereItSits`, mechanism coverage in `howItWorks`, and observable latency/fairness/throughput/memory consequences in `practicalImpact`.
+- When a system page adds `sections.related.body` intro copy, wire `<T k="sections.related.body" />` before `<RelatedDocs>` in `page.mdx` (memory/inference-engine pattern) so the prose renders in the related section.
+
+## 2026-07-02T00:20:00Z - request-scheduling-system-page-004
+- Expanded request scheduling copy to distinguish routing (where), scheduling (what runs next), and batching (grouping compatible work), with concrete prefill/decode coordination and batching/memory-pressure interaction examples in `practicalImpact`.
+- Added related-section intro prose and wired `sections.related.body` in `page.mdx`; extended focused message and render contract tests for the comparison content.
+- Verified production build and browser-visible rendering on port 3473.
+- Files changed:
+  - `src/content/docs/systems/request-scheduling/messages/en.json`
+  - `src/content/docs/systems/request-scheduling/page.mdx`
+  - `src/lib/content/request-scheduling-system-page.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: story-004-style routing/batching distinctions fit in `whatItIs`/`whereItSits`/`practicalImpact` without a new section; mirror memory page related intro with `<T k="sections.related.body" />` before `RelatedDocs`.
+  - Gotchas encountered: prose auto-linking splits "Prefill and decode coordination"; assert on "coordination is one example" in render tests instead.
+  - Useful context: focused checks run with `bun test src/lib/content/request-scheduling-system-page.test.ts`, `bun run typecheck`, `bun run lint`, `bun run validate-data`, and `bun run build` + `curl --max-time 10 http://127.0.0.1:<port>/docs/systems/request-scheduling` (all passed UTC 2026-07-02T00:20:00Z).
+---
+
+## 2026-07-01T23:55:00Z - request-scheduling-system-page-003
+- Expanded request scheduling page copy to define scheduling in isolation, cover queue order, prefill/decode work, fairness, deadlines, batching opportunities, memory limits, cancellation, and admission-control boundaries, and state observable latency, fairness, throughput, and memory-pressure consequences.
+- Added focused message and render contract tests asserting the new teaching topics appear in bundled messages and rendered HTML.
+- Verified production build and browser-visible rendering on port 3472.
+- Files changed:
+  - `src/content/docs/systems/request-scheduling/messages/en.json`
+  - `src/lib/content/request-scheduling-system-page.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: follow the memory system page pattern for story-003-style mechanism/tradeoff expansion—keep comparisons light in opening sections and defer routing-vs-batching distinctions to the next story.
+  - Gotchas encountered: prose auto-linking may split phrases; assert on stable substrings like "Fairness policies" rather than linked anchor text.
+  - Useful context: focused checks run with `bun test src/lib/content/request-scheduling-system-page.test.ts`, `bun run typecheck`, `bun run lint`, `bun run validate-data`, and `bun run build` + `curl --max-time 10 http://127.0.0.1:<port>/docs/systems/request-scheduling` (all passed UTC 2026-07-01T23:55:00Z).
+---
+
+## 2026-07-01T23:30:00Z - request-scheduling-system-page-002
+- Published canonical request scheduling system page at `/docs/systems/request-scheduling` with standard system-page MDX, English messages, system-flow graph asset, and focused page contract tests.
+- Added `graph.request-scheduling-system-flow` registry graph (queue → schedule → run → continue) required by system-page template validation.
+- Verified production build and browser-visible rendering on port 3471.
+- Files changed:
+  - `src/content/docs/systems/request-scheduling/page.mdx`
+  - `src/content/docs/systems/request-scheduling/messages/en.json`
+  - `src/content/docs/systems/request-scheduling/assets.json`
+  - `src/content/registry/graphs/request-scheduling-system-flow.json`
+  - `src/lib/content/request-scheduling-system-page.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: `validate-data` enforces `docs/templates/system.mdx` structure including `SystemFlowGraph` in `how-it-works`; deferring the graph to a later story still requires a minimal system-flow graph at page-bundle time.
+  - Gotchas encountered: narrow `assets.systemFlow.graphId` with `if (assets.systemFlow.type === "graph")` in tests to satisfy TypeScript discriminated unions.
+  - Useful context: focused checks run with `bun test src/lib/content/request-scheduling-system-page.test.ts`, `bun run typecheck`, `bun run lint`, `bun run validate-data`, and `bun run build` + `curl --max-time 10 http://127.0.0.1:<port>/docs/systems/request-scheduling` (all passed UTC 2026-07-01T23:30:00Z).
+---
+
+## 2026-07-01T22:00:00Z - request-scheduling-system-page-001
+- Added `system.request-scheduling` registry record with slug `request-scheduling`, published status, discovery aliases (scheduler, request scheduling, queueing, admission control, fairness, latency, throughput), foundations tag, Orca citation, and relationships to prefill/decode concepts plus batching, continuous batching, routing, memory, deployment, and inference-engine systems.
+- Added focused registry contract test proving identity fields, citation resolution, and curated related-doc hrefs for published neighbors.
+- Files changed:
+  - `src/content/registry/systems/request-scheduling.json`
+  - `src/lib/content/request-scheduling-system-registry.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: reuse `citation.orca-serving-system` and `serving-runtime-foundations` variant group for new serving-control concepts; import `resolveCitations` from `@/lib/content/citations`, not `registry-runtime`.
+  - Gotchas encountered: no `system.dynamic-batching` record exists—use `system.continuous-batching` for dynamic/continuous batching adjacency.
+  - Useful context: focused checks run with `bun test src/lib/content/request-scheduling-system-registry.test.ts`, `bun run typecheck`, `bun run lint`, and `bun run validate-data` (all passed UTC 2026-07-01T22:00:00Z).
+---
 
 ## 2026-07-01T00:00:00Z - llama-3-model-page-001
 - Established `model.llama-3` with Llama-family metadata, open-weights source type, 405B / 128K fields, and relationships to transformer architecture, autoregressive generation, attention, RoPE, context-window, pretraining, and alignment (post-training) records.
