@@ -21,6 +21,7 @@ import {
   type ProOptions,
   ReactFlow,
   ReactFlowProvider,
+  useReactFlow,
 } from "@xyflow/react";
 import { Expand, X } from "lucide-react";
 import type {
@@ -28,7 +29,15 @@ import type {
   KeyboardEvent as ReactKeyboardEvent,
   ReactNode,
 } from "react";
-import { createContext, useContext, useEffect, useId, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { InlineMath } from "@/features/docs/components/Math";
@@ -77,6 +86,38 @@ const REGISTRY_GRAPH_FLOW_FIT_VIEW_OPTIONS: FitViewOptions = {
   padding: 0.08,
   maxZoom: 1.15,
 };
+
+function RegistryGraphFlowFitView({
+  viewportRef,
+}: {
+  viewportRef: RefObject<HTMLDivElement | null>;
+}) {
+  const { fitView } = useReactFlow();
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      return;
+    }
+
+    const refit = () => {
+      requestAnimationFrame(() => {
+        void fitView(REGISTRY_GRAPH_FLOW_FIT_VIEW_OPTIONS);
+      });
+    };
+
+    refit();
+
+    const observer = new ResizeObserver(refit);
+    observer.observe(viewport);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [fitView, viewportRef]);
+
+  return null;
+}
 
 const REGISTRY_GRAPH_FLOW_DEFAULT_EDGE_OPTIONS: DefaultEdgeOptions = {
   type: "straight",
@@ -868,6 +909,7 @@ function RegistryGraphFlowSurface({
   popupId: string;
   viewportStyle: CSSProperties;
 }) {
+  const viewportRef = useRef<HTMLDivElement>(null);
   const handleReactFlowError: OnError = (id, message) => {
     if (id === "002" || id === "004") {
       return;
@@ -978,6 +1020,7 @@ function RegistryGraphFlowSurface({
               ))}
             </div>
             <div
+              ref={viewportRef}
               className="registry-graph-flow__viewport w-full max-w-full overflow-hidden"
               style={viewportStyle}
             >
@@ -1009,6 +1052,7 @@ function RegistryGraphFlowSurface({
                 proOptions={REGISTRY_GRAPH_FLOW_PRO_OPTIONS}
               >
                 <Background gap={16} size={1} />
+                <RegistryGraphFlowFitView viewportRef={viewportRef} />
               </ReactFlow>
             </div>
             <RegistryGraphFlowNodePopup

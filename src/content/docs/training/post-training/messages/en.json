@@ -59,13 +59,13 @@
   "graph": {
     "nodes": {
       "baseModel": {
-        "label": "Pretrained base model"
+        "label": "Pretrained\nbase model"
       },
       "objectives": {
-        "label": "Post-training data and objectives"
+        "label": "Post-training\ndata and objectives"
       },
       "shapedModel": {
-        "label": "Behavior-shaped model"
+        "label": "Behavior-shaped\nmodel"
       }
     }
   }

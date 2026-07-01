@@ -69,13 +69,13 @@ describe("post-training training-regime graph contracts", () => {
       "Post-training reshapes a pretrained base model",
     );
     expect(page.messages.graph?.nodes?.baseModel?.label).toBe(
-      "Pretrained base model",
+      "Pretrained\nbase model",
     );
     expect(page.messages.graph?.nodes?.objectives?.label).toBe(
-      "Post-training data and objectives",
+      "Post-training\ndata and objectives",
     );
     expect(page.messages.graph?.nodes?.shapedModel?.label).toBe(
-      "Behavior-shaped model",
+      "Behavior-shaped\nmodel",
     );
   });
 
@@ -93,6 +93,10 @@ describe("post-training training-regime graph contracts", () => {
     ]);
     expect(graph?.rootNodeId).toBe("baseModel");
     expect(graph?.layout).toBe("vertical-expandable");
+    expect(graph?.nodes.map((node) => node.position?.x)).toEqual([79, 79, 79]);
+    expect(graph?.nodes.map((node) => node.size?.width)).toEqual([
+      200, 200, 200,
+    ]);
   });
 });
 
@@ -212,9 +216,12 @@ describe("post-training training-regime discovery contracts", () => {
     expect(html).toContain(
       'data-graph-legend="graph.post-training-training-flow"',
     );
-    expect(html).toContain("Pretrained base model");
-    expect(html).toContain("Post-training data and objectives");
-    expect(html).toContain("Behavior-shaped model");
+    expect(html).toContain("Pretrained");
+    expect(html).toContain("base model");
+    expect(html).toContain("Post-training");
+    expect(html).toContain("data and objectives");
+    expect(html).toContain("Behavior-shaped");
+    expect(html).toContain("model");
     expect(html).toContain(
       "Post-training reshapes a pretrained base model by applying narrower data and sharper objectives.",
     );
