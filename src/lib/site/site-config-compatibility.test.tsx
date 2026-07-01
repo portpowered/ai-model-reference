@@ -15,6 +15,7 @@ import {
 } from "./model-atlas-site-config";
 import {
   resolveSiteConfigHomeFeaturedLinkHrefs,
+  resolveSiteConfigHomeFeaturedLinks,
   resolveSiteConfigPrimaryNavHrefs,
 } from "./site-config-resolution";
 
@@ -138,6 +139,29 @@ describe("site config home featured link compatibility", () => {
       "/docs/modules/grouped-query-attention",
       "/docs/modules/swiglu",
       "/docs/modules/relu",
+    ]);
+  });
+
+  test("binds featured link copy through the same home message keys", async () => {
+    const messages = await loadUiMessages();
+
+    const configLinks = resolveSiteConfigHomeFeaturedLinks(
+      modelAtlasSiteConfig,
+      messages,
+    );
+    const expectedCopy = modelAtlasSiteConfig.homeFeaturedLinks.map((link) => ({
+      title: messages.home[link.titleKey],
+      description: messages.home[link.descriptionKey],
+    }));
+
+    expect(
+      configLinks.map(({ title, description }) => ({ title, description })),
+    ).toEqual(expectedCopy);
+    expect(configLinks.map((link) => link.title)).toEqual([
+      "Browse the atlas",
+      "Grouped-query attention",
+      "SwiGLU",
+      "ReLU",
     ]);
   });
 });
