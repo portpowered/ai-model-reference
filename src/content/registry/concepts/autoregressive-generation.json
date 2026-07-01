@@ -8,9 +8,16 @@
     "Autoregressive generation",
     "autoregressive decoding",
     "next-token generation",
+    "next token generation",
+    "next-token prediction",
     "AR generation"
   ],
-  "tags": ["foundations", "taxonomy", "attention"],
+  "tags": [
+    "foundations",
+    "taxonomy",
+    "attention",
+    "token-to-probability-chain"
+  ],
   "relatedIds": [
     "concept.token",
     "concept.logit",
@@ -24,20 +31,26 @@
     "concept.decode",
     "concept.prefill-decode-split",
     "concept.encoder-decoder",
+    "concept.transformer",
     "concept.conditioning",
     "concept.denoising-generation",
+    "concept.diffusion-model",
     "concept.quantization"
   ],
   "citationIds": [
+    "citation.attention-is-all-you-need",
+    "citation.gpt-2-report",
+    "citation.raffel-t5",
     "citation.brown-gpt-3",
     "citation.curious-case-neural-text-degeneration"
   ],
   "status": "published",
   "createdAt": "2026-06-04T12:30:00.000Z",
-  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
   "conceptType": "general",
   "sidebarGrouping": {
-    "glossary": "generation-and-diffusion"
+    "glossary": "generation-and-diffusion",
+    "concepts": "inference"
   },
   "prerequisiteIds": [
     "concept.token",
@@ -47,5 +60,10 @@
     "concept.decoder",
     "concept.encoder-decoder"
   ],
-  "explainsIds": ["concept.conditioning"]
+  "explainsIds": [
+    "concept.sampling-overview",
+    "concept.prefill",
+    "concept.decode",
+    "concept.prefill-decode-split"
+  ]
 }

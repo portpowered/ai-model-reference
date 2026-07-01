@@ -1,0 +1,36 @@
+{
+  "title": "Autoregressive generation",
+  "description": "How a model turns the current context into one next token, appends that token, and repeats the same loop until the output is complete.",
+  "openingSummary": "Autoregressive generation is the step-by-step next-token loop behind most text generation: the model reads the current context, scores candidate next tokens, chooses one, adds it to the context, and then runs the same loop again one step later.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Autoregressive generation means producing an output one discrete step at a time while conditioning each new step on everything that came before it. In language models, that step is usually the next token. The model reads the current token context, produces logits for the vocabulary, turns those scores into a choice distribution with softmax, picks one token, appends it, and repeats. The key idea is not any one architecture block; it is the feedback loop where each new output becomes part of the next input."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "This loop explains why text generation feels sequential even when transformers do heavy parallel math inside each forward pass. It also connects several pages readers often meet separately: token explains the unit being chosen, logit and softmax explain how raw scores become probabilities, decoder and encoder-decoder explain where the generation head lives, and sampling overview explains how the final token is picked when several options look plausible."
+    },
+    "oneTokenLoop": {
+      "title": "One Token At A Time",
+      "body": "Picture the prompt \"The capital of France is\". The model processes that context and emits logits for many candidate next tokens such as \"Paris\", punctuation, or less likely mistakes. A decoding rule then selects or samples one token. That chosen token is appended to the running context, so the next pass no longer answers the original prompt alone; it answers the prompt plus the new token. During prefill, the model can process many prompt positions in parallel because those tokens are already known. During generation, the next token is unknown until the previous step finishes, so the loop still advances one token at a time."
+    },
+    "servingBridge": {
+      "title": "From Architecture To Serving",
+      "body": "Autoregressive generation is where architecture choices meet serving reality. A decoder-only model uses causal attention so each step can look backward but not forward. An encoder-decoder model still generates autoregressively on the decoder side while cross-attending to fixed encoder outputs. Key-value (KV) cache reuse matters because each decode step should not recompute every earlier attention state from scratch. That is why serving stacks split prompt-heavy prefill from steady decode work, and why pages such as kv-cache and prefill-decode split talk about memory bandwidth, cache growth, and latency instead of only model quality."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Autoregressive generation is not the same as diffusion-style generation. Diffusion models also iterate, but they usually refine a noisy latent or image over many denoising steps rather than choosing one next token from a vocabulary at each step. It is also different from encoder-only understanding flows. Encoder-only systems such as many embedding or classification models read the whole input to build representations, but they are not primarily designed to append one generated token after another. Finally, autoregressive generation is broader than decoder-only chat models: translation and speech systems with encoder-decoder layouts can use the same next-token loop."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

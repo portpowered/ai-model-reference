@@ -78,7 +78,7 @@ describe("Phase 2 transformer model-family glossary page (US-001)", () => {
     expect(html).toContain('href="/docs/glossary/architecture"');
     expect(html).toContain('href="/docs/glossary/module"');
     expect(html).toContain('href="/docs/glossary/encoder-decoder"');
-    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/concepts/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/foundation-model"');
   });
 

@@ -32,5 +32,10 @@
       "title": "References"
     }
   },
-  "openingSummary": "A decoder reads representations from an encoder or earlier blocks and maps them to an output space, often autoregressively or iteratively until a full sample is formed."
+  "openingSummary": "A decoder reads representations from an encoder or earlier blocks and maps them to an output space, often autoregressively or iteratively until a full sample is formed.",
+  "relatedDocs": {
+    "concept.autoregressive-generation": {
+      "reason": "Autoregressive generation explains the token-by-token loop decoder-based language models repeat after each next-token choice."
+    }
+  }
 }

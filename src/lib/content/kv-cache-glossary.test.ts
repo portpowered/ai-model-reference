@@ -80,7 +80,7 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
       items.some(
         (item) =>
           item.registryId === "concept.autoregressive-generation" &&
-          item.href === "/docs/glossary/autoregressive-generation",
+          item.href === "/docs/concepts/autoregressive-generation",
       ),
     ).toBe(true);
     expect(
@@ -153,7 +153,7 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/glossary/decode"');
-    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/concepts/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');

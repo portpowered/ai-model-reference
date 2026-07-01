@@ -84,10 +84,20 @@ describe("Phase 2 encoder-decoder architecture glossary pages (US-002)", () => {
   test("encoder-decoder surfaces published autoregressive generation and transformer links", async () => {
     const html = await renderGlossaryHtml("encoder-decoder");
 
-    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/concepts/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/transformer"');
     expect(html).toContain("Transformers");
     expect(html).not.toContain("Planned related doc");
+  });
+
+  test("decoder surfaces the autoregressive generation explainer with a decoder-specific reason label", async () => {
+    const html = await renderGlossaryHtml("decoder");
+
+    expect(html).toContain('href="/docs/concepts/autoregressive-generation"');
+    expect(html).toContain(
+      "Autoregressive generation explains the token-by-token loop decoder-based language models repeat after each next-token choice.",
+    );
+    expect(html).toContain('data-testid="curated-related-docs"');
   });
 
   test("encoder-decoder links to encoder and decoder peers", async () => {

@@ -91,6 +91,12 @@ async function renderLocalDocsPage(
         />
         <DocsTitle>{loadedPage.messages.title}</DocsTitle>
         <DocsDescription>{description}</DocsDescription>
+        {localRef.section === "concepts" ? (
+          <FoldedOpeningSummary
+            label={uiMessages.shell.openingSummary}
+            summary={loadedPage.messages.openingSummary}
+          />
+        ) : null}
         <DocsBody>
           {localRef.section !== "systems" && localRef.section !== "glossary" ? (
             <DocsOpeningSummary

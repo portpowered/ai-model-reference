@@ -118,8 +118,8 @@ const CLUSTER_REASON_LABEL_SAMPLES: {
   },
 ];
 
-function slugFromGlossaryHref(href: string): string {
-  return href.replace("/docs/glossary/", "");
+function slugFromDocsHref(href: string): string {
+  return href.replace("/docs/glossary/", "").replace("/docs/concepts/", "");
 }
 
 function collectPublishedRelatedItems(registryId: string): RelatedDocItem[] {
@@ -157,7 +157,7 @@ function findPublishedHrefToSlug(
   preferredSlugs: string[] = [],
 ): string | undefined {
   const matches = collectPublishedRelatedItems(registryId).filter(
-    (item) => item.href && matchesSlug(slugFromGlossaryHref(item.href)),
+    (item) => item.href && matchesSlug(slugFromDocsHref(item.href)),
   );
 
   for (const preferred of preferredSlugs) {
@@ -367,7 +367,7 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
       );
       expect(
         autoregressiveResults.some(
-          (result) => result.url === "/docs/glossary/autoregressive-generation",
+          (result) => result.url === "/docs/concepts/autoregressive-generation",
         ),
       ).toBe(true);
 
@@ -398,7 +398,7 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
         (slug) => GENERATION_SLUGS.has(slug),
       );
       expect(generationHref).toBeDefined();
-      const generationSlug = slugFromGlossaryHref(generationHref ?? "");
+      const generationSlug = slugFromDocsHref(generationHref ?? "");
       traversal.push(generationSlug);
 
       const evaluationHref = findPublishedHrefToSlug(
@@ -407,7 +407,7 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
         ["generalization", "perplexity", "scaling-law", "emergent-behavior"],
       );
       expect(evaluationHref).toBeDefined();
-      traversal.push(slugFromGlossaryHref(evaluationHref ?? ""));
+      traversal.push(slugFromDocsHref(evaluationHref ?? ""));
 
       expect(traversal).toEqual([
         "architecture",
