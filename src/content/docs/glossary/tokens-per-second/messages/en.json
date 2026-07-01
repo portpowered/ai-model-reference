@@ -23,9 +23,25 @@
       "title": "Streaming Pace Versus Fleet Throughput",
       "body": "One reader's streaming pace is the tokens-per-second rate for a single answer during its generation window. Fleet throughput is the total output tokens a deployment serves across many requests and users over the same wall-clock period. A system can show high fleet throughput when it batches many requests together while each individual stream still feels slower. Comparing one user's chat speed to a provider's published throughput figure mixes two different measurements."
     },
+    "servingMetricsCompared": {
+      "title": "Serving Metrics On One Stream",
+      "body": "On a single streamed answer, three latency metrics sit beside tokens per second and measure different parts of the experience. Time to first token is the silence before any generated token appears: it covers queue wait, prompt prefill, cache setup, and the first decode step. Inter-token latency is the gap between individual tokens after streaming has started; uneven gaps make the reply feel stuttery even when the average tokens-per-second rate looks fine. Tokens per second averages across the whole generation window after the first token, so it can hide bursty pauses between tokens. Fleet throughput is a separate fleet-level count across many requests and is not shown on this single-stream timeline."
+    },
+    "prefillQueueAndDecode": {
+      "title": "Prefill, Queueing, And Decode",
+      "body": "Tokens per second usually starts measuring after the first output token arrives, but queueing and prefill still shape what the reader experiences before that window opens. Queue wait stretches time to first token when many requests compete for the same accelerator. Prefill processes the full prompt in one larger pass and builds the initial KV cache before steady token generation begins. Decode is the repeated next-token loop that produces each streamed token and fills the tokens-per-second window. A deployment can finish prefill quickly yet still report modest tokens per second if each decode step is slow, or the opposite if decode is fast but queueing and prefill keep answers from starting."
+    },
+    "batchingAndScheduling": {
+      "title": "Batching, Scheduling, And Fleet Pace",
+      "body": "Batching groups compatible prefill or decode work so one accelerator step serves multiple requests at once. Continuous batching admits new requests and retires finished ones without waiting for a fixed batch to complete. Dynamic batching adjusts batch size as load changes. Request scheduling decides which queued prefill or decode step runs next, and inference-engine policy sets how aggressively those techniques are applied. Together they can raise fleet throughput by keeping hardware busy, but an individual stream may wait longer between turns or share each decode step with other active answers. That tradeoff is why one reader's tokens-per-second pace can fall while the deployment's aggregate output rate rises."
+    },
+    "memoryAndKvCache": {
+      "title": "Memory Bandwidth And KV Cache",
+      "body": "Each decode step reads the growing KV cache that stores keys and values from earlier positions. As the answer lengthens, more cache state must move through memory for every new token. Memory bandwidth can become the bottleneck that caps tokens per second even when raw compute still looks available. Larger models, longer contexts, and cache-heavy attention patterns increase that pressure. Serving memory limits can also force the runtime to defer, evict, or reload cache blocks, which adds pauses that lower observed streaming pace without changing the model math."
+    },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Tokens per second is not the same as time to first token, inter-token latency, or fleet throughput. Time to first token measures the wait before streaming starts. Inter-token latency measures the gap between individual tokens. Fleet throughput counts total output across many requests over time."
+      "body": "A high tokens-per-second figure does not mean the first token arrived quickly, that every token gap feels even, or that the deployment can sustain the same rate for every user at once. Time to first token, inter-token latency, tokens per second, and fleet throughput each answer a different question on the serving path."
     },
     "servingPath": {
       "title": "Serving Path",
@@ -45,6 +61,57 @@
     "prefill": "Prefill",
     "decode": "Decode",
     "kvCache": "KV cache",
-    "prefillDecodeSplit": "Prefill/decode split"
+    "prefillDecodeSplit": "Prefill/decode split",
+    "batching": "Batching",
+    "continuousBatching": "Continuous batching",
+    "dynamicBatching": "Dynamic batching",
+    "requestScheduling": "Request scheduling",
+    "inferenceEngine": "Inference engine",
+    "memory": "Memory",
+    "streamingTimelineTitle": "Streaming timeline: where each serving metric applies",
+    "streamingTimelineLegend": "Legend: the top row follows one request from send through queueing and prefill to the first token. The lower row shows decode tokens with gaps between them. Annotations mark time to first token, inter-token latency, and the tokens-per-second measurement window."
+  },
+  "assets": {
+    "streamingTimeline": {
+      "alt": "Timeline of one streamed answer showing queue wait and prefill before the first token, decode tokens with gaps between them, and annotations for time to first token, inter-token latency, and the tokens-per-second window.",
+      "caption": "Serving metrics attach to different parts of one streamed answer: time to first token ends at the first token, inter-token latency measures gaps during decode, and tokens per second averages across the generation window."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "requestSent": {
+        "label": "Request sent"
+      },
+      "queueWait": {
+        "label": "Queue wait"
+      },
+      "prefill": {
+        "label": "Prefill prompt"
+      },
+      "firstToken": {
+        "label": "First token"
+      },
+      "tokenTwo": {
+        "label": "Token 2"
+      },
+      "tokenThree": {
+        "label": "Token 3"
+      },
+      "tokenFour": {
+        "label": "Token 4"
+      },
+      "tokenFive": {
+        "label": "Token 5"
+      },
+      "ttftAnnotation": {
+        "label": "Time to first token"
+      },
+      "itlAnnotation": {
+        "label": "Inter-token latency"
+      },
+      "tpsAnnotation": {
+        "label": "Tokens per second window"
+      }
+    }
   }
 }

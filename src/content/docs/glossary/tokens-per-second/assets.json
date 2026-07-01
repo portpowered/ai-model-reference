@@ -1,1 +1,10 @@
-{}
+{
+  "streamingTimeline": {
+    "type": "graph",
+    "graphId": "graph.tokens-per-second-streaming-timeline",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.streamingTimeline.alt",
+    "captionKey": "assets.streamingTimeline.caption"
+  }
+}
