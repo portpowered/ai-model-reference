@@ -37,7 +37,9 @@ import {
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
 
-const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 15_000;
+// Renders every metadata-discovered critical docs page; budget grows with the
+// attention and token-to-probability smoke sets without bespoke route lists.
+const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 45_000;
 
 const PHASE_1_DISCOVERY_ROUTES = [
   {
