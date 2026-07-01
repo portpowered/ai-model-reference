@@ -1,0 +1,38 @@
+## Codebase Patterns
+- New registry records under `src/content/registry/` are picked up by `bun run prepare:content-runtime`, which regenerates `src/lib/content/generated/registry-runtime.generated.ts` before typecheck, lint, and tests run.
+- Model registry records use typed relationship fields (`architectureIds`, `moduleIds`, `trainingRegimeIds`, `relatedIds`) plus backing `citation`, `paper`, and `organization` records; update reciprocal `usedByModelIds` / `relatedIds` on linked training regimes when adding model consumers.
+- For post-training discovery when no generic `training-regime.post-training` record exists, link models to `concept.alignment` in `relatedIds` and keep `training-regime.pretraining` in `trainingRegimeIds`.
+- Focused registry contract tests live beside other content tests in `src/lib/content/*-registry.test.ts` and should assert schema validity plus `getModelById` / `getPaperById` runtime resolution.
+- New model pages under `src/content/docs/models/<slug>/` auto-register via `prepare:content-runtime`; use empty `{}` in `assets.json` until a graph asset is added in a later story.
+- Model architecture graphs pair `src/content/registry/graphs/<slug>-architecture.json` with `assets.json` `architectureGraph.graphId` and localized `graph.nodes` / `assets.architectureGraph.alt` keys in `messages/en.json`; follow the DeepSeek-V4-Pro RoPE + RMSNorm graph pattern for modern decoder stacks.
+
+## 2026-07-01T00:00:00Z - llama-3-model-page-001
+- Established `model.llama-3` with Llama-family metadata, open-weights source type, 405B / 128K fields, and relationships to transformer architecture, autoregressive generation, attention, RoPE, context-window, pretraining, and alignment (post-training) records.
+- Added backing `citation.llama-3-herd-of-models`, `citation.llama-3-meta-release`, `paper.llama-3`, and `organization.meta` records; linked `training-regime.pretraining` to the new model.
+- Added `src/lib/content/llama-3-model-registry.test.ts` and updated pretraining contract tests for the new reciprocal model link.
+- **Learnings for future iterations:**
+  - `listRelatedRegistryRecords()` takes no arguments; use `deriveCuratedRelatedItems(source, listRelatedRegistryRecords(), PUBLISHED_DOCS_REGISTRY_IDS)` only after the model page is published.
+  - Biome formatting may reflow multi-line JSON `tags` and `aliases` arrays on new registry files.
+  - Llama 3 context length is stored as `131072` tokens (128K) in registry numeric fields.
+---
+
+## 2026-07-01T12:00:00Z - llama-3-model-page-002
+- Published canonical English Llama 3 model page at `/docs/models/llama-3` with `page.mdx`, `messages/en.json`, and empty `assets.json` (architecture graph deferred to story 003).
+- Added focused page contract test in `src/lib/content/llama-3-model-page.test.tsx` covering route registration, section rendering, explainer-not-benchmark copy, and registry-backed metadata.
+- Verified production build and browser-visible rendering on port 3456.
+- **Learnings for future iterations:**
+  - Prose auto-linking splits phrases like `128K tokens`, so page tests should assert on separate substrings or message keys rather than contiguous linked text.
+  - Story 002 can ship without `ModelArchitectureGraph`; omit the component until graph registry records and `assets.json` graph config exist.
+  - `loadModelPage("llama-3")` plus `ModulePageProviders` is the standard focused render test pattern for model pages.
+---
+
+## 2026-07-01T13:10:00Z - llama-3-model-page-003
+- Expanded architecture, modules, training, and practical-notes copy to connect decoder-only transformers, attention, RoPE, autoregressive generation, context window, pretraining, and post-training concepts.
+- Added `graph.llama-3-architecture` registry graph with GQA, RoPE, RMSNorm, and SwiGLU nodes; wired `ModelArchitectureGraph` through `assets.json` and localized graph labels/alt text.
+- Extended `llama-3-model-page.test.tsx` to assert registry-backed module/training links and architecture graph rendering.
+- Verified production build and browser-visible rendering on port 3456.
+- **Learnings for future iterations:**
+  - Training regime links render at `/docs/training/pretraining`, not `/docs/training-regimes/pretraining`.
+  - Prose auto-linking splits phrases like `Rotary position embeddings`; assert on substrings or href targets instead of contiguous text.
+  - `ModelTrainingSummary` lists `trainingRegimeIds` and `paperIds` only; post-training discovery for models without a generic post-training regime still flows through `relatedIds` (e.g. `concept.alignment`) in derived related docs.
+---

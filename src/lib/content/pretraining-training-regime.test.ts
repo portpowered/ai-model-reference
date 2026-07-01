@@ -8,7 +8,7 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
-import { TRAINING_DOCS_ROOT } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -35,7 +35,7 @@ function pageBaseUrl(url: string): string {
 }
 
 function loadPretrainingPageBundle() {
-  const pageDir = join(TRAINING_DOCS_ROOT, "pretraining");
+  const pageDir = getDocsPageDir("training", "pretraining");
   const source = readFileSync(join(pageDir, "page.mdx"), "utf8");
   const frontmatterBlock = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!frontmatterBlock?.[1]) {
@@ -97,6 +97,7 @@ describe("pretraining training-regime identity contracts", () => {
     expect(record?.tags).toEqual(["foundations", "tokenization"]);
     expect(record?.relatedIds).toEqual([
       "model.gpt-3",
+      "model.llama-3",
       "concept.transformer-architecture",
       "module.byte-level-tokenization",
       "module.bpe",
@@ -105,7 +106,7 @@ describe("pretraining training-regime identity contracts", () => {
       "concept.alignment",
       "training-regime.dpo",
     ]);
-    expect(record?.usedByModelIds).toEqual(["model.gpt-3"]);
+    expect(record?.usedByModelIds).toEqual(["model.gpt-3", "model.llama-3"]);
     expect(record?.relatedModuleIds).toEqual([
       "module.byte-level-tokenization",
       "module.bpe",
@@ -309,6 +310,7 @@ describe("pretraining training-regime identity contracts", () => {
     );
     expect(document?.relatedIds).toEqual([
       "model.gpt-3",
+      "model.llama-3",
       "concept.transformer-architecture",
       "module.byte-level-tokenization",
       "module.bpe",
