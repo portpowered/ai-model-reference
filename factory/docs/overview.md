@@ -102,28 +102,26 @@ the lane.
 Use the canonical `FACTORY_REQUEST_BATCH` shape from `you docs batch-inputs`.
 Human-readable notes live in `factory/docs/batch-inputs.md`.
 
+The checked-in copyable example is `factory/docs/batch-input-example.json`.
+It shows two independent `idea` items plus one dependent `thoughts` loopback
+with `DEPENDS_ON` relations blocking the loopback until both ideas complete.
+
 For a running factory, prefer:
 
 ```sh
 you submit batch <path>
 ```
 
-Always dry-run first:
+Always dry-run first. Validate the checked-in example with:
 
 ```sh
-you submit batch --dry-run <path>
+you submit batch --dry-run factory/docs/batch-input-example.json
 ```
 
 For watched-folder operator ingress, use:
 
 ```txt
 factory/inputs/BATCH/default/<request_id>.json
-```
-
-The checked-in example is:
-
-```txt
-factory/docs/batch-input-example.json
 ```
 
 ## State Inspection
