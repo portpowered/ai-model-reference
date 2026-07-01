@@ -60,6 +60,9 @@ const linkageLedger: QueueWorktreePrLinkageLedger = {
   failedLaneCount: 0,
   linkedLaneCount: 1,
   linkedWithGapsLaneCount: 1,
+  prBackedLaneCount: 1,
+  actionableLinkageGapLaneCount: 1,
+  queueOnlyControlNoiseLaneCount: 0,
   issues: [],
   lanes: [
     {

@@ -45,6 +45,9 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
         failedLaneCount: 1,
         linkedLaneCount: 1,
         linkedWithGapsLaneCount: 1,
+        prBackedLaneCount: 1,
+        actionableLinkageGapLaneCount: 1,
+        queueOnlyControlNoiseLaneCount: 0,
         issues: [],
         lanes: [
           {
@@ -211,6 +214,9 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
         failedLaneCount: 0,
         linkedLaneCount: 2,
         linkedWithGapsLaneCount: 0,
+        prBackedLaneCount: 2,
+        actionableLinkageGapLaneCount: 0,
+        queueOnlyControlNoiseLaneCount: 0,
         issues: [],
         lanes: [
           {
@@ -318,6 +324,9 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
         failedLaneCount: 0,
         linkedLaneCount: 1,
         linkedWithGapsLaneCount: 0,
+        prBackedLaneCount: 1,
+        actionableLinkageGapLaneCount: 0,
+        queueOnlyControlNoiseLaneCount: 0,
         issues: [],
         lanes: [
           {

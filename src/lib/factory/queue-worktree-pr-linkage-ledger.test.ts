@@ -3,6 +3,10 @@ import {
   buildQueueWorktreePrLinkageLedger,
   discoverQueueWorktreePrLinkageLedger,
   formatQueueWorktreePrLinkageSummary,
+  isActionableLinkageGapLane,
+  isQueueOnlyControlNoiseLane,
+  isQueueOnlyMissingLinkageLane,
+  isStaleFailedLoopbackLane,
   sortPlannerWatchdogLanes,
 } from "@/lib/factory/queue-worktree-pr-linkage-ledger";
 
@@ -137,6 +141,117 @@ describe("queue-worktree-pr-linkage-ledger", () => {
     expect(formatQueueWorktreePrLinkageSummary(ledger)).toContain(
       "missing=git branch alpha-git disagrees with prd branch alpha-prd; no open PR metadata found for branch alpha-git",
     );
+  });
+
+  test("separates actionable linkage gaps from queue-only and control noise", () => {
+    const ledger = buildQueueWorktreePrLinkageLedger({
+      issues: [],
+      lanes: [
+        {
+          status: "pr-backed",
+          workItemName: "alpha",
+          queueState: "active",
+          rawQueueState: "active",
+          prNumber: 42,
+          reasons: [],
+        },
+        {
+          status: "unclassified",
+          workItemName: "beta",
+          queueState: "failed",
+          rawQueueState: "failed",
+          worktreePath: ".claude/worktrees/beta",
+          metadataStatus: "incomplete",
+          prLookupFailureKind: "not-found",
+          prLookupFailureReason: "no open PR metadata found for branch beta",
+          reasons: [
+            "stamped lane metadata is incomplete: missing branch name",
+            "missing pull request metadata for actionable task/review lane",
+          ],
+        },
+        {
+          status: "unclassified",
+          workItemName: "delta",
+          queueState: "active",
+          rawQueueState: "active",
+          reasons: ["no matching worktree under .claude/worktrees"],
+        },
+        {
+          status: "unclassified",
+          workItemName: "loopback",
+          queueState: "failed",
+          rawQueueState: "failed",
+          workTypeName: "thoughts",
+          hasDependsOnRelation: true,
+          worktreePath: ".claude/worktrees/loopback",
+          reasons: ["no open PR metadata found for branch loopback"],
+        },
+      ],
+    });
+
+    expect(ledger.prBackedLaneCount).toBe(1);
+    expect(ledger.actionableLinkageGapLaneCount).toBe(1);
+    expect(ledger.queueOnlyControlNoiseLaneCount).toBe(2);
+    expect(ledger.linkedWithGapsLaneCount).toBe(3);
+
+    const summary = formatQueueWorktreePrLinkageSummary(ledger);
+    expect(summary).toContain(
+      "pr-backed=1 actionable-gaps=1 queue-only-noise=2",
+    );
+    expect(summary).toContain("lane=alpha");
+    expect(summary).toContain("lane=beta");
+    expect(summary).not.toContain("lane=delta");
+    expect(summary).not.toContain("lane=loopback");
+    expect(summary).toContain("Noise Summary");
+    expect(summary).toContain(
+      "noise=queue-only-missing-linkage count=1 work-items=delta",
+    );
+    expect(summary).toContain(
+      "noise=stale-failed-loopbacks count=1 work-items=loopback",
+    );
+  });
+
+  test("classifies queue-only and stale loopback noise helpers", () => {
+    const queueOnlyLane = {
+      laneName: "delta",
+      queueState: "active" as const,
+      rawQueueState: "active",
+      linkageStatus: "linked-with-gaps" as const,
+      pullRequest: null,
+      pullRequestLookup: { status: "missing" as const },
+      missingLinkageReasons: ["no matching worktree under .claude/worktrees"],
+    };
+    const loopbackLane = {
+      laneName: "loopback",
+      queueState: "failed" as const,
+      rawQueueState: "failed",
+      linkageStatus: "linked-with-gaps" as const,
+      workTypeName: "thoughts",
+      hasDependsOnRelation: true,
+      worktreePath: ".claude/worktrees/loopback",
+      pullRequest: null,
+      pullRequestLookup: { status: "missing" as const },
+      missingLinkageReasons: ["no open PR metadata found for branch loopback"],
+    };
+    const actionableLane = {
+      laneName: "beta",
+      queueState: "failed" as const,
+      rawQueueState: "failed",
+      linkageStatus: "linked-with-gaps" as const,
+      worktreePath: ".claude/worktrees/beta",
+      pullRequest: null,
+      pullRequestLookup: { status: "missing" as const },
+      missingLinkageReasons: [
+        "missing pull request metadata for actionable task/review lane",
+      ],
+    };
+
+    expect(isQueueOnlyMissingLinkageLane(queueOnlyLane)).toBe(true);
+    expect(isStaleFailedLoopbackLane(loopbackLane)).toBe(true);
+    expect(isActionableLinkageGapLane(actionableLane)).toBe(true);
+    expect(isQueueOnlyControlNoiseLane(queueOnlyLane)).toBe(true);
+    expect(isQueueOnlyControlNoiseLane(loopbackLane)).toBe(true);
+    expect(isQueueOnlyControlNoiseLane(actionableLane)).toBe(false);
   });
 
   test("sorts actionable PR-backed lanes ahead of waiting cases and linkage noise", () => {
