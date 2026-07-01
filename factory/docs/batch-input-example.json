@@ -1,0 +1,16 @@
+{
+  "requestId": "factory-docs-batch-example-001",
+  "type": "FACTORY_REQUEST_BATCH",
+  "works": [
+    {
+      "name": "example-idea-module-page",
+      "workTypeName": "idea",
+      "payload": "Add a canonical module page for grouped-query-attention: kind module, slug grouped-query-attention, link to the attention concept and primary paper citations, and keep registry records, messages, and assets aligned with the documentation template."
+    },
+    {
+      "name": "example-idea-concept-crosslink",
+      "workTypeName": "idea",
+      "payload": "Refresh the attention concept page cross-links so readers can discover grouped-query-attention, multi-head attention, and related attention variants from one isolation-first explainer without adding benchmark tables."
+    }
+  ]
+}
