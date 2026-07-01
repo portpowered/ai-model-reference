@@ -21,6 +21,7 @@ updatedAt: "2026-07-01"
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { BlockMath } from "@/features/docs/components/Math";
+import { PageAsset } from "@/features/docs/components/PageAsset";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -52,6 +53,13 @@ import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
 
 <Section id="practical-impact" titleKey="sections.practicalImpact.title">
   <T k="sections.practicalImpact.body" />
+  <p className="mt-4 text-sm font-medium text-foreground">
+    <T k="links.schedulerDecisionTitle" />
+  </p>
+  <p className="mb-4 text-sm text-muted-foreground">
+    <T k="links.schedulerDecisionLegend" />
+  </p>
+  <PageAsset assetId="schedulerDecision" />
   <BlockMath formula="\\text{request latency} \\approx \\text{queue wait} + \\text{scheduled execution time}, \\quad \\text{throughput} \\propto \\frac{\\text{useful work completed}}{\\text{scheduler overhead} + \\text{idle time}}" />
 </Section>
 

@@ -4,7 +4,9 @@
   "openingSummary": "Request scheduling is the serving control that orders queued work before the accelerator runs it. When many readers send prompts at once, the scheduler decides which prefill or decode step gets the next turn, and those ordering choices shape how long each request waits and how fully the hardware stays busy. That decision is separate from choosing a serving path or grouping work into batches—scheduling only answers what should run next among work that is already admitted and waiting.",
   "links": {
     "systemFlowTitle": "System flow: how queued work gets scheduled",
-    "systemFlowLegend": "Legend: the top and bottom boxes are per-request lifecycle steps, while the middle boxes are the shared scheduler decisions that pick the next unit of work."
+    "systemFlowLegend": "Legend: the top and bottom boxes are per-request lifecycle steps, while the middle boxes are the shared scheduler decisions that pick the next unit of work.",
+    "schedulerDecisionTitle": "Scheduler decision factors: what shapes the next turn",
+    "schedulerDecisionLegend": "Legend: solid arrows follow admitted work through the scheduler, while dashed control-flow arrows show policy inputs for fairness, deadlines, batching windows, and memory headroom."
   },
   "sections": {
     "whatItIs": {
@@ -38,6 +40,10 @@
     "systemFlow": {
       "alt": "Admitted requests wait in a queue, the scheduler picks the next prefill or decode step, the accelerator runs that work, and active requests continue until they finish.",
       "caption": "Request scheduling orders queued work before execution so the serving runtime can balance latency, fairness, throughput, and memory pressure."
+    },
+    "schedulerDecision": {
+      "alt": "Queued requests enter the scheduler, which weighs fairness, deadlines, batching windows, and memory headroom before choosing the next prefill or decode step.",
+      "caption": "Scheduler decisions combine queue state with serving policy signals before the runtime runs the next prefill or decode step."
     }
   },
   "graph": {
@@ -53,6 +59,33 @@
       },
       "continue": {
         "label": "Continue active requests"
+      },
+      "queuedRequests": {
+        "label": "Queued requests"
+      },
+      "scheduler": {
+        "label": "Scheduler inspects queue"
+      },
+      "fairness": {
+        "label": "Fairness policy"
+      },
+      "deadlines": {
+        "label": "Deadline pressure"
+      },
+      "batchingWindow": {
+        "label": "Batching window"
+      },
+      "memoryPressure": {
+        "label": "Memory headroom"
+      },
+      "pickStep": {
+        "label": "Pick next step"
+      },
+      "prefillStep": {
+        "label": "Run prefill step"
+      },
+      "decodeStep": {
+        "label": "Run decode step"
       }
     }
   }

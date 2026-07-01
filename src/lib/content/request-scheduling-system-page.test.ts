@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { createElement, type ReactElement } from "react";
 import { renderToReadableStream } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { PageAsset } from "@/features/docs/components/PageAsset";
 import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
 import {
   parsePageAssetConfig,
@@ -221,6 +222,9 @@ describe("request scheduling docs route render", () => {
 
     expect(html).toContain("At a glance");
     expect(html).toContain("System flow: how queued work gets scheduled");
+    expect(html).toContain(
+      "Scheduler decision factors: what shapes the next turn",
+    );
     expect(html).toContain("Legend:");
     expect(html).toContain("Queue admitted requests");
     expect(html).toContain("What It Is");
@@ -281,6 +285,37 @@ describe("request scheduling docs route render", () => {
       getGraphById("graph.request-scheduling-system-flow")?.subjectId,
     ).toBe("system.request-scheduling");
   });
+
+  test("renders the scheduler decision teaching graph with policy and stage labels", async () => {
+    const page = await loadSystemPage("request-scheduling");
+    const html = await renderAsyncMarkup(
+      createElement(
+        ModulePageProviders,
+        {
+          messages: page.messages,
+          assets: page.assets,
+        },
+        createElement(PageAsset, {
+          assetId: "schedulerDecision",
+        }),
+      ),
+    );
+
+    expect(html).toContain(
+      'data-graph-id="graph.request-scheduling-decision-factors"',
+    );
+    expect(html).toContain("Queued requests");
+    expect(html).toContain("Scheduler inspects queue");
+    expect(html).toContain("Fairness policy");
+    expect(html).toContain("Deadline pressure");
+    expect(html).toContain("Batching window");
+    expect(html).toContain("Memory headroom");
+    expect(html).toContain("Run prefill step");
+    expect(html).toContain("Run decode step");
+    expect(
+      getGraphById("graph.request-scheduling-decision-factors")?.subjectId,
+    ).toBe("system.request-scheduling");
+  });
 });
 
 describe("request scheduling system page assets", () => {
@@ -298,6 +333,34 @@ describe("request scheduling system page assets", () => {
         "graph.request-scheduling-system-flow",
       );
     }
+    expect(validatePageAssetReferences(assets, messages)).toEqual([]);
+  });
+
+  test("resolves the scheduler decision teaching graph with message-backed labels", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const assets = parsePageAssetConfig(
+      JSON.parse(readFileSync(assetsPath, "utf8")),
+    );
+
+    expect(assets.schedulerDecision.type).toBe("graph");
+    if (assets.schedulerDecision.type === "graph") {
+      expect(assets.schedulerDecision.graphId).toBe(
+        "graph.request-scheduling-decision-factors",
+      );
+    }
+    expect(messages.assets?.schedulerDecision?.alt).toContain("fairness");
+    expect(messages.assets?.schedulerDecision?.caption).toContain(
+      "prefill or decode",
+    );
+    expect(messages.graph?.nodes?.fairness?.label).toBe("Fairness policy");
+    expect(messages.graph?.nodes?.batchingWindow?.label).toBe(
+      "Batching window",
+    );
+    expect(messages.graph?.nodes?.memoryPressure?.label).toBe(
+      "Memory headroom",
+    );
     expect(validatePageAssetReferences(assets, messages)).toEqual([]);
   });
 });
