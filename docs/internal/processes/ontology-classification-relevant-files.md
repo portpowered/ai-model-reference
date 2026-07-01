@@ -19,6 +19,10 @@ the temporary legacy-id bridge.
 * `src/lib/content/schemas.ts`
   Compatibility re-export layer for existing consumers; composes AI-domain record
   schemas on top of `registry-core` shapes.
+* `src/lib/content/schemas-compat.test.ts`
+  Behavioral proof that `schemas.ts` re-exports core contracts from
+  `registry-core` without duplicated definitions and that AI-domain registry
+  union exports remain available to existing consumers.
 * `src/lib/content/registry-runtime-generation.ts`
   Generated runtime source contract for canonical lookup, legacy-id
   canonicalization, parent-child traversal, filtered subtree generation,
