@@ -1,4 +1,5 @@
 ## Codebase Patterns
+- Factory batch examples live at `factory/docs/batch-input-example.json` using canonical `FACTORY_REQUEST_BATCH` shape with top-level `requestId`, `type`, and `works[]`; use `workTypeName` (not `workType`) and camelCase relation fields `sourceWorkName` / `targetWorkName`.
 - New registry records under `src/content/registry/` are picked up by `bun run prepare:content-runtime`, which regenerates `src/lib/content/generated/registry-runtime.generated.ts` before typecheck, lint, and tests run.
 - Model registry records use typed relationship fields (`architectureIds`, `moduleIds`, `trainingRegimeIds`, `relatedIds`) plus backing `citation`, `paper`, and `organization` records; update reciprocal `usedByModelIds` / `relatedIds` on linked training regimes when adding model consumers.
 - For post-training discovery when no generic `training-regime.post-training` record exists, link models to `concept.alignment` in `relatedIds` and keep `training-regime.pretraining` in `trainingRegimeIds`.
@@ -150,4 +151,35 @@
   - Patterns discovered: the autodiscovery render test budget scales with attention/token-to-probability smoke set size, not bespoke route lists—raise the timeout when those sets grow.
   - Gotchas encountered: isolated runs (~12s) can pass while full-suite runs exceed 15s; validate with `make test`, not only targeted `bun test`.
   - Useful context: after the fix, `make test` passed locally with `2504 pass, 0 fail` (UTC 2026-07-01T14:36:12Z).
+---
+
+## 2026-07-01T22:15:00Z - factory-batch-input-example-repair-001
+- Added `factory/docs/batch-input-example.json` with canonical `FACTORY_REQUEST_BATCH` shape and two independent `idea` work items (`example-idea-module-page`, `example-idea-concept-crosslink`) using `workTypeName`, unique work names, and small planner-ready payloads.
+- Files changed:
+  - `factory/docs/batch-input-example.json`
+- **Learnings for future iterations:**
+  - Patterns discovered: top-level `requestId` is the batch idempotency key; individual work items are identified by `works[].name` with `workTypeName` per item in mixed `BATCH` ingress.
+  - Gotchas encountered: story 002 will extend the same file with a `thoughts` loopback and `DEPENDS_ON` relations—keep incremental edits on one checked-in example rather than separate files.
+  - Useful context: `make lint`, `make typecheck`, and `make test` all pass after adding the JSON-only doc artifact (UTC 2026-07-01T22:15:00Z).
+---
+
+## 2026-07-01T23:45:00Z - factory-batch-input-example-repair-002
+- Extended `factory/docs/batch-input-example.json` with one `thoughts` loopback work item (`example-loopback-thoughts`) and two top-level `DEPENDS_ON` relations blocking the loopback until both idea items reach `complete`.
+- Verified `you submit batch --dry-run factory/docs/batch-input-example.json` accepts the batch (3 works, 2 relations).
+- Files changed:
+  - `factory/docs/batch-input-example.json`
+- **Learnings for future iterations:**
+  - Patterns discovered: batch-level `relations[]` uses `sourceWorkName` for the blocked work (loopback) and `targetWorkName` for each prerequisite; `requiredState: "complete"` is optional but makes the dependency explicit in docs.
+  - Gotchas encountered: ideafy AGENTS.md and `you docs relationships` are the canonical references for loopback field semantics—do not use stale `workType` or per-work relation aliases.
+  - Useful context: `make lint`, `make typecheck`, and `make test` all pass after the JSON-only extension (UTC 2026-07-01T23:45:00Z).
+---
+
+## 2026-07-01T16:45:00Z - factory-batch-input-example-repair-003
+- Clarified `factory/docs/overview.md` Batch Submission section so the checked-in example path, its two-idea plus loopback structure, and the concrete dry-run command (`you submit batch --dry-run factory/docs/batch-input-example.json`) match `factory/docs/batch-inputs.md` without changing workflow topology.
+- Files changed:
+  - `factory/docs/overview.md`
+- **Learnings for future iterations:**
+  - Patterns discovered: keep overview dry-run guidance concrete—point planners at the checked-in example path instead of a generic `<path>` placeholder once the artifact exists.
+  - Gotchas encountered: story 003 is docs-only; `make typecheck` is the story gate but full `make test` still passes (2627 pass, UTC 2026-07-01T16:44:49Z).
+  - Useful context: overview already listed `factory/docs/batch-input-example.json` in Read First; the narrow edit belongs in Batch Submission where dry-run and example usage intersect.
 ---
