@@ -19,11 +19,13 @@ updatedAt: "2026-07-01"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
+import { BlockMath } from "@/features/docs/components/Math";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
 import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
 
 
 <TrainingRegimeAtAGlance registryId="training-regime.instruction-tuning" />
@@ -36,9 +38,31 @@ import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRe
 </Section>
 <Section id="how-it-works" titleKey="sections.howItWorks.title">
   <T k="sections.howItWorks.body" />
+  <TrainingRegimeFlow
+    registryId="training-regime.instruction-tuning"
+    assetId="trainingFlow"
+  />
+  <BlockMath formula="\\mathcal{L}(\\theta) = -\\sum_t \\log p_\\theta(y_t \\mid x, y_{<t})" />
 </Section>
 <Section id="compared-to-nearby-regimes" titleKey="sections.comparedToNearbyRegimes.title">
   <T k="sections.comparedToNearbyRegimes.body" />
+  <ul className="mt-3 list-disc pl-6">
+    <li>
+      <a href="/docs/glossary/alignment">Alignment overview</a>
+    </li>
+    <li>
+      <a href="/docs/training/pretraining">Pretraining</a>
+    </li>
+    <li>
+      <a href="/docs/training/dpo">Direct Preference Optimization</a>
+    </li>
+    <li>
+      <a href="/search?q=post-training">Post-training search</a>
+    </li>
+    <li>
+      <a href="/search?q=RLHF">RLHF search</a>
+    </li>
+  </ul>
 </Section>
 <Section id="limitations-and-failure-modes" titleKey="sections.limitationsAndFailureModes.title">
   <T k="sections.limitationsAndFailureModes.body" />

@@ -32,5 +32,30 @@
     "references": {
       "title": "References"
     }
+  },
+  "assets": {
+    "trainingFlow": {
+      "title": "Instruction tuning training flow",
+      "alt": "A three-step instruction tuning flow: prompt and desired answer demonstrations, supervised update, then an instruction-following model.",
+      "caption": "Instruction tuning turns prompt-and-answer demonstrations into supervised updates that teach the model to follow user requests.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "demonstrations": {
+        "label": "Prompt + desired answer demonstrations"
+      },
+      "supervisedUpdate": {
+        "label": "Supervised update"
+      },
+      "instructionModel": {
+        "label": "Instruction-following model"
+      }
+    }
   }
 }
