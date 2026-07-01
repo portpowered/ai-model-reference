@@ -20,6 +20,7 @@ updatedAt: "2026-07-01"
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -35,6 +36,22 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="simple-example" titleKey="sections.simpleExample.title">
   <T k="sections.simpleExample.body" />
+</Section>
+
+<Section
+  id="compared-to-nearby-regimes"
+  titleKey="sections.comparedToNearbyRegimes.title"
+>
+  <T k="sections.comparedToNearbyRegimes.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/training/pretraining", labelKey: "links.pretraining" },
+      { href: "/docs/training/dpo", labelKey: "links.dpo" },
+      { href: "/search?q=RLHF", labelKey: "links.rlhfSearch" },
+      { href: "/search?q=PPO", labelKey: "links.ppoSearch" },
+      { href: "/search?q=GRPO", labelKey: "links.grpoSearch" },
+    ]}
+  />
 </Section>
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
