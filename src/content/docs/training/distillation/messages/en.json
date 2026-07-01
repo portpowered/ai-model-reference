@@ -1,0 +1,49 @@
+{
+  "title": "Distillation",
+  "description": "A teacher-student training regime where a smaller model learns from supervision produced by a larger or stronger teacher model.",
+  "openingSummary": "Large models can be strong teachers but expensive to run at scale. Distillation trains a smaller student model to imitate teacher behavior so teams can deploy a cheaper model that keeps much of the teacher's useful output quality.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Distillation is a training regime built around two models: a teacher that provides supervision and a student that learns from that supervision. The student is usually smaller or cheaper to run than the teacher."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Teams use distillation when they want a model that is easier to serve in production without giving up behavior they already trust from a stronger teacher."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The teacher produces training signal for the student, the student is updated on that signal, and the result is a model sized for deployment rather than for maximum training-time capacity."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Distillation is broader than any one variant. Some routines use fixed offline teacher outputs, while others refresh supervision from behavior produced under the current student policy."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "A student can only recover what the teacher signal actually covers. Weak supervision, narrow training data, or a student that is too small for the target behavior can all leave capability gaps."
+    },
+    "related": { "title": "Related To" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "trainingFlow": {
+      "title": "Distillation training flow",
+      "alt": "A flow from teacher model to training supervision to student update and deployment-oriented student output.",
+      "caption": "Distillation moves teacher supervision into a smaller student model sized for deployment.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "teacher": { "label": "Teacher model" },
+      "supervision": { "label": "Training supervision" },
+      "student": { "label": "Student update" }
+    }
+  }
+}

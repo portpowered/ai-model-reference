@@ -1,0 +1,70 @@
+{
+  "id": "graph.distillation-training-flow",
+  "slug": "distillation-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "distillation training flow",
+    "teacher-student distillation flow"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.on-policy-distillation-of-language-models"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "training-regime.distillation",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "teacher",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "teacher",
+      "labelKey": "graph.nodes.teacher.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["supervision"]
+    },
+    {
+      "id": "supervision",
+      "labelKey": "graph.nodes.supervision.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 200, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["student"]
+    },
+    {
+      "id": "student",
+      "labelKey": "graph.nodes.student.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "teacher-supervision",
+      "source": "teacher",
+      "target": "supervision",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "supervision-student",
+      "source": "supervision",
+      "target": "student",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}
