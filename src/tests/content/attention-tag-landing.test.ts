@@ -77,8 +77,8 @@ describe("attention tag landing resources", () => {
       "/docs/models/llama-3",
       "/docs/models/mixtral-8x22b",
       "/docs/models/mixtral-8x7b",
-      "/docs/models/qwen-3-6-27b",
       "/docs/models/qwen3-5-0-8b",
+      "/docs/models/qwen-3-6-27b",
       "/docs/models/qwen-3-6-35b-a3b",
     ]);
 
