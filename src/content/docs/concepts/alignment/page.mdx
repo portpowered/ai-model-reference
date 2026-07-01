@@ -1,0 +1,64 @@
+---
+title: Alignment
+description: The post-pretraining goal of shaping a broadly capable base model toward helpful, safer, preference-following behavior before or during deployment.
+kind: "concept"
+registryId: "concept.alignment"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - taxonomy
+aliases:
+  - "Alignment"
+  - "model alignment"
+  - "preference alignment"
+  - "human feedback alignment"
+  - "safety alignment"
+updatedAt: "2026-07-01"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.alignment"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "used-by-models",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.alignment" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.alignment" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.alignment" />
+</Section>

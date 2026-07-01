@@ -1,0 +1,32 @@
+{
+  "title": "Alignment",
+  "description": "The post-pretraining goal of shaping a broadly capable base model toward helpful, safer, preference-following behavior before or during deployment.",
+  "openingSummary": "Alignment is the broad training-and-deployment goal of steering a pretrained language model so its answers follow human preferences, stay helpful, and avoid unsafe or off-policy behavior—without replacing the base model that pretraining already built.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Alignment is behavior shaping applied after a model has already learned broad language patterns from large-scale pretraining. The base model can predict plausible text, but that alone does not guarantee polite assistance, honest refusals, or answers that match product policy. Alignment work nudges weights, reward signals, preference data, and runtime guardrails so the finished system follows intended use: helpful replies, safer boundaries, and responses that track what humans or organizations prefer over raw next-token likelihood."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "A capable base model is not automatically a good assistant. Pretraining optimizes for statistical fit on massive text; alignment optimizes for how the model should act when a person asks for help. Product teams need both layers: pretraining supplies general knowledge and fluency, while alignment supplies policy fit, tone, and safety boundaries. Without the alignment layer, teams rely on brittle prompt tricks or filters alone, and small deployment changes can produce surprising violations even when benchmark scores look strong."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a chat model pretrained on web text. Left alone, it may answer a harmful request with detailed steps because that pattern appeared in training data. An alignment pass might fine-tune on curated assistant transcripts, train a reward model from human preference comparisons, and add a moderation filter at serve time. After alignment, the same base weights are still underneath, but the model is more likely to refuse, redirect, or give a policy-safe answer when the prompt crosses a boundary."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Alignment is not the same as pretraining. Pretraining builds the broad base model from large token sequences; alignment is the later stage that shapes behavior for human use. Alignment is also not a single recipe: supervised fine-tuning, preference optimization, reinforcement learning from human feedback, constitutional critics, and inference-time filters are tools that can support alignment, not synonyms for the goal itself. Finally, alignment is not a benchmark leaderboard—this page explains the behavior-shaping idea, not model ranking scores."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
