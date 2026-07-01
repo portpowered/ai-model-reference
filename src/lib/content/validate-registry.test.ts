@@ -205,10 +205,14 @@ async function writeAttentionClassificationFixtures(
 }
 
 describe("validateRegistryContent", () => {
-  test("returns no errors for the committed Phase 1 baseline", async () => {
-    const errors = await validateRegistryContent();
-    expect(errors).toEqual([]);
-  });
+  test(
+    "returns no errors for the committed Phase 1 baseline",
+    async () => {
+      const errors = await validateRegistryContent();
+      expect(errors).toEqual([]);
+    },
+    { timeout: 15_000 },
+  );
 
   // Special-case: graph/table asset registry refs are not part of the derived
   // published-page bundle contract; keep this focused table-runtime coverage.

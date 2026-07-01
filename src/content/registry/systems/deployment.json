@@ -17,7 +17,8 @@
     "system.on-disk-kv-cache",
     "system.expert-parallel-overlap",
     "model.gpt-3",
-    "model.deepseek-v4-pro"
+    "model.deepseek-v4-pro",
+    "model.nemotron-3-super"
   ],
   "citationIds": [
     "citation.goodfellow-deep-learning",
@@ -25,12 +26,16 @@
   ],
   "status": "published",
   "createdAt": "2026-06-19T00:00:00.000Z",
-  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-07-01T18:00:00.000Z",
   "releaseDate": "2016-11-18",
   "authors": ["Ian Goodfellow", "Yoshua Bengio", "Aaron Courville"],
   "sourceId": "citation.goodfellow-deep-learning",
   "systemType": "serving",
-  "relatedModelIds": ["model.gpt-3", "model.deepseek-v4-pro"],
+  "relatedModelIds": [
+    "model.gpt-3",
+    "model.deepseek-v4-pro",
+    "model.nemotron-3-super"
+  ],
   "relatedModuleIds": [],
   "relatedConceptIds": [
     "concept.quantization",
