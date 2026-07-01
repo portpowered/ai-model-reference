@@ -35,7 +35,7 @@
   "sourceId": "citation.qwen36-35b-a3b-blog",
   "family": "qwen",
   "sourceType": "open-weights",
-  "modalities": ["text", "image"],
+  "modalities": ["text", "image", "video"],
   "architectureIds": [
     "concept.transformer-architecture",
     "concept.context-window",

@@ -15,6 +15,7 @@ describe("Qwen 3.6 model registry identities", () => {
       aliases: expect.arrayContaining(["Qwen3.6-27B", "Qwen 3.6 27B"]),
       parameterCount: "27 billion parameters",
       contextLength: 262144,
+      modalities: ["text", "image", "video"],
       sourceType: "open-weights",
       family: "qwen",
     });
@@ -25,6 +26,7 @@ describe("Qwen 3.6 model registry identities", () => {
       parameterCount: "35 billion total parameters",
       activeParameterCount: "3 billion active parameters",
       contextLength: 262144,
+      modalities: ["text", "image", "video"],
       sourceType: "open-weights",
       family: "qwen",
     });

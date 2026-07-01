@@ -9,7 +9,7 @@
     },
     "inputsAndOutputs": {
       "title": "Inputs And Outputs",
-      "body": "The model accepts text and image inputs and produces text outputs. The Hugging Face model card lists a 262,144-token native context length, with longer extension claims noted separately in the same source. This page keeps the native context figure because it is the conservative operating point repeated across official model metadata."
+      "body": "The model accepts text, image, and video inputs and produces text outputs. The Hugging Face model card includes Video Input examples alongside text and image prompts, and lists a 262,144-token native context length with longer extension claims noted separately in the same source. This page keeps the native context figure because it is the conservative operating point repeated across official model metadata."
     },
     "architecture": {
       "title": "Architecture",

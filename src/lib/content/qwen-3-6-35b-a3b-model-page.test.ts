@@ -23,7 +23,7 @@ describe("Qwen3.6-35B-A3B MoE model page", () => {
       parameterCount: "35 billion total parameters",
       activeParameterCount: "3 billion active parameters",
       contextLength: 262144,
-      modalities: ["text", "image"],
+      modalities: ["text", "image", "video"],
       sourceType: "open-weights",
     });
     expect(entry).toMatchObject({

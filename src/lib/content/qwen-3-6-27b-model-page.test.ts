@@ -22,7 +22,7 @@ describe("Qwen3.6-27B dense model page", () => {
       status: "published",
       parameterCount: "27 billion parameters",
       contextLength: 262144,
-      modalities: ["text", "image"],
+      modalities: ["text", "image", "video"],
       sourceType: "open-weights",
     });
     expect(entry).toMatchObject({

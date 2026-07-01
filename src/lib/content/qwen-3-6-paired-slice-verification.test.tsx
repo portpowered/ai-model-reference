@@ -63,8 +63,12 @@ describe("Qwen 3.6 paired slice verification", () => {
     });
     expect(denseModel?.status).toBe("published");
     expect(moeModel?.status).toBe("published");
+    expect(denseModel?.modalities).toEqual(["text", "image", "video"]);
+    expect(moeModel?.modalities).toEqual(["text", "image", "video"]);
     expect(densePage.messages.title).toBe("Qwen3.6-27B");
     expect(moePage.messages.title).toBe("Qwen3.6-35B-A3B");
+    expect(densePage.messages.sections.inputsAndOutputs.body).toContain("video");
+    expect(moePage.messages.sections.inputsAndOutputs.body).toContain("video");
   });
 
   test("both page-local architecture graph assets resolve to graph records and render through the model architecture graph surface", async () => {
