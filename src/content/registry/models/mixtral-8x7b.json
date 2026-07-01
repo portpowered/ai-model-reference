@@ -5,19 +5,58 @@
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
   "aliases": ["Mixtral 8x7B", "open-mixtral-8x7b"],
-  "tags": ["foundations", "model-family", "feed-forward"],
-  "relatedIds": ["model.mixtral-8x22b"],
-  "citationIds": [],
-  "status": "draft",
+  "tags": [
+    "foundations",
+    "model-family",
+    "feed-forward",
+    "attention",
+    "context-window"
+  ],
+  "relatedIds": [
+    "model.mixtral-8x22b",
+    "concept.mixture-of-experts",
+    "module.mixture-of-experts",
+    "system.routing",
+    "concept.transformer-architecture",
+    "concept.decoder",
+    "concept.context-window",
+    "concept.transformer",
+    "module.attention",
+    "module.grouped-query-attention",
+    "system.inference-engine"
+  ],
+  "citationIds": [
+    "citation.mixtral-8x7b-release",
+    "citation.mixtral-8x7b-model-card",
+    "citation.mistral-changelog"
+  ],
+  "status": "published",
   "createdAt": "2026-07-01T00:00:00.000Z",
-  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T18:00:00.000Z",
+  "authors": ["Mistral AI"],
+  "sourceId": "citation.mixtral-8x7b-release",
   "family": "mistral",
   "sourceType": "open-weights",
   "modalities": ["text"],
-  "architectureIds": [],
-  "moduleIds": [],
+  "architectureIds": [
+    "concept.transformer-architecture",
+    "concept.mixture-of-experts",
+    "concept.context-window",
+    "concept.decoder"
+  ],
+  "moduleIds": [
+    "module.mixture-of-experts",
+    "module.grouped-query-attention",
+    "module.rmsnorm",
+    "module.swiglu",
+    "module.rope"
+  ],
   "trainingRegimeIds": [],
   "datasetIds": [],
   "paperIds": [],
-  "organizationId": "organization.mistral-ai"
+  "organizationId": "organization.mistral-ai",
+  "releaseDate": "2023-12-11",
+  "parameterCount": "46.7 billion total parameters",
+  "activeParameterCount": "12.9 billion active parameters",
+  "contextLength": 32768
 }
