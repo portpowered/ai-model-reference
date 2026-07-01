@@ -21,7 +21,10 @@
     "system.on-disk-kv-cache",
     "paper.deepseek-v4",
     "paper.nemotron-3-super",
-    "model.nemotron-3-super"
+    "model.mixtral-8x22b",
+    "model.mixtral-8x7b",
+    "model.nemotron-3-super",
+    "model.qwen-3-6-35b-a3b"
   ],
   "citationIds": ["citation.deepseek-v4-paper"],
   "status": "published",
@@ -35,6 +38,8 @@
   "relatedModelIds": [
     "model.deepseek-v4-pro",
     "model.deepseek-v4-flash",
+    "model.mixtral-8x22b",
+    "model.mixtral-8x7b",
     "model.nemotron-3-super",
     "model.qwen-3-6-35b-a3b"
   ],

@@ -156,6 +156,27 @@ When adding a new page test, follow the same module-level
 `const pageDir = getDocsPageDir("<section>", "<slug>")` pattern instead of
 importing a page-specific constant.
 
+## Paired model slice discoverability
+
+When shipping the final story in a multi-model family PRD, keep discovery
+registry-backed instead of hand-maintaining related prose:
+
+* Bidirectional sibling links in each model record's `relatedIds`
+* Aliases on both registry records and page frontmatter (`Mixtral 8x7B`,
+  `open-mixtral-8x7b`, etc.)
+* Back-links on shared module/system records:
+  `module.mixture-of-experts` `usedByModelIds` and `system.routing`
+  `relatedModelIds`
+* A focused `*-discovery.test.tsx` patterned after
+  `src/lib/content/qwen-3-6-discovery.test.tsx` or
+  `src/lib/content/glm-family-discovery.test.tsx`
+
+Representative paired-slice verification:
+
+* `src/lib/content/mixtral-moe-discovery.test.tsx`
+* `src/lib/content/qwen-3-6-discovery.test.tsx`
+* `src/lib/content/glm-family-discovery.test.tsx`
+
 ## Reviewer-facing verification
 
 * `bun test src/lib/content/content-paths.test.ts`
