@@ -86,6 +86,11 @@ describe("CLIP paper page", () => {
     expect(html).toContain("Limitations");
     expect(html.toLowerCase()).toContain("contrastive");
     expect(html).toContain("Shared embedding space");
+    expect(html).toContain("Image-caption pairs");
+    expect(html).toContain("Contrastive alignment");
+    expect(html).toContain("Multimodal and conditioning use");
+    expect(html).toContain("paired image-caption data");
+    expect(html).not.toContain("missing-content");
     expect(html).toContain('href="/docs/glossary/multimodal-model"');
     expect(html).toContain('href="/docs/modules/clip-image-tokenization"');
     expect(html).toContain('href="/docs/glossary/embedding"');
