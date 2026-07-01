@@ -43,8 +43,78 @@ import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeF
     assetId="trainingFlow"
   />
   <BlockMath formula="\\max_\\theta \\sum_i \\log p_\\theta(y_i \\mid x_i)" />
-  <T k="links.updateMechanisms" />
-  <T k="links.adaptationTargets" />
+  <div
+    className="rounded-lg border border-border bg-card p-4"
+    data-page-math-variable-definitions="supervisedImitationObjective"
+  >
+    <dl className="space-y-2">
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="theta"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>&theta;</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.supervisedImitationObjective.variableDefinitions.theta.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="i"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>i</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.supervisedImitationObjective.variableDefinitions.i.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="xi"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            x<sub>i</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.supervisedImitationObjective.variableDefinitions.xi.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="yi"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            y<sub>i</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.supervisedImitationObjective.variableDefinitions.yi.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="ptheta"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>p&theta;(&middot;)</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.supervisedImitationObjective.variableDefinitions.ptheta.definition" />
+        </dd>
+      </div>
+    </dl>
+  </div>
+  <p className="mt-4">
+    <T k="links.updateMechanisms" />
+  </p>
+  <p className="mt-4">
+    <T k="links.adaptationTargets" />
+  </p>
 </Section>
 
 <Section id="compared-to-nearby-regimes" titleKey="sections.comparedToNearbyRegimes.title">
