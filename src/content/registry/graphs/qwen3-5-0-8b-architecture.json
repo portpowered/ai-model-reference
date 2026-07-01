@@ -1,0 +1,323 @@
+{
+  "id": "graph.qwen3-5-0-8b-architecture",
+  "slug": "qwen3-5-0-8b-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Qwen3.5-0.8B architecture graph"],
+  "tags": ["foundations", "model-family", "attention"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.qwen35-announcement",
+    "citation.qwen35-0-8b-huggingface"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T20:00:00.000Z",
+  "subjectId": "model.qwen3-5-0-8b",
+  "graphType": "model-architecture",
+  "rootNodeId": "output-probabilities",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "output-probabilities",
+      "labelKey": "graph.nodes.outputProbabilities.label",
+      "summaryKey": "graph.nodes.outputProbabilities.summary",
+      "registryId": "concept.autoregressive-generation",
+      "moduleKind": "output",
+      "position": { "x": 290, "y": 0 },
+      "size": { "width": 170, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "softmax",
+      "labelKey": "graph.nodes.softmax.label",
+      "summaryKey": "graph.nodes.softmax.summary",
+      "registryId": "concept.softmax",
+      "moduleKind": "output",
+      "position": { "x": 300, "y": 92 },
+      "size": { "width": 150, "height": 44 },
+      "visualRole": "architecture-softmax",
+      "childNodeIds": []
+    },
+    {
+      "id": "linear",
+      "labelKey": "graph.nodes.linear.label",
+      "summaryKey": "graph.nodes.linear.summary",
+      "moduleKind": "projection",
+      "position": { "x": 300, "y": 164 },
+      "size": { "width": 150, "height": 44 },
+      "visualRole": "architecture-linear",
+      "childNodeIds": []
+    },
+    {
+      "id": "decoder-stack",
+      "labelKey": "graph.nodes.decoderStack.label",
+      "summaryKey": "graph.nodes.decoderStack.summary",
+      "registryId": "concept.transformer-architecture",
+      "moduleKind": "block",
+      "position": { "x": 150, "y": 246 },
+      "size": { "width": 450, "height": 420 },
+      "visualRole": "group-container",
+      "zIndex": 0,
+      "childNodeIds": []
+    },
+    {
+      "id": "hybrid-sequence-sublayer",
+      "labelKey": "graph.nodes.hybridSequenceSublayer.label",
+      "summaryKey": "graph.nodes.hybridSequenceSublayer.summary",
+      "moduleKind": "block",
+      "position": { "x": 182, "y": 280 },
+      "size": { "width": 385, "height": 180 },
+      "visualRole": "group-container",
+      "zIndex": 1,
+      "childNodeIds": []
+    },
+    {
+      "id": "ffn-sublayer",
+      "labelKey": "graph.nodes.ffnSublayer.label",
+      "summaryKey": "graph.nodes.ffnSublayer.summary",
+      "moduleKind": "block",
+      "position": { "x": 222, "y": 476 },
+      "size": { "width": 305, "height": 150 },
+      "visualRole": "group-container",
+      "zIndex": 1,
+      "childNodeIds": []
+    },
+    {
+      "id": "repeat-marker",
+      "labelKey": "graph.nodes.repeatMarker.label",
+      "summaryKey": "graph.nodes.repeatMarker.summary",
+      "moduleKind": "other",
+      "position": { "x": 656, "y": 412 },
+      "size": { "width": 48, "height": 120 },
+      "visualRole": "repeat-label",
+      "zIndex": 2,
+      "childNodeIds": []
+    },
+    {
+      "id": "rmsnorm-sequence",
+      "labelKey": "graph.nodes.rmsnormSequence.label",
+      "summaryKey": "graph.nodes.rmsnormSequence.summary",
+      "registryId": "module.rmsnorm",
+      "moduleKind": "normalization",
+      "position": { "x": 270, "y": 298 },
+      "size": { "width": 210, "height": 44 },
+      "visualRole": "architecture-add-norm",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "gated-deltanet",
+      "labelKey": "graph.nodes.gatedDeltaNet.label",
+      "summaryKey": "graph.nodes.gatedDeltaNet.summary",
+      "moduleKind": "attention",
+      "position": { "x": 190, "y": 356 },
+      "size": { "width": 185, "height": 88 },
+      "visualRole": "architecture-attention",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "gated-attention",
+      "labelKey": "graph.nodes.gatedAttention.label",
+      "summaryKey": "graph.nodes.gatedAttention.summary",
+      "relatedRegistryId": "module.attention",
+      "moduleKind": "attention",
+      "position": { "x": 395, "y": 356 },
+      "size": { "width": 185, "height": 88 },
+      "visualRole": "architecture-attention",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "rmsnorm-ffn",
+      "labelKey": "graph.nodes.rmsnormFfn.label",
+      "summaryKey": "graph.nodes.rmsnormFfn.summary",
+      "registryId": "module.rmsnorm",
+      "moduleKind": "normalization",
+      "position": { "x": 275, "y": 494 },
+      "size": { "width": 200, "height": 44 },
+      "visualRole": "architecture-add-norm",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "dense-ffn",
+      "labelKey": "graph.nodes.denseFfn.label",
+      "summaryKey": "graph.nodes.denseFfn.summary",
+      "registryId": "module.standard-ffn",
+      "moduleKind": "feed-forward",
+      "position": { "x": 260, "y": 552 },
+      "size": { "width": 230, "height": 82 },
+      "visualRole": "architecture-feed-forward",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "rope-inject",
+      "labelKey": "graph.nodes.ropeInject.label",
+      "summaryKey": "graph.nodes.ropeInject.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "other",
+      "position": { "x": 353, "y": 702 },
+      "size": { "width": 46, "height": 46 },
+      "visualRole": "operator-circle",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "rope",
+      "labelKey": "graph.nodes.rope.label",
+      "summaryKey": "graph.nodes.rope.summary",
+      "registryId": "module.rope",
+      "moduleKind": "embedding",
+      "position": { "x": 68, "y": 800 },
+      "size": { "width": 190, "height": 80 },
+      "visualRole": "architecture-embedding",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "input-embedding",
+      "labelKey": "graph.nodes.inputEmbedding.label",
+      "summaryKey": "graph.nodes.inputEmbedding.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "embedding",
+      "position": { "x": 273, "y": 800 },
+      "size": { "width": 205, "height": 62 },
+      "visualRole": "architecture-embedding",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "input-tokens",
+      "labelKey": "graph.nodes.inputTokens.label",
+      "summaryKey": "graph.nodes.inputTokens.summary",
+      "registryId": "concept.token",
+      "moduleKind": "input",
+      "position": { "x": 291, "y": 900 },
+      "size": { "width": 170, "height": 60 },
+      "visualRole": "architecture-io",
+      "zIndex": 3,
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "softmax-to-output-probabilities",
+      "source": "softmax",
+      "target": "output-probabilities",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "linear-to-softmax",
+      "source": "linear",
+      "target": "softmax",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "rmsnorm-ffn-to-linear",
+      "source": "rmsnorm-ffn",
+      "target": "linear",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "dense-ffn-to-rmsnorm-ffn",
+      "source": "dense-ffn",
+      "target": "rmsnorm-ffn",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "rmsnorm-sequence-to-dense-ffn",
+      "source": "rmsnorm-sequence",
+      "target": "dense-ffn",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "rmsnorm-sequence-to-rmsnorm-ffn",
+      "source": "rmsnorm-ffn",
+      "target": "rmsnorm-sequence",
+      "edgeKind": "residual",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "right"
+    },
+    {
+      "id": "gated-deltanet-to-rmsnorm-sequence",
+      "source": "gated-deltanet",
+      "target": "rmsnorm-sequence",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "gated-attention-to-rmsnorm-sequence",
+      "source": "gated-attention",
+      "target": "rmsnorm-sequence",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "rope-inject-to-gated-deltanet",
+      "source": "rope-inject",
+      "target": "gated-deltanet",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "rope-inject-to-gated-attention",
+      "source": "rope-inject",
+      "target": "gated-attention",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "rope-inject-to-rmsnorm-sequence",
+      "source": "rope-inject",
+      "target": "rmsnorm-sequence",
+      "edgeKind": "residual",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "rope-to-gated-attention",
+      "source": "rope",
+      "target": "gated-attention",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "input-embedding-to-rope-inject",
+      "source": "input-embedding",
+      "target": "rope-inject",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "input-tokens-to-input-embedding",
+      "source": "input-tokens",
+      "target": "input-embedding",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    }
+  ]
+}

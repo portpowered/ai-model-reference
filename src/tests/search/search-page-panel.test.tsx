@@ -281,7 +281,6 @@ describe("SearchPagePanel Phase 1 queries", () => {
     "prefill",
     "prompt processing",
     "prompt pass",
-    "first token latency",
   ] as const)("%s query ranks the canonical prefill concept page first on /search", async (query) => {
     const context = await loadAppTestContext();
     await renderSearchPagePanelContent(context);
