@@ -34,7 +34,7 @@ describe("getPrimaryNavItems", () => {
   });
 
   it("can emit vietnamese-prefixed navigation routes from the shared locale contract", async () => {
-    const messages = await loadUiMessages();
+    const messages = await loadUiMessages("vi");
     const items = getPrimaryNavItems(messages, "vi");
 
     expect(items.map((item) => item.href)).toEqual([
@@ -42,6 +42,18 @@ describe("getPrimaryNavItems", () => {
       "/vi/topology",
       "/vi/docs/timeline",
       "/vi/tags",
+    ]);
+    expect(items.map((item) => item.label)).toEqual([
+      messages.nav.home,
+      messages.nav.topology,
+      messages.nav.timeline,
+      messages.nav.tags,
+    ]);
+    expect(items.map((item) => item.label)).toEqual([
+      "Trang chủ",
+      messages.nav.topology,
+      "Dòng thời gian",
+      messages.nav.tags,
     ]);
   });
 

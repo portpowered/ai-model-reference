@@ -93,6 +93,24 @@ describe("site config primary nav compatibility", () => {
 
     expect(configLabels).toEqual(consumerLabels);
   });
+
+  test("preserves vietnamese primary nav hrefs and translated labels from config", async () => {
+    const messages = await loadUiMessages("vi");
+    const items = getPrimaryNavItems(messages, "vi");
+
+    expect(items.map((item) => item.href)).toEqual([
+      "/vi",
+      "/vi/topology",
+      "/vi/docs/timeline",
+      "/vi/tags",
+    ]);
+    expect(items.map((item) => item.label)).toEqual([
+      "Trang chủ",
+      messages.nav.topology,
+      "Dòng thời gian",
+      messages.nav.tags,
+    ]);
+  });
 });
 
 describe("site config home featured link compatibility", () => {

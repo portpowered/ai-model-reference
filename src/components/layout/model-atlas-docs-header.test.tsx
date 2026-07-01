@@ -361,10 +361,93 @@ describe("ModelAtlasDocsHeader", () => {
     );
     expect(desktopNavMatch).toBeTruthy();
     for (const item of expectedItems) {
+      const escapedHref = item.href.replaceAll("&", "&amp;");
+      expect(desktopNavMatch?.[1]).toContain(`href="${escapedHref}"`);
       expect(desktopNavMatch?.[1]).toContain(`>${item.label}<`);
     }
     expect(html).toContain(">Trang chủ<");
     expect(html).toContain(">Dòng thời gian<");
+  });
+
+  test("reveals localized mobile primary nav links when the menu opens on a vietnamese route", async () => {
+    const messages = await loadUiMessages("vi");
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    await renderWithAppProviders(
+      <ModelAtlasDocsHeader
+        messages={messages}
+        pageTree={source.pageTree}
+        locale="vi"
+        topologyOptions={[]}
+      />,
+      {
+        SearchDialog,
+      },
+    );
+    const menuButton = screen.getByRole("button", { name: messages.nav.menu });
+
+    expect(menuButton.getAttribute("aria-expanded")).toBe("false");
+    expect(menuButton.getAttribute("aria-controls")).toBeTruthy();
+
+    fireEvent.click(menuButton);
+
+    expect(menuButton.getAttribute("aria-expanded")).toBe("true");
+
+    const panelId = menuButton.getAttribute("aria-controls");
+    const drawer = document.getElementById(panelId ?? "");
+    expect(drawer).toBeTruthy();
+    expect(drawer?.getAttribute("role")).toBe("dialog");
+
+    const expectedItems = getPrimaryNavItems(messages, "vi");
+    for (const item of expectedItems) {
+      const link = within(drawer as HTMLElement).getByRole("link", {
+        name: item.label,
+      });
+      expect(link.getAttribute("href")).toBe(item.href);
+      expect(link.className).toContain(PRIMARY_NAV_MOBILE_LINK_CLASS);
+    }
+    expect(
+      within(drawer as HTMLElement).getByRole("link", { name: "Trang chủ" }),
+    ).toBeTruthy();
+    expect(
+      within(drawer as HTMLElement).getByRole("link", {
+        name: "Dòng thời gian",
+      }),
+    ).toBeTruthy();
+  });
+
+  test("closes the mobile menu when a localized primary nav link is clicked", async () => {
+    const messages = await loadUiMessages("vi");
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    await renderWithAppProviders(
+      <ModelAtlasDocsHeader
+        messages={messages}
+        pageTree={source.pageTree}
+        locale="vi"
+        topologyOptions={[]}
+      />,
+      {
+        SearchDialog,
+      },
+    );
+    const menuButton = screen.getByRole("button", { name: messages.nav.menu });
+
+    fireEvent.click(menuButton);
+    expect(menuButton.getAttribute("aria-expanded")).toBe("true");
+
+    const drawer = document.getElementById(
+      menuButton.getAttribute("aria-controls") ?? "",
+    );
+    expect(drawer).toBeTruthy();
+
+    const homeLink = within(drawer as HTMLElement).getByRole("link", {
+      name: "Trang chủ",
+    });
+    fireEvent.click(homeLink);
+
+    expect(menuButton.getAttribute("aria-expanded")).toBe("false");
+    expect(
+      document.getElementById(menuButton.getAttribute("aria-controls") ?? ""),
+    ).toBeNull();
   });
 
   test("closes the mobile menu and hides the disclosure panel when toggled off", async () => {
