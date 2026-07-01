@@ -40,6 +40,13 @@ describe("cross-attention page messages", () => {
     expect(messages.math?.crossAttentionSchema?.label).toBe("Cross-attention");
     expect(messages.math?.crossAttentionSchema?.formula).toContain("Q(Y)");
     expect(messages.math?.crossAttentionSchema?.formula).toContain("K(X)");
+    expect(messages.openingSummary).not.toMatch(/encoder-decoder|multimodal/i);
+    expect(messages.sections?.whatItIs?.body).not.toMatch(
+      /encoder-decoder|multimodal/i,
+    );
+    expect(messages.sections?.howItWorks?.body).toMatch(/queries/i);
+    expect(messages.sections?.howItWorks?.body).toMatch(/keys and values/i);
+    expect(messages.sections?.howItWorks?.body).toMatch(/softmax/i);
   });
 });
 
@@ -107,7 +114,7 @@ describe("loadModulePage cross-attention", () => {
 
     expect(html).toContain('data-testid="folded-summary"');
     expect(html).toContain(
-      "lets one sequence ask questions of a different sequence or memory bank",
+      "queries come from one stream while keys and values come from a separate memory source",
     );
   });
 });

@@ -1,7 +1,7 @@
 {
   "title": "Cross-Attention",
   "description": "An attention pattern where queries come from one stream while keys and values come from a different memory source.",
-  "openingSummary": "Cross-attention is the attention pattern that lets one sequence ask questions of a different sequence or memory bank, which is why decoder layers can read encoder outputs and multimodal models can fuse text with image or audio features.",
+  "openingSummary": "Cross-attention is the attention pattern where queries come from one stream while keys and values come from a separate memory source, so the active sequence can read information stored outside itself instead of only from its own hidden states.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
