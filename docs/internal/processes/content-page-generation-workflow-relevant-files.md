@@ -54,6 +54,24 @@ Compatible with narrow, reviewer-verifiable changes in
 [code standards](../../code-standards.md) and
 [review standards](../../review-standards.md).
 
+## Glossary bridge plus concept canonical route (dual registry id)
+
+When a new concept page shares an existing `concept.<slug>` registry id with a
+published glossary bridge at `/docs/glossary/<slug>`, the page bundle can stay
+page-local but CI will require narrowly-scoped shared updates:
+
+- Resolve glossary-chain validation by `glossaryPageHref(slug)` plus
+  `registryId`, not `pages.find(registryId)` alone.
+- Route curated links, search ranking, and auto-linked prose to
+  `/docs/concepts/<slug>` via generated `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS`.
+- Keep glossary-chain gates validating `/docs/glossary/<slug>`.
+- Add one behavioral discovery test (for example `embedding-concept-discovery.test.ts`)
+  using `getDocsPageDir("concepts", "<slug>")`; update only convergence fixtures
+  whose expectations change because of the dual route.
+
+Document the exception explicitly in the work-item PRD when this collision is
+inherent to the slice.
+
 ## PR-head mergeability for page branches (process executors)
 
 When a routine canonical page branch has finished its page PRD stories but the
