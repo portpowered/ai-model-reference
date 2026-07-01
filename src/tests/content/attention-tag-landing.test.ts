@@ -90,6 +90,7 @@ describe("attention tag landing resources", () => {
 
     const paperGroup = groups.find((group) => group.kind === "paper");
     expect(paperGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/papers/bert-pre-training-of-deep-bidirectional-transformers",
       "/docs/papers/deepseek-v4",
     ]);
 
