@@ -1,0 +1,51 @@
+{
+  "title": "Attention Is All You Need",
+  "description": "The 2017 paper that introduced the transformer, using self-attention as the main way tokens mix information in encoder-decoder sequence models.",
+  "openingSummary": "Attention Is All You Need introduced the transformer as a sequence model built around self-attention instead of recurrence or convolutions. Tokens exchange information through attention layers stacked in an encoder and a decoder, which became the reusable backbone behind most later large language models.",
+  "sections": {
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Before this paper, many sequence models moved information step by step through recurrent connections or local convolution windows. The transformer showed that self-attention could mix information across the whole sequence in parallel, which made training faster at scale and easier to reuse across translation, language modeling, and later decoder-only systems. That design choice turned the transformer into the reference architecture readers still meet first when learning modern language models."
+    },
+    "methodOrArchitecture": {
+      "title": "Method Or Architecture",
+      "body": "At a high level, the model reads an input sequence through an encoder stack and produces an output sequence through a decoder stack. Each layer relies on self-attention so every token can look at other tokens and update its representation. Multi-head attention runs several attention patterns in parallel, positional encodings tell the model where each token sits in the sequence, feed-forward blocks add extra processing after attention, and residual or skip connections keep gradients stable as depth grows. The paper's headline idea is simple: attention becomes the main information-mixing mechanism, and the encoder-decoder transformer shape organizes those pieces into one trainable system."
+    },
+    "evidence": {
+      "title": "Evidence",
+      "body": "The paper's evidence is architectural and empirical rather than a benchmark leaderboard story. It shows that an attention-centered encoder-decoder model can match strong sequence baselines on machine translation while training more efficiently in parallel. For readers on this site, the important takeaway is that the introduced stack—attention, multi-head attention, positional encodings, feed-forward sublayers, and residual paths—proved durable enough to become the default starting point for later model families."
+    },
+    "limitations": {
+      "title": "Limitations",
+      "body": "The original transformer is not a universal recipe for every task or budget. Attention cost grows with sequence length, the encoder-decoder form is not always the final shape modern systems keep, and later work added many refinements around efficiency, alignment, and data scale. Readers should treat this paper as the foundational blueprint, not as the only architecture teams ship today."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "contributionGraph": {
+      "alt": "A contribution graph that connects Attention Is All You Need to attention-centered sequence modeling and the encoder-decoder transformer stack.",
+      "caption": "The paper is easiest to read as two linked ideas: self-attention as the main mixing mechanism and an encoder-decoder transformer stack that organizes those layers."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "paper": {
+        "label": "Attention Is All You Need"
+      },
+      "attention": {
+        "label": "Attention-centered modeling"
+      },
+      "encoderDecoder": {
+        "label": "Encoder-decoder stack"
+      }
+    }
+  }
+}
