@@ -6,7 +6,15 @@
   "defaultSummaryKey": "description",
   "aliases": ["embeddings", "token embedding", "vector embedding"],
   "tags": ["token-to-probability-chain", "foundations"],
-  "relatedIds": ["concept.tensor"],
+  "relatedIds": [
+    "concept.token",
+    "module.byte-level-tokenization",
+    "module.bpe",
+    "concept.positional-encodings",
+    "module.learned-positional-embeddings",
+    "model.gpt-3",
+    "concept.tensor"
+  ],
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",

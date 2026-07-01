@@ -13,11 +13,11 @@
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "Suppose a tokenizer turns a three-word sentence into token IDs 12, 42, and 7. The token embedding table maps each ID to a 768-number vector, giving a 3×768 tensor of content vectors. Before attention runs, many models add a positional embedding vector at each index—one pattern for position 0, another for position 1, and so on—so the stack knows order as well as identity. The sum (or equivalent combination) at each position is what the first transformer block receives."
+      "body": "Suppose a tokenizer turns a three-word sentence into token IDs 12, 42, and 7. The token embedding table maps each ID to a 768-number vector, giving a 3×768 tensor of content vectors. Before attention runs, many GPT-style models add learned positional embeddings at each index—one pattern for position 0, another for position 1, and so on—so the stack knows order as well as identity. The sum (or equivalent combination) at each position is what the first transformer block receives."
     },
     "whereItAppears": {
       "title": "Where It Appears",
-      "body": "Token embeddings sit at the bottom of decoder-only transformers, encoder inputs for sequence-to-sequence models, and retrieval systems that compare query and document vectors. Positional information is usually fused with token embeddings before attention, whether through learned absolute tables, sinusoidal patterns, or schemes that inject order inside attention instead."
+      "body": "Token embeddings sit at the bottom of decoder-only transformers such as GPT-3, encoder inputs for sequence-to-sequence models, and retrieval systems that compare query and document vectors. Positional information is usually fused with token embeddings before attention, whether through learned absolute tables, sinusoidal patterns, or schemes that inject order inside attention instead. Use the related docs below to continue from tokenization into positional encodings and representative model stacks."
     },
     "commonConfusions": {
       "title": "Common Confusions",
@@ -31,6 +31,29 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "relatedDocs": {
+    "concept.token": {
+      "reason": "Tokenization turns raw text into the discrete IDs that the embedding table looks up."
+    },
+    "module.byte-level-tokenization": {
+      "reason": "Byte-level tokenization shows one published tokenizer path that feeds those token IDs."
+    },
+    "module.bpe": {
+      "reason": "BPE is a common subword tokenizer whose output IDs land in the same embedding table."
+    },
+    "concept.positional-encodings": {
+      "reason": "Positional encodings explain how order is added on top of token embeddings before attention."
+    },
+    "module.learned-positional-embeddings": {
+      "reason": "Learned positional embeddings are the absolute position tables many decoder stacks add to token vectors."
+    },
+    "model.gpt-3": {
+      "reason": "GPT-3 is a published decoder-only model that combines token embeddings, learned positions, and attention blocks."
+    },
+    "concept.tensor": {
+      "reason": "Tensors name the shaped numeric containers that hold embedding vectors after lookup."
     }
   }
 }
