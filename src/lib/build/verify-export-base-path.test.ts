@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { buildGroupedQueryAttentionStubBody } from "@/lib/verify/grouped-query-attention-module-convergence";
+import { buildMultiTokenPredictionStubBody } from "@/lib/verify/multi-token-prediction-module-convergence";
 import {
   exportHtmlIncludesGqaAttentionVariantGraphShellMarkers,
+  exportHtmlIncludesMtpAttentionVariantGraphShellMarkers,
   exportHtmlReferencesBasePathAssets,
   exportHtmlReferencesBasePathInternalLinks,
 } from "./verify-export-base-path";
@@ -37,6 +39,18 @@ describe("verify export base path markers", () => {
     expect(
       exportHtmlIncludesGqaAttentionVariantGraphShellMarkers(
         "<html><body>Grouped-Query Attention</body></html>",
+      ),
+    ).toBe(false);
+  });
+
+  test("detects MTP attention-variant graph shell markers", () => {
+    const html = `<html><body>${buildMultiTokenPredictionStubBody()}</body></html>`;
+    expect(exportHtmlIncludesMtpAttentionVariantGraphShellMarkers(html)).toBe(
+      true,
+    );
+    expect(
+      exportHtmlIncludesMtpAttentionVariantGraphShellMarkers(
+        "<html><body>Multi-Token Prediction</body></html>",
       ),
     ).toBe(false);
   });

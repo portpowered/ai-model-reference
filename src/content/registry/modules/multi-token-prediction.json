@@ -1,0 +1,54 @@
+{
+  "id": "module.multi-token-prediction",
+  "slug": "multi-token-prediction",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "multi-token prediction",
+    "multitoken prediction",
+    "MTP",
+    "N-token prediction",
+    "multiple future tokens",
+    "predict multiple future tokens",
+    "Better & Faster Large Language Models via Multi-token Prediction"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "training-regime.pretraining",
+    "concept.autoregressive-generation",
+    "system.speculative-decoding",
+    "concept.decoder",
+    "concept.transformer-architecture"
+  ],
+  "citationIds": ["citation.multi-token-prediction-paper"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "releaseDate": "2024-04-30",
+  "authors": [
+    "Fabian Gloeckle",
+    "Badr Youbi Idrissi",
+    "Baptiste Rozière",
+    "David López-Paz",
+    "Gabriel Synnaeve"
+  ],
+  "sourceId": "citation.multi-token-prediction-paper",
+  "primaryClassificationId": "classification.module",
+  "moduleType": "training-method",
+  "moduleFamily": "training-objective",
+  "conceptType": "training",
+  "variantGroup": "language-model-objectives",
+  "optimizes": [
+    "sample-efficiency",
+    "code-generation",
+    "inference-speed",
+    "next-token-prediction"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}
