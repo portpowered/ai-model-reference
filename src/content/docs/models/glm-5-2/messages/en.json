@@ -1,6 +1,6 @@
 {
   "title": "GLM-5.2",
-  "description": "A later GLM line member that extends sparse-attention MoE architecture with a solid 1M-token context and long-horizon coding emphasis.",
+  "description": "A later GLM line member that extends sparse-attention mixture-of-experts architecture with a solid 1M-token context and long-horizon coding emphasis.",
   "openingSummary": "GLM-5.2 matters because it keeps the GLM sparse-attention, mixture-of-experts stack but pushes the line toward long-horizon coding work. The official release blog positions it as a 753-billion-parameter open-weights model with a stable 1M-token context, IndexShare efficiency for sparse attention, and training aimed at sustained agentic engineering rather than one-shot answers.",
   "sections": {
     "whatItIs": {
