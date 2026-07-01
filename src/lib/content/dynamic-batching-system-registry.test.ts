@@ -21,8 +21,6 @@ describe("dynamic batching system registry", () => {
       "Dynamic batching",
       "batch window",
       "request batching",
-      "latency",
-      "throughput",
       "queueing delay",
       "utilization tradeoff",
     ]);

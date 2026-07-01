@@ -11,6 +11,20 @@ import type {
   SitePrimaryNavEntry,
 } from "./site-config.contract";
 
+export function resolveSiteConfigLayoutNav(
+  config: SiteConfig,
+  locale: SiteLocale = defaultLocale,
+): { title: string; url: string } {
+  return {
+    title: config.brand.brandName,
+    url: buildLocalizedRoute(config.routeSurfaces.home, locale),
+  };
+}
+
+export function resolveSiteConfigRepositoryUrl(config: SiteConfig): string {
+  return config.repositoryUrl;
+}
+
 export type ResolvedHomeFeaturedLink = {
   href: string;
   title: string;
