@@ -142,6 +142,12 @@ function runScript(args: string[]): ReturnType<typeof spawnSync> {
   return spawnSync("bun", args, { cwd: process.cwd(), encoding: "utf8" });
 }
 
+function readStdoutText(result: ReturnType<typeof spawnSync>): string {
+  return typeof result.stdout === "string"
+    ? result.stdout
+    : result.stdout.toString("utf8");
+}
+
 function fixtureArgs(fixture: RepresentativeLinkageFixture): string[] {
   return [
     "--work-list-json",
@@ -204,7 +210,7 @@ describe("linkage classifier report compatibility", () => {
 
       expect(result.status).toBe(0);
       expect(result.stdout).toContain("Active PR Mergeability Watchdog");
-      assertRepresentativeWatchdogRows(result.stdout);
+      assertRepresentativeWatchdogRows(readStdoutText(result));
     } finally {
       fixture.cleanup();
     }
@@ -224,7 +230,7 @@ describe("linkage classifier report compatibility", () => {
       expect(result.stdout).toContain(
         "queue-derived-lanes=5 active=2 failed=3 pr-backed=1 actionable-gaps=1 queue-only-noise=3 linked=1 linked-with-gaps=4",
       );
-      assertRepresentativeLedgerRows(result.stdout);
+      assertRepresentativeLedgerRows(readStdoutText(result));
     } finally {
       fixture.cleanup();
     }
@@ -247,8 +253,8 @@ describe("linkage classifier report compatibility", () => {
 
       expect(watchdogResult.status).toBe(0);
       expect(ledgerResult.status).toBe(0);
-      assertRepresentativeWatchdogRows(watchdogResult.stdout);
-      assertRepresentativeLedgerRows(ledgerResult.stdout);
+      assertRepresentativeWatchdogRows(readStdoutText(watchdogResult));
+      assertRepresentativeLedgerRows(readStdoutText(ledgerResult));
     } finally {
       fixture.cleanup();
     }
@@ -277,7 +283,7 @@ describe("linkage classifier report compatibility", () => {
       expect(watchdogResult.status).toBe(0);
       expect(ledgerResult.status).toBe(0);
 
-      const queueHealthReport = JSON.parse(queueHealthResult.stdout) as {
+      const queueHealthReport = JSON.parse(readStdoutText(queueHealthResult)) as {
         activeWork: { items: Array<{ workItemName: string }> };
         expectedBlockedItems: { items: Array<{ workItemName: string }> };
         repairableFailures: { items: Array<{ workItemName: string }> };
@@ -295,8 +301,8 @@ describe("linkage classifier report compatibility", () => {
           (item) => item.workItemName,
         ),
       ).toEqual(expect.arrayContaining(["delta", "gamma"]));
-      assertRepresentativeWatchdogRows(watchdogResult.stdout);
-      assertRepresentativeLedgerRows(ledgerResult.stdout);
+      assertRepresentativeWatchdogRows(readStdoutText(watchdogResult));
+      assertRepresentativeLedgerRows(readStdoutText(ledgerResult));
     } finally {
       fixture.cleanup();
     }
