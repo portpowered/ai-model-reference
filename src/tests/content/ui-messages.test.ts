@@ -1,7 +1,11 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { loadUiMessages } from "@/lib/content/ui-messages";
+import {
+  formatPageKind,
+  loadUiMessages,
+  UI_MESSAGES_COMPATIBILITY_KEYS,
+} from "@/lib/content/ui-messages";
 import {
   loadUiMessagesFromDisk,
   UiMessagesLoadError,
@@ -90,6 +94,20 @@ describe("loadUiMessages shell keys", () => {
     expect(() =>
       loadUiMessagesFromDisk("vi", { messagesRoot: tempMessagesRoot }),
     ).toThrow(/Missing required UI messages file for locale "vi"/);
+  });
+
+  it("exposes every compatibility top-level message group", async () => {
+    const messages = await loadUiMessages();
+    for (const key of UI_MESSAGES_COMPATIBILITY_KEYS) {
+      expect(messages[key]).toBeDefined();
+    }
+  });
+
+  it("formatPageKind resolves known kinds and falls back for unknown kinds", async () => {
+    const messages = await loadUiMessages();
+    expect(formatPageKind(messages, "module")).toBe("Module");
+    expect(formatPageKind(messages, "concept")).toBe("Concept");
+    expect(formatPageKind(messages, "not-a-real-kind")).toBe("not-a-real-kind");
   });
 
   it("fails closed when shipped japanese shared UI messages are missing", async () => {

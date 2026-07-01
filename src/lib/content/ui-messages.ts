@@ -22,8 +22,13 @@ export type {
   TopologyBrowseMessages,
   TopologyPrototypeMessages,
   UiMessages,
+  UiMessagesCompatibility,
+  UiMessagesCompatibilityKey,
 } from "./ui-messages.types";
-export { formatPageKind } from "./ui-messages.types";
+export {
+  formatPageKind,
+  UI_MESSAGES_COMPATIBILITY_KEYS,
+} from "./ui-messages.types";
 
 /** Loads shell UI messages via a dynamic import so App Router routes avoid a static `node:fs` graph. */
 export async function loadUiMessages(

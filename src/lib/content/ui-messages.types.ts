@@ -311,8 +311,57 @@ export type AiDomainMessages = AiCollectionIndexMessages &
     topologyPrototype: TopologyPrototypeMessages;
   };
 
-/** Compatibility surface: full shipped UI messages for current consumers. */
-export type UiMessages = ShellMessages & DocsMessages & AiDomainMessages;
+/**
+ * Top-level message groups retained for current {@link UiMessages} consumers.
+ * Used by compatibility tests to verify the composed boundary shape matches
+ * the shipped `common.json` contract without migrating consumers.
+ */
+export const UI_MESSAGES_COMPATIBILITY_KEYS = [
+  "search",
+  "nav",
+  "language",
+  "searchEntry",
+  "timelinePage",
+  "shell",
+  "home",
+  "browseIndex",
+  "topologyBrowse",
+  "modelsIndex",
+  "modulesIndex",
+  "conceptsIndex",
+  "papersIndex",
+  "trainingIndex",
+  "systemsIndex",
+  "glossaryIndex",
+  "architectureIndex",
+  "topologyPrototype",
+  "tagsIndex",
+  "tagLanding",
+  "tagCategories",
+  "pageKind",
+] as const;
+
+export type UiMessagesCompatibilityKey =
+  (typeof UI_MESSAGES_COMPATIBILITY_KEYS)[number];
+
+/**
+ * Compatibility surface composing shell, docs, and AI domain message boundaries.
+ * Preserves the exact top-level shape consumed by existing layout, search,
+ * navigation, browse, topology, timeline, tags, and page-kind helpers.
+ */
+export type UiMessagesCompatibility = ShellMessages &
+  DocsMessages &
+  AiDomainMessages;
+
+/** Full shipped UI messages for current consumers. Alias of {@link UiMessagesCompatibility}. */
+export type UiMessages = UiMessagesCompatibility;
+
+type _AssertUiMessagesCompatibilityKeys =
+  UiMessagesCompatibilityKey extends keyof UiMessagesCompatibility
+    ? keyof UiMessagesCompatibility extends UiMessagesCompatibilityKey
+      ? true
+      : never
+    : never;
 
 export function formatPageKind(messages: UiMessages, kind: string): string {
   return messages.pageKind[kind] ?? kind;
