@@ -26,6 +26,7 @@ import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDoc
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModelArchitectureGraph } from "@/features/models/components/ModelArchitectureGraph";
 import { ModelAtAGlance } from "@/features/models/components/ModelAtAGlance";
 import { ModelModuleList } from "@/features/models/components/ModelModuleList";
 import { ModelTrainingSummary } from "@/features/models/components/ModelTrainingSummary";
@@ -43,6 +44,7 @@ import { ModelTrainingSummary } from "@/features/models/components/ModelTraining
 
 <Section id="architecture" titleKey="sections.architecture.title">
   <T k="sections.architecture.body" />
+  <ModelArchitectureGraph registryId="model.llama-3" assetId="architectureGraph" />
 </Section>
 
 <Section id="important-modules" titleKey="sections.importantModules.title">

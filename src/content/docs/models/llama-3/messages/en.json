@@ -13,19 +13,19 @@
     },
     "architecture": {
       "title": "Architecture",
-      "body": "At a high level, Llama 3 follows the familiar decoder-only transformer pattern: token embeddings enter a repeated stack of causal attention and feed-forward blocks, then a linear head produces next-token probabilities. Meta's public description emphasizes grouped-query attention, rotary position embeddings, RMSNorm, and a SwiGLU feed-forward block inside that stack."
+      "body": "At a high level, Llama 3 follows the decoder-only transformer pattern: token embeddings enter a repeated stack of causal attention and feed-forward blocks, then a linear head produces next-token probabilities for autoregressive generation. Rotary position embeddings mark token order inside attention, grouped-query attention carries context more efficiently than full multi-head attention, RMSNorm stabilizes each block, and SwiGLU handles the per-token feed-forward step. The 128K context window means the same decoder stack must keep useful attention over a much longer prefix than earlier short-context releases."
     },
     "importantModules": {
       "title": "Important Modules",
-      "body": "These registry-linked modules are the main moving parts to understand before reading later Llama-family releases. Grouped-query attention and causal attention carry context efficiently, RoPE marks token positions, RMSNorm stabilizes the repeated stack, and SwiGLU handles the per-token feed-forward transformation."
+      "body": "The registry-linked modules below are the main moving parts to understand before reading later Llama-family releases. Grouped-query attention and causal attention carry context across the prompt, RoPE encodes position inside attention, RMSNorm keeps the repeated stack stable, and SwiGLU performs the dense feed-forward transformation inside each decoder block."
     },
     "training": {
       "title": "Training",
-      "body": "Public Meta sources describe broad text pretraining followed by post-training work that turns base checkpoints into instruction-following assistants. The pretraining stage learns next-token prediction over large text mixtures, and later alignment and instruction tuning shape how the same stack responds in chat and tool-use settings."
+      "body": "Meta's public sources separate broad text pretraining from later post-training work. Pretraining teaches next-token prediction over large multilingual text mixtures and is the stage that builds the base decoder stack. Post-training and alignment then reshape the same weights into instruction-following assistants without changing the core token interface. The linked training regimes and paper below point to the primary Meta records for each stage."
     },
     "practicalNotes": {
       "title": "Practical Notes",
-      "body": "This page is an explainer and reference sheet for how Llama 3 works, not a benchmark leaderboard or model-ranking page. Use it to understand the family architecture, training story, and long-context significance; use dedicated benchmark sites when you need score comparisons across models."
+      "body": "The 405-billion-parameter checkpoint matters because it showed that an open-weight dense decoder could reach frontier scale without abandoning the familiar transformer recipe. The 128K context window matters because it turns long documents, codebases, and multi-turn chats into practical inputs instead of edge cases. This page is an explainer and reference sheet for how those pieces fit together, not a benchmark leaderboard or model-ranking page."
     },
     "related": {
       "title": "Related Models, Modules, And Papers"
@@ -35,6 +35,75 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Llama 3 architecture diagram with token embeddings, RoPE position encoding, a repeated decoder block containing grouped-query attention, RMSNorm, and SwiGLU, then an output projection and softmax for next-token probabilities."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "Next-token probability distribution produced by autoregressive generation"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns vocabulary logits into probabilities for the next token"
+      },
+      "linear": {
+        "label": "Output\nLinear",
+        "summary": "Projects the final hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated decoder block container for the Llama 3 stack"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Attention sublayer container"
+      },
+      "ffnSublayer": {
+        "label": " ",
+        "summary": "Feed-forward sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats through the full Llama 3 stack"
+      },
+      "rmsnormAttention": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before grouped-query attention"
+      },
+      "groupedQueryAttention": {
+        "label": "Grouped-Query\nAttention",
+        "summary": "Causal attention that shares key-value heads across query groups for efficiency"
+      },
+      "rmsnormFfn": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the stream before the SwiGLU feed-forward block"
+      },
+      "swiglu": {
+        "label": "SwiGLU",
+        "summary": "Gated feed-forward transformation applied at each token position"
+      },
+      "ropeInject": {
+        "label": "+",
+        "summary": "Applies token embeddings together with rotary position information"
+      },
+      "rope": {
+        "label": "RoPE",
+        "summary": "Rotary position encoding gives attention token-order information across long context"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs into hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after tokenization"
+      }
     }
   }
 }
