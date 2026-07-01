@@ -43,6 +43,43 @@ describe("request scheduling system page messages", () => {
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.practicalImpact.body?.length).toBeGreaterThan(0);
   });
+
+  test("defines scheduling in isolation and covers queue behavior, tradeoffs, and admission boundaries", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.openingSummary).toContain(
+      "separate from choosing a serving path",
+    );
+    expect(messages.sections?.whatItIs.body).toContain(
+      "does not change model weights",
+    );
+    expect(messages.sections?.whereItSits.body).toContain(
+      "Admission decides whether a request may enter",
+    );
+    expect(messages.sections?.howItWorks.body).toContain("Queue order");
+    expect(messages.sections?.howItWorks.body).toContain("Prefill work");
+    expect(messages.sections?.howItWorks.body).toContain("Decode work");
+    expect(messages.sections?.howItWorks.body).toContain("Fairness policies");
+    expect(messages.sections?.howItWorks.body).toContain("Deadline-aware");
+    expect(messages.sections?.howItWorks.body).toContain(
+      "Batching opportunities",
+    );
+    expect(messages.sections?.howItWorks.body).toContain("Memory limits");
+    expect(messages.sections?.howItWorks.body).toContain("Cancellation");
+    expect(messages.sections?.howItWorks.body).toContain("Admission control");
+    expect(messages.sections?.practicalImpact.body).toContain("Latency rises");
+    expect(messages.sections?.practicalImpact.body).toContain(
+      "Fairness breaks",
+    );
+    expect(messages.sections?.practicalImpact.body).toContain(
+      "Throughput rises",
+    );
+    expect(messages.sections?.practicalImpact.body).toContain(
+      "Memory pressure shows up",
+    );
+  });
 });
 
 describe("loadSystemPage request-scheduling", () => {
@@ -177,6 +214,10 @@ describe("request scheduling docs route render", () => {
     expect(html).toContain("decode");
     expect(html).toContain("queue");
     expect(html).toContain("throughput");
+    expect(html).toContain("Fairness policies");
+    expect(html).toContain("Admission control");
+    expect(html).toContain("Memory pressure shows up");
+    expect(html).toContain("Cancellation");
   });
 
   test("renders the request scheduling system flow graph with the page-local graph asset", async () => {
