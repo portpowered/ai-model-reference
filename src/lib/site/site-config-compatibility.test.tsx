@@ -8,6 +8,7 @@ import {
   defaultLocale,
   supportedLocales,
 } from "@/lib/i18n/locale-routing";
+import { baseOptions } from "@/lib/layout.shared";
 import { SCAFFOLD_ID, SITE_BRAND_NAME, SITE_HEADING } from "@/lib/scaffold";
 import {
   MODEL_ATLAS_REPOSITORY_URL,
@@ -48,7 +49,14 @@ describe("site config scaffold compatibility", () => {
       expect(
         buildLocalizedRoute(modelAtlasSiteConfig.routeSurfaces.home, locale),
       ).toBe(buildLocalizedRoute({ surface: "home" }, locale));
+      expect(baseOptions(locale).nav?.url).toBe(
+        buildLocalizedRoute(modelAtlasSiteConfig.routeSurfaces.home, locale),
+      );
     }
+  });
+
+  test("keeps the layout nav title aligned with the configured brand name", () => {
+    expect(baseOptions().nav?.title).toBe(modelAtlasSiteConfig.brand.brandName);
   });
 });
 

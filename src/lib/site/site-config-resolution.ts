@@ -10,6 +10,16 @@ import type {
   SitePrimaryNavEntry,
 } from "./site-config.contract";
 
+export function resolveSiteConfigLayoutNav(
+  config: SiteConfig,
+  locale: SiteLocale = defaultLocale,
+): { title: string; url: string } {
+  return {
+    title: config.brand.brandName,
+    url: buildLocalizedRoute(config.routeSurfaces.home, locale),
+  };
+}
+
 function resolveRouteSurfaceHref(
   config: SiteConfig,
   routeSurface: SitePrimaryNavEntry["routeSurface"],
