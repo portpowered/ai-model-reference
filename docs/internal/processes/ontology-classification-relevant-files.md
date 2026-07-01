@@ -27,6 +27,11 @@ the temporary legacy-id bridge.
   Behavioral proof that published registry fixture records still parse through
   existing `schemas.ts` exports and that `loadRegistry` indexes representative
   AI-domain entries unchanged after the core type split.
+* `src/lib/content/registry-loader-error-compat.test.ts`
+  Behavioral proof that `loadRegistry` still throws structured
+  `RegistryLoadError` details for ontology validation failures, malformed or
+  incorrectly parented classification records, and duplicate id/slug detection
+  after the core type split.
 * `src/lib/content/registry-runtime-generation.ts`
   Generated runtime source contract for canonical lookup, legacy-id
   canonicalization, parent-child traversal, filtered subtree generation,
