@@ -3,11 +3,14 @@ import {
   collectMessageBodyText,
   collectMessageHeadings,
 } from "@/lib/content/messages";
+import type { DocsPageSource } from "@/lib/content/pages";
 import type { RegistryIndexes } from "@/lib/content/registry";
 import type { PageMessages } from "@/lib/content/schemas";
 import type { ShellCollectionDefinition } from "@/lib/docs/collection-definition-contract";
 import { resolveUiMessagePath } from "@/lib/docs/section-collection-index";
 import { buildShellCollectionPageTree } from "@/lib/navigation/shell-collection-page-tree";
+import { buildBaseSearchDocuments } from "@/lib/search/build-base-document";
+import type { BaseSearchDocument } from "@/lib/search/types";
 
 /** Test-only URL prefix; fixture pages are not published customer routes. */
 export const NON_AI_SHELL_FIXTURE_URL_PREFIX = "/fixture/docs";
@@ -332,5 +335,16 @@ export function buildNonAiShellFixturePageTree(): Root {
       definitions: listNonAiShellFixtureCollectionDefinitions(),
       collectionIds: NON_AI_SHELL_FIXTURE_BROWSE_COLLECTION_IDS,
     },
+  );
+}
+
+function toDocsPageSource(page: NonAiShellFixturePageSource): DocsPageSource {
+  return page as unknown as DocsPageSource;
+}
+
+export function buildNonAiShellFixtureBaseSearchDocuments(): BaseSearchDocument[] {
+  return buildBaseSearchDocuments(
+    listNonAiShellFixturePages().map(toDocsPageSource),
+    emptyNonAiShellFixtureRegistryIndexes(),
   );
 }
