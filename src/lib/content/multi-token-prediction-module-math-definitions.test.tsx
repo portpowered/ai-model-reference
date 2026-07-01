@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { MULTI_TOKEN_PREDICTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { pageMessagesSchema } from "@/lib/content/schemas";
@@ -25,6 +25,11 @@ const MTP_MATH_VARIABLE_DEFINITION_IDS = [
   "theta",
   "ptheta",
 ] as const;
+
+const MULTI_TOKEN_PREDICTION_PAGE_DIR = getDocsPageDir(
+  "modules",
+  "multi-token-prediction",
+);
 
 describe("multi-token-prediction module math schema definitions", () => {
   test("published messages include symbol-level math variable definitions per formula", () => {

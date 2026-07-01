@@ -8,7 +8,7 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
-import { MULTI_TOKEN_PREDICTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import {
@@ -17,7 +17,7 @@ import {
 } from "@/lib/content/module-test-helpers";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const pageDir = MULTI_TOKEN_PREDICTION_PAGE_DIR;
+const pageDir = getDocsPageDir("modules", "multi-token-prediction");
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
 const defaultGraphId = "graph.multi-token-prediction-mtp-comparison";

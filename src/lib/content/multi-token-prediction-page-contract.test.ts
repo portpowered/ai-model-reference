@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { MULTI_TOKEN_PREDICTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import {
   loadLocalDocsPage,
   localDocsRoute,
@@ -24,6 +24,10 @@ import {
 import { validateColocatedPageBundle } from "./validate-registry";
 
 const MULTI_TOKEN_PREDICTION_SLUG = "multi-token-prediction";
+const MULTI_TOKEN_PREDICTION_PAGE_DIR = getDocsPageDir(
+  "modules",
+  MULTI_TOKEN_PREDICTION_SLUG,
+);
 const MULTI_TOKEN_PREDICTION_PAGE_CONTRACT_TIMEOUT_MS = 15_000;
 
 function extractHowItWorksSection(html: string): string {

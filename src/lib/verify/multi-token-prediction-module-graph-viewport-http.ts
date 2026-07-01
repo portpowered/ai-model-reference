@@ -72,7 +72,9 @@ async function readViewportProbe(
     });
 
     const nodeRects = Array.from(
-      document.querySelectorAll("[data-graph-node-id]"),
+      document.querySelectorAll(
+        ".react-flow__node, .registry-graph-flow__node",
+      ),
     )
       .map((node) => node.getBoundingClientRect())
       .filter((rect) => rect.width > 0 && rect.height > 0);
