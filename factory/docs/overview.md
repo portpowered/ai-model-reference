@@ -23,6 +23,11 @@ Contributor-facing docs that shape list work:
 * `docs/taxonomy.md` — category definitions aligned with README section headings and CONTRIBUTING
 * `docs/review-policy.md` — maintainer checklist and `resource:*` labels for the same ten categories
 
+Executor page-validation policy for ordinary content-only page bundles:
+
+* `docs/internal/processes/derived-page-validation-relevant-files.md` — derived published-page coverage replaces routine per-page tests; use `make validate-data` instead of adding shared per-page bundle checks unless the page introduces special rendering, discovery, or regression behavior
+* `docs/contributors/CONTRIBUTING.md#derived-published-page-validation` — contributor-facing summary of the same policy
+
 ## Work Types
 
 Configured work types:

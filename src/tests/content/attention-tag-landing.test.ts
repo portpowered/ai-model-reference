@@ -72,6 +72,7 @@ describe("attention tag landing resources", () => {
       "/docs/models/deepseek-v4-flash",
       "/docs/models/deepseek-v4-pro",
       "/docs/models/gpt-3",
+      "/docs/models/llama-3",
     ]);
 
     const conceptGroup = groups.find((group) => group.kind === "concept");

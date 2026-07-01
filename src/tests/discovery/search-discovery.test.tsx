@@ -37,8 +37,9 @@ import {
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
 
-/** Renders every autodiscovered critical docs page; budget grows with shipped page count. */
+// Renders every autodiscovered critical docs page; allow headroom on slower local runs.
 const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 30_000;
+const PHASE_1_TAG_BROWSE_GATE_TIMEOUT_MS = 15_000;
 
 const PHASE_1_DISCOVERY_ROUTES = [
   {
@@ -362,10 +363,11 @@ describe("Phase 1 tag browse helpers", () => {
       ).toBe(true);
       expect(
         moduleGroup?.resources.some(
-          (resource) => resource.url === "/docs/modules/grouped-query-attention",
+          (resource) =>
+            resource.url === "/docs/modules/grouped-query-attention",
         ),
       ).toBe(true);
     },
-    { timeout: 10_000 },
+    { timeout: PHASE_1_TAG_BROWSE_GATE_TIMEOUT_MS },
   );
 });

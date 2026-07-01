@@ -1,0 +1,84 @@
+{
+  "id": "graph.multi-token-prediction-next-token-comparison",
+  "slug": "multi-token-prediction-next-token-comparison",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.multi-token-prediction-paper"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "module.multi-token-prediction",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "ntp-context",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "ntp-context",
+      "labelKey": "graph.nodes.contextPrefix.label",
+      "moduleKind": "input",
+      "position": { "x": 40, "y": 150 },
+      "size": { "width": 170, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["ntp-hidden"]
+    },
+    {
+      "id": "ntp-hidden",
+      "labelKey": "graph.nodes.sharedTrunk.label",
+      "moduleKind": "block",
+      "position": { "x": 260, "y": 150 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["ntp-head"]
+    },
+    {
+      "id": "ntp-head",
+      "labelKey": "graph.nodes.singleOutputHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 490, "y": 150 },
+      "size": { "width": 160, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["ntp-target"]
+    },
+    {
+      "id": "ntp-target",
+      "labelKey": "graph.nodes.targetTPlusOne.label",
+      "moduleKind": "output",
+      "position": { "x": 700, "y": 150 },
+      "size": { "width": 150, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "ntp-context-hidden",
+      "source": "ntp-context",
+      "target": "ntp-hidden",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "ntp-hidden-head",
+      "source": "ntp-hidden",
+      "target": "ntp-head",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "ntp-head-target",
+      "source": "ntp-head",
+      "target": "ntp-target",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    }
+  ]
+}

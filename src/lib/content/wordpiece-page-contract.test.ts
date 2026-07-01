@@ -18,8 +18,12 @@ import { validateGeneratedPageBundle } from "./validate-generated-page-bundle";
 
 const WORDPIECE_SLUG = "wordpiece";
 
-describe("wordpiece committed page contract", () => {
-  test("is routable and validates its route, registry record, and English bundle together", async () => {
+/**
+ * Routine published page-bundle checks are covered by derived validation.
+ * `validateGeneratedPageBundle` here guards the page-generation workflow slice.
+ */
+describe("wordpiece generation and discovery contract", () => {
+  test("page-generation workflow validates the committed WordPiece bundle", async () => {
     expect(source.getPage(["modules", WORDPIECE_SLUG])).toBeDefined();
 
     const modulesDocsRoot = getModulesDocsRoot();

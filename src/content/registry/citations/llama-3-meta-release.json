@@ -1,0 +1,20 @@
+{
+  "id": "citation.llama-3-meta-release",
+  "slug": "llama-3-meta-release",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Llama 3 release", "Meta Llama 3 release", "llama.meta.com"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["citation.llama-3-herd-of-models"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["Meta AI"],
+  "title": "Meta Llama 3",
+  "url": "https://llama.meta.com",
+  "mla": "Meta AI. \"Meta Llama 3.\" Official release site, 2024.",
+  "year": 2024
+}
