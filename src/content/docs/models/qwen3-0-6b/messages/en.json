@@ -1,11 +1,11 @@
 {
   "title": "Qwen3-0.6B",
   "description": "The smallest dense Qwen3 open-weight checkpoint: a 0.6-billion-parameter causal language model with 32,768-token context, Apache 2.0 licensing, and post-training for reasoning and instruction following.",
-  "openingSummary": "Qwen3-0.6B is the smallest dense member of the Qwen3 open-weight release. Official sources describe it as a 0.6-billion-parameter causal language model released under Apache 2.0, with grouped-query attention, a 32,768-token context window, and post-training that adds reasoning and instruction-following behavior on top of the pre-trained Qwen3-0.6B-Base checkpoint.",
+  "openingSummary": "Qwen3-0.6B is the smallest dense open-weight checkpoint in the Qwen3 family. Official sources describe it as a 0.6-billion-parameter causal language model released under Apache 2.0, with grouped-query attention, a 32,768-token context window, and post-training that adds reasoning and instruction-following behavior on top of the pre-trained Qwen3-0.6B-Base checkpoint.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Qwen3-0.6B is a dense open-weights causal language model from the Qwen Team. The Qwen3 release blog lists it among six dense Qwen3 checkpoints open-weighted under Apache 2.0, and the Hugging Face model card describes it as a 0.6-billion-parameter model with both pretraining and post-training stages. This page treats the post-trained `Qwen/Qwen3-0.6B` checkpoint as the canonical reader route; the pre-trained-only `Qwen/Qwen3-0.6B-Base` checkpoint is cited separately for comparison."
+      "body": "Qwen3-0.6B is a dense open-weights causal language model from the Qwen Team and the smallest dense checkpoint in the Qwen3 open-weight release. The Qwen3 release blog lists it among six dense Qwen3 checkpoints open-weighted under Apache 2.0, and the Hugging Face model card describes it as a 0.6-billion-parameter model with both pretraining and post-training stages. This page treats the post-trained `Qwen/Qwen3-0.6B` checkpoint as the canonical reader route; the pre-trained-only `Qwen/Qwen3-0.6B-Base` checkpoint is cited separately for comparison. For larger Qwen family operating points, the published Qwen 3.6 model pages cover the dense Qwen3.6-27B and sparse-expert Qwen3.6-35B-A3B checkpoints."
     },
     "inputsAndOutputs": {
       "title": "Inputs And Outputs",
@@ -21,11 +21,11 @@
     },
     "training": {
       "title": "Training",
-      "body": "The Hugging Face model card for `Qwen/Qwen3-0.6B` lists the training stage as pretraining and post-training, while the `Qwen/Qwen3-0.6B-Base` card lists pretraining only. The Qwen3 release blog describes the post-trained dense checkpoints as receiving instruction tuning and reinforcement-learning stages after the shared Qwen3 pretraining pipeline. This page cites both checkpoints so readers can separate the base weights from the post-trained operating point without treating the base checkpoint as the canonical page."
+      "body": "The Hugging Face model card for `Qwen/Qwen3-0.6B` lists the training stage as pretraining and post-training, while the `Qwen/Qwen3-0.6B-Base` card lists pretraining only. The Qwen3 release blog describes the post-trained dense checkpoints as receiving instruction tuning and reinforcement-learning stages after the shared Qwen3 pretraining pipeline, which is how Qwen3 adds reasoning and instruction-following behavior without making benchmark ranking the point of this page. This page cites both checkpoints so readers can separate the base weights from the post-trained operating point without treating the base checkpoint as the canonical route."
     },
     "practicalNotes": {
       "title": "Practical Notes",
-      "body": "Read Qwen3-0.6B as the lightweight dense entry point in the Qwen3 family. Its 0.6-billion-parameter scale and Apache 2.0 license make it useful for local experimentation, teaching dense decoder behavior, and efficient inference prototyping where official sources emphasize small-model accessibility rather than benchmark leaderboard positioning."
+      "body": "Read Qwen3-0.6B as the lightweight dense entry point in the Qwen3 family. Its 0.6-billion-parameter scale and Apache 2.0 license make it useful for learning how dense decoder stacks behave, running local experiments, testing chat templates and inference paths on modest hardware, and prototyping efficient text generation without treating leaderboard scores as the main reason to choose this checkpoint."
     },
     "related": { "title": "Related Models, Modules, And Papers" },
     "tags": { "title": "Tags" },
