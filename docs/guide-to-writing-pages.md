@@ -9,6 +9,28 @@
 4.2. if we are adding modules/models/training regimes/etc, we want customers to quickly be able to switch between model presentations. consider if we should add a new graph for our module/model/etc, as well as for pre-existing model/module. 
 4.3. if we are adding modules/models/training regimes/etc, we want customers to quickly be able to switch, so consider if we should add a new equestion for our new page, as well as add a corresponding additions to the existing models/modules. 
 
+## Review preflight for ordinary page branches
+
+Before opening a pull request for a routine canonical page branch:
+
+1. Run `make validate-data` after the page bundle, registry record, messages,
+   and assets are aligned. This is the primary derived page-bundle validation
+   proof for ordinary content-only pages. It covers registry alignment,
+   default-locale messages, tags, citations, and local assets without adding
+   per-page tests that only re-check those relationships.
+2. Run `bun run audit:canonical-page-surface` before review, after
+   `make validate-data` passes, to confirm the branch stayed on the owned page
+   surface and did not pick up shared hotspot churn such as shared tests,
+   generated runtime artifacts, or broad registry or helper edits.
+
+Maintainer references for the full contracts (do not duplicate them here):
+
+- [content-page-generation-workflow-relevant-files](./internal/processes/content-page-generation-workflow-relevant-files.md)
+- [derived-page-validation-relevant-files](./internal/processes/derived-page-validation-relevant-files.md)
+
+See [CONTRIBUTING local validation](./contributors/CONTRIBUTING.md#local-validation)
+for the full fast content loop including `make linkcheck`.
+
 Examples: 
 1. there was an FFN page that explained the FFN as a concept, but what we wanted when we compared it to the MOE page is the variant in the expert count and the router, rather than the internal activation behavior.Therefore we added a new graph to the FFN. 
 

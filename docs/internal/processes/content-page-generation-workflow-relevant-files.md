@@ -11,6 +11,18 @@ Routine canonical pages live under `src/content/docs/<section>/<slug>`. Resolve
 the page directory with `getDocsPageDir(section, slug)` instead of adding a new
 exported `*_PAGE_DIR` constant to `src/lib/content/content-paths.ts`.
 
+## Routine preflight for ordinary page branches
+
+| When | Command |
+| --- | --- |
+| Page bundle and registry shape are aligned | `make validate-data` — primary derived page-bundle validation proof |
+| Structural proof passes and the review commit is ready | `bun run audit:canonical-page-surface` — owned-surface budget check before review |
+
+Derived validation contract and exceptions:
+[derived-page-validation-relevant-files.md](./derived-page-validation-relevant-files.md).
+Contributor-facing walkthrough:
+[CONTRIBUTING.md#review-preflight-before-opening-a-page-pr](../../contributors/CONTRIBUTING.md#review-preflight-before-opening-a-page-pr).
+
 **Do not add** page-specific directory exports for ordinary page work. A focused
 guard in `content-paths.test.ts` fails when new `export const *_PAGE_DIR`
 constants appear outside the grandfathered allowlist.

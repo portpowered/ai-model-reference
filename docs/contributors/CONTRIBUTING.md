@@ -132,6 +132,24 @@ Templates in `docs/templates/` remain the production structures behind the
 generator and the fallback path for exceptional manual work, but contributors
 should not need template copy plus multi-file hand edits in the common case.
 
+### Review preflight before opening a page PR
+
+After authoring or generating a canonical page bundle, run these checks before
+review:
+
+| When | Command | Why |
+| --- | --- | --- |
+| Page bundle and registry shape are aligned | `make validate-data` | Primary derived page-bundle validation proof for ordinary content-only pages |
+| Structural proof passes and the review commit is ready | `bun run audit:canonical-page-surface` | Catch shared-surface drift before review |
+
+Full contracts live in maintainer references—not duplicated here:
+
+- [content page generation workflow relevant files](../internal/processes/content-page-generation-workflow-relevant-files.md)
+- [derived page validation relevant files](../internal/processes/derived-page-validation-relevant-files.md)
+
+See [Local validation](#local-validation) for the complete fast content loop
+including `make linkcheck`.
+
 ## Routine canonical page policies
 
 Ordinary canonical page work should stay on the low-collision path defined by
@@ -870,8 +888,11 @@ After generating, scaffolding, or copying a template bundle, replace placeholder
 Use [Choosing slug, title, aliases, tags, and registryId](#choosing-slug-title-aliases-tags-and-registryid)
 to keep metadata aligned.
 
-Open a pull request with your page changes. Run the checks in
-[Local validation](#local-validation) before review.
+Open a pull request with your page changes. Before review, run
+`make validate-data` (primary derived bundle proof) and
+`bun run audit:canonical-page-surface` (owned-surface budget check). See
+[Review preflight before opening a page PR](#review-preflight-before-opening-a-page-pr)
+and [Local validation](#local-validation) for details.
 
 ### Request factory-driven work
 
