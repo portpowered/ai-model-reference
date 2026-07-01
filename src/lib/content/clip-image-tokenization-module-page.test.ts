@@ -8,7 +8,7 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
-import { BPE_MODULE_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import {
   expectGlossaryBodyOmitsTitleHeading,
   expectHtmlToContainProse,
@@ -21,37 +21,38 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = BPE_MODULE_PAGE_DIR;
+const pageDir = getDocsPageDir("modules", "clip-image-tokenization");
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
+const CLIP_IMAGE_TOKENIZATION_URL = "/docs/modules/clip-image-tokenization";
+const TOKENIZER_CLASSIFICATION_ID = "classification.module.tokenization";
 
-describe("bpe module page messages", () => {
+describe("clip-image-tokenization page messages", () => {
   test("includes required localized fields for the module template", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    expect(messages.title).toBe("Byte Pair Encoding");
+    expect(messages.title).toBe("CLIP Image Tokenization");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.problemStatement).toBeUndefined();
     expect(messages.coreIdea).toBeUndefined();
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
-    expect(messages.sections?.whyItExists.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
-    expect(messages.math?.bpeSchema?.variableDefinitions?.tau?.term).toBe(
-      "\\tau_t",
-    );
+    expect(
+      messages.math?.patchProjectionSchema?.variableDefinitions?.zi?.term,
+    ).toBe("z_i");
   });
 });
 
-describe("loadModulePage bpe", () => {
-  test("compiles MDX with local namespaces and message-driven BPE explainer copy", async () => {
-    const page = await loadModulePage("bpe");
+describe("loadModulePage clip-image-tokenization", () => {
+  test("compiles MDX with local namespaces and message-driven CLIP image tokenization copy", async () => {
+    const page = await loadModulePage("clip-image-tokenization");
 
-    expect(page.frontmatter.registryId).toBe("module.bpe");
+    expect(page.frontmatter.registryId).toBe("module.clip-image-tokenization");
     expect(page.frontmatter.messageNamespace).toBe("local");
     expect(page.frontmatter.assetNamespace).toBe("local");
-    expect(page.messages.title).toBe("Byte Pair Encoding");
+    expect(page.messages.title).toBe("CLIP Image Tokenization");
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -63,75 +64,72 @@ describe("loadModulePage bpe", () => {
     );
 
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-    expect(page.messages.openingSummary).toContain("tokenizer");
+    expect(page.messages.openingSummary).toContain("patch");
     expectHtmlToContainProse(
       html,
-      "Byte pair encoding (BPE) is a subword tokenizer.",
+      "CLIP image tokenization is a vision tokenizer",
     );
-    expect(html).toContain("most frequent adjacent pair");
-    expect(html).toContain("low` + `er");
+    expect(html).toContain("characters or subwords");
+    expect(html).toContain("linguistic rather than spatial");
+    expect(html).toContain("224×224");
+    expect(html).toContain("16×16");
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("Phase");
     expect(html).toContain("At a glance");
     expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).toContain('href="/tags/tokenization"');
-    expect(html).toContain('href="/docs/glossary/token"');
-    expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
-    expect(html).toContain('href="/docs/models/gpt-3"');
-    expect(html).toContain("WordPiece");
-    expect(html).toContain("SentencePiece");
+    expect(html).toContain('href="/docs/glossary/patch"');
+    expect(html).toContain('href="/docs/glossary/multimodal-model"');
+    expect(html).toContain('href="/docs/modules/bpe"');
+    expect(html).toContain(
+      'href="/docs/modules/learned-positional-embeddings"',
+    );
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('data-testid="citation-list"');
-    expect(html).toContain("Sennrich");
-    expect(html).toContain('href="https://arxiv.org/abs/1508.07909"');
-    expect(html).not.toContain("later phase");
-    expect(html).toContain('data-graph-id="graph.bpe-compute-flow"');
+    expect(html).toContain("Radford");
+    expect(html).toContain('href="https://arxiv.org/abs/2103.00020"');
+    expect(html).toContain("Dosovitskiy");
+    expect(html).toContain('href="https://arxiv.org/abs/2010.11929"');
+    expect(html).toContain(
+      'data-graph-id="graph.clip-image-tokenization-compute-flow"',
+    );
+    expect(html).toContain('data-math-schema="patchSplit"');
+    expect(html).toContain('data-math-schema="patchProjection"');
   });
 
   test("published route is discoverable through source and search documents", async () => {
     const pages = await loadPublishedDocsPages("en");
-    const indexes = await loadRegistry();
-    expect(pages.some((page) => page.url === "/docs/modules/bpe")).toBe(true);
-
-    const documents = buildSearchDocuments(pages, indexes);
-    const bpeDocument = documents.find(
-      (document) => document.url === "/docs/modules/bpe",
+    expect(pages.some((page) => page.url === CLIP_IMAGE_TOKENIZATION_URL)).toBe(
+      true,
     );
 
-    expect(bpeDocument).toBeDefined();
-    expect(bpeDocument?.aliases).toContain("BPE");
-    expect(bpeDocument?.aliases).toContain("byte pair encoding");
-    expect(bpeDocument?.aliases).toContain("subword tokenizer");
-    expect(bpeDocument?.tags).toContain("tokenization");
-    expect(bpeDocument?.relatedIds).toContain("concept.token");
-    expect(bpeDocument?.relatedIds).toContain("model.gpt-3");
+    const documents = buildSearchDocuments(pages, await loadRegistry());
+    const clipDocument = documents.find(
+      (document) => document.url === CLIP_IMAGE_TOKENIZATION_URL,
+    );
+
+    expect(clipDocument).toBeDefined();
+    expect(clipDocument?.aliases).toContain("CLIP image tokenization");
+    expect(clipDocument?.aliases).toContain("image patch tokenization");
+    expect(clipDocument?.tags).toContain("tokenization");
+    expect(clipDocument?.relatedIds).toContain("concept.tokenizers-overview");
+    expect(clipDocument?.relatedIds).toContain("concept.patch");
   });
 
   test.each([
-    "BPE",
-    "byte pair encoding",
-    "subword tokenizer",
-  ] as const)("search ranks the canonical BPE page for %s", async (query) => {
+    "CLIP image tokenization",
+    "image patch tokenization",
+    "CLIP patch tokenization",
+  ] as const)("search ranks the canonical CLIP image tokenization page for %s", async (query) => {
     const results = await docsSearchApi.search(query);
 
     expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url.split("#")[0]).toBe("/docs/modules/bpe");
-  });
-
-  test("search surfaces BPE among tokenizer-family results for tokenizer", async () => {
-    const results = await docsSearchApi.search("tokenizer");
-
-    expect(results.length).toBeGreaterThan(0);
-    expect(
-      results.some(
-        (result) => result.url.split("#")[0] === "/docs/modules/bpe",
-      ),
-    ).toBe(true);
+    expect(results[0]?.url.split("#")[0]).toBe(CLIP_IMAGE_TOKENIZATION_URL);
   });
 });
 
-describe("bpe module page assets and registry", () => {
+describe("clip-image-tokenization page assets and registry", () => {
   test("resolves graph and table assets with message-backed copy", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
@@ -146,18 +144,21 @@ describe("bpe module page assets and registry", () => {
   });
 
   test("published registry record keeps tokenizer-family metadata", () => {
-    const record = getRegistryRecordById("module.bpe");
+    const record = getRegistryRecordById("module.clip-image-tokenization");
     expect(record?.kind).toBe("module");
     if (record?.kind !== "module") {
-      throw new Error("expected module.bpe in registry runtime");
+      throw new Error(
+        "expected module.clip-image-tokenization in registry runtime",
+      );
     }
 
     expect(record.status).toBe("published");
     expect(record.moduleType).toBe("tokenizer");
     expect(record.moduleFamily).toBe("tokenization");
-    expect(record.primaryClassificationId).toBe(
-      "classification.module.tokenization",
+    expect(record.primaryClassificationId).toBe(TOKENIZER_CLASSIFICATION_ID);
+    expect(record.citationIds).toContain(
+      "citation.learning-transferable-visual-models-from-natural-language-supervision",
     );
-    expect(record.usedByModelIds).toContain("model.gpt-3");
+    expect(record.citationIds).toContain("citation.image-is-worth-16x16-words");
   });
 });

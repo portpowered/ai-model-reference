@@ -11,7 +11,11 @@
     "tokenization-methods"
   ],
   "tags": ["tokenization", "foundations"],
-  "relatedIds": ["concept.tokenizers-overview", "module.bpe"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "module.bpe",
+    "module.clip-image-tokenization"
+  ],
   "citationIds": ["citation.sennrich-bpe"],
   "status": "published",
   "createdAt": "2026-06-21T00:00:00.000Z",

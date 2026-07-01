@@ -259,6 +259,8 @@ describe("Phase 1 baseline registry records", () => {
     expect(concept.relatedIds).toContain("concept.transformer-architecture");
     expect(concept.explainsIds).toEqual([
       "module.bpe",
+      "module.byte-level-tokenization",
+      "module.clip-image-tokenization",
       "module.wordpiece",
       "module.sentencepiece",
       "module.unigram-tokenizer",

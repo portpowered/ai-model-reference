@@ -194,6 +194,7 @@ export type TopologyBrowseMessages = {
   graphMapLabel: string;
   timelineLabel: string;
   classificationLabels: TopologyBrowseClassificationLabels;
+  classificationSummaries: TopologyBrowseClassificationLabels;
   classificationSelectorTitle: string;
   classificationSelectorDescription: string;
   classificationSelectorLabel: string;
