@@ -33,7 +33,8 @@
   "paperIds": ["paper.glm-5"],
   "organizationId": "organization.zai",
   "releaseDate": "2026-06-17",
-  "parameterCount": "753 billion parameters",
+  "parameterCount": "744 billion total parameters",
+  "activeParameterCount": "40 billion active parameters",
   "contextLength": 1048576,
   "precision": ["bf16"]
 }

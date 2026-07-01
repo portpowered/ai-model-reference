@@ -52,6 +52,8 @@ describe("GLM family shared registry records", () => {
     expect(glm52?.relatedIds).toContain("model.glm-5");
     expect(glm5?.sourceId).toBe("citation.glm-5-technical-report");
     expect(glm52?.sourceId).toBe("citation.glm-5-2-blog");
+    expect(glm52?.parameterCount).toBe("744 billion total parameters");
+    expect(glm52?.activeParameterCount).toBe("40 billion active parameters");
     expect(glm5?.citationIds).toEqual(["citation.glm-5-technical-report"]);
     expect(glm52?.citationIds).toEqual([
       "citation.glm-5-technical-report",

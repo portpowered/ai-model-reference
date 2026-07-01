@@ -22,6 +22,8 @@ describe("GLM-5.2 model page (glm-5-and-5-2-model-pages-003)", () => {
     expect(record?.family).toBe("glm");
     expect(record?.releaseDate).toBe("2026-06-17");
     expect(record?.contextLength).toBe(1048576);
+    expect(record?.parameterCount).toBe("744 billion total parameters");
+    expect(record?.activeParameterCount).toBe("40 billion active parameters");
     expect(record?.relatedIds).toContain("model.glm-5");
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("model.glm-5-2")).toBe(true);
   });
@@ -71,6 +73,8 @@ describe("GLM-5.2 model page (glm-5-and-5-2-model-pages-003)", () => {
     );
 
     expect(html).toContain('id="references"');
+    expect(html).toContain("744 billion total parameters");
+    expect(html).not.toContain("753");
     expect(html).toContain('href="/docs/models/glm-5"');
     expect(html).toContain('data-page-asset="architectureGraph"');
     expect(html).toContain('data-graph-id="graph.glm-5-2-architecture"');

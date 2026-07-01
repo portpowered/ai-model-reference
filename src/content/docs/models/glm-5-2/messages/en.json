@@ -1,11 +1,11 @@
 {
   "title": "GLM-5.2",
   "description": "A later GLM line member that extends sparse-attention mixture-of-experts architecture with a solid 1M-token context and long-horizon coding emphasis.",
-  "openingSummary": "GLM-5.2 matters because it keeps the GLM sparse-attention, mixture-of-experts stack but pushes the line toward long-horizon coding work. The official release blog positions it as a 753-billion-parameter open-weights model with a stable 1M-token context, IndexShare efficiency for sparse attention, and training aimed at sustained agentic engineering rather than one-shot answers.",
+  "openingSummary": "GLM-5.2 matters because it keeps the GLM sparse-attention, mixture-of-experts stack but pushes the line toward long-horizon coding work. The official release blog emphasizes a stable 1M-token context, IndexShare efficiency for sparse attention, and training aimed at sustained agentic engineering rather than one-shot answers. The Z.ai GitHub download table lists the checkpoint at 744 billion total parameters with about 40 billion active per token.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "GLM-5.2 is an open-weights text model from Z.ai, released on 2026-06-17 in the GLM-5.2 blog post. It is the later GLM line member that builds on the same sparse mixture-of-experts transformer family as GLM-5 while advertising a 753-billion-parameter checkpoint and a 1M-token context window under an MIT open-source license."
+      "body": "GLM-5.2 is an open-weights text model from Z.ai, released on 2026-06-17 in the GLM-5.2 blog post. It is the later GLM line member that builds on the same sparse mixture-of-experts transformer family as GLM-5 while adding a 1M-token context window under an MIT open-source license. The official GitHub model download table lists it at 744 billion total parameters and about 40 billion active parameters."
     },
     "inputsAndOutputs": {
       "title": "Inputs And Outputs",
