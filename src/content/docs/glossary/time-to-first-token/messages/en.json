@@ -19,6 +19,10 @@
       "title": "Common Confusions",
       "body": "TTFT is not the same as inter-token latency, total response time, or tokens per second. Inter-token latency measures the gap between tokens after streaming has begun. Total response time includes the full answer. Throughput counts how many tokens or requests the system handles over time. A model can have low TTFT but slow streaming, or the opposite."
     },
+    "servingPath": {
+      "title": "Serving Path",
+      "body": "TTFT spans the gap between sending a prompt and seeing the first streamed token. Follow prefill for the prompt-processing burst, decode for the repeated next-token loop after streaming starts, and the prefill/decode split for how serving systems stage the two phases."
+    },
     "related": {
       "title": "Related Concepts And Modules"
     },
@@ -28,5 +32,11 @@
     "references": {
       "title": "References"
     }
+  },
+  "links": {
+    "prefill": "Prefill",
+    "decode": "Decode",
+    "kvCache": "KV cache",
+    "prefillDecodeSplit": "Prefill/decode split"
   }
 }
