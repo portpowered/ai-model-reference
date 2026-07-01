@@ -59,6 +59,26 @@ describe("BERT paper page", () => {
     ).toBe(true);
   });
 
+  test("explains masked pretraining and bidirectional encoder framing in narrative copy", async () => {
+    const page = await loadPaperPage(PAPER_SLUG);
+    const method = page.messages.sections?.methodOrArchitecture?.body ?? "";
+    const whyItMatters = page.messages.sections?.whyItMatters?.body ?? "";
+
+    expect(method.toLowerCase()).toContain("masked language modeling");
+    expect(method).toMatch(/hidden tokens from both left and right context/i);
+    expect(method).toContain("bidirectional attention");
+    expect(method).toContain("transformer architecture");
+    expect(method).toContain("WordPiece");
+    expect(method).toContain("embeddings");
+    expect(method.toLowerCase()).toContain("gelu");
+    expect(method).toContain("encoder-only");
+    expect(whyItMatters).toContain("encoder-only path");
+    expect(whyItMatters.toLowerCase()).toContain("masked language modeling");
+    expect(whyItMatters).toContain(
+      "without cataloguing every BERT checkpoint variant",
+    );
+  });
+
   test("renders required paper sections and adjacent published links", async () => {
     const page = await loadPaperPage(PAPER_SLUG);
 
@@ -86,6 +106,10 @@ describe("BERT paper page", () => {
     expect(html).toContain('href="/docs/glossary/encoder"');
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain('href="/docs/training/pretraining"');
+    expect(html).toContain('href="/docs/modules/gelu"');
+    expect(html).toContain('href="/docs/glossary/transformer"');
+    expect(html).toContain("from both left and right context");
+    expect(html).toContain("encoder-only path");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("on this page");
