@@ -13,7 +13,7 @@
     },
     "architecture": {
       "title": "Architecture",
-      "body": "The official model card's architecture overview names a hybrid language stack built from Gated DeltaNet blocks and periodic Gated Attention blocks, each paired with feed-forward layers. Official serving notes also refer to a vision encoder that can be skipped for text-only deployment. The diagram below stays at a high-level decoder flow so this identity page does not turn unpublished block counts into extra claims."
+      "body": "The official model card's architecture overview names a hybrid language stack built from repeated Gated DeltaNet blocks paired with feed-forward layers, with periodic Gated Attention blocks also paired with feed-forward layers. Official serving notes also refer to a vision encoder that can be skipped for text-only deployment. The diagram below shows the high-level decoder flow—Gated DeltaNet as the dominant repeated path, Gated Attention at periodic depths, feed-forward blocks after each sequence step, and RoPE on the published attention path—without turning unpublished block counts into extra claims."
     },
     "importantModules": {
       "title": "Important Modules",
@@ -33,7 +33,7 @@
   },
   "assets": {
     "architectureGraph": {
-      "alt": "Qwen3.5-0.8B architecture diagram with token embeddings, rotary position encoding, a repeated decoder block containing attention, RMSNorm, and a feed-forward network, then an output projection and softmax."
+      "alt": "Qwen3.5-0.8B architecture diagram with token embeddings, a repeated hybrid decoder block containing Gated DeltaNet, periodic Gated Attention with RoPE, feed-forward layers, and an output projection with softmax."
     }
   },
   "graph": {
@@ -52,11 +52,11 @@
       },
       "decoderStack": {
         "label": " ",
-        "summary": "Repeated decoder block container for the Qwen3.5-0.8B stack"
+        "summary": "Repeated hybrid decoder block container for the Qwen3.5-0.8B stack"
       },
-      "attentionSublayer": {
+      "hybridSequenceSublayer": {
         "label": " ",
-        "summary": "Attention sublayer container"
+        "summary": "Hybrid sequence sublayer container for Gated DeltaNet and Gated Attention paths"
       },
       "ffnSublayer": {
         "label": " ",
@@ -64,15 +64,19 @@
       },
       "repeatMarker": {
         "label": "N×",
-        "summary": "This decoder block repeats through the full stack"
+        "summary": "This hybrid decoder block repeats through the full stack"
       },
-      "rmsnormAttention": {
+      "rmsnormSequence": {
         "label": "RMSNorm",
-        "summary": "Normalizes the residual stream before the attention step"
+        "summary": "Normalizes the residual stream before the hybrid sequence step"
       },
-      "decoderAttention": {
-        "label": "Decoder\nAttention",
-        "summary": "Periodic Gated Attention blocks read earlier context under the model's attention mask"
+      "gatedDeltaNet": {
+        "label": "Gated\nDeltaNet",
+        "summary": "Repeated recurrent-style blocks that form the dominant sequence-mixing path in the published stack"
+      },
+      "gatedAttention": {
+        "label": "Gated\nAttention",
+        "summary": "Periodic attention blocks that read earlier context under the model's attention mask, with RoPE on the published path"
       },
       "rmsnormFfn": {
         "label": "RMSNorm",
@@ -84,11 +88,11 @@
       },
       "ropeInject": {
         "label": "+",
-        "summary": "Applies token states together with rotary position information before the stack"
+        "summary": "Applies token states together with rotary position information before the hybrid stack"
       },
       "rope": {
         "label": "RoPE",
-        "summary": "Rotary position encoding gives the attention stack token order information"
+        "summary": "Rotary position encoding gives the Gated Attention path token order information"
       },
       "inputEmbedding": {
         "label": "Input\nEmbedding",
