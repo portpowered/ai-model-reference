@@ -120,9 +120,6 @@ export async function renderBrowseIndexPage(
     locale,
     messages,
   });
-  const browseEntriesById = new Map(
-    browseSections.map((section) => [section.id, section.entries]),
-  );
   const defaultPage = (
     <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
       <DocsTitle>{messages.browseIndex.title}</DocsTitle>
@@ -131,13 +128,7 @@ export async function renderBrowseIndexPage(
         <BrowseAtlasPage
           messages={messages}
           locale={locale}
-          models={browseEntriesById.get("models") ?? []}
-          modules={browseEntriesById.get("modules") ?? []}
-          concepts={browseEntriesById.get("concepts") ?? []}
-          papers={browseEntriesById.get("papers") ?? []}
-          training={browseEntriesById.get("training") ?? []}
-          systems={browseEntriesById.get("systems") ?? []}
-          glossary={browseEntriesById.get("glossary") ?? []}
+          sections={browseSections}
         />
       </DocsBody>
     </DocsPage>
