@@ -4,11 +4,7 @@
   "kind": "training-regime",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "SFT",
-    "supervised fine tuning",
-    "supervised fine-tuning"
-  ],
+  "aliases": ["SFT", "supervised fine tuning", "supervised fine-tuning"],
   "tags": ["alignment", "foundations"],
   "relatedIds": [
     "training-regime.pretraining",

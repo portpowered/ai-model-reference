@@ -1,0 +1,66 @@
+---
+title: "Supervised Fine-Tuning"
+description: "A post-training regime that adapts a capable base model by training on labeled input-output examples."
+kind: "training-regime"
+registryId: "training-regime.supervised-fine-tuning"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - alignment
+  - foundations
+aliases:
+  - "SFT"
+  - "supervised fine tuning"
+  - "supervised fine-tuning"
+updatedAt: "2026-07-01"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
+
+
+<TrainingRegimeAtAGlance registryId="training-regime.supervised-fine-tuning" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
+</Section>
+
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+  <TrainingRegimeFlow
+    registryId="training-regime.supervised-fine-tuning"
+    assetId="trainingFlow"
+  />
+  <BlockMath formula="\\max_\\theta \\sum_i \\log p_\\theta(y_i \\mid x_i)" />
+</Section>
+
+<Section id="compared-to-nearby-regimes" titleKey="sections.comparedToNearbyRegimes.title">
+  <T k="sections.comparedToNearbyRegimes.body" />
+</Section>
+
+<Section id="limitations-and-failure-modes" titleKey="sections.limitationsAndFailureModes.title">
+  <T k="sections.limitationsAndFailureModes.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="training-regime.supervised-fine-tuning" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="training-regime.supervised-fine-tuning" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="training-regime.supervised-fine-tuning" />
+</Section>
