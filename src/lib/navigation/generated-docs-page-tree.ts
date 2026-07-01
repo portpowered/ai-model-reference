@@ -20,27 +20,10 @@ import {
   type SidebarGroupIdBySection,
   type SidebarGroupingSection,
 } from "@/lib/content/sidebar-grouping";
+import type { DocsCollectionId } from "@/lib/docs/collection-definition-contract";
+import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
 
-type SectionKey =
-  | "glossary"
-  | "concepts"
-  | "modules"
-  | "models"
-  | "papers"
-  | "training"
-  | "systems";
-
-const SECTION_ORDER: readonly SectionKey[] = [
-  "glossary",
-  "concepts",
-  "modules",
-  "models",
-  "papers",
-  "training",
-  "systems",
-];
-
-const SECTION_TITLES: Record<SectionKey, string> = {
+const SIDEBAR_FOLDER_TITLES: Record<DocsCollectionId, string> = {
   glossary: "Glossary",
   concepts: "Concepts",
   modules: "Modules",
@@ -168,11 +151,11 @@ function generatePaperNodes(pages: DocsPageSource[]): Node[] {
   return sortPages(pages).map(createPageNode);
 }
 
-function generateSectionNodes(
-  section: SectionKey,
+function generateCollectionNodes(
+  collectionId: DocsCollectionId,
   pages: DocsPageSource[],
 ): Node[] {
-  switch (section) {
+  switch (collectionId) {
     case "glossary":
       return generateGlossaryNodes(pages);
     case "concepts":
@@ -190,35 +173,45 @@ function generateSectionNodes(
   }
 }
 
+function assignPageToCollection(
+  pagesByCollection: Map<DocsCollectionId, DocsPageSource[]>,
+  collectionIdByRouteSlug: ReadonlyMap<string, DocsCollectionId>,
+  page: DocsPageSource,
+): void {
+  const [routeSlug] = page.docsSlug.split("/", 1);
+  const collectionId = collectionIdByRouteSlug.get(routeSlug);
+  if (!collectionId) {
+    return;
+  }
+
+  pagesByCollection.get(collectionId)?.push(page);
+}
+
 export function buildGeneratedDocsPageTree(baseTree: Root): Root {
+  const collectionDefinitions = listDocsCollectionDefinitions();
+  const collectionIdByRouteSlug = new Map(
+    collectionDefinitions.map((definition) => [
+      definition.routeSlug,
+      definition.id,
+    ]),
+  );
   const pages = loadPublishedDocsPagesSync("en");
-  const pagesBySection = new Map<SectionKey, DocsPageSource[]>(
-    SECTION_ORDER.map((section) => [section, []]),
+  const pagesByCollection = new Map<DocsCollectionId, DocsPageSource[]>(
+    collectionDefinitions.map((definition) => [definition.id, []]),
   );
 
   for (const page of pages) {
-    const [section] = page.docsSlug.split("/", 1);
-    if (
-      section === "glossary" ||
-      section === "concepts" ||
-      section === "modules" ||
-      section === "models" ||
-      section === "papers" ||
-      section === "training" ||
-      section === "systems"
-    ) {
-      pagesBySection.get(section)?.push(page);
-    }
+    assignPageToCollection(pagesByCollection, collectionIdByRouteSlug, page);
   }
 
   const children: Node[] = [];
-  for (const section of SECTION_ORDER) {
+  for (const definition of collectionDefinitions) {
     children.push({
       type: "folder",
-      name: SECTION_TITLES[section],
-      children: generateSectionNodes(
-        section,
-        pagesBySection.get(section) ?? [],
+      name: SIDEBAR_FOLDER_TITLES[definition.id],
+      children: generateCollectionNodes(
+        definition.id,
+        pagesByCollection.get(definition.id) ?? [],
       ),
     });
   }

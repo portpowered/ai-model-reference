@@ -26,6 +26,8 @@ import {
   type SidebarGroupIdBySection,
   type SidebarGroupingSection,
 } from "@/lib/content/sidebar-grouping";
+import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
+import { collectSidebarPageLinks } from "@/lib/navigation/docs-sidebar-contract";
 import { source } from "@/lib/source";
 
 function getFolderChildren(folderName: string): Node[] {
@@ -226,6 +228,57 @@ function findNextSeparatorIndex(nodes: Node[], currentIndex: number): number {
 }
 
 describe("generated docs page tree", () => {
+  test("builds top-level folders from collection definitions in configured order", () => {
+    const collectionDefinitions = listDocsCollectionDefinitions();
+    const topLevelFolders = source.pageTree.children.filter(
+      (node) => node.type === "folder",
+    );
+
+    expect(topLevelFolders.map((folder) => folder.name)).toEqual([
+      "Glossary",
+      "Concepts",
+      "Modules",
+      "Models",
+      "Papers",
+      "Training",
+      "Systems",
+    ]);
+    expect(topLevelFolders).toHaveLength(collectionDefinitions.length);
+  });
+
+  test("assigns every published collection page exactly once by route slug", () => {
+    const collectionDefinitions = listDocsCollectionDefinitions();
+    const sidebarLinks = collectSidebarPageLinks(source.pageTree);
+    const sidebarUrls = new Set(sidebarLinks.map((link) => link.url));
+
+    for (const definition of collectionDefinitions) {
+      const collectionPages = loadPublishedDocsPagesSync("en").filter((page) =>
+        page.docsSlug.startsWith(`${definition.routeSlug}/`),
+      );
+
+      for (const page of collectionPages) {
+        expect(
+          sidebarUrls.has(page.url),
+          `expected ${page.url} in ${definition.id} sidebar folder`,
+        ).toBe(true);
+      }
+    }
+
+    const collectionPageUrls = loadPublishedDocsPagesSync("en")
+      .filter((page) => {
+        const [routeSlug] = page.docsSlug.split("/", 1);
+        return collectionDefinitions.some(
+          (definition) => definition.routeSlug === routeSlug,
+        );
+      })
+      .map((page) => page.url);
+
+    expect(sidebarLinks).toHaveLength(collectionPageUrls.length);
+    expect(new Set(sidebarLinks.map((link) => link.url))).toEqual(
+      new Set(collectionPageUrls),
+    );
+  });
+
   test("does not keep the legacy Getting Started page as a top-level sidebar entry", () => {
     expect(
       source.pageTree.children.some(
