@@ -38,6 +38,9 @@ Orama indexing, or `/api/search` behavior.
   `url`, `structuredData`, and `tag` fields.
 * `src/lib/search/build-base-document.test.ts`
   Generic base document field contract and empty topology/facet guarantees.
+* `src/tests/fixtures/non-ai-shell/search.test.ts`
+  Non-AI fixture base search document fields and Orama query behavior without
+  AI registry enrichment; uses `buildNonAiShellFixtureBaseSearchDocuments()`.
 * `src/lib/search/enrich-search-document.test.ts`
   AI enrichment topology/facet contract, searchable topology terms, and draft or
   missing-target stability coverage.

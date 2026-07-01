@@ -220,7 +220,7 @@ describe("pretraining training-regime identity contracts", () => {
     ).toBe("/docs/modules/byte-level-tokenization");
     expect(
       items.find((item) => item.registryId === "concept.alignment")?.href,
-    ).toBe("/docs/glossary/alignment");
+    ).toBe("/docs/concepts/alignment");
     expect(
       items.find((item) => item.registryId === "training-regime.dpo")?.href,
     ).toBe("/docs/training/dpo");

@@ -8,6 +8,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { HomeArticle } from "@/components/home/home-article";
+import { OntologyTimelinePage } from "@/features/ai/timeline";
+import {
+  type TopologyDocsPageContentByRegistryId,
+  TopologyPrototype,
+} from "@/features/ai/topology";
 import { BrowseAtlasPage } from "@/features/docs/components/BrowseAtlasPage";
 import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
 import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
@@ -26,9 +31,6 @@ import {
 import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState";
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
-import { OntologyTimelinePage } from "@/features/docs/timeline/OntologyTimelinePage";
-import { TopologyPrototype } from "@/features/topology/TopologyPrototype";
-import type { TopologyDocsPageContentByRegistryId } from "@/features/topology/topology-content";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import {
@@ -56,8 +58,17 @@ import {
   type TopologyClassificationEntry,
 } from "@/lib/content/topology-tree-entries";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { buildBrowseCollectionSections } from "@/lib/docs/browse-collection-sections";
+import type { ShellCollectionDefinition } from "@/lib/docs/collection-definition-contract";
 import { toDocsIndexEntries } from "@/lib/docs/docs-index-entries";
+import {
+  type DocsCollectionInput,
+  resolveDocsCollectionInput,
+  resolveSectionKindCollectionId,
+  resolveShellCollectionIndexMessages,
+  type SectionIndexFrontmatterKind,
+} from "@/lib/docs/section-collection-index";
 import {
   buildLocalizedRoute,
   defaultLocale,
@@ -68,6 +79,7 @@ import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
 import { buildHomeTableOfContents } from "@/lib/navigation/home-page-toc";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { modelAtlasSiteConfig } from "@/lib/site/model-atlas-site-config";
 
 export type SearchPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -93,7 +105,11 @@ export async function renderHomePage(locale: SiteLocale = defaultLocale) {
       footer={{ enabled: false }}
     >
       <DocsBody>
-        <HomeArticle messages={messages} locale={locale} />
+        <HomeArticle
+          messages={messages}
+          siteConfig={modelAtlasSiteConfig}
+          locale={locale}
+        />
       </DocsBody>
     </DocsPage>
   );
@@ -197,26 +213,39 @@ export async function renderBrowseIndexPage(
   return defaultPage;
 }
 
-export async function renderSectionKindIndexPage(
-  kind: "model" | "module" | "concept" | "paper" | "training-regime" | "system",
-  locale: SiteLocale = defaultLocale,
-) {
-  const messages = await loadUiMessages(locale);
-  const pages = await loadShippedLocalizedDocsPages(locale);
-  const sectionMessages =
-    kind === "model"
-      ? messages.modelsIndex
-      : kind === "module"
-        ? messages.modulesIndex
-        : kind === "concept"
-          ? messages.conceptsIndex
-          : kind === "paper"
-            ? messages.papersIndex
-            : kind === "training-regime"
-              ? messages.trainingIndex
-              : messages.systemsIndex;
+export type ShellSectionCollectionIndexDefinition = Pick<
+  ShellCollectionDefinition,
+  "frontmatterKind" | "messageKeys"
+>;
+
+export type ShellSectionCollectionIndexPageInput = {
+  definition: ShellSectionCollectionIndexDefinition;
+  pages: readonly {
+    docsSlug: string;
+    url: string;
+    messages: { title: string; description: string };
+    frontmatter: { kind: string };
+  }[];
+  messages: Record<string, unknown>;
+  locale?: SiteLocale;
+  emptyStateMessages: UiMessages;
+};
+
+export function renderShellSectionCollectionIndexPage({
+  definition,
+  pages,
+  messages,
+  locale = defaultLocale,
+  emptyStateMessages,
+}: ShellSectionCollectionIndexPageInput) {
+  const sectionMessages = resolveShellCollectionIndexMessages(
+    messages,
+    definition,
+  );
   const entries = toDocsIndexEntries(
-    pages.filter((page) => page.frontmatter.kind === kind),
+    pages.filter(
+      (page) => page.frontmatter.kind === definition.frontmatterKind,
+    ),
     locale,
     [],
     Number.POSITIVE_INFINITY,
@@ -232,7 +261,7 @@ export async function renderSectionKindIndexPage(
             title={sectionMessages.emptyTitle}
             description={sectionMessages.emptyDescription}
             homeLinkLabel={sectionMessages.emptyHomeLink}
-            messages={messages}
+            messages={emptyStateMessages}
             locale={locale}
           />
         ) : (
@@ -243,6 +272,33 @@ export async function renderSectionKindIndexPage(
         )}
       </DocsBody>
     </DocsPage>
+  );
+}
+
+export async function renderSectionCollectionIndexPage(
+  collection: DocsCollectionInput,
+  locale: SiteLocale = defaultLocale,
+) {
+  const definition = resolveDocsCollectionInput(collection);
+  const messages = await loadUiMessages(locale);
+  const pages = await loadShippedLocalizedDocsPages(locale);
+
+  return renderShellSectionCollectionIndexPage({
+    definition,
+    pages,
+    messages,
+    locale,
+    emptyStateMessages: messages,
+  });
+}
+
+export async function renderSectionKindIndexPage(
+  kind: SectionIndexFrontmatterKind,
+  locale: SiteLocale = defaultLocale,
+) {
+  return renderSectionCollectionIndexPage(
+    resolveSectionKindCollectionId(kind),
+    locale,
   );
 }
 

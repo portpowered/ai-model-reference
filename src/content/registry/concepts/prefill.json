@@ -8,10 +8,7 @@
     "Prefill",
     "prompt processing",
     "prompt pass",
-    "initial prompt pass",
-    "time to first token",
-    "first token latency",
-    "time to first token stage"
+    "initial prompt pass"
   ],
   "tags": ["foundations", "attention", "kv-cache"],
   "relatedIds": [

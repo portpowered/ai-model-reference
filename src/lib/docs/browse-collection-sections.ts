@@ -1,9 +1,10 @@
 import type { DocsIndexEntry } from "@/features/docs/components/DocsIndexEntryList";
 import type { DocsPageSource } from "@/lib/content/pages";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
-import type { DocsCollectionDefinition } from "@/lib/docs/collection-definition-contract";
+import type { ShellCollectionDefinition } from "@/lib/docs/collection-definition-contract";
 import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
 import { toDocsIndexEntries } from "@/lib/docs/docs-index-entries";
+import { resolveUiMessagePath } from "@/lib/docs/section-collection-index";
 import {
   buildLocalizedRoute,
   type SiteLocale,
@@ -29,28 +30,15 @@ export type BrowseCollectionSection = {
   linkHref?: string;
 };
 
-function resolveUiMessagePath(messages: UiMessages, path: string): string {
-  const value = path
-    .split(".")
-    .reduce<unknown>(
-      (current, segment) =>
-        current !== null &&
-        typeof current === "object" &&
-        segment in (current as Record<string, unknown>)
-          ? (current as Record<string, unknown>)[segment]
-          : undefined,
-      messages,
-    );
+export type ShellCollectionPageSource = {
+  docsSlug: string;
+  url: string;
+  messages: { title: string; description: string };
+  frontmatter: { kind: string };
+};
 
-  if (typeof value !== "string" || value.length === 0) {
-    throw new Error(`Missing UI message for path: ${path}`);
-  }
-
-  return value;
-}
-
-function resolveBrowseSectionLinkHref(
-  definition: DocsCollectionDefinition,
+function defaultResolveBrowseSectionLinkHref(
+  definition: Pick<ShellCollectionDefinition, "id" | "routeSlug">,
   locale: SiteLocale,
 ): string {
   if (definition.id === "glossary") {
@@ -63,11 +51,20 @@ function resolveBrowseSectionLinkHref(
   );
 }
 
+export type ShellCollectionBrowseDefinition = Pick<
+  ShellCollectionDefinition,
+  "id" | "routeSlug" | "frontmatterKind" | "starterSlugs" | "messageKeys"
+>;
+
 function buildBrowseCollectionSection(
-  definition: DocsCollectionDefinition,
-  pages: DocsPageSource[],
+  definition: ShellCollectionBrowseDefinition,
+  pages: readonly ShellCollectionPageSource[],
   locale: SiteLocale,
-  messages: UiMessages,
+  messages: Record<string, unknown>,
+  resolveSectionLinkHref: (
+    definition: ShellCollectionBrowseDefinition,
+    locale: SiteLocale,
+  ) => string,
 ): BrowseCollectionSection {
   const collectionPages = pages.filter(
     (page) => page.frontmatter.kind === definition.frontmatterKind,
@@ -90,7 +87,7 @@ function buildBrowseCollectionSection(
       messages,
       definition.messageKeys.browse.sectionLinkLabel,
     ),
-    linkHref: resolveBrowseSectionLinkHref(definition, locale),
+    linkHref: resolveSectionLinkHref(definition, locale),
   };
 }
 
@@ -99,24 +96,35 @@ export function buildBrowseCollectionSections({
   locale,
   messages,
   definitions = listDocsCollectionDefinitions(),
+  browseCollectionIds = DOCS_BROWSE_COLLECTION_IDS,
+  resolveSectionLinkHref = defaultResolveBrowseSectionLinkHref,
 }: {
-  pages: DocsPageSource[];
+  pages: readonly ShellCollectionPageSource[] | readonly DocsPageSource[];
   locale: SiteLocale;
-  messages: UiMessages;
-  definitions?: readonly DocsCollectionDefinition[];
+  messages: UiMessages | Record<string, unknown>;
+  definitions?: readonly ShellCollectionBrowseDefinition[];
+  browseCollectionIds?: readonly string[];
+  resolveSectionLinkHref?: (
+    definition: ShellCollectionBrowseDefinition,
+    locale: SiteLocale,
+  ) => string;
 }): BrowseCollectionSection[] {
   const definitionsById = new Map(
     definitions.map((definition) => [definition.id, definition]),
   );
 
-  return DOCS_BROWSE_COLLECTION_IDS.map((id) => {
+  return browseCollectionIds.map((id) => {
     const definition = definitionsById.get(id);
     if (!definition) {
-      throw new Error(
-        `Missing docs collection definition for browse id: ${id}`,
-      );
+      throw new Error(`Missing collection definition for browse id: ${id}`);
     }
 
-    return buildBrowseCollectionSection(definition, pages, locale, messages);
+    return buildBrowseCollectionSection(
+      definition,
+      pages,
+      locale,
+      messages,
+      resolveSectionLinkHref,
+    );
   });
 }

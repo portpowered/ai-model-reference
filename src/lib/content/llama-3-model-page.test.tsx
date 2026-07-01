@@ -44,7 +44,7 @@ const RELATED_DOC_HREFS = [
   "/docs/modules/attention",
   "/docs/modules/rope",
   "/docs/training/pretraining",
-  "/docs/glossary/alignment",
+  "/docs/concepts/alignment",
   "/docs/glossary/context-window",
 ] as const;
 
