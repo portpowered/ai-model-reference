@@ -8,7 +8,7 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
-import { CLIP_IMAGE_TOKENIZATION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import {
   expectGlossaryBodyOmitsTitleHeading,
   expectHtmlToContainProse,
@@ -21,7 +21,7 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = CLIP_IMAGE_TOKENIZATION_PAGE_DIR;
+const pageDir = getDocsPageDir("modules", "clip-image-tokenization");
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
 const CLIP_IMAGE_TOKENIZATION_URL = "/docs/modules/clip-image-tokenization";

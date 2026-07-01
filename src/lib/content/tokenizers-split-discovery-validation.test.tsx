@@ -12,7 +12,7 @@ import {
 import { CanonicalDocsLayout } from "@/components/layout/canonical-docs-layout";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { ModuleMetadataCard } from "@/features/models/components/ModuleMetadataCard";
-import { CLIP_IMAGE_TOKENIZATION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
@@ -142,7 +142,10 @@ describe("tokenizer and positional split discovery validation (tokenizers-005)",
     const messages = pageMessagesSchema.parse(
       JSON.parse(
         readFileSync(
-          join(CLIP_IMAGE_TOKENIZATION_PAGE_DIR, "messages/en.json"),
+          join(
+            getDocsPageDir("modules", "clip-image-tokenization"),
+            "messages/en.json",
+          ),
           "utf8",
         ),
       ),

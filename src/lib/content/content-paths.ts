@@ -285,12 +285,6 @@ export const BYTE_LEVEL_TOKENIZATION_PAGE_DIR = join(
   "byte-level-tokenization",
 );
 
-/** CLIP image tokenization module page directory. */
-export const CLIP_IMAGE_TOKENIZATION_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
-  "clip-image-tokenization",
-);
-
 /** Tokenization module page directory. */
 export const UNIGRAM_TOKENIZER_PAGE_DIR = join(
   MODULES_DOCS_ROOT,
