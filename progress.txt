@@ -1,6 +1,6 @@
 ## Codebase Patterns
 - `HomeArticle` accepts `siteConfig: SiteConfig` and renders browse cards via `resolveSiteConfigHomeFeaturedLinks`; site shell callers pass `modelAtlasSiteConfig` at the boundary so the generic component never hardcodes AI docs slugs.
-- Home featured links extend `HomeFeaturedLinkPlaceholder` in `site-config.contract.ts` with `titleKey` and `descriptionKey` bindings to `messages.home`; resolve hrefs via `resolveSiteConfigHomeFeaturedLinkHrefs` and full copy via `resolveSiteConfigHomeFeaturedLinks` in `site-config-resolution.ts`.
+- Home featured links extend `HomeFeaturedLinkPlaceholder` in `site-config.contract.ts` with `titleKey` and `descriptionKey` bindings to `messages.home`; resolve hrefs via `resolveSiteConfigHomeFeaturedLinkHrefs` and full copy via `resolveSiteConfigHomeFeaturedLinks` in `site-config-resolution.ts`. Docs-page links fall back to default-locale hrefs when `isDocsPageShippedForLocale` is false for the active locale.
 - New registry records under `src/content/registry/` are picked up by `bun run prepare:content-runtime`, which regenerates `src/lib/content/generated/registry-runtime.generated.ts` before typecheck, lint, and tests run.
 - Model registry records use typed relationship fields (`architectureIds`, `moduleIds`, `trainingRegimeIds`, `relatedIds`) plus backing `citation`, `paper`, and `organization` records; update reciprocal `usedByModelIds` / `relatedIds` on linked training regimes when adding model consumers.
 - For post-training discovery when no generic `training-regime.post-training` record exists, link models to `concept.alignment` in `relatedIds` and keep `training-regime.pretraining` in `trainingRegimeIds`.
@@ -187,4 +187,15 @@
   - Patterns discovered: keep `modelAtlasSiteConfig` at site-shell and test call sites; the generic home component only depends on `SiteConfig` plus resolution helpers.
   - Gotchas encountered: Biome import sort wants `@/lib/search/*` before `@/lib/site/*` in `site-renderers.tsx`.
   - Useful context: story 003 can rely on existing locale fallback tests in `home-page.test.tsx` and `site-config-compatibility.test.tsx` once config-driven rendering is in place.
+---
+
+## 2026-07-01T17:35:00Z - generic-home-featured-links-adapter-003
+- Added focused resolution-layer tests proving `resolveSiteConfigHomeFeaturedLinkHrefs` keeps shipped-docs locale fallback for Vietnamese and Japanese home routes (browse + GQA localized; SwiGLU and ReLU default to `/docs/...`).
+- Verified production build and browser-visible rendering on port 3568 for `/vi` and `/ja` home featured-link hrefs.
+- Files changed:
+  - `src/lib/site/site-config-resolution.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: `resolveHomeFeaturedLinkHref` gates docs-page hrefs through `isDocsPageShippedForLocale`; route-surface browse links always use the active locale via `buildLocalizedRoute`.
+  - Gotchas encountered: story 003 behavior was already wired in stories 001–002; the remaining work was resolution-layer proof plus browser verification.
+  - Useful context: `curl --max-time 10` against `/vi` and `/ja` after `bun run build` confirms the four featured hrefs without a full Playwright pass.
 ---
