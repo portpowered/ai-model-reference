@@ -33,6 +33,18 @@
       "title": "References"
     }
   },
+  "links": {
+    "pretraining": "Pretraining",
+    "dpo": "Direct Preference Optimization",
+    "alignment": "Alignment",
+    "instructionTuningSearch": "Instruction tuning search",
+    "sftSearch": "SFT search",
+    "rlhfSearch": "RLHF search",
+    "gpt3ModelPage": "GPT-3 model page",
+    "llama3ModelPage": "Llama 3 model page",
+    "deepseekV4ProModelPage": "DeepSeek-V4-Pro model page",
+    "specialistTraining": "Specialist training"
+  },
   "assets": {
     "trainingFlow": {
       "title": "Post-training flow",

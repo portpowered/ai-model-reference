@@ -4,12 +4,29 @@
   "kind": "training-regime",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["Post-Training", "post-training", "post training"],
+  "aliases": [
+    "Post-Training",
+    "post-training",
+    "post training",
+    "instruction tuning",
+    "instruction-tuning",
+    "supervised fine-tuning",
+    "SFT",
+    "RLHF",
+    "reinforcement learning from human feedback",
+    "alignment training",
+    "behavior shaping"
+  ],
   "tags": ["foundations", "alignment"],
   "relatedIds": [
     "training-regime.pretraining",
     "concept.alignment",
-    "training-regime.dpo"
+    "training-regime.dpo",
+    "training-regime.specialist-training",
+    "model.gpt-3",
+    "model.llama-3",
+    "model.deepseek-v4-pro",
+    "model.deepseek-v4-flash"
   ],
   "citationIds": [
     "citation.training-language-models-to-follow-instructions-with-human-feedback"

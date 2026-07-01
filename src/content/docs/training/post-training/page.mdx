@@ -13,11 +13,20 @@ aliases:
   - "Post-Training"
   - "post-training"
   - "post training"
+  - "instruction tuning"
+  - "instruction-tuning"
+  - "supervised fine-tuning"
+  - "SFT"
+  - "RLHF"
+  - "reinforcement learning from human feedback"
+  - "alignment training"
+  - "behavior shaping"
 updatedAt: "2026-07-01"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { BlockMath } from "@/features/docs/components/Math";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -47,6 +56,29 @@ import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeF
   titleKey="sections.comparedToNearbyRegimes.title"
 >
   <T k="sections.comparedToNearbyRegimes.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/training/pretraining", labelKey: "links.pretraining" },
+      { href: "/docs/training/dpo", labelKey: "links.dpo" },
+      { href: "/docs/concepts/alignment", labelKey: "links.alignment" },
+      {
+        href: "/search?q=instruction%20tuning",
+        labelKey: "links.instructionTuningSearch",
+      },
+      { href: "/search?q=SFT", labelKey: "links.sftSearch" },
+      { href: "/search?q=RLHF", labelKey: "links.rlhfSearch" },
+      { href: "/docs/models/gpt-3", labelKey: "links.gpt3ModelPage" },
+      { href: "/docs/models/llama-3", labelKey: "links.llama3ModelPage" },
+      {
+        href: "/docs/models/deepseek-v4-pro",
+        labelKey: "links.deepseekV4ProModelPage",
+      },
+      {
+        href: "/docs/training/specialist-training",
+        labelKey: "links.specialistTraining",
+      },
+    ]}
+  />
 </Section>
 <Section
   id="limitations-and-failure-modes"
