@@ -16,7 +16,7 @@
 
 ## Shell consumers to migrate incrementally
 
-- `src/app/(site)/site-renderers.tsx` — imports topology and timeline renderers directly today.
+- `src/app/(site)/site-renderers.tsx` — topology and timeline renderers import through `@/features/ai/topology` and `@/features/ai/timeline`.
 - `src/lib/content/mdx-components.tsx` — imports model renderers directly today.
 
 ## Conventions

@@ -8,6 +8,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { HomeArticle } from "@/components/home/home-article";
+import { OntologyTimelinePage } from "@/features/ai/timeline";
+import {
+  type TopologyDocsPageContentByRegistryId,
+  TopologyPrototype,
+} from "@/features/ai/topology";
 import { BrowseAtlasPage } from "@/features/docs/components/BrowseAtlasPage";
 import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
 import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
@@ -26,9 +31,6 @@ import {
 import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState";
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
-import { OntologyTimelinePage } from "@/features/docs/timeline/OntologyTimelinePage";
-import { TopologyPrototype } from "@/features/topology/TopologyPrototype";
-import type { TopologyDocsPageContentByRegistryId } from "@/features/topology/topology-content";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import {
