@@ -8,6 +8,7 @@ import {
   defaultLocale,
   supportedLocales,
 } from "@/lib/i18n/locale-routing";
+import { baseOptions } from "@/lib/layout.shared";
 import { SCAFFOLD_ID, SITE_BRAND_NAME, SITE_HEADING } from "@/lib/scaffold";
 import {
   MODEL_ATLAS_REPOSITORY_URL,
@@ -17,6 +18,7 @@ import {
   resolveSiteConfigHomeFeaturedLinkHrefs,
   resolveSiteConfigHomeFeaturedLinks,
   resolveSiteConfigPrimaryNavHrefs,
+  resolveSiteConfigRepositoryUrl,
 } from "./site-config-resolution";
 
 const PROJECT_GITHUB_URL = "https://github.com/portpowered/ai-model-reference";
@@ -42,6 +44,9 @@ describe("site config scaffold compatibility", () => {
   test("keeps the default repository URL aligned with the current header link", () => {
     expect(modelAtlasSiteConfig.repositoryUrl).toBe(MODEL_ATLAS_REPOSITORY_URL);
     expect(modelAtlasSiteConfig.repositoryUrl).toBe(PROJECT_GITHUB_URL);
+    expect(resolveSiteConfigRepositoryUrl(modelAtlasSiteConfig)).toBe(
+      PROJECT_GITHUB_URL,
+    );
   });
 
   test("keeps the default home route surface aligned with layout nav title link", () => {
@@ -49,7 +54,14 @@ describe("site config scaffold compatibility", () => {
       expect(
         buildLocalizedRoute(modelAtlasSiteConfig.routeSurfaces.home, locale),
       ).toBe(buildLocalizedRoute({ surface: "home" }, locale));
+      expect(baseOptions(locale).nav?.url).toBe(
+        buildLocalizedRoute(modelAtlasSiteConfig.routeSurfaces.home, locale),
+      );
     }
+  });
+
+  test("keeps the layout nav title aligned with the configured brand name", () => {
+    expect(baseOptions().nav?.title).toBe(modelAtlasSiteConfig.brand.brandName);
   });
 });
 
@@ -81,6 +93,24 @@ describe("site config primary nav compatibility", () => {
     );
 
     expect(configLabels).toEqual(consumerLabels);
+  });
+
+  test("preserves vietnamese primary nav hrefs and translated labels from config", async () => {
+    const messages = await loadUiMessages("vi");
+    const items = getPrimaryNavItems(messages, "vi");
+
+    expect(items.map((item) => item.href)).toEqual([
+      "/vi",
+      "/vi/topology",
+      "/vi/docs/timeline",
+      "/vi/tags",
+    ]);
+    expect(items.map((item) => item.label)).toEqual([
+      "Trang chủ",
+      messages.nav.topology,
+      "Dòng thời gian",
+      messages.nav.tags,
+    ]);
   });
 });
 

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { glossaryPageHref } from "@/lib/content/content-hrefs";
 import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
@@ -49,14 +50,17 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
 
       for (const registryId of TARGET_PATH_REGISTRY_IDS) {
         const slug = registryId.replace("concept.", "");
+        const canonicalRoute = glossaryPageHref(slug);
         const page = pages.find(
-          (entry) => entry.frontmatter.registryId === registryId,
+          (entry) =>
+            entry.url === canonicalRoute &&
+            entry.frontmatter.registryId === registryId,
         );
         const concept = indexes.byId.get(registryId) as
           | ConceptRecord
           | undefined;
 
-        expect(page?.url).toBe(`/docs/glossary/${slug}`);
+        expect(page?.url).toBe(canonicalRoute);
         expect(concept?.kind).toBe("concept");
         expect(concept?.status).toBe("published");
         expect(page?.frontmatter.kind).toBe("glossary");
@@ -136,7 +140,7 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
     ).toBe("/docs/concepts/tokenizers-overview");
     expect(
       items.find((item) => item.registryId === "concept.embedding")?.href,
-    ).toBe("/docs/glossary/embedding");
+    ).toBe("/docs/concepts/embedding");
     expect(
       items.find((item) => item.registryId === "concept.logit")?.href,
     ).toBe("/docs/glossary/logit");

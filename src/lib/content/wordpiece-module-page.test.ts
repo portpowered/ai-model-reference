@@ -38,7 +38,7 @@ describe("wordpiece module page", () => {
     expect(html).toContain("At a glance");
     expect(html).toContain("longest matching pieces");
     expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/glossary/encoder"');
     expect(html).toContain('href="/docs/modules/bidirectional-attention"');
     expect(html).toContain('href="/docs/modules/bpe"');

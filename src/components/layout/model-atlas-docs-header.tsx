@@ -18,25 +18,29 @@ import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
 import type { TopologyNavigationOption } from "@/lib/content/topology-navigation";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
+import { modelAtlasSiteConfig } from "@/lib/site/model-atlas-site-config";
+import type { SiteConfig } from "@/lib/site/site-config.contract";
 
 type ModelAtlasDocsHeaderProps = {
   messages: UiMessages;
   pageTree: PageTree.Root;
   locale?: SiteLocale;
+  siteConfig?: SiteConfig;
   topologyOptions?: readonly TopologyNavigationOption[];
   trailing?: ReactNode;
 };
-
-const PROJECT_GITHUB_URL = "https://github.com/portpowered/ai-model-reference";
 
 export function ModelAtlasDocsHeader({
   messages,
   pageTree,
   locale = defaultLocale,
+  siteConfig = modelAtlasSiteConfig,
   topologyOptions = [],
   trailing,
 }: ModelAtlasDocsHeaderProps) {
+  const repositoryUrl = siteConfig.repositoryUrl;
   const primaryNavItems = getPrimaryNavItems(messages, locale, {
+    siteConfig,
     topologyOptions,
   });
   const [menuOpen, setMenuOpen] = useState(false);
@@ -89,7 +93,7 @@ export function ModelAtlasDocsHeader({
           </div>
           <div className="pointer-events-auto">
             <Link
-              href={PROJECT_GITHUB_URL}
+              href={repositoryUrl}
               aria-label="Open project GitHub repository"
               title="Open project GitHub repository"
               className={`${buttonVariants({ variant: "outline", size: "icon" })} header-action-icon`}

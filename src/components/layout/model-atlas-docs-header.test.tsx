@@ -20,6 +20,14 @@ import {
   PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS,
 } from "@/components/layout/primary-nav";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import {
+  MODEL_ATLAS_REPOSITORY_URL,
+  modelAtlasSiteConfig,
+} from "@/lib/site/model-atlas-site-config";
+import {
+  SITE_COLLECTION_FAMILIES,
+  type SiteConfig,
+} from "@/lib/site/site-config.contract";
 import { source } from "@/lib/source";
 import { assertPrimaryNavNoDuplicateSearchLink } from "@/lib/verify/customer-ask-home-header-convergence";
 import {
@@ -29,6 +37,55 @@ import {
 } from "@/tests/a11y/mock-navigation";
 import { NextNavigationTestProvider } from "@/tests/a11y/next-navigation-test-provider";
 import { renderWithAppProviders } from "@/tests/a11y/render";
+
+const alternateSiteConfig = {
+  brand: {
+    scaffoldId: "example-scaffold",
+    brandName: "Example Atlas",
+    siteHeading: "Example Reference",
+  },
+  repositoryUrl: "https://github.com/example/example",
+  routeSurfaces: {
+    home: { surface: "home" },
+    browse: { surface: "browse" },
+    topology: { surface: "topology" },
+    timeline: { surface: "docs-page", slug: "timeline" },
+    tagsIndex: { surface: "tags-index" },
+  },
+  primaryNav: [
+    { routeSurface: "home", labelKey: "home" },
+    { routeSurface: "topology", labelKey: "topology" },
+    { routeSurface: "timeline", labelKey: "timeline" },
+    { routeSurface: "tagsIndex", labelKey: "tags" },
+  ],
+  collections: SITE_COLLECTION_FAMILIES.map((family) => ({ family })),
+  homeFeaturedLinks: [
+    {
+      kind: "route",
+      routeSurface: "browse",
+      titleKey: "atlasLinkTitle",
+      descriptionKey: "atlasLinkDescription",
+    },
+    {
+      kind: "docs-page",
+      slug: "modules/grouped-query-attention",
+      titleKey: "gqaLinkTitle",
+      descriptionKey: "gqaLinkDescription",
+    },
+    {
+      kind: "docs-page",
+      slug: "modules/swiglu",
+      titleKey: "swigluLinkTitle",
+      descriptionKey: "swigluLinkDescription",
+    },
+    {
+      kind: "docs-page",
+      slug: "modules/relu",
+      titleKey: "reluLinkTitle",
+      descriptionKey: "reluLinkDescription",
+    },
+  ],
+} satisfies SiteConfig;
 
 function renderHeaderWithNavigation(
   ui: ReactNode,
@@ -89,10 +146,44 @@ describe("ModelAtlasDocsHeader", () => {
     expect(html).toContain(`aria-label="${messages.search.open}"`);
     expect(html).toContain(messages.search.shortcut);
     expect(html).toContain(`aria-label="${messages.language.open}"`);
-    expect(html).toContain(
-      'href="https://github.com/portpowered/ai-model-reference"',
-    );
+    expect(html).toContain(`href="${MODEL_ATLAS_REPOSITORY_URL}"`);
     expect(html).toContain('aria-label="Open project GitHub repository"');
+  });
+
+  test("sources the repository link href from site config", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    const html = renderToStaticMarkup(
+      <RootProvider search={{ SearchDialog, enabled: true }}>
+        <ModelAtlasDocsHeader
+          messages={messages}
+          pageTree={source.pageTree}
+          siteConfig={alternateSiteConfig}
+        />
+      </RootProvider>,
+    );
+
+    expect(html).toContain('href="https://github.com/example/example"');
+    expect(html).not.toContain(`href="${MODEL_ATLAS_REPOSITORY_URL}"`);
+    expect(html).toContain('aria-label="Open project GitHub repository"');
+    expect(html).toContain('title="Open project GitHub repository"');
+  });
+
+  test("keeps the default repository URL from model atlas site config", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    const html = renderToStaticMarkup(
+      <RootProvider search={{ SearchDialog, enabled: true }}>
+        <ModelAtlasDocsHeader
+          messages={messages}
+          pageTree={source.pageTree}
+          siteConfig={modelAtlasSiteConfig}
+        />
+      </RootProvider>,
+    );
+
+    expect(html).toContain(`href="${modelAtlasSiteConfig.repositoryUrl}"`);
+    expect(modelAtlasSiteConfig.repositoryUrl).toBe(MODEL_ATLAS_REPOSITORY_URL);
   });
 
   test("mobile width markup hides desktop inline nav links and exposes the menu control", async () => {
@@ -290,10 +381,93 @@ describe("ModelAtlasDocsHeader", () => {
     );
     expect(desktopNavMatch).toBeTruthy();
     for (const item of expectedItems) {
+      const escapedHref = item.href.replaceAll("&", "&amp;");
+      expect(desktopNavMatch?.[1]).toContain(`href="${escapedHref}"`);
       expect(desktopNavMatch?.[1]).toContain(`>${item.label}<`);
     }
     expect(html).toContain(">Trang chủ<");
     expect(html).toContain(">Dòng thời gian<");
+  });
+
+  test("reveals localized mobile primary nav links when the menu opens on a vietnamese route", async () => {
+    const messages = await loadUiMessages("vi");
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    await renderWithAppProviders(
+      <ModelAtlasDocsHeader
+        messages={messages}
+        pageTree={source.pageTree}
+        locale="vi"
+        topologyOptions={[]}
+      />,
+      {
+        SearchDialog,
+      },
+    );
+    const menuButton = screen.getByRole("button", { name: messages.nav.menu });
+
+    expect(menuButton.getAttribute("aria-expanded")).toBe("false");
+    expect(menuButton.getAttribute("aria-controls")).toBeTruthy();
+
+    fireEvent.click(menuButton);
+
+    expect(menuButton.getAttribute("aria-expanded")).toBe("true");
+
+    const panelId = menuButton.getAttribute("aria-controls");
+    const drawer = document.getElementById(panelId ?? "");
+    expect(drawer).toBeTruthy();
+    expect(drawer?.getAttribute("role")).toBe("dialog");
+
+    const expectedItems = getPrimaryNavItems(messages, "vi");
+    for (const item of expectedItems) {
+      const link = within(drawer as HTMLElement).getByRole("link", {
+        name: item.label,
+      });
+      expect(link.getAttribute("href")).toBe(item.href);
+      expect(link.className).toContain(PRIMARY_NAV_MOBILE_LINK_CLASS);
+    }
+    expect(
+      within(drawer as HTMLElement).getByRole("link", { name: "Trang chủ" }),
+    ).toBeTruthy();
+    expect(
+      within(drawer as HTMLElement).getByRole("link", {
+        name: "Dòng thời gian",
+      }),
+    ).toBeTruthy();
+  });
+
+  test("closes the mobile menu when a localized primary nav link is clicked", async () => {
+    const messages = await loadUiMessages("vi");
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    await renderWithAppProviders(
+      <ModelAtlasDocsHeader
+        messages={messages}
+        pageTree={source.pageTree}
+        locale="vi"
+        topologyOptions={[]}
+      />,
+      {
+        SearchDialog,
+      },
+    );
+    const menuButton = screen.getByRole("button", { name: messages.nav.menu });
+
+    fireEvent.click(menuButton);
+    expect(menuButton.getAttribute("aria-expanded")).toBe("true");
+
+    const drawer = document.getElementById(
+      menuButton.getAttribute("aria-controls") ?? "",
+    );
+    expect(drawer).toBeTruthy();
+
+    const homeLink = within(drawer as HTMLElement).getByRole("link", {
+      name: "Trang chủ",
+    });
+    fireEvent.click(homeLink);
+
+    expect(menuButton.getAttribute("aria-expanded")).toBe("false");
+    expect(
+      document.getElementById(menuButton.getAttribute("aria-controls") ?? ""),
+    ).toBeNull();
   });
 
   test("closes the mobile menu and hides the disclosure panel when toggled off", async () => {

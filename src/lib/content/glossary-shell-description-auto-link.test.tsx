@@ -129,7 +129,7 @@ describe("glossary shell description auto-link convergence", () => {
       "An ordered list of numbers that represents a point or direction in continuous space—embeddings and activations are vectors at different stages of the model.",
     );
     expectGlossaryShellDescriptionAutoLink(html, {
-      href: "/docs/glossary/embedding",
+      href: "/docs/concepts/embedding",
       phrase: "embeddings",
     });
     expectGlossaryPresentationConvergence(articleHtml, {
@@ -157,7 +157,7 @@ describe("glossary shell description auto-link convergence", () => {
       phrase: "vectors",
     });
     expectGlossaryShellDescriptionAutoLink(html, {
-      href: "/docs/glossary/embedding",
+      href: "/docs/concepts/embedding",
       phrase: "token embedding",
     });
     expectGlossaryShellDescriptionAutoLink(html, {
@@ -193,7 +193,7 @@ describe("glossary shell description auto-link convergence", () => {
       phrase: "dense vector",
     });
     expectGlossaryShellDescriptionAutoLink(html, {
-      href: "/docs/glossary/embedding",
+      href: "/docs/concepts/embedding",
       phrase: "vector embedding",
     });
     expectGlossaryShellDescriptionAutoLink(html, {

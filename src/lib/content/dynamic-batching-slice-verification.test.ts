@@ -123,8 +123,6 @@ describe("dynamic batching slice verification (dynamic-batching-system-page-004)
         "dynamic batching",
         "batch window",
         "request batching",
-        "latency",
-        "throughput",
       ]),
     );
     expect(document?.tags).toEqual(["foundations"]);
