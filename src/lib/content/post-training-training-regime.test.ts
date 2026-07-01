@@ -1,7 +1,15 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { createElement } from "react";
 import { renderToReadableStream } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import {
+  parsePageAssetConfig,
+  validatePageAssetReferences,
+} from "@/lib/content/assets";
+import { getDocsPageDir } from "@/lib/content/content-paths";
+import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -12,9 +20,22 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { pageMessagesSchema } from "@/lib/content/schemas";
 import { loadTrainingRegimePage } from "@/lib/content/training-regime-page";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
+
+function loadPostTrainingPageBundle() {
+  const pageDir = getDocsPageDir("training", "post-training");
+  return {
+    messages: pageMessagesSchema.parse(
+      JSON.parse(readFileSync(join(pageDir, "messages", "en.json"), "utf8")),
+    ),
+    assets: JSON.parse(readFileSync(join(pageDir, "assets.json"), "utf8")) as {
+      trainingFlow: { type: string; graphId: string };
+    },
+  };
+}
 
 function pageBaseUrl(url: string): string {
   return url.split("#")[0] ?? url;
@@ -27,6 +48,53 @@ async function renderHtml(
   await stream.allReady;
   return await new Response(stream).text();
 }
+
+describe("post-training training-regime graph contracts", () => {
+  test("local asset config resolves the post-training graph with message-backed references", () => {
+    const page = loadPostTrainingPageBundle();
+    const assets = parsePageAssetConfig(page.assets);
+
+    expect(assets.trainingFlow.type).toBe("graph");
+    if (assets.trainingFlow.type === "graph") {
+      expect(assets.trainingFlow.graphId).toBe(
+        "graph.post-training-training-flow",
+      );
+    }
+    expect(validatePageAssetReferences(assets, page.messages)).toEqual([]);
+    expect(page.messages.assets?.trainingFlow.title).toBe("Post-training flow");
+    expect(page.messages.assets?.trainingFlow.alt).toContain(
+      "pretrained base model",
+    );
+    expect(page.messages.assets?.trainingFlow.caption).toContain(
+      "Post-training reshapes a pretrained base model",
+    );
+    expect(page.messages.graph?.nodes?.baseModel?.label).toBe(
+      "Pretrained base model",
+    );
+    expect(page.messages.graph?.nodes?.objectives?.label).toBe(
+      "Post-training data and objectives",
+    );
+    expect(page.messages.graph?.nodes?.shapedModel?.label).toBe(
+      "Behavior-shaped model",
+    );
+  });
+
+  test("graph registry record teaches the focused post-training flow", () => {
+    const graph = getGraphById("graph.post-training-training-flow");
+    expect(graph?.subjectId).toBe("training-regime.post-training");
+    expect(graph?.nodes.map((node) => node.id)).toEqual([
+      "baseModel",
+      "objectives",
+      "shapedModel",
+    ]);
+    expect(graph?.edges.map((edge) => edge.id)).toEqual([
+      "base-model-objectives",
+      "objectives-shaped-model",
+    ]);
+    expect(graph?.rootNodeId).toBe("baseModel");
+    expect(graph?.layout).toBe("vertical-expandable");
+  });
+});
 
 describe("post-training training-regime discovery contracts", () => {
   test("registry record publishes search aliases, outward relationships, and training classification", () => {
@@ -143,6 +211,18 @@ describe("post-training training-regime discovery contracts", () => {
     expect(html).toContain(">RLHF search<");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('data-testid="tag-pill-list"');
+    expect(html).toContain(
+      'data-graph-title="graph.post-training-training-flow"',
+    );
+    expect(html).toContain(
+      'data-graph-legend="graph.post-training-training-flow"',
+    );
+    expect(html).toContain("Pretrained base model");
+    expect(html).toContain("Post-training data and objectives");
+    expect(html).toContain("Behavior-shaped model");
+    expect(html).toContain(
+      "Post-training reshapes a pretrained base model by applying narrower data and sharper objectives.",
+    );
     expect(html).not.toContain("Reader Shortcut");
   });
 
