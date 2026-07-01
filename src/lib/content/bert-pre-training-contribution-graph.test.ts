@@ -1,3 +1,9 @@
+/**
+ * BERT paper contribution graph runtime proof.
+ * Routine page-bundle graph wiring is covered by `make validate-data`; this
+ * file proves observable flow-graph labels, registry-backed node links, and
+ * teaching edges that derived validation cannot express.
+ */
 import { describe, expect, test } from "bun:test";
 import bertPaperMessages from "@/content/docs/papers/bert-pre-training-of-deep-bidirectional-transformers/messages/en.json";
 import {

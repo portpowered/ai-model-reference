@@ -1,15 +1,16 @@
+/**
+ * BERT paper page slice proof for narrative and rendered teaching surfaces.
+ * Routine bundle invariants (frontmatter, messages, tags, citations, assets)
+ * are covered by `make validate-data`; this file proves observable SSR section,
+ * graph label, related-link, and narrative copy behavior.
+ */
 import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToReadableStream } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { resolveCitations } from "@/lib/content/citations";
 import { loadPaperPage } from "@/lib/content/paper-page";
-import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
-import { getPaperById } from "@/lib/content/registry-runtime";
 
 const PAPER_SLUG = "bert-pre-training-of-deep-bidirectional-transformers";
-const PAPER_REGISTRY_ID =
-  "paper.bert-pre-training-of-deep-bidirectional-transformers";
 
 async function renderHtml(
   element: ReturnType<typeof createElement>,
@@ -20,45 +21,6 @@ async function renderHtml(
 }
 
 describe("BERT paper page", () => {
-  test("keeps the route, registry record, english messages, and citation linkage aligned", async () => {
-    const page = await loadPaperPage(PAPER_SLUG);
-    const record = getPaperById(PAPER_REGISTRY_ID);
-    if (!record) {
-      throw new Error(`expected ${PAPER_REGISTRY_ID} in registry`);
-    }
-
-    expect(page.frontmatter.registryId).toBe(record.id);
-    expect(page.messages.title).toBe("BERT Paper");
-    expect(page.messages.openingSummary).toContain(
-      "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
-    );
-
-    const citations = resolveCitations(record.citationIds);
-    expect(citations).toHaveLength(1);
-    expect(citations[0]).toMatchObject({
-      id: "citation.bert-pre-training-of-deep-bidirectional-transformers",
-      title:
-        "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
-      year: 2018,
-    });
-  });
-
-  test("is published as a canonical paper route", async () => {
-    const page = await loadPaperPage(PAPER_SLUG);
-
-    expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.kind).toBe("paper");
-    expect(page.frontmatter.registryId).toBe(PAPER_REGISTRY_ID);
-    expect(PUBLISHED_DOCS_REGISTRY_IDS.has(PAPER_REGISTRY_ID)).toBe(true);
-    expect(page.messages.openingSummary?.toLowerCase()).toContain(
-      "pre-training of deep bidirectional transformers for language understanding",
-    );
-    expect(page.toc.some((item) => item.url === "#why-it-matters")).toBe(true);
-    expect(
-      page.toc.some((item) => item.url === "#method-or-architecture"),
-    ).toBe(true);
-  });
-
   test("explains masked pretraining and bidirectional encoder framing in narrative copy", async () => {
     const page = await loadPaperPage(PAPER_SLUG);
     const method = page.messages.sections?.methodOrArchitecture?.body ?? "";
@@ -79,7 +41,7 @@ describe("BERT paper page", () => {
     );
   });
 
-  test("renders required paper sections and adjacent published links", async () => {
+  test("renders required paper sections, contribution graph labels, and adjacent published links", async () => {
     const page = await loadPaperPage(PAPER_SLUG);
 
     const html = await renderHtml(
