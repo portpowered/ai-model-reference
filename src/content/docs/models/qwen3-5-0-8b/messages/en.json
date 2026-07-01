@@ -5,11 +5,11 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Qwen3.5-0.8B is an open-weights model from the Qwen Team and the smallest published member of the Qwen3.5 release line. The official Hugging Face model card identifies this repository as the post-trained checkpoint, names the 0.8B operating point, and lists image-and-text serving examples alongside text-only use. The Qwen3.5 announcement frames the family as a native multimodal agent line with unified vision-language training."
+      "body": "Qwen3.5-0.8B is an open-weights model from the Qwen Team and the smallest published member of the Qwen3.5 release line. The official Hugging Face model card identifies this repository as the post-trained checkpoint, names the 0.8B operating point, and lists image-and-text serving examples alongside text-only use. In the public reader path, Qwen3.5 sits between the earlier Qwen3 generation and the later Qwen3.6 release line: the Qwen3.5 announcement describes this generation as a native multimodal agent upgrade over Qwen3, while Qwen3.6 release materials position the next generation as a stability-focused coding and agentic-workflow upgrade released after Qwen3.5."
     },
     "inputsAndOutputs": {
       "title": "Inputs And Outputs",
-      "body": "Official serving examples on the Hugging Face model card show text, image, and video prompts producing text outputs. The same source documents a native 262,144-token context length as the default operating point. This page keeps those modality and context figures because they are repeated in Qwen-controlled release materials for this checkpoint."
+      "body": "The official Hugging Face model card documents text and image prompts that produce text outputs, with serving examples for both modalities. The same checkpoint-specific source also includes a Video Input example and vision-language benchmark tables that evaluate video understanding, so video belongs here only because that card publishes it for Qwen3.5-0.8B. The card also documents a native 262,144-token context length as the default operating point."
     },
     "architecture": {
       "title": "Architecture",
@@ -25,7 +25,7 @@
     },
     "practicalNotes": {
       "title": "Practical Notes",
-      "body": "Read Qwen3.5-0.8B as the small Qwen3.5 slice for lightweight experimentation. The official post-trained model card states that, given its parameter scale, intended use cases are prototyping, task-specific fine-tuning, and other research or development purposes. Use Qwen/Qwen3.5-0.8B-Base when you need the pre-trained starting point, not as the default page readers should follow for chat-style behavior."
+      "body": "Read Qwen3.5-0.8B as the small Qwen3.5 slice for lightweight experimentation. The official post-trained model card states that, given its parameter scale, intended use cases are prototyping, task-specific fine-tuning, and other research or development purposes. When you need a larger Qwen open-weights operating point in the same reader path, follow the published Qwen3.6 model pages next rather than treating this 0.8B checkpoint as a family-wide default. Use Qwen/Qwen3.5-0.8B-Base when you need the pre-trained starting point, not as the default page readers should follow for chat-style behavior."
     },
     "related": { "title": "Related Models, Modules, And Papers" },
     "tags": { "title": "Tags" },
