@@ -2,6 +2,9 @@ import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import type { UiMessages } from "./ui-messages.types";
 
 export type {
+  AiCollectionIndexMessages,
+  AiDomainMessages,
+  AiTagMessages,
   BrowseIndexMessages,
   DocsMessages,
   HomeMessages,
@@ -14,6 +17,10 @@ export type {
   ShellMessages,
   TagLandingMessages,
   TagsIndexMessages,
+  TimelinePageMessages,
+  TopologyBrowseClassificationLabels,
+  TopologyBrowseMessages,
+  TopologyPrototypeMessages,
   UiMessages,
 } from "./ui-messages.types";
 export { formatPageKind } from "./ui-messages.types";

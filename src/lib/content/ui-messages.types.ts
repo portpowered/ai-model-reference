@@ -143,149 +143,176 @@ export type TagLandingMessages = {
 };
 
 /**
- * Generic docs UI messages: home, browse/index hubs, section indexes,
- * architecture/glossary/tags surfaces, and page-kind labels.
+ * Generic docs UI messages: home, browse/index hubs, glossary/architecture
+ * section indexes, and page-kind labels.
  */
 export type DocsMessages = {
   searchEntry: SearchEntryMessages;
   home: HomeMessages;
   browseIndex: BrowseIndexMessages;
+  glossaryIndex: SectionIndexMessages;
+  architectureIndex: SectionIndexMessages;
+  pageKind: Record<string, string>;
+};
+
+/** Ontology timeline page copy for the AI domain pack. */
+export type TimelinePageMessages = {
+  title: string;
+  description: string;
+  eyebrow: string;
+  successSummary: string;
+  loadingTitle: string;
+  loadingDescription: string;
+  errorTitle: string;
+  errorDescription: string;
+  selectorLabel: string;
+  eventCountLabel: string;
+  regionLabel: string;
+  docsLink: string;
+  sourcePrefix: string;
+  emptyTitle: string;
+  emptyDescription: string;
+  activationLink: string;
+};
+
+/** Classification labels used by topology browse surfaces. */
+export type TopologyBrowseClassificationLabels = {
+  activationFunctions: string;
+  attentionMechanisms: string;
+  feedForwardNetworks: string;
+  normalizationLayers: string;
+  positionEncodingMethods: string;
+  tokenizationMethods: string;
+  transformerBlockStructures: string;
+};
+
+/** Topology browse page copy for the AI domain pack. */
+export type TopologyBrowseMessages = {
+  titleTemplate: string;
+  descriptionTemplate: string;
+  navigationLabelTemplate: string;
+  graphMapLabel: string;
+  timelineLabel: string;
+  classificationLabels: TopologyBrowseClassificationLabels;
+  classificationSelectorTitle: string;
+  classificationSelectorDescription: string;
+  classificationSelectorLabel: string;
+  selectedClassificationLabel: string;
+  selectedModeLabel: string;
+  membersTitle: string;
+  graphMapDescription: string;
+  timelineDescription: string;
+  invalidTitle: string;
+  invalidDescription: string;
+  invalidClassificationLabel: string;
+  invalidModeLabel: string;
+  missingValue: string;
+  emptyTitle: string;
+  emptyDescription: string;
+  validOptionsTitle: string;
+  memberListLabel: string;
+  classificationChildrenLabel: string;
+  recordChildrenLabel: string;
+  directMembersLabel: string;
+  totalMembersLabel: string;
+};
+
+/** Topology prototype graph copy for the AI domain pack. */
+export type TopologyPrototypeMessages = {
+  title: string;
+  description: string;
+  selectedViewLabel: string;
+  selectedViewValue: string;
+  selectedViewDefault: string;
+  selectedViewNone: string;
+  chipListLabel: string;
+  chipHint: string;
+  clearSelectionLabel: string;
+  loadingTitle: string;
+  loadingDescription: string;
+  emptyTitle: string;
+  emptyDescription: string;
+  emptySelectedPrefix: string;
+  emptyNoSelectionDescription: string;
+  emptyReturnAction: string;
+  errorTitle: string;
+  errorDescription: string;
+  errorInvalidPrefix: string;
+  errorReturnAction: string;
+  successTitle: string;
+  successDescription: string;
+  graphLabel: string;
+  fitGraphLabel: string;
+  resetGraphLabel: string;
+  legendTitle: string;
+  membershipLegendDescription: string;
+  relationshipLegendDescription: string;
+  accessibleNodeListTitle: string;
+  accessibleRelationshipListTitle: string;
+  classificationNodeLabel: string;
+  recordNodeLabel: string;
+  classificationTypeDomain: string;
+  classificationTypeFamily: string;
+  classificationTypeTopology: string;
+  detailPanelTitle: string;
+  detailPanelHint: string;
+  detailPanelDismissLabel: string;
+  detailPanelEmptyTitle: string;
+  detailPanelEmptyDescription: string;
+  detailLabelSummary: string;
+  detailLabelPrimaryClassification: string;
+  detailLabelSecondaryClassifications: string;
+  detailLabelCanonicalPage: string;
+  detailLabelScope: string;
+  detailLabelAppliesTo: string;
+  detailLabelVisibleMembers: string;
+  detailLabelRelationship: string;
+  detailLabelSource: string;
+  detailLabelTarget: string;
+  detailNoSecondaryClassifications: string;
+  detailMissingSummary: string;
+  detailOpenCanonicalPage: string;
+  activationChip: string;
+  activationFunctionChip: string;
+  feedForwardChip: string;
+  nodeActivation: string;
+  nodeRelu: string;
+  nodeSilu: string;
+  nodeSwiGLU: string;
+  nodeFeedForward: string;
+};
+
+/** AI collection index landing pages (models, modules, concepts, etc.). */
+export type AiCollectionIndexMessages = {
   modelsIndex: SectionIndexMessages;
   modulesIndex: SectionIndexMessages;
   conceptsIndex: SectionIndexMessages;
   papersIndex: SectionIndexMessages;
   trainingIndex: SectionIndexMessages;
   systemsIndex: SectionIndexMessages;
-  glossaryIndex: SectionIndexMessages;
-  architectureIndex: SectionIndexMessages;
+};
+
+/** AI tag index, landing, and category labels for the domain pack. */
+export type AiTagMessages = {
   tagsIndex: TagsIndexMessages;
   tagLanding: TagLandingMessages;
   tagCategories: Record<string, string>;
-  pageKind: Record<string, string>;
 };
 
-/** Compatibility surface: full shipped UI messages for current consumers. */
-export type UiMessages = ShellMessages &
-  DocsMessages & {
-    timelinePage: {
-      title: string;
-      description: string;
-      eyebrow: string;
-      successSummary: string;
-      loadingTitle: string;
-      loadingDescription: string;
-      errorTitle: string;
-      errorDescription: string;
-      selectorLabel: string;
-      eventCountLabel: string;
-      regionLabel: string;
-      docsLink: string;
-      sourcePrefix: string;
-      emptyTitle: string;
-      emptyDescription: string;
-      activationLink: string;
-    };
-    topologyBrowse: {
-      titleTemplate: string;
-      descriptionTemplate: string;
-      navigationLabelTemplate: string;
-      graphMapLabel: string;
-      timelineLabel: string;
-      classificationLabels: {
-        activationFunctions: string;
-        attentionMechanisms: string;
-        feedForwardNetworks: string;
-        normalizationLayers: string;
-        positionEncodingMethods: string;
-        tokenizationMethods: string;
-        transformerBlockStructures: string;
-      };
-      classificationSelectorTitle: string;
-      classificationSelectorDescription: string;
-      classificationSelectorLabel: string;
-      selectedClassificationLabel: string;
-      selectedModeLabel: string;
-      membersTitle: string;
-      graphMapDescription: string;
-      timelineDescription: string;
-      invalidTitle: string;
-      invalidDescription: string;
-      invalidClassificationLabel: string;
-      invalidModeLabel: string;
-      missingValue: string;
-      emptyTitle: string;
-      emptyDescription: string;
-      validOptionsTitle: string;
-      memberListLabel: string;
-      classificationChildrenLabel: string;
-      recordChildrenLabel: string;
-      directMembersLabel: string;
-      totalMembersLabel: string;
-    };
-    topologyPrototype: {
-      title: string;
-      description: string;
-      selectedViewLabel: string;
-      selectedViewValue: string;
-      selectedViewDefault: string;
-      selectedViewNone: string;
-      chipListLabel: string;
-      chipHint: string;
-      clearSelectionLabel: string;
-      loadingTitle: string;
-      loadingDescription: string;
-      emptyTitle: string;
-      emptyDescription: string;
-      emptySelectedPrefix: string;
-      emptyNoSelectionDescription: string;
-      emptyReturnAction: string;
-      errorTitle: string;
-      errorDescription: string;
-      errorInvalidPrefix: string;
-      errorReturnAction: string;
-      successTitle: string;
-      successDescription: string;
-      graphLabel: string;
-      fitGraphLabel: string;
-      resetGraphLabel: string;
-      legendTitle: string;
-      membershipLegendDescription: string;
-      relationshipLegendDescription: string;
-      accessibleNodeListTitle: string;
-      accessibleRelationshipListTitle: string;
-      classificationNodeLabel: string;
-      recordNodeLabel: string;
-      classificationTypeDomain: string;
-      classificationTypeFamily: string;
-      classificationTypeTopology: string;
-      detailPanelTitle: string;
-      detailPanelHint: string;
-      detailPanelDismissLabel: string;
-      detailPanelEmptyTitle: string;
-      detailPanelEmptyDescription: string;
-      detailLabelSummary: string;
-      detailLabelPrimaryClassification: string;
-      detailLabelSecondaryClassifications: string;
-      detailLabelCanonicalPage: string;
-      detailLabelScope: string;
-      detailLabelAppliesTo: string;
-      detailLabelVisibleMembers: string;
-      detailLabelRelationship: string;
-      detailLabelSource: string;
-      detailLabelTarget: string;
-      detailNoSecondaryClassifications: string;
-      detailMissingSummary: string;
-      detailOpenCanonicalPage: string;
-      activationChip: string;
-      activationFunctionChip: string;
-      feedForwardChip: string;
-      nodeActivation: string;
-      nodeRelu: string;
-      nodeSilu: string;
-      nodeSwiGLU: string;
-      nodeFeedForward: string;
-    };
+/**
+ * AI domain UI messages: topology browse/prototype, timeline page,
+ * collection indexes, and tag surfaces.
+ * Excludes generic shell search, nav, language, and layout chrome.
+ */
+export type AiDomainMessages = AiCollectionIndexMessages &
+  AiTagMessages & {
+    timelinePage: TimelinePageMessages;
+    topologyBrowse: TopologyBrowseMessages;
+    topologyPrototype: TopologyPrototypeMessages;
   };
+
+/** Compatibility surface: full shipped UI messages for current consumers. */
+export type UiMessages = ShellMessages & DocsMessages & AiDomainMessages;
 
 export function formatPageKind(messages: UiMessages, kind: string): string {
   return messages.pageKind[kind] ?? kind;
