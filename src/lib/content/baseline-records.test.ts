@@ -218,6 +218,9 @@ describe("Phase 1 baseline registry records", () => {
     );
     expect(module.variantGroup).toBe("attention-memory-sources");
     expect(module.conceptType).toBe("attention-variant");
+    expect(module.primaryClassificationId).toBe(
+      "classification.module.attention",
+    );
     expect(module.relatedIds).toEqual([
       "module.attention",
       "module.multi-head-attention",
