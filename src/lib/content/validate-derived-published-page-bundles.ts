@@ -2,7 +2,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import { CONTENT_ROOT, DOCS_ROOT } from "./content-paths";
-import { hasPageMessagesFile } from "./page-messages-load";
+import { assetMessageKeys } from "./page-assets-load";
+import { getMessageString, hasPageMessagesFile } from "./page-messages-load";
 import { type DocsPageSource, docsUrlFromSlug } from "./pages";
 import { publishedDocsHrefFromEntry } from "./published-docs-registry-contract";
 import {
@@ -15,8 +16,10 @@ import {
   type RegistryRecord,
 } from "./registry";
 import {
+  type PageAssetConfig,
   type PageKind,
   type PageMessages,
+  pageAssetConfigSchema,
   pageFrontmatterSchema,
   pageMessagesSchema,
 } from "./schemas";
@@ -45,6 +48,33 @@ function pageKindMatchesRegistryRecord(
     pageKind === registryKind ||
     pageKindRegistryKindAliases[pageKind] === registryKind
   );
+}
+
+function resolveTagRecord(
+  tagRef: string,
+  indexes: RegistryIndexes,
+): RegistryRecord | undefined {
+  const bySlug = indexes.bySlug.get(tagRef);
+  if (bySlug?.kind === "tag") {
+    return bySlug;
+  }
+  const tagId = tagRef.startsWith("tag.") ? tagRef : `tag.${tagRef}`;
+  const byId = indexes.byId.get(tagId);
+  if (byId?.kind === "tag") {
+    return byId;
+  }
+  return undefined;
+}
+
+function resolveCitationReference(
+  citationId: string,
+  indexes: RegistryIndexes,
+): RegistryRecord | undefined {
+  const referenced = indexes.byId.get(citationId);
+  if (referenced?.kind === "citation" || referenced?.kind === "paper") {
+    return referenced;
+  }
+  return undefined;
 }
 
 function findPageDirectories(
@@ -238,6 +268,108 @@ export function validatePublishedPageRouteMetadata(
   return errors;
 }
 
+export function validatePublishedPageDeclaredTags(
+  page: DocsPageSource,
+  indexes: RegistryIndexes,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const pagePath = join(page.pageDir, "page.mdx");
+
+  for (const tagRef of page.frontmatter.tags) {
+    if (!resolveTagRecord(tagRef, indexes)) {
+      errors.push({
+        code: "unresolved-tag",
+        message: `${page.url}: frontmatter tag "${tagRef}" does not resolve to a tag record for docs slug "${page.docsSlug}"`,
+        path: pagePath,
+      });
+    }
+  }
+
+  return errors;
+}
+
+export function validatePublishedPageDeclaredCitations(
+  page: DocsPageSource,
+  indexes: RegistryIndexes,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const pagePath = join(page.pageDir, "page.mdx");
+  const registryRecord = indexes.byId.get(page.frontmatter.registryId);
+
+  if (!registryRecord) {
+    return errors;
+  }
+
+  for (const citationId of registryRecord.citationIds) {
+    if (!resolveCitationReference(citationId, indexes)) {
+      errors.push({
+        code: "unresolved-citation",
+        message: `${page.url}: declared citationId "${citationId}" does not resolve to a citation or paper record for docs slug "${page.docsSlug}"`,
+        path: pagePath,
+      });
+    }
+  }
+
+  return errors;
+}
+
+export function validatePublishedPageDeclaredAssets(
+  page: DocsPageSource,
+  locale: SiteLocale = defaultLocale,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const pageDirectory = page.pageDir;
+  const assetsPath = join(pageDirectory, "assets.json");
+
+  if (page.frontmatter.assetNamespace !== "local") {
+    return errors;
+  }
+
+  if (!existsSync(assetsPath)) {
+    return errors;
+  }
+
+  let assets: PageAssetConfig;
+  try {
+    const raw = readFileSync(assetsPath, "utf8");
+    const parsed = pageAssetConfigSchema.safeParse(JSON.parse(raw));
+    if (!parsed.success) {
+      const message = parsed.error.issues
+        .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+        .join("; ");
+      errors.push({
+        code: "invalid-assets-config",
+        message: `${page.url}: declared local assets are invalid for docs slug "${page.docsSlug}" — ${message}`,
+        path: assetsPath,
+      });
+      return errors;
+    }
+    assets = parsed.data;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    errors.push({
+      code: "assets-load-error",
+      message: `${page.url}: declared local assets cannot be loaded for docs slug "${page.docsSlug}" — ${message}`,
+      path: assetsPath,
+    });
+    return errors;
+  }
+
+  for (const [assetId, asset] of Object.entries(assets)) {
+    for (const key of assetMessageKeys(asset)) {
+      if (!getMessageString(page.messages, key)) {
+        errors.push({
+          code: "missing-asset-message-key",
+          message: `${page.url}: locale "${locale}" asset "${assetId}" references missing message key "${key}" for docs slug "${page.docsSlug}"`,
+          path: join(pageDirectory, "messages", `${locale}.json`),
+        });
+      }
+    }
+  }
+
+  return errors;
+}
+
 export function validatePublishedPageRegistryAlignment(
   page: DocsPageSource,
   indexes: RegistryIndexes,
@@ -271,10 +403,14 @@ export function validateOrdinaryPublishedPageBundle(
   page: DocsPageSource,
   entry: ScannedPublishedDocsEntry,
   indexes: RegistryIndexes,
+  locale: SiteLocale = defaultLocale,
 ): ValidationError[] {
   return [
     ...validatePublishedPageRouteMetadata(page, entry),
     ...validatePublishedPageRegistryAlignment(page, indexes),
+    ...validatePublishedPageDeclaredTags(page, indexes),
+    ...validatePublishedPageDeclaredCitations(page, indexes),
+    ...validatePublishedPageDeclaredAssets(page, locale),
   ];
 }
 
@@ -310,7 +446,9 @@ export async function validateDerivedPublishedPageBundles(
       continue;
     }
 
-    errors.push(...validateOrdinaryPublishedPageBundle(page, entry, indexes));
+    errors.push(
+      ...validateOrdinaryPublishedPageBundle(page, entry, indexes, locale),
+    );
   }
 
   return errors;
