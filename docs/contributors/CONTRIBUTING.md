@@ -132,6 +132,31 @@ Templates in `docs/templates/` remain the production structures behind the
 generator and the fallback path for exceptional manual work, but contributors
 should not need template copy plus multi-file hand edits in the common case.
 
+## Routine canonical page policies
+
+Ordinary canonical page work should stay on the low-collision path defined by
+these two repository policies:
+
+1. **Derived page directory lookup** — When code or tests need a published page
+   bundle path, resolve it with `getDocsPageDir(section, slug)` from
+   `src/lib/content/content-paths.ts`. Do not add new page-specific
+   `*_PAGE_DIR` exports or hand-maintained content-path constants for a single
+   page. Shared roots and section helpers such as `getDocsRoot`,
+   `getDocsSectionRoot(section)`, and `getModulesDocsRoot` remain the right
+   surface for tree-wide or section-wide operations.
+
+2. **Scanner-backed ordinary page validation** — Content-only published page
+   bundles receive registry alignment, default-locale messages, route metadata,
+   tags, citations, and local asset checks through derived validation inside
+   `make validate-data`. Do not add a new per-page test that only re-checks
+   those relationships. See [Derived published-page validation](#derived-published-page-validation)
+   for valid exceptions.
+
+Maintainer references with the full contract:
+
+- [content page generation workflow relevant files](../internal/processes/content-page-generation-workflow-relevant-files.md)
+- [derived page validation relevant files](../internal/processes/derived-page-validation-relevant-files.md)
+
 ## Ontology-first taxonomy contract
 
 Canonical authoring for **modules**, **concepts/glossary entries**,
@@ -1026,6 +1051,8 @@ entrypoints and runs `make validate-data` against committed content. Run
 These files support factory planning and review. They are not the primary
 contributor contract, but they explain how large docs efforts are prioritized:
 
+- [content page generation workflow relevant files](../internal/processes/content-page-generation-workflow-relevant-files.md) — derived page directory lookup with `getDocsPageDir(section, slug)`
+- [derived page validation relevant files](../internal/processes/derived-page-validation-relevant-files.md) — scanner-backed ordinary page validation through `make validate-data`
 - [documentation site pages needed](../documentation-site-pages-needed.md)
 - [architectural checklist](../architectural-checklist.md)
 - [operations](../operations.md) — CI merge policy and deployment posture

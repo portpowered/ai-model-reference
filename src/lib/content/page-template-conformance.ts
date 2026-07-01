@@ -183,6 +183,52 @@ function readTemplateStructure(
   return structure;
 }
 
+const optionalTemplateSectionsByKind: Partial<
+  Record<SupportedTemplateKind, ReadonlySet<string>>
+> = {
+  system: new Set(["how-it-differs"]),
+};
+
+function sectionIdsMatchWithOptionalSections(
+  kind: SupportedTemplateKind,
+  expectedSectionIds: string[],
+  actualSectionIds: string[],
+): boolean {
+  const optionalSections = optionalTemplateSectionsByKind[kind];
+  if (!optionalSections || optionalSections.size === 0) {
+    return (
+      JSON.stringify(actualSectionIds) === JSON.stringify(expectedSectionIds)
+    );
+  }
+
+  let expectedIndex = 0;
+  for (const actualSectionId of actualSectionIds) {
+    if (
+      optionalSections.has(actualSectionId) &&
+      !expectedSectionIds.includes(actualSectionId)
+    ) {
+      const previousSectionId =
+        actualSectionIds[actualSectionIds.indexOf(actualSectionId) - 1];
+      const nextRequiredSectionId = expectedSectionIds[expectedIndex];
+      if (
+        actualSectionId === "how-it-differs" &&
+        previousSectionId === "how-it-works" &&
+        nextRequiredSectionId === "practical-impact"
+      ) {
+        continue;
+      }
+      return false;
+    }
+
+    if (expectedSectionIds[expectedIndex] !== actualSectionId) {
+      return false;
+    }
+    expectedIndex += 1;
+  }
+
+  return expectedIndex === expectedSectionIds.length;
+}
+
 function formatComponentList(components: string[]): string {
   return components.length > 0 ? components.join(", ") : "(none)";
 }
@@ -229,7 +275,13 @@ export function validatePageTemplateConformance(options: {
 
   const expectedSectionIds = expected.sections.map((section) => section.id);
   const actualSectionIds = actual.sections.map((section) => section.id);
-  if (JSON.stringify(actualSectionIds) !== JSON.stringify(expectedSectionIds)) {
+  if (
+    !sectionIdsMatchWithOptionalSections(
+      kind,
+      expectedSectionIds,
+      actualSectionIds,
+    )
+  ) {
     errors.push({
       code: "page-template-section-order-mismatch",
       message: `${pagePath}: ${kind} page sections must match docs/templates/${kind}.mdx; expected [${expectedSectionIds.join(", ")}], found [${actualSectionIds.join(", ")}]`,

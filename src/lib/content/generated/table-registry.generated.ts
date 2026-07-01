@@ -7,6 +7,7 @@ import blockSparseAttentionComparisonTableRecord from "@/content/registry/tables
 import bpeComparisonTableRecord from "@/content/registry/tables/bpe-comparison.json";
 import byteLevelTokenizationComparisonTableRecord from "@/content/registry/tables/byte-level-tokenization-comparison.json";
 import causalAttentionComparisonTableRecord from "@/content/registry/tables/causal-attention-comparison.json";
+import clipImageTokenizationComparisonTableRecord from "@/content/registry/tables/clip-image-tokenization-comparison.json";
 import feedForwardNetworkComparisonTableRecord from "@/content/registry/tables/feed-forward-network-comparison.json";
 import geluComparisonTableRecord from "@/content/registry/tables/gelu-comparison.json";
 import groupNormComparisonTableRecord from "@/content/registry/tables/group-norm-comparison.json";
@@ -39,6 +40,7 @@ export const generatedTableRegistrySourceFiles = [
   "bpe-comparison.json",
   "byte-level-tokenization-comparison.json",
   "causal-attention-comparison.json",
+  "clip-image-tokenization-comparison.json",
   "feed-forward-network-comparison.json",
   "gelu-comparison.json",
   "group-norm-comparison.json",
@@ -72,6 +74,7 @@ export const generatedTableRegistryPayloads = [
   bpeComparisonTableRecord,
   byteLevelTokenizationComparisonTableRecord,
   causalAttentionComparisonTableRecord,
+  clipImageTokenizationComparisonTableRecord,
   feedForwardNetworkComparisonTableRecord,
   geluComparisonTableRecord,
   groupNormComparisonTableRecord,

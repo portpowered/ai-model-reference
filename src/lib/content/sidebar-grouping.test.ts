@@ -34,7 +34,8 @@ describe("sidebar grouping contract", () => {
       "attention-variants",
       "feed-forward-and-activation",
       "normalization",
-      "positional-and-sequence-encoding",
+      "tokenizers",
+      "positional-embeddings",
     ]);
     expect(SIDEBAR_GROUP_LABELS.modules["attention-foundations"]).toBe(
       "Attention Foundations",
@@ -67,6 +68,22 @@ describe("sidebar grouping contract", () => {
       }),
     ).toEqual({
       groupId: "attention-variants",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveModulesSidebarGroupWithSource({
+        primaryClassificationId: "classification.module.tokenization",
+      }),
+    ).toEqual({
+      groupId: "tokenizers",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveModulesSidebarGroupWithSource({
+        primaryClassificationId: "classification.module.positional-encoding",
+      }),
+    ).toEqual({
+      groupId: "positional-embeddings",
       source: "derived-taxonomy",
     });
     expect(
