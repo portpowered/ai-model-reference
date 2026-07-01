@@ -7,6 +7,10 @@ export {
   buildSearchDocuments,
   buildSearchDocumentsForLocale,
 } from "./build-documents";
+export {
+  enrichSearchDocument,
+  enrichSearchDocuments,
+} from "./enrich-search-document";
 export type { OramaSearchRecord, OramaSnapshotDocument } from "./orama-index";
 export {
   createOramaDatabase,
