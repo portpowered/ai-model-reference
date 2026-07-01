@@ -104,12 +104,18 @@ describe("multi-token-prediction canonical page contract (multi-token-prediction
 
     expect(assertMultiTokenPredictionSingleGraphConvergence(html)).toBeNull();
     expect(assertMultiTokenPredictionGraphThemeConvergence(html)).toBeNull();
-    expect(assertMultiTokenPredictionGraphInteractionConvergence(html)).toBeNull();
-    expect(assertMultiTokenPredictionGraphAccessibilityConvergence(html)).toBeNull();
-    expect(assertMultiTokenPredictionGraphComparisonConvergence(html)).toBeNull();
+    expect(
+      assertMultiTokenPredictionGraphInteractionConvergence(html),
+    ).toBeNull();
+    expect(
+      assertMultiTokenPredictionGraphAccessibilityConvergence(html),
+    ).toBeNull();
+    expect(
+      assertMultiTokenPredictionGraphComparisonConvergence(html),
+    ).toBeNull();
     expect(html).toContain('role="tablist"');
     expect(html).toContain('role="tab"');
-    expect(html).toContain('focus-visible:outline-ring');
+    expect(html).toContain("focus-visible:outline-ring");
     expect(html).toContain("registry-graph-flow w-full min-w-0");
     expect(html).toContain("registry-graph-flow__viewport");
     expect(html).toContain("max-w-full overflow-hidden");
