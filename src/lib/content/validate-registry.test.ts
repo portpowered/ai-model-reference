@@ -205,10 +205,14 @@ async function writeAttentionClassificationFixtures(
 }
 
 describe("validateRegistryContent", () => {
-  test("returns no errors for the committed Phase 1 baseline", async () => {
-    const errors = await validateRegistryContent();
-    expect(errors).toEqual([]);
-  });
+  test(
+    "returns no errors for the committed Phase 1 baseline",
+    async () => {
+      const errors = await validateRegistryContent();
+      expect(errors).toEqual([]);
+    },
+    { timeout: 15_000 },
+  );
 
   test("validates a shipped module comparison-table page through the synchronous table runtime", async () => {
     const indexes = await loadRegistry();

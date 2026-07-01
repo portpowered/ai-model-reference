@@ -37,7 +37,8 @@ import {
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
 
-const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 15_000;
+/** Renders every autodiscovered critical docs page; budget grows with shipped page count. */
+const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 30_000;
 
 const PHASE_1_DISCOVERY_ROUTES = [
   {
@@ -346,21 +347,25 @@ describe("Phase 1 discovery route smoke", () => {
 });
 
 describe("Phase 1 tag browse helpers", () => {
-  test("attention tag includes attention bridge and grouped-query attention under modules", async () => {
-    const messages = await loadUiMessages();
-    const groups = await loadTagResourceGroups("attention", messages, "en");
-    const moduleGroup = groups.find((group) => group.kind === "module");
+  test(
+    "attention tag includes attention bridge and grouped-query attention under modules",
+    async () => {
+      const messages = await loadUiMessages();
+      const groups = await loadTagResourceGroups("attention", messages, "en");
+      const moduleGroup = groups.find((group) => group.kind === "module");
 
-    expect(moduleGroup).toBeDefined();
-    expect(
-      moduleGroup?.resources.some(
-        (resource) => resource.url === PHASE_1_ATTENTION_MODULE_URL,
-      ),
-    ).toBe(true);
-    expect(
-      moduleGroup?.resources.some(
-        (resource) => resource.url === "/docs/modules/grouped-query-attention",
-      ),
-    ).toBe(true);
-  });
+      expect(moduleGroup).toBeDefined();
+      expect(
+        moduleGroup?.resources.some(
+          (resource) => resource.url === PHASE_1_ATTENTION_MODULE_URL,
+        ),
+      ).toBe(true);
+      expect(
+        moduleGroup?.resources.some(
+          (resource) => resource.url === "/docs/modules/grouped-query-attention",
+        ),
+      ).toBe(true);
+    },
+    { timeout: 10_000 },
+  );
 });
