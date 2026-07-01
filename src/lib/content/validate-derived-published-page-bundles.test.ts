@@ -13,6 +13,7 @@ import {
   validatePublishedPageRegistryAlignment,
   validatePublishedPageRouteMetadata,
 } from "./validate-derived-published-page-bundles";
+import { validateRegistryContent } from "./validate-registry";
 
 const validConceptRecord = {
   id: "concept.derived-validation-sample",
@@ -601,6 +602,214 @@ updatedAt: "2026-06-02"
       expect(validateOrdinaryPublishedPageBundle(page, entry, indexes)).toEqual(
         [],
       );
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+});
+
+type DerivedPageBundleFailureProofCase = {
+  name: string;
+  expectedCode: string;
+  messageIncludes: string[];
+  setup: (options: { docsRoot: string; registryRoot: string }) => Promise<void>;
+};
+
+const derivedPageBundleFailureProofCases: DerivedPageBundleFailureProofCase[] =
+  [
+    {
+      name: "registryId does not resolve to a registry record",
+      expectedCode: "unresolved-registry-id",
+      messageIncludes: [
+        "concept.failure-proof-missing-registry",
+        "/docs/concepts/failure-proof-missing-registry",
+      ],
+      setup: async ({ docsRoot }) => {
+        await writePublishedConceptPage({
+          docsRoot,
+          slug: "failure-proof-missing-registry",
+          registryId: "concept.failure-proof-missing-registry",
+        });
+      },
+    },
+    {
+      name: "default-locale messages are missing",
+      expectedCode: "missing-default-locale-messages",
+      messageIncludes: [
+        "/docs/concepts/failure-proof-missing-messages",
+        'docs slug "concepts/failure-proof-missing-messages"',
+      ],
+      setup: async ({ docsRoot, registryRoot }) => {
+        const slug = "failure-proof-missing-messages";
+        await mkdir(join(registryRoot, "concepts"), { recursive: true });
+        await writeFile(
+          join(registryRoot, "concepts", `${slug}.json`),
+          JSON.stringify({
+            ...validConceptRecord,
+            id: "concept.failure-proof-missing-messages",
+            slug,
+          }),
+        );
+        await writePublishedConceptPage({
+          docsRoot,
+          slug,
+          registryId: "concept.failure-proof-missing-messages",
+        });
+        await rm(join(docsRoot, "concepts", slug, "messages"), {
+          recursive: true,
+          force: true,
+        });
+      },
+    },
+    {
+      name: "a declared frontmatter tag does not resolve",
+      expectedCode: "unresolved-tag",
+      messageIncludes: [
+        'tag "failure-proof-tag"',
+        "/docs/concepts/failure-proof-missing-tag",
+      ],
+      setup: async ({ docsRoot, registryRoot }) => {
+        const slug = "failure-proof-missing-tag";
+        await mkdir(join(registryRoot, "concepts"), { recursive: true });
+        await writeFile(
+          join(registryRoot, "concepts", `${slug}.json`),
+          JSON.stringify({
+            ...validConceptRecord,
+            id: "concept.failure-proof-missing-tag",
+            slug,
+          }),
+        );
+        await writePublishedConceptPage({
+          docsRoot,
+          slug,
+          registryId: "concept.failure-proof-missing-tag",
+          tags: ["failure-proof-tag"],
+        });
+      },
+    },
+    {
+      name: "a declared citation reference does not resolve",
+      expectedCode: "unresolved-citation",
+      messageIncludes: [
+        "citation.failure-proof-missing-citation",
+        "/docs/concepts/failure-proof-missing-citation",
+      ],
+      setup: async ({ docsRoot, registryRoot }) => {
+        const slug = "failure-proof-missing-citation";
+        await mkdir(join(registryRoot, "concepts"), { recursive: true });
+        await writeFile(
+          join(registryRoot, "concepts", `${slug}.json`),
+          JSON.stringify({
+            ...validConceptRecord,
+            id: "concept.failure-proof-missing-citation",
+            slug,
+            citationIds: ["citation.failure-proof-missing-citation"],
+          }),
+        );
+        await writePublishedConceptPage({
+          docsRoot,
+          slug,
+          registryId: "concept.failure-proof-missing-citation",
+        });
+      },
+    },
+    {
+      name: "a declared local asset references a missing message key",
+      expectedCode: "missing-asset-message-key",
+      messageIncludes: [
+        'asset "hero"',
+        "assets.hero.alt",
+        "/docs/concepts/failure-proof-missing-asset-message",
+      ],
+      setup: async ({ docsRoot, registryRoot }) => {
+        const slug = "failure-proof-missing-asset-message";
+        await mkdir(join(registryRoot, "concepts"), { recursive: true });
+        await writeFile(
+          join(registryRoot, "concepts", `${slug}.json`),
+          JSON.stringify({
+            ...validConceptRecord,
+            id: "concept.failure-proof-missing-asset-message",
+            slug,
+          }),
+        );
+        await writePublishedConceptPage({
+          docsRoot,
+          slug,
+          registryId: "concept.failure-proof-missing-asset-message",
+          assets: {
+            hero: {
+              type: "image",
+              src: "/images/sample.png",
+              altKey: "assets.hero.alt",
+            },
+          },
+        });
+      },
+    },
+  ];
+
+describe("derived published-page bundle contract failure proof", () => {
+  for (const failureCase of derivedPageBundleFailureProofCases) {
+    test(`reports observable diagnostics when ${failureCase.name}`, async () => {
+      const tempRoot = join(
+        import.meta.dir,
+        "__fixtures__",
+        crypto.randomUUID(),
+      );
+      const registryRoot = join(tempRoot, "registry");
+      const docsRoot = join(tempRoot, "docs");
+
+      await failureCase.setup({ docsRoot, registryRoot });
+
+      try {
+        const errors = await validateDerivedPublishedPageBundles({
+          registryRoot,
+          docsRoot,
+        });
+
+        expect(
+          errors.some(
+            (error) =>
+              error.code === failureCase.expectedCode &&
+              failureCase.messageIncludes.every((fragment) =>
+                error.message.includes(fragment),
+              ),
+          ),
+        ).toBe(true);
+      } finally {
+        await rm(tempRoot, { recursive: true, force: true });
+      }
+    });
+  }
+
+  test("validateRegistryContent surfaces derived failures through the validate-data path", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    const docsRoot = join(tempRoot, "docs");
+
+    await writePublishedConceptPage({
+      docsRoot,
+      slug: "failure-proof-validate-data",
+      registryId: "concept.failure-proof-validate-data",
+    });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+        phase1PageDirectories: [],
+      });
+
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "unresolved-registry-id" &&
+            error.message.includes("concept.failure-proof-validate-data") &&
+            error.message.includes(
+              "/docs/concepts/failure-proof-validate-data",
+            ),
+        ),
+      ).toBe(true);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }

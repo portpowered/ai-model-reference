@@ -6,6 +6,23 @@
 - `src/lib/content/validate-derived-published-page-bundles.test.ts` — focused fixture tests for the derived contract, including failure cases.
 - `src/lib/content/validate-registry.ts` — `validateRegistryContent` calls `validateDerivedPublishedPageBundles` after registry and per-page MDX validation.
 
+## Failure proof
+
+The `derived published-page bundle contract failure proof` describe block in
+`validate-derived-published-page-bundles.test.ts` proves observable diagnostics
+for standard page-bundle relationships without scanning full site inventories:
+
+| Relationship | Error code |
+| --- | --- |
+| Unresolved `registryId` | `unresolved-registry-id` |
+| Missing default-locale messages | `missing-default-locale-messages` |
+| Unresolved frontmatter tag | `unresolved-tag` |
+| Unresolved declared citation | `unresolved-citation` |
+| Missing local asset message key | `missing-asset-message-key` |
+
+A companion test proves `validateRegistryContent` (the `make validate-data` path)
+surfaces derived failures for published pages.
+
 ## Policy (contributors and factory executors)
 
 Ordinary content-only published page bundles are covered by derived
