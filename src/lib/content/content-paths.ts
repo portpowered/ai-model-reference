@@ -454,3 +454,9 @@ export const WHY_LONG_CONTEXT_IS_HARD_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,
   "why-long-context-is-hard",
 );
+
+/** Multi-token prediction module page directory. */
+export const MULTI_TOKEN_PREDICTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "multi-token-prediction",
+);
