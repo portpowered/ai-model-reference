@@ -97,6 +97,7 @@ describe("pretraining training-regime identity contracts", () => {
     expect(record?.tags).toEqual(["foundations", "tokenization"]);
     expect(record?.relatedIds).toEqual([
       "model.gpt-3",
+      "model.llama-3",
       "concept.transformer-architecture",
       "module.byte-level-tokenization",
       "module.bpe",
@@ -105,7 +106,7 @@ describe("pretraining training-regime identity contracts", () => {
       "concept.alignment",
       "training-regime.dpo",
     ]);
-    expect(record?.usedByModelIds).toEqual(["model.gpt-3"]);
+    expect(record?.usedByModelIds).toEqual(["model.gpt-3", "model.llama-3"]);
     expect(record?.relatedModuleIds).toEqual([
       "module.byte-level-tokenization",
       "module.bpe",
@@ -309,6 +310,7 @@ describe("pretraining training-regime identity contracts", () => {
     );
     expect(document?.relatedIds).toEqual([
       "model.gpt-3",
+      "model.llama-3",
       "concept.transformer-architecture",
       "module.byte-level-tokenization",
       "module.bpe",
