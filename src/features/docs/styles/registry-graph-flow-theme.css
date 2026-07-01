@@ -207,6 +207,8 @@
   color: #7c2d12;
   font-size: 14px;
   font-weight: 700;
+  line-height: 1.15;
+  white-space: pre-line;
 }
 
 .registry-graph-flow__process-node--moe-expert,
