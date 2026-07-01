@@ -4,11 +4,11 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { ATTENTION_MODULE_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const pageDir = ATTENTION_MODULE_PAGE_DIR;
+const pageDir = getDocsPageDir("modules", "attention");
 const messagesPath = join(pageDir, "messages/en.json");
 const pageMdxPath = join(pageDir, "page.mdx");
 

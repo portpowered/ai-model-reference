@@ -11,6 +11,27 @@ the temporary legacy-id bridge.
 * `src/lib/content/registry.ts`
   Registry loading and validation, including duplicate legacy-id protection and
   ontology-first content checks.
+* `src/lib/content/registry-core.ts`
+  Independent import surface for base registry contracts (status, kind, base
+  record, tag, citation, classification, ontology relationship schemas/types).
+  Shell code that only needs shared registry concepts should import from here
+  instead of `schemas.ts`, which also owns AI-domain record extensions.
+* `src/lib/content/schemas.ts`
+  Compatibility re-export layer for existing consumers; composes AI-domain record
+  schemas on top of `registry-core` shapes.
+* `src/lib/content/schemas-compat.test.ts`
+  Behavioral proof that `schemas.ts` re-exports core contracts from
+  `registry-core` without duplicated definitions and that AI-domain registry
+  union exports remain available to existing consumers.
+* `src/lib/content/registry-ai-domain-validation.test.ts`
+  Behavioral proof that published registry fixture records still parse through
+  existing `schemas.ts` exports and that `loadRegistry` indexes representative
+  AI-domain entries unchanged after the core type split.
+* `src/lib/content/registry-loader-error-compat.test.ts`
+  Behavioral proof that `loadRegistry` still throws structured
+  `RegistryLoadError` details for ontology validation failures, malformed or
+  incorrectly parented classification records, and duplicate id/slug detection
+  after the core type split.
 * `src/lib/content/registry-runtime-generation.ts`
   Generated runtime source contract for canonical lookup, legacy-id
   canonicalization, parent-child traversal, filtered subtree generation,

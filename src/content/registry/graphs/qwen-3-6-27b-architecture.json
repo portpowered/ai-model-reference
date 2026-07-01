@@ -1,0 +1,296 @@
+{
+  "id": "graph.qwen-3-6-27b-architecture",
+  "slug": "qwen-3-6-27b-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Qwen3.6-27B architecture graph"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.qwen36-27b-blog",
+    "citation.qwen36-27b-huggingface"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "model.qwen-3-6-27b",
+  "graphType": "model-architecture",
+  "rootNodeId": "output-probabilities",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "output-probabilities",
+      "labelKey": "graph.nodes.outputProbabilities.label",
+      "summaryKey": "graph.nodes.outputProbabilities.summary",
+      "registryId": "concept.autoregressive-generation",
+      "moduleKind": "output",
+      "position": { "x": 290, "y": 0 },
+      "size": { "width": 170, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "softmax",
+      "labelKey": "graph.nodes.softmax.label",
+      "summaryKey": "graph.nodes.softmax.summary",
+      "registryId": "concept.softmax",
+      "moduleKind": "output",
+      "position": { "x": 300, "y": 92 },
+      "size": { "width": 150, "height": 44 },
+      "visualRole": "architecture-softmax",
+      "childNodeIds": []
+    },
+    {
+      "id": "linear",
+      "labelKey": "graph.nodes.linear.label",
+      "summaryKey": "graph.nodes.linear.summary",
+      "moduleKind": "projection",
+      "position": { "x": 300, "y": 164 },
+      "size": { "width": 150, "height": 44 },
+      "visualRole": "architecture-linear",
+      "childNodeIds": []
+    },
+    {
+      "id": "decoder-stack",
+      "labelKey": "graph.nodes.decoderStack.label",
+      "summaryKey": "graph.nodes.decoderStack.summary",
+      "registryId": "concept.transformer-architecture",
+      "moduleKind": "block",
+      "position": { "x": 190, "y": 246 },
+      "size": { "width": 370, "height": 410 },
+      "visualRole": "group-container",
+      "zIndex": 0,
+      "childNodeIds": []
+    },
+    {
+      "id": "attention-sublayer",
+      "labelKey": "graph.nodes.attentionSublayer.label",
+      "summaryKey": "graph.nodes.attentionSublayer.summary",
+      "moduleKind": "block",
+      "position": { "x": 222, "y": 290 },
+      "size": { "width": 305, "height": 150 },
+      "visualRole": "group-container",
+      "zIndex": 1,
+      "childNodeIds": []
+    },
+    {
+      "id": "ffn-sublayer",
+      "labelKey": "graph.nodes.ffnSublayer.label",
+      "summaryKey": "graph.nodes.ffnSublayer.summary",
+      "moduleKind": "block",
+      "position": { "x": 222, "y": 456 },
+      "size": { "width": 305, "height": 150 },
+      "visualRole": "group-container",
+      "zIndex": 1,
+      "childNodeIds": []
+    },
+    {
+      "id": "repeat-marker",
+      "labelKey": "graph.nodes.repeatMarker.label",
+      "summaryKey": "graph.nodes.repeatMarker.summary",
+      "moduleKind": "other",
+      "position": { "x": 576, "y": 402 },
+      "size": { "width": 48, "height": 120 },
+      "visualRole": "repeat-label",
+      "zIndex": 2,
+      "childNodeIds": []
+    },
+    {
+      "id": "rmsnorm-attention",
+      "labelKey": "graph.nodes.rmsnormAttention.label",
+      "summaryKey": "graph.nodes.rmsnormAttention.summary",
+      "registryId": "module.rmsnorm",
+      "moduleKind": "normalization",
+      "position": { "x": 275, "y": 308 },
+      "size": { "width": 200, "height": 44 },
+      "visualRole": "architecture-add-norm",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "decoder-attention",
+      "labelKey": "graph.nodes.decoderAttention.label",
+      "summaryKey": "graph.nodes.decoderAttention.summary",
+      "registryId": "concept.transformer-architecture",
+      "moduleKind": "attention",
+      "position": { "x": 260, "y": 366 },
+      "size": { "width": 230, "height": 82 },
+      "visualRole": "architecture-attention",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "rmsnorm-ffn",
+      "labelKey": "graph.nodes.rmsnormFfn.label",
+      "summaryKey": "graph.nodes.rmsnormFfn.summary",
+      "registryId": "module.rmsnorm",
+      "moduleKind": "normalization",
+      "position": { "x": 275, "y": 474 },
+      "size": { "width": 200, "height": 44 },
+      "visualRole": "architecture-add-norm",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "dense-ffn",
+      "labelKey": "graph.nodes.denseFfn.label",
+      "summaryKey": "graph.nodes.denseFfn.summary",
+      "registryId": "module.standard-ffn",
+      "moduleKind": "feed-forward",
+      "position": { "x": 260, "y": 532 },
+      "size": { "width": 230, "height": 82 },
+      "visualRole": "architecture-feed-forward",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "rope-inject",
+      "labelKey": "graph.nodes.ropeInject.label",
+      "summaryKey": "graph.nodes.ropeInject.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "other",
+      "position": { "x": 353, "y": 682 },
+      "size": { "width": 46, "height": 46 },
+      "visualRole": "operator-circle",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "rope",
+      "labelKey": "graph.nodes.rope.label",
+      "summaryKey": "graph.nodes.rope.summary",
+      "registryId": "module.rope",
+      "moduleKind": "embedding",
+      "position": { "x": 68, "y": 780 },
+      "size": { "width": 190, "height": 80 },
+      "visualRole": "architecture-embedding",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "input-embedding",
+      "labelKey": "graph.nodes.inputEmbedding.label",
+      "summaryKey": "graph.nodes.inputEmbedding.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "embedding",
+      "position": { "x": 273, "y": 780 },
+      "size": { "width": 205, "height": 62 },
+      "visualRole": "architecture-embedding",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "input-tokens",
+      "labelKey": "graph.nodes.inputTokens.label",
+      "summaryKey": "graph.nodes.inputTokens.summary",
+      "registryId": "concept.token",
+      "moduleKind": "input",
+      "position": { "x": 291, "y": 880 },
+      "size": { "width": 170, "height": 60 },
+      "visualRole": "architecture-io",
+      "zIndex": 3,
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "softmax-to-output-probabilities",
+      "source": "softmax",
+      "target": "output-probabilities",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "linear-to-softmax",
+      "source": "linear",
+      "target": "softmax",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "rmsnorm-ffn-to-linear",
+      "source": "rmsnorm-ffn",
+      "target": "linear",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "dense-ffn-to-rmsnorm-ffn",
+      "source": "dense-ffn",
+      "target": "rmsnorm-ffn",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "rmsnorm-attention-to-dense-ffn",
+      "source": "rmsnorm-attention",
+      "target": "dense-ffn",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "rmsnorm-attention-to-rmsnorm-ffn",
+      "source": "rmsnorm-ffn",
+      "target": "rmsnorm-attention",
+      "edgeKind": "residual",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "right"
+    },
+    {
+      "id": "decoder-attention-to-rmsnorm-attention",
+      "source": "decoder-attention",
+      "target": "rmsnorm-attention",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "rope-inject-to-decoder-attention",
+      "source": "rope-inject",
+      "target": "decoder-attention",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "rope-inject-to-rmsnorm-attention",
+      "source": "rope-inject",
+      "target": "rmsnorm-attention",
+      "edgeKind": "residual",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "input-embedding-to-rope-inject",
+      "source": "input-embedding",
+      "target": "rope-inject",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "rope-to-rope-inject",
+      "source": "rope",
+      "target": "rope-inject",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "input-tokens-to-input-embedding",
+      "source": "input-tokens",
+      "target": "input-embedding",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    }
+  ]
+}

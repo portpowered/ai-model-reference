@@ -210,6 +210,8 @@ describe("validateRegistryContent", () => {
     expect(errors).toEqual([]);
   });
 
+  // Special-case: graph/table asset registry refs are not part of the derived
+  // published-page bundle contract; keep this focused table-runtime coverage.
   test("validates a shipped module comparison-table page through the synchronous table runtime", async () => {
     const indexes = await loadRegistry();
     const { errors } = await validateColocatedPageBundle(

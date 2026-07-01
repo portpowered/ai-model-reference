@@ -7,10 +7,8 @@ import {
 import type { RegistryRecord } from "./registry";
 import { loadRegistry } from "./registry";
 import { hasPublishedDocsPageForRecord } from "./registry-linking";
-import {
-  validateColocatedPageBundle,
-  validateRegistryContent,
-} from "./validate-registry";
+import { validateDerivedPublishedPageBundles } from "./validate-derived-published-page-bundles";
+import { validateRegistryContent } from "./validate-registry";
 
 /** Attention modules expected after Phase 2/3 parallel slices land. */
 const EXPECTED_ATTENTION_MODULE_IDS = [
@@ -53,24 +51,15 @@ describe("Phase 2/3 reconciliation registry validation (US-001)", () => {
   );
 
   test(
-    "every published docs page resolves registryId, messages, and colocated assets",
+    "derived published-page bundle contract passes for every published docs page",
     async () => {
       const indexes = await loadRegistry();
       const pages = await loadPublishedDocsPages("en");
 
       expect(pages.length).toBeGreaterThan(0);
 
-      for (const page of pages) {
-        const record = indexes.byId.get(page.frontmatter.registryId);
-        expect(record).toBeDefined();
-
-        const bundle = await validateColocatedPageBundle(page.pageDir, indexes);
-        expect(bundle.errors).toEqual([]);
-
-        for (const tagRef of page.frontmatter.tags) {
-          expect(resolveTag(indexes, tagRef)).toBeDefined();
-        }
-      }
+      const errors = await validateDerivedPublishedPageBundles({ indexes });
+      expect(errors).toEqual([]);
     },
     { timeout: RECONCILIATION_REGISTRY_TIMEOUT_MS },
   );

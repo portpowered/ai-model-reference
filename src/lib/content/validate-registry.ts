@@ -53,6 +53,7 @@ import {
   loadUiMessagesFromDisk,
   UiMessagesLoadError,
 } from "./ui-messages-load";
+import { validateDerivedPublishedPageBundles } from "./validate-derived-published-page-bundles";
 import {
   validateGeneratedAssetRules,
   validateGeneratedFoldedSummary,
@@ -1447,6 +1448,13 @@ export async function validateRegistryContent(
 
   errors.push(...validateLocalizedTagMessages(indexes));
   errors.push(...validateLocalizedUiMessages(options));
+  errors.push(
+    ...(await validateDerivedPublishedPageBundles({
+      docsRoot,
+      registryRoot,
+      indexes,
+    })),
+  );
 
   return errors;
 }
