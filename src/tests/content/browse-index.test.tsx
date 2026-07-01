@@ -3,6 +3,55 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { renderBrowseIndexPage } from "@/app/(site)/site-renderers";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
+const BROWSE_QUICK_ROUTE_HREFS = [
+  "/search",
+  "/docs/glossary",
+  "/docs/architecture",
+  "/tags",
+] as const;
+
+const BROWSE_COLLECTION_SECTION_LABELS = [
+  "Models",
+  "Modules",
+  "Concepts",
+  "Papers",
+  "Training",
+  "Systems",
+  "Glossary",
+] as const;
+
+const BROWSE_REPRESENTATIVE_STARTER_HREFS = [
+  "/docs/models/gpt-3",
+  "/docs/modules/grouped-query-attention",
+  "/docs/concepts/transformer-architecture",
+  "/docs/papers/deepseek-v4",
+  "/docs/training/on-policy-distillation",
+  "/docs/systems/deployment",
+  "/docs/glossary/token",
+] as const;
+
+const BROWSE_COLLECTION_SECTION_HEADING_IDS = [
+  "models-heading",
+  "modules-heading",
+  "concepts-heading",
+  "papers-heading",
+  "training-heading",
+  "systems-heading",
+  "glossary-heading",
+] as const;
+
+function hrefPosition(html: string, href: string): number {
+  const position = html.indexOf(`href="${href}"`);
+  expect(position).toBeGreaterThanOrEqual(0);
+  return position;
+}
+
+function headingIdPosition(html: string, headingId: string): number {
+  const position = html.indexOf(`id="${headingId}"`);
+  expect(position).toBeGreaterThanOrEqual(0);
+  return position;
+}
+
 describe("browse index messages", () => {
   it("loads localized copy for the browse page", async () => {
     const messages = await loadUiMessages();
@@ -11,6 +60,70 @@ describe("browse index messages", () => {
     expect(
       messages.browseIndex.modelsSectionDescription.length,
     ).toBeGreaterThan(0);
+  });
+});
+
+describe("collection-driven browse behavior", () => {
+  it("renders quick route hrefs before collection section content", async () => {
+    const page = await renderBrowseIndexPage();
+    const html = renderToStaticMarkup(page);
+    const firstCollectionHrefPosition = hrefPosition(
+      html,
+      BROWSE_REPRESENTATIVE_STARTER_HREFS[0],
+    );
+
+    for (const href of BROWSE_QUICK_ROUTE_HREFS) {
+      expect(hrefPosition(html, href)).toBeLessThan(
+        firstCollectionHrefPosition,
+      );
+    }
+  });
+
+  it("renders collection section labels in the current browse order", async () => {
+    const page = await renderBrowseIndexPage();
+    const html = renderToStaticMarkup(page);
+
+    for (const label of BROWSE_COLLECTION_SECTION_LABELS) {
+      expect(html).toContain(label);
+    }
+
+    const headingPositions = BROWSE_COLLECTION_SECTION_HEADING_IDS.map(
+      (headingId) => headingIdPosition(html, headingId),
+    );
+
+    for (let index = 1; index < headingPositions.length; index += 1) {
+      expect(headingPositions[index]).toBeGreaterThan(
+        headingPositions[index - 1],
+      );
+    }
+  });
+
+  it("renders representative starter hrefs for each browse collection", async () => {
+    const page = await renderBrowseIndexPage();
+    const html = renderToStaticMarkup(page);
+
+    for (const href of BROWSE_REPRESENTATIVE_STARTER_HREFS) {
+      expect(html).toContain(`href="${href}"`);
+    }
+  });
+
+  it("renders localized quick routes and starter hrefs for shipped locales", async () => {
+    const page = await renderBrowseIndexPage("vi");
+    const html = renderToStaticMarkup(page);
+    const localizedStarterPosition = hrefPosition(
+      html,
+      "/vi/docs/glossary/token",
+    );
+
+    for (const href of [
+      "/vi/search",
+      "/vi/docs/glossary",
+      "/vi/tags",
+    ] as const) {
+      expect(hrefPosition(html, href)).toBeLessThan(localizedStarterPosition);
+    }
+
+    expect(html).toContain('href="/vi/docs/glossary/token"');
   });
 });
 
