@@ -32,6 +32,7 @@ describe("multi-token-prediction module registry slice (multi-token-prediction-0
         "MTP",
         "N-token prediction",
         "multiple future tokens",
+        "predict multiple future tokens",
         "Better & Faster Large Language Models via Multi-token Prediction",
       ]),
     );

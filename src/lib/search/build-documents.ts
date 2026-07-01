@@ -75,6 +75,22 @@ function getRegistryRecord(
   return indexes.byId.get(registryId);
 }
 
+function citationSearchTerms(
+  indexes: RegistryIndexes,
+  citationIds: string[],
+): string[] {
+  const terms: string[] = [];
+
+  for (const citationId of citationIds) {
+    const citation = indexes.byId.get(citationId);
+    if (citation?.kind === "citation") {
+      terms.push(citation.slug, ...citation.aliases);
+    }
+  }
+
+  return terms;
+}
+
 function tagSearchTerms(
   indexes: RegistryIndexes,
   tagSlugs: string[],
@@ -411,6 +427,10 @@ export function buildSearchDocument(
     page.frontmatter.registryId,
   );
   const registryAliases = registryRecord?.aliases ?? [];
+  const citationTerms = citationSearchTerms(
+    indexes,
+    registryRecord?.citationIds ?? [],
+  );
   const pageTags = resolvePublishedResourceTags(page, indexes);
   const tagTerms = tagSearchTerms(indexes, pageTags);
   const headings = collectMessageHeadings(page.messages);
@@ -419,6 +439,7 @@ export function buildSearchDocument(
   const directAliases = unique([
     ...(page.frontmatter.aliases ?? []),
     ...registryAliases,
+    ...citationTerms,
   ]);
   const aliases = unique([...directAliases, ...tagTerms]);
 

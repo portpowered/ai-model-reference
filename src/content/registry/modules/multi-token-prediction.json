@@ -10,6 +10,7 @@
     "MTP",
     "N-token prediction",
     "multiple future tokens",
+    "predict multiple future tokens",
     "Better & Faster Large Language Models via Multi-token Prediction"
   ],
   "tags": ["foundations"],
