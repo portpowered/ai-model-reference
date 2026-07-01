@@ -26,6 +26,17 @@ import {
 import type { ValidationError } from "./validate-registry";
 import { parseYamlFrontmatterBlock } from "./yaml-frontmatter";
 
+/**
+ * Derived published-page bundle validation replaces routine per-page tests that
+ * only re-check frontmatter, default-locale messages, registry alignment, tags,
+ * declared citations, and local assets for ordinary published docs pages.
+ *
+ * Keep per-page tests for rendering contracts, search/discovery wiring, generated
+ * graph/table asset runtime behavior, MDX template conformance, and focused
+ * regression guards. `validateRegistryContent` still runs `validatePageMdx` for
+ * those deeper checks; this module is the scanner-backed ordinary-page contract.
+ */
+
 /** Glossary pages reference concept registry records with a distinct page kind. */
 const pageKindRegistryKindAliases: Partial<
   Record<PageKind, RegistryRecord["kind"]>
