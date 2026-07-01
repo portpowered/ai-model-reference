@@ -54,6 +54,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/special-tokens",
   "/docs/glossary/temperature",
   "/docs/glossary/tensor",
+  "/docs/glossary/time-to-first-token",
   "/docs/glossary/token",
   "/docs/glossary/top-k-sampling",
   "/docs/glossary/top-p-sampling",

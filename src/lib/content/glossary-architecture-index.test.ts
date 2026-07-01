@@ -32,6 +32,7 @@ const CURRENT_GLOSSARY_SLUGS = [
   "kv-cache",
   "normalization",
   "prefill-decode-split",
+  "time-to-first-token",
   "perplexity",
   "residual-connection",
   "skip-connection",
@@ -114,6 +115,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   patch: "Patch",
   perplexity: "Perplexity",
   "prefill-decode-split": "Prefill/decode split",
+  "time-to-first-token": "Time To First Token",
   representation: "Representation",
   "residual-connection": "Residual connection",
   "sampling-overview": "Sampling Overview",
@@ -132,8 +134,8 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   "world-model": "World Model",
 };
 
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 50;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 51;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
