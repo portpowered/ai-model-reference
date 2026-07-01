@@ -10,6 +10,8 @@ import {
 } from "./conflict-hotspot-report";
 import {
   discoverQueueWorktreePrLinkageLedger,
+  isActionableLinkageGapLane,
+  isQueueOnlyControlNoiseLane,
   type QueueWorktreePrLinkageLane,
   type QueueWorktreePrLinkageLedger,
 } from "./queue-worktree-pr-linkage-ledger";
@@ -405,10 +407,17 @@ function collectActiveLaneOwnership(
   }> = [];
 
   for (const lane of activeLanes) {
-    if (lane.missingLinkageReasons.length > 0) {
+    if (
+      lane.missingLinkageReasons.length > 0 &&
+      isActionableLinkageGapLane(lane)
+    ) {
       gaps.push(
         `Lane ${lane.laneName} has linkage gaps: ${lane.missingLinkageReasons.join("; ")}`,
       );
+    }
+
+    if (isQueueOnlyControlNoiseLane(lane)) {
+      continue;
     }
 
     if (!repoRoot) {
@@ -451,9 +460,8 @@ function collectActiveLaneOwnership(
     generatedAtUtc: linkageLedger.generatedAtUtc,
     gaps,
     lanes,
-    linkedWithGapsLaneCount: activeLanes.filter(
-      (lane) => lane.linkageStatus === "linked-with-gaps",
-    ).length,
+    linkedWithGapsLaneCount: activeLanes.filter(isActionableLinkageGapLane)
+      .length,
   };
 }
 
