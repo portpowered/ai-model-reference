@@ -59,6 +59,13 @@ import { loadUiMessages } from "@/lib/content/ui-messages";
 import { buildBrowseCollectionSections } from "@/lib/docs/browse-collection-sections";
 import { toDocsIndexEntries } from "@/lib/docs/docs-index-entries";
 import {
+  type DocsCollectionInput,
+  resolveDocsCollectionIndexMessages,
+  resolveDocsCollectionInput,
+  resolveSectionKindCollectionId,
+  type SectionIndexFrontmatterKind,
+} from "@/lib/docs/section-collection-index";
+import {
   buildLocalizedRoute,
   defaultLocale,
   type LocalizedRouteDestination,
@@ -197,26 +204,21 @@ export async function renderBrowseIndexPage(
   return defaultPage;
 }
 
-export async function renderSectionKindIndexPage(
-  kind: "model" | "module" | "concept" | "paper" | "training-regime" | "system",
+export async function renderSectionCollectionIndexPage(
+  collection: DocsCollectionInput,
   locale: SiteLocale = defaultLocale,
 ) {
+  const definition = resolveDocsCollectionInput(collection);
   const messages = await loadUiMessages(locale);
+  const sectionMessages = resolveDocsCollectionIndexMessages(
+    messages,
+    definition,
+  );
   const pages = await loadShippedLocalizedDocsPages(locale);
-  const sectionMessages =
-    kind === "model"
-      ? messages.modelsIndex
-      : kind === "module"
-        ? messages.modulesIndex
-        : kind === "concept"
-          ? messages.conceptsIndex
-          : kind === "paper"
-            ? messages.papersIndex
-            : kind === "training-regime"
-              ? messages.trainingIndex
-              : messages.systemsIndex;
   const entries = toDocsIndexEntries(
-    pages.filter((page) => page.frontmatter.kind === kind),
+    pages.filter(
+      (page) => page.frontmatter.kind === definition.frontmatterKind,
+    ),
     locale,
     [],
     Number.POSITIVE_INFINITY,
@@ -243,6 +245,16 @@ export async function renderSectionKindIndexPage(
         )}
       </DocsBody>
     </DocsPage>
+  );
+}
+
+export async function renderSectionKindIndexPage(
+  kind: SectionIndexFrontmatterKind,
+  locale: SiteLocale = defaultLocale,
+) {
+  return renderSectionCollectionIndexPage(
+    resolveSectionKindCollectionId(kind),
+    locale,
   );
 }
 
