@@ -1,26 +1,40 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import {
+  CONCEPTS_DOCS_ROOT,
   CONTENT_ROOT,
   DOCS_ROOT,
   DOCS_SECTIONS,
+  GENERATED_CONTENT_RUNTIME_ROOT,
+  GENERATED_DOCS_SOURCE_ROOT,
   GLOSSARY_DOCS_ROOT,
+  getConceptsDocsRoot,
   getContentRoot,
   getDocsPageDir,
   getDocsRoot,
   getDocsSectionRoot,
+  getGeneratedContentRuntimeRoot,
+  getGeneratedDocsSourceRoot,
   getGlossaryDocsRoot,
   getMessagesRoot,
+  getModelsDocsRoot,
   getModulesDocsRoot,
+  getPapersDocsRoot,
   getProjectRoot,
   getRegistryCollectionRoot,
   getRegistryRoot,
+  getSystemsDocsRoot,
   getTagMessagesRoot,
+  getTrainingDocsRoot,
   MESSAGES_ROOT,
+  MODELS_DOCS_ROOT,
   MODULES_DOCS_ROOT,
+  PAPERS_DOCS_ROOT,
   REGISTRY_COLLECTIONS,
   REGISTRY_ROOT,
+  SYSTEMS_DOCS_ROOT,
   TAG_MESSAGES_ROOT,
+  TRAINING_DOCS_ROOT,
 } from "./content-paths";
 
 describe("content-paths", () => {
@@ -48,13 +62,35 @@ describe("content-paths", () => {
     expect(getModulesDocsRoot()).toBe(getDocsSectionRoot("modules"));
   });
 
-  test("generic docs page helper derives representative page directories", () => {
-    expect(getDocsPageDir("glossary", "token")).toBe(
-      join(GLOSSARY_DOCS_ROOT, "token"),
-    );
-    expect(getDocsPageDir("modules", "grouped-query-attention")).toBe(
-      join(MODULES_DOCS_ROOT, "grouped-query-attention"),
-    );
+  test("generic docs page helper derives representative page directories for every docs section", () => {
+    const representativePages = [
+      { section: "glossary", slug: "token", sectionRoot: GLOSSARY_DOCS_ROOT },
+      { section: "concepts", slug: "alibi", sectionRoot: CONCEPTS_DOCS_ROOT },
+      {
+        section: "modules",
+        slug: "grouped-query-attention",
+        sectionRoot: MODULES_DOCS_ROOT,
+      },
+      { section: "models", slug: "gpt-2", sectionRoot: MODELS_DOCS_ROOT },
+      {
+        section: "papers",
+        slug: "attention-is-all-you-need",
+        sectionRoot: PAPERS_DOCS_ROOT,
+      },
+      {
+        section: "training",
+        slug: "instruction-tuning",
+        sectionRoot: TRAINING_DOCS_ROOT,
+      },
+      { section: "systems", slug: "vllm", sectionRoot: SYSTEMS_DOCS_ROOT },
+    ] as const;
+
+    for (const { section, slug, sectionRoot } of representativePages) {
+      expect(getDocsPageDir(section, slug)).toBe(join(sectionRoot, slug));
+      expect(getDocsPageDir(section, slug)).toBe(
+        join(DOCS_ROOT, section, slug),
+      );
+    }
   });
 
   test("generic docs page helper preserves section-plus-slug invariants for custom roots", () => {
@@ -106,12 +142,21 @@ describe("content-paths", () => {
   });
 
   test("exported production roots match helper-derived paths", () => {
+    expect(CONTENT_ROOT.endsWith("src/content")).toBe(true);
     expect(DOCS_ROOT).toBe(getDocsRoot());
     expect(GLOSSARY_DOCS_ROOT).toBe(getGlossaryDocsRoot());
+    expect(CONCEPTS_DOCS_ROOT).toBe(getConceptsDocsRoot());
     expect(MODULES_DOCS_ROOT).toBe(getModulesDocsRoot());
+    expect(MODELS_DOCS_ROOT).toBe(getModelsDocsRoot());
+    expect(PAPERS_DOCS_ROOT).toBe(getPapersDocsRoot());
+    expect(TRAINING_DOCS_ROOT).toBe(getTrainingDocsRoot());
+    expect(SYSTEMS_DOCS_ROOT).toBe(getSystemsDocsRoot());
     expect(REGISTRY_ROOT).toBe(getRegistryRoot());
+    expect(GENERATED_CONTENT_RUNTIME_ROOT).toBe(
+      getGeneratedContentRuntimeRoot(),
+    );
+    expect(GENERATED_DOCS_SOURCE_ROOT).toBe(getGeneratedDocsSourceRoot());
     expect(MESSAGES_ROOT).toBe(getMessagesRoot());
     expect(TAG_MESSAGES_ROOT).toBe(getTagMessagesRoot());
-    expect(CONTENT_ROOT.endsWith("src/content")).toBe(true);
   });
 });
