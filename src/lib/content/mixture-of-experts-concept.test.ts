@@ -27,9 +27,15 @@ describe("Mixture of experts concept page", () => {
     expect(page.messages.sections?.whatItIs.body?.toLowerCase()).toContain(
       "feed-forward slot",
     );
-    expect(page.messages.sections?.tradeoffs.body?.toLowerCase()).toContain(
-      "load-balancing",
+    expect(
+      page.messages.sections?.routingComplexity.body?.toLowerCase(),
+    ).toContain("which experts handle each token");
+    expect(page.messages.sections?.loadBalancing.body?.toLowerCase()).toContain(
+      "popular experts",
     );
+    expect(
+      page.messages.sections?.servingBehavior.body?.toLowerCase(),
+    ).toContain("batching");
     expect(page.assets).toEqual({});
 
     const html = renderToStaticMarkup(
@@ -44,7 +50,9 @@ describe("Mixture of experts concept page", () => {
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
     expect(html).toContain("How Sparse Routing Changes Scaling");
-    expect(html).toContain("Tradeoffs");
+    expect(html).toContain("Routing Complexity");
+    expect(html).toContain("Load Balancing");
+    expect(html).toContain("Serving Behavior");
     expect(html).toContain("top-k");
     expect(html).toContain('href="/docs/modules/feed-forward-network"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');

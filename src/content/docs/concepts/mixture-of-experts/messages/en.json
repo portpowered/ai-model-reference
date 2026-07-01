@@ -19,9 +19,17 @@
       "title": "Where You See It",
       "body": "The neighboring pages below move from the parent feed-forward concept into the dense baseline, then into the module-level MoE implementation and a concrete shipped family. Start with the feed-forward overview if you want the slot inside the transformer block, the standard FFN page for the dense baseline, the module page for routing mechanics, DeepSeekMoE for one named variant, and DeepSeek V4 Pro for a representative deployed model that uses expert routing."
     },
-    "tradeoffs": {
-      "title": "Tradeoffs",
-      "body": "Mixture of experts adds real complexity. The router must make stable choices, training must keep experts from collapsing into a few overused specialists, and serving systems must move token activations to the right experts fast enough to preserve the compute win. Load-balancing losses, capacity limits, expert parallelism, and cross-device communication all become part of the design. MoE therefore improves scaling efficiency, but it does not make the system simpler."
+    "routingComplexity": {
+      "title": "Routing Complexity",
+      "body": "The router decides which experts handle each token, and those choices shape training. Tokens routed to the same expert share updates, so an expert that keeps seeing similar inputs can specialize there while others receive little useful signal. That coupling means routing is not just an inference shortcut: unstable or overly concentrated routing can leave parts of the expert pool under-trained even though the model still advertises a large parameter count."
+    },
+    "loadBalancing": {
+      "title": "Load Balancing",
+      "body": "If the router keeps sending most tokens to a small set of popular experts, those specialists become overloaded while the rest of the pool sits idle. Training recipes often add load-balancing pressure so traffic spreads more evenly, but the basic risk remains: sparse routing saves compute only when work is actually distributed across experts rather than collapsing onto a few favorites."
+    },
+    "servingBehavior": {
+      "title": "Serving Behavior",
+      "body": "At serving time, each token may need a different subset of experts, which complicates batching and tail latency compared with a dense layer where every token follows the same path. Systems must place expert weights across devices, move activations to the right locations, and keep memory footprints predictable as batch composition changes. Those placement and communication costs can eat into the compute win unless the serving stack is designed around sparse routing from the start."
     },
     "related": {
       "title": "Related Concepts And Modules"
