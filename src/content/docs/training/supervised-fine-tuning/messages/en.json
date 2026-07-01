@@ -13,7 +13,7 @@
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "Training starts from a pretrained or otherwise capable checkpoint. The dataset supplies labeled pairs, and each update asks the model to assign higher probability to the provided target output given the input. The loop repeats across many examples until the model reliably reproduces the demonstrated behavior on similar inputs."
+      "body": "Training starts from a pretrained or otherwise capable checkpoint. The dataset supplies labeled input-output pairs: a prompt with a desired answer, a task input with its label, or a domain example with a target response. For each pair, the optimizer pushes the model to make that target output more likely when the input is shown. In plain terms, the model is taught to imitate the demonstrated answer rather than invent a different one. The loop repeats across many examples until similar inputs reliably draw the demonstrated behavior."
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
@@ -32,6 +32,10 @@
     "references": {
       "title": "References"
     }
+  },
+  "links": {
+    "updateMechanisms": "Teams can apply those updates in two broad ways. Full-model fine-tuning changes all or most of the base weights, so every layer can shift toward the new behavior. Adapter-like training keeps the original checkpoint mostly frozen and learns smaller attached update paths or limited parameter subsets instead. This page does not prescribe one adapter method; it only notes that many lighter update routes share the same supervised imitation pattern.",
+    "adaptationTargets": "The same supervised pattern can reshape style, task behavior, domain language, or instruction following depending on which examples dominate the dataset. A customer-support tone dataset steers phrasing, a structured extraction dataset steers task format, a legal corpus steers domain vocabulary, and an instruction demonstration set steers how the model follows prompts."
   },
   "assets": {
     "trainingFlow": {
