@@ -46,6 +46,7 @@ const MODULE_SIDEBAR_BACKFILLS = [
 ] as const;
 
 const TRAINING_SIDEBAR_OVERRIDES = [
+  ["training-regime.distillation", "distillation"],
   ["training-regime.on-policy-distillation", "distillation"],
   ["training-regime.specialist-training", "post-training"],
   ["training-regime.fp4-quantization-aware-training", "optimization"],

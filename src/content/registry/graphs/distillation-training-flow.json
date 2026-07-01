@@ -1,0 +1,87 @@
+{
+  "id": "graph.distillation-training-flow",
+  "slug": "distillation-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "distillation training flow",
+    "teacher-student distillation flow"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.on-policy-distillation-of-language-models"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "training-regime.distillation",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "teacher",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "teacher",
+      "labelKey": "graph.nodes.teacher.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["traces"]
+    },
+    {
+      "id": "traces",
+      "labelKey": "graph.nodes.traces.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 112 },
+      "size": { "width": 240, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["update"]
+    },
+    {
+      "id": "update",
+      "labelKey": "graph.nodes.update.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 244 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["deployment"]
+    },
+    {
+      "id": "deployment",
+      "labelKey": "graph.nodes.deployment.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 376 },
+      "size": { "width": 220, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "teacher-traces",
+      "source": "teacher",
+      "target": "traces",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "traces-update",
+      "source": "traces",
+      "target": "update",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "update-deployment",
+      "source": "update",
+      "target": "deployment",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}
