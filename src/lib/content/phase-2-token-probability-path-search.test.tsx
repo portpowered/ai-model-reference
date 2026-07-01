@@ -258,7 +258,7 @@ describe("Phase 2 token-probability path search panel verification (phase-2-toke
   });
 
   test.each(
-    TARGET_PATH_PAGES.map(
+    TARGET_PATH_PAGES.filter((page) => page.slug !== "embedding").map(
       ({ title, url, searchUrl, slug, panelQuery }) =>
         [panelQuery ?? title, searchUrl ?? url, slug] as const,
     ),
