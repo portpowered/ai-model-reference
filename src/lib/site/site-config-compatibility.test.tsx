@@ -94,7 +94,11 @@ describe("site config home featured link compatibility", () => {
         locale,
       );
       const html = renderToStaticMarkup(
-        <HomeArticle messages={messages} locale={locale} />,
+        <HomeArticle
+          messages={messages}
+          siteConfig={modelAtlasSiteConfig}
+          locale={locale}
+        />,
       );
       const consumerHrefs = extractHrefAttributes(html).filter((href) =>
         configHrefs.includes(href),
