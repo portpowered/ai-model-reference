@@ -17,7 +17,7 @@
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
-      "body": "Distillation is broader than any one variant. Some routines use fixed offline teacher outputs, while others refresh supervision from behavior produced under the current student policy."
+      "body": "Distillation is broader than any one variant. Offline distillation trains the student on a fixed or precomputed teacher data source: teacher outputs are collected once and replayed while the student learns. On-policy distillation refreshes supervision from behavior produced under the current student policy, so each update can use trajectories aligned with what the student would actually visit at inference time."
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
