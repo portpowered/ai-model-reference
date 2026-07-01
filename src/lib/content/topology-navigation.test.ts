@@ -141,8 +141,8 @@ describe("topology navigation model", () => {
         "Cơ chế attention",
         "Mạng feed-forward",
         "Lớp chuẩn hóa",
-        "Phương pháp mã hóa vị trí",
-        "Phương pháp token hóa",
+        "Positional Embeddings",
+        "Tokenizers",
         "Cấu trúc khối transformer",
       ]),
     );
@@ -161,8 +161,8 @@ describe("topology navigation model", () => {
         "Attention 機構",
         "フィードフォワードネットワーク",
         "正規化層",
-        "位置エンコーディング方式",
-        "トークン化方式",
+        "Positional Embeddings",
+        "Tokenizers",
         "Transformer ブロック構造",
       ]),
     );
