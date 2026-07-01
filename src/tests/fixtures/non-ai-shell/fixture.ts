@@ -1,3 +1,4 @@
+import type { Root } from "fumadocs-core/page-tree";
 import {
   collectMessageBodyText,
   collectMessageHeadings,
@@ -6,6 +7,7 @@ import type { RegistryIndexes } from "@/lib/content/registry";
 import type { PageMessages } from "@/lib/content/schemas";
 import type { ShellCollectionDefinition } from "@/lib/docs/collection-definition-contract";
 import { resolveUiMessagePath } from "@/lib/docs/section-collection-index";
+import { buildShellCollectionPageTree } from "@/lib/navigation/shell-collection-page-tree";
 
 /** Test-only URL prefix; fixture pages are not published customer routes. */
 export const NON_AI_SHELL_FIXTURE_URL_PREFIX = "/fixture/docs";
@@ -317,4 +319,18 @@ export function nonAiShellFixtureSearchableText(
     headings: collectMessageHeadings(page.messages),
     bodyText: collectMessageBodyText(page.messages),
   };
+}
+
+export function buildNonAiShellFixturePageTree(): Root {
+  return buildShellCollectionPageTree(
+    {
+      name: "Fixture docs",
+      children: [],
+    },
+    {
+      pages: listNonAiShellFixturePages(),
+      definitions: listNonAiShellFixtureCollectionDefinitions(),
+      collectionIds: NON_AI_SHELL_FIXTURE_BROWSE_COLLECTION_IDS,
+    },
+  );
 }
