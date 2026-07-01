@@ -1,0 +1,54 @@
+{
+  "title": "BERT Paper",
+  "description": "The paper that introduced deep bidirectional transformer encoders trained with masked language modeling and fine-tuned for language understanding tasks.",
+  "openingSummary": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding became a reference point because it showed how a deep bidirectional encoder could learn general language representations from unlabeled text and then adapt to many downstream tasks through fine-tuning.",
+  "sections": {
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Before this paper, many language models read text in one direction and were strongest at generation-style tasks. BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding helped establish the encoder-only path: pretrain a bidirectional transformer on broad text, then fine-tune the same stack for classification, question answering, and other understanding tasks. That split between pretraining and task adaptation became a common template for later encoder models."
+    },
+    "methodOrArchitecture": {
+      "title": "Method Or Architecture",
+      "body": "At a high level, the paper keeps the familiar transformer in an encoder-only form. WordPiece tokenization turns raw text into subword units, embeddings carry token and position information, and stacked encoder blocks apply bidirectional attention with GELU feed-forward layers. Pretraining uses masked language modeling to predict hidden tokens from both left and right context, together with a next-sentence objective that teaches whether one sentence follows another. The result is a reusable encoder representation rather than a left-to-right generator."
+    },
+    "evidence": {
+      "title": "Evidence",
+      "body": "The paper's central evidence is that one pretrained bidirectional encoder can transfer across sentence-pair classification, single-sentence tagging, question answering, and related understanding tasks after relatively small task-specific fine-tuning. That pattern helped make encoder pretraining plus fine-tuning a standard recipe for language understanding work rather than training a separate model from scratch for every task."
+    },
+    "limitations": {
+      "title": "Limitations",
+      "body": "The paper focuses on understanding-style fine-tuning rather than open-ended text generation, and several design choices such as the next-sentence objective were later refined or replaced in successor models. It also predates many later advances in scaling laws, instruction tuning, and long-context training, so readers should treat it as a foundational encoder-only reference point rather than the final word on modern language-model design."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "contributionGraph": {
+      "alt": "A contribution graph that breaks the BERT paper into bidirectional encoder blocks, masked language model pretraining, and WordPiece tokenization.",
+      "caption": "The BERT paper is easiest to understand as three linked choices: bidirectional encoder blocks, masked language model pretraining, and WordPiece tokenization for the input text."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "paper": {
+        "label": "BERT paper"
+      },
+      "encoder": {
+        "label": "Bidirectional encoder blocks"
+      },
+      "pretraining": {
+        "label": "Masked language model pretraining"
+      },
+      "tokenization": {
+        "label": "WordPiece tokenization"
+      }
+    }
+  }
+}

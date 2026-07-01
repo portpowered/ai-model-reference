@@ -1,0 +1,86 @@
+{
+  "id": "graph.bert-pre-training-contribution",
+  "slug": "bert-pre-training-contribution",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["BERT paper contribution graph"],
+  "tags": ["foundations", "model-family", "attention", "tokenization"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.bert-pre-training-of-deep-bidirectional-transformers"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "paper.bert-pre-training-of-deep-bidirectional-transformers",
+  "graphType": "paper-contribution",
+  "rootNodeId": "paper",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "paper",
+      "labelKey": "graph.nodes.paper.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 220, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["encoder", "pretraining", "tokenization"]
+    },
+    {
+      "id": "encoder",
+      "labelKey": "graph.nodes.encoder.label",
+      "moduleKind": "block",
+      "position": { "x": 20, "y": 150 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "pretraining",
+      "labelKey": "graph.nodes.pretraining.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 150 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "tokenization",
+      "labelKey": "graph.nodes.tokenization.label",
+      "moduleKind": "block",
+      "position": { "x": 480, "y": 150 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "paper-encoder",
+      "source": "paper",
+      "target": "encoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-pretraining",
+      "source": "paper",
+      "target": "pretraining",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-tokenization",
+      "source": "paper",
+      "target": "tokenization",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}
