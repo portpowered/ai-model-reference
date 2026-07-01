@@ -1,0 +1,40 @@
+{
+  "title": "Llama 3",
+  "description": "Meta's open-weight Llama-family decoder-only transformer release, spanning dense and instruction-tuned checkpoints with long-context support.",
+  "openingSummary": "Llama 3 is a Meta Llama-family, text-focused, decoder-only transformer model family. It reads text tokens and generates text tokens through autoregressive next-token prediction, and the release made open-weight checkpoints at large scale and long context a mainstream reference point.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Llama 3 is Meta's open-weight language model family built around a decoder-only transformer stack. The release spans multiple dense sizes and instruction-tuned variants, with the largest public checkpoint reaching 405 billion parameters and supporting context windows up to 128K tokens."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Llama 3 reads text tokens and produces text tokens. A prompt can be plain text, a chat transcript, or a long document, and the model continues from that context one token at a time through autoregressive generation. Instruction-tuned variants use the same token interface for assistant-style replies, while long-context checkpoints keep earlier tokens available across much longer prompts."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "At a high level, Llama 3 follows the familiar decoder-only transformer pattern: token embeddings enter a repeated stack of causal attention and feed-forward blocks, then a linear head produces next-token probabilities. Meta's public description emphasizes grouped-query attention, rotary position embeddings, RMSNorm, and a SwiGLU feed-forward block inside that stack."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "These registry-linked modules are the main moving parts to understand before reading later Llama-family releases. Grouped-query attention and causal attention carry context efficiently, RoPE marks token positions, RMSNorm stabilizes the repeated stack, and SwiGLU handles the per-token feed-forward transformation."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Meta sources describe broad text pretraining followed by post-training work that turns base checkpoints into instruction-following assistants. The pretraining stage learns next-token prediction over large text mixtures, and later alignment and instruction tuning shape how the same stack responds in chat and tool-use settings."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "This page is an explainer and reference sheet for how Llama 3 works, not a benchmark leaderboard or model-ranking page. Use it to understand the family architecture, training story, and long-context significance; use dedicated benchmark sites when you need score comparisons across models."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
