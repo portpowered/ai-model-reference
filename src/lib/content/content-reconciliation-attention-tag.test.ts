@@ -95,6 +95,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
       "/docs/models/glm-5-2",
       "/docs/models/gpt-3",
       "/docs/models/llama-3",
+      "/docs/models/qwen3-0-6b",
       "/docs/models/qwen-3-6-27b",
       "/docs/models/qwen-3-6-35b-a3b",
     ]);
