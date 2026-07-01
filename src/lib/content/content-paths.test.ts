@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   CONCEPTS_DOCS_ROOT,
@@ -36,6 +37,10 @@ import {
   TAG_MESSAGES_ROOT,
   TRAINING_DOCS_ROOT,
 } from "./content-paths";
+import {
+  findNewOrdinaryPageDirExports,
+  formatNewPageDirExportViolation,
+} from "./content-paths-page-dir-guard";
 
 describe("content-paths", () => {
   test("roots resolve under src/content from the project directory", () => {
@@ -158,5 +163,32 @@ describe("content-paths", () => {
     expect(GENERATED_DOCS_SOURCE_ROOT).toBe(getGeneratedDocsSourceRoot());
     expect(MESSAGES_ROOT).toBe(getMessagesRoot());
     expect(TAG_MESSAGES_ROOT).toBe(getTagMessagesRoot());
+  });
+
+  test("content-paths.ts does not add new ordinary page directory constants", () => {
+    const source = readFileSync(
+      join(import.meta.dir, "content-paths.ts"),
+      "utf8",
+    );
+    const newExports = findNewOrdinaryPageDirExports(source);
+
+    if (newExports.length > 0) {
+      throw new Error(formatNewPageDirExportViolation(newExports));
+    }
+  });
+
+  test("page directory guard explains derived lookup replacement on violations", () => {
+    const sampleSource = [
+      'export const GPT_2_MODEL_PAGE_DIR = join(MODELS_DOCS_ROOT, "gpt-2");',
+    ].join("\n");
+    const newExports = findNewOrdinaryPageDirExports(sampleSource);
+    const message = formatNewPageDirExportViolation(newExports);
+
+    expect(newExports).toEqual(["GPT_2_MODEL_PAGE_DIR"]);
+    expect(message).toContain("getDocsPageDir");
+    expect(message).toContain('getDocsPageDir("modules", "my-page-slug")');
+    expect(message).toContain("section and slug");
+    expect(message).toContain("getDocsRoot");
+    expect(message).toContain("getDocsSectionRoot");
   });
 });
