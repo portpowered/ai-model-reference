@@ -1,4 +1,10 @@
 ## Codebase Patterns
+- Factory batch examples live at `factory/docs/batch-input-example.json` using canonical `FACTORY_REQUEST_BATCH` shape with top-level `requestId`, `type`, and `works[]`; use `workTypeName` (not `workType`) and camelCase relation fields `sourceWorkName` / `targetWorkName`.
+- CI dry-run proof for the checked-in batch example lives in `src/tests/ci/factory-batch-input-example.test.ts`; run `bun test src/tests/ci/factory-batch-input-example.test.ts` or `you submit batch --dry-run factory/docs/batch-input-example.json` before copying planner batches.
+- Collection-driven sidebar verification lives in `src/lib/navigation/docs-sidebar-collection-verification.test.ts`; assert reviewer-facing behavior through `buildGeneratedDocsPageTree()` output and `docs-sidebar-contract.ts` representative URLs rather than source-file scans.
+- Docs sidebar folder generation iterates `listDocsCollectionDefinitions()` from `src/lib/docs/docs-collection-definitions.ts`; assign published pages to folders by matching the first `docsSlug` segment to each definition's `routeSlug`.
+- Grouped sidebar collections delegate to `buildGroupedSidebarNodes()` in `src/lib/navigation/docs-sidebar-grouping-adapter.ts`, which owns AI registry lookup and sidebar grouping resolver dispatch; the generic builder in `generated-docs-page-tree.ts` only handles ungrouped title sorting.
+- When asserting grouped sidebar pages for the final separator in a section, filter nodes by the expected group's page URLs because trailing pages without a resolved group follow grouped content without their own separator.
 - New registry records under `src/content/registry/` are picked up by `bun run prepare:content-runtime`, which regenerates `src/lib/content/generated/registry-runtime.generated.ts` before typecheck, lint, and tests run.
 - Model registry records use typed relationship fields (`architectureIds`, `moduleIds`, `trainingRegimeIds`, `relatedIds`) plus backing `citation`, `paper`, and `organization` records; update reciprocal `usedByModelIds` / `relatedIds` on linked training regimes when adding model consumers.
 - For post-training discovery when no generic `training-regime.post-training` record exists, link models to `concept.alignment` in `relatedIds` and keep `training-regime.pretraining` in `trainingRegimeIds`.
@@ -17,6 +23,66 @@
 - Add the `attention` tag to model records when connecting them to the attention tag landing; MoE models can also use `feed-forward` for MoE module discovery.
 - Critical docs autodiscovery render smoke walks every metadata-discovered page (currently 36+); keep `CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS` at or above 45s when the attention or token-to-probability smoke sets grow.
 - When merging `main` into a model-page branch, attention tag landing inventory tests may need both new models (e.g. llama-3 and Qwen 3.6) in the expected model-group list.
+- New serving system registry records follow the memory/batching pattern: `systemType: "serving"`, `conceptType: "inference"`, `variantGroup: "serving-runtime-foundations"`, Orca citation for release metadata, and focused tests in `src/lib/content/*-system-registry.test.ts` using `getSystemById`, `resolveCitations` from `@/lib/content/citations`, and `deriveCuratedRelatedItems`.
+- There is no `system.dynamic-batching` registry record; link `system.continuous-batching` when the PRD mentions dynamic batching.
+- Canonical system pages must include `SystemFlowGraph` in the `how-it-works` section per `validate-data`; ship `graph.<slug>-system-flow.json`, page `assets.json`, and graph node labels in `messages/en.json` even when a richer teaching asset arrives in a later story.
+- Expand serving system page teaching copy in `messages/en.json` following the memory page pattern: isolation-first opening, admission boundary in `whereItSits`, mechanism coverage in `howItWorks`, and observable latency/fairness/throughput/memory consequences in `practicalImpact`.
+- When a system page adds `sections.related.body` intro copy, wire `<T k="sections.related.body" />` before `<RelatedDocs>` in `page.mdx` (memory/inference-engine pattern) so the prose renders in the related section.
+
+## 2026-07-02T00:20:00Z - request-scheduling-system-page-004
+- Expanded request scheduling copy to distinguish routing (where), scheduling (what runs next), and batching (grouping compatible work), with concrete prefill/decode coordination and batching/memory-pressure interaction examples in `practicalImpact`.
+- Added related-section intro prose and wired `sections.related.body` in `page.mdx`; extended focused message and render contract tests for the comparison content.
+- Verified production build and browser-visible rendering on port 3473.
+- Files changed:
+  - `src/content/docs/systems/request-scheduling/messages/en.json`
+  - `src/content/docs/systems/request-scheduling/page.mdx`
+  - `src/lib/content/request-scheduling-system-page.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: story-004-style routing/batching distinctions fit in `whatItIs`/`whereItSits`/`practicalImpact` without a new section; mirror memory page related intro with `<T k="sections.related.body" />` before `RelatedDocs`.
+  - Gotchas encountered: prose auto-linking splits "Prefill and decode coordination"; assert on "coordination is one example" in render tests instead.
+  - Useful context: focused checks run with `bun test src/lib/content/request-scheduling-system-page.test.ts`, `bun run typecheck`, `bun run lint`, `bun run validate-data`, and `bun run build` + `curl --max-time 10 http://127.0.0.1:<port>/docs/systems/request-scheduling` (all passed UTC 2026-07-02T00:20:00Z).
+---
+
+## 2026-07-01T23:55:00Z - request-scheduling-system-page-003
+- Expanded request scheduling page copy to define scheduling in isolation, cover queue order, prefill/decode work, fairness, deadlines, batching opportunities, memory limits, cancellation, and admission-control boundaries, and state observable latency, fairness, throughput, and memory-pressure consequences.
+- Added focused message and render contract tests asserting the new teaching topics appear in bundled messages and rendered HTML.
+- Verified production build and browser-visible rendering on port 3472.
+- Files changed:
+  - `src/content/docs/systems/request-scheduling/messages/en.json`
+  - `src/lib/content/request-scheduling-system-page.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: follow the memory system page pattern for story-003-style mechanism/tradeoff expansion—keep comparisons light in opening sections and defer routing-vs-batching distinctions to the next story.
+  - Gotchas encountered: prose auto-linking may split phrases; assert on stable substrings like "Fairness policies" rather than linked anchor text.
+  - Useful context: focused checks run with `bun test src/lib/content/request-scheduling-system-page.test.ts`, `bun run typecheck`, `bun run lint`, `bun run validate-data`, and `bun run build` + `curl --max-time 10 http://127.0.0.1:<port>/docs/systems/request-scheduling` (all passed UTC 2026-07-01T23:55:00Z).
+---
+
+## 2026-07-01T23:30:00Z - request-scheduling-system-page-002
+- Published canonical request scheduling system page at `/docs/systems/request-scheduling` with standard system-page MDX, English messages, system-flow graph asset, and focused page contract tests.
+- Added `graph.request-scheduling-system-flow` registry graph (queue → schedule → run → continue) required by system-page template validation.
+- Verified production build and browser-visible rendering on port 3471.
+- Files changed:
+  - `src/content/docs/systems/request-scheduling/page.mdx`
+  - `src/content/docs/systems/request-scheduling/messages/en.json`
+  - `src/content/docs/systems/request-scheduling/assets.json`
+  - `src/content/registry/graphs/request-scheduling-system-flow.json`
+  - `src/lib/content/request-scheduling-system-page.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: `validate-data` enforces `docs/templates/system.mdx` structure including `SystemFlowGraph` in `how-it-works`; deferring the graph to a later story still requires a minimal system-flow graph at page-bundle time.
+  - Gotchas encountered: narrow `assets.systemFlow.graphId` with `if (assets.systemFlow.type === "graph")` in tests to satisfy TypeScript discriminated unions.
+  - Useful context: focused checks run with `bun test src/lib/content/request-scheduling-system-page.test.ts`, `bun run typecheck`, `bun run lint`, `bun run validate-data`, and `bun run build` + `curl --max-time 10 http://127.0.0.1:<port>/docs/systems/request-scheduling` (all passed UTC 2026-07-01T23:30:00Z).
+---
+
+## 2026-07-01T22:00:00Z - request-scheduling-system-page-001
+- Added `system.request-scheduling` registry record with slug `request-scheduling`, published status, discovery aliases (scheduler, request scheduling, queueing, admission control, fairness, latency, throughput), foundations tag, Orca citation, and relationships to prefill/decode concepts plus batching, continuous batching, routing, memory, deployment, and inference-engine systems.
+- Added focused registry contract test proving identity fields, citation resolution, and curated related-doc hrefs for published neighbors.
+- Files changed:
+  - `src/content/registry/systems/request-scheduling.json`
+  - `src/lib/content/request-scheduling-system-registry.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: reuse `citation.orca-serving-system` and `serving-runtime-foundations` variant group for new serving-control concepts; import `resolveCitations` from `@/lib/content/citations`, not `registry-runtime`.
+  - Gotchas encountered: no `system.dynamic-batching` record exists—use `system.continuous-batching` for dynamic/continuous batching adjacency.
+  - Useful context: focused checks run with `bun test src/lib/content/request-scheduling-system-registry.test.ts`, `bun run typecheck`, `bun run lint`, and `bun run validate-data` (all passed UTC 2026-07-01T22:00:00Z).
+---
 
 ## 2026-07-01T00:00:00Z - llama-3-model-page-001
 - Established `model.llama-3` with Llama-family metadata, open-weights source type, 405B / 128K fields, and relationships to transformer architecture, autoregressive generation, attention, RoPE, context-window, pretraining, and alignment (post-training) records.
@@ -47,6 +113,55 @@
   - Training regime links render at `/docs/training/pretraining`, not `/docs/training-regimes/pretraining`.
   - Prose auto-linking splits phrases like `Rotary position embeddings`; assert on substrings or href targets instead of contiguous text.
   - `ModelTrainingSummary` lists `trainingRegimeIds` and `paperIds` only; post-training discovery for models without a generic post-training regime still flows through `relatedIds` (e.g. `concept.alignment`) in derived related docs.
+---
+
+## 2026-07-01T14:30:00Z - generic-sidebar-collection-builder-001
+- Refactored `buildGeneratedDocsPageTree` to iterate `listDocsCollectionDefinitions()` instead of hardcoded `SECTION_ORDER`, assigning published pages to folders by each definition's `routeSlug`.
+- Preserved existing per-collection node generation (grouping logic unchanged for this story) and English sidebar folder titles via `SIDEBAR_FOLDER_TITLES` keyed by `DocsCollectionId`.
+- Added focused tests asserting collection-driven folder order and one-to-one page assignment across all configured collections.
+- **Learnings for future iterations:**
+  - Story 001 only drives folder iteration and page bucketing; AI registry imports and grouping resolvers remain in the generic builder until story 002 introduces the adapter.
+  - `collectSidebarPageLinks` from `docs-sidebar-contract.ts` is the preferred helper for asserting sidebar page coverage without scraping HTML.
+  - Folder display names are still a local English map; browse `messageKeys.browse.sectionTitle` could replace it later if sidebar localization is needed.
+---
+
+## 2026-07-01T15:40:00Z - generic-sidebar-collection-builder-002
+- Added `docs-sidebar-grouping-adapter.ts` with `buildGroupedSidebarNodes()` owning AI registry lookup (`getConceptById`, `getModuleById`, `getTrainingRegimeById`, `getSystemById`) and sidebar grouping resolver dispatch for glossary, concepts, modules, training, and systems.
+- Refactored `generated-docs-page-tree.ts` to route grouped collections through the adapter via each definition's `sidebarGroupingResolverId`; ungrouped collections (models, papers) remain title-sorted in the generic builder.
+- Added adapter tests for configured resolver ids and explicit rejection of unsupported resolver ids.
+- **Learnings for future iterations:**
+  - Keep generic node construction (`createPageNode`, `sortPages`) in the generic builder; move registry-backed grouping and separator assembly into the adapter.
+  - `assertSupportedSidebarGroupingResolverId()` provides a runtime guard when resolver ids cross string boundaries; typed `DocsCollectionSidebarGroupingResolverId` covers the happy path at compile time.
+  - Existing `generated-docs-page-tree.test.ts` behavioral assertions remain valid without changes because sidebar output is unchanged.
+---
+
+## 2026-07-01T16:55:00Z - generic-sidebar-collection-builder-003
+- Added focused page-tree tests asserting models and papers (collections without `sidebarGroupingResolverId`) render title-sorted page nodes with no separator entries.
+- Added `GPT_3_MODEL_URL` and `DEEPSEEK_V4_PAPER_URL` constants to `docs-sidebar-contract.ts` and asserted representative ungrouped link names/URLs through `collectSidebarPageLinks`.
+- Verified existing `generateUngroupedNodes()` behavior already satisfies story acceptance criteria; no production code changes required.
+- **Learnings for future iterations:**
+  - Use `getPageNodeEntries()` plus `sortPagesByTitle()` against `loadPublishedDocsPagesSync("en")` to assert ungrouped sidebar ordering without hardcoding every page URL.
+  - Ungrouped collection verification belongs in `generated-docs-page-tree.test.ts`; `source.test.ts` still checks URL presence but not title order or separator absence.
+---
+
+## 2026-07-01T17:35:00Z - generic-sidebar-collection-builder-004
+- Added page-tree tests asserting grouped separator labels and page contiguity (existing), per-group title sorting by localized page name, and trailing placement of pages without a resolved group after all grouped content.
+- Verified grouped collection behavior already satisfied story acceptance criteria through the adapter's `groupPages()` implementation; no production code changes required.
+- Files changed: `src/lib/navigation/generated-docs-page-tree.test.ts`
+- **Learnings for future iterations:**
+  - Concepts, modules, and systems currently have published pages without a resolved sidebar group; they render in a title-sorted tail after the last grouped separator.
+  - For the final group in a grouped folder, slice assertions must filter by `group.pageUrls` or stop before trailing ungrouped pages because `findNextSeparatorIndex` returns `-1`.
+  - Reuse `collectUngroupedPages()` with each `GROUPED_SECTIONS` resolver to assert tail placement without hardcoding every fallback page slug.
+---
+
+## 2026-07-01T18:20:00Z - generic-sidebar-collection-builder-005
+- Added `docs-sidebar-collection-verification.test.ts` with reviewer-facing assertions on `buildGeneratedDocsPageTree()` output: configured folder order, parity with `source.pageTree`, representative grouped page placement after expected separators, and ungrouped model/paper links without separators.
+- Verified existing sidebar, adapter, built-HTML, and source navigation tests continue to pass; full `test:website` run had one inherited flaky timeout on an unrelated attention-tag convergence gate that passes in isolation.
+- Files changed: `src/lib/navigation/docs-sidebar-collection-verification.test.ts`
+- **Learnings for future iterations:**
+  - Story 005 consolidates verification through exported page-tree output; keep representative URLs in `docs-sidebar-contract.ts` and assert separator placement with `findPrecedingSeparatorLabel()` helpers.
+  - `buildGeneratedDocsPageTree({ name: "Docs", children: [] })` is sufficient for direct builder tests without loading the full Fumadocs source binding.
+  - `content-reconciliation-convergence.test.ts` attention-tag gate can exceed the default 5s timeout under full-suite load; rerun in isolation before treating as a regression.
 ---
 
 ## 2026-07-01T00:00:00Z - qwen-3-6-dense-and-moe-model-pages-001
@@ -150,4 +265,56 @@
   - Patterns discovered: the autodiscovery render test budget scales with attention/token-to-probability smoke set size, not bespoke route lists—raise the timeout when those sets grow.
   - Gotchas encountered: isolated runs (~12s) can pass while full-suite runs exceed 15s; validate with `make test`, not only targeted `bun test`.
   - Useful context: after the fix, `make test` passed locally with `2504 pass, 0 fail` (UTC 2026-07-01T14:36:12Z).
+---
+
+## 2026-07-01T22:15:00Z - factory-batch-input-example-repair-001
+- Added `factory/docs/batch-input-example.json` with canonical `FACTORY_REQUEST_BATCH` shape and two independent `idea` work items (`example-idea-module-page`, `example-idea-concept-crosslink`) using `workTypeName`, unique work names, and small planner-ready payloads.
+- Files changed:
+  - `factory/docs/batch-input-example.json`
+- **Learnings for future iterations:**
+  - Patterns discovered: top-level `requestId` is the batch idempotency key; individual work items are identified by `works[].name` with `workTypeName` per item in mixed `BATCH` ingress.
+  - Gotchas encountered: story 002 will extend the same file with a `thoughts` loopback and `DEPENDS_ON` relations—keep incremental edits on one checked-in example rather than separate files.
+  - Useful context: `make lint`, `make typecheck`, and `make test` all pass after adding the JSON-only doc artifact (UTC 2026-07-01T22:15:00Z).
+---
+
+## 2026-07-01T23:45:00Z - factory-batch-input-example-repair-002
+- Extended `factory/docs/batch-input-example.json` with one `thoughts` loopback work item (`example-loopback-thoughts`) and two top-level `DEPENDS_ON` relations blocking the loopback until both idea items reach `complete`.
+- Verified `you submit batch --dry-run factory/docs/batch-input-example.json` accepts the batch (3 works, 2 relations).
+- Files changed:
+  - `factory/docs/batch-input-example.json`
+- **Learnings for future iterations:**
+  - Patterns discovered: batch-level `relations[]` uses `sourceWorkName` for the blocked work (loopback) and `targetWorkName` for each prerequisite; `requiredState: "complete"` is optional but makes the dependency explicit in docs.
+  - Gotchas encountered: ideafy AGENTS.md and `you docs relationships` are the canonical references for loopback field semantics—do not use stale `workType` or per-work relation aliases.
+  - Useful context: `make lint`, `make typecheck`, and `make test` all pass after the JSON-only extension (UTC 2026-07-01T23:45:00Z).
+---
+
+## 2026-07-01T16:45:00Z - factory-batch-input-example-repair-003
+- Clarified `factory/docs/overview.md` Batch Submission section so the checked-in example path, its two-idea plus loopback structure, and the concrete dry-run command (`you submit batch --dry-run factory/docs/batch-input-example.json`) match `factory/docs/batch-inputs.md` without changing workflow topology.
+- Files changed:
+  - `factory/docs/overview.md`
+- **Learnings for future iterations:**
+  - Patterns discovered: keep overview dry-run guidance concrete—point planners at the checked-in example path instead of a generic `<path>` placeholder once the artifact exists.
+  - Gotchas encountered: story 003 is docs-only; `make typecheck` is the story gate but full `make test` still passes (2627 pass, UTC 2026-07-01T16:44:49Z).
+  - Useful context: overview already listed `factory/docs/batch-input-example.json` in Read First; the narrow edit belongs in Batch Submission where dry-run and example usage intersect.
+---
+
+## 2026-07-01T17:00:00Z - factory-batch-input-example-repair-004
+- Added `src/tests/ci/factory-batch-input-example.test.ts` to assert the checked-in example uses canonical `FACTORY_REQUEST_BATCH` fields (two `idea` items, one `thoughts` loopback, `DEPENDS_ON` relations, no stale aliases) and that `you submit batch --dry-run factory/docs/batch-input-example.json` succeeds without sending work.
+- Documented reusable factory batch validation paths in `docs/internal/processes/factory-batch-input-relevant-files.md`.
+- Verified branch diff vs `main` stays limited to `factory/docs/**` plus focused CI/docs process files (no product content or `factory/factory.json` changes).
+- Files changed:
+  - `src/tests/ci/factory-batch-input-example.test.ts`
+  - `docs/internal/processes/factory-batch-input-relevant-files.md`
+- **Learnings for future iterations:**
+  - Patterns discovered: `src/tests/ci/**` is excluded from `make test` but is the right home for CLI dry-run proofs; run `bun test src/tests/ci/factory-batch-input-example.test.ts` when validating batch-example changes.
+  - Gotchas encountered: `make test` still reports 2627 pass because CI tests are sharded separately—do not assume new `src/tests/ci` files ran until you target them explicitly.
+  - Useful context: dry-run output includes `requestId`, `work count`, `relationCount`, and `dry-run: no request sent` (UTC 2026-07-01T17:00:00Z); full `make lint`, `make typecheck`, and `make test` passed locally.
+---
+
+## 2026-07-01T17:10:00Z - mergeability (PR #230)
+- Merged `origin/main` into `factory-batch-input-example-repair` to clear the PR merge conflict (`progress.txt` only) and unblock CI on the reviewed head.
+- Files changed:
+  - `progress.txt` (conflict resolution combining factory batch and sidebar codebase patterns)
+- **Learnings for future iterations:**
+  - Gotchas encountered: GitHub may report no PR checks while `mergeable` is `CONFLICTING`; merge `main` before waiting on CI.
 ---
