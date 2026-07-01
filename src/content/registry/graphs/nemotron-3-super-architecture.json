@@ -1,0 +1,29 @@
+{
+  "id": "graph.nemotron-3-super-architecture",
+  "slug": "nemotron-3-super-architecture",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations", "model-family", "context-window", "quantization"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "kind": "graph",
+  "subjectId": "model.nemotron-3-super",
+  "graphType": "model-architecture",
+  "rootNodeId": "root",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "root",
+      "labelKey": "graph.nodes.root.label",
+      "moduleKind": "other",
+      "childNodeIds": []
+    }
+  ],
+  "edges": []
+}

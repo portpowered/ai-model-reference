@@ -15,7 +15,7 @@
   "createdAt": "2026-07-01T00:00:00.000Z",
   "updatedAt": "2026-07-01T00:00:00.000Z",
   "website": "https://www.nvidia.com",
-  "modelIds": [],
+  "modelIds": ["model.nemotron-3-super"],
   "paperIds": ["paper.nemotron-3-super"],
   "systemIds": []
 }

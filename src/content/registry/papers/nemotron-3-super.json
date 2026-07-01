@@ -31,7 +31,7 @@
     "concept.quantization"
   ],
   "arguesAgainstIds": [],
-  "modelIds": [],
+  "modelIds": ["model.nemotron-3-super"],
   "moduleIds": ["module.mixture-of-experts"],
   "conceptIds": [
     "concept.transformer-architecture",

@@ -40,7 +40,9 @@ describe("nemotron 3 super release identity", () => {
     for (const alias of VERIFIED_ALIASES) {
       expect(spec.aliases).toContain(alias);
     }
-    expect(spec.summary).not.toMatch(/benchmark|throughput|ranking|outperform/i);
+    expect(spec.summary).not.toMatch(
+      /benchmark|throughput|ranking|outperform/i,
+    );
   });
 
   test("page spec records source-backed release facts without benchmark framing", async () => {
@@ -89,8 +91,12 @@ describe("nemotron 3 super release identity", () => {
     expect(modelCard?.url).toBe(
       "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16",
     );
-    expect(modelCard?.aliases).toContain("NVIDIA-Nemotron-3-Super-120B-A12B-BF16");
-    expect(nimBuildPage?.aliases).toContain("nvidia/nemotron-3-super-120b-a12b");
+    expect(modelCard?.aliases).toContain(
+      "NVIDIA-Nemotron-3-Super-120B-A12B-BF16",
+    );
+    expect(nimBuildPage?.aliases).toContain(
+      "nvidia/nemotron-3-super-120b-a12b",
+    );
     expect(nimBuildPage?.url).toBe(
       "https://docs.api.nvidia.com/nim/reference/nvidia-nemotron-3-super-120b-a12b",
     );
