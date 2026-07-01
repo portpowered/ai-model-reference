@@ -55,7 +55,7 @@ export function resolveSectionKindCollectionId(
 }
 
 export function resolveUiMessagePath(
-  messages: UiMessages,
+  messages: Record<string, unknown>,
   path: string,
 ): string {
   const value = path
