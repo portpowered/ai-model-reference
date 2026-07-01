@@ -1,27 +1,27 @@
 {
   "title": "Embedding",
-  "description": "A dense vector that represents a token or other discrete item so the model can run continuous math on it.",
-  "openingSummary": "An embedding table maps each discrete token ID to a learned vector so the model can mix information in continuous space before deeper layers run.",
+  "description": "A learned vector that turns discrete tokens, image patches, or other inputs into numbers a model can process.",
+  "openingSummary": "Embeddings are learned vectors that give discrete inputs a numeric form, and most transformer stacks split that job into token embeddings for what each input is and positional embeddings for where it sits—together they form an embedding space you can reason about without treating every coordinate as literal human meaning.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "An embedding is a fixed-size list of numbers (a vector) associated with a discrete symbol such as a token ID. In transformer language models, the input embedding layer converts each position's token ID into a vector of model width (hidden size)."
+      "body": "An embedding is a fixed-size list of numbers (a vector) tied to a discrete input such as a text token, an image patch, or another symbol ID. During training the model learns those vectors so later layers can run continuous math on them. In language models, the token embedding layer looks up one vector per token ID: that vector encodes vocabulary identity or content—what the symbol is—rather than where it appears in the sequence."
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Embeddings are where text becomes geometry: similar tokens can end up with nearby vectors after training, and every later layer operates on those vectors. Context length, batching, and memory all count embedding rows when you size a deployment."
+      "body": "Embeddings are where raw inputs become geometry the network can mix. After training, inputs with similar roles often end up with nearby vectors, so it helps to picture an embedding space: a high-dimensional map where distance is a useful hint about learned relationships. That space is a modeling convenience, not a claim that each axis names a human concept. Every later layer—attention, feed-forward blocks, and output heads—operates on these vectors, so deployment sizing also counts how many embedding rows and dimensions you store."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "Suppose token ID 42 maps to a 768-dimensional vector. A sequence of three tokens becomes a 3×768 tensor of embeddings before the first attention block runs."
+      "body": "Suppose a tokenizer turns a three-word sentence into token IDs 12, 42, and 7. The token embedding table maps each ID to a 768-number vector, giving a 3×768 tensor of content vectors. Before attention runs, many models add a positional embedding vector at each index—one pattern for position 0, another for position 1, and so on—so the stack knows order as well as identity. The sum (or equivalent combination) at each position is what the first transformer block receives."
     },
     "whereItAppears": {
       "title": "Where It Appears",
-      "body": "Embeddings sit at the bottom of decoder-only transformers, in encoder inputs for seq2seq models, and in retrieval systems that compare query and document vectors. Positional information is usually added to embeddings before attention."
+      "body": "Token embeddings sit at the bottom of decoder-only transformers, encoder inputs for sequence-to-sequence models, and retrieval systems that compare query and document vectors. Positional information is usually fused with token embeddings before attention, whether through learned absolute tables, sinusoidal patterns, or schemes that inject order inside attention instead."
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "An embedding is not the same as a one-hot vector: the table stores dense learned weights rather than a single 1 in a huge sparse vector. Embeddings are also not logits or probabilities—they are inputs, not outputs of the vocabulary head."
+      "body": "Token embeddings and positional embeddings solve different problems: token vectors carry what the input is, while positional vectors (or position-aware attention biases) carry where it sits. Embedding space is a helpful way to talk about similarity between learned vectors, but it is not the same as everyday word meaning—coordinates are whatever training made useful for the task. An embedding is also not a one-hot vector: the table stores dense learned weights rather than a single 1 in a huge sparse vector. Embeddings are inputs to the stack, not logits or probabilities from the vocabulary head."
     },
     "related": {
       "title": "Related Concepts And Modules"
