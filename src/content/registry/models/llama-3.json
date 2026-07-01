@@ -1,0 +1,64 @@
+{
+  "id": "model.llama-3",
+  "slug": "llama-3",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Llama 3",
+    "Meta Llama 3",
+    "Llama 3.1",
+    "Llama 3 405B",
+    "Llama 3 128K"
+  ],
+  "tags": [
+    "foundations",
+    "model-family",
+    "attention",
+    "context-window",
+    "position-encoding"
+  ],
+  "relatedIds": [
+    "paper.llama-3",
+    "concept.transformer-architecture",
+    "concept.autoregressive-generation",
+    "concept.decoder",
+    "module.attention",
+    "module.rope",
+    "concept.context-window",
+    "concept.context-extension",
+    "training-regime.pretraining",
+    "concept.alignment"
+  ],
+  "citationIds": [
+    "citation.llama-3-herd-of-models",
+    "citation.llama-3-meta-release"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "authors": ["Meta AI", "Llama Team"],
+  "sourceId": "citation.llama-3-herd-of-models",
+  "family": "llama",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer-architecture",
+    "concept.autoregressive-generation"
+  ],
+  "moduleIds": [
+    "module.grouped-query-attention",
+    "module.rope",
+    "module.rmsnorm",
+    "module.swiglu",
+    "module.causal-attention"
+  ],
+  "trainingRegimeIds": ["training-regime.pretraining"],
+  "datasetIds": [],
+  "paperIds": ["paper.llama-3"],
+  "organizationId": "organization.meta",
+  "releaseDate": "2024-07-23",
+  "parameterCount": "405 billion parameters",
+  "contextLength": 131072,
+  "precision": ["bf16", "fp16", "fp8"]
+}
