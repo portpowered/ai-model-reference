@@ -27,7 +27,12 @@ import {
   type SidebarGroupingSection,
 } from "@/lib/content/sidebar-grouping";
 import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
-import { collectSidebarPageLinks } from "@/lib/navigation/docs-sidebar-contract";
+import {
+  collectSidebarPageLinks,
+  DEEPSEEK_V4_PAPER_URL,
+  findSidebarPageLink,
+  GPT_3_MODEL_URL,
+} from "@/lib/navigation/docs-sidebar-contract";
 import { source } from "@/lib/source";
 
 function getFolderChildren(folderName: string): Node[] {
@@ -227,6 +232,34 @@ function findNextSeparatorIndex(nodes: Node[], currentIndex: number): number {
   );
 }
 
+function getSeparatorLabels(nodes: Node[]): string[] {
+  return nodes
+    .filter((node) => node.type === "separator")
+    .map((node) => String(node.name));
+}
+
+function getPageNodeEntries(
+  nodes: Node[],
+): Array<{ name: string; url: string }> {
+  return nodes.flatMap((node) => {
+    if (
+      node.type === "page" &&
+      "url" in node &&
+      typeof node.url === "string" &&
+      typeof node.name === "string"
+    ) {
+      return [{ name: node.name, url: node.url }];
+    }
+
+    return [];
+  });
+}
+
+const UNGROUPED_COLLECTIONS = [
+  { folderName: "Models", collectionId: "models", routeSlug: "models" },
+  { folderName: "Papers", collectionId: "papers", routeSlug: "papers" },
+] as const;
+
 describe("generated docs page tree", () => {
   test("builds top-level folders from collection definitions in configured order", () => {
     const collectionDefinitions = listDocsCollectionDefinitions();
@@ -277,6 +310,51 @@ describe("generated docs page tree", () => {
     expect(new Set(sidebarLinks.map((link) => link.url))).toEqual(
       new Set(collectionPageUrls),
     );
+  });
+
+  test("ungrouped collections render title-sorted pages without separators", () => {
+    for (const collection of UNGROUPED_COLLECTIONS) {
+      const definition = listDocsCollectionDefinitions().find(
+        (entry) => entry.id === collection.collectionId,
+      );
+      expect(
+        definition?.sidebarGroupingResolverId,
+        collection.folderName,
+      ).toBeUndefined();
+
+      const children = getFolderChildren(collection.folderName);
+      expect(getSeparatorLabels(children), collection.folderName).toEqual([]);
+      expect(
+        children.every((node) => node.type === "page"),
+        collection.folderName,
+      ).toBe(true);
+
+      const expectedPages = sortPagesByTitle(
+        loadPublishedDocsPagesSync("en").filter((page) =>
+          page.docsSlug.startsWith(`${collection.routeSlug}/`),
+        ),
+      );
+
+      expect(getPageNodeEntries(children), collection.folderName).toEqual(
+        expectedPages.map((page) => ({
+          name: page.messages.title,
+          url: page.url,
+        })),
+      );
+    }
+  });
+
+  test("representative ungrouped model and paper links keep localized names and URLs", () => {
+    const links = collectSidebarPageLinks(source.pageTree);
+
+    expect(findSidebarPageLink(links, GPT_3_MODEL_URL)).toEqual({
+      name: "GPT-3",
+      url: GPT_3_MODEL_URL,
+    });
+    expect(findSidebarPageLink(links, DEEPSEEK_V4_PAPER_URL)).toEqual({
+      name: "DeepSeek-V4",
+      url: DEEPSEEK_V4_PAPER_URL,
+    });
   });
 
   test("does not keep the legacy Getting Started page as a top-level sidebar entry", () => {
