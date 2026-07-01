@@ -5,8 +5,24 @@
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
   "aliases": ["Qwen3.6-35B-A3B", "Qwen 3.6 35B A3B"],
-  "tags": ["foundations", "model-family", "context-window", "feed-forward"],
-  "relatedIds": ["model.qwen-3-6-27b"],
+  "tags": [
+    "foundations",
+    "model-family",
+    "context-window",
+    "feed-forward",
+    "attention"
+  ],
+  "relatedIds": [
+    "model.qwen-3-6-27b",
+    "concept.mixture-of-experts",
+    "module.mixture-of-experts",
+    "system.routing",
+    "concept.transformer-architecture",
+    "concept.context-window",
+    "concept.transformer",
+    "module.attention",
+    "system.inference-engine"
+  ],
   "citationIds": [
     "citation.qwen36-github",
     "citation.qwen36-35b-a3b-blog",
