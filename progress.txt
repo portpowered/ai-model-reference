@@ -1,4 +1,6 @@
 ## Codebase Patterns
+- `HomeArticle` accepts `siteConfig: SiteConfig` and renders browse cards via `resolveSiteConfigHomeFeaturedLinks`; site shell callers pass `modelAtlasSiteConfig` at the boundary so the generic component never hardcodes AI docs slugs.
+- Home featured links extend `HomeFeaturedLinkPlaceholder` in `site-config.contract.ts` with `titleKey` and `descriptionKey` bindings to `messages.home`; resolve hrefs via `resolveSiteConfigHomeFeaturedLinkHrefs` and full copy via `resolveSiteConfigHomeFeaturedLinks` in `site-config-resolution.ts`.
 - New registry records under `src/content/registry/` are picked up by `bun run prepare:content-runtime`, which regenerates `src/lib/content/generated/registry-runtime.generated.ts` before typecheck, lint, and tests run.
 - Model registry records use typed relationship fields (`architectureIds`, `moduleIds`, `trainingRegimeIds`, `relatedIds`) plus backing `citation`, `paper`, and `organization` records; update reciprocal `usedByModelIds` / `relatedIds` on linked training regimes when adding model consumers.
 - For post-training discovery when no generic `training-regime.post-training` record exists, link models to `concept.alignment` in `relatedIds` and keep `training-regime.pretraining` in `trainingRegimeIds`.
@@ -150,4 +152,39 @@
   - Patterns discovered: the autodiscovery render test budget scales with attention/token-to-probability smoke set size, not bespoke route lists—raise the timeout when those sets grow.
   - Gotchas encountered: isolated runs (~12s) can pass while full-suite runs exceed 15s; validate with `make test`, not only targeted `bun test`.
   - Useful context: after the fix, `make test` passed locally with `2504 pass, 0 fail` (UTC 2026-07-01T14:36:12Z).
+---
+
+## 2026-07-01T17:01:00Z - generic-home-featured-links-adapter-001
+- Extended `HomeFeaturedLinkPlaceholder` with typed `titleKey` and `descriptionKey` bindings to `messages.home`, mirroring the primary-nav `labelKey` pattern.
+- Populated Model Atlas `homeFeaturedLinks` with browse + GQA/SwiGLU/ReLU docs destinations and their existing copy keys.
+- Added `resolveSiteConfigHomeFeaturedLinks` to resolve href, title, and description for each configured entry.
+- Files changed:
+  - `src/lib/site/site-config.contract.ts`
+  - `src/lib/site/site-config.contract.test.ts`
+  - `src/lib/site/model-atlas-site-config.ts`
+  - `src/lib/site/model-atlas-site-config.test.ts`
+  - `src/lib/site/site-config-resolution.ts`
+  - `src/lib/site/site-config-compatibility.test.tsx`
+- **Learnings for future iterations:**
+  - Patterns discovered: extend the existing `generic-site-config-contract` placeholder shape in place rather than introducing a parallel home-link contract; story 002 should wire `HomeArticle` to `resolveSiteConfigHomeFeaturedLinks`.
+  - Gotchas encountered: Biome may reformat multi-line `expect(...).toEqual(...)` chains in compatibility tests.
+  - Useful context: `site-config-compatibility.test.tsx` already compares config href resolution against `HomeArticle` output—story 002 can reuse that pattern for copy bindings once the component reads from config.
+---
+
+## 2026-07-01T17:22:00Z - generic-home-featured-links-adapter-002
+- Wired `HomeArticle` to render browse cards from `resolveSiteConfigHomeFeaturedLinks(siteConfig, messages, locale)` instead of hardcoded Model Atlas docs slugs.
+- Added required `siteConfig` prop to `HomeArticle`; `renderHomePage` and tests pass `modelAtlasSiteConfig` at the shell boundary.
+- Verified English home renders four cards with expected hrefs and copy; browser check on port 3567 confirmed `/browse`, GQA, SwiGLU, and ReLU links.
+- Files changed:
+  - `src/components/home/home-article.tsx`
+  - `src/app/(site)/site-renderers.tsx`
+  - `src/lib/site/site-config-compatibility.test.tsx`
+  - `src/lib/content/canonical-content-standards.test.tsx`
+  - `src/tests/content/home-page.test.tsx`
+  - `src/tests/discovery/search-discovery.test.tsx`
+  - `src/tests/discovery/search-handoffs.test.tsx`
+- **Learnings for future iterations:**
+  - Patterns discovered: keep `modelAtlasSiteConfig` at site-shell and test call sites; the generic home component only depends on `SiteConfig` plus resolution helpers.
+  - Gotchas encountered: Biome import sort wants `@/lib/search/*` before `@/lib/site/*` in `site-renderers.tsx`.
+  - Useful context: story 003 can rely on existing locale fallback tests in `home-page.test.tsx` and `site-config-compatibility.test.tsx` once config-driven rendering is in place.
 ---
