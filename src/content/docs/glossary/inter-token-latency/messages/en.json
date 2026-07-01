@@ -1,6 +1,7 @@
 {
   "title": "Inter-Token Latency",
   "description": "The serving latency metric that measures the delay between streamed output tokens after generation has started.",
+  "openingSummary": "Inter-token latency is the delay between streamed output tokens after generation has started: each gap measures how quickly the serving system emits the next token once streaming is underway.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
