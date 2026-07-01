@@ -72,7 +72,7 @@ describe("Qwen 3.6 model registry identities", () => {
     expect(moe?.relatedIds).toContain("model.qwen-3-6-27b");
   });
 
-  test("lists both draft model records in the registry runtime", () => {
+  test("lists both model records in the registry runtime", () => {
     const modelIds = listModelRecords().map((record) => record.id);
 
     expect(modelIds).toContain("model.qwen-3-6-27b");

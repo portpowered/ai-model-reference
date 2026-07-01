@@ -5,12 +5,7 @@
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
   "aliases": ["Qwen3.6-35B-A3B", "Qwen 3.6 35B A3B"],
-  "tags": [
-    "foundations",
-    "model-family",
-    "context-window",
-    "feed-forward"
-  ],
+  "tags": ["foundations", "model-family", "context-window", "feed-forward"],
   "relatedIds": ["model.qwen-3-6-27b"],
   "citationIds": [
     "citation.qwen36-github",

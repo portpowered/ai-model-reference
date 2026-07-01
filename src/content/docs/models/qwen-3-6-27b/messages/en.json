@@ -1,0 +1,103 @@
+{
+  "title": "Qwen3.6-27B",
+  "description": "The dense Qwen 3.6 open-weights model with a 27-billion-parameter stack, multimodal inputs, and a 262,144-token native context window.",
+  "openingSummary": "Qwen3.6-27B is the dense member of the first Qwen 3.6 open-weights release. Every token runs through the full 27-billion-parameter decoder stack rather than selecting a sparse expert subset, which makes it the straightforward comparison point for the MoE operating point in the same family.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Qwen3.6-27B is a dense open-weights model from the Qwen Team and the first published Qwen 3.6 checkpoint. Public release materials describe it as a 27-billion-parameter causal language model with a vision encoder, released after the Qwen3.5 series as a stability-focused coding and agentic-workflow upgrade."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The model accepts text and image inputs and produces text outputs. The Hugging Face model card lists a 262,144-token native context length, with longer extension claims noted separately in the same source. This page keeps the native context figure because it is the conservative operating point repeated across official model metadata."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "As a dense operating point, Qwen3.6-27B activates the full parameter stack on each token rather than routing through a sparse expert subset. Official model materials describe a deep decoder with repeated attention and feed-forward blocks, rotary position encoding, and RMS normalization. The public Hugging Face model card also names hybrid attention paths inside the stack; this page's diagram stays at the familiar decoder level—attention, normalization, and a dense feed-forward path—so it teaches the dense flow without turning unexpanded block names into extra claims."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The registry-backed modules below are the smallest set worth opening first when you want to connect this dense page to the site's module reference. Rotary position encoding and RMS normalization are named directly in the public model materials and anchor the high-level stack shown above."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Official sources describe both pre-training and post-training for the released checkpoint. The Qwen 3.6 release blog emphasizes agentic coding workflows and preserving reasoning context across turns, but this page does not restate training-corpus or recipe details beyond what those primary sources publish."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Read Qwen3.6-27B as the dense baseline in the Qwen 3.6 pair. It keeps all 27 billion parameters in the active path for each token, which is the main practical distinction from the sparse expert variant when you compare compute and memory behavior at inference time."
+    },
+    "related": { "title": "Related Models, Modules, And Papers" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Qwen3.6-27B architecture diagram with token embeddings, RoPE position encoding, a repeated decoder block containing attention, RMSNorm, and a dense feed-forward network, then an output projection and softmax."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "The model's probability distribution over the next token"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Output\nLinear",
+        "summary": "Projects the final hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated decoder block container for the Qwen3.6-27B stack"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Attention sublayer container"
+      },
+      "ffnSublayer": {
+        "label": " ",
+        "summary": "Dense feed-forward sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats through the full stack"
+      },
+      "rmsnormAttention": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before the attention step"
+      },
+      "decoderAttention": {
+        "label": "Decoder\nAttention",
+        "summary": "Each token reads earlier context under the model's attention mask"
+      },
+      "rmsnormFfn": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the stream before the dense feed-forward block"
+      },
+      "denseFfn": {
+        "label": "Dense\nFeed\nForward",
+        "summary": "Applies the full dense parameter block for every token rather than routing experts"
+      },
+      "ropeInject": {
+        "label": "+",
+        "summary": "Applies token states together with rotary position information before the stack"
+      },
+      "rope": {
+        "label": "RoPE",
+        "summary": "Rotary position encoding gives the attention stack token order information"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs into hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after tokenization"
+      }
+    }
+  }
+}

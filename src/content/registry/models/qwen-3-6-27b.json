@@ -12,9 +12,9 @@
     "citation.qwen36-27b-blog",
     "citation.qwen36-27b-huggingface"
   ],
-  "status": "draft",
+  "status": "published",
   "createdAt": "2026-07-01T00:00:00.000Z",
-  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T12:00:00.000Z",
   "authors": ["Qwen Team"],
   "sourceId": "citation.qwen36-27b-blog",
   "family": "qwen",
