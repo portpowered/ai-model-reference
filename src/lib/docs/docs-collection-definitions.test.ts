@@ -3,6 +3,7 @@ import { loadUiMessages } from "@/lib/content/ui-messages";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   DOCS_COLLECTION_IDS,
+  DOCS_COLLECTION_SIDEBAR_GROUPING_RESOLVER_IDS,
   type DocsCollectionMessageKeys,
 } from "@/lib/docs/collection-definition-contract";
 import {
@@ -162,6 +163,47 @@ describe("docs collection definitions config", () => {
 
     for (const definition of DOCS_COLLECTION_DEFINITIONS) {
       expectResolvableMessageKeys(messages, definition.messageKeys);
+    }
+  });
+
+  test("identifies sidebar grouping resolver ids for grouped collections", () => {
+    const groupedIds = [
+      "glossary",
+      "concepts",
+      "modules",
+      "training",
+      "systems",
+    ] as const;
+
+    for (const id of groupedIds) {
+      const definition = getDocsCollectionDefinition(id);
+      const resolverId = definition.sidebarGroupingResolverId;
+      expect(resolverId).toBe(id);
+      if (!resolverId) {
+        throw new Error(`expected sidebar grouping resolver id for ${id}`);
+      }
+      expect(DOCS_COLLECTION_SIDEBAR_GROUPING_RESOLVER_IDS).toContain(
+        resolverId,
+      );
+    }
+  });
+
+  test("omits sidebar grouping resolver ids for models and papers", () => {
+    expect(
+      getDocsCollectionDefinition("models").sidebarGroupingResolverId,
+    ).toBeUndefined();
+    expect(
+      getDocsCollectionDefinition("papers").sidebarGroupingResolverId,
+    ).toBeUndefined();
+
+    for (const id of DOCS_COLLECTION_IDS) {
+      const definition = getDocsCollectionDefinition(id);
+      if (id === "models" || id === "papers") {
+        expect(definition.sidebarGroupingResolverId).toBeUndefined();
+        continue;
+      }
+
+      expect(definition.sidebarGroupingResolverId).toBe(id);
     }
   });
 });

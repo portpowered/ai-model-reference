@@ -45,6 +45,7 @@ export const DOCS_COLLECTION_DEFINITIONS = [
       "glossary/architecture",
     ],
     messageKeys: collectionMessageKeys("glossary", "glossary"),
+    sidebarGroupingResolverId: "glossary",
   },
   {
     id: "concepts",
@@ -60,6 +61,7 @@ export const DOCS_COLLECTION_DEFINITIONS = [
       "concepts/kv-cache-quantization",
     ],
     messageKeys: collectionMessageKeys("concepts", "concepts"),
+    sidebarGroupingResolverId: "concepts",
   },
   {
     id: "modules",
@@ -75,6 +77,7 @@ export const DOCS_COLLECTION_DEFINITIONS = [
       "modules/feed-forward-network",
     ],
     messageKeys: collectionMessageKeys("modules", "modules"),
+    sidebarGroupingResolverId: "modules",
   },
   {
     id: "models",
@@ -103,6 +106,7 @@ export const DOCS_COLLECTION_DEFINITIONS = [
       "training/fp4-quantization-aware-training",
     ],
     messageKeys: collectionMessageKeys("training", "training"),
+    sidebarGroupingResolverId: "training",
   },
   {
     id: "systems",
@@ -116,6 +120,7 @@ export const DOCS_COLLECTION_DEFINITIONS = [
       "systems/expert-parallel-overlap",
     ],
     messageKeys: collectionMessageKeys("systems", "systems"),
+    sidebarGroupingResolverId: "systems",
   },
 ] as const satisfies readonly DocsCollectionDefinition[];
 
