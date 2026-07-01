@@ -80,6 +80,7 @@ Fence retained tests with a file- or describe-level comment explaining why the c
 - `src/lib/content/content-reconciliation-registry.test.ts` — site-wide published-page bundle loop replaced by a single `validateDerivedPublishedPageBundles` assertion.
 - `src/lib/content/block-sparse-attention-page-contract.test.ts`, `local-attention-page-contract.test.tsx`, `wordpiece-page-contract.test.ts` — routine bundle checks removed or fenced; tests focus on discovery/rendering/generation contracts.
 - `src/lib/content/dynamic-batching-slice-verification.test.ts` — consolidated review-facing proof for a serving system slice: route/registry alignment, graph/citation resolution, alias search, tag landing, and curated-related render surface; routine bundle invariants stay on `validateDerivedPublishedPageBundles`.
+- `src/lib/content/qwen3-0-6b-slice-verification.test.tsx` — consolidated review-facing proof for the Qwen3-0.6B model slice: routable page/registry alignment, local assets and citation resolution, architecture graph render surface, rendered references, and search/related-doc discovery handoffs; routine bundle invariants stay on story-scoped identity, reader-page, architecture-graph, and discovery tests plus `validateDerivedPublishedPageBundles`.
 - `src/lib/content/page-template-conformance.ts` — system pages may add optional `#how-it-differs` between `#how-it-works` and `#practical-impact` for serving-boundary teaching without a template exception list entry.
 
 ## Contributor and factory entrypoints
