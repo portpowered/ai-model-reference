@@ -76,9 +76,9 @@ describe("nemotron 3 super registry relationships", () => {
       "system.inference-engine",
       "system.deployment",
     ]);
-    expect(getModuleById("module.mixture-of-experts")?.usedByModelIds).toContain(
-      MODEL_ID,
-    );
+    expect(
+      getModuleById("module.mixture-of-experts")?.usedByModelIds,
+    ).toContain(MODEL_ID);
     expect(getModuleById("module.mixture-of-experts")?.exampleModelIds).toEqual(
       [MODEL_ID],
     );
