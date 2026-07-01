@@ -1,0 +1,36 @@
+{
+  "title": "Instruction Tuning",
+  "description": "A supervised post-training regime that teaches a model to follow user instructions by training on prompts paired with desired answers.",
+  "openingSummary": "Instruction tuning is supervised training that shows the model prompts paired with desired answers. The model learns to imitate those answers so it can respond helpfully when a person later asks for a task, question, or command.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Instruction tuning is a post-training stage that shapes how a language model responds to explicit user requests. Instead of only predicting the next token in raw text, the model sees curated examples where each input is a prompt or instruction and each target is the answer people want the model to produce. Training nudges the model toward matching those desired answers on similar requests."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "A base model from large-scale pretraining knows a lot about language patterns, but it does not automatically behave like a helpful assistant. People usually want models that follow directions, stay on topic, and answer in a useful format. Instruction tuning exists to teach that behavior directly from demonstration examples before teams add heavier preference optimization or reinforcement-learning stages."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Teams collect or write prompt-and-answer demonstrations, often covering common tasks such as summarization, question answering, rewriting, and step-by-step reasoning. The model is updated with standard supervised learning so that, for each training example, it becomes more likely to produce the demonstrated answer for that kind of prompt. The result is an instruction-following model that is easier to steer in products and research settings."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Instruction tuning usually comes after pretraining because pretraining first builds broad language knowledge from large text corpora. It is an earlier and more direct shaping step than preference optimization methods that compare multiple candidate answers. Later stages such as reinforcement learning from human feedback or Direct Preference Optimization can refine behavior further, but instruction tuning establishes the basic pattern of responding to user instructions with target answers."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "Instruction tuning only teaches what the demonstration data covers. Sparse, inconsistent, or low-quality examples produce brittle instruction-following behavior. The method also does not by itself guarantee safety, honesty, or alignment with human values; it mainly teaches the model to copy demonstrated response patterns."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

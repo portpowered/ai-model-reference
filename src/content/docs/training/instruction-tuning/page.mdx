@@ -1,0 +1,54 @@
+---
+title: "Instruction Tuning"
+description: "A supervised post-training regime that teaches a model to follow user instructions by training on prompts paired with desired answers."
+kind: "training-regime"
+registryId: "training-regime.instruction-tuning"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - alignment
+  - foundations
+aliases:
+  - "Instruction tuning"
+  - "instruction tuning"
+  - "supervised fine-tuning"
+  - "SFT"
+  - "instruction following"
+updatedAt: "2026-07-01"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+
+
+<TrainingRegimeAtAGlance registryId="training-regime.instruction-tuning" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
+</Section>
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+</Section>
+<Section id="compared-to-nearby-regimes" titleKey="sections.comparedToNearbyRegimes.title">
+  <T k="sections.comparedToNearbyRegimes.body" />
+</Section>
+<Section id="limitations-and-failure-modes" titleKey="sections.limitationsAndFailureModes.title">
+  <T k="sections.limitationsAndFailureModes.body" />
+</Section>
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="training-regime.instruction-tuning" />
+</Section>
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="training-regime.instruction-tuning" showDescriptions />
+</Section>
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="training-regime.instruction-tuning" />
+</Section>
