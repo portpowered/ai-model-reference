@@ -1,0 +1,95 @@
+# Content Page Generation Workflow Relevant Files
+
+Use these files when adding or updating routine canonical docs pages (model,
+concept, module, system, paper, training, or glossary). The goal is to add page
+bundles and registry records without editing shared helper surfaces for
+page-specific directory paths.
+
+## Derived page directory contract
+
+Routine canonical pages live under `src/content/docs/<section>/<slug>`. Resolve
+the page directory with `getDocsPageDir(section, slug)` instead of adding a new
+exported `*_PAGE_DIR` constant to `src/lib/content/content-paths.ts`.
+
+**Do not add** page-specific directory exports for ordinary page work. A focused
+guard in `content-paths.test.ts` fails when new `export const *_PAGE_DIR`
+constants appear outside the grandfathered allowlist.
+
+**Still allowed** when you need tree-wide or section-wide paths:
+
+* `getDocsRoot`, `getContentRoot`, `getProjectRoot`
+* Section roots such as `getModulesDocsRoot`, `getGlossaryDocsRoot`, and
+  `getDocsSectionRoot(section)`
+* Registry, generated, and message roots such as `getRegistryRoot`,
+  `getRegistryCollectionRoot`, `getMessagesRoot`, and generated docs roots
+
+### Replacement pattern
+
+```ts
+import { getDocsPageDir } from "@/lib/content/content-paths";
+
+const pageDir = getDocsPageDir("modules", "grouped-query-attention");
+```
+
+Supported `section` values: `glossary`, `concepts`, `modules`, `models`,
+`papers`, `training`, `systems`.
+
+For page tests that read bundle files, keep the same assertions after switching
+from a `*_PAGE_DIR` import or `join(sectionRoot, slug)` to the derived lookup.
+
+## Core content paths
+
+* `src/lib/content/content-paths.ts`
+  Canonical path helpers. Module JSDoc documents the derived page directory
+  contract. Add shared roots or section helpers here only when the path is not
+  an ordinary single-page directory.
+* `src/lib/content/content-paths-page-dir-guard.ts`
+  Grandfathered allowlist for legacy `*_PAGE_DIR` exports and the guard failure
+  message that points reviewers to `getDocsPageDir(section, slug)`.
+* `src/lib/content/content-paths.test.ts`
+  Contract tests for derived directories across every docs section, exported
+  production roots, and the no-new-page-constants guard.
+
+## Page bundle and registry workflow
+
+* `docs/templates/*.content.md`
+  Authoring templates for model, module, concept, glossary, paper, training, and
+  system pages.
+* `docs/guide-to-writing-pages.md`
+  High-level page authoring steps, graph requirements, and code/documentation
+  separation expectations.
+* `src/content/docs/<section>/<slug>/`
+  Canonical page bundle layout (`page.mdx`, `messages/`, `assets.json`, graphs,
+  and related colocated files).
+* `src/content/registry/`
+  Registry JSON records that connect published pages to taxonomy, graphs, and
+  runtime loaders.
+* `scripts/validate-registry.ts`
+  Maintainer and CI entrypoint for registry validation after adding records.
+
+## Representative migrated consumers
+
+These files show the preferred `getDocsPageDir` pattern in page tests without
+requiring a broad rewrite of every legacy `*_PAGE_DIR` import:
+
+* `src/lib/content/module-page.test.ts`
+* `src/lib/content/page-bundle.test.ts`
+* `src/lib/content/validate-registry.ts`
+* `src/lib/content/vocabulary-size-glossary-page.test.ts`
+* `src/lib/content/prefill-concept.test.ts`
+* `src/lib/content/sparse-attention-module-page.test.ts`
+* `src/lib/content/attention-module-page.test.ts`
+* `src/lib/content/pretraining-training-regime.test.ts`
+* `src/lib/content/memory-system-page.test.ts`
+
+When adding a new page test, follow the same module-level
+`const pageDir = getDocsPageDir("<section>", "<slug>")` pattern instead of
+importing a page-specific constant.
+
+## Reviewer-facing verification
+
+* `bun test src/lib/content/content-paths.test.ts`
+  Proves derived lookup across sections and rejects new ordinary page directory
+  exports.
+* `bun run typecheck`
+  Required after touching shared content helpers or page tests that import them.

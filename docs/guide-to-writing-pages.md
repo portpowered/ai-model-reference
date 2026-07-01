@@ -80,3 +80,10 @@ Some examples could be like:
 
 ## Code/Documentation separation
 in as much as possible, we want to make as minimal code changes as we can when adding new docs. sometimes its necessary, but its preferable to have zero test/code changes.
+
+When code must reference a page bundle path, use
+`getDocsPageDir(section, slug)` from `src/lib/content/content-paths.ts` instead
+of adding a page-specific exported constant. Shared roots and section roots in
+that helper remain the right surface for tree-wide or section-wide operations.
+See
+[content-page-generation-workflow-relevant-files](./internal/processes/content-page-generation-workflow-relevant-files.md).

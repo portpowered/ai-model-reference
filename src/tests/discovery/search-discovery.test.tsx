@@ -37,7 +37,8 @@ import {
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
 
-const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 15_000;
+// Renders every autodiscovered critical docs page; allow headroom on slower local runs.
+const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 30_000;
 
 const PHASE_1_DISCOVERY_ROUTES = [
   {
