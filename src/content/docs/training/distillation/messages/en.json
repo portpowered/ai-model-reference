@@ -13,7 +13,7 @@
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "The teacher produces training signal for the student, the student is updated on that signal, and the result is a model sized for deployment rather than for maximum training-time capacity."
+      "body": "The teacher model produces supervision such as soft targets, generated traces, or labeled examples. Those training examples or traces become the data the student learns from, the student weights are updated to match the teacher signal, and the trained student is the deployment-oriented model teams serve instead of the full teacher."
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
@@ -30,8 +30,8 @@
   "assets": {
     "trainingFlow": {
       "title": "Distillation training flow",
-      "alt": "A flow from teacher model to training supervision to student update and deployment-oriented student output.",
-      "caption": "Distillation moves teacher supervision into a smaller student model sized for deployment.",
+      "alt": "A four-step distillation flow: teacher model, training examples or traces, student update, then deployment-oriented student output.",
+      "caption": "Distillation turns teacher supervision into training examples or traces, updates the student on that signal, and yields a model sized for deployment.",
       "legend": {
         "data-flow": {
           "label": "Request and weight flow"
@@ -42,8 +42,9 @@
   "graph": {
     "nodes": {
       "teacher": { "label": "Teacher model" },
-      "supervision": { "label": "Training supervision" },
-      "student": { "label": "Student update" }
+      "traces": { "label": "Training examples or traces" },
+      "update": { "label": "Student update" },
+      "deployment": { "label": "Deployment-oriented student" }
     }
   }
 }

@@ -28,40 +28,57 @@
       "position": { "x": 250, "y": 0 },
       "size": { "width": 180, "height": 70 },
       "visualRole": "process-node",
-      "childNodeIds": ["supervision"]
+      "childNodeIds": ["traces"]
     },
     {
-      "id": "supervision",
-      "labelKey": "graph.nodes.supervision.label",
+      "id": "traces",
+      "labelKey": "graph.nodes.traces.label",
       "moduleKind": "block",
-      "position": { "x": 250, "y": 110 },
-      "size": { "width": 200, "height": 80 },
+      "position": { "x": 250, "y": 112 },
+      "size": { "width": 240, "height": 80 },
       "visualRole": "summary-node",
-      "childNodeIds": ["student"]
+      "childNodeIds": ["update"]
     },
     {
-      "id": "student",
-      "labelKey": "graph.nodes.student.label",
-      "moduleKind": "output",
-      "position": { "x": 250, "y": 240 },
+      "id": "update",
+      "labelKey": "graph.nodes.update.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 244 },
       "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["deployment"]
+    },
+    {
+      "id": "deployment",
+      "labelKey": "graph.nodes.deployment.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 376 },
+      "size": { "width": 220, "height": 70 },
       "visualRole": "process-node",
       "childNodeIds": []
     }
   ],
   "edges": [
     {
-      "id": "teacher-supervision",
+      "id": "teacher-traces",
       "source": "teacher",
-      "target": "supervision",
+      "target": "traces",
       "edgeKind": "data-flow",
       "sourceHandleSide": "bottom",
       "targetHandleSide": "top"
     },
     {
-      "id": "supervision-student",
-      "source": "supervision",
-      "target": "student",
+      "id": "traces-update",
+      "source": "traces",
+      "target": "update",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "update-deployment",
+      "source": "update",
+      "target": "deployment",
       "edgeKind": "data-flow",
       "sourceHandleSide": "bottom",
       "targetHandleSide": "top"
