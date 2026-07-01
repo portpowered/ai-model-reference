@@ -213,7 +213,7 @@ describe("active-pr-mergeability-watchdog script", () => {
       "- status=linked-with-gaps queue=failed work-item=beta",
     );
     expect(result.stdout).toContain(
-      "reason=stamped lane metadata is incomplete: missing branch name; no open PR metadata found for branch beta",
+      "reason=stamped lane metadata is incomplete: missing branch name; no open PR metadata found for branch beta; missing pull request metadata for actionable task/review lane",
     );
 
     rmSync(dir, { recursive: true, force: true });

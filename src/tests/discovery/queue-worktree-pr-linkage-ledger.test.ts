@@ -295,7 +295,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
     expect(result.stdout).toContain("linkage=linked-with-gaps");
     expect(result.stdout).toContain("metadata=incomplete");
     expect(result.stdout).toContain(
-      "missing=stamped lane metadata is incomplete: missing branch name; no open PR metadata found for branch beta",
+      "missing=stamped lane metadata is incomplete: missing branch name; no open PR metadata found for branch beta; missing pull request metadata for actionable task/review lane",
     );
 
     rmSync(dir, { recursive: true, force: true });
@@ -588,6 +588,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
           missingLinkageReasons: [
             "stamped lane metadata is incomplete: missing branch name",
             "no open PR metadata found for branch beta",
+            "missing pull request metadata for actionable task/review lane",
           ],
         }),
       ]),

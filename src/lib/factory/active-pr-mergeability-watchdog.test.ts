@@ -1055,43 +1055,219 @@ describe("story 002 classification helpers", () => {
         new Map([[alphaPath, "alpha-git"]]),
         new Map([["alpha-git", "0\t0"]]),
       ),
-      lookupPullRequest: () => ({
-        pullRequest: null,
-        failureKind: "not-found",
-        failureReason: "no open PR metadata found for branch alpha-git",
-      }),
+      lookupPullRequest: (branchName): PullRequestLookupResult =>
+        branchName === "alpha-git"
+          ? {
+              pullRequest: {
+                number: 99,
+                headRefName: "alpha-git",
+                mergeStateStatus: "CLEAN",
+                statusCheckRollup: [{ conclusion: "SUCCESS" }],
+              },
+            }
+          : {
+              pullRequest: null,
+              failureKind: "not-found",
+              failureReason: `no open PR metadata found for branch ${branchName}`,
+            },
     });
 
     expect(report.lanes).toEqual([
-      {
-        status: "unclassified",
+      expect.objectContaining({
+        status: "pr-backed",
         workItemName: "alpha",
         queueState: "active",
         rawQueueState: "active",
-        workTypeName: undefined,
-        hasDependsOnRelation: false,
         worktreePath: ".claude/worktrees/alpha",
-        branchName: "alpha-meta",
+        branchName: "alpha-git",
         workItemNameSource: "metadata",
         branchMetadataSource: "metadata",
         metadataStatus: "conflicting",
-        prLookupFailureKind: "not-found",
-        prLookupFailureReason: "no open PR metadata found for branch alpha-git",
-        sessionId: undefined,
-        sessionIdSource: undefined,
-        sessionState: undefined,
-        driftStatus: "unknown",
-        commitsAheadOfMain: undefined,
-        commitsBehindMain: undefined,
-        queueMismatchRisk: undefined,
-        nextAction: undefined,
+        prNumber: 99,
+        mergeabilityClass: "mergeable",
+        checkHealth: "passing",
         reasons: [
           "stamped branch alpha-meta disagrees with git branch alpha-git",
           "stamped branch alpha-meta disagrees with prd branch alpha-prd",
           "git branch alpha-git disagrees with prd branch alpha-prd",
-          "no open PR metadata found for branch alpha-git",
+          "PR resolved via worktree branch alpha-git after stamped branch alpha-meta had no open PR",
         ],
-      },
+      }),
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+});
+
+describe("active-pr-watchdog-worktree-linkage-repair-002", () => {
+  test("classifies PR-backed lanes from prd branch when stamped metadata omits branch name", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-worktree-prd-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const betaPath = createWorktree(worktreesRoot, "beta", "beta");
+    writeLaneMetadata(betaPath, {
+      schemaVersion: 1,
+      workItemName: "beta",
+      worktreePath: betaPath,
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "beta", state: "active" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(new Map(), new Map([["beta", "0\t1"]])),
+      lookupPullRequest: (branchName): PullRequestLookupResult =>
+        branchName === "beta"
+          ? {
+              pullRequest: {
+                number: 51,
+                headRefName: "beta",
+                url: "https://example.com/pull/51",
+                mergeStateStatus: "CLEAN",
+                statusCheckRollup: [{ conclusion: "SUCCESS" }],
+              },
+            }
+          : {
+              pullRequest: null,
+              failureKind: "not-found",
+              failureReason: `no open PR metadata found for branch ${branchName}`,
+            },
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        workItemName: "beta",
+        queueState: "active",
+        worktreePath: ".claude/worktrees/beta",
+        branchName: "beta",
+        branchMetadataSource: "prd",
+        metadataStatus: "incomplete",
+        prNumber: 51,
+        prUrl: "https://example.com/pull/51",
+        reasons: ["stamped lane metadata is incomplete: missing branch name"],
+      }),
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  test("classifies PR-backed lanes from git branch when worktree metadata is missing", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-worktree-git-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const gammaPath = createWorktree(worktreesRoot, "gamma", "gamma-prd");
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "gamma", state: "active" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(
+        new Map([[gammaPath, "gamma-git"]]),
+        new Map([["gamma-git", "1\t0"]]),
+      ),
+      lookupPullRequest: (branchName): PullRequestLookupResult =>
+        branchName === "gamma-git"
+          ? {
+              pullRequest: {
+                number: 77,
+                headRefName: "gamma-git",
+                mergeStateStatus: "CLEAN",
+                statusCheckRollup: [{ conclusion: "SUCCESS" }],
+              },
+            }
+          : {
+              pullRequest: null,
+              failureKind: "not-found",
+              failureReason: `no open PR metadata found for branch ${branchName}`,
+            },
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        workItemName: "gamma",
+        worktreePath: ".claude/worktrees/gamma",
+        branchName: "gamma-git",
+        branchMetadataSource: "git",
+        metadataStatus: "missing",
+        prNumber: 77,
+        driftStatus: "behind",
+        commitsAheadOfMain: 0,
+        commitsBehindMain: 1,
+        reasons: [
+          "stamped lane metadata missing; fell back to worktree heuristics",
+          "git branch gamma-git disagrees with prd branch gamma-prd",
+        ],
+      }),
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  test("names missing PR metadata as an actionable linkage gap when branch candidates all fail", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-worktree-gap-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const deltaPath = createWorktree(worktreesRoot, "delta", "delta");
+    writeLaneMetadata(deltaPath, {
+      schemaVersion: 1,
+      workItemName: "delta",
+      worktreePath: deltaPath,
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "delta", state: "failed" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(new Map()),
+      lookupPullRequest: () => ({
+        pullRequest: null,
+        failureKind: "not-found",
+        failureReason: "no open PR metadata found for branch delta",
+      }),
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "unclassified",
+        workItemName: "delta",
+        queueState: "failed",
+        worktreePath: ".claude/worktrees/delta",
+        branchName: "delta",
+        branchMetadataSource: "prd",
+        metadataStatus: "incomplete",
+        prLookupFailureKind: "not-found",
+        prLookupFailureReason: "no open PR metadata found for branch delta",
+        reasons: [
+          "stamped lane metadata is incomplete: missing branch name",
+          "no open PR metadata found for branch delta",
+          "missing pull request metadata for actionable task/review lane",
+        ],
+      }),
     ]);
 
     rmSync(repoRoot, { recursive: true, force: true });
