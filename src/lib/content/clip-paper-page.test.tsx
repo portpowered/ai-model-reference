@@ -4,8 +4,11 @@ import { renderToReadableStream } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { resolveCitations } from "@/lib/content/citations";
 import { loadPaperPage } from "@/lib/content/paper-page";
-import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
-import { getPaperById } from "@/lib/content/registry-runtime";
+import {
+  getPublishedDocsHrefForRecord,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
+import { getConceptById, getPaperById } from "@/lib/content/registry-runtime";
 
 const paperSlug =
   "learning-transferable-visual-models-from-natural-language-supervision";
@@ -70,6 +73,19 @@ describe("CLIP paper page", () => {
 
   test("renders required paper sections, graph labels, and adjacent published links", async () => {
     const page = await loadPaperPage(paperSlug);
+    const multimodalModelHref = getPublishedDocsHrefForRecord(
+      getConceptById("concept.multimodal-model"),
+    );
+    const embeddingHref = getPublishedDocsHrefForRecord(
+      getConceptById("concept.embedding"),
+    );
+    const diffusionModelHref = getPublishedDocsHrefForRecord(
+      getConceptById("concept.diffusion-model"),
+    );
+
+    if (!multimodalModelHref || !embeddingHref || !diffusionModelHref) {
+      throw new Error("expected adjacent concept records to publish docs routes");
+    }
 
     const html = await renderHtml(
       createElement(ModulePageProviders, {
@@ -91,10 +107,10 @@ describe("CLIP paper page", () => {
     expect(html).toContain("Multimodal and conditioning use");
     expect(html).toContain("paired image-caption data");
     expect(html).not.toContain("missing-content");
-    expect(html).toContain('href="/docs/glossary/multimodal-model"');
+    expect(html).toContain(`href="${multimodalModelHref}"`);
     expect(html).toContain('href="/docs/modules/clip-image-tokenization"');
-    expect(html).toContain('href="/docs/glossary/embedding"');
-    expect(html).toContain('href="/docs/glossary/diffusion-model"');
+    expect(html).toContain(`href="${embeddingHref}"`);
+    expect(html).toContain(`href="${diffusionModelHref}"`);
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("on this page");
