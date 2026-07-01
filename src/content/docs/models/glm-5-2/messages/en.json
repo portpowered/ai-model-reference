@@ -1,0 +1,111 @@
+{
+  "title": "GLM-5.2",
+  "description": "A later GLM line member that extends sparse-attention mixture-of-experts architecture with a solid 1M-token context and long-horizon coding emphasis.",
+  "openingSummary": "GLM-5.2 matters because it keeps the GLM sparse-attention, mixture-of-experts stack but pushes the line toward long-horizon coding work. The official release blog emphasizes a stable 1M-token context, IndexShare efficiency for sparse attention, and training aimed at sustained agentic engineering rather than one-shot answers. The Z.ai GitHub download table lists the checkpoint at 744 billion total parameters with about 40 billion active per token.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "GLM-5.2 is an open-weights text model from Z.ai, released on 2026-06-17 in the GLM-5.2 blog post. It is the later GLM line member that builds on the same sparse mixture-of-experts transformer family as GLM-5 while adding a 1M-token context window under an MIT open-source license. The official GitHub model download table lists it at 744 billion total parameters and about 40 billion active parameters."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "GLM-5.2 is a text-in, text-out model. The public release emphasizes long coding-agent trajectories, tool use, and multi-step engineering work where the model must keep quality across very long prompts instead of degrading once context grows."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "GLM-5.2 keeps the decoder-only sparse MoE skeleton from the GLM line. The release blog highlights IndexShare, which reuses a lightweight indexer across every four sparse-attention layers to cut indexer cost at 1M context, plus improved multi-token prediction for speculative decoding. The named building blocks still include DSA-style sparse attention, mixture-of-experts routing, multi-head latent attention, RMSNorm, and RoPE."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "These modules explain why GLM-5.2 stays in the same modern long-context MoE lane as GLM-5 rather than becoming a separate architecture family. Sparse attention and mixture-of-experts carry the scaling story, while latent attention, RMSNorm, and RoPE support stable training and very long prompts."
+    },
+    "training": {
+      "title": "Training",
+      "body": "The GLM-5.2 blog frames post-training around long-horizon agentic reinforcement learning, on-policy distillation from multiple expert models, and anti-hack safeguards for coding-agent rollouts. The public materials describe expanded 1M-context training for coding-agent scenarios and open-weight release in bf16."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "GLM-5.2 advertises a 1,048,576-token context window and effort-level control that lets callers trade latency against reasoning depth. Read GLM-5 first for the original agentic-engineering story and shorter advertised context, then use this page when you need the later line member with the 1M-context and long-horizon coding emphasis."
+    },
+    "related": { "title": "Related Models, Modules, And Papers" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "links": {
+    "glm5ModelPage": "GLM-5 model page"
+  },
+  "relatedDocs": {
+    "model.glm-5": {
+      "reason": "GLM-5 is the earlier GLM line member that introduced the sparse-attention MoE stack and original agentic-engineering positioning."
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "GLM-5.2 architecture diagram with token embeddings, RoPE position encoding, a repeated decoder block containing sparse attention, RMSNorm, and mixture-of-experts routing, then an output projection and softmax."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "The model's probability distribution over the next token"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Output\nLinear",
+        "summary": "Projects the final hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated decoder block container for the main GLM-5.2 stack"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Attention sublayer container"
+      },
+      "moeSublayer": {
+        "label": " ",
+        "summary": "Sparse expert sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats through the full stack"
+      },
+      "rmsnormAttention": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before the sparse attention step"
+      },
+      "sparseAttention": {
+        "label": "Sparse\nAttention\n(DSA)",
+        "summary": "The attention path uses DSA-style sparsity with IndexShare to cut long-context cost while keeping useful global context"
+      },
+      "rmsnormMoe": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the stream before the sparse expert block"
+      },
+      "mixture-of-experts": {
+        "label": "Mixture\nOf Experts",
+        "summary": "Routes each token through a small active set of experts instead of one dense feed-forward path"
+      },
+      "ropeInject": {
+        "label": "+",
+        "summary": "Applies token states together with rotary position information before the stack"
+      },
+      "rope": {
+        "label": "RoPE",
+        "summary": "Rotary position encoding gives the attention stack token order information"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs into hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after tokenization"
+      }
+    }
+  }
+}
