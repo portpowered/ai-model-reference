@@ -10,9 +10,9 @@
 
 ## Source domains (transitional direct imports still valid)
 
-- `src/features/models/components/` — MDX-facing AI page renderers.
-- `src/features/topology/` — topology browse/prototype graph surface.
-- `src/features/docs/timeline/` — ontology timeline page surface.
+- `src/features/models/components/` — MDX-facing AI page renderers; `index.ts` re-exports the public renderer surface.
+- `src/features/topology/` — topology browse/prototype graph surface; `index.ts` re-exports helpers and renderers.
+- `src/features/docs/timeline/` — ontology timeline page surface; `index.ts` re-exports helpers and renderers.
 
 ## Shell consumers to migrate incrementally
 
