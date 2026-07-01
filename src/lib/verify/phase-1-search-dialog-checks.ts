@@ -87,6 +87,23 @@ export function formatSearchDialogOpenFailureReason(timeoutMs: number): string {
   return `did not open the header search dialog on the home page within ${timeoutMs}ms`;
 }
 
+export async function activateSearchDialogTrigger(
+  trigger: Locator,
+  timeoutMs: number,
+): Promise<void> {
+  try {
+    await trigger.click({ timeout: timeoutMs });
+    return;
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.includes("Timeout")) {
+      throw error;
+    }
+  }
+
+  await trigger.focus();
+  await trigger.press("Enter", { timeout: timeoutMs });
+}
+
 /**
  * Pure DOM outcome for the header search dialog — used by Playwright and unit tests.
  */
@@ -177,13 +194,19 @@ async function openHeaderSearchDialog(
   const dialog = page.getByRole("dialog", { name: "Search" });
   const deadline = Date.now() + timeoutMs;
 
+  await trigger.waitFor({ state: "visible", timeout: timeoutMs });
+  await page.locator("body").click({ position: { x: 8, y: 8 }, force: true });
+
   while (Date.now() < deadline) {
     if (await dialog.isVisible().catch(() => false)) {
       return dialog;
     }
 
     const remainingMs = Math.max(1, deadline - Date.now());
-    await trigger.click({ timeout: Math.min(remainingMs, timeoutMs) });
+    await activateSearchDialogTrigger(
+      trigger,
+      Math.min(remainingMs, timeoutMs),
+    );
 
     try {
       await dialog.waitFor({

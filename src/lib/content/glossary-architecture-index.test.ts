@@ -133,7 +133,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
 };
 
 const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 50;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 51;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -232,6 +232,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
 
     for (const url of [
       "/docs/glossary/architecture",
+      "/docs/concepts/decoder",
       "/docs/glossary/kv-cache",
       "/docs/glossary/normalization",
       "/docs/glossary/residual-connection",
@@ -269,6 +270,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     for (const [title, href] of [
       ["Attention with linear biases (ALiBi)", "/docs/concepts/alibi"],
       ["Architecture", "/docs/glossary/architecture"],
+      ["Decoder", "/docs/concepts/decoder"],
       ["Foundation Model", "/docs/glossary/foundation-model"],
       ["Key-value cache", "/docs/concepts/kv-cache"],
       ["Decode", "/docs/glossary/decode"],

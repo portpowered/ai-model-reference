@@ -4,17 +4,28 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["Decoder", "decoder block", "decoder stack", "decoding network"],
+  "aliases": [
+    "Decoder",
+    "decoder block",
+    "decoder stack",
+    "decoder-only stack",
+    "decoding network"
+  ],
   "tags": ["foundations", "taxonomy"],
   "relatedIds": [
     "concept.encoder",
     "concept.encoder-decoder",
-    "concept.autoregressive-generation"
+    "concept.autoregressive-generation",
+    "concept.decode",
+    "concept.transformer",
+    "module.causal-attention",
+    "model.gpt-3",
+    "paper.gpt-2-report"
   ],
   "citationIds": ["citation.attention-is-all-you-need", "citation.brown-gpt-3"],
   "status": "published",
   "createdAt": "2026-06-04T11:39:45.780Z",
-  "updatedAt": "2026-06-04T12:30:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
   "conceptType": "architecture",
   "sidebarGrouping": {
     "glossary": "sequence-and-attention"
