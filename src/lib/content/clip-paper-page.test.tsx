@@ -73,18 +73,22 @@ describe("CLIP paper page", () => {
 
   test("renders required paper sections, graph labels, and adjacent published links", async () => {
     const page = await loadPaperPage(paperSlug);
-    const multimodalModelHref = getPublishedDocsHrefForRecord(
-      getConceptById("concept.multimodal-model"),
-    );
-    const embeddingHref = getPublishedDocsHrefForRecord(
-      getConceptById("concept.embedding"),
-    );
-    const diffusionModelHref = getPublishedDocsHrefForRecord(
-      getConceptById("concept.diffusion-model"),
-    );
+    const multimodalModel = getConceptById("concept.multimodal-model");
+    const embedding = getConceptById("concept.embedding");
+    const diffusionModel = getConceptById("concept.diffusion-model");
+
+    if (!multimodalModel || !embedding || !diffusionModel) {
+      throw new Error("expected adjacent concept records in registry");
+    }
+
+    const multimodalModelHref = getPublishedDocsHrefForRecord(multimodalModel);
+    const embeddingHref = getPublishedDocsHrefForRecord(embedding);
+    const diffusionModelHref = getPublishedDocsHrefForRecord(diffusionModel);
 
     if (!multimodalModelHref || !embeddingHref || !diffusionModelHref) {
-      throw new Error("expected adjacent concept records to publish docs routes");
+      throw new Error(
+        "expected adjacent concept records to publish docs routes",
+      );
     }
 
     const html = await renderHtml(
