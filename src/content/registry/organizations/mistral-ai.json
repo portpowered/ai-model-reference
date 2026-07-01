@@ -1,0 +1,23 @@
+{
+  "id": "organization.mistral-ai",
+  "slug": "mistral-ai",
+  "kind": "organization",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Mistral AI", "Mistral", "Mistral AI team"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["model.mixtral-8x7b", "model.mixtral-8x22b"],
+  "citationIds": [
+    "citation.mixtral-8x7b-release",
+    "citation.mixtral-8x7b-model-card",
+    "citation.mixtral-8x22b-release",
+    "citation.mistral-changelog"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "website": "https://mistral.ai",
+  "modelIds": ["model.mixtral-8x7b", "model.mixtral-8x22b"],
+  "paperIds": [],
+  "systemIds": []
+}

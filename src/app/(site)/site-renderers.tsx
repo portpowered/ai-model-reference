@@ -58,8 +58,17 @@ import {
   type TopologyClassificationEntry,
 } from "@/lib/content/topology-tree-entries";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { buildBrowseCollectionSections } from "@/lib/docs/browse-collection-sections";
+import type { ShellCollectionDefinition } from "@/lib/docs/collection-definition-contract";
 import { toDocsIndexEntries } from "@/lib/docs/docs-index-entries";
+import {
+  type DocsCollectionInput,
+  resolveDocsCollectionInput,
+  resolveSectionKindCollectionId,
+  resolveShellCollectionIndexMessages,
+  type SectionIndexFrontmatterKind,
+} from "@/lib/docs/section-collection-index";
 import {
   buildLocalizedRoute,
   defaultLocale,
@@ -204,26 +213,39 @@ export async function renderBrowseIndexPage(
   return defaultPage;
 }
 
-export async function renderSectionKindIndexPage(
-  kind: "model" | "module" | "concept" | "paper" | "training-regime" | "system",
-  locale: SiteLocale = defaultLocale,
-) {
-  const messages = await loadUiMessages(locale);
-  const pages = await loadShippedLocalizedDocsPages(locale);
-  const sectionMessages =
-    kind === "model"
-      ? messages.modelsIndex
-      : kind === "module"
-        ? messages.modulesIndex
-        : kind === "concept"
-          ? messages.conceptsIndex
-          : kind === "paper"
-            ? messages.papersIndex
-            : kind === "training-regime"
-              ? messages.trainingIndex
-              : messages.systemsIndex;
+export type ShellSectionCollectionIndexDefinition = Pick<
+  ShellCollectionDefinition,
+  "frontmatterKind" | "messageKeys"
+>;
+
+export type ShellSectionCollectionIndexPageInput = {
+  definition: ShellSectionCollectionIndexDefinition;
+  pages: readonly {
+    docsSlug: string;
+    url: string;
+    messages: { title: string; description: string };
+    frontmatter: { kind: string };
+  }[];
+  messages: Record<string, unknown>;
+  locale?: SiteLocale;
+  emptyStateMessages: UiMessages;
+};
+
+export function renderShellSectionCollectionIndexPage({
+  definition,
+  pages,
+  messages,
+  locale = defaultLocale,
+  emptyStateMessages,
+}: ShellSectionCollectionIndexPageInput) {
+  const sectionMessages = resolveShellCollectionIndexMessages(
+    messages,
+    definition,
+  );
   const entries = toDocsIndexEntries(
-    pages.filter((page) => page.frontmatter.kind === kind),
+    pages.filter(
+      (page) => page.frontmatter.kind === definition.frontmatterKind,
+    ),
     locale,
     [],
     Number.POSITIVE_INFINITY,
@@ -239,7 +261,7 @@ export async function renderSectionKindIndexPage(
             title={sectionMessages.emptyTitle}
             description={sectionMessages.emptyDescription}
             homeLinkLabel={sectionMessages.emptyHomeLink}
-            messages={messages}
+            messages={emptyStateMessages}
             locale={locale}
           />
         ) : (
@@ -250,6 +272,33 @@ export async function renderSectionKindIndexPage(
         )}
       </DocsBody>
     </DocsPage>
+  );
+}
+
+export async function renderSectionCollectionIndexPage(
+  collection: DocsCollectionInput,
+  locale: SiteLocale = defaultLocale,
+) {
+  const definition = resolveDocsCollectionInput(collection);
+  const messages = await loadUiMessages(locale);
+  const pages = await loadShippedLocalizedDocsPages(locale);
+
+  return renderShellSectionCollectionIndexPage({
+    definition,
+    pages,
+    messages,
+    locale,
+    emptyStateMessages: messages,
+  });
+}
+
+export async function renderSectionKindIndexPage(
+  kind: SectionIndexFrontmatterKind,
+  locale: SiteLocale = defaultLocale,
+) {
+  return renderSectionCollectionIndexPage(
+    resolveSectionKindCollectionId(kind),
+    locale,
   );
 }
 

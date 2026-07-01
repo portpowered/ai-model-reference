@@ -4,9 +4,23 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["embeddings", "token embedding", "vector embedding"],
+  "aliases": [
+    "embeddings",
+    "token embedding",
+    "vector embedding",
+    "vector representation",
+    "embedding space"
+  ],
   "tags": ["token-to-probability-chain", "foundations"],
-  "relatedIds": ["concept.tensor"],
+  "relatedIds": [
+    "concept.token",
+    "module.byte-level-tokenization",
+    "module.bpe",
+    "concept.positional-encodings",
+    "module.learned-positional-embeddings",
+    "model.gpt-3",
+    "concept.tensor"
+  ],
   "citationIds": [
     "citation.goodfellow-deep-learning",
     "citation.attention-is-all-you-need"

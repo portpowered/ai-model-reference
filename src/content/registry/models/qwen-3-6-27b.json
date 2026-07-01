@@ -7,6 +7,7 @@
   "aliases": ["Qwen3.6-27B", "Qwen 3.6 27B"],
   "tags": ["foundations", "model-family", "context-window", "attention"],
   "relatedIds": [
+    "model.qwen3-5-0-8b",
     "model.qwen-3-6-35b-a3b",
     "concept.transformer-architecture",
     "concept.context-window",

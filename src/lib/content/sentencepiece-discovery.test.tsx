@@ -24,6 +24,7 @@ describe("sentencepiece tokenization discovery surfaces (sentencepiece-page-003)
       messages,
       "en",
     );
+    const modelGroup = groups.find((group) => group.kind === "model");
     const conceptGroup = groups.find((group) => group.kind === "concept");
     const moduleGroup = groups.find((group) => group.kind === "module");
     const trainingGroup = groups.find(
@@ -34,12 +35,24 @@ describe("sentencepiece tokenization discovery surfaces (sentencepiece-page-003)
     expect(context?.summary.length).toBeGreaterThan(0);
     expect(context?.categoryLabel).toBe("Module type");
     expect(groups.map((group) => group.kind)).toEqual([
+      "model",
       "module",
       "concept",
       "paper",
       "training-regime",
       "glossary",
     ]);
+    expect(modelGroup?.kindLabel).toBe("Model");
+    expect(modelGroup?.resources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "model",
+          slug: "qwen3-0-6b",
+          title: "Qwen3-0.6B",
+          url: "/docs/models/qwen3-0-6b",
+        }),
+      ]),
+    );
     expect(moduleGroup?.kindLabel).toBe("Module");
     expect(conceptGroup?.kindLabel).toBe("Concept");
     expect(trainingGroup?.kindLabel).toBe("Training");

@@ -63,7 +63,7 @@ describe("wordpiece generation and discovery contract", () => {
 
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/glossary/token"');
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/glossary/encoder"');
     expect(html).toContain('href="/docs/modules/bidirectional-attention"');
   });

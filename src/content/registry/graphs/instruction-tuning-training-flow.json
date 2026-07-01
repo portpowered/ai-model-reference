@@ -1,0 +1,73 @@
+{
+  "id": "graph.instruction-tuning-training-flow",
+  "slug": "instruction-tuning-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "instruction tuning training flow",
+    "supervised fine-tuning flow",
+    "SFT training flow"
+  ],
+  "tags": ["alignment", "foundations"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.training-language-models-to-follow-instructions-with-human-feedback"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "training-regime.instruction-tuning",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "demonstrations",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "demonstrations",
+      "labelKey": "graph.nodes.demonstrations.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 240, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": ["supervisedUpdate"]
+    },
+    {
+      "id": "supervisedUpdate",
+      "labelKey": "graph.nodes.supervisedUpdate.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 118 },
+      "size": { "width": 210, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["instructionModel"]
+    },
+    {
+      "id": "instructionModel",
+      "labelKey": "graph.nodes.instructionModel.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 252 },
+      "size": { "width": 230, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "demonstrations-supervised-update",
+      "source": "demonstrations",
+      "target": "supervisedUpdate",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "supervised-update-instruction-model",
+      "source": "supervisedUpdate",
+      "target": "instructionModel",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

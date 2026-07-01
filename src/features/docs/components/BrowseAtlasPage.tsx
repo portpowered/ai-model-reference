@@ -6,7 +6,7 @@ import {
   defaultLocale,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
-import { type DocsIndexEntry, DocsIndexEntryList } from "./DocsIndexEntryList";
+import { DocsIndexEntryList } from "./DocsIndexEntryList";
 import {
   bulletlessListClassName,
   docsResourceCardLinkClassName,
@@ -54,14 +54,7 @@ function BrowseSection({
   entries,
   linkLabel,
   linkHref,
-}: {
-  id: string;
-  title: string;
-  description: string;
-  entries: DocsIndexEntry[];
-  linkLabel?: string;
-  linkHref?: string;
-}) {
+}: BrowseCollectionSection) {
   return (
     <section
       id={id}
@@ -89,6 +82,20 @@ function BrowseSection({
         </p>
       ) : null}
     </section>
+  );
+}
+
+export function BrowseCollectionSectionList({
+  sections,
+}: {
+  sections: BrowseCollectionSection[];
+}) {
+  return (
+    <>
+      {sections.map((section) => (
+        <BrowseSection key={section.id} {...section} />
+      ))}
+    </>
   );
 }
 

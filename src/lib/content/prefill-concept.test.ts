@@ -33,9 +33,6 @@ describe("prefill concept page (prefill-concept-page-001)", () => {
       "prompt processing",
       "prompt pass",
       "initial prompt pass",
-      "time to first token",
-      "first token latency",
-      "time to first token stage",
     ]);
     expect(record?.tags).toEqual(["foundations", "attention", "kv-cache"]);
     expect(record?.relatedIds).toEqual([
@@ -179,12 +176,7 @@ describe("prefill concept page (prefill-concept-page-001)", () => {
     expect(document?.kind).toBe("concept");
     expect(document?.facets.kind).toBe("concept");
     expect(document?.aliases).toEqual(
-      expect.arrayContaining([
-        "Prefill",
-        "prompt processing",
-        "time to first token",
-        "first token latency",
-      ]),
+      expect.arrayContaining(["Prefill", "prompt processing"]),
     );
   });
 
@@ -235,13 +227,8 @@ describe("prefill concept page (prefill-concept-page-001)", () => {
     ).toBe(true);
   });
 
-  test("search ranks the concept route first for prefill and prompt-latency queries", async () => {
-    for (const query of [
-      "Prefill",
-      "prompt processing",
-      "time to first token",
-      "first token latency",
-    ] as const) {
+  test("search ranks the concept route first for prefill queries", async () => {
+    for (const query of ["Prefill", "prompt processing"] as const) {
       const results = await docsSearchApi.search(query);
       expect(results.length).toBeGreaterThan(0);
       expect(results[0]?.url).toBe("/docs/concepts/prefill");

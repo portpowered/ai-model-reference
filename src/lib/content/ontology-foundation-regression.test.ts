@@ -423,6 +423,10 @@ describe("ontology foundation regression coverage", () => {
       "classification.training.alignment",
     );
     expect(
+      getPrimaryClassificationForRecord("training-regime.instruction-tuning")
+        ?.id,
+    ).toBe("classification.training.alignment");
+    expect(
       getPrimaryClassificationForRecord("training-regime.pretraining")?.id,
     ).toBe("classification.training.pretraining");
     expect(getPrimaryClassificationForRecord("system.routing")?.id).toBe(
@@ -508,7 +512,12 @@ describe("ontology foundation regression coverage", () => {
       listClassificationMembers("classification.training.alignment").map(
         (member) => `${member.membershipType}:${member.record.id}`,
       ),
-    ).toEqual(["primary:training-regime.dpo"]);
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:training-regime.dpo",
+        "primary:training-regime.instruction-tuning",
+      ]),
+    );
     expect(
       listClassificationMembers("classification.training.pretraining").map(
         (member) => `${member.membershipType}:${member.record.id}`,

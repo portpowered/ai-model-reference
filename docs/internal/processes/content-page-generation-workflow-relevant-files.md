@@ -54,6 +54,24 @@ Compatible with narrow, reviewer-verifiable changes in
 [code standards](../../code-standards.md) and
 [review standards](../../review-standards.md).
 
+## Glossary bridge plus concept canonical route (dual registry id)
+
+When a new concept page shares an existing `concept.<slug>` registry id with a
+published glossary bridge at `/docs/glossary/<slug>`, the page bundle can stay
+page-local but CI will require narrowly-scoped shared updates:
+
+- Resolve glossary-chain validation by `glossaryPageHref(slug)` plus
+  `registryId`, not `pages.find(registryId)` alone.
+- Route curated links, search ranking, and auto-linked prose to
+  `/docs/concepts/<slug>` via generated `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS`.
+- Keep glossary-chain gates validating `/docs/glossary/<slug>`.
+- Add one behavioral discovery test (for example `embedding-concept-discovery.test.ts`)
+  using `getDocsPageDir("concepts", "<slug>")`; update only convergence fixtures
+  whose expectations change because of the dual route.
+
+Document the exception explicitly in the work-item PRD when this collision is
+inherent to the slice.
+
 ## PR-head mergeability for page branches (process executors)
 
 When a routine canonical page branch has finished its page PRD stories but the
@@ -155,6 +173,27 @@ requiring a broad rewrite of every legacy `*_PAGE_DIR` import:
 When adding a new page test, follow the same module-level
 `const pageDir = getDocsPageDir("<section>", "<slug>")` pattern instead of
 importing a page-specific constant.
+
+## Paired model slice discoverability
+
+When shipping the final story in a multi-model family PRD, keep discovery
+registry-backed instead of hand-maintaining related prose:
+
+* Bidirectional sibling links in each model record's `relatedIds`
+* Aliases on both registry records and page frontmatter (`Mixtral 8x7B`,
+  `open-mixtral-8x7b`, etc.)
+* Back-links on shared module/system records:
+  `module.mixture-of-experts` `usedByModelIds` and `system.routing`
+  `relatedModelIds`
+* A focused `*-discovery.test.tsx` patterned after
+  `src/lib/content/qwen-3-6-discovery.test.tsx` or
+  `src/lib/content/glm-family-discovery.test.tsx`
+
+Representative paired-slice verification:
+
+* `src/lib/content/mixtral-moe-discovery.test.tsx`
+* `src/lib/content/qwen-3-6-discovery.test.tsx`
+* `src/lib/content/glm-family-discovery.test.tsx`
 
 ## Reviewer-facing verification
 

@@ -18,9 +18,19 @@ const CHAIN_TAG = "token-to-probability-chain";
 
 const SOFTMAX_BODY_PHRASE = "next-token sampling reads softmax probabilities";
 
-const CHAIN_GLOSSARY_PAGES = [
+type ChainGlossaryPage = {
+  title: string;
+  url: string;
+  searchUrl?: string;
+};
+
+const CHAIN_GLOSSARY_PAGES: readonly ChainGlossaryPage[] = [
   { title: "Token", url: "/docs/glossary/token" },
-  { title: "Embedding", url: "/docs/glossary/embedding" },
+  {
+    title: "Embedding",
+    url: "/docs/glossary/embedding",
+    searchUrl: "/docs/concepts/embedding",
+  },
   { title: "Tensor", url: "/docs/glossary/tensor" },
   { title: "Logit", url: "/docs/glossary/logit" },
   { title: "Softmax", url: "/docs/glossary/softmax" },
@@ -36,13 +46,13 @@ const CHAIN_GLOSSARY_PAGES = [
   { title: "Backpropagation", url: "/docs/glossary/backpropagation" },
   { title: "Loss Function", url: "/docs/glossary/loss-function" },
   { title: "Optimizer State", url: "/docs/glossary/optimizer-state" },
-] as const;
+];
 
 const CHAIN_GLOSSARY_URLS = CHAIN_GLOSSARY_PAGES.map((page) => page.url);
 
 const REPRESENTATIVE_ALIAS_QUERIES = [
   { query: "tokens", url: "/docs/glossary/token" },
-  { query: "embeddings", url: "/docs/glossary/embedding" },
+  { query: "embeddings", url: "/docs/concepts/embedding" },
   { query: "logits", url: "/docs/glossary/logit" },
   { query: "backprop", url: "/docs/glossary/backpropagation" },
   { query: "objective function", url: "/docs/glossary/loss-function" },
@@ -97,7 +107,9 @@ describe("Phase 2 full chain search indexing (US-011)", () => {
 
 describe("Phase 2 full chain search title ranking (US-011)", () => {
   test.each(
-    CHAIN_GLOSSARY_PAGES.map(({ title, url }) => [title, url] as const),
+    CHAIN_GLOSSARY_PAGES.map(
+      ({ title, url, searchUrl }) => [title, searchUrl ?? url] as const,
+    ),
   )("ranks %s glossary first for canonical title query", async (title, url) => {
     const results = await docsSearchApi.search(title);
     expect(results.length).toBeGreaterThan(0);

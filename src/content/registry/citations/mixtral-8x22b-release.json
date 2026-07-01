@@ -1,0 +1,24 @@
+{
+  "id": "citation.mixtral-8x22b-release",
+  "slug": "mixtral-8x22b-release",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Cheaper, Better, Faster, Stronger",
+    "Mixtral 8x22B release",
+    "Mixtral 8x22B blog post"
+  ],
+  "tags": ["foundations", "model-family", "feed-forward", "context-window"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["Mistral AI"],
+  "title": "Cheaper, Better, Faster, Stronger",
+  "url": "https://mistral.ai/news/mixtral-8x22b",
+  "mla": "Mistral AI. \"Cheaper, Better, Faster, Stronger.\" Mistral AI, April 2024.",
+  "year": 2024
+}

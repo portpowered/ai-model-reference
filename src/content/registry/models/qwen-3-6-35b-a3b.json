@@ -13,6 +13,7 @@
     "attention"
   ],
   "relatedIds": [
+    "model.qwen3-5-0-8b",
     "model.qwen-3-6-27b",
     "concept.mixture-of-experts",
     "module.mixture-of-experts",

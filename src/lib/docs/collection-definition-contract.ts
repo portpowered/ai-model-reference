@@ -57,8 +57,8 @@ export const DOCS_COLLECTION_SIDEBAR_GROUPING_RESOLVER_IDS = [
 export type DocsCollectionSidebarGroupingResolverId =
   (typeof DOCS_COLLECTION_SIDEBAR_GROUPING_RESOLVER_IDS)[number];
 
-/** Message key paths in `UiMessages` for browse cards and section index pages. */
-export type DocsCollectionMessageKeys = {
+/** Message key paths for browse cards and section index pages. */
+export type ShellCollectionMessageKeys = {
   browse: {
     sectionTitle: string;
     sectionDescription: string;
@@ -74,20 +74,46 @@ export type DocsCollectionMessageKeys = {
   };
 };
 
+/** Message key paths in `UiMessages` for browse cards and section index pages. */
+export type DocsCollectionMessageKeys = ShellCollectionMessageKeys;
+
+/**
+ * Generic shell collection contract for browse, section index, sidebar, and
+ * search consumers. AI docs collections specialize this shape.
+ */
+export type ShellCollectionDefinition<
+  TId extends string = string,
+  TRouteSlug extends string = string,
+  TFrontmatterKind extends string = string,
+  TRegistryKind extends string = string,
+> = {
+  id: TId;
+  /** Route slug segment under the docs surface. Independent from `frontmatterKind`. */
+  routeSlug: TRouteSlug;
+  registryKind: TRegistryKind;
+  /** Frontmatter kind on collection pages. Independent from `routeSlug`. */
+  frontmatterKind: TFrontmatterKind;
+  /** Route-relative docs slugs featured on the browse page for this collection. */
+  starterSlugs: readonly string[];
+  messageKeys: ShellCollectionMessageKeys;
+  /** Sidebar folder label for page-tree generation. */
+  sidebarLabel: string;
+  sidebarGroupingResolverId?: string;
+};
+
 /**
  * Typed contract for a docs collection before runtime consumers migrate to
  * shared config.
  */
-export type DocsCollectionDefinition = {
-  id: DocsCollectionId;
-  /** Public route slug under `/docs`. Independent from `frontmatterKind`. */
-  routeSlug: DocsCollectionRouteSlug;
-  registryKind: DocsCollectionRegistryKind;
-  /** Frontmatter kind on published docs pages. Independent from `routeSlug`. */
-  frontmatterKind: DocsCollectionFrontmatterKind;
-  /** Route-relative docs slugs featured on the browse page for this collection. */
-  starterSlugs: readonly string[];
-  messageKeys: DocsCollectionMessageKeys;
+export type DocsCollectionDefinition = Omit<
+  ShellCollectionDefinition<
+    DocsCollectionId,
+    DocsCollectionRouteSlug,
+    DocsCollectionFrontmatterKind,
+    DocsCollectionRegistryKind
+  >,
+  "sidebarLabel"
+> & {
   sidebarGroupingResolverId?: DocsCollectionSidebarGroupingResolverId;
 };
 
