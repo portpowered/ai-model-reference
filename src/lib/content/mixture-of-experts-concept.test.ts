@@ -91,6 +91,15 @@ describe("Mixture of experts concept page", () => {
 
     expect(
       relatedItems.find(
+        (item) => item.registryId === "concept.feed-forward-network",
+      )?.href,
+    ).toBe("/docs/modules/feed-forward-network");
+    expect(
+      relatedItems.find((item) => item.registryId === "concept.standard-ffn")
+        ?.href,
+    ).toBe("/docs/modules/standard-ffn");
+    expect(
+      relatedItems.find(
         (item) => item.registryId === "module.mixture-of-experts",
       )?.href,
     ).toBe("/docs/modules/mixture-of-experts");
