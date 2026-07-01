@@ -95,10 +95,7 @@ function isCitationIntroducingRecord(
   registryRecord: RegistryRecord,
   citationId: string,
 ): boolean {
-  if (
-    "sourceId" in registryRecord &&
-    registryRecord.sourceId === citationId
-  ) {
+  if ("sourceId" in registryRecord && registryRecord.sourceId === citationId) {
     return true;
   }
 
