@@ -46,6 +46,9 @@ export type TopologyNavigationLabels = {
   classificationLabels?: Partial<
     Record<TopologySeedClassificationSlug, string>
   >;
+  classificationSummaries?: Partial<
+    Record<TopologySeedClassificationSlug, string>
+  >;
   surfaceLabels?: Partial<Record<TopologySurfaceMode, string>>;
 };
 
@@ -80,6 +83,23 @@ export function getTopologyNavigationLabels(
       "transformer-block-structures":
         messages.topologyBrowse.classificationLabels.transformerBlockStructures,
     },
+    classificationSummaries: {
+      "activation-functions":
+        messages.topologyBrowse.classificationSummaries.activationFunctions,
+      "attention-mechanisms":
+        messages.topologyBrowse.classificationSummaries.attentionMechanisms,
+      "feed-forward-networks":
+        messages.topologyBrowse.classificationSummaries.feedForwardNetworks,
+      "normalization-layers":
+        messages.topologyBrowse.classificationSummaries.normalizationLayers,
+      "position-encoding-methods":
+        messages.topologyBrowse.classificationSummaries.positionEncodingMethods,
+      "tokenization-methods":
+        messages.topologyBrowse.classificationSummaries.tokenizationMethods,
+      "transformer-block-structures":
+        messages.topologyBrowse.classificationSummaries
+          .transformerBlockStructures,
+    },
     surfaceLabels: {
       "graph-map": messages.topologyBrowse.graphMapLabel,
       timeline: messages.topologyBrowse.timelineLabel,
@@ -103,6 +123,15 @@ export function getTopologyClassificationLabel(
     labels?.classificationLabels?.[slug as TopologySeedClassificationSlug] ??
     formatClassificationLabel(slug)
   );
+}
+
+export function getTopologyClassificationSummary(
+  slug: string,
+  labels?: TopologyNavigationLabels,
+): string | undefined {
+  return labels?.classificationSummaries?.[
+    slug as TopologySeedClassificationSlug
+  ];
 }
 
 export function buildTopologyDestinationHref(

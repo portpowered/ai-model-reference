@@ -1,8 +1,10 @@
 import Link from "next/link";
 import type { TopologyBrowseState } from "@/lib/content/topology-browse";
-import type {
-  TopologyNavigationOption,
-  TopologySurfaceMode,
+import {
+  getTopologyClassificationSummary,
+  getTopologyNavigationLabels,
+  type TopologyNavigationOption,
+  type TopologySurfaceMode,
 } from "@/lib/content/topology-navigation";
 import type {
   TopologyClassificationEntry,
@@ -244,6 +246,10 @@ function TopologySelectedState({
     state.mode === "graph-map"
       ? messages.topologyBrowse.graphMapDescription
       : messages.topologyBrowse.timelineDescription;
+  const classificationSummary = getTopologyClassificationSummary(
+    state.option.classificationSlug,
+    getTopologyNavigationLabels(messages),
+  );
 
   return (
     <>
@@ -271,6 +277,11 @@ function TopologySelectedState({
             <dd className="mt-1 text-muted-foreground">{modeLabel}</dd>
           </div>
         </dl>
+        {classificationSummary ? (
+          <p className="mt-4 text-sm leading-7 text-muted-foreground">
+            {classificationSummary}
+          </p>
+        ) : null}
         <p className="mt-4 text-sm leading-7 text-muted-foreground">
           {modeDescription}
         </p>

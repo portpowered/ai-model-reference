@@ -1,0 +1,103 @@
+{
+  "title": "Qwen3.6-35B-A3B",
+  "description": "The sparse-expert Qwen 3.6 open-weights model with 35 billion total parameters, about 3 billion active per token, multimodal inputs, and a 262,144-token native context window.",
+  "openingSummary": "Qwen3.6-35B-A3B is the mixture-of-experts member of the first Qwen 3.6 open-weights release. It keeps a large total parameter budget but routes each token through a smaller active expert subset, which is the main practical contrast with the dense 27B operating point in the same family.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Qwen3.6-35B-A3B is a sparse-expert open-weights model from the Qwen Team and the MoE checkpoint in the first published Qwen 3.6 release. Public release materials describe it as a 35-billion-parameter mixture-of-experts causal language model with a vision encoder, released alongside the dense Qwen3.6-27B variant as a stability-focused coding and agentic-workflow upgrade."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The model accepts text, image, and video inputs and produces text outputs. The Hugging Face model card includes Video Input examples alongside text and image prompts, and lists a 262,144-token native context length with longer extension claims noted separately in the same source. This page keeps the native context figure because it is the conservative operating point repeated across official model metadata."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "As a mixture-of-experts operating point, Qwen3.6-35B-A3B stores many expert weights but routes each token through a smaller active subset rather than activating the full 35-billion-parameter stack on every step. Official model materials describe a deep decoder with repeated attention and sparse expert blocks, rotary position encoding, and RMS normalization. The public Hugging Face model card also names hybrid attention paths inside the stack; this page's diagram stays at the familiar decoder level—attention, normalization, and a sparse expert routing block—so it teaches the MoE flow without turning unexpanded block names into extra claims."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The registry-backed modules below are the smallest set worth opening first when you want to connect this MoE page to the site's module reference. Mixture-of-experts routing is the defining feed-forward behavior here, while rotary position encoding and RMS normalization anchor the high-level stack shown above."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Official sources describe both pre-training and post-training for the released checkpoint. The Qwen 3.6 release blog emphasizes agentic coding workflows and preserving reasoning context across turns, but this page does not restate training-corpus or recipe details beyond what those primary sources publish."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Read Qwen3.6-35B-A3B as the sparse-expert counterpart to the dense Qwen3.6-27B baseline. Public metadata cites about 35 billion total parameters with roughly 3 billion active per token, which is the main practical distinction when you compare compute and memory behavior at inference time against the dense variant."
+    },
+    "related": { "title": "Related Models, Modules, And Papers" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Qwen3.6-35B-A3B architecture diagram with token embeddings, RoPE position encoding, a repeated decoder block containing attention, RMSNorm, and a sparse expert routing block, then an output projection and softmax."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "The model's probability distribution over the next token"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Output\nLinear",
+        "summary": "Projects the final hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated decoder block container for the Qwen3.6-35B-A3B stack"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Attention sublayer container"
+      },
+      "moeSublayer": {
+        "label": " ",
+        "summary": "Sparse expert sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats through the full stack"
+      },
+      "rmsnormAttention": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before the attention step"
+      },
+      "decoderAttention": {
+        "label": "Decoder\nAttention",
+        "summary": "Each token reads earlier context under the model's attention mask"
+      },
+      "rmsnormMoe": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the stream before the sparse expert routing block"
+      },
+      "moeRouting": {
+        "label": "Expert\nRouting",
+        "summary": "Routes each token through a small active expert subset instead of one dense feed-forward path"
+      },
+      "ropeInject": {
+        "label": "+",
+        "summary": "Applies token states together with rotary position information before the stack"
+      },
+      "rope": {
+        "label": "RoPE",
+        "summary": "Rotary position encoding gives the attention stack token order information"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs into hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after tokenization"
+      }
+    }
+  }
+}

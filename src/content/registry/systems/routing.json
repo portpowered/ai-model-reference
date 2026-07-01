@@ -35,7 +35,8 @@
   "relatedModelIds": [
     "model.deepseek-v4-pro",
     "model.deepseek-v4-flash",
-    "model.nemotron-3-super"
+    "model.nemotron-3-super",
+    "model.qwen-3-6-35b-a3b"
   ],
   "relatedModuleIds": ["module.mixture-of-experts", "module.deepseekmoe"],
   "relatedConceptIds": [

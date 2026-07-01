@@ -34,7 +34,7 @@
   "exampleModelIds": ["model.nemotron-3-super"],
   "improvesOnIds": [],
   "tradeoffIds": [],
-  "usedByModelIds": ["model.nemotron-3-super"],
+  "usedByModelIds": ["model.nemotron-3-super", "model.qwen-3-6-35b-a3b"],
   "introducedByPaperIds": [],
   "mathLevel": "none"
 }

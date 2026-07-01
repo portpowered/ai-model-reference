@@ -1,0 +1,62 @@
+{
+  "id": "module.clip-image-tokenization",
+  "slug": "clip-image-tokenization",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "CLIP image tokenization",
+    "CLIP image tokenizer",
+    "CLIP patch tokenization",
+    "image patch tokenization",
+    "vision patch tokenizer",
+    "ViT-style image tokenization",
+    "patch embedding tokenizer"
+  ],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.patch",
+    "concept.multimodal-model",
+    "concept.encoder",
+    "concept.positional-encodings",
+    "module.bpe",
+    "module.learned-positional-embeddings",
+    "module.multi-head-attention"
+  ],
+  "citationIds": [
+    "citation.learning-transferable-visual-models-from-natural-language-supervision",
+    "citation.image-is-worth-16x16-words"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "releaseDate": "2021-02-26",
+  "authors": [
+    "Alec Radford",
+    "Jong Wook Kim",
+    "Chris Hallacy",
+    "Aditya Ramesh",
+    "Gabriel Goh",
+    "Sandhini Agarwal",
+    "Girish Sastry",
+    "Amanda Askell",
+    "Pamela Mishkin",
+    "Jack Clark",
+    "Gretchen Krueger",
+    "Ilya Sutskever"
+  ],
+  "sourceId": "citation.learning-transferable-visual-models-from-natural-language-supervision",
+  "primaryClassificationId": "classification.module.tokenization",
+  "moduleType": "tokenizer",
+  "moduleFamily": "tokenization",
+  "conceptType": "image-tokenization",
+  "variantGroup": "image-tokenizers",
+  "optimizes": ["fixed-grid-image-input", "shared-vision-transformer-input"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}
