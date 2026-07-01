@@ -68,7 +68,7 @@ function buildVerificationPageTree(): Root {
 function getTopLevelFolderNames(pageTree: Root): string[] {
   return pageTree.children
     .filter((node) => node.type === "folder")
-    .map((folder) => folder.name);
+    .map((folder) => String(folder.name));
 }
 
 function getFolderChildren(pageTree: Root, folderName: string): Node[] {
