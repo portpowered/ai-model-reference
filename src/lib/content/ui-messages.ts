@@ -1,7 +1,21 @@
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import type { UiMessages } from "./ui-messages.types";
 
-export type { UiMessages } from "./ui-messages.types";
+export type {
+  BrowseIndexMessages,
+  DocsMessages,
+  HomeMessages,
+  LanguageMessages,
+  NavMessages,
+  SearchEntryMessages,
+  SearchMessages,
+  SectionIndexMessages,
+  ShellLayoutMessages,
+  ShellMessages,
+  TagLandingMessages,
+  TagsIndexMessages,
+  UiMessages,
+} from "./ui-messages.types";
 export { formatPageKind } from "./ui-messages.types";
 
 /** Loads shell UI messages via a dynamic import so App Router routes avoid a static `node:fs` graph. */
