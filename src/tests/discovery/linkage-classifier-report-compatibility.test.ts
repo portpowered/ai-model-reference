@@ -283,7 +283,9 @@ describe("linkage classifier report compatibility", () => {
       expect(watchdogResult.status).toBe(0);
       expect(ledgerResult.status).toBe(0);
 
-      const queueHealthReport = JSON.parse(readStdoutText(queueHealthResult)) as {
+      const queueHealthReport = JSON.parse(
+        readStdoutText(queueHealthResult),
+      ) as {
         activeWork: { items: Array<{ workItemName: string }> };
         expectedBlockedItems: { items: Array<{ workItemName: string }> };
         repairableFailures: { items: Array<{ workItemName: string }> };
