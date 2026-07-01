@@ -30,7 +30,11 @@
   "sourceId": "paper.deepseek-v4",
   "primaryClassificationId": "classification.system.routing",
   "systemType": "routing",
-  "relatedModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
+  "relatedModelIds": [
+    "model.deepseek-v4-pro",
+    "model.deepseek-v4-flash",
+    "model.qwen-3-6-35b-a3b"
+  ],
   "relatedModuleIds": ["module.mixture-of-experts", "module.deepseekmoe"],
   "relatedConceptIds": [
     "concept.prefill-decode-split",
