@@ -31,6 +31,30 @@ Maintainer references for the full contracts (do not duplicate them here):
 See [CONTRIBUTING local validation](./contributors/CONTRIBUTING.md#local-validation)
 for the full fast content loop including `make linkcheck`.
 
+## Page-local scope versus shared hotspot redirects
+
+Routine canonical page branches should stay **page-local** unless the requested
+behavior genuinely requires shared infrastructure changes.
+
+Do not hide shared helper edits, generated artifact churn, shared test suites,
+broad validator updates, or registry-manifest rewrites inside an ordinary page
+slice. When `bun run audit:canonical-page-surface` reports
+`redirect-to-throughput-prd`, or when shared hotspot work is the real task,
+redirect to or create a broader throughput/conflict-reduction PRD instead of
+folding it into a routine page PR.
+
+| Stay page-local | Redirect to a throughput lane |
+| --- | --- |
+| One page bundle, matching primary registry record, and page-specific graph/table assets | Broad shared test or validator churn, generated runtime artifacts committed as authored output, registry-manifest rewrites, or multiple shared hotspot categories at once |
+
+Full owned-surface contract (do not duplicate here):
+
+- [CONTRIBUTING — routine canonical-page PR surface budget](./contributors/CONTRIBUTING.md#routine-canonical-page-pr-surface-budget)
+- [content-page-generation-workflow-relevant-files](./internal/processes/content-page-generation-workflow-relevant-files.md#page-local-scope-versus-shared-hotspot-redirects)
+
+Keep changes narrow and reviewer-verifiable per [code standards](./code-standards.md)
+and [review standards](./review-standards.md).
+
 ### PR-head mergeability (process executors)
 
 When page PRD stories are complete but the remaining blocker is PR-head

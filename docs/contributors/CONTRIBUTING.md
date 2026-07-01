@@ -150,6 +150,20 @@ Full contracts live in maintainer references—not duplicated here:
 See [Local validation](#local-validation) for the complete fast content loop
 including `make linkcheck`.
 
+### Page-local scope versus shared hotspot work
+
+Ordinary canonical page branches should stay **page-local** unless the page
+behavior genuinely requires shared infrastructure changes. Do not hide shared
+helper edits, generated artifacts, shared tests, broad validators, or
+registry-manifest churn inside a routine page slice.
+
+When shared hotspot work is the real task—not an unavoidable narrow fix for one
+page—redirect to or create a broader throughput/conflict-reduction PRD. Run
+`bun run audit:canonical-page-surface` before review to classify the branch.
+
+Full three-lane budget and hotspot categories:
+[Routine canonical-page PR surface budget](#routine-canonical-page-pr-surface-budget).
+
 #### PR-head mergeability (process executors)
 
 When page PRD story work is otherwise complete but the current blocker is

@@ -23,6 +23,37 @@ Derived validation contract and exceptions:
 Contributor-facing walkthrough:
 [CONTRIBUTING.md#review-preflight-before-opening-a-page-pr](../../contributors/CONTRIBUTING.md#review-preflight-before-opening-a-page-pr).
 
+## Page-local scope versus shared hotspot redirects
+
+Routine canonical page branches should stay page-local unless the requested
+behavior requires shared infrastructure changes.
+
+**Page-local (routine):**
+
+- Page bundle under `src/content/docs/<section>/<slug>/`
+- Matching primary registry record and page-specific supporting graph/table
+  records
+
+**Shared hotspot (redirect):**
+
+- Shared helpers such as `src/lib/content` and `src/lib/search`
+- Generated runtime artifacts checked in as authored changes
+- Shared test suites and broad `validate-*.ts` churn
+- Registry-manifest rewrites beyond the page's primary record
+
+Do not hide shared hotspot churn inside an ordinary page slice. When
+`bun run audit:canonical-page-surface` reports `redirect-to-throughput-prd`, or
+when the work item is fundamentally cross-surface, open or redirect to a broader
+throughput/conflict-reduction PRD.
+
+Owned-surface audit: `bun run audit:canonical-page-surface`. Contributor
+contract:
+[CONTRIBUTING.md#routine-canonical-page-pr-surface-budget](../../contributors/CONTRIBUTING.md#routine-canonical-page-pr-surface-budget).
+
+Compatible with narrow, reviewer-verifiable changes in
+[code standards](../../code-standards.md) and
+[review standards](../../review-standards.md).
+
 ## PR-head mergeability for page branches (process executors)
 
 When a routine canonical page branch has finished its page PRD stories but the
