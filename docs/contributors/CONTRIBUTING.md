@@ -132,6 +132,50 @@ Templates in `docs/templates/` remain the production structures behind the
 generator and the fallback path for exceptional manual work, but contributors
 should not need template copy plus multi-file hand edits in the common case.
 
+### Review preflight before opening a page PR
+
+After authoring or generating a canonical page bundle, run these checks before
+review:
+
+| When | Command | Why |
+| --- | --- | --- |
+| Page bundle and registry shape are aligned | `make validate-data` | Primary derived page-bundle validation proof for ordinary content-only pages |
+| Structural proof passes and the review commit is ready | `bun run audit:canonical-page-surface` | Catch shared-surface drift before review |
+
+Full contracts live in maintainer references—not duplicated here:
+
+- [content page generation workflow relevant files](../internal/processes/content-page-generation-workflow-relevant-files.md)
+- [derived page validation relevant files](../internal/processes/derived-page-validation-relevant-files.md)
+
+See [Local validation](#local-validation) for the complete fast content loop
+including `make linkcheck`.
+
+### Page-local scope versus shared hotspot work
+
+Ordinary canonical page branches should stay **page-local** unless the page
+behavior genuinely requires shared infrastructure changes. Do not hide shared
+helper edits, generated artifacts, shared tests, broad validators, or
+registry-manifest churn inside a routine page slice.
+
+When shared hotspot work is the real task—not an unavoidable narrow fix for one
+page—redirect to or create a broader throughput/conflict-reduction PRD. Run
+`bun run audit:canonical-page-surface` before review to classify the branch.
+
+Full three-lane budget and hotspot categories:
+[Routine canonical-page PR surface budget](#routine-canonical-page-pr-surface-budget).
+
+#### PR-head mergeability (process executors)
+
+When page PRD story work is otherwise complete but the current blocker is
+PR-head mergeability, autonomous process executors should follow the existing
+mergeability phase in
+[factory/workstations/process/AGENTS.md](../../factory/workstations/process/AGENTS.md)
+(rules 5.2.1–5.2.5)—not a second policy. Run
+`bun run watch:active-pr-mergeability` to diagnose active lane mergeability and
+attempt the smallest disciplined mergeability fix allowed by those rules before
+returning continue. Command routing and planner preflight:
+[content page generation workflow relevant files](../internal/processes/content-page-generation-workflow-relevant-files.md#pr-head-mergeability-for-page-branches-process-executors).
+
 ## Routine canonical page policies
 
 Ordinary canonical page work should stay on the low-collision path defined by
@@ -870,8 +914,11 @@ After generating, scaffolding, or copying a template bundle, replace placeholder
 Use [Choosing slug, title, aliases, tags, and registryId](#choosing-slug-title-aliases-tags-and-registryid)
 to keep metadata aligned.
 
-Open a pull request with your page changes. Run the checks in
-[Local validation](#local-validation) before review.
+Open a pull request with your page changes. Before review, run
+`make validate-data` (primary derived bundle proof) and
+`bun run audit:canonical-page-surface` (owned-surface budget check). See
+[Review preflight before opening a page PR](#review-preflight-before-opening-a-page-pr)
+and [Local validation](#local-validation) for details.
 
 ### Request factory-driven work
 

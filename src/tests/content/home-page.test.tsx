@@ -4,6 +4,7 @@ import { HomeArticle } from "@/components/home/home-article";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { PLACEHOLDER_SIDEBAR_DESCRIPTION } from "@/lib/navigation/docs-sidebar-contract";
 import { buildHomeTableOfContents } from "@/lib/navigation/home-page-toc";
+import { modelAtlasSiteConfig } from "@/lib/site/model-atlas-site-config";
 import { expectHomeArticleHeaderOnlySearchEntry } from "@/tests/discovery/home-search-entry-contract";
 
 /** Discovery targets on `/` must stay aligned with Phase 1 acceptance criteria. */
@@ -45,7 +46,9 @@ describe("home page messages", () => {
 describe("home page render", () => {
   async function renderHomeArticleHtml(): Promise<string> {
     const messages = await loadUiMessages();
-    return renderToStaticMarkup(<HomeArticle messages={messages} />);
+    return renderToStaticMarkup(
+      <HomeArticle messages={messages} siteConfig={modelAtlasSiteConfig} />,
+    );
   }
 
   it("links to concrete starter module pages", async () => {
@@ -59,7 +62,11 @@ describe("home page render", () => {
   it("preserves the active locale in browse links on the vietnamese route surface", async () => {
     const messages = await loadUiMessages("vi");
     const html = renderToStaticMarkup(
-      <HomeArticle messages={messages} locale="vi" />,
+      <HomeArticle
+        messages={messages}
+        siteConfig={modelAtlasSiteConfig}
+        locale="vi"
+      />,
     );
 
     expect(html).toContain("Cẩm nang về các mô hình và module AI hiện đại");
@@ -74,7 +81,11 @@ describe("home page render", () => {
   it("preserves the active locale in browse links on the japanese route surface", async () => {
     const messages = await loadUiMessages("ja");
     const html = renderToStaticMarkup(
-      <HomeArticle messages={messages} locale="ja" />,
+      <HomeArticle
+        messages={messages}
+        siteConfig={modelAtlasSiteConfig}
+        locale="ja"
+      />,
     );
 
     expect(html).toContain(

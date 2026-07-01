@@ -11,6 +11,76 @@ Routine canonical pages live under `src/content/docs/<section>/<slug>`. Resolve
 the page directory with `getDocsPageDir(section, slug)` instead of adding a new
 exported `*_PAGE_DIR` constant to `src/lib/content/content-paths.ts`.
 
+## Routine preflight for ordinary page branches
+
+| When | Command |
+| --- | --- |
+| Page bundle and registry shape are aligned | `make validate-data` — primary derived page-bundle validation proof |
+| Structural proof passes and the review commit is ready | `bun run audit:canonical-page-surface` — owned-surface budget check before review |
+
+Derived validation contract and exceptions:
+[derived-page-validation-relevant-files.md](./derived-page-validation-relevant-files.md).
+Contributor-facing walkthrough:
+[CONTRIBUTING.md#review-preflight-before-opening-a-page-pr](../../contributors/CONTRIBUTING.md#review-preflight-before-opening-a-page-pr).
+
+## Page-local scope versus shared hotspot redirects
+
+Routine canonical page branches should stay page-local unless the requested
+behavior requires shared infrastructure changes.
+
+**Page-local (routine):**
+
+- Page bundle under `src/content/docs/<section>/<slug>/`
+- Matching primary registry record and page-specific supporting graph/table
+  records
+
+**Shared hotspot (redirect):**
+
+- Shared helpers such as `src/lib/content` and `src/lib/search`
+- Generated runtime artifacts checked in as authored changes
+- Shared test suites and broad `validate-*.ts` churn
+- Registry-manifest rewrites beyond the page's primary record
+
+Do not hide shared hotspot churn inside an ordinary page slice. When
+`bun run audit:canonical-page-surface` reports `redirect-to-throughput-prd`, or
+when the work item is fundamentally cross-surface, open or redirect to a broader
+throughput/conflict-reduction PRD.
+
+Owned-surface audit: `bun run audit:canonical-page-surface`. Contributor
+contract:
+[CONTRIBUTING.md#routine-canonical-page-pr-surface-budget](../../contributors/CONTRIBUTING.md#routine-canonical-page-pr-surface-budget).
+
+Compatible with narrow, reviewer-verifiable changes in
+[code standards](../../code-standards.md) and
+[review standards](../../review-standards.md).
+
+## PR-head mergeability for page branches (process executors)
+
+When a routine canonical page branch has finished its page PRD stories but the
+current blocker is PR-head mergeability—failed required checks, merge
+conflicts, inherited test failures, or a non-mergeable PR head—do not stall in
+passive continue states. Follow the existing process workstation mergeability
+phase in
+[factory/workstations/process/AGENTS.md](../../../factory/workstations/process/AGENTS.md)
+(rules 5.2.1–5.2.5). Attempt the smallest disciplined mergeability fix those
+rules allow before returning continue.
+
+| When | Command |
+| --- | --- |
+| Diagnose mergeability class, linkage gaps, and action queue for active PR-backed lanes | `bun run watch:active-pr-mergeability` |
+| Planner batch dispatch: collision preflight before scheduling overlapping page lanes | `bun run report:planner-batch-collision-preflight` |
+
+These are existing owned commands. Do not invent a second mergeability policy,
+new command, or new enforcement mechanism—the process workstation owns
+mergeability phase expectations.
+
+Valid mergeability work on the current PR head includes fixing required test,
+lint, typecheck, build, contract, or browser-check failures; resolving merge
+conflicts or merging the current base branch; and updating shared files outside
+the original page slice when they are the concrete reason the reviewed head is
+blocked. Document mergeability-only follow-ups in `progress.txt` and PR
+conversation comments.
+
 **Do not add** page-specific directory exports for ordinary page work. A focused
 guard in `content-paths.test.ts` fails when new `export const *_PAGE_DIR`
 constants appear outside the grandfathered allowlist.
