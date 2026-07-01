@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { Node } from "fumadocs-core/page-tree";
+import { loadPublishedDocsPagesSync } from "@/lib/content/pages";
 import { source } from "@/lib/source";
 
 const GLOSSARY_INDEX_URLS = [
@@ -199,7 +200,11 @@ describe("docs navigation source", () => {
     }
 
     const glossaryUrls = collectPageUrls(glossaryFolder.children).sort();
-    expect(glossaryUrls).toEqual([...GLOSSARY_INDEX_URLS].sort());
+    const publishedGlossaryUrls = loadPublishedDocsPagesSync("en")
+      .filter((page) => page.docsSlug.startsWith("glossary/"))
+      .map((page) => page.url)
+      .sort();
+    expect(glossaryUrls).toEqual(publishedGlossaryUrls);
 
     const modulesFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Modules",

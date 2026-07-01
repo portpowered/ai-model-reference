@@ -1,25 +1,24 @@
 ---
-title: Prefill
-description: The prompt-processing stage that reads the full input once, builds the first attention state, and sets up generation before any reply token appears.
-kind: "concept"
-registryId: "concept.prefill"
+title: Time To First Token
+description: The serving latency metric that measures how long a reader waits from request start until the first generated token appears.
+kind: "glossary"
+registryId: "concept.time-to-first-token"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
   - foundations
-  - attention
   - kv-cache
 aliases:
-  - "Prefill"
-  - "prompt processing"
-  - "prompt pass"
-  - "initial prompt pass"
-updatedAt: "2026-06-22"
+  - "Time To First Token"
+  - "TTFT"
+  - "time to first token"
+  - "first token latency"
+  - "serving latency"
+updatedAt: "2026-07-01"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
-import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
@@ -46,46 +45,25 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
   <T k="sections.servingPath.body" />
   <LocalizedLinkList
     items={[
-      { href: "/docs/glossary/kv-cache", labelKey: "links.kvCache" },
+      { href: "/docs/concepts/prefill", labelKey: "links.prefill" },
       { href: "/docs/glossary/decode", labelKey: "links.decode" },
+      { href: "/docs/concepts/kv-cache", labelKey: "links.kvCache" },
       {
         href: "/docs/glossary/prefill-decode-split",
         labelKey: "links.prefillDecodeSplit",
-      },
-      {
-        href: "/docs/glossary/autoregressive-generation",
-        labelKey: "links.autoregressiveGeneration",
-      },
-      { href: "/docs/modules/attention", labelKey: "links.attention" },
-      {
-        href: "/docs/modules/grouped-query-attention",
-        labelKey: "links.groupedQueryAttention",
-      },
-      {
-        href: "/search?q=time%20to%20first%20token",
-        labelKey: "links.timeToFirstToken",
       },
     ]}
   />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
-  <DerivedRelatedDocs
-    registryId="concept.prefill"
-    groups={[
-      "same-concept-type",
-      "shared-tags",
-      "curated-related"
-    ]}
-  />
-
-  <RelatedDocs registryId="concept.prefill" />
+  <RelatedDocs registryId="concept.time-to-first-token" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList registryId="concept.prefill" showDescriptions />
+  <TagPillList registryId="concept.time-to-first-token" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.prefill" />
+  <CitationList registryId="concept.time-to-first-token" />
 </Section>
