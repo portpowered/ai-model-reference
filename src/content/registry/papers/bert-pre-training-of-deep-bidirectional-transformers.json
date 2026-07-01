@@ -1,0 +1,60 @@
+{
+  "id": "paper.bert-pre-training-of-deep-bidirectional-transformers",
+  "slug": "bert-pre-training-of-deep-bidirectional-transformers",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "BERT",
+    "BERT paper",
+    "BERT pre-training paper",
+    "Pre-training of Deep Bidirectional Transformers for Language Understanding",
+    "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding"
+  ],
+  "tags": ["foundations", "model-family", "attention", "tokenization"],
+  "relatedIds": [
+    "module.bidirectional-attention",
+    "module.wordpiece",
+    "module.gelu",
+    "concept.encoder",
+    "concept.embedding",
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "training-regime.pretraining"
+  ],
+  "citationIds": [
+    "citation.bert-pre-training-of-deep-bidirectional-transformers"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "authors": [
+    "Jacob Devlin",
+    "Ming-Wei Chang",
+    "Kenton Lee",
+    "Kristina Toutanova"
+  ],
+  "publishedAt": "2018-10-11",
+  "url": "https://arxiv.org/abs/1810.04805",
+  "arxivId": "1810.04805",
+  "introducesIds": [],
+  "supportsIds": [
+    "concept.encoder",
+    "concept.embedding",
+    "concept.transformer-architecture",
+    "training-regime.pretraining"
+  ],
+  "arguesAgainstIds": [],
+  "modelIds": [],
+  "moduleIds": [
+    "module.bidirectional-attention",
+    "module.wordpiece",
+    "module.gelu"
+  ],
+  "conceptIds": [
+    "concept.encoder",
+    "concept.embedding",
+    "concept.transformer-architecture"
+  ],
+  "venue": "arXiv"
+}
