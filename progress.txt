@@ -1,4 +1,5 @@
 ## Codebase Patterns
+- Docs sidebar folder generation iterates `listDocsCollectionDefinitions()` from `src/lib/docs/docs-collection-definitions.ts`; assign published pages to folders by matching the first `docsSlug` segment to each definition's `routeSlug`.
 - New registry records under `src/content/registry/` are picked up by `bun run prepare:content-runtime`, which regenerates `src/lib/content/generated/registry-runtime.generated.ts` before typecheck, lint, and tests run.
 - Model registry records use typed relationship fields (`architectureIds`, `moduleIds`, `trainingRegimeIds`, `relatedIds`) plus backing `citation`, `paper`, and `organization` records; update reciprocal `usedByModelIds` / `relatedIds` on linked training regimes when adding model consumers.
 - For post-training discovery when no generic `training-regime.post-training` record exists, link models to `concept.alignment` in `relatedIds` and keep `training-regime.pretraining` in `trainingRegimeIds`.
@@ -35,4 +36,14 @@
   - Training regime links render at `/docs/training/pretraining`, not `/docs/training-regimes/pretraining`.
   - Prose auto-linking splits phrases like `Rotary position embeddings`; assert on substrings or href targets instead of contiguous text.
   - `ModelTrainingSummary` lists `trainingRegimeIds` and `paperIds` only; post-training discovery for models without a generic post-training regime still flows through `relatedIds` (e.g. `concept.alignment`) in derived related docs.
+---
+
+## 2026-07-01T14:30:00Z - generic-sidebar-collection-builder-001
+- Refactored `buildGeneratedDocsPageTree` to iterate `listDocsCollectionDefinitions()` instead of hardcoded `SECTION_ORDER`, assigning published pages to folders by each definition's `routeSlug`.
+- Preserved existing per-collection node generation (grouping logic unchanged for this story) and English sidebar folder titles via `SIDEBAR_FOLDER_TITLES` keyed by `DocsCollectionId`.
+- Added focused tests asserting collection-driven folder order and one-to-one page assignment across all configured collections.
+- **Learnings for future iterations:**
+  - Story 001 only drives folder iteration and page bucketing; AI registry imports and grouping resolvers remain in the generic builder until story 002 introduces the adapter.
+  - `collectSidebarPageLinks` from `docs-sidebar-contract.ts` is the preferred helper for asserting sidebar page coverage without scraping HTML.
+  - Folder display names are still a local English map; browse `messageKeys.browse.sectionTitle` could replace it later if sidebar localization is needed.
 ---
