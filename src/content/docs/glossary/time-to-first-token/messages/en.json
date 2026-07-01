@@ -1,0 +1,32 @@
+{
+  "title": "Time To First Token",
+  "description": "The serving latency metric that measures how long a reader waits from request start until the first generated token appears.",
+  "openingSummary": "Time To First Token (TTFT) is the pause before streaming starts: it covers queueing, prompt prefill, cache setup, and the first decode step before any generated token reaches the reader.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Time To First Token (TTFT) is the elapsed time from when a serving system accepts a generation request until the first newly generated token is ready to stream back. It includes request admission or queueing, prompt prefill, KV cache setup or reuse, and the first decode step that produces the opening token."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Readers feel TTFT as the awkward silence before a chat reply begins. Long prompts, busy queues, cold starts, and cache misses all stretch that pause even when later tokens arrive quickly. Operators track TTFT separately from inter-token latency and throughput because it answers a different question: how long until streaming starts."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine sending a long document and waiting for the model to start answering. The timer for TTFT starts when the request enters the server queue and stops when the first answer token is emitted. Everything before that first token—reading the prompt, building cache entries, and running the first generation step—counts toward TTFT."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "TTFT is not the same as inter-token latency, total response time, or tokens per second. Inter-token latency measures the gap between tokens after streaming has begun. Total response time includes the full answer. Throughput counts how many tokens or requests the system handles over time. A model can have low TTFT but slow streaming, or the opposite."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
