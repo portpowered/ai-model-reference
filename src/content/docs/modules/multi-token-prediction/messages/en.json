@@ -17,11 +17,11 @@
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "The next-token objective below predicts one future token from the prefix. The multi-token objective averages the same style of loss across offsets 1 through N."
+      "body": "Both objectives read the same prefix and shared hidden state h_t at position t. The next-token objective supervises one future token. The multi-token objective averages the same style of loss across offsets 1 through N, with each offset using its own output head on h_t."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Next-token pretraining is the usual baseline objective. Multi-token prediction changes what each position is asked to predict during training. Speculative decoding is an inference-time serving technique that can reuse MTP auxiliary heads, but ordinary generation can still rely on the primary next-token head alone."
+      "body": "Next-token pretraining is the usual baseline objective: each position supervises one future token at offset t+1. Multi-token prediction changes training by adding independent heads for offsets t+2 through t+N from the same hidden state. Ordinary multi-step generation is different: at inference the model still emits one token per step and re-runs the trunk as the prefix grows, unless a serving stack uses auxiliary heads for drafting. Speculative decoding is an inference-time serving technique that can reuse MTP auxiliary heads, but ordinary generation can still rely on the primary next-token head alone."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
@@ -100,8 +100,16 @@
   "math": {
     "nextTokenSchema": {
       "label": "Next-token prediction objective",
-      "formula": "\\mathcal{L}_{\\text{NTP}} = -\\log p_\\theta(x_{t+1} \\mid x_{\\leq t})",
+      "formula": "\\mathcal{L}_{\\text{NTP}} = -\\log p_\\theta(x_{t+1} \\mid h_t)",
       "variableDefinitions": {
+        "xt": {
+          "term": "x_t",
+          "definition": "Token at position t."
+        },
+        "ht": {
+          "term": "h_t",
+          "definition": "Hidden state at position t from the shared trunk."
+        },
         "xtplus1": {
           "term": "x_{t+1}",
           "definition": "Observed next token at offset 1."
@@ -116,14 +124,22 @@
         },
         "ptheta": {
           "term": "p_\\theta(\\cdot)",
-          "definition": "Conditional distribution from the shared trunk and one output head."
+          "definition": "Conditional distribution from one output head on h_t."
         }
       }
     },
     "mtpSchema": {
       "label": "Multi-token prediction objective",
-      "formula": "\\mathcal{L}_{\\text{MTP}} = \\frac{1}{N}\\sum_{k=1}^{N} -\\log p_\\theta(x_{t+k} \\mid x_{\\leq t})",
+      "formula": "\\mathcal{L}_{\\text{MTP}} = \\frac{1}{N}\\sum_{k=1}^{N} -\\log p_\\theta^{(k)}(x_{t+k} \\mid h_t)",
       "variableDefinitions": {
+        "xt": {
+          "term": "x_t",
+          "definition": "Token at position t."
+        },
+        "ht": {
+          "term": "h_t",
+          "definition": "Hidden state at position t from the shared trunk."
+        },
         "n": {
           "term": "N",
           "definition": "Number of future offsets supervised at each position."
@@ -143,6 +159,10 @@
         "theta": {
           "term": "\\theta",
           "definition": "Shared trunk parameters plus independent head parameters."
+        },
+        "ptheta": {
+          "term": "p_\\theta^{(k)}(\\cdot)",
+          "definition": "Conditional distribution from output head k on h_t."
         }
       }
     }

@@ -37,10 +37,16 @@ describe("multi-token-prediction page messages", () => {
     expect(
       messages.math?.nextTokenSchema?.variableDefinitions?.n,
     ).toBeUndefined();
+    expect(messages.math?.nextTokenSchema?.variableDefinitions?.xt?.term).toBe(
+      "x_t",
+    );
     expect(messages.math?.mtpSchema?.variableDefinitions?.n?.term).toBe("N");
+    expect(messages.math?.mtpSchema?.variableDefinitions?.ht?.term).toBe("h_t");
     expect(
       messages.math?.nextTokenSchema?.variableDefinitions?.xtplus1?.term,
     ).toBe("x_{t+1}");
+    expect(messages.math?.nextTokenSchema?.formula).toContain("h_t");
+    expect(messages.math?.mtpSchema?.formula).toContain("h_t");
   });
 });
 
@@ -85,7 +91,12 @@ describe("loadModulePage multi-token-prediction", () => {
     );
     expect(html).toContain('data-message-block-math="math.mtpSchema.formula"');
     expect(html).toContain('data-math-variable-definition="n"');
+    expect(html).toContain('data-math-variable-definition="xt"');
+    expect(html).toContain('data-math-variable-definition="ht"');
     expect(html).toContain('data-math-variable-definition="xtplus1"');
+    expect(html).toContain("multi-step generation");
+    expect(html).toContain("ordinary generation can still rely");
+    expect(html).toContain("head alone");
     expectModuleComputeFlowGraphOnlyInHowItWorks(html, defaultGraphId);
     expect(html).toContain('data-attention-variant-comparison="true"');
     expect(html).toContain('data-attention-variant-active="mtp"');
