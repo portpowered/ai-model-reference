@@ -1,4 +1,8 @@
 export {
+  buildBaseSearchDocument,
+  buildBaseSearchDocuments,
+} from "./build-base-document";
+export {
   buildSearchDocument,
   buildSearchDocuments,
   buildSearchDocumentsForLocale,
@@ -18,8 +22,11 @@ export {
 } from "./to-advanced-index";
 export { toFumadocsIndexEntry, toStructuredData } from "./to-structured-data";
 export type {
+  BaseSearchDocument,
   FumadocsSearchIndexEntry,
   FumadocsStructuredData,
+  GenericSearchDocumentFacets,
   SearchDocument,
   SearchDocumentFacets,
 } from "./types";
+export { EMPTY_SEARCH_DOCUMENT_TOPOLOGY } from "./types";

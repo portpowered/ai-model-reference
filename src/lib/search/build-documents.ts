@@ -1,9 +1,4 @@
-import {
-  collectMessageBodyText,
-  collectMessageHeadings,
-} from "@/lib/content/messages";
 import type { DocsPageSource } from "@/lib/content/pages";
-import { resolvePublishedResourceTags } from "@/lib/content/phase-1-published-resources";
 import type { RegistryIndexes, RegistryRecord } from "@/lib/content/registry";
 import type {
   ClassificationRecord,
@@ -14,9 +9,9 @@ import type {
   OntologyRelationship,
   PaperRecord,
   SystemRecord,
-  TagRecord,
   TrainingRegimeRecord,
 } from "@/lib/content/schemas";
+import { buildBaseSearchDocument } from "./build-base-document";
 import { resolveLegacySearchTaxonomyCompatibility } from "./legacy-taxonomy-compat";
 import type {
   SearchDocument,
@@ -25,17 +20,10 @@ import type {
   SearchDocumentTopologyClassification,
   SearchDocumentTopologyRelationship,
 } from "./types";
+import { EMPTY_SEARCH_DOCUMENT_TOPOLOGY } from "./types";
 
 function unique(values: string[]): string[] {
   return [...new Set(values.filter(Boolean))];
-}
-
-function isModuleRecord(record: RegistryRecord): record is ModuleRecord {
-  return record.kind === "module";
-}
-
-function isTagRecord(record: RegistryRecord): record is TagRecord {
-  return record.kind === "tag";
 }
 
 function isModelRecord(record: RegistryRecord): record is ModelRecord {
@@ -63,78 +51,6 @@ function isOntologyParticipatingRecord(
     record.kind === "system" ||
     record.kind === "dataset"
   );
-}
-
-function getRegistryRecord(
-  indexes: RegistryIndexes,
-  registryId?: string,
-): RegistryRecord | undefined {
-  if (!registryId) {
-    return undefined;
-  }
-  return indexes.byId.get(registryId);
-}
-
-function citationSearchTerms(
-  indexes: RegistryIndexes,
-  citationIds: string[],
-): string[] {
-  const terms: string[] = [];
-
-  for (const citationId of citationIds) {
-    const citation = indexes.byId.get(citationId);
-    if (citation?.kind === "citation") {
-      terms.push(citation.slug, ...citation.aliases);
-    }
-  }
-
-  return terms;
-}
-
-function isCitationIntroducingRecord(
-  registryRecord: RegistryRecord,
-  citationId: string,
-): boolean {
-  if ("sourceId" in registryRecord && registryRecord.sourceId === citationId) {
-    return true;
-  }
-
-  return (
-    registryRecord.kind === "paper" &&
-    registryRecord.citationIds?.includes(citationId) === true
-  );
-}
-
-function citationDirectSearchTerms(
-  indexes: RegistryIndexes,
-  registryRecord: RegistryRecord | undefined,
-  citationIds: string[],
-): string[] {
-  if (!registryRecord) {
-    return [];
-  }
-
-  return citationSearchTerms(
-    indexes,
-    citationIds.filter((citationId) =>
-      isCitationIntroducingRecord(registryRecord, citationId),
-    ),
-  );
-}
-
-function tagSearchTerms(
-  indexes: RegistryIndexes,
-  tagSlugs: string[],
-): string[] {
-  const terms: string[] = [];
-  for (const slug of tagSlugs) {
-    terms.push(slug);
-    const record = indexes.tagsBySlug.get(slug);
-    if (record && isTagRecord(record)) {
-      terms.push(record.slug, ...record.aliases);
-    }
-  }
-  return unique(terms);
 }
 
 function humanizeSlug(slug: string): string {
@@ -302,21 +218,8 @@ function buildTopology(
   registryRecord: RegistryRecord | undefined,
   indexes: RegistryIndexes,
 ): SearchDocumentTopology {
-  const emptyTopology: SearchDocumentTopology = {
-    secondaryClassificationIds: [],
-    secondaryClassifications: [],
-    classificationIds: [],
-    ancestorClassificationIds: [],
-    ancestorClassifications: [],
-    rootClassificationIds: [],
-    rootClassifications: [],
-    relationships: [],
-    relatedTopologyIds: [],
-    terms: [],
-  };
-
   if (!registryRecord || !isOntologyParticipatingRecord(registryRecord)) {
-    return emptyTopology;
+    return { ...EMPTY_SEARCH_DOCUMENT_TOPOLOGY };
   }
 
   const primaryClassificationId = registryRecord.primaryClassificationId;
@@ -442,60 +345,37 @@ function buildFacets(
     facets.trainingRegimeIds = registryRecord.trainingRegimeIds;
   }
 
-  if (registryRecord && isModuleRecord(registryRecord)) {
+  if (registryRecord && registryRecord.kind === "module") {
     facets.optimizes = registryRecord.optimizes;
   }
 
   return facets;
 }
 
+function getRegistryRecord(
+  indexes: RegistryIndexes,
+  registryId?: string,
+): RegistryRecord | undefined {
+  if (!registryId) {
+    return undefined;
+  }
+  return indexes.byId.get(registryId);
+}
+
 export function buildSearchDocument(
   page: DocsPageSource,
   indexes: RegistryIndexes,
 ): SearchDocument {
+  const base = buildBaseSearchDocument(page, indexes);
   const registryRecord = getRegistryRecord(
     indexes,
     page.frontmatter.registryId,
   );
-  const registryAliases = registryRecord?.aliases ?? [];
-  const citationIds = registryRecord?.citationIds ?? [];
-  const citationTerms = citationSearchTerms(indexes, citationIds);
-  const citationDirectTerms = citationDirectSearchTerms(
-    indexes,
-    registryRecord,
-    citationIds,
-  );
-  const pageTags = resolvePublishedResourceTags(page, indexes);
-  const tagTerms = tagSearchTerms(indexes, pageTags);
-  const headings = collectMessageHeadings(page.messages);
-  const bodyText = collectMessageBodyText(page.messages);
   const topology = buildTopology(registryRecord, indexes);
-  const directAliases = unique([
-    ...(page.frontmatter.aliases ?? []),
-    ...registryAliases,
-    ...citationDirectTerms,
-  ]);
-  const aliases = unique([...directAliases, ...tagTerms, ...citationTerms]);
 
   return {
-    id: page.url,
-    registryId: page.frontmatter.registryId,
-    url: page.url,
-    kind: page.frontmatter.kind,
-    title: page.messages.title,
-    description: page.messages.description,
-    bodyText,
-    headings,
-    directAliases,
-    aliases,
-    tags: pageTags,
-    relatedIds: registryRecord?.relatedIds ?? [],
-    facets: buildFacets(
-      page.frontmatter.kind,
-      pageTags,
-      topology,
-      registryRecord,
-    ),
+    ...base,
+    facets: buildFacets(base.kind, base.tags, topology, registryRecord),
     topology,
   };
 }
