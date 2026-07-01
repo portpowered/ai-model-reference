@@ -21,7 +21,8 @@ export const SIDEBAR_GROUP_LABELS = {
     "attention-variants": "Attention Variants",
     "feed-forward-and-activation": "Feed-Forward And Activation",
     normalization: "Normalization",
-    "positional-and-sequence-encoding": "Positional And Sequence Encoding",
+    tokenizers: "Tokenizers",
+    "positional-embeddings": "Positional Embeddings",
   },
   training: {
     pretraining: "Pretraining",
@@ -185,9 +186,13 @@ function resolveOntologyModulesSidebarGroup(
     return createSidebarGroupResolution("normalization", "derived-taxonomy");
   }
 
+  if (membership.has("classification.module.tokenization")) {
+    return createSidebarGroupResolution("tokenizers", "derived-taxonomy");
+  }
+
   if (membership.has("classification.module.positional-encoding")) {
     return createSidebarGroupResolution(
-      "positional-and-sequence-encoding",
+      "positional-embeddings",
       "derived-taxonomy",
     );
   }

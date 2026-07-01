@@ -67,8 +67,11 @@ the temporary legacy-id bridge.
   For modules, only use the editorial bridge when the canonical classification
   is still too coarse to distinguish the intended subgroup, such as the
   `module.attention` foundation page whose current ontology membership alone
-  cannot separate `attention-foundations` from `attention-variants`. Validation
-  should reject redundant or ignored `sidebarGrouping` entries once ontology
+  cannot separate `attention-foundations` from `attention-variants`. Tokenizer
+  modules (`classification.module.tokenization`) and positional embedding
+  modules (`classification.module.positional-encoding`) should resolve to
+  separate sidebar groups (`tokenizers` and `positional-embeddings`) with
+  distinct reader-visible labels. Validation should reject redundant or ignored `sidebarGrouping` entries once ontology
   already resolves the same subgroup.
   For concept records that already declare canonical
   `primaryClassificationId`, prefer asserting that ontology classification in

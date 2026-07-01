@@ -228,8 +228,8 @@ describe("browse index page render", () => {
     expect(html).not.toContain(">description<");
     expect(html).toContain("Cơ chế attention");
     expect(html).toContain("Lớp chuẩn hóa");
-    expect(html).toContain("Phương pháp mã hóa vị trí");
-    expect(html).toContain("Phương pháp token hóa");
+    expect(html).toContain("Positional Embeddings");
+    expect(html).toContain("Tokenizers");
     expect(html).toContain("Cấu trúc khối transformer");
     expect(html).not.toContain(">Attention Mechanisms<");
     expect(html).not.toContain(">Normalization Layers<");
@@ -247,11 +247,11 @@ describe("browse index page render", () => {
     expect(html).toContain("Attention 機構のグラフマップ");
     expect(html).toContain("Attention 機構");
     expect(html).toContain("正規化層");
-    expect(html).toContain("位置エンコーディング方式");
-    expect(html).toContain("トークン化方式");
+    expect(html).toContain("Positional Embeddings");
+    expect(html).toContain("Tokenizers");
     expect(html).toContain("Transformer ブロック構造");
     expect(html).not.toContain(">Normalization Layers<");
-    expect(html).not.toContain(">Tokenization Methods<");
+    expect(html).not.toContain(">Position Encoding Methods<");
   });
 
   it("renders feed-forward timeline state from URL parameters on first load", async () => {
