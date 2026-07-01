@@ -23,6 +23,10 @@ the temporary legacy-id bridge.
   Behavioral proof that `schemas.ts` re-exports core contracts from
   `registry-core` without duplicated definitions and that AI-domain registry
   union exports remain available to existing consumers.
+* `src/lib/content/registry-ai-domain-validation.test.ts`
+  Behavioral proof that published registry fixture records still parse through
+  existing `schemas.ts` exports and that `loadRegistry` indexes representative
+  AI-domain entries unchanged after the core type split.
 * `src/lib/content/registry-runtime-generation.ts`
   Generated runtime source contract for canonical lookup, legacy-id
   canonicalization, parent-child traversal, filtered subtree generation,
