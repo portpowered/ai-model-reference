@@ -11,6 +11,25 @@
       "name": "example-idea-concept-crosslink",
       "workTypeName": "idea",
       "payload": "Refresh the attention concept page cross-links so readers can discover grouped-query-attention, multi-head attention, and related attention variants from one isolation-first explainer without adding benchmark tables."
+    },
+    {
+      "name": "example-loopback-thoughts",
+      "workTypeName": "thoughts",
+      "payload": "After both example ideas complete, re-enter the meta-planner loop: review checklist progress, confirm factory queue health, and submit the next smallest independent batch of idea work without racing ahead of unfinished prerequisites."
+    }
+  ],
+  "relations": [
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "example-loopback-thoughts",
+      "targetWorkName": "example-idea-module-page",
+      "requiredState": "complete"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "example-loopback-thoughts",
+      "targetWorkName": "example-idea-concept-crosslink",
+      "requiredState": "complete"
     }
   ]
 }
