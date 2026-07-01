@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
-import { renderSectionKindIndexPage } from "../../site-renderers";
+import { renderSectionCollectionIndexPage } from "../../site-renderers";
 
 export async function generateMetadata(): Promise<Metadata> {
   const messages = await loadUiMessages();
@@ -17,5 +17,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ModulesIndexPage() {
-  return renderSectionKindIndexPage("module");
+  return renderSectionCollectionIndexPage("modules");
 }
