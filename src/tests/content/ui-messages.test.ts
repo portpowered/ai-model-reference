@@ -6,10 +6,74 @@ import {
   loadUiMessages,
   UI_MESSAGES_COMPATIBILITY_KEYS,
 } from "@/lib/content/ui-messages";
+import type {
+  AiDomainMessages,
+  ShellMessages,
+} from "@/lib/content/ui-messages.types";
 import {
   loadUiMessagesFromDisk,
   UiMessagesLoadError,
 } from "@/lib/content/ui-messages-load";
+
+const SHELL_MESSAGE_KEYS = ["search", "nav", "language", "shell"] as const;
+
+const DOCS_MESSAGE_KEYS = [
+  "searchEntry",
+  "home",
+  "browseIndex",
+  "glossaryIndex",
+  "architectureIndex",
+  "pageKind",
+] as const;
+
+const AI_DOMAIN_MESSAGE_KEYS = [
+  "timelinePage",
+  "topologyBrowse",
+  "topologyPrototype",
+  "modelsIndex",
+  "modulesIndex",
+  "conceptsIndex",
+  "papersIndex",
+  "trainingIndex",
+  "systemsIndex",
+  "tagsIndex",
+  "tagLanding",
+  "tagCategories",
+] as const;
+
+function acceptsShellMessages(messages: ShellMessages): ShellMessages {
+  return messages;
+}
+
+function acceptsAiDomainMessages(messages: AiDomainMessages): AiDomainMessages {
+  return messages;
+}
+
+function pickShellMessages(messages: ShellMessages): ShellMessages {
+  return {
+    search: messages.search,
+    nav: messages.nav,
+    language: messages.language,
+    shell: messages.shell,
+  };
+}
+
+function pickAiDomainMessages(messages: AiDomainMessages): AiDomainMessages {
+  return {
+    timelinePage: messages.timelinePage,
+    topologyBrowse: messages.topologyBrowse,
+    topologyPrototype: messages.topologyPrototype,
+    modelsIndex: messages.modelsIndex,
+    modulesIndex: messages.modulesIndex,
+    conceptsIndex: messages.conceptsIndex,
+    papersIndex: messages.papersIndex,
+    trainingIndex: messages.trainingIndex,
+    systemsIndex: messages.systemsIndex,
+    tagsIndex: messages.tagsIndex,
+    tagLanding: messages.tagLanding,
+    tagCategories: messages.tagCategories,
+  };
+}
 
 describe("loadUiMessages shell keys", () => {
   const tempMessagesRoot = join(
@@ -125,5 +189,108 @@ describe("loadUiMessages shell keys", () => {
     expect(() =>
       loadUiMessagesFromDisk("ja", { messagesRoot: tempMessagesRoot }),
     ).toThrow(/Missing required UI messages file for locale "ja"/);
+  });
+});
+
+describe("message boundary contracts", () => {
+  it("loads representative shell message values through loadUiMessages", async () => {
+    const messages = await loadUiMessages();
+    expect(messages.search.placeholder).toBe("Search Model Atlas…");
+    expect(messages.search.open).toBe("Open search");
+    expect(messages.language.selectorLabel).toBe("Language");
+    expect(messages.language.locales.en).toBe("English");
+    expect(messages.shell.sidebarTitle).toBe("Reference");
+    expect(messages.shell.onThisPage).toBe("On this page");
+    expect(messages.nav.topology).toBe("Topology");
+    expect(messages.nav.timeline).toBe("Timeline");
+  });
+
+  it("loads representative AI domain message values through loadUiMessages", async () => {
+    const messages = await loadUiMessages();
+    expect(messages.timelinePage.title).toBe("Timeline");
+    expect(messages.timelinePage.eyebrow).toBe("Ontology timeline");
+    expect(messages.topologyBrowse.graphMapLabel).toBe("Graph Map");
+    expect(
+      messages.topologyBrowse.classificationLabels.attentionMechanisms,
+    ).toBe("Attention Mechanisms");
+    expect(messages.topologyPrototype.title).toBe("Topology");
+    expect(messages.topologyPrototype.graphLabel).toBe(
+      "Activation/feed-forward topology preview",
+    );
+    expect(messages.modelsIndex.title).toBe("Models");
+    expect(messages.tagLanding.searchHandoff).toBe("Search this tag");
+  });
+
+  it("assigns shell-shaped data to ShellMessages without AI domain fields", () => {
+    const shellShaped: ShellMessages = {
+      search: {
+        open: "Open search",
+        placeholder: "Search…",
+        close: "Close search",
+        idle: "Type to search.",
+        noResults: "No results.",
+        loading: "Searching…",
+        error: "Search unavailable.",
+        retry: "Try again",
+        shortcut: "Search",
+        resultPath: "Path",
+      },
+      nav: {
+        home: "Home",
+        search: "Search",
+        menu: "Open menu",
+        architecture: "Architecture",
+        topology: "Topology",
+        glossary: "Glossary",
+        timeline: "Timeline",
+        tags: "Tags",
+      },
+      language: {
+        open: "Switch language",
+        selectorLabel: "Language",
+        unavailable: "Not available",
+        locales: { en: "English" },
+      },
+      shell: {
+        sidebarTitle: "Reference",
+        sidebarDescription: "Browse modules.",
+        onThisPage: "On this page",
+        openingSummary: "Opening summary",
+      },
+    };
+
+    expect(acceptsShellMessages(shellShaped)).toBe(shellShaped);
+    expect("timelinePage" in shellShaped).toBe(false);
+    expect("topologyBrowse" in shellShaped).toBe(false);
+  });
+
+  it("distinguishes AiDomainMessages from shell-only message groups", async () => {
+    const messages = await loadUiMessages();
+    const shellOnly = pickShellMessages(messages);
+    const aiDomain = pickAiDomainMessages(messages);
+
+    expect(acceptsShellMessages(shellOnly)).toBe(shellOnly);
+    expect(acceptsAiDomainMessages(aiDomain)).toBe(aiDomain);
+
+    for (const shellKey of SHELL_MESSAGE_KEYS) {
+      expect(shellKey in aiDomain).toBe(false);
+    }
+    for (const domainKey of AI_DOMAIN_MESSAGE_KEYS) {
+      expect(domainKey in shellOnly).toBe(false);
+    }
+
+    const boundaryKeys = new Set([
+      ...SHELL_MESSAGE_KEYS,
+      ...DOCS_MESSAGE_KEYS,
+      ...AI_DOMAIN_MESSAGE_KEYS,
+    ]);
+    expect(boundaryKeys.size).toBe(
+      SHELL_MESSAGE_KEYS.length +
+        DOCS_MESSAGE_KEYS.length +
+        AI_DOMAIN_MESSAGE_KEYS.length,
+    );
+    for (const key of UI_MESSAGES_COMPATIBILITY_KEYS) {
+      expect(boundaryKeys.has(key)).toBe(true);
+    }
   });
 });
