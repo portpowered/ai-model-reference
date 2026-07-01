@@ -37,6 +37,7 @@ type TargetPathPage = {
   title: string;
   url: string;
   searchUrl?: string;
+  panelQuery?: string;
   summarySnippet: string;
   aliasQueries: readonly string[];
 };
@@ -54,6 +55,7 @@ const TARGET_PATH_PAGES: readonly TargetPathPage[] = [
     title: "Embedding",
     url: "/docs/glossary/embedding",
     searchUrl: "/docs/concepts/embedding",
+    panelQuery: "embeddings",
     summarySnippet: "dense vector",
     aliasQueries: ["embeddings", "token embedding"] as const,
   },
@@ -257,10 +259,10 @@ describe("Phase 2 token-probability path search panel verification (phase-2-toke
 
   test.each(
     TARGET_PATH_PAGES.map(
-      ({ title, url, searchUrl, slug }) =>
-        [title, searchUrl ?? url, slug] as const,
+      ({ title, url, searchUrl, slug, panelQuery }) =>
+        [panelQuery ?? title, searchUrl ?? url, slug] as const,
     ),
-  )("/search panel shows expected kind for %s query", async (title, url, slug) => {
+  )("/search panel shows expected kind for %s query", async (query, url, slug) => {
     const context = await loadAppTestContext();
     await renderWithAppProviders(
       <SearchPagePanelContent
@@ -274,7 +276,7 @@ describe("Phase 2 token-probability path search panel verification (phase-2-toke
     const user = userEvent.setup();
     await user.type(
       screen.getByLabelText(context.messages.search.placeholder),
-      title,
+      query,
     );
 
     const results = await screen.findByTestId(
