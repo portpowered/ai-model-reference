@@ -30,6 +30,12 @@ Orama indexing, or `/api/search` behavior.
   Focused baseline for attention, GQA alias, tag, and classification-scoped
   search before/after the generic base + AI enrichment boundary split. Extend
   this file when adding new parity assertions for the enrichment refactor.
+* `src/tests/search/search-api-contract-parity.test.ts`
+  `/api/search` bootstrap export and query contract parity for GQA, attention,
+  tag-filtered, and classification-scoped searches after the boundary split.
+* `src/lib/search/to-advanced-index.test.ts`
+  Fumadocs advanced index projection contract for `id`, `title`, `description`,
+  `url`, `structuredData`, and `tag` fields.
 * `src/lib/search/build-base-document.test.ts`
   Generic base document field contract and empty topology/facet guarantees.
 * `src/lib/search/enrich-search-document.test.ts`
