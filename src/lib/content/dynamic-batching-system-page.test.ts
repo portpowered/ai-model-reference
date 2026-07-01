@@ -41,6 +41,7 @@ describe("dynamic batching system page messages", () => {
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.whereItSits.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.howItDiffers?.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.practicalImpact.body?.length).toBeGreaterThan(0);
     expect(messages.openingSummary).toContain("batch window");
     expect(messages.sections?.practicalImpact.body).toContain("throughput");
@@ -112,13 +113,23 @@ describe("dynamic batching canonical page bundle", () => {
     expect(page.frontmatter.messageNamespace).toBe("local");
     expect(page.frontmatter.assetNamespace).toBe("local");
     expect(page.toc.some((item) => item.url === "#how-it-works")).toBe(true);
+    expect(page.toc.some((item) => item.url === "#how-it-differs")).toBe(true);
     expect(page.assets.systemFlow).toMatchObject({
       graphId: "graph.dynamic-batching-system-flow",
       webRenderer: "react-flow",
     });
     expect(page.messages.sections?.howItWorks?.body).toContain("batch window");
     expect(page.messages.sections?.howItWorks?.body).toContain(
-      "pre-execution wait",
+      "compatible queued requests",
+    );
+    expect(page.messages.sections?.howItDiffers?.body).toContain(
+      "pre-execution batch-window",
+    );
+    expect(page.messages.sections?.howItDiffers?.body).toContain(
+      "token-generation set",
+    );
+    expect(page.messages.sections?.howItDiffers?.body).toContain(
+      "execution path",
     );
     expect(page.messages.sections?.practicalImpact?.body).toContain(
       "first-token",
@@ -157,6 +168,10 @@ describe("dynamic batching docs route render", () => {
     );
 
     expect(html).toContain("System flow: how a batch window forms");
+    expect(html).toContain("How It Differs");
+    expect(html).toContain("pre-execution batch-window");
+    expect(html).toContain("token-generation set");
+    expect(html).toContain("execution path");
     expect(html).toContain("Wait through batch window");
     expect(html).toContain('href="/docs/systems/batching"');
     expect(html).toContain('href="/docs/systems/continuous-batching"');
