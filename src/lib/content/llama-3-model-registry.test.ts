@@ -41,10 +41,14 @@ describe("llama-3 model registry backing", () => {
     expect(model?.modalities).toEqual(["text"]);
     expect(model?.aliases).toEqual([
       "Llama 3",
+      "Meta Llama",
       "Meta Llama 3",
       "Llama 3.1",
+      "405B",
       "Llama 3 405B",
+      "128K context",
       "Llama 3 128K",
+      "open weight transformer",
     ]);
     expect(model?.contextLength).toBe(131072);
     expect(model?.parameterCount).toBe("405 billion parameters");
