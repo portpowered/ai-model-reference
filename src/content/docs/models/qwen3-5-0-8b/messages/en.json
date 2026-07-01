@@ -17,7 +17,7 @@
     },
     "importantModules": {
       "title": "Important Modules",
-      "body": "The registry-backed modules below are the smallest set worth opening first when you want to connect this page to the site's module reference. Rotary position encoding appears in the published Gated Attention head configuration on the official model card."
+      "body": "The registry-backed modules below are the smallest set worth opening first when you want to connect this page to the site's module reference. Rotary position encoding appears in the published Gated Attention head configuration on the official model card. Attention and context-window glossary pages explain the hybrid decoder and 262,144-token operating point; multimodal-model and modality glossary pages cover the published image and video inputs; the inference-engine system page is the serving path readers typically follow after prototyping here."
     },
     "training": {
       "title": "Training",
@@ -25,7 +25,7 @@
     },
     "practicalNotes": {
       "title": "Practical Notes",
-      "body": "Read Qwen3.5-0.8B as the small Qwen3.5 slice for lightweight experimentation. The official post-trained model card states that, given its parameter scale, intended use cases are prototyping, task-specific fine-tuning, and other research or development purposes. When you need a larger Qwen open-weights operating point in the same reader path, follow the published Qwen3.6 model pages next rather than treating this 0.8B checkpoint as a family-wide default. Use Qwen/Qwen3.5-0.8B-Base when you need the pre-trained starting point, not as the default page readers should follow for chat-style behavior."
+      "body": "Read Qwen3.5-0.8B as the small Qwen3.5 slice for lightweight experimentation. The official post-trained model card states that, given its parameter scale, intended use cases are prototyping, task-specific fine-tuning, and other research or development purposes. When you need a larger Qwen open-weights operating point in the same reader path, follow the published Qwen3.6 model pages next rather than treating this 0.8B checkpoint as a family-wide default. The Qwen3.6 MoE checkpoint is the family comparison point when sparse routing and expert selection matter; this dense 0.8B page does not route through a mixture-of-experts stack. Use Qwen/Qwen3.5-0.8B-Base when you need the pre-trained starting point, not as the default page readers should follow for chat-style behavior."
     },
     "related": { "title": "Related Models, Modules, And Papers" },
     "tags": { "title": "Tags" },
