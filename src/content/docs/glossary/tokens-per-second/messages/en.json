@@ -5,7 +5,7 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Tokens per second is the rate at which a serving system emits newly generated output tokens during an answer. The count is output tokens divided by the elapsed time spent generating those tokens after streaming begins."
+      "body": "Tokens per second is the rate at which a serving system emits newly generated output tokens during an answer. The count is output tokens divided by the elapsed time spent generating those tokens after streaming begins. A token is a model-specific text unit from the tokenizer, not necessarily one word, so the same sentence can yield different token counts on different models or tokenizers."
     },
     "whyItMatters": {
       "title": "Why It Matters",
@@ -13,7 +13,15 @@
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "Imagine a chat answer that streams one hundred output tokens in five seconds after the first token appears. The tokens-per-second figure for that generation window is twenty output tokens per second."
+      "body": "Imagine a chat answer that streams one hundred output tokens in five seconds after the first token appears. The tokens-per-second figure for that generation window is twenty output tokens per second. The timer starts when generation begins and stops when the answer finishes or the reader stops the stream."
+    },
+    "whatChangesTheNumber": {
+      "title": "What Changes The Number",
+      "body": "Prompt length changes how much prefill work runs before the generation window opens, so a long prompt can delay streaming even though prefill time is usually excluded from tokens per second. Output length changes how many decode steps the answer needs and how long the measured window lasts. Each decode step produces one more token, so a longer answer spends more time in the repeated generation loop. Stopping behavior also matters: an end-of-sequence token, a max-token limit, or a user cancel ends the timer at different points and can make two similar prompts report different rates."
+    },
+    "streamingVsThroughput": {
+      "title": "Streaming Pace Versus Fleet Throughput",
+      "body": "One reader's streaming pace is the tokens-per-second rate for a single answer during its generation window. Fleet throughput is the total output tokens a deployment serves across many requests and users over the same wall-clock period. A system can show high fleet throughput when it batches many requests together while each individual stream still feels slower. Comparing one user's chat speed to a provider's published throughput figure mixes two different measurements."
     },
     "commonConfusions": {
       "title": "Common Confusions",
