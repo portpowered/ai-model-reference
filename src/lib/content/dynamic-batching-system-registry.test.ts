@@ -11,7 +11,7 @@ describe("dynamic batching system registry", () => {
   test("establishes the canonical dynamic batching serving identity", () => {
     const record = getSystemById("system.dynamic-batching");
 
-    expect(record?.status).toBe("draft");
+    expect(record?.status).toBe("published");
     expect(record?.kind).toBe("system");
     expect(record?.slug).toBe("dynamic-batching");
     expect(record?.systemType).toBe("serving");
