@@ -1,4 +1,5 @@
 ## Codebase Patterns
+- Collection-driven sidebar verification lives in `src/lib/navigation/docs-sidebar-collection-verification.test.ts`; assert reviewer-facing behavior through `buildGeneratedDocsPageTree()` output and `docs-sidebar-contract.ts` representative URLs rather than source-file scans.
 - Docs sidebar folder generation iterates `listDocsCollectionDefinitions()` from `src/lib/docs/docs-collection-definitions.ts`; assign published pages to folders by matching the first `docsSlug` segment to each definition's `routeSlug`.
 - Grouped sidebar collections delegate to `buildGroupedSidebarNodes()` in `src/lib/navigation/docs-sidebar-grouping-adapter.ts`, which owns AI registry lookup and sidebar grouping resolver dispatch; the generic builder in `generated-docs-page-tree.ts` only handles ungrouped title sorting.
 - When asserting grouped sidebar pages for the final separator in a section, filter nodes by the expected group's page URLs because trailing pages without a resolved group follow grouped content without their own separator.
@@ -77,4 +78,14 @@
   - Concepts, modules, and systems currently have published pages without a resolved sidebar group; they render in a title-sorted tail after the last grouped separator.
   - For the final group in a grouped folder, slice assertions must filter by `group.pageUrls` or stop before trailing ungrouped pages because `findNextSeparatorIndex` returns `-1`.
   - Reuse `collectUngroupedPages()` with each `GROUPED_SECTIONS` resolver to assert tail placement without hardcoding every fallback page slug.
+---
+
+## 2026-07-01T18:20:00Z - generic-sidebar-collection-builder-005
+- Added `docs-sidebar-collection-verification.test.ts` with reviewer-facing assertions on `buildGeneratedDocsPageTree()` output: configured folder order, parity with `source.pageTree`, representative grouped page placement after expected separators, and ungrouped model/paper links without separators.
+- Verified existing sidebar, adapter, built-HTML, and source navigation tests continue to pass; full `test:website` run had one inherited flaky timeout on an unrelated attention-tag convergence gate that passes in isolation.
+- Files changed: `src/lib/navigation/docs-sidebar-collection-verification.test.ts`
+- **Learnings for future iterations:**
+  - Story 005 consolidates verification through exported page-tree output; keep representative URLs in `docs-sidebar-contract.ts` and assert separator placement with `findPrecedingSeparatorLabel()` helpers.
+  - `buildGeneratedDocsPageTree({ name: "Docs", children: [] })` is sufficient for direct builder tests without loading the full Fumadocs source binding.
+  - `content-reconciliation-convergence.test.ts` attention-tag gate can exceed the default 5s timeout under full-suite load; rerun in isolation before treating as a regression.
 ---
