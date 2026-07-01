@@ -9,11 +9,11 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Request scheduling is a serving-time control decision. It does not change model weights, layer math, or which backend answers a request. Its job is to decide what queued work should run next once a request has already passed admission and joined the active serving runtime."
+      "body": "Request scheduling is a serving-time control decision. It does not change model weights, layer math, or which backend answers a request. Its job is to decide what queued work should run next once a request has already passed admission and joined the active serving runtime. Routing answers a different question by choosing where a request should go, and batching answers another by grouping compatible work for efficient execution. Scheduling only orders the work that is already admitted and waiting on a chosen path."
     },
     "whereItSits": {
       "title": "Where It Sits",
-      "body": "It sits inside the inference serving stack between admission and execution. Admission decides whether a request may enter the runtime at all. After that gate, the scheduler orders that request's prefill and decode work against every other active request competing for the same accelerator, memory budget, and batch slots."
+      "body": "It sits inside the inference serving stack between admission and execution, after routing has already placed a request on a concrete path. Admission decides whether a request may enter the runtime at all. Routing decides which model, hardware tier, or serving path should receive the request. Once that path is chosen, the scheduler orders that request's prefill and decode work against every other active request competing for the same accelerator, memory budget, and batch slots. Batching then decides how much of that scheduled work is packed together when the accelerator actually runs a step."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -21,10 +21,11 @@
     },
     "practicalImpact": {
       "title": "Practical Impact",
-      "body": "Scheduler choices directly affect observable serving outcomes. Latency rises when queue wait grows, when decode turns keep getting deferred, or when memory pressure triggers reloads before the next step can run. Fairness breaks when one long request or one greedy batching window keeps shorter jobs waiting at the back of the queue. Throughput rises when the scheduler keeps the accelerator busy with useful prefill and decode work, but falls when policy overhead, idle gaps, or overly conservative memory deferrals leave hardware underused. Memory pressure shows up as queue growth, forced preemption, or admission rejecting new work even while compute still looks available. Strict first-come-first-served order can protect fairness but leave accelerators idle between incompatible steps. Aggressive batching-friendly ordering can raise throughput while stretching tail latency for requests that just missed a formation window."
+      "body": "Scheduler choices directly affect observable serving outcomes. Latency rises when queue wait grows, when decode turns keep getting deferred, or when memory pressure triggers reloads before the next step can run. Fairness breaks when one long request or one greedy batching window keeps shorter jobs waiting at the back of the queue. Throughput rises when the scheduler keeps the accelerator busy with useful prefill and decode work, but falls when policy overhead, idle gaps, or overly conservative memory deferrals leave hardware underused. Memory pressure shows up as queue growth, forced preemption, or admission rejecting new work even while compute still looks available. Strict first-come-first-served order can protect fairness but leave accelerators idle between incompatible steps. Aggressive batching-friendly ordering can raise throughput while stretching tail latency for requests that just missed a formation window. These layers interact even though they answer different questions. Prefill and decode coordination is one example: two admitted requests may both be active, but the scheduler still chooses whether the next turn is a prompt-heavy prefill step or a cache-extending decode step, and that choice changes tail latency for long chats waiting behind a burst of new prompts. Batching and memory pressure are another: the scheduler may pause briefly so compatible decode steps can form a denser batch, or it may defer new prefill when live KV-cache growth would exceed the memory budget, even though routing already picked a valid backend and batching could raise throughput if more work were packed together."
     },
     "related": {
-      "title": "Related To"
+      "title": "Related To",
+      "body": "The related pages below cover routing, batching, continuous batching, prefill and decode generation stages, memory limits, and deployment choices that shape how scheduling decisions play out in production."
     },
     "tags": {
       "title": "Tags"

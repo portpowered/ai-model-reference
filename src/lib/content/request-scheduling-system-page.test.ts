@@ -80,6 +80,33 @@ describe("request scheduling system page messages", () => {
       "Memory pressure shows up",
     );
   });
+
+  test("distinguishes scheduling from routing and batching and explains concrete serving interactions", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.sections?.whatItIs.body).toContain(
+      "Routing answers a different question by choosing where a request should go",
+    );
+    expect(messages.sections?.whatItIs.body).toContain(
+      "batching answers another by grouping compatible work",
+    );
+    expect(messages.sections?.whereItSits.body).toContain(
+      "Routing decides which model, hardware tier, or serving path",
+    );
+    expect(messages.sections?.whereItSits.body).toContain(
+      "Batching then decides how much of that scheduled work is packed together",
+    );
+    expect(messages.sections?.practicalImpact.body).toContain(
+      "Prefill and decode coordination is one example",
+    );
+    expect(messages.sections?.practicalImpact.body).toContain(
+      "Batching and memory pressure are another",
+    );
+    expect(messages.sections?.related.body).toContain("routing, batching");
+    expect(messages.sections?.related.body).toContain("continuous batching");
+  });
 });
 
 describe("loadSystemPage request-scheduling", () => {
@@ -218,6 +245,13 @@ describe("request scheduling docs route render", () => {
     expect(html).toContain("Admission control");
     expect(html).toContain("Memory pressure shows up");
     expect(html).toContain("Cancellation");
+    expect(html).toContain(
+      "Routing answers a different question by choosing where a request should go",
+    );
+    expect(html).toContain("coordination is one example");
+    expect(html).toContain("Batching and memory pressure are another");
+    expect(html).toContain("routing, batching");
+    expect(html).toContain("continuous batching");
   });
 
   test("renders the request scheduling system flow graph with the page-local graph asset", async () => {
