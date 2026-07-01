@@ -7,7 +7,7 @@ import {
   expect,
   test,
 } from "bun:test";
-import { cleanup, screen, within } from "@testing-library/react";
+import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SearchPagePanelContent } from "@/features/docs/search/SearchPagePanel";
@@ -274,14 +274,22 @@ describe("Phase 2 token-probability path search panel verification (phase-2-toke
     );
 
     const user = userEvent.setup();
-    await user.type(
-      screen.getByLabelText(context.messages.search.placeholder),
-      query,
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
     );
+    await user.click(searchInput);
+    await user.paste(query);
 
     const results = await screen.findByTestId(
       "search-page-results",
       {},
+      { timeout: 15_000 },
+    );
+    await waitFor(
+      () => {
+        const firstUrl = within(results).getAllByTestId("search-result-url")[0];
+        expect(firstUrl?.textContent).toContain(url);
+      },
       { timeout: 15_000 },
     );
     const firstUrl = within(results).getAllByTestId("search-result-url")[0];
