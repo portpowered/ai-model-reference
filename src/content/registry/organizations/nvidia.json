@@ -1,0 +1,21 @@
+{
+  "id": "organization.nvidia",
+  "slug": "nvidia",
+  "kind": "organization",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["NVIDIA", "NVIDIA Corporation"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["paper.nemotron-3-super"],
+  "citationIds": [
+    "citation.nemotron-3-super-technical-report",
+    "citation.nemotron-3-super-research-page"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "website": "https://www.nvidia.com",
+  "modelIds": [],
+  "paperIds": ["paper.nemotron-3-super"],
+  "systemIds": []
+}
