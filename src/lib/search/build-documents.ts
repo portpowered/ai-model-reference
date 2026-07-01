@@ -91,6 +91,40 @@ function citationSearchTerms(
   return terms;
 }
 
+function isCitationIntroducingRecord(
+  registryRecord: RegistryRecord,
+  citationId: string,
+): boolean {
+  if (
+    "sourceId" in registryRecord &&
+    registryRecord.sourceId === citationId
+  ) {
+    return true;
+  }
+
+  return (
+    registryRecord.kind === "paper" &&
+    registryRecord.citationIds?.includes(citationId) === true
+  );
+}
+
+function citationDirectSearchTerms(
+  indexes: RegistryIndexes,
+  registryRecord: RegistryRecord | undefined,
+  citationIds: string[],
+): string[] {
+  if (!registryRecord) {
+    return [];
+  }
+
+  return citationSearchTerms(
+    indexes,
+    citationIds.filter((citationId) =>
+      isCitationIntroducingRecord(registryRecord, citationId),
+    ),
+  );
+}
+
 function tagSearchTerms(
   indexes: RegistryIndexes,
   tagSlugs: string[],
@@ -427,9 +461,12 @@ export function buildSearchDocument(
     page.frontmatter.registryId,
   );
   const registryAliases = registryRecord?.aliases ?? [];
-  const citationTerms = citationSearchTerms(
+  const citationIds = registryRecord?.citationIds ?? [];
+  const citationTerms = citationSearchTerms(indexes, citationIds);
+  const citationDirectTerms = citationDirectSearchTerms(
     indexes,
-    registryRecord?.citationIds ?? [],
+    registryRecord,
+    citationIds,
   );
   const pageTags = resolvePublishedResourceTags(page, indexes);
   const tagTerms = tagSearchTerms(indexes, pageTags);
@@ -439,9 +476,9 @@ export function buildSearchDocument(
   const directAliases = unique([
     ...(page.frontmatter.aliases ?? []),
     ...registryAliases,
-    ...citationTerms,
+    ...citationDirectTerms,
   ]);
-  const aliases = unique([...directAliases, ...tagTerms]);
+  const aliases = unique([...directAliases, ...tagTerms, ...citationTerms]);
 
   return {
     id: page.url,
