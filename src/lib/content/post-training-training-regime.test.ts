@@ -105,10 +105,6 @@ describe("post-training training-regime discovery contracts", () => {
       "Post-Training",
       "post-training",
       "post training",
-      "instruction tuning",
-      "instruction-tuning",
-      "supervised fine-tuning",
-      "SFT",
       "RLHF",
       "reinforcement learning from human feedback",
       "alignment training",
@@ -119,6 +115,7 @@ describe("post-training training-regime discovery contracts", () => {
       "training-regime.pretraining",
       "concept.alignment",
       "training-regime.dpo",
+      "training-regime.instruction-tuning",
       "training-regime.specialist-training",
       "model.gpt-3",
       "model.llama-3",
@@ -196,8 +193,7 @@ describe("post-training training-regime discovery contracts", () => {
     expect(html).toContain('href="/docs/training/pretraining"');
     expect(html).toContain('href="/docs/training/dpo"');
     expect(html).toContain('href="/docs/concepts/alignment"');
-    expect(html).toContain('href="/search?q=instruction%20tuning"');
-    expect(html).toContain('href="/search?q=SFT"');
+    expect(html).toContain('href="/docs/training/instruction-tuning"');
     expect(html).toContain('href="/search?q=RLHF"');
     expect(html).toContain('href="/docs/models/gpt-3"');
     expect(html).toContain('href="/docs/models/llama-3"');
@@ -206,8 +202,7 @@ describe("post-training training-regime discovery contracts", () => {
     expect(html).toContain(">Pretraining<");
     expect(html).toContain(">Direct Preference Optimization<");
     expect(html).toContain(">Alignment<");
-    expect(html).toContain(">Instruction tuning search<");
-    expect(html).toContain(">SFT search<");
+    expect(html).toContain(">Instruction tuning<");
     expect(html).toContain(">RLHF search<");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('data-testid="tag-pill-list"');
@@ -237,16 +232,16 @@ describe("post-training training-regime discovery contracts", () => {
     expect(document?.kind).toBe("training-regime");
     expect(document?.aliases).toEqual(
       expect.arrayContaining([
-        "instruction tuning",
-        "SFT",
         "RLHF",
         "alignment training",
+        "behavior shaping",
       ]),
     );
     expect(document?.relatedIds).toEqual([
       "training-regime.pretraining",
       "concept.alignment",
       "training-regime.dpo",
+      "training-regime.instruction-tuning",
       "training-regime.specialist-training",
       "model.gpt-3",
       "model.llama-3",
@@ -256,10 +251,9 @@ describe("post-training training-regime discovery contracts", () => {
 
     for (const query of [
       "post-training",
-      "instruction tuning",
-      "SFT",
       "RLHF",
       "alignment training",
+      "behavior shaping",
     ]) {
       const results = await docsSearchApi.search(query);
       expect(pageBaseUrl(results[0]?.url ?? "")).toBe(
