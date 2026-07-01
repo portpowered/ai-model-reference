@@ -8,7 +8,7 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
-import { TRAINING_DOCS_ROOT } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -35,7 +35,7 @@ function pageBaseUrl(url: string): string {
 }
 
 function loadPretrainingPageBundle() {
-  const pageDir = join(TRAINING_DOCS_ROOT, "pretraining");
+  const pageDir = getDocsPageDir("training", "pretraining");
   const source = readFileSync(join(pageDir, "page.mdx"), "utf8");
   const frontmatterBlock = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!frontmatterBlock?.[1]) {
