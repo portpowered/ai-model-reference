@@ -44,9 +44,65 @@
   },
   "graph": {
     "nodes": {
-      "root": {
-        "label": "Nemotron 3 Super\nArchitecture",
-        "summary": "Hybrid Mamba-attention sequence stack with sparse expert routing"
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "The model's probability distribution over the next token"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Output\nLinear",
+        "summary": "Projects the final hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated hybrid decoder block container for the Nemotron 3 Super stack"
+      },
+      "sequenceSublayer": {
+        "label": " ",
+        "summary": "Hybrid sequence sublayer container"
+      },
+      "moeSublayer": {
+        "label": " ",
+        "summary": "Sparse expert sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats through the full stack"
+      },
+      "rmsnormSequence": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before the hybrid sequence step"
+      },
+      "hybridSequence": {
+        "label": "Hybrid\nMamba +\nAttention",
+        "summary": "Sequence mixing alternates Mamba-style state-space blocks with attention blocks for long context"
+      },
+      "rmsnormMoe": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the stream before the sparse expert block"
+      },
+      "mixtureOfExperts": {
+        "label": "LatentMoE\nExperts",
+        "summary": "Routes each token through a small active expert set inside a much larger expert pool"
+      },
+      "ropeInject": {
+        "label": "+",
+        "summary": "Applies token states together with rotary position information before the stack"
+      },
+      "rope": {
+        "label": "RoPE",
+        "summary": "Rotary position encoding gives the attention path token order information across long context"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs into hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after tokenization"
       }
     }
   }
