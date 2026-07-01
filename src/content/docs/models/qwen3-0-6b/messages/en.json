@@ -1,0 +1,103 @@
+{
+  "title": "Qwen3-0.6B",
+  "description": "The smallest dense Qwen3 open-weight checkpoint: a 0.6-billion-parameter causal language model with 32,768-token context, Apache 2.0 licensing, and post-training for reasoning and instruction following.",
+  "openingSummary": "Qwen3-0.6B is the smallest dense member of the Qwen3 open-weight release. Official sources describe it as a 0.6-billion-parameter causal language model released under Apache 2.0, with grouped-query attention, a 32,768-token context window, and post-training that adds reasoning and instruction-following behavior on top of the pre-trained Qwen3-0.6B-Base checkpoint.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Qwen3-0.6B is a dense open-weights causal language model from the Qwen Team. The Qwen3 release blog lists it among six dense Qwen3 checkpoints open-weighted under Apache 2.0, and the Hugging Face model card describes it as a 0.6-billion-parameter model with both pretraining and post-training stages. This page treats the post-trained `Qwen/Qwen3-0.6B` checkpoint as the canonical reader route; the pre-trained-only `Qwen/Qwen3-0.6B-Base` checkpoint is cited separately for comparison."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Qwen3-0.6B accepts text tokens and produces text tokens. The Hugging Face model card lists a 32,768-token context length and describes hybrid thinking and non-thinking modes controlled through the chat template. This page keeps the published context figure and text-only modality because those are the conservative operating points repeated across the primary Qwen-controlled sources."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Official Qwen3 materials describe Qwen3-0.6B as a dense decoder-only stack rather than a mixture-of-experts model. The Qwen3 release blog table lists 28 layers, 16 query and 8 key-value attention heads for grouped-query attention, tied embeddings, and a 32K context length for this size class. The diagram below shows the familiar dense decoder flow—token input, embeddings, repeated attention and feed-forward blocks, and output logits—without implying sparse expert routing."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The registry-backed modules below are the smallest set worth opening first when connecting this page to the site's module reference. Grouped-query attention, rotary position encoding, and RMS normalization are named directly in the public Qwen3 model materials."
+    },
+    "training": {
+      "title": "Training",
+      "body": "The Hugging Face model card for `Qwen/Qwen3-0.6B` lists the training stage as pretraining and post-training, while the `Qwen/Qwen3-0.6B-Base` card lists pretraining only. The Qwen3 release blog describes the post-trained dense checkpoints as receiving instruction tuning and reinforcement-learning stages after the shared Qwen3 pretraining pipeline. This page cites both checkpoints so readers can separate the base weights from the post-trained operating point without treating the base checkpoint as the canonical page."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Read Qwen3-0.6B as the lightweight dense entry point in the Qwen3 family. Its 0.6-billion-parameter scale and Apache 2.0 license make it useful for local experimentation, teaching dense decoder behavior, and efficient inference prototyping where official sources emphasize small-model accessibility rather than benchmark leaderboard positioning."
+    },
+    "related": { "title": "Related Models, Modules, And Papers" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Qwen3-0.6B architecture diagram with token embeddings, RoPE position encoding, a repeated decoder block containing grouped-query attention, RMSNorm, and a dense feed-forward network, then an output projection and softmax."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "The model's probability distribution over the next token"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Output\nLinear",
+        "summary": "Projects the final hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated decoder block container for the Qwen3-0.6B stack"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Attention sublayer container"
+      },
+      "ffnSublayer": {
+        "label": " ",
+        "summary": "Dense feed-forward sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats through the full stack"
+      },
+      "rmsnormAttention": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before the attention step"
+      },
+      "decoderAttention": {
+        "label": "Decoder\nAttention",
+        "summary": "Each token reads earlier context under the model's attention mask"
+      },
+      "rmsnormFfn": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the stream before the dense feed-forward block"
+      },
+      "denseFfn": {
+        "label": "Dense\nFeed\nForward",
+        "summary": "Applies the full dense parameter block for every token rather than routing experts"
+      },
+      "ropeInject": {
+        "label": "+",
+        "summary": "Applies token states together with rotary position information before the stack"
+      },
+      "rope": {
+        "label": "RoPE",
+        "summary": "Rotary position encoding gives the attention stack token order information"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs into hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after tokenization"
+      }
+    }
+  }
+}
