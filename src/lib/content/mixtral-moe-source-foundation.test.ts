@@ -56,7 +56,7 @@ describe("Mixtral MoE shared Mistral source foundation", () => {
     });
   });
 
-  test("both draft Mixtral model records reference the shared Mistral organization", () => {
+  test("both Mixtral model records reference the shared Mistral organization", () => {
     const mixtral8x7b = getModelById("model.mixtral-8x7b");
     const mixtral8x22b = getModelById("model.mixtral-8x22b");
 
