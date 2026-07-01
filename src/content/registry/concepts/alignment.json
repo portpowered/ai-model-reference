@@ -4,7 +4,13 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["Alignment", "RLHF", "preference alignment", "safety alignment"],
+  "aliases": [
+    "Alignment",
+    "model alignment",
+    "preference alignment",
+    "human feedback alignment",
+    "safety alignment"
+  ],
   "tags": ["foundations", "taxonomy"],
   "relatedIds": [
     "concept.model-capacity",
