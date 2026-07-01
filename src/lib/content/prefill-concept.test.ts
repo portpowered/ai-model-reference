@@ -5,7 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
-import { PREFILL_CONCEPT_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import {
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
@@ -21,7 +21,7 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = PREFILL_CONCEPT_PAGE_DIR;
+const pageDir = getDocsPageDir("concepts", "prefill");
 const messagesPath = join(pageDir, "messages/en.json");
 
 describe("prefill concept page (prefill-concept-page-001)", () => {

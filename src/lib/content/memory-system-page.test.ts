@@ -9,7 +9,7 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
-import { SYSTEMS_DOCS_ROOT } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
@@ -20,7 +20,7 @@ import { renderSystemDocsShell } from "@/lib/content/system-shell-render";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = join(SYSTEMS_DOCS_ROOT, "memory");
+const pageDir = getDocsPageDir("systems", "memory");
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
 
