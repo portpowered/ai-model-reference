@@ -1,0 +1,103 @@
+{
+  "title": "Qwen3.5-0.8B",
+  "description": "The smallest published Qwen3.5 open-weights checkpoint with multimodal inputs, a hybrid decoder stack, and a 262,144-token native context window.",
+  "openingSummary": "Qwen3.5-0.8B is the smallest Qwen3.5 checkpoint in the public release set. Official materials describe it as a post-trained open-weights model sized for prototyping, task-specific fine-tuning, and research or development work rather than as a large production default.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Qwen3.5-0.8B is an open-weights model from the Qwen Team and the smallest published member of the Qwen3.5 release line. The official Hugging Face model card identifies this repository as the post-trained checkpoint, names the 0.8B operating point, and lists image-and-text serving examples alongside text-only use. The Qwen3.5 announcement frames the family as a native multimodal agent line with unified vision-language training."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Official serving examples on the Hugging Face model card show text, image, and video prompts producing text outputs. The same source documents a native 262,144-token context length as the default operating point. This page keeps those modality and context figures because they are repeated in Qwen-controlled release materials for this checkpoint."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "The official model card's architecture overview names a hybrid language stack built from Gated DeltaNet blocks and periodic Gated Attention blocks, each paired with feed-forward layers. Official serving notes also refer to a vision encoder that can be skipped for text-only deployment. The diagram below stays at a high-level decoder flow so this identity page does not turn unpublished block counts into extra claims."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The registry-backed modules below are the smallest set worth opening first when you want to connect this page to the site's module reference. Rotary position encoding appears in the published Gated Attention head configuration on the official model card."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Official materials distinguish two public checkpoints at this size. Qwen/Qwen3.5-0.8B-Base is the pre-trained-only release intended for fine-tuning and in-context learning rather than direct chat use. Qwen/Qwen3.5-0.8B is the post-trained checkpoint that this page treats as the canonical reader route. Both checkpoints share the same published architecture overview on their Hugging Face model cards."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Read Qwen3.5-0.8B as the small Qwen3.5 slice for lightweight experimentation. The official post-trained model card states that, given its parameter scale, intended use cases are prototyping, task-specific fine-tuning, and other research or development purposes. Use Qwen/Qwen3.5-0.8B-Base when you need the pre-trained starting point, not as the default page readers should follow for chat-style behavior."
+    },
+    "related": { "title": "Related Models, Modules, And Papers" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Qwen3.5-0.8B architecture diagram with token embeddings, rotary position encoding, a repeated decoder block containing attention, RMSNorm, and a feed-forward network, then an output projection and softmax."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "The model's probability distribution over the next token"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Output\nLinear",
+        "summary": "Projects the final hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated decoder block container for the Qwen3.5-0.8B stack"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Attention sublayer container"
+      },
+      "ffnSublayer": {
+        "label": " ",
+        "summary": "Feed-forward sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats through the full stack"
+      },
+      "rmsnormAttention": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before the attention step"
+      },
+      "decoderAttention": {
+        "label": "Decoder\nAttention",
+        "summary": "Periodic Gated Attention blocks read earlier context under the model's attention mask"
+      },
+      "rmsnormFfn": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the stream before the feed-forward block"
+      },
+      "denseFfn": {
+        "label": "Feed\nForward",
+        "summary": "Applies the published feed-forward block paired with each Gated DeltaNet or Gated Attention layer"
+      },
+      "ropeInject": {
+        "label": "+",
+        "summary": "Applies token states together with rotary position information before the stack"
+      },
+      "rope": {
+        "label": "RoPE",
+        "summary": "Rotary position encoding gives the attention stack token order information"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs into hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after tokenization"
+      }
+    }
+  }
+}
