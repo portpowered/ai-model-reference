@@ -82,7 +82,7 @@ describe("prefill concept page (prefill-concept-page-001)", () => {
       items.some(
         (item) =>
           item.registryId === "concept.decode" &&
-          item.href === "/docs/glossary/decode",
+          item.href === "/docs/concepts/decode",
       ),
     ).toBe(true);
     expect(
@@ -150,7 +150,7 @@ describe("prefill concept page (prefill-concept-page-001)", () => {
     expect(html).toContain("Why It Matters");
     expect(html).toContain("Serving Path");
     expect(html).toContain('href="/docs/concepts/kv-cache"');
-    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain('href="/docs/concepts/decode"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');

@@ -133,7 +133,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
 };
 
 const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 50;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 49;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -145,6 +145,7 @@ const GLOSSARY_SEPARATOR_TITLES = [
 const ARCHITECTURE_CONCEPT_URLS = [
   "/docs/concepts/alibi",
   "/docs/concepts/context-extension",
+  "/docs/concepts/decode",
   "/docs/concepts/kv-cache",
   "/docs/concepts/page-spec-workflow-sample",
   "/docs/concepts/positional-encodings",
@@ -232,7 +233,6 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
 
     for (const url of [
       "/docs/glossary/architecture",
-      "/docs/glossary/kv-cache",
       "/docs/glossary/normalization",
       "/docs/glossary/residual-connection",
       "/docs/glossary/special-tokens",
@@ -271,7 +271,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Architecture", "/docs/glossary/architecture"],
       ["Foundation Model", "/docs/glossary/foundation-model"],
       ["Key-value cache", "/docs/concepts/kv-cache"],
-      ["Decode", "/docs/glossary/decode"],
+      ["Decode", "/docs/concepts/decode"],
       ["Prefill", "/docs/concepts/prefill"],
       ["Positional encodings", "/docs/concepts/positional-encodings"],
       ["Token", "/docs/glossary/token"],
@@ -280,5 +280,6 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       expect(architectureHtml).toContain(title);
       expect(architectureHtml).toContain(`href="${href}"`);
     }
+    expect(architectureHtml).not.toContain('href="/docs/glossary/decode"');
   });
 });

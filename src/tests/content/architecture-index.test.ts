@@ -23,6 +23,7 @@ describe("isArchitectureRelatedPage", () => {
     expect(urls).toEqual(
       expect.arrayContaining([
         "/docs/concepts/context-extension",
+        "/docs/concepts/decode",
         "/docs/concepts/page-spec-workflow-sample",
         "/docs/concepts/positional-encodings",
         "/docs/concepts/prefill",
@@ -66,6 +67,14 @@ describe("loadPublishedArchitectureEntries", () => {
     expect(token?.title).toBe("Token");
     expect(token?.summary.length).toBeGreaterThan(0);
     expect(token?.slug).toBe("glossary/token");
+  });
+
+  it("prefers the concept route when glossary and concept pages share one registry record", async () => {
+    const entries = await loadPublishedArchitectureEntries("en");
+    const decodeEntries = entries.filter((entry) => entry.title === "Decode");
+
+    expect(decodeEntries).toHaveLength(1);
+    expect(decodeEntries[0]?.url).toBe("/docs/concepts/decode");
   });
 
   it("returns published architecture pages sorted alphabetically by title", async () => {
@@ -122,8 +131,8 @@ describe("architecture index page render", () => {
     for (const [title, href] of [
       ["Architecture", "/docs/glossary/architecture"],
       ["Foundation Model", "/docs/glossary/foundation-model"],
-      ["KV cache", "/docs/glossary/kv-cache"],
-      ["Decode", "/docs/glossary/decode"],
+      ["Key-value cache", "/docs/concepts/kv-cache"],
+      ["Decode", "/docs/concepts/decode"],
       ["Prefill", "/docs/concepts/prefill"],
       ["Positional encodings", "/docs/concepts/positional-encodings"],
       ["Token", "/docs/glossary/token"],
@@ -136,6 +145,7 @@ describe("architecture index page render", () => {
     expect(html).not.toContain("No architecture entries yet");
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");
+    expect(html).not.toContain('href="/docs/glossary/decode"');
   });
 
   it("renders localized vietnamese architecture entries when shipped page-local messages exist", async () => {

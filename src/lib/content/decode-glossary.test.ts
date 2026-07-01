@@ -37,6 +37,7 @@ describe("Phase 5 decode glossary page (US-003)", () => {
       "token-by-token generation",
       "next-token step",
       "inter-token generation",
+      "inter-token latency",
     ]);
     expect(record?.tags).toEqual(["foundations", "attention", "kv-cache"]);
     expect(record?.relatedIds).toEqual(
@@ -182,6 +183,7 @@ describe("Phase 5 decode glossary page (US-003)", () => {
         "decoding",
         "token-by-token generation",
         "next-token step",
+        "inter-token latency",
       ]),
     );
     expect(document?.tags).toEqual(

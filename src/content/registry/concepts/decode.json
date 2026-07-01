@@ -9,7 +9,8 @@
     "decoding",
     "token-by-token generation",
     "next-token step",
-    "inter-token generation"
+    "inter-token generation",
+    "inter-token latency"
   ],
   "tags": ["foundations", "attention", "kv-cache"],
   "relatedIds": [
@@ -17,7 +18,11 @@
     "concept.kv-cache",
     "concept.prefill-decode-split",
     "system.batching",
+    "system.continuous-batching",
+    "system.memory",
+    "system.speculative-decoding",
     "concept.autoregressive-generation",
+    "concept.sampling-overview",
     "module.attention",
     "module.multi-query-attention",
     "module.grouped-query-attention",
@@ -30,7 +35,7 @@
   ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
-  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
   "conceptType": "inference",
   "sidebarGrouping": {
     "glossary": "sequence-and-attention"

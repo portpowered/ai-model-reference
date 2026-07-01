@@ -77,6 +77,7 @@ describe("attention tag landing resources", () => {
 
     const conceptGroup = groups.find((group) => group.kind === "concept");
     expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/concepts/decode",
       "/docs/concepts/kv-cache",
       "/docs/concepts/prefill",
     ]);

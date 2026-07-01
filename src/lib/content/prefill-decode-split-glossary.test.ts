@@ -109,7 +109,7 @@ describe("Phase 5 prefill/decode split glossary page (US-004)", () => {
       items.some(
         (item) =>
           item.registryId === "concept.decode" &&
-          item.href === "/docs/glossary/decode",
+          item.href === "/docs/concepts/decode",
       ),
     ).toBe(true);
     expect(
@@ -176,7 +176,7 @@ describe("Phase 5 prefill/decode split glossary page (US-004)", () => {
     expectHtmlToContainProse(html, "queueing overhead");
     expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/concepts/prefill"');
-    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain('href="/docs/concepts/decode"');
     expect(html).toContain('href="/search?q=paged%20attention"');
     expect(html).toContain('href="/search?q=chunked%20prefill"');
     expect(html).toContain('href="/search?q=speculative%20decoding"');
@@ -238,7 +238,7 @@ describe("Phase 5 prefill/decode split glossary page (US-004)", () => {
     expect(kvCache).toContain('href="/docs/concepts/prefill"');
     expect(prefill).toContain('href="/docs/concepts/prefill"');
     expect(decode).toContain('href="/docs/glossary/prefill-decode-split"');
-    expect(split).toContain('href="/docs/glossary/decode"');
+    expect(split).toContain('href="/docs/concepts/decode"');
   });
 
   test("transformer, attention, autoregressive generation, MQA, GQA, and sliding-window attention expose entry points into the serving path", () => {

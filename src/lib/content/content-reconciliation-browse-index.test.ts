@@ -21,7 +21,7 @@ describe("Phase 2/3 reconciliation browse indexes (US-004)", () => {
     for (const url of [
       "/docs/concepts/transformer-architecture",
       "/docs/concepts/positional-encodings",
-      "/docs/glossary/kv-cache",
+      "/docs/concepts/kv-cache",
       "/docs/glossary/token",
     ]) {
       expect(architectureHtml).toContain(`href="${url}"`);

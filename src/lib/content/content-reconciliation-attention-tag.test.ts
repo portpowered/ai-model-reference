@@ -98,6 +98,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     const conceptGroup = groups.find((group) => group.kind === "concept");
     expect(conceptGroup?.kindLabel).toBe("Concept");
     expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/concepts/decode",
       "/docs/concepts/kv-cache",
       "/docs/concepts/prefill",
     ]);
@@ -165,7 +166,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
     expect(html).toContain("Linear Attention");
     expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
-    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain('href="/docs/concepts/decode"');
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/glossary/token"');

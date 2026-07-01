@@ -150,9 +150,9 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
     );
     expectHtmlToContainProse(html, "cost real money to serve");
     expect(html).toContain('href="/docs/concepts/prefill"');
-    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain('href="/docs/concepts/decode"');
     expect(html).toContain('href="/docs/concepts/prefill"');
-    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain('href="/docs/concepts/decode"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
