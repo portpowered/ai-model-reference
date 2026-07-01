@@ -50,6 +50,7 @@ describe("Deployment system page (deployment-system-page-001)", () => {
       "system.expert-parallel-overlap",
       "model.gpt-3",
       "model.deepseek-v4-pro",
+      "model.nemotron-3-super",
     ]);
     expect(record?.relatedConceptIds).toEqual([
       "concept.quantization",
