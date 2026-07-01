@@ -77,6 +77,11 @@ the temporary legacy-id bridge.
   `primaryClassificationId`, prefer asserting that ontology classification in
   regression coverage and removing redundant `conceptType` values from the
   record instead of keeping both fields aligned by hand.
+* `src/lib/content/tokenizers-split-discovery-validation.test.tsx`
+  Cross-cutting regression for the tokenizer versus positional embedding split:
+  representative module family membership, CLIP discovery alignment, search and
+  related-doc separation, browse topology groups, and browser-visible docs route
+  rendering for BPE, RoPE, NoPE, and CLIP image tokenization.
 * `src/lib/content/metadata-labels.ts`
   Shared reader-facing metadata label derivation for ontology-backed module,
   training-regime, and system cards. Keep classification-to-label formatting on
