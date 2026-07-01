@@ -1,0 +1,101 @@
+{
+  "id": "graph.dynamic-batching-system-flow",
+  "slug": "dynamic-batching-system-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["dynamic batching system flow", "batch window system flow"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.orca-serving-system"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "system.dynamic-batching",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "queue",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "queue",
+      "labelKey": "graph.nodes.queue.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 220, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["wait"]
+    },
+    {
+      "id": "wait",
+      "labelKey": "graph.nodes.wait.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 220, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["pack"]
+    },
+    {
+      "id": "pack",
+      "labelKey": "graph.nodes.pack.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 220, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["run"]
+    },
+    {
+      "id": "run",
+      "labelKey": "graph.nodes.run.label",
+      "moduleKind": "operation",
+      "position": { "x": 250, "y": 370 },
+      "size": { "width": 220, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["return"]
+    },
+    {
+      "id": "return",
+      "labelKey": "graph.nodes.return.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 500 },
+      "size": { "width": 220, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "queue-wait",
+      "source": "queue",
+      "target": "wait",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "wait-pack",
+      "source": "wait",
+      "target": "pack",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "pack-run",
+      "source": "pack",
+      "target": "run",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "run-return",
+      "source": "run",
+      "target": "return",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}
