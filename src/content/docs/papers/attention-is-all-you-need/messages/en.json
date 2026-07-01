@@ -31,8 +31,8 @@
   },
   "assets": {
     "contributionGraph": {
-      "alt": "A contribution graph that connects Attention Is All You Need to attention-centered sequence modeling and the encoder-decoder transformer stack.",
-      "caption": "The paper is easiest to read as two linked ideas: self-attention as the main mixing mechanism and an encoder-decoder transformer stack that organizes those layers."
+      "alt": "A contribution graph that connects Attention Is All You Need to attention-centered architecture, multi-head attention, positional encodings, encoder-decoder stacks, feed-forward sublayers, and residual or skip paths.",
+      "caption": "The paper introduces a reusable transformer stack: self-attention as the main mixer, multi-head attention for parallel relationship views, positional encodings for order, encoder and decoder stacks for sequence-to-sequence work, feed-forward sublayers for per-token refinement, and residual or skip paths for depth."
     }
   },
   "graph": {
@@ -40,11 +40,23 @@
       "paper": {
         "label": "Attention Is All You Need"
       },
-      "attention": {
-        "label": "Attention-centered modeling"
+      "attentionArchitecture": {
+        "label": "Attention-centered architecture"
+      },
+      "multiHeadAttention": {
+        "label": "Multi-head attention"
+      },
+      "positionalEncoding": {
+        "label": "Positional encodings"
       },
       "encoderDecoder": {
         "label": "Encoder-decoder stack"
+      },
+      "feedForward": {
+        "label": "Feed-forward sublayers"
+      },
+      "residualSkip": {
+        "label": "Residual/skip paths"
       }
     }
   }

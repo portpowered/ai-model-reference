@@ -22,17 +22,42 @@
       "id": "paper",
       "labelKey": "graph.nodes.paper.label",
       "moduleKind": "other",
-      "position": { "x": 250, "y": 0 },
+      "position": { "x": 325, "y": 0 },
       "size": { "width": 240, "height": 72 },
       "visualRole": "summary-node",
-      "childNodeIds": ["attention", "encoderDecoder"]
+      "childNodeIds": [
+        "attentionArchitecture",
+        "multiHeadAttention",
+        "positionalEncoding",
+        "encoderDecoder",
+        "feedForward",
+        "residualSkip"
+      ]
     },
     {
-      "id": "attention",
-      "labelKey": "graph.nodes.attention.label",
+      "id": "attentionArchitecture",
+      "labelKey": "graph.nodes.attentionArchitecture.label",
       "moduleKind": "block",
-      "position": { "x": 80, "y": 150 },
-      "size": { "width": 220, "height": 72 },
+      "position": { "x": 0, "y": 150 },
+      "size": { "width": 160, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "multiHeadAttention",
+      "labelKey": "graph.nodes.multiHeadAttention.label",
+      "moduleKind": "block",
+      "position": { "x": 145, "y": 150 },
+      "size": { "width": 160, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "positionalEncoding",
+      "labelKey": "graph.nodes.positionalEncoding.label",
+      "moduleKind": "block",
+      "position": { "x": 290, "y": 150 },
+      "size": { "width": 160, "height": 72 },
       "visualRole": "process-node",
       "childNodeIds": []
     },
@@ -40,17 +65,51 @@
       "id": "encoderDecoder",
       "labelKey": "graph.nodes.encoderDecoder.label",
       "moduleKind": "block",
-      "position": { "x": 380, "y": 150 },
-      "size": { "width": 220, "height": 72 },
+      "position": { "x": 435, "y": 150 },
+      "size": { "width": 160, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "feedForward",
+      "labelKey": "graph.nodes.feedForward.label",
+      "moduleKind": "block",
+      "position": { "x": 580, "y": 150 },
+      "size": { "width": 160, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "residualSkip",
+      "labelKey": "graph.nodes.residualSkip.label",
+      "moduleKind": "block",
+      "position": { "x": 725, "y": 150 },
+      "size": { "width": 160, "height": 72 },
       "visualRole": "process-node",
       "childNodeIds": []
     }
   ],
   "edges": [
     {
-      "id": "paper-attention",
+      "id": "paper-attention-architecture",
       "source": "paper",
-      "target": "attention",
+      "target": "attentionArchitecture",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-multi-head-attention",
+      "source": "paper",
+      "target": "multiHeadAttention",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-positional-encoding",
+      "source": "paper",
+      "target": "positionalEncoding",
       "edgeKind": "data-flow",
       "sourceHandleSide": "bottom",
       "targetHandleSide": "top"
@@ -59,6 +118,22 @@
       "id": "paper-encoder-decoder",
       "source": "paper",
       "target": "encoderDecoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-feed-forward",
+      "source": "paper",
+      "target": "feedForward",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-residual-skip",
+      "source": "paper",
+      "target": "residualSkip",
       "edgeKind": "data-flow",
       "sourceHandleSide": "bottom",
       "targetHandleSide": "top"
