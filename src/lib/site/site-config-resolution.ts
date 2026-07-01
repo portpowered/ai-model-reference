@@ -1,4 +1,5 @@
 import { isDocsPageShippedForLocale } from "@/lib/content/pages";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   buildLocalizedRoute,
   defaultLocale,
@@ -9,6 +10,12 @@ import type {
   SiteConfig,
   SitePrimaryNavEntry,
 } from "./site-config.contract";
+
+export type ResolvedHomeFeaturedLink = {
+  href: string;
+  title: string;
+  description: string;
+};
 
 function resolveRouteSurfaceHref(
   config: SiteConfig,
@@ -53,4 +60,16 @@ export function resolveSiteConfigHomeFeaturedLinkHrefs(
   return config.homeFeaturedLinks.map((link) =>
     resolveHomeFeaturedLinkHref(config, link, locale),
   );
+}
+
+export function resolveSiteConfigHomeFeaturedLinks(
+  config: SiteConfig,
+  messages: UiMessages,
+  locale: SiteLocale = defaultLocale,
+): ResolvedHomeFeaturedLink[] {
+  return config.homeFeaturedLinks.map((link) => ({
+    href: resolveHomeFeaturedLinkHref(config, link, locale),
+    title: messages.home[link.titleKey],
+    description: messages.home[link.descriptionKey],
+  }));
 }

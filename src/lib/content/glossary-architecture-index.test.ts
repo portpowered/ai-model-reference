@@ -110,6 +110,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "/docs/glossary/special-tokens",
       "/docs/glossary/token",
       "/docs/concepts/prefill",
+      "/docs/concepts/alignment",
       ...ARCHITECTURE_CONCEPT_URLS,
     ] as const) {
       expect(entries.some((entry) => entry.url === url)).toBe(true);

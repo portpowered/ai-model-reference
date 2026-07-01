@@ -44,10 +44,30 @@ describe("model atlas site config", () => {
 
   test("includes current home featured link placeholders", () => {
     expect(modelAtlasSiteConfig.homeFeaturedLinks).toEqual([
-      { kind: "route", routeSurface: "browse" },
-      { kind: "docs-page", slug: "modules/grouped-query-attention" },
-      { kind: "docs-page", slug: "modules/swiglu" },
-      { kind: "docs-page", slug: "modules/relu" },
+      {
+        kind: "route",
+        routeSurface: "browse",
+        titleKey: "atlasLinkTitle",
+        descriptionKey: "atlasLinkDescription",
+      },
+      {
+        kind: "docs-page",
+        slug: "modules/grouped-query-attention",
+        titleKey: "gqaLinkTitle",
+        descriptionKey: "gqaLinkDescription",
+      },
+      {
+        kind: "docs-page",
+        slug: "modules/swiglu",
+        titleKey: "swigluLinkTitle",
+        descriptionKey: "swigluLinkDescription",
+      },
+      {
+        kind: "docs-page",
+        slug: "modules/relu",
+        titleKey: "reluLinkTitle",
+        descriptionKey: "reluLinkDescription",
+      },
     ]);
   });
 });
