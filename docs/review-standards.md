@@ -96,3 +96,8 @@ Authors document the same policies in
 and [derived published-page validation](./contributors/CONTRIBUTING.md#derived-published-page-validation).
 Reviewers should align feedback with those sections rather than introducing
 stricter local rules.
+
+When reviewing scope, confirm routine page PRs stayed page-local unless a narrow
+shared touch was visible and justified. Reject hidden shared hotspot churn that
+should have been redirected to a throughput lane. See
+[CONTRIBUTING — routine canonical-page PR surface budget](./contributors/CONTRIBUTING.md#routine-canonical-page-pr-surface-budget).
