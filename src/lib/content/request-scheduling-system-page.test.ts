@@ -191,17 +191,17 @@ describe("request scheduling search and registry convergence", () => {
     expect(results[0]?.url).toBe("/docs/systems/request-scheduling");
   });
 
-  test.each(["latency", "throughput"] as const)(
-    "%s query includes the canonical request scheduling system page",
-    async (query) => {
-      const results = await docsSearchApi.search(query);
+  test.each([
+    "latency",
+    "throughput",
+  ] as const)("%s query includes the canonical request scheduling system page", async (query) => {
+    const results = await docsSearchApi.search(query);
 
-      expect(results.length).toBeGreaterThan(0);
-      expect(
-        resultsIncludeUrl(results, "/docs/systems/request-scheduling"),
-      ).toBe(true);
-    },
-  );
+    expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeUrl(results, "/docs/systems/request-scheduling")).toBe(
+      true,
+    );
+  });
 });
 
 describe("request scheduling docs route render", () => {
