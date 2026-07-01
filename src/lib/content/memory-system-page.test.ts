@@ -208,8 +208,11 @@ describe("memory docs route render", () => {
     expect(html).toContain("active requests remain alive");
     expect(html).toContain("KV cache");
     expect(html).toContain("latency rises because the runtime spends longer");
-    expect(html).toContain("total throughput can flatten");
-    expect(html).toContain("Larger or denser batches can improve throughput");
+    expect(html).toContain('href="/docs/glossary/tokens-per-second"');
+    expect(html).toContain("total ");
+    expect(html).toContain("throughput");
+    expect(html).toContain(" can flatten");
+    expect(html).toContain("Larger or denser batches can improve ");
     expect(html).toContain(
       "Spilling colder cache to slower storage keeps longer sessions alive",
     );
