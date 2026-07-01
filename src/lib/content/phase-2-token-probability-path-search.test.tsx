@@ -31,7 +31,16 @@ import {
 } from "@/tests/a11y/render";
 import { createDocsSearchRouteFetch } from "@/tests/search/route-fetch";
 
-const TARGET_PATH_PAGES = [
+type TargetPathPage = {
+  slug: string;
+  title: string;
+  url: string;
+  searchUrl?: string;
+  summarySnippet: string;
+  aliasQueries: readonly string[];
+};
+
+const TARGET_PATH_PAGES: readonly TargetPathPage[] = [
   {
     slug: "token",
     title: "Token",
@@ -43,6 +52,7 @@ const TARGET_PATH_PAGES = [
     slug: "embedding",
     title: "Embedding",
     url: "/docs/glossary/embedding",
+    searchUrl: "/docs/concepts/embedding",
     summarySnippet: "dense vector",
     aliasQueries: ["embeddings", "token embedding"] as const,
   },
@@ -60,7 +70,7 @@ const TARGET_PATH_PAGES = [
     summarySnippet: "probability distribution",
     aliasQueries: ["softmax function"] as const,
   },
-] as const;
+];
 
 const TARGET_PATH_URLS = TARGET_PATH_PAGES.map((page) => page.url);
 const CHAIN_TAG = "token-to-probability-chain";
@@ -153,7 +163,9 @@ describe("Phase 2 token-probability path search indexing (phase-2-token-probabil
 
 describe("Phase 2 token-probability path search ranking (phase-2-token-probability-path-convergence-004)", () => {
   test.each(
-    TARGET_PATH_PAGES.map(({ title, url }) => [title, url] as const),
+    TARGET_PATH_PAGES.map(
+      ({ title, url, searchUrl }) => [title, searchUrl ?? url] as const,
+    ),
   )("ranks %s glossary first for canonical title query", async (title, url) => {
     const results = await docsSearchApi.search(title);
     expect(results.length).toBeGreaterThan(0);
@@ -161,8 +173,8 @@ describe("Phase 2 token-probability path search ranking (phase-2-token-probabili
   });
 
   test.each(
-    TARGET_PATH_PAGES.flatMap(({ aliasQueries, url }) =>
-      aliasQueries.map((query) => [query, url] as const),
+    TARGET_PATH_PAGES.flatMap(({ aliasQueries, url, searchUrl }) =>
+      aliasQueries.map((query) => [query, searchUrl ?? url] as const),
     ),
   )("alias query %s ranks the target glossary first", async (query, url) => {
     const results = await docsSearchApi.search(query);
@@ -232,8 +244,11 @@ describe("Phase 2 token-probability path search panel verification (phase-2-toke
   });
 
   test.each(
-    TARGET_PATH_PAGES.map(({ title, url }) => [title, url] as const),
-  )("/search panel shows Glossary kind for %s query", async (title, url) => {
+    TARGET_PATH_PAGES.map(
+      ({ title, url, searchUrl, slug }) =>
+        [title, searchUrl ?? url, slug] as const,
+    ),
+  )("/search panel shows expected kind for %s query", async (title, url, slug) => {
     const context = await loadAppTestContext();
     await renderWithAppProviders(
       <SearchPagePanelContent
@@ -255,6 +270,7 @@ describe("Phase 2 token-probability path search panel verification (phase-2-toke
     expect(firstUrl?.textContent).toContain(url);
 
     const kindLabels = within(results).getAllByTestId("search-result-kind");
-    expect(kindLabels[0]?.textContent).toContain("Glossary");
+    const expectedKind = slug === "embedding" ? "Concept" : "Glossary";
+    expect(kindLabels[0]?.textContent).toContain(expectedKind);
   });
 });

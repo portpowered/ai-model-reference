@@ -20,14 +20,59 @@ export function getDocsRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "docs");
 }
 
+/** Supported canonical docs sections under `src/content/docs`. */
+export const DOCS_SECTIONS = [
+  "glossary",
+  "concepts",
+  "modules",
+  "models",
+  "papers",
+  "training",
+  "systems",
+] as const;
+
+/** Canonical docs section identifier for derived page directory lookup. */
+export type DocsSection = (typeof DOCS_SECTIONS)[number];
+
+const docsSectionPaths: Record<DocsSection, string> = {
+  glossary: "glossary",
+  concepts: "concepts",
+  modules: "modules",
+  models: "models",
+  papers: "papers",
+  training: "training",
+  systems: "systems",
+};
+
+/** Docs section root under `src/content/docs/<section>`. */
+export function getDocsSectionRoot(
+  section: DocsSection,
+  docsRoot = getDocsRoot(),
+): string {
+  return join(docsRoot, docsSectionPaths[section]);
+}
+
+/**
+ * Derived docs page directory under `src/content/docs/<section>/<slug>`.
+ *
+ * Use this for ordinary canonical page bundles instead of page-specific constants.
+ */
+export function getDocsPageDir(
+  section: DocsSection,
+  slug: string,
+  docsRoot = getDocsRoot(),
+): string {
+  return join(getDocsSectionRoot(section, docsRoot), slug);
+}
+
 /** Glossary docs under `src/content/docs/glossary`. */
 export function getGlossaryDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "glossary");
+  return getDocsSectionRoot("glossary", docsRoot);
 }
 
 /** Concept docs under `src/content/docs/concepts`. */
 export function getConceptsDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "concepts");
+  return getDocsSectionRoot("concepts", docsRoot);
 }
 
 /** Module docs under `src/content/docs/modules`. */

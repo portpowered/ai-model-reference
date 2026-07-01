@@ -1,5 +1,6 @@
 /** Concept registry ids whose published docs page lives under `/docs/concepts`. */
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
+  "concept.embedding",
   "concept.page-spec-workflow-sample",
   "concept.transformer-architecture",
   "concept.positional-encodings",

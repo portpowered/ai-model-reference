@@ -49,7 +49,7 @@ describe("Phase 2 token page learning chain entry (US-010)", () => {
 
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain("embeddings");
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');

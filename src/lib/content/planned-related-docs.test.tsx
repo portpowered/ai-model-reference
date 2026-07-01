@@ -53,7 +53,7 @@ describe("Phase 2 planned related docs (US-002)", () => {
     expect(html).toContain("special token");
     expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain("embeddings");
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
   });
 
   test("RelatedDocs renders GQA curated links to attention overview and sibling variants", () => {

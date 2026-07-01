@@ -41,7 +41,7 @@ const CHAIN_GLOSSARY_URLS = CHAIN_GLOSSARY_PAGES.map((page) => page.url);
 
 const REPRESENTATIVE_ALIAS_QUERIES = [
   { query: "tokens", url: "/docs/glossary/token" },
-  { query: "embeddings", url: "/docs/glossary/embedding" },
+  { query: "embeddings", url: "/docs/concepts/embedding" },
   { query: "logits", url: "/docs/glossary/logit" },
   { query: "backprop", url: "/docs/glossary/backpropagation" },
   { query: "objective function", url: "/docs/glossary/loss-function" },

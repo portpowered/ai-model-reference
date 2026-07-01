@@ -54,7 +54,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
       DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED],
     );
     expect(items[2]?.registryId).toBe("concept.embedding");
-    expect(items[2]?.href).toBe("/docs/glossary/embedding");
+    expect(items[2]?.href).toBe("/docs/concepts/embedding");
   });
 
   test("DerivedRelatedDocs renders curated-related group with reason labels for token", () => {
@@ -76,7 +76,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain('href="/docs/glossary/special-tokens"');
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
@@ -99,7 +99,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain("embeddings");
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');

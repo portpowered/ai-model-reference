@@ -4,7 +4,13 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["embeddings", "token embedding", "vector embedding"],
+  "aliases": [
+    "embeddings",
+    "token embedding",
+    "vector embedding",
+    "vector representation",
+    "embedding space"
+  ],
   "tags": ["token-to-probability-chain", "foundations"],
   "relatedIds": [
     "concept.token",
