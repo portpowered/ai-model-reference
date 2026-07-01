@@ -197,7 +197,9 @@ describe("active-pr-mergeability-watchdog script", () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("Active PR Mergeability Watchdog");
-    expect(result.stdout).toContain("lanes=2 pr-backed=1 linked-with-gaps=1");
+    expect(result.stdout).toContain(
+      "lanes=2 pr-backed=1 actionable-gaps=1 queue-only-noise=0",
+    );
     expect(result.stdout).toContain("work-item=alpha");
     expect(result.stdout).toContain("work-item-source=metadata");
     expect(result.stdout).toContain("pr=#42");
@@ -433,7 +435,9 @@ describe("active-pr-mergeability-watchdog script", () => {
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("lanes=2 pr-backed=1 linked-with-gaps=1");
+    expect(result.stdout).toContain(
+      "lanes=2 pr-backed=1 actionable-gaps=1 queue-only-noise=0",
+    );
     expect(result.stdout).toContain(
       "- status=pr-backed queue=active work-item=alpha work-item-source=metadata branch=alpha branch-source=metadata metadata=present",
     );
@@ -546,7 +550,9 @@ describe("active-pr-mergeability-watchdog script", () => {
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("lanes=3 pr-backed=2 linked-with-gaps=1");
+    expect(result.stdout).toContain(
+      "lanes=3 pr-backed=2 actionable-gaps=1 queue-only-noise=0",
+    );
     expect(result.stdout).toContain(
       "- status=pr-backed queue=active work-item=alpha work-item-source=metadata branch=alpha branch-source=metadata metadata=present",
     );
@@ -828,7 +834,9 @@ describe("active-pr-mergeability-watchdog script", () => {
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("lanes=1 pr-backed=0 linked-with-gaps=1");
+    expect(result.stdout).toContain(
+      "lanes=1 pr-backed=0 actionable-gaps=1 queue-only-noise=0",
+    );
     expect(result.stdout).toContain("work-item=alpha");
     expect(result.stdout).toContain("metadata=present");
     expect(result.stdout).toContain("queue=active");
@@ -883,7 +891,9 @@ describe("active-pr-mergeability-watchdog script", () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("Active PR Mergeability Watchdog");
-    expect(result.stdout).toContain("lanes=1 pr-backed=0 linked-with-gaps=1");
+    expect(result.stdout).toContain(
+      "lanes=1 pr-backed=0 actionable-gaps=1 queue-only-noise=0",
+    );
     expect(result.stdout).toContain(
       "- status=linked-with-gaps queue=active work-item=alpha work-item-source=metadata branch=alpha branch-source=metadata metadata=present",
     );
@@ -928,7 +938,9 @@ describe("active-pr-mergeability-watchdog script", () => {
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("lanes=2 pr-backed=0 linked-with-gaps=2");
+    expect(result.stdout).toContain(
+      "lanes=2 pr-backed=0 actionable-gaps=2 queue-only-noise=0",
+    );
     expect(result.stdout).toContain(
       "- status=linked-with-gaps queue=active work-item=alpha",
     );
