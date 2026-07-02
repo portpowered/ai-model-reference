@@ -124,6 +124,10 @@ describe("planner-root-checkout-reconciliation script", () => {
     expect(result.stdout).toContain("path=src/lib/factory/root.ts");
     expect(result.stdout).toContain("change=modified");
     expect(result.stdout).toContain("classification=manual-inspection");
+    expect(result.stdout).toContain(
+      "guidance=Review each manual-inspection path for ownership; do not revert, stage, or auto-clean these paths.",
+    );
+    expect(result.stdout).toContain("change-kind-counts=modified=1");
 
     const statusAfter = spawnSync("git", ["status", "--porcelain"], {
       cwd: repoRoot,

@@ -14,6 +14,9 @@ export const PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT =
 export const PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_ABSENT =
   "absent-on-origin-main";
 
+export const PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE =
+  "Review each manual-inspection path for ownership; do not revert, stage, or auto-clean these paths.";
+
 export type RootCheckoutComparisonTarget = "HEAD" | "origin/main";
 
 export type RootCheckoutDriftClassification =
@@ -276,6 +279,23 @@ export function discoverPlannerRootCheckoutReconciliationReport(
   return buildPlannerRootCheckoutReconciliationReport(options);
 }
 
+export function summarizeManualInspectionChangeKinds(
+  manualInspectionPaths: RootCheckoutDirtyPathReport[],
+): Array<{ changeKind: PlannerWorktreeDriftChangeKind; count: number }> {
+  const counts = new Map<PlannerWorktreeDriftChangeKind, number>();
+
+  for (const pathReport of manualInspectionPaths) {
+    counts.set(
+      pathReport.changeKind,
+      (counts.get(pathReport.changeKind) ?? 0) + 1,
+    );
+  }
+
+  return [...counts.entries()]
+    .map(([changeKind, count]) => ({ changeKind, count }))
+    .sort((left, right) => left.changeKind.localeCompare(right.changeKind));
+}
+
 function formatDirtyPathReport(
   pathReport: RootCheckoutDirtyPathReport,
 ): string {
@@ -315,6 +335,17 @@ export function formatPlannerRootCheckoutReconciliationReport(
   if (report.manualInspectionPaths.length === 0) {
     lines.push("  - none");
   } else {
+    lines.push(
+      `  - guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE}`,
+    );
+    const changeKindCounts = summarizeManualInspectionChangeKinds(
+      report.manualInspectionPaths,
+    );
+    lines.push(
+      `  - change-kind-counts=${changeKindCounts
+        .map(({ changeKind, count }) => `${changeKind}=${count}`)
+        .join(" ")}`,
+    );
     for (const pathReport of report.manualInspectionPaths) {
       lines.push(`  - ${formatDirtyPathReport(pathReport)}`);
     }

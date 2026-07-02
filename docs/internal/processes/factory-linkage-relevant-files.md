@@ -18,7 +18,8 @@ watchdog summaries, or planner-facing linkage reports.
   root checkout reconciliation that compares dirty paths against `HEAD` and
   `origin/main`, classifies remote-present local deletions as ownerless root
   checkout drift with `present-on-origin-main` evidence, and keeps other dirty
-  paths in manual-inspection groups.
+  paths in manual-inspection groups with per-change-kind counts and preserve
+  guidance.
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 
