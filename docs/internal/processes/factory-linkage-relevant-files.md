@@ -157,6 +157,11 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata for both target
   branches, DIRTY/CONFLICTING GitHub state with passing CI, and non-mutating
   merge-tree conflict paths for story 002 classification.
+* [dirty-generic-pr277-pr279-conflict-refresh-relevant-files](./dirty-generic-pr277-pr279-conflict-refresh-relevant-files.md)
+  — batch 074 follow-up after completed batch 073 handoff: fresh DIRTY/CONFLICTING
+  state on heads `6a1530a0` / `e5defbc8`, batch 066 drain still `idea:init`,
+  expanded merge-tree conflict set on #277 (four paths), and PR conversation
+  blocking feedback status for story 002 classification.
 * [merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files](./merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files.md)
   — merged PR drain evidence for PRs #274/#275/#276/#278/#280: live queue tokens
   on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata,
