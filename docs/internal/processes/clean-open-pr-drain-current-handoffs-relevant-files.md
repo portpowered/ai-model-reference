@@ -240,4 +240,71 @@ gathering this snapshot.
 bun run typecheck
 ```
 
-Typecheck: required for story 001 acceptance; run after committing this artifact.
+Result: PASS (2026-07-02T20:47Z UTC).
+
+## Story 002 — per-PR convergence classification
+
+Captured 2026-07-02T21:00Z UTC. Classifications use story 001 evidence only; no
+queue rows, page content, registry content, root work, worktree files, or branch
+history were mutated during classification.
+
+### Classification rules applied
+
+| Outcome | When selected |
+| --- | --- |
+| **already-consumed** | GitHub or `origin/main` ancestry proves the PR is merged or the change is already represented on current main; queue handoff purpose is fulfilled. |
+| **merge-ready-handoff** | PR is open, non-draft, checks are terminal SUCCESS (or explicitly pending final operator confirmation), GitHub reports MERGEABLE/CLEAN, no duplicate active lane owns different content for the same surface, and no unresolved BLOCKING conversation feedback remains on the PR head. |
+| **review-consume-handoff** | PR is clean enough for maintainer review and queue consumption, but operator merge or final review is outside this drain lane's authority and merge-ready criteria are not fully met (for example behind-main drift without operator rebase timing). |
+| **blocked-owner-handoff** | Merge or consume is not currently safe; names the exact blocker, owning row or worktree, and next operator action. |
+| **duplicate-or-stale** | A newer merged PR, remote-main representation, or terminal-complete handoff lane supersedes the open PR; cites exact evidence rather than queue drift alone. |
+
+### Selected outcome per target PR
+
+| PR | Work item | Observed PR state | Observed queue / row state | Outcome | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| [#294](https://github.com/portpowered/ai-model-reference/pull/294) | `generic-pr277-pr279-conflict-refresh-handoff` | **MERGED** (`209d1bd8` on `origin/main`) | batch-073 idea/plan/review/task all `complete` / TERMINAL | **already-consumed** | Merge commit is an ancestor of current `origin/main` (`a502405d`); lane metadata stamps PR #294 `current`; batch 066 drain ideas retain ownership for underlying PR #277/#279 shells — do not reopen this handoff. |
+| [#290](https://github.com/portpowered/ai-model-reference/pull/290) | `byte-level-tokenization-pr289-conflict-refresh` | OPEN **CONFLICTING** / DIRTY; CI SUCCESS on head `344126c2` | batch-073 handoff lane TERMINAL-complete | **duplicate-or-stale** | Content owner PR [#289](https://github.com/portpowered/ai-model-reference/pull/289) **merged** 2026-07-02T18:18:04Z; byte-level tokenization page is on `main` via #289; open #290 is post-#289/post-#298 conflict drift on a fulfilled handoff branch — close or operator-refresh only; do not regenerate page content. |
+| [#273](https://github.com/portpowered/ai-model-reference/pull/273) | `tokens-per-second-pr251-merge-handoff` | OPEN **CONFLICTING** / DIRTY; CI SUCCESS on head `9a2bf86e` | queue-absent; handoff worktree PRD all `passes: true` | **blocked-owner-handoff** | **Blocker:** stale base (`baseRefOid=05852b8d`) vs current `origin/main` (`a502405d`); GitHub merge state DIRTY. **Owner:** `tokens-per-second-pr251-merge-handoff` worktree (lane metadata PR linkage `missing`). **Next action:** conflict refresh on the existing handoff branch to recover PR #251 merge path — not a new tokens-per-second content lane. |
+| [#271](https://github.com/portpowered/ai-model-reference/pull/271) | `relative-position-bias-concept-page` | OPEN **MERGEABLE** / CLEAN; all 11 CI checks SUCCESS on head `956bacb2` | queue-absent; content worktree PRD all stories `passes: true` | **merge-ready-handoff** | No duplicate active lane owns relative-position-bias content; declared canonical-page-surface exception documented in PR conversation 2026-07-02T06:15Z UTC; mergeability follow-up merged `origin/main` 2026-07-02T06:30Z UTC with no later BLOCKING comments. **Operator action:** maintainer review and merge (or timed rebase if behind-main drift grows). |
+| [#268](https://github.com/portpowered/ai-model-reference/pull/268) | `terminal-audit-root-staged-deletion-handoff` | OPEN **MERGEABLE** / CLEAN; all 11 CI checks SUCCESS on head `d6afe796` | queue-absent; handoff worktree PRD all `passes: true` | **merge-ready-handoff** | Prior BLOCKING review (package.json in diff, dirty-root allowlist) addressed in PR conversation with mapped fixes and `bun test` validation; no newer BLOCKING conversation comments. **Operator action:** maintainer review and merge; root dirty-path ownership stays outside this drain lane. |
+| [#251](https://github.com/portpowered/ai-model-reference/pull/251) | `tokens-per-second-serving-metric-page` | OPEN **MERGEABLE** / CLEAN; all 11 CI checks SUCCESS on head `381abe9a` | batch-039 `idea:to-complete` + `task:failed` (session 404); lane metadata PR #251 `current` | **blocked-owner-handoff** | **Blocker:** unresolved **BLOCKING** PR conversation review — shared `prose-auto-link-runtime.ts` edit breaks page-local surface budget (`audit:canonical-page-surface` over-budget) and browser QA incomplete. **Owner:** `tokens-per-second-serving-metric-page` content lane / `work-task-155`. **Next action:** keep slice page-local or move shared auto-link work to throughput/conflict-reduction lane; rerun audit and browser QA; related recovery lane PR #273. Do not merge or regenerate content from this drain lane. |
+
+No target PR received **review-consume-handoff** in this classification pass:
+#271 and #268 meet merge-ready criteria (MERGEABLE/CLEAN, terminal green CI, no
+unresolved BLOCKING feedback). #290 and #273 are not review-clean; #294 is
+consumed; #251 remains review-blocked.
+
+### Classification summary
+
+| Outcome | Count | Targets |
+| --- | ---: | --- |
+| **already-consumed** | 1 | PR #294 |
+| **merge-ready-handoff** | 2 | PR #271, PR #268 |
+| **review-consume-handoff** | 0 | — |
+| **blocked-owner-handoff** | 2 | PR #273, PR #251 |
+| **duplicate-or-stale** | 1 | PR #290 |
+
+Stories 003–005 execute handoffs for merge-ready, blocked, and duplicate/stale
+targets respectively. This lane (`clean-open-pr-drain-current-handoffs`) remains
+in `to-complete` / PROCESSING until those handoffs finish.
+
+### Duplicate-content guard (classification boundary)
+
+| Surface | Owning PR / lane | Drain-lane action |
+| --- | --- | --- |
+| Byte-level tokenization page | PR #289 merged | Do not regenerate; #290 is stale handoff only |
+| Relative position bias concept | PR #271 open | Hand off for merge; no new concept lane |
+| Tokens per second glossary | PR #251 open (blocked) | No new content lane; recovery via #273 handoff |
+| Generic PR #277/#279 conflict refresh | PR #294 merged | Already consumed; batch 066 retains shell ownership |
+| Terminal-audit root staged deletion | PR #268 open | Hand off for merge; no root cleanup from drain lane |
+
+## Quality gate (story 002)
+
+Handoff-only classification; no page content, registry content, root work,
+worktree files, queue rows, staging area, or branch history were changed.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T21:05Z UTC).
