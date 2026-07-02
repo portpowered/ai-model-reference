@@ -7,7 +7,6 @@ import { ModulePageProviders } from "@/features/docs/components/ModulePageProvid
 import { loadConceptPage } from "@/lib/content/concept-page";
 import {
   getDocsPageDir,
-  MEMORY_BANDWIDTH_CONCEPT_PAGE_DIR,
 } from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import {
@@ -203,7 +202,7 @@ describe("memory-bandwidth concept page (memory-bandwidth-concept-page-002)", ()
   });
 
   test("page bundle resolves from content path and renders sections, tags, and related links", async () => {
-    expect(MEMORY_BANDWIDTH_CONCEPT_PAGE_DIR).toBe(pageDir);
+    expect(getDocsPageDir("concepts", SLUG)).toBe(pageDir);
 
     const page = await loadConceptPage(SLUG);
 
