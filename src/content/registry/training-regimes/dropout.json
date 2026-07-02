@@ -1,0 +1,37 @@
+{
+  "id": "training-regime.dropout",
+  "slug": "dropout",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["dropout", "dropout regularization", "neural network dropout"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.regularization",
+    "concept.overfitting",
+    "concept.generalization"
+  ],
+  "citationIds": ["citation.dropout-prevent-overfitting"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "releaseDate": "2014-06-01",
+  "authors": [
+    "Nitish Srivastava",
+    "Geoffrey Hinton",
+    "Alex Krizhevsky",
+    "Ilya Sutskever",
+    "Ruslan Salakhutdinov"
+  ],
+  "sourceId": "citation.dropout-prevent-overfitting",
+  "primaryClassificationId": "classification.training",
+  "regimeType": "optimization",
+  "sidebarGrouping": {
+    "training": "optimization"
+  },
+  "usedByModelIds": [],
+  "relatedModuleIds": [],
+  "paperIds": [],
+  "conceptType": "training",
+  "variantGroup": "regularization-methods"
+}
