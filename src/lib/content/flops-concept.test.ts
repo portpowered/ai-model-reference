@@ -213,3 +213,46 @@ describe("flops concept page (flops-concept-page-002)", () => {
     expect(html).not.toContain("Phase");
   });
 });
+
+describe("flops concept page (flops-concept-page-003)", () => {
+  test("messages define peak FLOPs, achieved compute, gap reasons, and throughput-bound framing", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const body =
+      messages.sections?.peakVersusAchieved.body?.toLowerCase() ?? "";
+
+    expect(body).toContain("peak flops");
+    expect(body).toContain("achieved compute");
+    expect(body).toContain("memory bandwidth");
+    expect(body).toContain("data movement");
+    expect(body).toContain("kernel efficiency");
+    expect(body).toContain("batching shape");
+    expect(body).toContain("scheduler");
+    expect(body).toContain("throughput-bound");
+    expect(body).toContain("memory-bound");
+    expect(body).toContain("does not by itself prove");
+  });
+
+  test("page renders peak-versus-achieved section and comparison table", async () => {
+    const page = await loadConceptPage("flops");
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("Peak Versus Achieved Compute");
+    expect(html).toContain("Peak hardware FLOPs");
+    expect(html).toContain("Achieved inference compute");
+    expect(html).toContain(
+      'data-table-id="table.flops-peak-achieved-comparison"',
+    );
+    expect(html).toContain('data-registry-comparison-table="true"');
+    expect(html).toContain("memory bandwidth stalls");
+  });
+});

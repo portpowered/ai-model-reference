@@ -1,1 +1,7 @@
-{}
+{
+  "peakAchievedComparison": {
+    "type": "table",
+    "tableId": "table.flops-peak-achieved-comparison",
+    "captionKey": "assets.peakAchievedComparison.caption"
+  }
+}

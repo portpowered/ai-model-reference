@@ -25,6 +25,7 @@ import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
   <T k="sections.whatItIs.body" />
@@ -36,6 +37,17 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="simple-example" titleKey="sections.simpleExample.title">
   <T k="sections.simpleExample.body" />
+</Section>
+
+<Section
+  id="peak-versus-achieved"
+  titleKey="sections.peakVersusAchieved.title"
+>
+  <T k="sections.peakVersusAchieved.body" />
+  <ModuleComparisonTable
+    registryId="concept.flops"
+    assetId="peakAchievedComparison"
+  />
 </Section>
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
