@@ -7,6 +7,8 @@
 - Migrating a glossary page to concepts removes it from glossary index counts/tests and surfaces it under the attention tag `concept` kind group instead of `glossary`.
 - Story 004 slice verification: add `*-slice-verification.test.tsx` with registry/message alignment, `renderDocsSlugPage` route proof, and rendered HTML/search assertions; routine bundle invariants stay in `make validate-data`; run `audit:canonical-page-surface` from the root repo with `--repo-root` pointing at the worktree when the script is absent locally.
 - After merging `main`, regenerate published-docs manifests with `bun run generate:published-docs-registry` (or `make validate-data` / `prepare:content-runtime`) instead of hand-editing `published-docs-registry-ids.ts`.
+- When a new serving concept owns an alias previously on `system.memory`, remove the alias from the system record and page frontmatter, add `concept.<slug>` to `system.memory` `relatedIds`/`relatedConceptIds`, and assert `PUBLISHED_DOCS_REGISTRY_IDS.has` stays false until story 002 publishes the concept bundle.
+- Publishing a concept tagged `quantization` outside the quantization chapter updates `quantization-chapter-discovery.test.tsx` to use `arrayContaining` plus `toBeGreaterThanOrEqual` instead of exact `toHaveLength` on the tag concept group.
 
 ## 2026-07-01T00:00:00Z - prefill-decode-split-concept-page-001
 - Wired `concept.prefill-decode-split` discovery metadata: added `attention` tag, trimmed `relatedIds` to serving-path foundations, and bumped registry `updatedAt`.
@@ -62,4 +64,26 @@
   - Keep `progress.txt` / `prd.json` local-only commits off the review branch; reset soft and recommit code-only fixes when a progress chore commit was pushed accidentally.
   - Long `await docsSearchApi.search(...)` assignments may need Biome line breaks even when tests otherwise pass.
   - When `main` migrates glossary pages to concepts in parallel, merge conflicts often duplicate `conceptGroup` assertions—merge into one `arrayContaining` block instead of redeclaring the variable.
+---
+
+## 2026-07-02T21:10:00Z - memory-bandwidth-concept-page-001
+- Added published `concept.memory-bandwidth` registry record with inference classification, serving aliases (`memory bandwidth`, `serving memory bandwidth`, `KV cache bandwidth`, `throughput ceiling`, etc.), and tags `foundations`, `kv-cache`, `quantization`.
+- Trimmed the competing `memory bandwidth` alias from `system.memory` registry and page frontmatter; linked `concept.memory-bandwidth` on the system record as a neighbor.
+- Added `MEMORY_BANDWIDTH_CONCEPT_PAGE_DIR` in `content-paths.ts` and `memory-bandwidth-concept.test.ts` for registry metadata, curated related-link resolution, and alias handoff from the memory system page.
+- Updated `memory-system-registry.test.ts` and `memory-system-page.test.ts` for the alias removal and new related id.
+- **Learnings for future iterations:**
+  - Story 002 should publish the concept bundle and add `concept.memory-bandwidth` to generated published-docs manifests so search routes `memory bandwidth` queries to `/docs/concepts/memory-bandwidth`.
+  - `PUBLISHED_DOCS_REGISTRY_IDS.has("concept.memory-bandwidth")` correctly stays false until the concept page bundle exists.
+  - Do not commit unrelated `table-registry.generated.ts` churn from `prepare:content-runtime` when it references tables outside the story diff.
+---
+
+## 2026-07-02T21:35:00Z - memory-bandwidth-concept-page-002
+- Published canonical concept bundle at `src/content/docs/concepts/memory-bandwidth` with structural `page.mdx`, localized `messages/en.json`, and empty `assets.json`.
+- Opening summary and core sections define memory bandwidth as byte movement between memory and compute during serving, with isolation-first prose before neighboring links.
+- Extended `memory-bandwidth-concept.test.ts` with published-route, search-alias, message-alignment, and static render coverage; updated `quantization-chapter-discovery.test.tsx` for the extra quantization-tagged concept on the tag landing page.
+- Browser-verified built route on port 3743 at desktop and mobile user agents: title, sections, tags, related links, and no missing-content placeholders.
+- **Learnings for future iterations:**
+  - Run `bun run fumadocs-mdx` before concept-page render tests after adding MDX bundles.
+  - `published-docs-registry.generated.ts` is gitignored; page discovery updates flow through `generate:published-docs-registry` during `prepare:content-runtime`.
+  - Stories 003–004 should deepen byte-movement teaching and neighbor compression links without restructuring the published bundle shell.
 ---
