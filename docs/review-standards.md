@@ -81,6 +81,41 @@ validate docs link topology, inspect asset bundle internals, or enforce command
 or registration inventories unless those surfaces are the product behavior
 under test.
 
+### Drop accidental `next-env.d.ts` drift
+
+For ordinary canonical page PRs (page bundles under `src/content/docs/`,
+matching registry records, colocated messages, and page-local assets), **check
+the diff for root `next-env.d.ts` changes**. Root `next-env.d.ts` is a
+generated Next.js/TypeScript framework declaration file that local dev, build,
+or typecheck tooling rewrites. When it appears in a routine page PR and is
+**unrelated to page behavior**, ask the author to remove it before merge.
+
+This rule targets **conflict reduction for shared generated files**, not a broad
+audit of every generated artifact, route inventory, or asset-bundle internal.
+Do not invent new source scans or content-doctor requirements to prove drift
+absence; rely on the existing evidence commands in the table above (for example
+`make validate-data`, `bun run audit:canonical-page-surface`, and
+`bun run doctor:content-pr` when validating a narrow content branch).
+
+**Accidental drift:** the PR touches `next-env.d.ts` but the task did not
+intentionally change Next.js or TypeScript framework contracts. Reject or
+request removal so the branch stays page-local.
+
+**Legitimate exception:** the work item explicitly changes Next.js or
+TypeScript framework contracts (for example `tsconfig.json`, Next config, or
+App Router type surfaces) and the PR explains why `next-env.d.ts` changed.
+Accept the change when that justification is present.
+
+Authors document the matching preflight rule in
+[CONTRIBUTING — drop accidental next-env.d.ts drift before review](./contributors/CONTRIBUTING.md#drop-accidental-next-envdts-drift-before-review).
+Align feedback with that section instead of inventing stricter local checks.
+
+**Why this matters:** the planner drift watchdog recently flagged a concrete
+multi-lane hotspot while `useful-active=4`: both
+`activation-concept-current-main-page` and `normalization-concept-page` had
+dirty shared-path drift in `next-env.d.ts`. Rejecting unrelated root-file churn
+in routine page PRs reduces avoidable merge conflicts across active page lanes.
+
 ### Derived page directory lookup
 
 When reviewing code or tests that resolve published page bundle paths, confirm
@@ -92,8 +127,9 @@ constants. Maintainer reference:
 ### Contributor cross-reference
 
 Authors document the same policies in
-[contributing documentation](./contributors/CONTRIBUTING.md#routine-canonical-page-policies)
-and [derived published-page validation](./contributors/CONTRIBUTING.md#derived-published-page-validation).
+[contributing documentation](./contributors/CONTRIBUTING.md#routine-canonical-page-policies),
+[derived published-page validation](./contributors/CONTRIBUTING.md#derived-published-page-validation),
+and [drop accidental next-env.d.ts drift before review](./contributors/CONTRIBUTING.md#drop-accidental-next-envdts-drift-before-review).
 Reviewers should align feedback with those sections rather than introducing
 stricter local rules.
 

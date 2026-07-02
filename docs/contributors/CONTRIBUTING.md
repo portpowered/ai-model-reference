@@ -142,6 +142,31 @@ review:
 | Page bundle and registry shape are aligned | `make validate-data` | Primary derived page-bundle validation proof for ordinary content-only pages |
 | Structural proof passes and the review commit is ready | `bun run audit:canonical-page-surface` | Catch shared-surface drift before review |
 
+#### Drop accidental `next-env.d.ts` drift before review
+
+Root `next-env.d.ts` is a **generated Next.js/TypeScript framework declaration
+file**. Next.js and TypeScript tooling rewrite it during local dev, build, or
+typecheck work. For ordinary canonical page tasks—page content, registry
+records, colocated messages, or page-local assets—it is **framework drift**,
+not page-owned work.
+
+Before opening review, inspect your diff and **drop accidental `next-env.d.ts`
+changes** when the task did not intentionally change Next.js or TypeScript
+framework contracts. Do not carry that shared root file into a routine page PR
+just because local tooling touched it.
+
+**Legitimate exception:** the work item explicitly changes Next.js or
+TypeScript framework contracts (for example `tsconfig.json`, Next config, or
+App Router type surfaces) and the PR explains why `next-env.d.ts` changed.
+
+**Why this matters now:** the planner drift watchdog recently flagged a concrete
+multi-lane hotspot while `useful-active=4`: both
+`activation-concept-current-main-page` and `normalization-concept-page` had
+dirty shared-path drift in `next-env.d.ts`. Multiple page lanes touching the
+same generated root file creates avoidable merge conflicts and reviewer noise.
+Keep routine page branches page-local; remove unrelated `next-env.d.ts` drift
+before review.
+
 Full contracts live in maintainer references—not duplicated here:
 
 - [content page generation workflow relevant files](../internal/processes/content-page-generation-workflow-relevant-files.md)
