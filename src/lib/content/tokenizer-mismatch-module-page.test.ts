@@ -9,7 +9,7 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
-import { TOKENIZER_MISMATCH_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
@@ -23,7 +23,7 @@ import { loadUiMessages } from "@/lib/content/ui-messages";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = TOKENIZER_MISMATCH_PAGE_DIR;
+const pageDir = getDocsPageDir("modules", "tokenizer-mismatch");
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
 
@@ -123,15 +123,19 @@ describe("loadModulePage tokenizer-mismatch", () => {
     expect(page?.messages.openingSummary?.length).toBeGreaterThan(0);
   });
 
-  test("shell keeps the folded opening summary outside the article body and starts with at-a-glance", async () => {
+  test("renders the folded opening summary in the shared docs shell before at-a-glance", async () => {
     const page = await loadModulePage("tokenizer-mismatch");
     const html = renderModuleDocsShell(page);
 
     const atAGlanceIndex = html.indexOf('aria-label="At a glance"');
+    const openingSummaryIndex = html.indexOf('data-testid="folded-summary"');
     const whatItIsIndex = html.indexOf('id="what-it-is"');
 
-    expect(html).not.toContain('data-testid="folded-summary"');
-    expect(html).not.toContain('data-opening-summary="folded"');
+    expect(html).toContain('data-testid="folded-summary"');
+    expect(html).toContain("chat-template boundaries");
+    if (atAGlanceIndex >= 0 && openingSummaryIndex >= 0) {
+      expect(openingSummaryIndex).toBeLessThan(atAGlanceIndex);
+    }
     if (atAGlanceIndex >= 0) {
       expect(atAGlanceIndex).toBeLessThan(whatItIsIndex);
     }
@@ -168,9 +172,15 @@ describe("loadModulePage tokenizer-mismatch", () => {
     expect(html).toContain(
       'data-graph-id="graph.tokenizer-mismatch-compute-flow"',
     );
+    expect(html).toContain(
+      'data-graph-legend="graph.tokenizer-mismatch-compute-flow"',
+    );
+    expect(html).toContain("Tokenizer input path");
+    expect(html).toContain("Tokenizer rule focus");
+    expect(html).toContain("Mismatch symptom note");
     expect(html).toContain('data-math-schema="tokenizerMismatch"');
     expect(html).toContain('href="/docs/modules/bpe"');
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/models/gpt-3"');
     expect(html).not.toContain("Reader Shortcut");
   });

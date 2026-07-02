@@ -4,10 +4,7 @@ import {
   getRegistryRecordById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import {
-  deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
-} from "@/lib/content/related-docs";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
 describe("tokenizer mismatch registry relationships", () => {
   test("curated related ids keep canonical tokenizer neighbors and planned drafts distinguishable", () => {
@@ -32,18 +29,18 @@ describe("tokenizer mismatch registry relationships", () => {
       "model.gpt-3",
     ]);
     expect(items.map((item) => item.href)).toEqual([
-      undefined,
+      "/docs/concepts/tokenizers-overview",
       "/docs/modules/bpe",
-      undefined,
+      "/docs/modules/wordpiece",
       "/docs/modules/sentencepiece",
       "/docs/glossary/special-tokens",
-      "/docs/glossary/embedding",
+      "/docs/concepts/embedding",
       "/docs/models/gpt-3",
     ]);
     expect(items.map((item) => item.isPlanned)).toEqual([
-      true,
       false,
-      true,
+      false,
+      false,
       false,
       false,
       false,
@@ -51,6 +48,6 @@ describe("tokenizer mismatch registry relationships", () => {
     ]);
     expect(
       items.filter((item) => item.isPlanned).map((item) => item.reasonLabel),
-    ).toEqual([PLANNED_RELATED_REASON_LABEL, PLANNED_RELATED_REASON_LABEL]);
+    ).toEqual([]);
   });
 });

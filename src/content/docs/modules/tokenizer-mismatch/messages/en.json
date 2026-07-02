@@ -47,7 +47,20 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Tokenizer mismatch flow from reader text through tokenizer rules and special tokens into shifted model input IDs"
+      "alt": "Tokenizer mismatch flow from reader text through tokenizer rules and special tokens into shifted model input IDs",
+      "caption": "The vertical flow shows how reader text moves through tokenizer rules and special tokens before it becomes model input, while side notes flag where mismatched vocabularies or templates change the resulting token sequence.",
+      "title": "Tokenizer mismatch input path",
+      "legend": {
+        "data-flow": {
+          "label": "Tokenizer input path"
+        },
+        "summary-node": {
+          "label": "Tokenizer rule focus"
+        },
+        "annotation": {
+          "label": "Mismatch symptom note"
+        }
+      }
     }
   },
   "graph": {
