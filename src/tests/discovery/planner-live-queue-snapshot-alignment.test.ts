@@ -189,7 +189,7 @@ describe("planner live queue snapshot alignment", () => {
 
         const linkageStdout = readStdoutText(linkageResult);
         expect(linkageStdout).toContain(
-          "queue-derived-lanes=3 active=1 failed=2 pr-backed=0 actionable-gaps=2 queue-only-noise=1 linked=0 linked-with-gaps=3",
+          "queue-derived-lanes=3 active=1 failed=2 pr-backed=0 actionable-gaps=2 stale-clean-pr-mismatch=0 queue-only-noise=1 linked=0 linked-with-gaps=3",
         );
         expect(linkageStdout).toContain("lane=alpha");
         expect(linkageStdout).toContain("lane=beta");
