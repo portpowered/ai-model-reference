@@ -11,6 +11,7 @@ import clipImageTokenizationComparisonTableRecord from "@/content/registry/table
 import crossAttentionComparisonTableRecord from "@/content/registry/tables/cross-attention-comparison.json";
 import diffusionTransformerBlockComparisonTableRecord from "@/content/registry/tables/diffusion-transformer-block-comparison.json";
 import feedForwardNetworkComparisonTableRecord from "@/content/registry/tables/feed-forward-network-comparison.json";
+import gatedDeltanetComparisonTableRecord from "@/content/registry/tables/gated-deltanet-comparison.json";
 import geluComparisonTableRecord from "@/content/registry/tables/gelu-comparison.json";
 import groupNormComparisonTableRecord from "@/content/registry/tables/group-norm-comparison.json";
 import groupedQueryAttentionComparisonTableRecord from "@/content/registry/tables/grouped-query-attention-comparison.json";
@@ -47,6 +48,7 @@ export const generatedTableRegistrySourceFiles = [
   "cross-attention-comparison.json",
   "diffusion-transformer-block-comparison.json",
   "feed-forward-network-comparison.json",
+  "gated-deltanet-comparison.json",
   "gelu-comparison.json",
   "group-norm-comparison.json",
   "grouped-query-attention-comparison.json",
@@ -84,6 +86,7 @@ export const generatedTableRegistryPayloads = [
   crossAttentionComparisonTableRecord,
   diffusionTransformerBlockComparisonTableRecord,
   feedForwardNetworkComparisonTableRecord,
+  gatedDeltanetComparisonTableRecord,
   geluComparisonTableRecord,
   groupNormComparisonTableRecord,
   groupedQueryAttentionComparisonTableRecord,

@@ -1,0 +1,214 @@
+{
+  "title": "Gated DeltaNet",
+  "description": "A sequence-mixing module that updates a compact recurrent memory state with input-dependent gating and delta-rule writes instead of materializing a full attention matrix.",
+  "openingSummary": "Gated Delta Networks, often shortened to Gated DeltaNet or GDN, are a sequence-mixing module that keeps a fixed-size recurrent memory state and updates it with gated decay plus targeted delta-rule writes rather than scoring every token pair in a full attention matrix.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Gated Delta Networks are a sequence-mixing module used in efficient long-context language models. Gated DeltaNet is the common shorthand for the same design. At each position the module projects the hidden state into query, key, and value signals, reads from a compact matrix-valued memory state, and writes back an updated state for the next step. The past is carried forward through that recurrent state instead of through an explicit all-pairs attention map."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Dense attention scales poorly as context length grows because every query token can compare against every earlier key. Linear attention lowers that cost by accumulating key-value statistics, but simple accumulation can blur or collide older information inside a fixed-size state. Gated Delta Networks exist to keep long-context sequence mixing affordable while giving the model stronger control over memory: gates can clear or retain past content, and the delta rule can replace a targeted slot instead of only adding another outer-product term."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Each step starts from the current hidden state and projects it into query, key, and value vectors. A gate signal decides how much of the previous memory state should decay before the new write arrives. The delta-rule path then performs a targeted update to the running memory matrix rather than treating every new token as another undifferentiated accumulation. The query reads from the updated state to form the layer output, and the new memory matrix is passed to the next position. That loop replaces a full attention matrix with one compact state that is updated token by token."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "Dense multi-head attention materializes softmax weights over all earlier keys. Gated Delta Networks instead keep a matrix-valued memory state S_t that is decayed by a gate and edited by a delta-rule write before the query reads the result. The formulas below contrast the dense attention path with the gated delta recurrence used by Gated DeltaNet."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Multi-head attention keeps the full pairwise score matrix and remains the most direct way to address any earlier token. Linear attention compresses the past into a running summary, but ordinary accumulation-only updates can be harder to erase or replace precisely. Gated Delta Networks add gated decay and delta-rule editing on top of that recurrent form. Sliding-window attention stays closer to dense attention but only inside a local band, while Gated DeltaNet keeps one compact global state that is updated selectively at each step."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "The source paper studies decoder language models that replace some attention layers with Gated DeltaNet blocks and reports hybrid stacks that mix Gated DeltaNet with sliding-window attention or Mamba2-style layers. Qwen3.5-0.8B is one shipped model family on this site that routes part of its stack through Gated DeltaNet layers."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "A fixed-size recurrent state cannot store every past token independently the way dense attention can. Retrieval quality depends on how cleanly keys, gates, and delta writes use the available state width, so very long contexts can still stress the compressed memory. Hybrid designs that mix Gated DeltaNet with local or dense attention remain common when a model needs both efficiency and direct token access."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Gated Delta Networks sit on a practical path between quadratic attention and simpler linear recurrent mixers. They show how gated memory control and delta-rule editing can be combined in one hardware-friendly recurrence, which makes them a useful reference when reading newer efficient long-context model stacks."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Dense multi-head attention versus Gated DeltaNet with gated decay, delta-rule memory update, and recurrent state readout",
+      "caption": "Gated DeltaNet keeps one compact memory matrix, uses gate α_t to control decay, applies a delta-rule write, and reads the result with the current query instead of building a full attention matrix.",
+      "variants": {
+        "mha": {
+          "label": "Multi-head"
+        },
+        "gdn": {
+          "label": "Gated DeltaNet"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "gdn": {
+          "title": "Gated DeltaNet"
+        },
+        "linear": {
+          "title": "Linear Attention"
+        },
+        "mha": {
+          "title": "Multi-Head Attention"
+        },
+        "window": {
+          "title": "Sliding-Window Attention"
+        }
+      },
+      "dimensions": {
+        "memoryForm": "Memory form",
+        "sequenceScaling": "Sequence scaling",
+        "updateStyle": "Update style"
+      },
+      "values": {
+        "gdn": {
+          "memoryForm": "Fixed-size matrix-valued recurrent state carried across positions",
+          "sequenceScaling": "Near-linear O(n) per layer with constant state width",
+          "updateStyle": "Gated decay plus targeted delta-rule memory edits"
+        },
+        "linear": {
+          "memoryForm": "Running key-value summary accumulated across positions",
+          "sequenceScaling": "Near-linear O(n) per head with fixed feature-map dimension",
+          "updateStyle": "Associative accumulation of feature-mapped keys and values"
+        },
+        "mha": {
+          "memoryForm": "Explicit attention weights over all earlier tokens",
+          "sequenceScaling": "Quadratic O(n²) per head",
+          "updateStyle": "Softmax-weighted sum over all allowed key positions"
+        },
+        "window": {
+          "memoryForm": "Dense attention inside a fixed local window",
+          "sequenceScaling": "Linear O(n·W) per head when window width W is fixed",
+          "updateStyle": "Softmax over keys inside the local band only"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Gated DeltaNet",
+      "formula": "S_t = \\alpha_t S_{t-1} + \\beta_t\\,(v_t - S_{t-1} k_t)\\,k_t^{\\top},\\quad o_t = S_t q_t",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "g": {
+          "term": "\\alpha_t",
+          "definition": "Input-dependent gate that decays the previous memory state."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        },
+        "gi": {
+          "term": "\\beta_t",
+          "definition": "Input-dependent write strength for the delta-rule update."
+        },
+        "s": {
+          "term": "S_t",
+          "definition": "Matrix-valued recurrent memory state after the gated delta update."
+        },
+        "o": {
+          "term": "o_t",
+          "definition": "Layer output read from the updated memory with the current query."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "tokenInput": {
+        "label": "Token hidden state"
+      },
+      "qkvProjections": {
+        "label": "Q, K, V projections"
+      },
+      "gateSignal": {
+        "label": "Gate α_t"
+      },
+      "memoryStatePrev": {
+        "label": "Memory S_{t-1}"
+      },
+      "deltaUpdate": {
+        "label": "Delta-rule write"
+      },
+      "memoryStateNext": {
+        "label": "Updated memory S_t"
+      },
+      "outputReadout": {
+        "label": "Output o_t = S_t q_t"
+      },
+      "gatingDeltaNote": {
+        "label": "Gating controls decay; the delta rule performs the targeted write"
+      }
+    }
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "id": "graph.gated-deltanet-gdn-comparison",
+  "slug": "gated-deltanet-gdn-comparison",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": ["citation.gated-delta-networks-paper"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "subjectId": "module.gated-deltanet",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "gdn-input",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "gdn-input",
+      "labelKey": "graph.nodes.tokenInput.label",
+      "moduleKind": "input",
+      "position": { "x": 40, "y": 200 },
+      "size": { "width": 150, "height": 64 },
+      "visualRole": "process-node",
+      "childNodeIds": ["gdn-projections"]
+    },
+    {
+      "id": "gdn-projections",
+      "labelKey": "graph.nodes.qkvProjections.label",
+      "moduleKind": "projection",
+      "position": { "x": 230, "y": 200 },
+      "size": { "width": 160, "height": 64 },
+      "visualRole": "process-node",
+      "childNodeIds": ["gdn-gate", "gdn-memory-prev", "gdn-delta"]
+    },
+    {
+      "id": "gdn-gate",
+      "labelKey": "graph.nodes.gateSignal.label",
+      "moduleKind": "operation",
+      "position": { "x": 430, "y": 60 },
+      "size": { "width": 140, "height": 64 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["gdn-delta"]
+    },
+    {
+      "id": "gdn-memory-prev",
+      "labelKey": "graph.nodes.memoryStatePrev.label",
+      "moduleKind": "cache",
+      "position": { "x": 430, "y": 200 },
+      "size": { "width": 150, "height": 64 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["gdn-delta"]
+    },
+    {
+      "id": "gdn-delta",
+      "labelKey": "graph.nodes.deltaUpdate.label",
+      "moduleKind": "attention",
+      "position": { "x": 630, "y": 200 },
+      "size": { "width": 170, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["gdn-memory-next", "gdn-output"]
+    },
+    {
+      "id": "gdn-memory-next",
+      "labelKey": "graph.nodes.memoryStateNext.label",
+      "moduleKind": "cache",
+      "position": { "x": 850, "y": 120 },
+      "size": { "width": 150, "height": 64 },
+      "visualRole": "summary-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "gdn-output",
+      "labelKey": "graph.nodes.outputReadout.label",
+      "moduleKind": "output",
+      "position": { "x": 850, "y": 280 },
+      "size": { "width": 140, "height": 64 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "gdn-legend",
+      "labelKey": "graph.nodes.gatingDeltaNote.label",
+      "moduleKind": "other",
+      "position": { "x": 430, "y": 360 },
+      "size": { "width": 370, "height": 48 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "gdn-input-projections",
+      "source": "gdn-input",
+      "target": "gdn-projections",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "gdn-projections-gate",
+      "source": "gdn-projections",
+      "target": "gdn-gate",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "gdn-projections-memory",
+      "source": "gdn-projections",
+      "target": "gdn-memory-prev",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "gdn-gate-delta",
+      "source": "gdn-gate",
+      "target": "gdn-delta",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "gdn-memory-delta",
+      "source": "gdn-memory-prev",
+      "target": "gdn-delta",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "gdn-delta-memory-next",
+      "source": "gdn-delta",
+      "target": "gdn-memory-next",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "gdn-delta-output",
+      "source": "gdn-delta",
+      "target": "gdn-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "bottom"
+    }
+  ]
+}

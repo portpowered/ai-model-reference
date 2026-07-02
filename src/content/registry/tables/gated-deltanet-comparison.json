@@ -1,0 +1,58 @@
+{
+  "id": "table.gated-deltanet-comparison",
+  "subjectId": "module.gated-deltanet",
+  "columns": [
+    {
+      "moduleId": "module.gated-deltanet",
+      "titleKey": "tables.comparison.columns.gdn.title"
+    },
+    {
+      "moduleId": "module.linear-attention",
+      "titleKey": "tables.comparison.columns.linear.title"
+    },
+    {
+      "moduleId": "module.multi-head-attention",
+      "titleKey": "tables.comparison.columns.mha.title"
+    },
+    {
+      "moduleId": "module.sliding-window-attention",
+      "titleKey": "tables.comparison.columns.window.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "memoryForm",
+      "labelKey": "tables.comparison.dimensions.memoryForm"
+    },
+    {
+      "id": "sequenceScaling",
+      "labelKey": "tables.comparison.dimensions.sequenceScaling"
+    },
+    {
+      "id": "updateStyle",
+      "labelKey": "tables.comparison.dimensions.updateStyle"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.gated-deltanet": {
+      "memoryForm": "tables.comparison.values.gdn.memoryForm",
+      "sequenceScaling": "tables.comparison.values.gdn.sequenceScaling",
+      "updateStyle": "tables.comparison.values.gdn.updateStyle"
+    },
+    "module.linear-attention": {
+      "memoryForm": "tables.comparison.values.linear.memoryForm",
+      "sequenceScaling": "tables.comparison.values.linear.sequenceScaling",
+      "updateStyle": "tables.comparison.values.linear.updateStyle"
+    },
+    "module.multi-head-attention": {
+      "memoryForm": "tables.comparison.values.mha.memoryForm",
+      "sequenceScaling": "tables.comparison.values.mha.sequenceScaling",
+      "updateStyle": "tables.comparison.values.mha.updateStyle"
+    },
+    "module.sliding-window-attention": {
+      "memoryForm": "tables.comparison.values.window.memoryForm",
+      "sequenceScaling": "tables.comparison.values.window.sequenceScaling",
+      "updateStyle": "tables.comparison.values.window.updateStyle"
+    }
+  }
+}
