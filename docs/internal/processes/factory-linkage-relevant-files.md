@@ -66,7 +66,10 @@ inventory checks. Supported fixture flags:
 * `--session` for live `you work list` discovery in integration-style tests
 
 Representative regression coverage lives in
-`src/tests/discovery/linkage-classifier-report-compatibility.test.ts`.
+`src/tests/discovery/linkage-classifier-report-compatibility.test.ts` and
+`src/tests/discovery/planner-root-drift-pr-metadata-repair-compatibility.test.ts`
+(already-merged root drift, ownerless recovery guidance, and PR-backed metadata
+refresh with passing checks).
 
 ## Related process docs
 
