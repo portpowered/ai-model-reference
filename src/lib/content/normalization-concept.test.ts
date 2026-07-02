@@ -9,15 +9,48 @@ import { CONCEPTS_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadPageAssets } from "@/lib/content/page-assets-load";
 import { loadPageMessages } from "@/lib/content/page-messages-load";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
-import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import {
+  getPublishedDocsEntryByRegistryId,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
-import { getConceptById } from "@/lib/content/registry-runtime";
+import {
+  getConceptById,
+  listRelatedRegistryRecords,
+} from "@/lib/content/registry-runtime";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
+import { docsSearchApi } from "@/lib/search/search-server";
+
+const REGISTRY_ID = "concept.normalization";
+const NORMALIZATION_CONCEPT_URL = "/docs/concepts/normalization";
+const NORMALIZATION_GLOSSARY_URL = "/docs/glossary/normalization";
+const LAYER_NORM_MODULE_URL = "/docs/modules/layer-norm";
 
 const NORMALIZATION_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,
   "normalization",
 );
+
+const SHIPPED_NORMALIZATION_VARIANT_URLS = [
+  "/docs/modules/layer-norm",
+  "/docs/modules/rmsnorm",
+  "/docs/modules/batch-norm",
+  "/docs/modules/group-norm",
+  "/docs/modules/qk-norm",
+] as const;
+
+function pageBaseUrlFromResults(
+  results: Array<{ url: string }>,
+  pageUrl: string,
+): boolean {
+  return results.some(
+    (result) =>
+      pageBaseUrl(result.url) === pageUrl ||
+      result.url.startsWith(`${pageUrl}#`),
+  );
+}
 
 describe("Normalization concept page (normalization-concept-page-001)", () => {
   test("registry record stays published while the concept route is added", () => {
@@ -149,4 +182,92 @@ describe("Normalization concept page (normalization-concept-page-001)", () => {
     expect(Object.keys(assets)).toEqual([]);
     expect(page.assets).toEqual(assets);
   });
+});
+
+describe("Normalization concept page (normalization-concept-page-003)", () => {
+  test("registry aliases stay on the canonical concept record without duplicate concept data", () => {
+    const record = getConceptById(REGISTRY_ID);
+
+    expect(record?.status).toBe("published");
+    expect(record?.aliases).toEqual(["normalization layer", "norm layer"]);
+    expect(record?.explainsIds).toEqual([
+      "concept.layer-norm",
+      "concept.rmsnorm",
+      "concept.batch-norm",
+      "concept.group-norm",
+      "concept.qk-norm",
+    ]);
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has(REGISTRY_ID)).toBe(true);
+  });
+
+  test("published docs entry prefers the concepts route over the glossary bundle", () => {
+    const entry = getPublishedDocsEntryByRegistryId(REGISTRY_ID);
+
+    expect(entry?.url).toBe(NORMALIZATION_CONCEPT_URL);
+    expect(entry?.section).toBe("concepts");
+    expect(entry?.pageKind).toBe("concept");
+  });
+
+  test("search documents carry normalization discovery aliases on the canonical concept page", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const document = documents.find(
+      (entry) => entry.url === NORMALIZATION_CONCEPT_URL,
+    );
+
+    expect(document).toBeDefined();
+    expect(document?.registryId).toBe(REGISTRY_ID);
+    expect(document?.kind).toBe("concept");
+    expect(document?.directAliases).toEqual(
+      expect.arrayContaining(["normalization layer", "norm layer"]),
+    );
+  });
+
+  test.each([
+    "normalization",
+    "normalization layer",
+    "norm layer",
+  ] as const)("live search routes %s to the canonical normalization concept page", async (query) => {
+    const results = await docsSearchApi.search(query);
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(pageBaseUrl(results[0]?.url ?? "")).toBe(NORMALIZATION_CONCEPT_URL);
+    expect(pageBaseUrlFromResults(results, NORMALIZATION_CONCEPT_URL)).toBe(
+      true,
+    );
+  });
+
+  test("normalization search surfaces the broad concept together with shipped variant and glossary paths", async () => {
+    const results = await docsSearchApi.search("normalization");
+
+    expect(pageBaseUrl(results[0]?.url ?? "")).toBe(NORMALIZATION_CONCEPT_URL);
+    expect(pageBaseUrlFromResults(results, LAYER_NORM_MODULE_URL)).toBe(true);
+    expect(pageBaseUrlFromResults(results, NORMALIZATION_GLOSSARY_URL)).toBe(
+      true,
+    );
+  });
+
+  for (const variantUrl of SHIPPED_NORMALIZATION_VARIANT_URLS) {
+    test(`variant page ${variantUrl} related docs resolve the canonical normalization concept route`, () => {
+      const slug = variantUrl.replace("/docs/modules/", "");
+      const registryId = `concept.${slug}` as const;
+      const source = getConceptById(registryId);
+      if (!source) {
+        throw new Error(`expected ${registryId} in registry`);
+      }
+
+      const items = deriveCuratedRelatedItems(
+        source,
+        listRelatedRegistryRecords(),
+        PUBLISHED_DOCS_REGISTRY_IDS,
+      );
+
+      const normalization = items.find(
+        (item) => item.registryId === REGISTRY_ID,
+      );
+      expect(normalization?.href).toBe(NORMALIZATION_CONCEPT_URL);
+      expect(normalization?.isPlanned).toBe(false);
+    });
+  }
 });
