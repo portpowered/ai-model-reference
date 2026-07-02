@@ -328,7 +328,177 @@ Batch 066 drain items remain the owners for any future branch refresh:
 - `generic-search-ai-enrichment-pr277-drain` → PR #277
 - `generic-site-config-pr279-drain` → PR #279
 
-Story 004 will record the exact handoff payload for those drain lanes.
+Story 004 records the exact handoff payload below.
+
+## Story 004 — Batch 066 handoff (exact next actions)
+
+Captured 2026-07-02T20:15Z UTC. Story 002 classified both PRs as
+**handoff-to-batch-066**; story 003 did not refresh either branch. This section
+is the precise payload for the existing batch 066 drain ideas. Batch 073 must
+not manually move queue items or create competing drain lanes.
+
+### Handoff routing
+
+| Target PR | Batch 066 drain idea | Worktree | Branch |
+| --- | --- | --- | --- |
+| #277 | `generic-search-ai-enrichment-pr277-drain` | `.claude/worktrees/generic-search-ai-enrichment-plugin` | `generic-search-ai-enrichment-plugin` |
+| #279 | `generic-site-config-pr279-drain` | `.claude/worktrees/generic-site-config-neutral-surfaces` | `generic-site-config-neutral-surfaces` |
+
+Both drain ideas remain `idea:init` / INITIAL on trace
+`trace-green-pr-drain-and-conflict-triage-batch-066` (session
+`930b51a6-07ce-44e6-a639-7a6217f6e864`). Batch 066 owns review, consume, merge,
+and branch-refresh completion through the established workflow.
+
+### Current `origin/main`
+
+| Field | Value |
+| --- | --- |
+| SHA | `77833a6366b31e5e32c5dbd74f99ca9e86d9590b` |
+| Commit date | 2026-07-02T11:06:04-07:00 |
+| Subject | Merge pull request #285 from portpowered/regularization |
+
+### PR #277 handoff — `generic-search-ai-enrichment-pr277-drain`
+
+**Live PR state**
+
+| Field | Value |
+| --- | --- |
+| URL | https://github.com/portpowered/ai-model-reference/pull/277 |
+| State | OPEN |
+| Head branch / SHA | `generic-search-ai-enrichment-plugin` @ `6a1530a0ce11a9633760a7595b14e17038e4df39` |
+| Base | `main` |
+| Mergeable | CONFLICTING |
+| Merge state status | DIRTY |
+| Updated at | 2026-07-02T14:59:47Z |
+| CI | 11/11 SUCCESS (lint, typecheck, test, test-verify-contract, coverage, test-build-contract, build-export, test-integration, validate-data, linkcheck, ci) |
+
+**Lane metadata**
+
+| Field | Value |
+| --- | --- |
+| File | `.claude/worktrees/generic-search-ai-enrichment-plugin/.claude/lane-metadata.json` |
+| Linkage | branch `current`, PR #277 `current` |
+| Refreshed at | 2026-07-02T18:01:25.214Z |
+
+**Branch drift vs `origin/main` (`77833a63`)**
+
+| Ahead | Behind | Merge base |
+| ---: | ---: | --- |
+| 8 | 79 | `798a0c7bd709d2a38037eecd6a01323507810e1b` |
+
+**Conflict paths** (`git merge-tree`, changed in both)
+
+- `src/lib/content/time-to-first-token-discovery.test.tsx`
+- `src/tests/search/orama-index.test.ts`
+- `src/tests/search/search-api.test.ts`
+- `src/tests/search/search-page-panel.test.tsx` (**shared with PR #279**)
+
+**Latest blocking PR conversation**
+
+- **BLOCKING MERGE** (2026-07-02T14:59:47Z): review clear and local `make test`
+  passed on `6a1530a0`, CI green, but `gh pr merge 277 --merge` failed — GitHub
+  cannot create a clean merge commit. No later clearing comment supersedes this
+  merge blocker.
+- Prior **REVIEW CLEAR** (2026-07-02T14:56:54Z) cleared earlier `make test`
+  failures but does not clear the merge-conflict state.
+
+**Recommended next action (batch 066 drain lane)**
+
+1. Work only in
+   `.claude/worktrees/generic-search-ai-enrichment-plugin` on branch
+   `generic-search-ai-enrichment-plugin`.
+2. `git fetch origin main` then merge or rebase `origin/main` (`77833a63`).
+3. Resolve the four conflict paths above. Preserve the PR #277 search-enrichment
+   boundary behavior (generic enrichment stays AI-type-free; AI facets remain on
+   the Model Atlas adapter). For `search-page-panel.test.tsx`, coordinate with
+   the PR #279 drain lane because both PRs conflict on that file.
+4. Run `make test` locally; push refreshed head; confirm `mergeable` becomes
+   `MERGEABLE` and `mergeStateStatus` becomes `CLEAN`.
+5. Complete review/consume and merge through the established drain workflow once
+   mergeable and local gates pass.
+6. Do not add new generic shell features or touch unrelated route/sidebar/site-config
+   files outside the conflict set.
+
+### PR #279 handoff — `generic-site-config-pr279-drain`
+
+**Live PR state**
+
+| Field | Value |
+| --- | --- |
+| URL | https://github.com/portpowered/ai-model-reference/pull/279 |
+| State | OPEN |
+| Head branch / SHA | `generic-site-config-neutral-surfaces` @ `e5defbc8babefd3da5a1a9f4304e9763f3545e40` |
+| Base | `main` |
+| Mergeable | CONFLICTING |
+| Merge state status | DIRTY |
+| Updated at | 2026-07-02T13:12:04Z |
+| CI | 11/11 SUCCESS (same 11-check matrix as #277) |
+
+**Lane metadata**
+
+| Field | Value |
+| --- | --- |
+| File | `.claude/worktrees/generic-site-config-neutral-surfaces/.claude/lane-metadata.json` |
+| Linkage | branch `current`, PR #279 `current` |
+| Refreshed at | 2026-07-02T18:01:27.724Z |
+
+**Branch drift vs `origin/main` (`77833a63`)**
+
+| Ahead | Behind | Merge base |
+| ---: | ---: | --- |
+| 6 | 91 | `9136cb1ef90e1eb5942cf811b7310191c8a5ea93` |
+
+**Conflict paths** (`git merge-tree`, changed in both)
+
+- `src/tests/search/search-page-panel.test.tsx` (**shared with PR #277**; sole
+  conflict path — core site-config contract files merge cleanly)
+
+**Latest blocking PR conversation**
+
+- **BLOCKING** (2026-07-02T13:12:04Z): local `make test` failed — one a11y smoke
+  test timed out at 15s:
+  `src/tests/a11y/search-page-panel.a11y.test.tsx` >
+  `search page panel accessibility smoke > exposes empty results to assistive
+  technology with no serious axe violations`. GitHub CI was green at comment
+  time; live GitHub now also reports DIRTY/CONFLICTING. No later clearing
+  comment supersedes this blocker.
+- Earlier merge-conflict feedback was addressed in `e5defbc8`; the a11y timeout
+  is the current blocking item.
+
+**Recommended next action (batch 066 drain lane)**
+
+1. Work only in
+   `.claude/worktrees/generic-site-config-neutral-surfaces` on branch
+   `generic-site-config-neutral-surfaces`.
+2. `git fetch origin main` then merge or rebase `origin/main` (`77833a63`) — the
+   branch is 91 commits behind and will need a fresh conflict refresh even
+   though prior merge work landed in `e5defbc8`.
+3. Resolve `search-page-panel.test.tsx` with coordinated judgment against PR
+   #277's drain lane (same shared conflict path).
+4. Fix the local `make test` a11y timeout on
+   `search-page-panel.a11y.test.tsx`; rerun full `make test` until 0 fail.
+5. Push refreshed head; confirm mergeability and required checks; complete
+   review/consume and merge through the established drain workflow.
+6. Do not add new site-config features or touch unrelated search/sidebar/route
+   files outside the conflict set.
+
+### Cross-PR coordination note
+
+Both drain lanes share `src/tests/search/search-page-panel.test.tsx`. Recommended
+order: refresh PR #277 first (more conflict paths, search-surface owner), then
+rebase/merge PR #279 against updated `origin/main` and the resolved shared test
+file. Alternatively, resolve the shared test file once in one drain lane and
+cherry-pick or mirror the resolution in the other — but batch 066 must keep both
+drain ideas as the sole owners; this batch 073 lane does not perform the refresh.
+
+### Batch 073 lane constraints (this handoff)
+
+- Batch 066 owns completion for both PRs; this lane produced evidence and exact
+  next actions only.
+- No queue items were manually moved during story 004.
+- No unrelated route, search, sidebar, site-config, or root dirty files were
+  edited as part of this handoff.
+- No new generic shell features were implemented.
 
 ## Evidence gathering constraints (stories 001–002)
 
