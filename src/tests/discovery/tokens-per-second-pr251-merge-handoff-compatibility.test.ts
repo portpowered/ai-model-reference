@@ -325,17 +325,42 @@ function assertPr251StaleMismatchLedgerEvidence(stdout: string): void {
   );
 }
 
+function resolveMergeHandoffBaseRef(): string | null {
+  for (const candidate of ["origin/main", "main"]) {
+    const probe = runGit(["rev-parse", "--verify", candidate]);
+    if (probe.status === 0) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
 function readBranchDiffPaths(): string[] {
-  const result = runGit(["diff", "main...HEAD", "--name-only"]);
+  const baseRef = resolveMergeHandoffBaseRef();
+  expect(baseRef).not.toBeNull();
+
+  let result = runGit(["diff", `${baseRef}...HEAD`, "--name-only"]);
+  if (result.status !== 0) {
+    result = runGit([
+      "log",
+      `${baseRef}..HEAD`,
+      "--name-only",
+      "--pretty=format:",
+    ]);
+  }
+
   expect(result.status).toBe(0);
-  return readStdoutText(result)
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+  return [...new Set(
+    readStdoutText(result)
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0),
+  )].sort();
 }
 
 function assertMergeHandoffScopePreservation(diffPaths: string[]): void {
-  expect(diffPaths.sort()).toEqual(
+  expect([...diffPaths].sort()).toEqual(
     [...MERGE_HANDOFF_ALLOWLISTED_DIFF_PATHS].sort(),
   );
   for (const path of diffPaths) {
