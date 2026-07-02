@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
 import { getDocsPageDir } from "@/lib/content/content-paths";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
@@ -114,5 +117,73 @@ describe("roofline model concept discovery (roofline-model-concept-page-001)", (
     expect(
       items.find((item) => item.registryId === "concept.hidden-size")?.href,
     ).toBe("/docs/glossary/hidden-size");
+  });
+});
+
+describe("roofline model concept page (roofline-model-concept-page-002)", () => {
+  test("messages teach throughput bounds, arithmetic intensity, and layperson consequences", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.openingSummary?.toLowerCase()).toContain(
+      "best practical throughput",
+    );
+    expect(messages.openingSummary?.toLowerCase()).toContain("memory movement");
+    expect(
+      messages.sections?.memoryBandwidthBound.body?.toLowerCase(),
+    ).toContain("weights");
+    expect(
+      messages.sections?.memoryBandwidthBound.body?.toLowerCase(),
+    ).toContain("activations");
+    expect(
+      messages.sections?.memoryBandwidthBound.body?.toLowerCase(),
+    ).toContain("kv-cache");
+    expect(messages.sections?.computeBound.body?.toLowerCase()).toContain(
+      "arithmetic units",
+    );
+    expect(messages.sections?.computeBound.body?.toLowerCase()).toContain(
+      "fully occupied",
+    );
+    expect(
+      messages.sections?.arithmeticIntensity.body?.toLowerCase(),
+    ).toContain("operations per byte");
+    expect(
+      messages.sections?.arithmeticIntensity.body?.toLowerCase(),
+    ).toContain("compute-bound");
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "not a benchmark leaderboard",
+    );
+    expect(
+      messages.sections?.commonConfusions.body?.toLowerCase(),
+    ).not.toContain("vendor comparison");
+  });
+
+  test("page renders teaching sections, opening summary, and related links", async () => {
+    const page = await loadConceptPage("roofline-model");
+
+    expect(page.frontmatter.registryId).toBe(REGISTRY_ID);
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("What It Is");
+    expect(html).toContain("Memory-Bandwidth Bound");
+    expect(html).toContain("Compute Bound");
+    expect(html).toContain("Arithmetic Intensity");
+    expect(html).toContain("memory-bandwidth bound");
+    expect(html).toContain("compute-bound");
+    expect(html).toContain("operations per byte");
+    expect(html).toContain('href="/docs/systems/memory"');
+    expect(html).toContain('href="/docs/concepts/quantization"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).not.toContain("Reader Shortcut");
   });
 });

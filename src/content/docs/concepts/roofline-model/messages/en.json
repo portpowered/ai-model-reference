@@ -1,22 +1,35 @@
 {
   "title": "Roofline model",
   "description": "A throughput-ceiling chart that shows when memory movement or arithmetic compute limits attainable performance, using arithmetic intensity to explain which bound is active.",
+  "openingSummary": "The roofline model estimates the best practical throughput you can reach once both memory movement speed and arithmetic compute speed are considered, so you can see whether a workload is waiting on bytes to move or on math units to finish useful work.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "The roofline model is a simple ceiling chart for attainable throughput. It compares how fast data can move through memory with how fast arithmetic units can work, then uses arithmetic intensity to show which limit is currently in control."
+      "body": "The roofline model is a ceiling chart for attainable throughput. It compares how fast data can move through memory with how fast arithmetic units can complete operations, then uses arithmetic intensity to show which limit is currently in control. On the left, throughput rises along a memory-bandwidth-bound slope; on the right, it flattens at a compute-bound ceiling where math throughput sets the cap."
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Serving and training discussions often mention memory bandwidth, FLOPs, and tokens per second without explaining why one change helps in one workload but not another. The roofline model gives a general framework for those tradeoffs instead of ranking hardware or models."
+      "body": "Serving and training discussions often mention memory bandwidth, FLOPs, and tokens per second without explaining why one change helps in one workload but not another. The roofline model connects those ideas through one general framework. It does not rank models or hardware; it explains which physical limit is currently capping throughput so you can reason about bytes moved, operations available, and observed generation rate without turning the page into a vendor comparison."
+    },
+    "memoryBandwidthBound": {
+      "title": "Memory-Bandwidth Bound",
+      "body": "A workload is memory-bandwidth bound when throughput rises mainly with how fast weights, activations, or cache data can move through memory. Arithmetic units may sit idle while they wait for the next tile of parameters or the next chunk of KV-cache state to arrive. In that sloped region of the roofline, buying more raw compute does little until each byte moved carries more useful work."
+    },
+    "computeBound": {
+      "title": "Compute Bound",
+      "body": "A workload is compute-bound when arithmetic units stay fully occupied and throughput flattens near the hardware compute ceiling. Enough useful operations are available per byte moved that memory delivery keeps up with the math. In that flat region, faster memory bandwidth rarely helps because compute throughput, not byte movement, is setting the ceiling."
+    },
+    "arithmeticIntensity": {
+      "title": "Arithmetic Intensity",
+      "body": "Arithmetic intensity measures useful operations per byte moved from memory. Low intensity keeps a workload on the memory-bandwidth slope because each byte brings little math, so attainable throughput tracks bytes per second. Higher intensity pushes the operating point toward the compute-bound region because each byte justifies more work before the next fetch is needed."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "A workload with low arithmetic intensity may sit on the memory-bandwidth-bound slope, where faster compute does little until more useful work is done per byte moved. A workload with higher intensity can reach the flat compute-bound ceiling where memory movement is no longer the bottleneck."
+      "body": "Imagine loading a small matrix and applying one multiply per element. The bytes moved dominate, so throughput climbs with memory bandwidth along the sloped roofline region. Now imagine a much larger matrix multiply where each loaded weight participates in many operations. Arithmetic intensity rises, the operating point slides right, and throughput approaches the flat compute ceiling instead of staying on the memory slope."
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "The roofline model is a teaching ceiling, not a benchmark leaderboard. It explains memory-bound and compute-bound regions in plain language; it does not pick the best chip, model, or vendor."
+      "body": "The roofline model is a teaching ceiling, not a benchmark leaderboard. It explains memory-bound and compute-bound regions in plain language; it does not pick the best chip, model, or vendor. A point on the chart illustrates limits for one workload and one hardware profile, not a universal ranking of products."
     },
     "related": {
       "title": "Related Concepts And Modules"
