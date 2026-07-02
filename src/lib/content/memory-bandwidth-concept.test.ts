@@ -59,10 +59,8 @@ describe("memory-bandwidth concept discovery (memory-bandwidth-concept-page-001)
       "concept.kv-cache",
       "concept.quantization",
       "concept.weight-only-quantization",
+      "concept.activation-quantization",
       "concept.kv-cache-quantization",
-      "concept.prefill",
-      "concept.decode",
-      "concept.prefill-decode-split",
       "system.memory",
       "system.inference-engine",
       "system.batching",
@@ -99,19 +97,14 @@ describe("memory-bandwidth concept discovery (memory-bandwidth-concept-page-001)
       )?.href,
     ).toBe("/docs/concepts/weight-only-quantization");
     expect(
+      items.find(
+        (item) => item.registryId === "concept.activation-quantization",
+      )?.href,
+    ).toBe("/docs/concepts/activation-quantization");
+    expect(
       items.find((item) => item.registryId === "concept.kv-cache-quantization")
         ?.href,
     ).toBe("/docs/concepts/kv-cache-quantization");
-    expect(
-      items.find((item) => item.registryId === "concept.prefill")?.href,
-    ).toBe("/docs/concepts/prefill");
-    expect(
-      items.find((item) => item.registryId === "concept.decode")?.href,
-    ).toBe("/docs/glossary/decode");
-    expect(
-      items.find((item) => item.registryId === "concept.prefill-decode-split")
-        ?.href,
-    ).toBe("/docs/concepts/prefill-decode-split");
     expect(
       items.find((item) => item.registryId === "system.memory")?.href,
     ).toBe("/docs/systems/memory");
@@ -311,6 +304,66 @@ describe("memory-bandwidth byte movement teaching (memory-bandwidth-concept-page
     expect(html).toContain("bandwidth-bound");
     expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain("katex");
+    expect(html).not.toContain("missing-message");
+  });
+});
+
+describe("memory-bandwidth compression neighbors (memory-bandwidth-concept-page-004)", () => {
+  test("messages connect quantization and KV cache compression to bandwidth without vendor claims", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(
+      messages.sections?.quantizationAndBandwidth.body?.toLowerCase(),
+    ).toContain("weight-only quantization");
+    expect(
+      messages.sections?.quantizationAndBandwidth.body?.toLowerCase(),
+    ).toContain("activation quantization");
+    expect(
+      messages.sections?.quantizationAndBandwidth.body?.toLowerCase(),
+    ).toContain("kv cache quantization");
+    expect(
+      messages.sections?.quantizationAndBandwidth.body?.toLowerCase(),
+    ).toContain("bandwidth-bound");
+    expect(
+      messages.sections?.quantizationAndBandwidth.body?.toLowerCase(),
+    ).toContain("does not automatically double");
+    expect(messages.sections?.kvCacheCompression.body?.toLowerCase()).toContain(
+      "kv cache compression",
+    );
+    expect(messages.sections?.kvCacheCompression.body?.toLowerCase()).toContain(
+      "general model quantization",
+    );
+    expect(messages.sections?.kvCacheCompression.body?.toLowerCase()).toContain(
+      "long context",
+    );
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "benchmark",
+    );
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "hardware purchases",
+    );
+  });
+
+  test("rendered page links compression neighbors and keeps system.memory as a systems neighbor", async () => {
+    const page = await loadConceptPage(SLUG);
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('id="quantization-and-bandwidth"');
+    expect(html).toContain('id="kv-cache-compression"');
+    expect(html).toContain('href="/docs/concepts/weight-only-quantization"');
+    expect(html).toContain('href="/docs/concepts/activation-quantization"');
+    expect(html).toContain('href="/docs/concepts/kv-cache-quantization"');
+    expect(html).toContain('href="/docs/systems/memory"');
     expect(html).not.toContain("missing-message");
   });
 });
