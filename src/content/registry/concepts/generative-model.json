@@ -7,10 +7,14 @@
   "aliases": ["generative models", "generator", "generative AI"],
   "tags": ["taxonomy", "foundations"],
   "relatedIds": ["concept.discriminative-model", "concept.representation"],
-  "citationIds": [],
+  "citationIds": [
+    "citation.goodfellow-deep-learning",
+    "citation.denoising-diffusion-probabilistic-models"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.model-type",
   "conceptType": "general",
   "prerequisiteIds": ["concept.model", "concept.foundation-model"],
   "explainsIds": []

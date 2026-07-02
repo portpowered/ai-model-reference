@@ -1,0 +1,10 @@
+{
+  "contributionGraph": {
+    "type": "graph",
+    "graphId": "graph.latent-diffusion-contribution",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.contributionGraph.alt",
+    "captionKey": "assets.contributionGraph.caption"
+  }
+}

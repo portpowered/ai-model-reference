@@ -16,11 +16,13 @@ type PageTemplateStructure = {
   sections: SectionStructure[];
 };
 
-type SupportedTemplateKind = "module" | "paper";
+type SupportedTemplateKind = "module" | "paper" | "system" | "training-regime";
 
 const supportedTemplateKinds = new Set<SupportedTemplateKind>([
   "module",
   "paper",
+  "system",
+  "training-regime",
 ]);
 
 const ignoredStructuralComponents = new Set(["Section", "T"]);
@@ -40,6 +42,8 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "DeepSeek-V4 module uses a custom math and comparison structure outside the baseline module template.",
   "modules/deepseekmoe/page.mdx":
     "DeepSeek-V4 module uses a custom math and comparison structure outside the baseline module template.",
+  "modules/feed-forward-network/page.mdx":
+    "Baseline feed-forward overview intentionally omits nearby-module comparison because it serves as the family root page.",
   "modules/heavily-compressed-attention/page.mdx":
     "DeepSeek-V4 module uses a custom math and comparison structure outside the baseline module template.",
   "modules/learned-positional-embeddings/page.mdx":
@@ -60,26 +64,44 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/positional-interpolation/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/sigmoid/page.mdx":
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/relu/page.mdx":
-    "Activation modules use an inline chart in how-it-works instead of the default ModuleGraph slot.",
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/relative-position-bias/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/rope/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/tanh/page.mdx":
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/sinusoidal-positional-embeddings/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/silu/page.mdx":
-    "Activation modules use an inline chart in how-it-works instead of the default ModuleGraph slot.",
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/sliding-window-attention/page.mdx":
     "Legacy module page predates the variants-and-nearby-modules section.",
   "modules/sparse-attention/page.mdx":
     "Legacy module page predates the variants-and-nearby-modules section.",
   "modules/superhot-rope/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/gelu/page.mdx":
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/t5-relative-position-bias/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/yarn/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "systems/request-scheduling/page.mdx":
+    "Request scheduling adds a focused scheduler-decision teaching graph in practical-impact alongside the latency and throughput equation.",
+  "training/pretraining/page.mdx":
+    "Canonical pretraining needs a message-backed custom reader-journey link list in the comparison section to avoid nested auto-linked anchors while preserving localized navigation labels.",
+  "training/post-training/page.mdx":
+    "Canonical post-training needs a message-backed reader-journey link list in the comparison section so discovery paths stay localized without nested auto-linked anchors.",
+  "training/rlvr/page.mdx":
+    "Canonical RLVR needs a message-backed reader-journey link list in the comparison section so alignment, post-training, preference, and reasoning discovery paths stay localized without nested auto-linked anchors.",
+  "training/diffusion-training-objective/page.mdx":
+    "Canonical diffusion training objective needs a message-backed custom reader-journey link list in the comparison section to preserve localized navigation labels without nested auto-linked anchors.",
+  "training/dropout/page.mdx":
+    "Canonical dropout needs a message-backed reader-journey link list in the comparison section so discovery paths to regularization and nearby concepts stay localized without nested auto-linked anchors.",
 };
 
 const templateStructureCache = new Map<
@@ -171,6 +193,52 @@ function readTemplateStructure(
   return structure;
 }
 
+const optionalTemplateSectionsByKind: Partial<
+  Record<SupportedTemplateKind, ReadonlySet<string>>
+> = {
+  system: new Set(["how-it-differs"]),
+};
+
+function sectionIdsMatchWithOptionalSections(
+  kind: SupportedTemplateKind,
+  expectedSectionIds: string[],
+  actualSectionIds: string[],
+): boolean {
+  const optionalSections = optionalTemplateSectionsByKind[kind];
+  if (!optionalSections || optionalSections.size === 0) {
+    return (
+      JSON.stringify(actualSectionIds) === JSON.stringify(expectedSectionIds)
+    );
+  }
+
+  let expectedIndex = 0;
+  for (const actualSectionId of actualSectionIds) {
+    if (
+      optionalSections.has(actualSectionId) &&
+      !expectedSectionIds.includes(actualSectionId)
+    ) {
+      const previousSectionId =
+        actualSectionIds[actualSectionIds.indexOf(actualSectionId) - 1];
+      const nextRequiredSectionId = expectedSectionIds[expectedIndex];
+      if (
+        actualSectionId === "how-it-differs" &&
+        previousSectionId === "how-it-works" &&
+        nextRequiredSectionId === "practical-impact"
+      ) {
+        continue;
+      }
+      return false;
+    }
+
+    if (expectedSectionIds[expectedIndex] !== actualSectionId) {
+      return false;
+    }
+    expectedIndex += 1;
+  }
+
+  return expectedIndex === expectedSectionIds.length;
+}
+
 function formatComponentList(components: string[]): string {
   return components.length > 0 ? components.join(", ") : "(none)";
 }
@@ -217,7 +285,13 @@ export function validatePageTemplateConformance(options: {
 
   const expectedSectionIds = expected.sections.map((section) => section.id);
   const actualSectionIds = actual.sections.map((section) => section.id);
-  if (JSON.stringify(actualSectionIds) !== JSON.stringify(expectedSectionIds)) {
+  if (
+    !sectionIdsMatchWithOptionalSections(
+      kind,
+      expectedSectionIds,
+      actualSectionIds,
+    )
+  ) {
     errors.push({
       code: "page-template-section-order-mismatch",
       message: `${pagePath}: ${kind} page sections must match docs/templates/${kind}.mdx; expected [${expectedSectionIds.join(", ")}], found [${actualSectionIds.join(", ")}]`,

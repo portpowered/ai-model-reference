@@ -1,25 +1,26 @@
 import { afterEach, describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import fixture from "@/lib/content/__fixtures__/page-messages.json";
+import { getDocsPageDir } from "./content-paths";
 import {
   lookupMessage,
   MissingMessageKeyError,
   resolveMessage,
 } from "./messages";
-import {
-  groupedQueryAttentionPageDir,
-  loadPageMessages,
-  MessageLoadError,
-  tokenGlossaryPageDir,
-} from "./page-messages-load";
+import { loadPageMessages, MessageLoadError } from "./page-messages-load";
 import type { PageMessages } from "./schemas";
+
+const fixture = JSON.parse(
+  readFileSync(
+    join(import.meta.dir, "__fixtures__", "page-messages.json"),
+    "utf8",
+  ),
+);
 
 const validMessages = {
   title: "Grouped-Query Attention",
   description: "An attention variant that reduces KV cache memory.",
-  problemStatement: "KV caches get expensive as context length grows.",
-  coreIdea: "GQA lets several query heads share fewer key-value heads.",
   sections: {
     whatItIs: {
       title: "What It Is",
@@ -29,6 +30,11 @@ const validMessages = {
 };
 
 const lookupFixture = fixture as PageMessages;
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
+const tokenGlossaryPageDir = getDocsPageDir("glossary", "token");
 
 describe("loadPageMessages", () => {
   test("loads baseline grouped-query-attention messages for locale en", async () => {
@@ -184,8 +190,8 @@ describe("lookupMessage", () => {
 
 describe("resolveMessage", () => {
   test("returns the resolved string", () => {
-    expect(resolveMessage(lookupFixture, "coreIdea")).toBe(
-      "GQA lets several query heads share fewer key-value heads.",
+    expect(resolveMessage(lookupFixture, "sections.whatItIs.title")).toBe(
+      "What It Is",
     );
   });
 

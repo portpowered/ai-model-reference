@@ -181,7 +181,7 @@ const CUSTOMER_ASK_PASSING_GLOSSARY_BODY = `
       <li><a href="/tags/attention" ${CHROME_LINK_CLASS}>Attention</a></li>
     </ul>
     <ul data-testid="curated-related-docs">
-      <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
+      <li><a href="/docs/concepts/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
     </ul>
   </article>
   <div class="@container grid gap-4 grid-cols-2">
@@ -189,7 +189,7 @@ const CUSTOMER_ASK_PASSING_GLOSSARY_BODY = `
       <div class="inline-flex items-center gap-1.5 font-medium"><p>Scaling Law</p></div>
       <p class="text-fd-muted-foreground truncate">Previous Page</p>
     </a>
-    <a class="flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground text-end" href="/docs/glossary/embedding">
+    <a class="flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground text-end" href="/docs/concepts/embedding">
       <div class="inline-flex items-center gap-1.5 font-medium flex-row-reverse"><p>Embedding</p></div>
       <p class="text-fd-muted-foreground truncate">Next Page</p>
     </a>
@@ -210,7 +210,7 @@ export const CUSTOMER_ASK_PRE_REPAIR_GLOSSARY_HTML =
       <li><a href="/tags/attention" class="underline">Attention</a></li>
     </ul>
     <ul data-testid="curated-related-docs">
-      <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
+      <li><a href="/docs/concepts/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
     </ul>
   </article>
 `);
@@ -250,7 +250,7 @@ export const CUSTOMER_ASK_PASSING_VECTOR_GLOSSARY_HTML =
   buildPhase1DocsRouteStubHtml(`
   <h1>Vector</h1>
   <p class="mb-8 text-lg text-fd-muted-foreground">
-    An ordered list of numbers that represents a point or direction in continuous space—<a href="/docs/glossary/embedding" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>embeddings</a> and activations are vectors at different stages of the model.
+    An ordered list of numbers that represents a point or direction in continuous space—<a href="/docs/concepts/embedding" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>embeddings</a> and activations are vectors at different stages of the model.
   </p>
   <article data-registry-id="${MISSING_PAGES_VECTOR_REGISTRY_ID}">
     <section id="what-it-is"><h2>What It Is</h2></section>
@@ -261,7 +261,7 @@ export const CUSTOMER_ASK_PASSING_HIDDEN_SIZE_GLOSSARY_HTML =
   buildPhase1DocsRouteStubHtml(`
   <h1>Hidden Size</h1>
   <p class="mb-8 text-lg text-fd-muted-foreground">
-    The width of a model's internal <a href="${PHASE_1_VECTOR_GLOSSARY_URL}" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>vectors</a>—the number of dimensions in each <a href="/docs/glossary/embedding" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token embedding</a> and each <a href="${TOKEN_GLOSSARY_URL}" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token</a>'s per-position hidden state before the vocabulary projection.
+    The width of a model's internal <a href="${PHASE_1_VECTOR_GLOSSARY_URL}" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>vectors</a>—the number of dimensions in each <a href="/docs/concepts/embedding" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token embedding</a> and each <a href="${TOKEN_GLOSSARY_URL}" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token</a>'s per-position hidden state before the vocabulary projection.
   </p>
   <article data-registry-id="${MISSING_PAGES_HIDDEN_SIZE_REGISTRY_ID}">
     <section id="what-it-is"><h2>What It Is</h2></section>
@@ -317,6 +317,13 @@ export const CUSTOMER_ASK_CONVERGENCE_PASSING_STUB_HTML: Record<
   string
 > = {
   "/": CUSTOMER_ASK_PASSING_HOME_HTML,
+  "/docs/architecture": buildPhase1DocsRouteStubHtml(`
+    <h1>Architecture</h1>
+    <p>
+      Architectural overviews link foundational glossary pages such as
+      <a href="${TOKEN_GLOSSARY_URL}" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>Token</a>.
+    </p>
+  `),
   [TAG_LIST_CUSTOMER_ASK_ROUTES.tagsIndex]: `<html><header>${PRIMARY_NAV}</header>${POST_REPAIR_TAGS_INDEX_BODY}</html>`,
   [TAG_LIST_CUSTOMER_ASK_ROUTES.attentionLanding]: `<html><header>${PRIMARY_NAV}</header><h1>Attention</h1><a href="/docs/modules/grouped-query-attention">GQA</a><a href="${TOKEN_GLOSSARY_URL}">Token</a><a href="${ATTENTION_TAG_SCOPED_SEARCH_URL}">Search</a>${POST_REPAIR_ATTENTION_LANDING_BODY}</html>`,
   [TOKEN_GLOSSARY_URL]: CUSTOMER_ASK_PASSING_GLOSSARY_HTML,

@@ -30,7 +30,12 @@ const TAXONOMY_CONCEPT_IDS = [
   "concept.representation",
 ] as const;
 
-const TAXONOMY_TAG_SLUGS = ["taxonomy", "foundations", "model-family"] as const;
+const TAXONOMY_TAG_SLUGS = [
+  "taxonomy",
+  "foundations",
+  "model-family",
+  "alignment",
+] as const;
 
 async function readRegistryJson<T>(
   relativePath: string,
@@ -85,6 +90,13 @@ describe("Phase 2 taxonomy registry (US-001)", () => {
     );
     expect(modelFamily.category).toBe("model-family");
     expect(modelFamily.parentTagId).toBe("tag.taxonomy");
+
+    const alignment = await readRegistryJson(
+      "tags/alignment.json",
+      tagRecordSchema,
+    );
+    expect(alignment.category).toBe("training");
+    expect(alignment.parentTagId).toBe("tag.foundations");
   });
 
   test("all four model-family forward targets are published architecture concepts", async () => {
@@ -162,7 +174,14 @@ describe("Phase 2 taxonomy concept records (US-003)", () => {
       expect(concept.id).toBe(id);
       expect(concept.kind).toBe("concept");
       expect(concept.status).toBe("published");
-      expect(concept.conceptType).toBe("general");
+      if (
+        concept.primaryClassificationId ===
+        "classification.concept.architecture"
+      ) {
+        expect(concept.conceptType).toBe("architecture");
+      } else {
+        expect(concept.conceptType).toBe("general");
+      }
       expect(concept.tags).toContain("taxonomy");
       expect(concept.tags).toContain("foundations");
     }

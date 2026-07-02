@@ -7,8 +7,8 @@ import { parsePageAssetConfig } from "@/lib/content/assets";
 import { MODELS_DOCS_ROOT } from "@/lib/content/content-paths";
 import { moduleMdxCompileOptions } from "@/lib/content/mdx-compile-options";
 import { moduleMdxComponents } from "@/lib/content/mdx-components";
-import { registerPageGraphRecords } from "@/lib/content/page-graph-registry-load";
 import { loadPageMessages } from "@/lib/content/page-messages-load";
+import { syncGraphRegistryForContentRoot } from "@/lib/content/root-graph-registry-load";
 import {
   type PageAssetConfig,
   type PageFrontmatter,
@@ -50,7 +50,7 @@ export async function loadModelPageFromDisk(
   const source = readFileSync(mdxPath, "utf8");
   const messages = await loadPageMessages(pageDir, locale, { route });
   const assets = parsePageAssetConfig(readJsonFile(assetsPath));
-  registerPageGraphRecords(join(modelsDocsRoot, "..", ".."), assets);
+  syncGraphRegistryForContentRoot(join(modelsDocsRoot, "..", ".."));
 
   const { content, frontmatter } = await compileMDX<PageFrontmatter>({
     source,

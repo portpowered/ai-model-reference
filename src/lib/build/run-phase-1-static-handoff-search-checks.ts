@@ -8,6 +8,7 @@ import {
   type Phase1SearchAssertion,
 } from "@/lib/verify/phase-1-search-checks";
 import { PHASE_1_SEARCH_PAGE_QUERIES } from "@/lib/verify/phase-1-search-page-checks";
+import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 import {
   type AdvancedOramaExportPayload,
   resolveExportSearchBootstrapFilePath,
@@ -89,33 +90,30 @@ export async function runPhase1StaticHandoffSearchChecks(
   const bootstrapUrl =
     options.bootstrapUrl ?? STATIC_HANDOFF_BOOTSTRAP_FETCH_URL;
   const searches = options.searches ?? PHASE_1_STATIC_HANDOFF_SEARCH_ASSERTIONS;
-  const originalFetch = globalThis.fetch;
+  return withGlobalFetchOverride(
+    createStaticHandoffBootstrapFetch(payload, bootstrapUrl),
+    async () => {
+      const client = createModelAtlasSearchClient({
+        metaByUrl,
+        client: { from: bootstrapUrl },
+      });
+      const failures: Phase1StaticHandoffSearchCheckFailure[] = [];
 
-  globalThis.fetch = createStaticHandoffBootstrapFetch(payload, bootstrapUrl);
-
-  try {
-    const client = createModelAtlasSearchClient({
-      metaByUrl,
-      client: { from: bootstrapUrl },
-    });
-    const failures: Phase1StaticHandoffSearchCheckFailure[] = [];
-
-    for (const search of searches) {
-      const results = await client.search(search.query);
-      const rankingReason = search.assertResults(results);
-      if (rankingReason) {
-        failures.push({
-          query: search.query,
-          label: search.label,
-          reason: rankingReason,
-        });
+      for (const search of searches) {
+        const results = await client.search(search.query);
+        const rankingReason = search.assertResults(results);
+        if (rankingReason) {
+          failures.push({
+            query: search.query,
+            label: search.label,
+            reason: rankingReason,
+          });
+        }
       }
-    }
 
-    return failures;
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
+      return failures;
+    },
+  );
 }
 
 export type RunPhase1StaticHandoffSearchChecksFromOutDirOptions = {

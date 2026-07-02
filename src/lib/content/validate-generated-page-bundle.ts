@@ -16,6 +16,7 @@ import {
 } from "./schemas";
 import { validateGeneratedCanonicalDocs } from "./validate-generated-canonical-docs";
 import {
+  loadTableRecordsFromRegistry,
   type ValidationError,
   validateColocatedPageBundle,
   validateRegistryContent,
@@ -324,6 +325,7 @@ export async function validateGeneratedPageBundle(
   const bundle = await validateColocatedPageBundle(
     pageDirectory,
     providedIndexes,
+    (await loadTableRecordsFromRegistry(registryRoot)).recordsById,
   );
   errors.push(...bundle.errors);
   if (!bundle.messages) {

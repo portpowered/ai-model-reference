@@ -1,0 +1,24 @@
+{
+  "id": "citation.ltx-2-3-model-page",
+  "slug": "ltx-2-3-model-page",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "LTX-2.3 model page",
+    "LTX 2.3 product overview",
+    "ltx.io LTX-2.3"
+  ],
+  "tags": ["model-family", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["Lightricks"],
+  "title": "LTX-2.3: Introducing LTX's Latest AI Video Model",
+  "url": "https://ltx.io/model/ltx-2-3",
+  "mla": "Lightricks. \"LTX-2.3: Introducing LTX's Latest AI Video Model.\" LTX, 2026.",
+  "year": 2026
+}

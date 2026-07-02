@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   createDocsSearchClient,
   DOCS_SEARCH_API_PATH,
@@ -12,21 +12,36 @@ import {
 } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 
 const CHAIN_TAG = "token-to-probability-chain";
 
-const SOFTMAX_BODY_PHRASE = "vocabulary softmax normalization at decode time";
+const SOFTMAX_BODY_PHRASE = "next-token sampling reads softmax probabilities";
 
-const CHAIN_GLOSSARY_PAGES = [
+type ChainGlossaryPage = {
+  title: string;
+  url: string;
+  searchUrl?: string;
+};
+
+const CHAIN_GLOSSARY_PAGES: readonly ChainGlossaryPage[] = [
   { title: "Token", url: "/docs/glossary/token" },
-  { title: "Embedding", url: "/docs/glossary/embedding" },
+  {
+    title: "Embedding",
+    url: "/docs/glossary/embedding",
+    searchUrl: "/docs/concepts/embedding",
+  },
   { title: "Tensor", url: "/docs/glossary/tensor" },
   { title: "Logit", url: "/docs/glossary/logit" },
   { title: "Softmax", url: "/docs/glossary/softmax" },
   { title: "Entropy", url: "/docs/glossary/entropy" },
   { title: "Temperature", url: "/docs/glossary/temperature" },
   { title: "Parameter", url: "/docs/glossary/parameter" },
-  { title: "Activation", url: "/docs/glossary/activation" },
+  {
+    title: "Activation",
+    url: "/docs/glossary/activation",
+    searchUrl: "/docs/concepts/activation",
+  },
   {
     title: "Computational Graph",
     url: "/docs/glossary/computational-graph",
@@ -35,13 +50,13 @@ const CHAIN_GLOSSARY_PAGES = [
   { title: "Backpropagation", url: "/docs/glossary/backpropagation" },
   { title: "Loss Function", url: "/docs/glossary/loss-function" },
   { title: "Optimizer State", url: "/docs/glossary/optimizer-state" },
-] as const;
+];
 
 const CHAIN_GLOSSARY_URLS = CHAIN_GLOSSARY_PAGES.map((page) => page.url);
 
 const REPRESENTATIVE_ALIAS_QUERIES = [
   { query: "tokens", url: "/docs/glossary/token" },
-  { query: "embeddings", url: "/docs/glossary/embedding" },
+  { query: "embeddings", url: "/docs/concepts/embedding" },
   { query: "logits", url: "/docs/glossary/logit" },
   { query: "backprop", url: "/docs/glossary/backpropagation" },
   { query: "objective function", url: "/docs/glossary/loss-function" },
@@ -96,7 +111,9 @@ describe("Phase 2 full chain search indexing (US-011)", () => {
 
 describe("Phase 2 full chain search title ranking (US-011)", () => {
   test.each(
-    CHAIN_GLOSSARY_PAGES.map(({ title, url }) => [title, url] as const),
+    CHAIN_GLOSSARY_PAGES.map(
+      ({ title, url, searchUrl }) => [title, searchUrl ?? url] as const,
+    ),
   )("ranks %s glossary first for canonical title query", async (title, url) => {
     const results = await docsSearchApi.search(title);
     expect(results.length).toBeGreaterThan(0);
@@ -105,27 +122,24 @@ describe("Phase 2 full chain search title ranking (US-011)", () => {
 });
 
 describe("Phase 2 full chain search aliases and body text (US-011)", () => {
-  const originalFetch = globalThis.fetch;
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch;
-  });
-
   async function searchWithStaticClient(query: string) {
     const exported = await (await docsSearchApi.staticGET()).json();
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify(exported), {
-        status: 200,
-      })) as unknown as typeof fetch;
-
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );
-    const client = createDocsSearchClient({
-      metaByUrl,
-      client: { from: DOCS_SEARCH_API_PATH },
-    });
-    return client.search(query);
+    return withGlobalFetchOverride(
+      (async () =>
+        new Response(JSON.stringify(exported), {
+          status: 200,
+        })) as unknown as typeof fetch,
+      async () => {
+        const client = createDocsSearchClient({
+          metaByUrl,
+          client: { from: DOCS_SEARCH_API_PATH },
+        });
+        return client.search(query);
+      },
+    );
   }
 
   test.each(

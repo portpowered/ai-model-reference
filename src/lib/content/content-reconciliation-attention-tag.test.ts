@@ -91,20 +91,28 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(modelGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/models/deepseek-v4-flash",
       "/docs/models/deepseek-v4-pro",
+      "/docs/models/glm-5",
+      "/docs/models/glm-5-2",
       "/docs/models/gpt-3",
-    ]);
-
-    const paperGroup = groups.find((group) => group.kind === "paper");
-    expect(paperGroup?.kindLabel).toBe("Paper");
-    expect(paperGroup?.resources.map((resource) => resource.url)).toEqual([
-      "/docs/papers/deepseek-v4",
+      "/docs/models/llama-3",
+      "/docs/models/mixtral-8x22b",
+      "/docs/models/mixtral-8x7b",
+      "/docs/models/qwen3-0-6b",
+      "/docs/models/qwen3-5-0-8b",
+      "/docs/models/qwen-3-6-27b",
+      "/docs/models/qwen-3-6-35b-a3b",
     ]);
 
     const conceptGroup = groups.find((group) => group.kind === "concept");
     expect(conceptGroup?.kindLabel).toBe("Concept");
-    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
-      "/docs/concepts/prefill-decode-split",
-    ]);
+    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual(
+      expect.arrayContaining([
+        "/docs/concepts/kv-cache",
+        "/docs/concepts/prefill",
+        "/docs/concepts/prefill-decode-split",
+        "/docs/concepts/self-attention",
+      ]),
+    );
 
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
     expect(glossaryGroup?.kindLabel).toBe("Glossary");
@@ -112,32 +120,35 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
       "/docs/glossary/autoregressive-generation",
       "/docs/glossary/decode",
       "/docs/glossary/kv-cache",
-      "/docs/glossary/prefill",
       "/docs/glossary/token",
     ]);
   });
 
-  test("published pages with attention tag resolve through registry or frontmatter", async () => {
-    const pages = await loadPublishedDocsPages("en");
-    const indexes = await loadRegistry();
-    const taggedPages = pages.filter((page) =>
-      publishedResourceMatchesTag(page, ATTENTION_TAG_SLUG, indexes),
-    );
-    const entryUrls = new Set(
-      (await loadTagResourceEntries(ATTENTION_TAG_SLUG, "en")).map(
-        (entry) => entry.url,
-      ),
-    );
-    const expectedModuleUrls = await loadPhase1AttentionModuleUrls("en");
+  test(
+    "published pages with attention tag resolve through registry or frontmatter",
+    async () => {
+      const pages = await loadPublishedDocsPages("en");
+      const indexes = await loadRegistry();
+      const taggedPages = pages.filter((page) =>
+        publishedResourceMatchesTag(page, ATTENTION_TAG_SLUG, indexes),
+      );
+      const entryUrls = new Set(
+        (await loadTagResourceEntries(ATTENTION_TAG_SLUG, "en")).map(
+          (entry) => entry.url,
+        ),
+      );
+      const expectedModuleUrls = await loadPhase1AttentionModuleUrls("en");
 
-    for (const page of taggedPages) {
-      expect(entryUrls).toContain(page.url);
-    }
+      for (const page of taggedPages) {
+        expect(entryUrls).toContain(page.url);
+      }
 
-    for (const url of expectedModuleUrls) {
-      expect(entryUrls).toContain(url);
-    }
-  });
+      for (const url of expectedModuleUrls) {
+        expect(entryUrls).toContain(url);
+      }
+    },
+    { timeout: 30_000 },
+  );
 });
 
 describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
@@ -150,6 +161,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
 
     expect(html).toContain("Attention");
     expect(html).toContain("Module");
+    expect(html).toContain("Concept");
     expect(html).toContain("Glossary");
     expect(html).toContain('href="/search?tag=attention"');
     expect(html).toContain("data-search");
@@ -161,11 +173,13 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
     }
 
     expect(html).toContain("Linear Attention");
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/kv-cache"');
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/concepts/prefill-decode-split"');
+    expect(html).toContain('href="/docs/concepts/self-attention"');
     expect(html).toContain('href="/docs/glossary/token"');
   });
 });

@@ -68,4 +68,22 @@ describe("gpt-3 model page related docs", () => {
     expect(html).not.toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/bpe"');
   });
+
+  test("page renders its architecture graph from the root registry-backed asset reference", async () => {
+    const page = await loadModelPage("gpt-3");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('data-page-asset="architectureGraph"');
+    expect(html).toContain('data-graph-id="graph.gpt-3-architecture"');
+    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain("Input");
+    expect(html).toContain("Embedding");
+  });
 });

@@ -138,7 +138,6 @@ describe("glossary index page render", () => {
       ["KV cache", "/docs/glossary/kv-cache"],
       ["Special Tokens", "/docs/glossary/special-tokens"],
       ["Decode", "/docs/glossary/decode"],
-      ["Prefill", "/docs/glossary/prefill"],
       ["Transformer", "/docs/glossary/transformer"],
       ["Vector", "/docs/glossary/vector"],
       ["Vocabulary Size", "/docs/glossary/vocabulary-size"],

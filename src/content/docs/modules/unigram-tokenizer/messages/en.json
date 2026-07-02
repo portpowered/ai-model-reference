@@ -1,0 +1,159 @@
+{
+  "title": "Unigram Tokenizer",
+  "description": "A subword tokenizer that keeps a candidate vocabulary and picks the highest-scoring whole segmentation instead of replaying merge rules.",
+  "openingSummary": "A unigram tokenizer starts with many possible word pieces and chooses the highest-scoring full segmentation of a string, which is why it feels different from merge-based tokenizers such as byte-pair encoding (BPE).",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A unigram tokenizer is a subword tokenizer that treats segmentation as a scoring problem over whole candidate segmentations. Instead of constructing text by replaying one merge rule after another, it keeps a learned vocabulary of possible pieces and selects the segmentation that scores best for the input string."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Unigram tokenization exists so a tokenizer can keep a fixed-size subword vocabulary, still cover open-vocabulary text, and choose among multiple plausible segmentations instead of hard-coding one merge path. That makes it useful for rare words, spacing-heavy text, and multilingual raw-text pipelines such as SentencePiece-style training."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "Unigram tokenization optimizes for a fixed-size subword vocabulary that can still cover open-vocabulary text. The model can keep multiple candidate pieces for the same substring and let the scoring function decide which combination best explains the sentence."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "This approach handles rare words, spacing, and multilingual text without assuming the training data was already split into words first. That is one reason SentencePiece-style unigram tokenizers show up in raw-text and multilingual pipelines."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Training begins with a large candidate vocabulary of subword pieces. For a new string, the tokenizer considers several valid paths through those pieces, scores each path from the learned piece probabilities, and emits the best full segmentation before turning the pieces into token IDs."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formulas below contrast unigram scoring against merge-based byte-pair encoding. Unigram chooses the best whole path under a learned piece distribution, while BPE deterministically replays merge operations that were fixed during tokenizer training."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with BPE, a unigram tokenizer does not ask which pair should merge next inside the string. It scores complete candidate segmentations instead. That usually makes the tokenizer behavior easier to describe as a probabilistic vocabulary model, while BPE remains easier to explain as a sequence of merges."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Readers most often meet unigram tokenization through SentencePiece-style training pipelines. It is common in systems that want language-independent preprocessing or that prefer learning from raw sentences rather than a fixed external pre-tokenizer."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "A unigram tokenizer still commits to one final segmentation at inference time, so the learned vocabulary quality matters a lot. It can also feel less intuitive than BPE to debug by hand because the winning path depends on piece scores across the whole segmentation, not just on an easily listed merge history."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Tokenization decisions still shape context length, cost, and how cleanly a model handles multilingual or unusual text. Knowing the unigram approach helps readers recognize why two modern tokenizers can produce very different pieces even when both use subwords."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Unigram tokenizer flow showing raw text, candidate pieces, competing segmentations, and the final token IDs",
+      "caption": "A unigram tokenizer keeps many candidate pieces, scores whole segmentations, and emits the best path as token IDs."
+    },
+    "comparisonTable": {
+      "caption": "How unigram tokenization differs from a nearby merge-based tokenizer"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "unigram": {
+          "title": "Unigram tokenizer"
+        },
+        "bpe": {
+          "title": "BPE"
+        }
+      },
+      "dimensions": {
+        "trainingRule": "Training rule",
+        "inferenceRule": "Inference rule",
+        "readerMentalModel": "Reader mental model"
+      },
+      "values": {
+        "unigram": {
+          "trainingRule": "Start with a large candidate vocabulary and prune pieces by score",
+          "inferenceRule": "Choose the highest-scoring full segmentation of the string",
+          "readerMentalModel": "A probabilistic vocabulary that picks the best path"
+        },
+        "bpe": {
+          "trainingRule": "Learn an ordered list of frequent merges",
+          "inferenceRule": "Replay the learned merges to build pieces step by step",
+          "readerMentalModel": "A merge history that rewrites text into larger pieces"
+        }
+      }
+    }
+  },
+  "math": {
+    "unigramSchema": {
+      "label": "Unigram tokenizer scoring",
+      "formula": "\\hat{s} = \\arg\\max_{s \\in \\mathcal{S}(x)} \\sum_{p \\in s} \\log P(p)",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Input text string."
+        },
+        "s": {
+          "term": "s",
+          "definition": "One candidate segmentation of the string."
+        },
+        "segments": {
+          "term": "\\mathcal{S}(x)",
+          "definition": "Set of valid segmentations for x under the candidate vocabulary."
+        },
+        "p": {
+          "term": "p",
+          "definition": "One subword piece inside a candidate segmentation."
+        },
+        "probability": {
+          "term": "P(p)",
+          "definition": "Learned score or probability assigned to piece p."
+        }
+      }
+    },
+    "bpeSchema": {
+      "label": "Byte-pair encoding replay",
+      "formula": "s_{t+1} = \\mathrm{merge}_{m_t}(s_t)",
+      "variableDefinitions": {
+        "st": {
+          "term": "s_t",
+          "definition": "Current segmentation after t merge steps."
+        },
+        "mt": {
+          "term": "m_t",
+          "definition": "The merge rule chosen from the learned ordered merge list."
+        },
+        "stplus1": {
+          "term": "s_{t+1}",
+          "definition": "Segmentation after applying merge rule m_t."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rawText": {
+        "label": "Raw text"
+      },
+      "candidateVocabulary": {
+        "label": "Candidate subword vocabulary"
+      },
+      "candidatePaths": {
+        "label": "Several valid segmentations"
+      },
+      "bestPath": {
+        "label": "Highest-scoring path"
+      },
+      "tokenIds": {
+        "label": "Final token IDs"
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "system.deployment",
+  "slug": "deployment",
+  "kind": "system",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["model deployment", "LLM deployment", "serving deployment"],
+  "tags": ["foundations", "quantization", "kv-cache"],
+  "relatedIds": [
+    "concept.quantization",
+    "concept.prefill-decode-split",
+    "concept.kv-cache",
+    "concept.kv-cache-quantization",
+    "system.routing",
+    "system.inference-engine",
+    "system.batching",
+    "system.on-disk-kv-cache",
+    "system.expert-parallel-overlap",
+    "model.gpt-3",
+    "model.deepseek-v4-pro",
+    "model.nemotron-3-super"
+  ],
+  "citationIds": [
+    "citation.goodfellow-deep-learning",
+    "citation.deepseek-v4-paper"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-07-01T18:00:00.000Z",
+  "releaseDate": "2016-11-18",
+  "authors": ["Ian Goodfellow", "Yoshua Bengio", "Aaron Courville"],
+  "sourceId": "citation.goodfellow-deep-learning",
+  "systemType": "serving",
+  "relatedModelIds": [
+    "model.gpt-3",
+    "model.deepseek-v4-pro",
+    "model.nemotron-3-super"
+  ],
+  "relatedModuleIds": [],
+  "relatedConceptIds": [
+    "concept.quantization",
+    "concept.kv-cache",
+    "concept.prefill-decode-split",
+    "concept.context-window"
+  ],
+  "paperIds": [],
+  "datasetIds": [],
+  "conceptType": "systems"
+}

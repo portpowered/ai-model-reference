@@ -11,8 +11,11 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import {
+  CLASSIFICATION_SIBLINGS,
+  COMPATIBILITY_SAME_CONCEPT_TYPE,
   CURATED_RELATED,
   DERIVED_RELATED_DOC_GROUP_LABELS,
+  type DerivedRelatedDocGroupId,
   deriveCuratedRelatedItems,
   deriveRelatedDocGroups,
   type RelatedDocItem,
@@ -74,6 +77,7 @@ const EVALUATION_GENERALIZATION_SLUGS = new Set([
 
 const DERIVED_GROUP_IDS = [
   SAME_CONCEPT_TYPE,
+  CLASSIFICATION_SIBLINGS,
   SHARED_TAGS,
   CURATED_RELATED,
 ] as const;
@@ -81,7 +85,7 @@ const DERIVED_GROUP_IDS = [
 const CLUSTER_REASON_LABEL_SAMPLES: {
   label: string;
   registryId: (typeof FOUNDATION_CHAIN_CONCEPT_IDS)[number];
-  expectedGroupId: (typeof DERIVED_GROUP_IDS)[number];
+  expectedGroupId: DerivedRelatedDocGroupId;
   expectedPeerSlug: (typeof FOUNDATION_CHAIN_SLUGS)[number];
 }[] = [
   {
@@ -111,7 +115,7 @@ const CLUSTER_REASON_LABEL_SAMPLES: {
   {
     label: "evaluation cluster",
     registryId: "concept.perplexity",
-    expectedGroupId: SAME_CONCEPT_TYPE,
+    expectedGroupId: CLASSIFICATION_SIBLINGS,
     expectedPeerSlug: "scaling-law",
   },
 ];
@@ -409,7 +413,7 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
 
       expect(traversal).toEqual([
         "architecture",
-        "autoregressive-generation",
+        "conditioning",
         "generalization",
       ]);
     });
@@ -438,9 +442,13 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
           (item) => item.slug === sample.expectedPeerSlug && item.href,
         );
         expect(peer).toBeDefined();
-        expect(peer?.reasonLabel).toBe(
-          DERIVED_RELATED_DOC_GROUP_LABELS[sample.expectedGroupId],
-        );
+        if (sample.expectedGroupId === CLASSIFICATION_SIBLINGS) {
+          expect(peer?.reasonLabel).toContain("Same classification");
+        } else {
+          expect(peer?.reasonLabel).toBe(
+            DERIVED_RELATED_DOC_GROUP_LABELS[sample.expectedGroupId],
+          );
+        }
       });
     }
   });

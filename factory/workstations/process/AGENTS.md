@@ -25,7 +25,7 @@ You are an autonomous coding agent working on a software project.
 5. Follow these implementation rules:
 5.1. Solve correctness first before style or preference.
 5.2. Keep changes tightly aligned with the selected story while story work remains unfinished.
-5.2.1. Mergeability exception: once all PRD stories already pass, the latest blocking PR conversation feedback is already explicitly addressed, and the only remaining reason the PR is not review-ready is mergeability work on the current head, you SHOULD do the necessary follow-up work to make that PR mergeable.
+5.2.1. Mergeability exception: once all PRD stories already pass, the latest blocking PR conversation feedback is already explicitly addressed, and the only remaining reason the PR is not review-ready is mergeability work on the current head, you SHOULD do the necessary follow-up work to make that PR mergeable. Routine canonical page branches should use `bun run watch:active-pr-mergeability` when diagnosing PR-head mergeability on active lanes and follow [content-page-generation-workflow-relevant-files](../../../docs/internal/processes/content-page-generation-workflow-relevant-files.md#pr-head-mergeability-for-page-branches-process-executors) for page preflight and mergeability command routing without inventing a second policy.
 5.2.2. Treat the following as valid mergeability work for the current PR head:
   - fixing required test, lint, typecheck, build, contract, or browser-check failures,
   - resolving merge conflicts or rebasing/merging from the current base branch when needed,

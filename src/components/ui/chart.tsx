@@ -18,7 +18,7 @@ export type ChartConfig = Record<
 >;
 
 const ChartContext = React.createContext<ChartConfig | null>(null);
-const TEST_CHART_SIZE = { width: 640, height: 320 } as const;
+const DEFAULT_CHART_DIMENSION = { width: 640, height: 320 } as const;
 
 export function useChart() {
   const context = React.useContext(ChartContext);
@@ -49,7 +49,7 @@ export function ChartContainer({
     isTestEnvironment && React.isValidElement(children)
       ? React.cloneElement(
           children as React.ReactElement<{ width?: number; height?: number }>,
-          TEST_CHART_SIZE,
+          DEFAULT_CHART_DIMENSION,
         )
       : children;
 
@@ -68,7 +68,8 @@ export function ChartContainer({
         ) : (
           <Recharts.ResponsiveContainer
             width="100%"
-            height="100%"
+            height={320}
+            initialDimension={DEFAULT_CHART_DIMENSION}
             minWidth={0}
             minHeight={320}
           >

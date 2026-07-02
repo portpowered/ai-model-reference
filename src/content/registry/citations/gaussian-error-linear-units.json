@@ -1,0 +1,20 @@
+{
+  "id": "citation.gaussian-error-linear-units",
+  "slug": "gaussian-error-linear-units",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["GELU paper", "Gaussian Error Linear Units paper"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Dan Hendrycks", "Kevin Gimpel"],
+  "title": "Gaussian Error Linear Units (GELUs)",
+  "year": 2016,
+  "url": "https://arxiv.org/abs/1606.08415",
+  "mla": "Hendrycks, Dan, and Kevin Gimpel. \"Gaussian Error Linear Units (GELUs).\" arXiv, 2016, https://arxiv.org/abs/1606.08415."
+}

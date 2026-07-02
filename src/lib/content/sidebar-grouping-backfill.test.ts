@@ -7,7 +7,6 @@ import {
 } from "@/lib/content/registry-runtime";
 
 const GLOSSARY_SIDEBAR_BACKFILLS = [
-  ["concept.activation", "math-and-training"],
   ["concept.embedding", "math-and-training"],
   ["concept.context-window", "sequence-and-attention"],
   ["concept.decoder", "sequence-and-attention"],
@@ -19,7 +18,6 @@ const GLOSSARY_SIDEBAR_BACKFILLS = [
   ["concept.normalization", "sequence-and-attention"],
   ["concept.prefill", "sequence-and-attention"],
   ["concept.prefill-decode-split", "sequence-and-attention"],
-  ["concept.perplexity", "sequence-and-attention"],
   ["concept.residual-connection", "sequence-and-attention"],
   ["concept.skip-connection", "sequence-and-attention"],
   ["concept.token", "sequence-and-attention"],
@@ -38,14 +36,19 @@ const CONCEPT_SIDEBAR_BACKFILLS = [
   ["concept.context-extension", "long-context"],
   ["concept.positional-encodings", "long-context"],
   ["concept.why-long-context-is-hard", "long-context"],
-  ["concept.transformer-architecture", "architecture"],
   ["concept.page-spec-workflow-sample", "reference-samples"],
 ] as const;
 
 const MODULE_SIDEBAR_BACKFILLS = [
   ["module.attention", "attention-foundations"],
-  ["module.multi-head-attention", "attention-foundations"],
   ["module.manifold-constrained-hyper-connections", "attention-variants"],
+] as const;
+
+const TRAINING_SIDEBAR_OVERRIDES = [
+  ["training-regime.distillation", "distillation"],
+  ["training-regime.on-policy-distillation", "distillation"],
+  ["training-regime.specialist-training", "post-training"],
+  ["training-regime.fp4-quantization-aware-training", "optimization"],
 ] as const;
 
 describe("sidebar grouping backfill", () => {
@@ -71,22 +74,52 @@ describe("sidebar grouping backfill", () => {
     }
   });
 
-  test("typed taxonomy groups stay derivable without redundant sidebar overrides", () => {
+  test("training keeps intentional editorial overrides where ontology detail is still incomplete", () => {
+    for (const [recordId, expectedGroup] of TRAINING_SIDEBAR_OVERRIDES) {
+      expect(getTrainingRegimeById(recordId)?.sidebarGrouping?.training).toBe(
+        expectedGroup,
+      );
+    }
+  });
+
+  test("ontology-derived groups stay free of redundant sidebar overrides where the classification already resolves placement", () => {
+    expect(
+      getConceptById("concept.activation")?.sidebarGrouping,
+    ).toBeUndefined();
     expect(
       getConceptById("concept.calibration")?.sidebarGrouping,
     ).toBeUndefined();
     expect(
+      getConceptById("concept.tokenizers-overview")?.sidebarGrouping?.concepts,
+    ).toBe(undefined);
+    expect(
       getConceptById("concept.top-p-sampling")?.sidebarGrouping?.concepts,
     ).toBe(undefined);
+    expect(
+      getConceptById("concept.transformer-architecture")?.sidebarGrouping,
+    ).toBeUndefined();
     expect(
       getModuleById("module.grouped-query-attention")?.sidebarGrouping,
     ).toBe(undefined);
     expect(
-      getTrainingRegimeById("training-regime.on-policy-distillation")
-        ?.sidebarGrouping,
+      getModuleById("module.multi-head-attention")?.sidebarGrouping,
     ).toBeUndefined();
+    expect(
+      getTrainingRegimeById("training-regime.dpo")?.sidebarGrouping,
+    ).toBeUndefined();
+    expect(getSystemById("system.routing")?.sidebarGrouping).toBeUndefined();
     expect(
       getSystemById("system.on-disk-kv-cache")?.sidebarGrouping,
     ).toBeUndefined();
+    expect(
+      getSystemById("system.expert-parallel-overlap")?.sidebarGrouping,
+    ).toBeUndefined();
+  });
+
+  test("serving systems stay derivable without redundant sidebar overrides", () => {
+    const batching = getSystemById("system.batching");
+
+    expect(batching?.systemType).toBe("serving");
+    expect(batching?.sidebarGrouping).toBeUndefined();
   });
 });

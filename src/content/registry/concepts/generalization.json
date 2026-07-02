@@ -19,10 +19,11 @@
     "concept.scaling-law",
     "concept.emergent-behavior"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.goodfellow-deep-learning"],
   "status": "published",
   "createdAt": "2026-06-04T11:52:13.229Z",
   "updatedAt": "2026-06-04T14:00:00.000Z",
+  "primaryClassificationId": "classification.concept.evaluation",
   "conceptType": "evaluation",
   "prerequisiteIds": ["concept.overfitting", "concept.model-capacity"],
   "explainsIds": ["concept.overfitting"]

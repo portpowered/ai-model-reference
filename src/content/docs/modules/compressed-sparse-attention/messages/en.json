@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "This is an attention design for extremely long contexts. The key idea is not only sparsity and not only compression. It is the combination: a compact representation for broad coverage plus selective detailed retrieval where it matters."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "The module targets KV-cache size, memory bandwidth, and long-context attention cost."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Readers should care because million-token context is mostly a systems and memory problem. CSA gives the model a way to keep broad context available without paying dense cost on every step."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -39,14 +35,19 @@
       "title": "Why It Still Matters",
       "body": "It is a useful reference point for long-context design because it shows a third path beyond pure locality and pure dense recurrence."
     },
-    "related": { "title": "Related" },
-    "tags": { "title": "Tags" },
-    "references": { "title": "References" }
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
   },
   "assets": {
     "computeFlow": {
-      "alt": "A flow from raw token history into compressed memory and then into sparse detailed access.",
-      "caption": "CSA combines broad compressed memory with selective sparse detail."
+      "alt": "A flow from raw token history into compressed memory and then into sparse detailed access."
     }
   },
   "math": {
@@ -58,7 +59,10 @@
           "term": "\\tilde{K}, \\tilde{V}",
           "definition": "compressed keys and values that summarize broad context"
         },
-        "c": { "term": "C", "definition": "the compression step" },
+        "c": {
+          "term": "C",
+          "definition": "the compression step"
+        },
         "qt": {
           "term": "q_t",
           "definition": "the current query at time step t"
@@ -76,9 +80,15 @@
   },
   "graph": {
     "nodes": {
-      "tokens": { "label": "Long token history" },
-      "compress": { "label": "Compressed memory path" },
-      "sparse": { "label": "Sparse detailed lookup" }
+      "tokens": {
+        "label": "Long token history"
+      },
+      "compress": {
+        "label": "Compressed memory path"
+      },
+      "sparse": {
+        "label": "Sparse detailed lookup"
+      }
     }
   }
 }

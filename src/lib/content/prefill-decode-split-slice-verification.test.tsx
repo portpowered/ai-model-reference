@@ -105,8 +105,8 @@ describe("prefill/decode split slice verification (prefill-decode-split-concept-
     expect(html.toLowerCase()).toContain("prefill/decode split");
     expect(html).toContain("serving layout");
     expect(html).toContain('data-testid="curated-related-docs"');
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/tags/kv-cache"');

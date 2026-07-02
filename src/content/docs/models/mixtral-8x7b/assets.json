@@ -1,0 +1,9 @@
+{
+  "architectureGraph": {
+    "type": "graph",
+    "graphId": "graph.mixtral-8x7b-architecture",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.architectureGraph.alt"
+  }
+}

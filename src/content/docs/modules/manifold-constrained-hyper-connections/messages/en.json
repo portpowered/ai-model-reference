@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "This module is a block-level connection pattern rather than a new attention rule by itself. The paper presents it as a way for the residual pathway to carry more structured information between layers."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "The goal is depth stability and better reuse of useful state, especially when the rest of the stack is already complicated by sparse experts and long-context attention."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Readers should think of MHC as plumbing that helps the rest of the architecture cooperate. It matters because long-context and sparse routing tricks are easier to use when the block-to-block pathway stays reliable."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -39,14 +35,19 @@
       "title": "Why It Still Matters",
       "body": "It is a good reminder that major model releases can change the wiring around familiar blocks, not only the blocks themselves."
     },
-    "related": { "title": "Related" },
-    "tags": { "title": "Tags" },
-    "references": { "title": "References" }
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
   },
   "assets": {
     "computeFlow": {
-      "alt": "A simple flow from residual input through a constrained shared manifold and back to a merged output.",
-      "caption": "MHC is easier to read as structured block wiring than as a new attention pattern."
+      "alt": "A simple flow from residual input through a constrained shared manifold and back to a merged output."
     }
   },
   "math": {
@@ -75,9 +76,15 @@
   },
   "graph": {
     "nodes": {
-      "residual": { "label": "Residual state" },
-      "manifold": { "label": "Constrained shared route" },
-      "merge": { "label": "Merged block update" }
+      "residual": {
+        "label": "Residual state"
+      },
+      "manifold": {
+        "label": "Constrained shared route"
+      },
+      "merge": {
+        "label": "Merged block update"
+      }
     }
   }
 }

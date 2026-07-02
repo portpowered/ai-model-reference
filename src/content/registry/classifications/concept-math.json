@@ -1,0 +1,17 @@
+{
+  "id": "classification.concept.math",
+  "slug": "concept-math",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["math concept", "mathematics concept", "equation concept"],
+  "tags": ["foundations"],
+  "relatedIds": ["concept.gradient", "concept.tensor"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["concept"],
+  "parentClassificationId": "classification.concept"
+}

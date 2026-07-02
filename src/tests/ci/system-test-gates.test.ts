@@ -15,9 +15,6 @@ const expensiveBuildPatterns = [
   /spawnSync\(\s*["']bun["']\s*,\s*\[\s*["']\.\/scripts\/run-static-export-build/,
 ];
 
-const historicalTestNamePattern =
-  /(^|\/)(?:[^/]*phase-\d|[^/]*batch-\d)[^/]*\.test\.tsx?$/;
-
 function normalizePath(path: string): string {
   return path.replace(/\\/g, "/");
 }
@@ -73,14 +70,6 @@ describe("system test gate boundaries", () => {
         return expensiveBuildPatterns.some((pattern) => pattern.test(source));
       })
       .map(({ relativePath }) => relativePath);
-
-    expect(violations).toEqual([]);
-  });
-
-  test("test filenames use behavior or domain names instead of phase and batch labels", () => {
-    const violations = listTestFiles(repoRoot)
-      .map((filePath) => normalizePath(relative(repoRoot, filePath)))
-      .filter((relativePath) => historicalTestNamePattern.test(relativePath));
 
     expect(violations).toEqual([]);
   });

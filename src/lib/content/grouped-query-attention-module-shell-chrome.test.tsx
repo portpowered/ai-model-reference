@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import {
   expectGlossaryBodyOmitsTitleHeading,
   stripHtmlTags,
@@ -12,6 +12,11 @@ import {
   assertGroupedQueryAttentionTitleConvergence,
   GROUPED_QUERY_ATTENTION_MODULE_TITLE,
 } from "@/lib/verify/grouped-query-attention-module-convergence";
+
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
 
 function countH1BlocksContaining(html: string, text: string): number {
   const h1Pattern = /<h1\b[^>]*>[\s\S]*?<\/h1>/gi;
@@ -45,7 +50,7 @@ describe("grouped-query-attention module shell chrome", () => {
 
   test("published GQA page omits in-body title heading and pre-repair opening chrome", () => {
     const raw = readFileSync(
-      join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "page.mdx"),
+      join(groupedQueryAttentionPageDir, "page.mdx"),
       "utf8",
     );
 
@@ -54,7 +59,7 @@ describe("grouped-query-attention module shell chrome", () => {
     expect(raw).not.toMatch(/<TagPillList[^>]*\/>\s*\n\s*<ModuleAtAGlance/);
   });
 
-  test("/docs/modules/grouped-query-attention renders one shell title and At a glance after opening copy", async () => {
+  test("/docs/modules/grouped-query-attention renders one shell title, folded summary, and At a glance before the first content section", async () => {
     const loadedPage = await loadLocalDocsPage({
       section: "modules",
       slug: "grouped-query-attention",
@@ -71,10 +76,12 @@ describe("grouped-query-attention module shell chrome", () => {
     ).toBe(1);
     expectGlossaryBodyOmitsTitleHeading(articleHtml, loadedPage.messages.title);
     expect(html).not.toContain('aria-label="Module metadata"');
-    expect(html).not.toContain('data-testid="folded-summary"');
+    expect(html).toContain('data-testid="folded-summary"');
+    expect(html).toContain('data-opening-summary="folded"');
     expect(html).toContain('aria-label="At a glance"');
     expect(assertGroupedQueryAttentionTitleConvergence(html)).toBeNull();
 
+    const foldedSummaryIndex = html.indexOf('data-testid="folded-summary"');
     const atAGlanceIndex = html.indexOf('aria-label="At a glance"');
     const whatItIsIndex = html.indexOf('id="what-it-is"');
 
@@ -82,7 +89,9 @@ describe("grouped-query-attention module shell chrome", () => {
     expect(plainHtml).toContain(
       "Grouped-query attention (GQA) is an attention variant",
     );
+    expect(foldedSummaryIndex).toBeGreaterThanOrEqual(0);
     expect(atAGlanceIndex).toBeGreaterThanOrEqual(0);
+    expect(atAGlanceIndex).toBeGreaterThan(foldedSummaryIndex);
     expect(whatItIsIndex).toBeGreaterThan(atAGlanceIndex);
   });
 });

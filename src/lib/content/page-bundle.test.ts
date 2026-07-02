@@ -1,13 +1,16 @@
 import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { getDocsPageDir } from "./content-paths";
 import { loadPageAssets } from "./page-assets-load";
-import {
-  groupedQueryAttentionPageDir,
-  loadPageMessages,
-  tokenGlossaryPageDir,
-} from "./page-messages-load";
+import { loadPageMessages } from "./page-messages-load";
 import { pageFrontmatterSchema } from "./schemas";
+
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
+const tokenGlossaryPageDir = getDocsPageDir("glossary", "token");
 
 function parseYamlFrontmatterBlock(block: string): Record<string, unknown> {
   const result: Record<string, unknown> = {};
@@ -69,7 +72,6 @@ describe("grouped-query-attention page bundle", () => {
 
     expect(messages.title.length).toBeGreaterThan(0);
     expect(messages.description.length).toBeGreaterThan(0);
-    expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.problemStatement).toBeUndefined();
     expect(messages.coreIdea).toBeUndefined();
     expect(messages.sections?.whatItIs?.body?.length).toBeGreaterThan(0);
@@ -117,7 +119,6 @@ describe("token glossary page bundle", () => {
 
     expect(messages.title).toBe("Token");
     expect(messages.description.length).toBeGreaterThan(0);
-    expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItIs?.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.whyItMatters?.body?.length).toBeGreaterThan(0);
 

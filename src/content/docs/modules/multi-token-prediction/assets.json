@@ -1,0 +1,26 @@
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "mtp",
+    "variants": [
+      {
+        "variantId": "nextToken",
+        "graphId": "graph.multi-token-prediction-next-token-comparison",
+        "labelKey": "assets.computeFlow.variants.nextToken.label"
+      },
+      {
+        "variantId": "mtp",
+        "graphId": "graph.multi-token-prediction-mtp-comparison",
+        "labelKey": "assets.computeFlow.variants.mtp.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.multi-token-prediction-comparison"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "classification.module.state-space",
+  "slug": "state-space-modules",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "state space",
+    "state-space module",
+    "state-space model",
+    "SSM",
+    "selective state space",
+    "sequence state space",
+    "state-space-modules"
+  ],
+  "tags": ["state-space", "foundations"],
+  "relatedIds": ["module.mamba-selective-state-space"],
+  "citationIds": ["citation.mamba-selective-state-space-paper"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["module"],
+  "parentClassificationId": "classification.module",
+  "legacyIds": ["classification.state-space-modules"]
+}

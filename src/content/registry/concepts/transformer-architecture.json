@@ -7,20 +7,19 @@
   "aliases": ["transformer block", "decoder block", "transformer stack"],
   "tags": ["foundations", "taxonomy"],
   "relatedIds": [
+    "concept.tokenizers-overview",
     "module.attention",
     "concept.feed-forward-network",
     "concept.normalization",
     "concept.residual-connection",
     "concept.positional-encodings"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.attention-is-all-you-need"],
   "status": "published",
   "createdAt": "2026-06-08T11:08:01.058Z",
-  "updatedAt": "2026-06-08T12:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.architecture",
   "conceptType": "architecture",
-  "sidebarGrouping": {
-    "concepts": "architecture"
-  },
   "prerequisiteIds": ["concept.architecture", "concept.module"],
   "explainsIds": []
 }

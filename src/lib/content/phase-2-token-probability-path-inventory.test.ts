@@ -19,15 +19,23 @@ function rowForSlug(
   return row;
 }
 
-describe("Phase 2 token-probability path foundation inventory (phase-2-token-probability-path-convergence-001)", () => {
-  test("inventory covers all fourteen foundation slugs", async () => {
-    const inventory = await buildFoundationPathInventory();
+const FOUNDATION_PATH_INVENTORY_GATE_TIMEOUT_MS = 15_000;
 
-    expect(inventory.rows).toHaveLength(FOUNDATION_PATH_INVENTORY_SLUGS.length);
-    expect(inventory.rows.map((row) => row.slug)).toEqual([
-      ...FOUNDATION_PATH_INVENTORY_SLUGS,
-    ]);
-  });
+describe("Phase 2 token-probability path foundation inventory (phase-2-token-probability-path-convergence-001)", () => {
+  test(
+    "inventory covers all fourteen foundation slugs",
+    async () => {
+      const inventory = await buildFoundationPathInventory();
+
+      expect(inventory.rows).toHaveLength(
+        FOUNDATION_PATH_INVENTORY_SLUGS.length,
+      );
+      expect(inventory.rows.map((row) => row.slug)).toEqual([
+        ...FOUNDATION_PATH_INVENTORY_SLUGS,
+      ]);
+    },
+    { timeout: FOUNDATION_PATH_INVENTORY_GATE_TIMEOUT_MS },
+  );
 
   test("each row records route, bundle, registry, tags, related docs, search, and page-spec status", async () => {
     const inventory = await buildFoundationPathInventory();

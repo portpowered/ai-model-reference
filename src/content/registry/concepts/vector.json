@@ -7,10 +7,11 @@
   "aliases": ["vector", "vectors", "dense vector"],
   "tags": ["token-to-probability-chain", "foundations"],
   "relatedIds": ["concept.embedding", "concept.tensor"],
-  "citationIds": [],
+  "citationIds": ["citation.goodfellow-deep-learning"],
   "status": "published",
   "createdAt": "2026-06-06T00:00:00.000Z",
   "updatedAt": "2026-06-06T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.module",
   "conceptType": "math",
   "prerequisiteIds": ["concept.embedding"],
   "explainsIds": []

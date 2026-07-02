@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { renderSectionKindIndexPage } from "@/app/(site)/site-renderers";
+import { renderSectionCollectionIndexPage } from "@/app/(site)/site-renderers";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
 import { resolveMetadataLocale } from "../../localized-shell-metadata";
@@ -28,5 +28,5 @@ export default async function LocalizedPapersIndexPage({
   params,
 }: LocalizedPapersIndexPageProps) {
   const locale = await resolveMetadataLocale(params);
-  return renderSectionKindIndexPage("paper", locale);
+  return renderSectionCollectionIndexPage("papers", locale);
 }

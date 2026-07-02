@@ -64,13 +64,13 @@ describe("prefill-decode-split concept discovery", () => {
 
     expect(
       items.find((item) => item.registryId === "concept.prefill")?.href,
-    ).toBe("/docs/glossary/prefill");
+    ).toBe("/docs/concepts/prefill");
     expect(
       items.find((item) => item.registryId === "concept.decode")?.href,
     ).toBe("/docs/glossary/decode");
     expect(
       items.find((item) => item.registryId === "concept.kv-cache")?.href,
-    ).toBe("/docs/glossary/kv-cache");
+    ).toBe("/docs/concepts/kv-cache");
     expect(
       items.find(
         (item) => item.registryId === "concept.autoregressive-generation",
@@ -159,7 +159,7 @@ describe("prefill-decode-split concept discovery", () => {
     ).toBeGreaterThan(0);
 
     const chunkedPrefillResults = await docsSearchApi.search("chunked prefill");
-    expect(chunkedPrefillResults[0]?.url).toBe("/docs/glossary/prefill");
+    expect(chunkedPrefillResults[0]?.url).toBe("/docs/concepts/prefill");
     expect(
       chunkedPrefillResults.findIndex((result) => result.url === CONCEPT_URL),
     ).toBeGreaterThan(0);
@@ -221,8 +221,8 @@ describe("prefill-decode-split concept page", () => {
     expect(html).toContain("Why It Matters");
     expect(html).toContain("serving layout");
     expect(html).toContain("cache transfer");
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/tags/kv-cache"');

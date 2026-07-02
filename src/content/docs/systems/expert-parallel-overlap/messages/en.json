@@ -19,8 +19,7 @@
       "title": "Practical Impact",
       "body": "This keeps sparse expert models closer to their theoretical compute savings. Without a system like this, MoE can lose too much time to transport overhead."
     },
-    "associatedRecords": { "title": "Associated Records" },
-    "related": { "title": "Related" },
+    "related": { "title": "Related To" },
     "tags": { "title": "Tags" },
     "references": { "title": "References" }
   },

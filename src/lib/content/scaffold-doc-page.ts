@@ -6,6 +6,7 @@ import {
   getContentRoot,
   getGlossaryDocsRoot,
   getProjectRoot,
+  getRegistryCollectionRoot,
   getRegistryRoot,
 } from "./content-paths";
 import { conceptTypeSchema } from "./schemas";
@@ -379,14 +380,13 @@ export async function scaffoldDocPage(
   const projectRoot = input.projectRoot ?? getProjectRoot();
   const contentRoot = getContentRoot(projectRoot);
   const docsRoot = join(contentRoot, "docs");
+  const registryRoot = getRegistryRoot(contentRoot);
   const registryPath = join(
-    getRegistryRoot(contentRoot),
-    "concepts",
+    getRegistryCollectionRoot("concepts", registryRoot),
     `${input.slug}.json`,
   );
   const graphPath = join(
-    getRegistryRoot(contentRoot),
-    "graphs",
+    getRegistryCollectionRoot("graphs", registryRoot),
     `${input.slug}-concept-map.json`,
   );
   const pageParent =
@@ -448,7 +448,7 @@ export async function scaffoldDocPage(
   const registryRecord = buildRegistryRecord(input);
 
   await mkdir(join(pageDir, "messages"), { recursive: true });
-  await mkdir(join(getRegistryRoot(contentRoot), "graphs"), {
+  await mkdir(getRegistryCollectionRoot("graphs", registryRoot), {
     recursive: true,
   });
   await writeFile(registryPath, `${JSON.stringify(registryRecord, null, 2)}\n`);

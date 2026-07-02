@@ -1,0 +1,58 @@
+{
+  "id": "module.diffusion-transformer-block",
+  "slug": "diffusion-transformer-block",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "diffusion transformer block",
+    "DiT block",
+    "diffusion transformer",
+    "timestep conditioned transformer block",
+    "patch denoising transformer",
+    "timestep conditioning transformer",
+    "DiT",
+    "Scalable Diffusion Models with Transformers"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "concept.transformer-architecture",
+    "concept.self-attention",
+    "module.attention",
+    "module.feed-forward-network",
+    "concept.denoising-generation",
+    "training-regime.diffusion-training-objective",
+    "concept.latent-space",
+    "concept.conditioning",
+    "concept.patch",
+    "paper.diffusion-transformers",
+    "paper.latent-diffusion",
+    "citation.image-is-worth-16x16-words"
+  ],
+  "citationIds": [
+    "citation.scalable-diffusion-models-with-transformers",
+    "citation.denoising-diffusion-probabilistic-models"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "releaseDate": "2022-12-19",
+  "authors": ["William Peebles", "Saining Xie"],
+  "sourceId": "citation.scalable-diffusion-models-with-transformers",
+  "primaryClassificationId": "classification.module.transformer-block",
+  "moduleType": "other",
+  "moduleFamily": "transformer-block",
+  "conceptType": "architecture",
+  "variantGroup": "diffusion-denoising-blocks",
+  "optimizes": [
+    "global-patch-interaction",
+    "timestep-conditioned-denoising",
+    "latent-patch-modeling"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": ["paper.diffusion-transformers"],
+  "mathLevel": "light"
+}

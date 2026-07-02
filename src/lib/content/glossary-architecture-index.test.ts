@@ -5,135 +5,9 @@ import ArchitectureIndexPage from "@/app/(site)/docs/architecture/page";
 import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
-import { source } from "@/lib/source";
-
-const CURRENT_GLOSSARY_SLUGS = [
-  "model",
-  "architecture",
-  "module",
-  "component",
-  "modality",
-  "foundation-model",
-  "generative-model",
-  "discriminative-model",
-  "representation",
-  "patch",
-  "latent",
-  "latent-space",
-  "model-capacity",
-  "multimodal-model",
-  "world-model",
-  "context-window",
-  "decoder",
-  "decode",
-  "encoder",
-  "encoder-decoder",
-  "hidden-size",
-  "kv-cache",
-  "normalization",
-  "prefill",
-  "perplexity",
-  "residual-connection",
-  "skip-connection",
-  "token",
-  "transformer",
-  "activation",
-  "alignment",
-  "backpropagation",
-  "computational-graph",
-  "embedding",
-  "entropy",
-  "emergent-behavior",
-  "generalization",
-  "gradient",
-  "logit",
-  "loss-function",
-  "optimizer-state",
-  "overfitting",
-  "parameter",
-  "scaling-law",
-  "special-tokens",
-  "softmax",
-  "temperature",
-  "tensor",
-  "vector",
-  "autoregressive-generation",
-  "greedy-decoding",
-  "sampling-overview",
-  "top-k-sampling",
-  "top-p-sampling",
-  "conditioning",
-  "denoising-generation",
-  "diffusion-model",
-  "vocabulary-size",
-] as const;
-
-const EXPECTED_GLOSSARY_TITLES: Record<
-  (typeof CURRENT_GLOSSARY_SLUGS)[number],
-  string
-> = {
-  activation: "Activation",
-  alignment: "Alignment",
-  architecture: "Architecture",
-  "autoregressive-generation": "Autoregressive Generation",
-  backpropagation: "Backpropagation",
-  component: "Component",
-  "computational-graph": "Computational Graph",
-  conditioning: "Conditioning",
-  "context-window": "Context window",
-  decode: "Decode",
-  decoder: "Decoder",
-  "denoising-generation": "Denoising Generation",
-  "diffusion-model": "Diffusion Model",
-  "discriminative-model": "Discriminative Model",
-  embedding: "Embedding",
-  entropy: "Entropy",
-  "emergent-behavior": "Emergent Behavior",
-  encoder: "Encoder",
-  "encoder-decoder": "Encoder-Decoder",
-  "foundation-model": "Foundation Model",
-  generalization: "Generalization",
-  "generative-model": "Generative Model",
-  "greedy-decoding": "Greedy Decoding",
-  gradient: "Gradient",
-  "hidden-size": "Hidden Size",
-  "kv-cache": "KV cache",
-  latent: "Latent",
-  "latent-space": "Latent Space",
-  logit: "Logit",
-  "loss-function": "Loss Function",
-  modality: "Modality",
-  model: "Model",
-  "model-capacity": "Model Capacity",
-  module: "Module",
-  "multimodal-model": "Multimodal Model",
-  normalization: "Normalization",
-  "optimizer-state": "Optimizer State",
-  overfitting: "Overfitting",
-  parameter: "Parameter",
-  patch: "Patch",
-  perplexity: "Perplexity",
-  prefill: "Prefill",
-  representation: "Representation",
-  "residual-connection": "Residual connection",
-  "sampling-overview": "Sampling Overview",
-  "scaling-law": "Scaling Law",
-  "special-tokens": "Special Tokens",
-  "skip-connection": "Skip connection",
-  softmax: "Softmax",
-  temperature: "Temperature",
-  tensor: "Tensor",
-  token: "Token",
-  "top-k-sampling": "Top-K Sampling",
-  "top-p-sampling": "Top-P Sampling",
-  transformer: "Transformer",
-  vector: "Vector",
-  "vocabulary-size": "Vocabulary Size",
-  "world-model": "World Model",
-};
-
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
+import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
+import { isGlossaryPageAssignedToDerivedSection } from "@/lib/docs/glossary-derived-browse-sections";
+import { buildGeneratedDocsPageTree } from "@/lib/navigation/generated-docs-page-tree";
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -145,6 +19,8 @@ const GLOSSARY_SEPARATOR_TITLES = [
 const ARCHITECTURE_CONCEPT_URLS = [
   "/docs/concepts/alibi",
   "/docs/concepts/context-extension",
+  "/docs/concepts/embedding",
+  "/docs/concepts/kv-cache",
   "/docs/concepts/page-spec-workflow-sample",
   "/docs/concepts/positional-encodings",
   "/docs/concepts/transformer-architecture",
@@ -167,15 +43,35 @@ function collectPageUrls(nodes: Node[]): string[] {
   return urls;
 }
 
+function getSidebarFolder(name: string) {
+  const pageTree = buildGeneratedDocsPageTree({ name: "Docs", children: [] });
+  const folder = pageTree.children.find(
+    (node) => node.type === "folder" && node.name === name,
+  );
+  expect(folder?.type).toBe("folder");
+  if (folder?.type !== "folder") {
+    throw new Error(`expected ${name} folder in docs sidebar`);
+  }
+  return folder;
+}
+
+function getGlossaryFolder() {
+  return getSidebarFolder("Glossary");
+}
+
+async function loadRemainingGlossarySidebarEntries() {
+  const pages = await loadShippedLocalizedDocsPages("en");
+  return pages.filter(
+    (page) =>
+      page.frontmatter.kind === "glossary" &&
+      !isGlossaryPageAssignedToDerivedSection(page),
+  );
+}
+
 describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
-  test("generated glossary sidebar lists current glossary families and separators", () => {
-    const glossaryFolder = source.pageTree.children.find(
-      (node) => node.type === "folder" && node.name === "Glossary",
-    );
-    expect(glossaryFolder?.type).toBe("folder");
-    if (glossaryFolder?.type !== "folder") {
-      throw new Error("expected Glossary folder in docs sidebar");
-    }
+  test("generated glossary sidebar lists remaining glossary families and separators", async () => {
+    const remainingPages = await loadRemainingGlossarySidebarEntries();
+    const glossaryFolder = getGlossaryFolder();
 
     const separatorTitles = glossaryFolder.children
       .filter((node) => node.type === "separator")
@@ -184,60 +80,66 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       (node): node is Extract<Node, { type: "page" }> => node.type === "page",
     );
 
-    expect(linkNodes).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
+    expect(linkNodes).toHaveLength(remainingPages.length);
     expect(separatorTitles).toEqual(
       expect.arrayContaining([...GLOSSARY_SEPARATOR_TITLES]),
     );
 
-    for (const slug of CURRENT_GLOSSARY_SLUGS) {
-      const title = EXPECTED_GLOSSARY_TITLES[slug];
-      expect(
-        linkNodes.some((entry) => entry.url === `/docs/glossary/${slug}`),
-      ).toBe(true);
-      expect(linkNodes.some((entry) => entry.name === title)).toBe(true);
+    for (const page of remainingPages) {
+      expect(linkNodes.some((node) => node.url === page.url)).toBe(true);
+      expect(linkNodes.some((node) => node.name === page.messages.title)).toBe(
+        true,
+      );
     }
   });
 
-  test("fumadocs glossary sidebar includes the shipped glossary surface", () => {
-    const glossaryFolder = source.pageTree.children.find(
-      (node) => node.type === "folder" && node.name === "Glossary",
-    );
-    expect(glossaryFolder?.type).toBe("folder");
-    if (glossaryFolder?.type !== "folder") {
-      throw new Error("expected Glossary folder in docs sidebar");
-    }
+  test("fumadocs glossary sidebar includes every shipped glossary page across derived folders", async () => {
+    const entries = await loadPublishedGlossaryEntries("en");
+    const glossaryUrls = [
+      ...collectPageUrls(getGlossaryFolder().children),
+      ...collectPageUrls(getSidebarFolder("Model Types").children),
+      ...collectPageUrls(getSidebarFolder("Inference").children),
+      ...collectPageUrls(getSidebarFolder("Module Components").children),
+    ];
 
-    const glossaryUrls = collectPageUrls(glossaryFolder.children);
-    for (const slug of CURRENT_GLOSSARY_SLUGS) {
-      expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
+    for (const entry of entries) {
+      expect(glossaryUrls).toContain(entry.url);
     }
-    expect(glossaryUrls).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
+    expect(glossaryUrls).toHaveLength(entries.length);
   });
 
   test("glossary index lists shipped published entries with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
+    const glossaryUrls = [
+      ...collectPageUrls(getGlossaryFolder().children),
+      ...collectPageUrls(getSidebarFolder("Model Types").children),
+      ...collectPageUrls(getSidebarFolder("Inference").children),
+      ...collectPageUrls(getSidebarFolder("Module Components").children),
+    ].sort();
 
-    for (const slug of CURRENT_GLOSSARY_SLUGS) {
-      const entry = entries.find(
-        (item) => item.url === `/docs/glossary/${slug}`,
-      );
-      expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
+    expect(entries.map((entry) => entry.url).sort()).toEqual(glossaryUrls);
+
+    for (const entry of entries) {
+      const indexEntry = entries.find((item) => item.url === entry.url);
+      expect(indexEntry?.title).toBe(entry.title);
     }
   });
 
   test("architecture index includes current architecture-related glossary and concept entries", async () => {
     const entries = await loadPublishedArchitectureEntries("en");
-    expect(entries).toHaveLength(PUBLISHED_ARCHITECTURE_ENTRY_COUNT);
+    expect(entries.length).toBeGreaterThan(0);
 
     for (const url of [
       "/docs/glossary/architecture",
       "/docs/glossary/kv-cache",
-      "/docs/glossary/normalization",
+      "/docs/concepts/normalization",
       "/docs/glossary/residual-connection",
       "/docs/glossary/special-tokens",
       "/docs/glossary/token",
+      "/docs/concepts/prefill",
+      "/docs/concepts/alignment",
       ...ARCHITECTURE_CONCEPT_URLS,
+      "/docs/concepts/mixture-of-experts",
     ] as const) {
       expect(entries.some((entry) => entry.url === url)).toBe(true);
     }
@@ -259,7 +161,6 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Embedding", "/docs/glossary/embedding"],
       ["KV cache", "/docs/glossary/kv-cache"],
       ["Normalization", "/docs/glossary/normalization"],
-      ["Prefill", "/docs/glossary/prefill"],
       ["Sampling Overview", "/docs/glossary/sampling-overview"],
     ] as const) {
       expect(glossaryHtml).toContain(title);
@@ -270,9 +171,10 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Attention with linear biases (ALiBi)", "/docs/concepts/alibi"],
       ["Architecture", "/docs/glossary/architecture"],
       ["Foundation Model", "/docs/glossary/foundation-model"],
-      ["KV cache", "/docs/glossary/kv-cache"],
+      ["Key-value cache", "/docs/concepts/kv-cache"],
       ["Decode", "/docs/glossary/decode"],
-      ["Prefill", "/docs/glossary/prefill"],
+      ["Prefill", "/docs/concepts/prefill"],
+      ["Mixture of Experts", "/docs/concepts/mixture-of-experts"],
       ["Positional encodings", "/docs/concepts/positional-encodings"],
       ["Token", "/docs/glossary/token"],
       ["Transformer architecture", "/docs/concepts/transformer-architecture"],

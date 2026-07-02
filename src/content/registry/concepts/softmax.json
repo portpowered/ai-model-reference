@@ -12,10 +12,11 @@
     "concept.parameter",
     "concept.sampling-overview"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.goodfellow-deep-learning"],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.module",
   "conceptType": "math",
   "prerequisiteIds": ["concept.logit"],
   "explainsIds": []

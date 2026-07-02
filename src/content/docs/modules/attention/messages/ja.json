@@ -7,13 +7,9 @@
       "title": "これは何か",
       "body": "Attention は、ある token がほかの token から情報を読むための仕組みです。各位置は query、key、value を作ります。Query は何を探すかを表し、key は各位置が何を持っているかを示し、value は最終的に出力へ混ぜ込まれる情報を運びます。"
     },
-    "whatItOptimizes": {
+    "whyItExists": {
       "title": "何を最適化するか",
       "body": "Attention が最適化するのは、柔軟な文脈混合です。固定の局所ルールを使う代わりに、現在の token にとってどの位置が重要か、どれだけ強く寄与させるかをモデル自身が決められます。"
-    },
-    "practicalBenefit": {
-      "title": "実務上の利点",
-      "body": "Attention を理解すると、その後に出てくる多くのモデル変種が読みやすくなります。多くの attention 系ページは transformer 全体を置き換えているのではなく、attention が文脈を保持する方法、各 token が見渡せる距離、あるいは参照 1 回あたりの計算コストを変えています。"
     },
     "howItWorks": {
       "title": "どう動くか",

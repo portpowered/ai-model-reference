@@ -6,13 +6,19 @@ import { PageAssetsProvider } from "@/features/docs/components/page-assets-conte
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { AttentionVariantComparisonGraph } from "@/features/models/components/AttentionVariantComparisonGraph";
 import { parsePageAssetConfig } from "@/lib/content/assets";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
+const mambaPageDir = getDocsPageDir("modules", "mamba-selective-state-space");
 
 const gqaMessages = pageMessagesSchema.parse(
   JSON.parse(
     readFileSync(
-      join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "messages/en.json"),
+      join(groupedQueryAttentionPageDir, "messages/en.json"),
       "utf8",
     ),
   ),
@@ -20,7 +26,7 @@ const gqaMessages = pageMessagesSchema.parse(
 
 const gqaAssets = parsePageAssetConfig(
   JSON.parse(
-    readFileSync(join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "assets.json"), "utf8"),
+    readFileSync(join(groupedQueryAttentionPageDir, "assets.json"), "utf8"),
   ),
 );
 
@@ -29,6 +35,21 @@ if (computeFlowAsset?.type !== "attention-variant-graph") {
   throw new Error("Expected GQA computeFlow attention-variant-graph asset");
 }
 const { variants, defaultVariantId } = computeFlowAsset;
+
+const mambaMessages = pageMessagesSchema.parse(
+  JSON.parse(readFileSync(join(mambaPageDir, "messages/en.json"), "utf8")),
+);
+
+const mambaAssets = parsePageAssetConfig(
+  JSON.parse(readFileSync(join(mambaPageDir, "assets.json"), "utf8")),
+);
+
+const mambaComputeFlowAsset = mambaAssets.computeFlow;
+if (mambaComputeFlowAsset?.type !== "attention-variant-graph") {
+  throw new Error("Expected Mamba computeFlow attention-variant-graph asset");
+}
+const { variants: mambaVariants, defaultVariantId: mambaDefaultVariantId } =
+  mambaComputeFlowAsset;
 
 function renderComparisonGraph() {
   return render(
@@ -135,5 +156,97 @@ describe("AttentionVariantComparisonGraph", () => {
     expect(
       screen.getByRole("tab", { name: "Multi-head", selected: true }),
     ).toBeTruthy();
+  });
+
+  test("renders title and legend markers for Mamba state-flow comparison assets", () => {
+    const { container } = render(
+      <PageMessagesProvider messages={mambaMessages} isDev={false}>
+        <PageAssetsProvider assets={mambaAssets} isDev={false}>
+          <AttentionVariantComparisonGraph
+            assetId="computeFlow"
+            variants={mambaVariants}
+            defaultVariantId={mambaDefaultVariantId}
+            alt={mambaMessages.assets?.computeFlow?.alt}
+            caption={mambaMessages.assets?.computeFlow?.caption}
+          />
+        </PageAssetsProvider>
+      </PageMessagesProvider>,
+    );
+
+    expect(
+      container.querySelector(
+        '[data-graph-title="graph.mamba-selective-state-space-state-flow"]',
+      )?.textContent,
+    ).toBe("Sequence mixing over time");
+    expect(
+      container.querySelector(
+        '[data-graph-legend="graph.mamba-selective-state-space-state-flow"]',
+      ),
+    ).toBeTruthy();
+    expect(container.textContent).toContain("Input-dependent update path");
+    expect(container.textContent).toContain("State carried across steps");
+    expect(
+      container.querySelector('[data-attention-variant-active="mamba"]'),
+    ).toBeTruthy();
+    expect(
+      container.querySelector(
+        '[data-graph-id="graph.mamba-selective-state-space-state-flow"]',
+      ),
+    ).toBeTruthy();
+  });
+
+  test("switches to MHA variant on the Mamba comparison graph", () => {
+    const { container } = render(
+      <PageMessagesProvider messages={mambaMessages} isDev={false}>
+        <PageAssetsProvider assets={mambaAssets} isDev={false}>
+          <AttentionVariantComparisonGraph
+            assetId="computeFlow"
+            variants={mambaVariants}
+            defaultVariantId={mambaDefaultVariantId}
+            alt={mambaMessages.assets?.computeFlow?.alt}
+            caption={mambaMessages.assets?.computeFlow?.caption}
+          />
+        </PageAssetsProvider>
+      </PageMessagesProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("tab", { name: "Multi-head" }));
+
+    expect(
+      container.querySelector('[data-attention-variant-active="mha"]'),
+    ).toBeTruthy();
+    expect(
+      container.querySelector(
+        '[data-graph-id="graph.multi-head-attention-time-pattern"]',
+      ),
+    ).toBeTruthy();
+    expect(
+      container.querySelector(
+        '[data-graph-title="graph.multi-head-attention-time-pattern"]',
+      ),
+    ).toBeTruthy();
+  });
+
+  test("renders missing label state in dev mode", () => {
+    const { container } = render(
+      <PageMessagesProvider
+        messages={{
+          title: "Mamba Selective State-Space Module",
+          description: "test",
+        }}
+        isDev
+      >
+        <PageAssetsProvider assets={mambaAssets} isDev>
+          <AttentionVariantComparisonGraph
+            assetId="computeFlow"
+            variants={mambaVariants}
+            defaultVariantId={mambaDefaultVariantId}
+            isDev
+          />
+        </PageAssetsProvider>
+      </PageMessagesProvider>,
+    );
+
+    expect(container.textContent).toContain("assets.computeFlow.variants");
   });
 });

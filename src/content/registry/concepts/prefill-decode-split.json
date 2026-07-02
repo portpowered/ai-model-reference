@@ -18,10 +18,15 @@
     "concept.kv-cache",
     "concept.autoregressive-generation"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.brown-gpt-3",
+    "citation.shazeer-mqa-paper",
+    "citation.gqa-paper"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
-  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.inference",
   "conceptType": "inference",
   "sidebarGrouping": {
     "glossary": "sequence-and-attention"

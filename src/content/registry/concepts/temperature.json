@@ -11,10 +11,14 @@
     "concept.sampling-overview",
     "concept.greedy-decoding"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.curious-case-neural-text-degeneration",
+    "citation.brown-gpt-3"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.inference",
   "conceptType": "general",
   "prerequisiteIds": ["concept.softmax"],
   "explainsIds": []

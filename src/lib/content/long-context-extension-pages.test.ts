@@ -10,6 +10,8 @@ import {
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
+const LONG_CONTEXT_PAGE_RENDER_GATE_TIMEOUT_MS = 30_000;
+
 describe("Phase 3 long-context extension pages (phase-3-pages-006)", () => {
   test("registry records publish LongRoPE and positional interpolation with required family links", () => {
     const longrope = getConceptById("concept.longrope");
@@ -73,63 +75,69 @@ describe("Phase 3 long-context extension pages (phase-3-pages-006)", () => {
     }
   });
 
-  test("new pages render glossary content, long-context links, and references", async () => {
-    for (const slug of ["longrope", "positional-interpolation"] as const) {
-      const page = await loadModulePage(slug);
-      const html = renderToStaticMarkup(
+  test(
+    "new pages render glossary content, long-context links, and references",
+    async () => {
+      for (const slug of ["longrope", "positional-interpolation"] as const) {
+        const page = await loadModulePage(slug);
+        const html = renderToStaticMarkup(
+          createElement(ModulePageProviders, {
+            messages: page.messages,
+            assets: page.assets,
+            // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+            children: page.content,
+          }),
+        );
+
+        expect(page.frontmatter.status).toBe("published");
+        expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
+        expect(html).toContain("Related Concepts And Modules");
+        expect(html).toContain('href="/docs/modules/rope"');
+        expect(html).toContain('href="/docs/concepts/context-extension"');
+        expect(html).toContain(
+          'href="/docs/concepts/why-long-context-is-hard"',
+        );
+        expect(html).toContain('href="/tags/foundations"');
+        expect(html).toContain('data-testid="citation-list"');
+        expect(html).toContain("References");
+        expect(html).not.toContain("Reader Shortcut");
+        expect(html).not.toContain("Phase");
+      }
+
+      const longropePage = await loadModulePage("longrope");
+      const longropeHtml = renderToStaticMarkup(
         createElement(ModulePageProviders, {
-          messages: page.messages,
-          assets: page.assets,
+          messages: longropePage.messages,
+          assets: longropePage.assets,
           // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-          children: page.content,
+          children: longropePage.content,
         }),
       );
 
-      expect(page.frontmatter.status).toBe("published");
-      expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
-      expect(html).toContain("Related Concepts And Modules");
-      expect(html).toContain('href="/docs/modules/rope"');
-      expect(html).toContain('href="/docs/concepts/context-extension"');
-      expect(html).toContain('href="/docs/concepts/why-long-context-is-hard"');
-      expect(html).toContain('href="/tags/foundations"');
-      expect(html).toContain('data-testid="citation-list"');
-      expect(html).toContain("References");
-      expect(html).not.toContain("Reader Shortcut");
-      expect(html).not.toContain("Phase");
-    }
+      expect(longropeHtml).toContain(
+        'href="/docs/modules/ntk-aware-rope-scaling"',
+      );
+      expect(longropeHtml).toContain('href="/docs/modules/yarn"');
 
-    const longropePage = await loadModulePage("longrope");
-    const longropeHtml = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: longropePage.messages,
-        assets: longropePage.assets,
-        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-        children: longropePage.content,
-      }),
-    );
+      const positionalInterpolationPage = await loadModulePage(
+        "positional-interpolation",
+      );
+      const positionalInterpolationHtml = renderToStaticMarkup(
+        createElement(ModulePageProviders, {
+          messages: positionalInterpolationPage.messages,
+          assets: positionalInterpolationPage.assets,
+          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+          children: positionalInterpolationPage.content,
+        }),
+      );
 
-    expect(longropeHtml).toContain(
-      'href="/docs/modules/ntk-aware-rope-scaling"',
-    );
-    expect(longropeHtml).toContain('href="/docs/modules/yarn"');
-
-    const positionalInterpolationPage = await loadModulePage(
-      "positional-interpolation",
-    );
-    const positionalInterpolationHtml = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: positionalInterpolationPage.messages,
-        assets: positionalInterpolationPage.assets,
-        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-        children: positionalInterpolationPage.content,
-      }),
-    );
-
-    expect(positionalInterpolationHtml).toContain(
-      'href="/docs/modules/longrope"',
-    );
-    expect(positionalInterpolationHtml).toContain(
-      'href="/docs/modules/ntk-aware-rope-scaling"',
-    );
-  });
+      expect(positionalInterpolationHtml).toContain(
+        'href="/docs/modules/longrope"',
+      );
+      expect(positionalInterpolationHtml).toContain(
+        'href="/docs/modules/ntk-aware-rope-scaling"',
+      );
+    },
+    { timeout: LONG_CONTEXT_PAGE_RENDER_GATE_TIMEOUT_MS },
+  );
 });

@@ -1,0 +1,45 @@
+{
+  "id": "paper.nemotron-3-super",
+  "slug": "nemotron-3-super",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Nemotron 3 Super",
+    "Nemotron 3 Super Technical Report",
+    "NVIDIA Nemotron 3 Super"
+  ],
+  "tags": ["foundations", "model-family", "context-window", "quantization"],
+  "relatedIds": ["model.nemotron-3-super"],
+  "citationIds": [
+    "citation.nemotron-3-super-technical-report",
+    "citation.nemotron-3-super-research-page",
+    "citation.nemotron-3-super-model-card",
+    "citation.nemotron-3-super-nim-build-page"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T18:00:00.000Z",
+  "authors": ["NVIDIA"],
+  "publishedAt": "2026-03-11",
+  "url": "https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Super-Technical-Report.pdf",
+  "arxivId": "2604.12374",
+  "introducesIds": [],
+  "supportsIds": [
+    "concept.transformer-architecture",
+    "concept.context-extension",
+    "concept.quantization"
+  ],
+  "arguesAgainstIds": [],
+  "modelIds": ["model.nemotron-3-super"],
+  "moduleIds": [
+    "module.mixture-of-experts",
+    "module.mamba-selective-state-space"
+  ],
+  "conceptIds": [
+    "concept.transformer-architecture",
+    "concept.context-extension",
+    "concept.quantization"
+  ],
+  "venue": "Technical report"
+}

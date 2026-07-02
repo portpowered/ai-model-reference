@@ -25,20 +25,18 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/concepts/context-extension",
         "/docs/concepts/page-spec-workflow-sample",
         "/docs/concepts/positional-encodings",
+        "/docs/concepts/prefill",
         "/docs/concepts/transformer-architecture",
         "/docs/concepts/why-long-context-is-hard",
-        "/docs/glossary/activation",
         "/docs/glossary/architecture",
-        "/docs/glossary/autoregressive-generation",
-        "/docs/glossary/decode",
-        "/docs/glossary/foundation-model",
-        "/docs/glossary/kv-cache",
-        "/docs/glossary/prefill",
+        "/docs/glossary/conditioning",
+        "/docs/glossary/denoising-generation",
         "/docs/concepts/prefill-decode-split",
-        "/docs/glossary/skip-connection",
         "/docs/glossary/token",
+        "/docs/glossary/transformer",
       ]),
     );
+    expect(urls).not.toContain("/docs/glossary/activation");
   });
 
   it("excludes module pages that are not architecture concepts", async () => {
@@ -124,7 +122,7 @@ describe("architecture index page render", () => {
       ["Foundation Model", "/docs/glossary/foundation-model"],
       ["KV cache", "/docs/glossary/kv-cache"],
       ["Decode", "/docs/glossary/decode"],
-      ["Prefill", "/docs/glossary/prefill"],
+      ["Prefill", "/docs/concepts/prefill"],
       ["Positional encodings", "/docs/concepts/positional-encodings"],
       ["Token", "/docs/glossary/token"],
       ["Transformer architecture", "/docs/concepts/transformer-architecture"],

@@ -1,0 +1,202 @@
+{
+  "title": "Block-Sparse Attention",
+  "description": "An attention variant that divides the attention map into token blocks and computes scores only for selected block regions instead of every token pair.",
+  "openingSummary": "Block-sparse attention is a structured sparse-attention variant that groups tokens into blocks and keeps only selected block-to-block connections, lowering long-context attention work while staying easier to implement than arbitrary sparse pair lists.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Block-sparse attention is an attention variant that divides the attention matrix into square regions of tokens and computes scores only for selected regions. Instead of deciding pair by pair, it keeps or skips whole blocks of query-key interactions at once."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Dense attention becomes expensive on long sequences because every query token can compare with every key token. Block-sparse attention lowers that cost by removing large unused regions, while the regular block layout gives kernels and memory access a more predictable shape than fully irregular sparse attention."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The sequence is split into blocks of B tokens. Each query block can attend only to key blocks chosen by a mask, such as nearby diagonal blocks plus a few farther anchor blocks. Inside an allowed block, attention is still dense, but skipped blocks are never scored. That makes block-sparse attention narrower than full attention, more structured than general sparse attention, and less purely local than sliding-window attention when the mask keeps some distant blocks."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "With sequence length n, block size B, and a block mask M_B, block-sparse attention applies the block mask before softmax so only selected query-block to key-block regions contribute weight. The formulas below contrast dense multi-head attention against a block-masked variant."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Regular attention scores every token pair. Sparse attention is the broader family that allows many different masks, including irregular ones. Sliding-window attention is a nearby local pattern that mainly keeps a diagonal band. Block-sparse attention sits between them: it is sparse because it skips many pairs, but it keeps those skips aligned to block boundaries so implementations can batch work cleanly."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Structured sparse designs such as Sparse Transformers use block-style masks to keep some long-range paths without paying for a full dense map. The idea also appears in long-context systems that mix local blocks, global blocks, or periodic landmark blocks to stretch the usable context window."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Coarse block boundaries can hide useful token-level links that do not line up with the chosen regions. Distant information is still limited by the block mask, so the model only reaches what the pattern allows. If the kept blocks are too restrictive, accuracy can drop compared with dense attention even though compute is lower. The same long-context pressure described in Why Long Context Is Hard still applies."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Block-sparse attention remains a useful reference because it shows a practical middle ground: more reach than purely local windows, less cost than dense all-pairs attention, and more hardware-friendly regularity than arbitrary sparse pair selection."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Dense multi-head attention versus block-sparse attention with selected token blocks",
+      "variants": {
+        "mha": {
+          "label": "Multi-head"
+        },
+        "blockSparse": {
+          "label": "Block-sparse"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "blockSparse": {
+          "title": "Block-Sparse Attention"
+        },
+        "mha": {
+          "title": "Multi-Head Attention"
+        },
+        "sparse": {
+          "title": "Sparse Attention"
+        },
+        "window": {
+          "title": "Sliding-Window Attention"
+        }
+      },
+      "dimensions": {
+        "connectivityPattern": "Connectivity pattern",
+        "computeScaling": "Compute scaling with sequence length",
+        "distantReach": "Distant token reach"
+      },
+      "values": {
+        "blockSparse": {
+          "connectivityPattern": "Selected block-to-block regions; dense work inside each allowed block",
+          "computeScaling": "Subquadratic when the number of kept blocks per query block stays bounded",
+          "distantReach": "Possible when the mask keeps far blocks, but only at block-level granularity"
+        },
+        "mha": {
+          "connectivityPattern": "All n-by-n query-key pairs per head",
+          "computeScaling": "Quadratic O(n²) per head",
+          "distantReach": "Any position can attend to any other position"
+        },
+        "sparse": {
+          "connectivityPattern": "General sparse pair mask with no required block regularity",
+          "computeScaling": "Subquadratic when sparsity fraction is fixed",
+          "distantReach": "Depends on the chosen sparse pattern"
+        },
+        "window": {
+          "connectivityPattern": "Fixed local band around each query token",
+          "computeScaling": "Linear O(n·W) per head when W is fixed",
+          "distantReach": "Usually no direct distant reach inside one layer"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Block-sparse attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(M_B \\odot \\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "g": {
+          "term": "B",
+          "definition": "Block size in tokens."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        },
+        "gi": {
+          "term": "M_B",
+          "definition": "Block mask that keeps only selected query-block to key-block regions."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "blockCurrentQuery": {
+        "label": "q block"
+      },
+      "block0": {
+        "label": "KV block 0"
+      },
+      "block1": {
+        "label": "KV block 1"
+      },
+      "block2": {
+        "label": "KV block 2"
+      },
+      "block3": {
+        "label": "KV block 3"
+      },
+      "block4": {
+        "label": "KV block 4"
+      },
+      "block5": {
+        "label": "KV block 5"
+      }
+    }
+  }
+}
