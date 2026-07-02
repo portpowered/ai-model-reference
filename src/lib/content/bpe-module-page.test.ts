@@ -105,15 +105,20 @@ describe("loadModulePage bpe", () => {
     expect(bpeDocument).toBeDefined();
     expect(bpeDocument?.aliases).toContain("BPE");
     expect(bpeDocument?.aliases).toContain("byte pair encoding");
+    expect(bpeDocument?.aliases).toContain("byte-pair encoding");
     expect(bpeDocument?.aliases).toContain("subword tokenizer");
     expect(bpeDocument?.tags).toContain("tokenization");
     expect(bpeDocument?.relatedIds).toContain("concept.token");
+    expect(bpeDocument?.relatedIds).toContain("concept.tokenizers-overview");
+    expect(bpeDocument?.relatedIds).toContain("module.wordpiece");
+    expect(bpeDocument?.relatedIds).toContain("module.sentencepiece");
     expect(bpeDocument?.relatedIds).toContain("model.gpt-3");
   });
 
   test.each([
     "BPE",
     "byte pair encoding",
+    "byte-pair encoding",
     "subword tokenizer",
   ] as const)("search ranks the canonical BPE page for %s", async (query) => {
     const results = await docsSearchApi.search(query);
