@@ -118,6 +118,34 @@ Representative discovery queries confirmed in tests:
 | `text-image conditioning` | yes | no (still surfaced) |
 | `multimodal encoder` | yes | yes |
 
+## Story 004 focused CLIP test retention (2026-07-02 UTC)
+
+Three focused `clip-model-*.test.*` files remain on branch head from PR #255.
+No stale reconciliation-branch tests were re-ported; no separate graph-only test
+was added because `graph.clip-architecture` render surface is covered by
+`clip-model-page.test.tsx`.
+
+| File | Cases | Retained behavior (not covered by derived validation) |
+| --- | --- | --- |
+| `clip-model-page.test.tsx` | 3 | Static render of architecture graph (`graph.clip-architecture`), module list, inline glossary links, CLIP acronym lead copy |
+| `clip-model-record.test.ts` | 3 | Reconciled `model.clip` aliases, current-main `relatedIds`/`moduleIds`/`paperIds`, no stale Stable Diffusion link |
+| `clip-model-discovery.test.tsx` | 6 | Search document metadata, representative query ranking (`CLIP_DISCOVERY_QUERIES`), curated related navigation |
+
+Omitted by design (not CLIP model landing scope or redundant with derived validation):
+
+| Omitted surface | Reason |
+| --- | --- |
+| `clip-paper-*.test.*`, `clip-image-tokenization-module-page.test.ts` | Separate paper/module lanes; not part of the CLIP model landing slice |
+| Broad route or link-topology inventories | Forbidden by derived-page-validation policy |
+| Generated registration list scans | Covered by `make validate-data` / `validateDerivedPublishedPageBundles` |
+| Standalone `clip-architecture` graph test | Graph render asserted in page test via `data-graph-id="graph.clip-architecture"` |
+
+| Check | Result |
+| --- | --- |
+| `make typecheck` | pass |
+| `make validate-data` | pass |
+| Focused CLIP model tests (12 cases) | pass |
+
 ## Slice scope (do not broaden)
 
 Limit changes to the CLIP model page bundle, `model.clip` registry record,
