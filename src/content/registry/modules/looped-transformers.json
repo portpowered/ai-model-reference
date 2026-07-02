@@ -39,7 +39,7 @@
   "secondaryClassificationIds": ["classification.module"],
   "moduleType": "other",
   "moduleFamily": "transformer-block",
-  "conceptType": "architecture",
+  "conceptType": "looped-transformer-architecture",
   "variantGroup": "looped-transformer-architecture",
   "optimizes": [
     "parameter-efficiency",
