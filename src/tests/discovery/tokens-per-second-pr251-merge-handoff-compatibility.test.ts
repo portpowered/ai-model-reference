@@ -19,6 +19,18 @@ const BATCH_061_ACTIVE_LANES = [
   "prefill-decode-split-concept-page",
 ] as const;
 
+const MERGE_HANDOFF_ALLOWLISTED_DIFF_PATHS = [
+  "docs/internal/processes/tokens-per-second-pr251-merge-handoff-relevant-files.md",
+  "docs/internal/processes/factory-linkage-relevant-files.md",
+  "src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility.test.ts",
+] as const;
+
+const MERGE_HANDOFF_PROHIBITED_DIFF_PATTERN =
+  /src\/content\/|src\/lib\/content\/|stable-diffusion|relative-position-bias|prefill-decode-split|tokens-per-second\//;
+
+const HANDOFF_ARTIFACT_PATH =
+  "docs/internal/processes/tokens-per-second-pr251-merge-handoff-relevant-files.md";
+
 interface Pr251MergeHandoffFixture {
   cleanup: () => void;
   workListPath: string;
@@ -260,6 +272,10 @@ function runScript(args: string[]): ReturnType<typeof spawnSync> {
   return spawnSync("bun", args, { cwd: process.cwd(), encoding: "utf8" });
 }
 
+function runGit(args: string[]): ReturnType<typeof spawnSync> {
+  return spawnSync("git", args, { cwd: process.cwd(), encoding: "utf8" });
+}
+
 function readStdoutText(result: ReturnType<typeof spawnSync>): string {
   return typeof result.stdout === "string"
     ? result.stdout
@@ -306,6 +322,41 @@ function assertPr251StaleMismatchLedgerEvidence(stdout: string): void {
   expect(stdout).toContain("actionable-gaps=0");
   expect(stdout).not.toContain(
     `lane-kind=active-page-implementation lane=${WORK_ITEM}`,
+  );
+}
+
+function readBranchDiffPaths(): string[] {
+  const result = runGit(["diff", "main...HEAD", "--name-only"]);
+  expect(result.status).toBe(0);
+  return readStdoutText(result)
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+}
+
+function assertMergeHandoffScopePreservation(diffPaths: string[]): void {
+  expect(diffPaths.sort()).toEqual(
+    [...MERGE_HANDOFF_ALLOWLISTED_DIFF_PATHS].sort(),
+  );
+  for (const path of diffPaths) {
+    expect(path).not.toMatch(MERGE_HANDOFF_PROHIBITED_DIFF_PATTERN);
+  }
+}
+
+function assertMergeHandoffCompleteness(handoffMarkdown: string): void {
+  expect(handoffMarkdown).toContain("## PR #251 state");
+  expect(handoffMarkdown).toContain(`pr=#${PR_NUMBER}`);
+  expect(handoffMarkdown).toContain("work-task-155");
+  expect(handoffMarkdown).toContain("idea:to-complete");
+  expect(handoffMarkdown).toContain("## Branch and worktree metadata");
+  expect(handoffMarkdown).toContain("lane-kind=stale-clean-pr-mismatch");
+  expect(handoffMarkdown).toContain("## Lane decision (story 002)");
+  expect(handoffMarkdown).toContain("safe branch refresh");
+  expect(handoffMarkdown).toContain(
+    "## Planner report classification (story 003)",
+  );
+  expect(handoffMarkdown).toContain(
+    "## Non-page scope preservation and handoff verification (story 004)",
   );
 }
 
@@ -390,6 +441,14 @@ describe("tokens-per-second PR #251 merge handoff compatibility", () => {
     } finally {
       fixture.cleanup();
     }
+  });
+
+  test("merge handoff lane preserves non-page scope and records complete handoff", () => {
+    const diffPaths = readBranchDiffPaths();
+    const handoffMarkdown = readFileSync(HANDOFF_ARTIFACT_PATH, "utf8");
+
+    assertMergeHandoffScopePreservation(diffPaths);
+    assertMergeHandoffCompleteness(handoffMarkdown);
   });
 
   test("planner reports separate PR #251 recovery from batch 061 useful active lanes", () => {

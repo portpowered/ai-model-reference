@@ -376,3 +376,102 @@ registrations, or broad queue scans.
 | Focused tests | `bun test src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility.test.ts -t "planner reports separate PR #251 recovery"` |
 | Planner classification | PR #251 `stale-clean-pr-mismatch`; batch 061 lanes `active-page-implementation`; concurrency floor excludes PR #251 |
 | Content page payload | not modified |
+
+## Non-page scope preservation and handoff verification (story 004)
+
+Captured 2026-07-02 UTC. This merge-handoff lane mutates only planner handoff
+artifacts and fixture-backed discovery tests; it does not reconcile root checkout
+drift, edit the tokens-per-second page payload, or touch active batch 061 page
+lanes.
+
+### Allowlisted branch diff (`main...HEAD`)
+
+Only these paths differ on branch `tokens-per-second-pr251-merge-handoff`:
+
+| Path | Category |
+| --- | --- |
+| `docs/internal/processes/tokens-per-second-pr251-merge-handoff-relevant-files.md` | planner handoff artifact |
+| `docs/internal/processes/factory-linkage-relevant-files.md` | planner observability index (link only) |
+| `src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility.test.ts` | fixture-backed scope and classification tests |
+
+Verification:
+
+```bash
+git diff main...HEAD --name-only
+```
+
+Observed (2026-07-02 UTC): exactly 3 allowlisted paths; no other branch diff
+files.
+
+### Prohibited paths (must remain absent from this branch diff)
+
+| Pattern | Examples | Branch diff |
+| --- | --- | --- |
+| Tokens-per-second page payload | `src/content/docs/glossary/tokens-per-second/**` | absent |
+| Batch 061 page lanes | `stable-diffusion-model-page`, `relative-position-bias-concept-page`, `prefill-decode-split-concept-page` content paths | absent |
+| Content / registry / navigation | `src/content/**`, `src/lib/content/**` | absent |
+| Unrelated factory runtime edits | `scripts/**`, `src/lib/factory/**` (except via pre-existing main history) | absent from this lane diff |
+
+```bash
+git diff main...HEAD --name-only | grep -E \
+  'src/content/|src/lib/content/|stable-diffusion|relative-position-bias|prefill-decode-split|tokens-per-second/' \
+  || echo "no prohibited paths in branch diff"
+```
+
+### Root dirty-path baseline preserved (main repo checkout)
+
+The planner root at `/Users/abdifamily/work/learn-agent-factories` had
+`root-dirty-paths=6` at story-004 capture time. This merge-handoff lane did not
+revert, reset, checkout, stage, delete, or overwrite any root dirty paths.
+
+Root reconciliation command (read-only evidence):
+
+```bash
+cd /Users/abdifamily/work/learn-agent-factories && \
+  bun ./scripts/report-planner-root-checkout-reconciliation.ts
+```
+
+Observed: `remote-present-deletions=4`, `manual-inspection=2`, preserve guidance
+unchanged. No destructive git commands (`reset --hard`, `checkout --`, forced
+push, branch deletion) were used from this merge-handoff worktree.
+
+### Content PR lane and batch 061 lanes untouched
+
+PR #251 branch `tokens-per-second-serving-metric-page` and its worktree were
+inspected read-only for evidence. Active batch 061 lanes
+(`stable-diffusion-model-page`, `relative-position-bias-concept-page`,
+`prefill-decode-split-concept-page`) were not edited from this worktree.
+
+### Final handoff completeness (meta-planner loopback)
+
+| Required evidence | Recorded in this artifact |
+| --- | --- |
+| PR #251 state (open, mergeable, checks, base/head) | [PR #251 state](#pr-251-state) — OPEN, MERGEABLE, CLEAN, head `381abe9a` |
+| Queue token state | [Conflicting factory queue evidence](#conflicting-factory-queue-evidence) — `work-task-155:failed`, `idea:to-complete` |
+| Branch/worktree metadata | [Branch and worktree metadata](#branch-and-worktree-metadata) |
+| Watchdog/linkage state | [Active PR mergeability watchdog output](#active-pr-mergeability-watchdog-output), [Queue/worktree linkage ledger output](#queueworktree-pr-linkage-ledger-output) |
+| Prior stale follow-up outcome | [Prior tokens-per-second-stale-pr-follow-up outcome](#prior-tokens-per-second-stale-pr-follow-up-outcome) |
+| Chosen recovery action | [Lane decision (story 002)](#lane-decision-story-002) — **safe branch refresh** |
+| Planner classification | [Planner report classification (story 003)](#planner-report-classification-story-003) |
+
+### Fixture-backed scope verification
+
+```bash
+unset TMPDIR
+bun test src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility.test.ts \
+  -t "merge handoff lane preserves non-page scope"
+```
+
+## Verification for story 004
+
+| Gate | Result |
+| --- | --- |
+| Typecheck | `bun run typecheck` — required when code changes land |
+| Lint | `bun run lint` — required when code changes land |
+| Focused tests | `bun test src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility.test.ts -t "merge handoff lane preserves non-page scope"` |
+| Branch diff scope | only 3 allowlisted paths on `main...HEAD` |
+| Prohibited paths | absent from branch diff |
+| Root dirty paths | preserved; no destructive git commands |
+| Content page payload | not modified |
+| Batch 061 page lanes | not modified |
+| Handoff completeness | PR #251 state, queue tokens, metadata, recovery action, and planner classification recorded above |
