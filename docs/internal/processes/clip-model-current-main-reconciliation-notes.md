@@ -56,7 +56,7 @@ Do **not** add `model.stable-diffusion` to `relatedIds`; the stale test
 | --- | --- |
 | `clip-model-record.test.ts` | Extend required `relatedIds` to include module and paper ids from main |
 | `clip-model-page.test.tsx` | Expect `module.clip-image-tokenization` in `moduleIds`; keep graph and glossary link assertions |
-| `clip-model-discovery.test.tsx` | Salvage discovery queries; verify glossary back-links still resolve after publish |
+| `clip-model-discovery.test.tsx` | Salvage discovery queries; assert curated related-doc navigation from `model.clip` (glossary pages do not reverse-link via `RelatedDocs`) |
 
 ## Implementation order (remaining PRD stories)
 
