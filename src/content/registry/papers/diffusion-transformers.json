@@ -1,0 +1,45 @@
+{
+  "id": "paper.diffusion-transformers",
+  "slug": "diffusion-transformers",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Diffusion Transformers",
+    "DiT",
+    "Scalable Diffusion Models with Transformers",
+    "DiT paper",
+    "diffusion transformer paper"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "module.diffusion-transformer-block",
+    "concept.patch",
+    "concept.denoising-generation",
+    "concept.conditioning",
+    "citation.denoising-diffusion-probabilistic-models"
+  ],
+  "citationIds": ["citation.scalable-diffusion-models-with-transformers"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "authors": ["William Peebles", "Saining Xie"],
+  "publishedAt": "2022-12-19",
+  "url": "https://arxiv.org/abs/2212.09748",
+  "arxivId": "2212.09748",
+  "introducesIds": ["module.diffusion-transformer-block"],
+  "supportsIds": [
+    "concept.patch",
+    "concept.denoising-generation",
+    "concept.conditioning"
+  ],
+  "arguesAgainstIds": [],
+  "modelIds": [],
+  "moduleIds": ["module.diffusion-transformer-block"],
+  "conceptIds": [
+    "concept.patch",
+    "concept.denoising-generation",
+    "concept.conditioning"
+  ],
+  "venue": "ICLR 2023"
+}

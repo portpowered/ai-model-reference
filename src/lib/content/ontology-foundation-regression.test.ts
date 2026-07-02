@@ -502,7 +502,12 @@ describe("ontology foundation regression coverage", () => {
       listClassificationMembers("classification.module.transformer-block").map(
         (member) => `${member.membershipType}:${member.record.id}`,
       ),
-    ).toEqual(["primary:module.manifold-constrained-hyper-connections"]);
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:module.diffusion-transformer-block",
+        "primary:module.manifold-constrained-hyper-connections",
+      ]),
+    );
     expect(
       listClassificationMembers("classification.concept.module").map(
         (member) => `${member.membershipType}:${member.record.id}`,
