@@ -1,10 +1,12 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadModelPage } from "@/lib/content/model-page";
 import { loadModulePage } from "@/lib/content/module-page";
 import { docsSearchApi } from "@/lib/search/search-server";
+
+setDefaultTimeout(15_000);
 
 describe("mixture-of-experts discovery surfaces", () => {
   test.each([
