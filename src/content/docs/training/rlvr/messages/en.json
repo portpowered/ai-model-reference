@@ -1,23 +1,23 @@
 {
   "title": "Reinforcement Learning with Verifiable Rewards",
   "description": "A post-training reinforcement learning regime where rewards come from externally checkable task outcomes rather than human preference labels alone.",
-  "openingSummary": "Reinforcement Learning with Verifiable Rewards, usually shortened to RLVR, trains a model with reinforcement learning when the reward can be computed from externally checkable outcomes such as exact answers, unit tests, or rule-based validators instead of human preference labels alone.",
+  "openingSummary": "Reinforcement Learning with Verifiable Rewards, usually shortened to RLVR, is a post-training method that uses reinforcement learning when a task outcome can be checked by an external verifier instead of relying only on human preference labels.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Reinforcement Learning with Verifiable Rewards is a post-training method where a language model acts as a policy, generates candidate answers or reasoning traces, and receives reward from deterministic checks on whether those outputs satisfy task rules. The verifier can be as simple as comparing a final answer to a reference, running code against test cases, or applying a formal checker."
+      "body": "Reinforcement Learning with Verifiable Rewards is a post-training regime for language models. The model acts as a policy, samples candidate answers or reasoning traces, and receives reward from deterministic checks on whether those outputs satisfy task rules. RLVR is most natural when the answer or behavior can be checked by an external verifier, such as exact-answer math grading, code unit tests, formal proof checkers, or other rule-based validators."
     },
     "whyItExists": {
       "title": "Why It Exists",
-      "body": "Many reasoning-heavy tasks have objectively checkable success criteria. Math problems with exact answers, programming tasks with unit tests, and logic puzzles with rule-based graders all provide reward signals without requiring humans to rank every model output. RLVR exists so teams can optimize models on those tasks with reinforcement learning while keeping the reward grounded in verifiable outcomes."
+      "body": "Many reasoning-heavy tasks have objectively checkable success criteria. A math problem may have one exact final answer, a programming task may pass or fail a test suite, and a logic puzzle may satisfy a rule-based grader. Those checks provide reward signals without asking humans to rank every model output. RLVR exists so teams can optimize models on those tasks with reinforcement learning while keeping the reward grounded in verifiable outcomes rather than subjective preference alone."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "Training starts from a capable checkpoint, often after supervised fine-tuning. The model samples responses for prompts drawn from verifiable tasks. A verifier scores each response for correctness, formatting, or other rule-based criteria. Those scores become rewards that drive policy updates through a reinforcement learning optimizer. The loop repeats until the model improves on the verifiable task distribution."
+      "body": "Training usually starts from a capable checkpoint, often after supervised fine-tuning. The model samples responses for prompts drawn from verifiable tasks. A verifier scores each response for correctness, formatting, or other rule-based criteria. Those scores become rewards that drive policy updates through a reinforcement learning optimizer. The loop repeats until the model improves on the verifiable task distribution."
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
-      "body": "Supervised fine-tuning imitates labeled demonstrations directly. RLVR instead explores multiple candidate outputs and keeps updates that score well under external checks. Reinforcement learning from human feedback relies on human preference signals or learned reward models; RLVR relies on externally checkable outcomes where those checks exist."
+      "body": "Supervised fine-tuning teaches the model to imitate labeled demonstrations directly. RLVR instead explores multiple candidate outputs and keeps updates that score well under external checks. Reinforcement learning from human feedback, often shortened to RLHF, relies on human preference signals or learned reward models. RLVR relies on externally checkable outcomes where those checks exist."
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",

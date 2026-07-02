@@ -1,4 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -14,7 +17,9 @@ import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
 const REGISTRY_ID = "training-regime.rlvr";
+const SLUG = "rlvr";
 const PAGE_URL = "/docs/training/rlvr";
+const GRAPH_ID = "graph.rlvr-training-flow";
 
 function pageBaseUrl(url: string): string {
   return url.split("#")[0] ?? url;
@@ -63,7 +68,7 @@ describe("RLVR training-regime identity contracts", () => {
       "Reinforcement Learning with Verifiable Rewards",
     );
     expect(page?.messages.openingSummary).toContain("RLVR");
-    expect(page?.messages.openingSummary).toContain("externally checkable");
+    expect(page?.messages.openingSummary).toContain("external verifier");
   });
 
   test(
@@ -148,4 +153,40 @@ describe("RLVR training-regime identity contracts", () => {
       expect(pageBaseUrl(results[0]?.url ?? "")).toBe(PAGE_URL);
     }
   });
+
+  test(
+    "rendered RLVR explainer page exposes opening summary, core sections, flow graph, tags, citations, and related docs without missing-content placeholders",
+    async () => {
+      const page = await loadTrainingRegimePage(SLUG);
+
+      const html = renderToStaticMarkup(
+        createElement(ModulePageProviders, {
+          messages: page.messages,
+          assets: page.assets,
+          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+          children: page.content,
+        }),
+      );
+
+      expect(html).toContain("Reinforcement Learning with Verifiable Rewards");
+      expect(html).toContain("external verifier");
+      expect(html).toContain("exact-answer math");
+      expect(html).toContain("What It Is");
+      expect(html).toContain("Why It Exists");
+      expect(html).toContain("How It Works");
+      expect(html).toContain("Compared To Nearby Regimes");
+      expect(html).toContain("Limitations And Failure Modes");
+      expect(html).toContain(`data-graph-id="${GRAPH_ID}"`);
+      expect(html).toContain("Task prompt");
+      expect(html).toContain("Verifier check");
+      expect(html).toContain('href="/tags/alignment"');
+      expect(html).toContain('data-testid="tag-pill-list"');
+      expect(html).toContain('data-testid="citation-list"');
+      expect(html).toContain('data-testid="curated-related-docs"');
+      expect(html).toContain("DeepSeek-R1");
+      expect(html).not.toContain("Reader Shortcut");
+      expect(html).not.toContain("missing-content");
+    },
+    { timeout: 15000 },
+  );
 });
