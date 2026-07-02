@@ -897,6 +897,7 @@ export interface LatentDiffusionRootDirtyPathClassificationReport {
   clearedCount: number;
   generatedAtUtc: string;
   intendedRemovalCount: number;
+  landedEvidenceReport: LatentDiffusionLandedEvidenceReport;
   operatorOwnedCount: number;
   pathClassifications: LatentDiffusionRootDirtyPathClassificationEvidence[];
   remoteBaseRef: string;
@@ -1158,6 +1159,7 @@ export function buildLatentDiffusionRootDirtyPathClassificationReport(
     clearedCount: countByClassification("cleared"),
     generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
     intendedRemovalCount: countByClassification("intended-removal"),
+    landedEvidenceReport,
     operatorOwnedCount: countByClassification("operator-owned-work"),
     pathClassifications,
     remoteBaseRef,
@@ -1544,6 +1546,7 @@ export function buildLatentDiffusionRootReconciliationReport(
     options.remoteBaseRef ?? detectDefaultRemoteBaseRef(repoRoot, runGit);
   const landedEvidenceReport =
     options.landedEvidenceReport ??
+    options.classificationReport?.landedEvidenceReport ??
     verifyLatentDiffusionLandedEvidence({
       generatedAtUtc: options.generatedAtUtc,
       remoteBaseRef,
