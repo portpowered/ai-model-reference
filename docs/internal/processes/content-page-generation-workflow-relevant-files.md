@@ -174,6 +174,25 @@ When adding a new page test, follow the same module-level
 `const pageDir = getDocsPageDir("<section>", "<slug>")` pattern instead of
 importing a page-specific constant.
 
+## Stale-branch reconciliation before publishing
+
+When a page slice was drafted on an older branch that predates current
+`origin/main`, reconcile before copying artifacts:
+
+1. `git fetch origin main` and inspect prerequisite registry records and page
+   bundles on main (papers, citations, modules the slice should link to).
+2. Inspect the stale branch/worktree for salvageable page bundle, registry,
+   graph, and test files only — do not merge the stale branch wholesale.
+3. Document gaps in `docs/internal/processes/<work-item>-reconciliation-notes.md`
+   (missing `relatedIds`, empty `paperIds`, modules that landed on main after
+   the stale branch).
+4. Drop stale assumptions when the target does not exist or has changed on main
+   (for example omit `model.stable-diffusion` when no canonical record exists).
+5. Port tests with updated relationship expectations rather than copying stale
+   assertions blindly.
+
+Representative reconciliation: [clip-model-current-main-reconciliation-notes.md](./clip-model-current-main-reconciliation-notes.md).
+
 ## Paired model slice discoverability
 
 When shipping the final story in a multi-model family PRD, keep discovery
