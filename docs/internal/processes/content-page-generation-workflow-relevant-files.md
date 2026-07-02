@@ -109,6 +109,13 @@ routes:
   align `conceptType` with `classification.concept.architecture`, and rely on ontology
   sidebar resolution for math/training/evaluation before editorial `sidebarGrouping`
   fallbacks for generation-and-diffusion or sequence-and-attention subgroups.
+- `validatePublishedGlossaryClassification` in `validate-glossary-classification.ts`
+  blocks published glossary pages that lack `primaryClassificationId` unless
+  `sidebarGrouping.glossary` provides an explicit editorial fallback; wired through
+  `validateDerivedPublishedPageBundles` and `make validate-data`.
+- Story-006 gates: `glossary-decomposition-validation.test.ts` for browse/search
+  placement fixtures and `glossary-decomposition-browse-built-app.test.tsx` for
+  desktop and narrow `/browse` category verification when integration tests run.
 
 ## PR-head mergeability for page branches (process executors)
 
