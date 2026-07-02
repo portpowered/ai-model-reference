@@ -1,0 +1,39 @@
+{
+  "id": "training-regime.grpo",
+  "slug": "grpo",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "GRPO",
+    "Group Relative Preference Optimization",
+    "group relative preference optimization",
+    "group relative policy optimization"
+  ],
+  "tags": ["alignment", "foundations"],
+  "relatedIds": [
+    "concept.alignment",
+    "training-regime.dpo",
+    "training-regime.post-training"
+  ],
+  "citationIds": ["citation.deepseekmath-grpo"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "releaseDate": "2024-02-05",
+  "authors": [
+    "Zhihong Shao",
+    "Peiyi Wang",
+    "Qihao Zhu",
+    "Runxin Xu",
+    "Junxiao Song"
+  ],
+  "sourceId": "citation.deepseekmath-grpo",
+  "primaryClassificationId": "classification.training.alignment",
+  "regimeType": "alignment",
+  "usedByModelIds": [],
+  "relatedModuleIds": [],
+  "paperIds": [],
+  "conceptType": "training",
+  "variantGroup": "alignment-groupwise-optimization"
+}

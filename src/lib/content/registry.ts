@@ -280,6 +280,7 @@ const canonicalClassificationDomainKinds = new Map<
 const recordsRequiringOntologyPrimaryClassification = new Set<string>([
   "concept.activation",
   "training-regime.dpo",
+  "training-regime.grpo",
   "system.routing",
 ]);
 

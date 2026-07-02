@@ -6,7 +6,7 @@
   "defaultSummaryKey": "description",
   "aliases": ["alignment training", "preference alignment"],
   "tags": ["alignment", "foundations"],
-  "relatedIds": ["training-regime.dpo"],
+  "relatedIds": ["training-regime.dpo", "training-regime.grpo"],
   "citationIds": ["citation.direct-preference-optimization"],
   "status": "published",
   "createdAt": "2026-06-21T00:00:00.000Z",
