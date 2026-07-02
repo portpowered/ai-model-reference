@@ -388,3 +388,89 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T19:21Z UTC).
+
+## Story 005 — no-op handoffs for unsafe or already-settled rows
+
+Captured 2026-07-02T19:22Z UTC. Story 002 classified six **no-op** targets (five
+primary content lanes plus one subsidiary root-dirty handoff). This story
+documents explicit no-op handoffs only; no page content, registry content, root
+work, worktree files, or queue rows were changed.
+
+### No-op reason categories
+
+| Category | Meaning in this reconciliation |
+| --- | --- |
+| **already-terminal** | Primary content trace idea/plan/review/task all `complete` / TERMINAL |
+| **unfinished-implementation** | Active handoff scope still requires operator work before any queue move |
+| **row/PR mismatch** | Row scope does not match the merged-PR drain target |
+| **missing-metadata** | Required lane/worktree metadata unavailable |
+| **inaccessible PR truth** | GitHub PR state could not be verified |
+| **unsafe root/worktree** | Move would require reverting, cleaning, or staging root/worktree state |
+
+### Primary lane no-op handoffs (five named PR rows)
+
+Re-verified with `you work list --session 930b51a6-07ce-44e6-a639-7a6217f6e864
+--name <work-item> --json` on 2026-07-02T19:22Z UTC.
+
+| Work item | PR | Observed queue state | Observed PR state | No-op reason | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| `rlhf-page` | #274 | Primary trace `trace-bd671d53944a8fbb1bb26d36bb901210`: idea/plan/review/task all `complete` / TERMINAL | MERGED (`bfc8858e` on `origin/main`) | **already-terminal** | Row already settled; no separate stale drain ideas; moving would be redundant queue churn with no drain benefit. |
+| `rlvr` (primary) | #275 | Primary trace `trace-33c44bbf53a68499cb32584bac7ef541`: all tokens `complete` / TERMINAL | MERGED (`798a0c7b` on `origin/main`) | **already-terminal** | Primary content lane finished implementation and review before PR merge; PR merge agrees with queue completion truth. |
+| `diffusion-transformer-block-module` | #276 | Primary trace `trace-d628c2883fff2f5669ef550565b2f345`: all tokens `complete` / TERMINAL | MERGED (`9136cb1e` on `origin/main`) | **already-terminal** | Row already settled; no separate stale drain ideas. |
+| `generic-sidebar-ai-adapter-extraction` | #278 | Primary trace `trace-generic-shell-hardening-batch-002`: all tokens `complete` / TERMINAL | MERGED (`c59b4c31` on `origin/main`) | **already-terminal** | Row already settled; no separate stale drain ideas. |
+| `grpo-page` | #280 | Primary trace `trace-171559a3dbb95c08cdc49729ce68750a`: all tokens `complete` / TERMINAL | MERGED (`3469da83` on `origin/main`) | **already-terminal** | Row already settled; no separate stale drain ideas. |
+
+**Operations executed for primary lanes:** none. All five rows left untouched.
+
+### Subsidiary no-op handoff — unfinished root-dirty classification
+
+| Work item | Work id | PR | Observed state | No-op reason | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| `ownerless-rlvr-navigation-root-dirty-handoff` | `batch-conflict-drift-and-root-dirty-handoff-batch-071-ownerless-rlvr-navigation-root-dirty-handoff` | #275 (related context only) | `init` / INITIAL on trace `trace-conflict-drift-and-root-dirty-handoff-batch-071` | **unfinished-implementation** | Handoff scopes root-dirty ownership classification for 12 remote-present deletions under the RLVR page/registry/test bundle and AI docs sidebar adapter files plus 16 modified shared/test/tooling paths; consume or complete would skip required analysis and risk hiding active root-checkout work. |
+
+**Next safe owner action for `ownerless-rlvr-navigation-root-dirty-handoff`:**
+
+1. Run read-only root evidence commands (`git status`, `bun run
+   report:planner-root-checkout-reconciliation`, `bun run
+   report:planner-worktree-drift-watchdog`) without reverting, staging, restoring,
+   deleting, or overwriting root dirty paths.
+2. Produce an operator-facing ownership and next-action report that separates
+   landed-work stale drift from active lane output and states whether page refill
+   remains held.
+3. Only after that classification finishes should a planner choose consume,
+   complete, or a follow-up lane — not as part of this merged-PR drain
+   reconciliation.
+
+**Operations executed for subsidiary no-op:** none. Row left at `init` / INITIAL.
+
+### Rows not covered by story 005 no-op
+
+| Work item | Story 002 outcome | Handled in |
+| --- | --- | --- |
+| `rlvr-pr275-drain` | **consume** | Story 003 — moved to `complete` / TERMINAL |
+| — | **complete** (zero rows) | Story 004 — no transitions required |
+
+### No-op summary
+
+| No-op reason | Count | Targets |
+| --- | --- | --- |
+| **already-terminal** | 5 | `rlhf-page`, `rlvr` (primary), `diffusion-transformer-block-module`, `generic-sidebar-ai-adapter-extraction`, `grpo-page` |
+| **unfinished-implementation** | 1 | `ownerless-rlvr-navigation-root-dirty-handoff` |
+| **row/PR mismatch** | 0 | — |
+| **missing-metadata** | 0 | — |
+| **inaccessible PR truth** | 0 | — |
+| **unsafe root/worktree** | 0 | — |
+
+Story 006 performs final verification that reconciliation changed only allowed
+queue state (story 003 consume) or handoff notes (stories 004–005).
+
+## Quality gate (story 005)
+
+Handoff-only no-op documentation; no page content, registry content, root work,
+worktree files, queue rows, staging area, or branch history were changed.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T19:22Z UTC).
