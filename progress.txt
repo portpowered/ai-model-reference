@@ -2,6 +2,7 @@
 - Use `bun run report:merged-pr-drain-rows-reconciliation` to capture read-only queue/PR/worktree evidence for merged PR drain rows #281/#282/#284/#286; target session is `930b51a6-07ce-44e6-a639-7a6217f6e864`.
 - When running planner reports from a nested git worktree, resolve main-repo paths via `resolveMainRepoRoot` / `resolveDefaultWorktreesDir` (`git rev-parse --git-common-dir`) so `.claude/worktrees` and root checkout evidence point at `/Users/abdifamily/work/learn-agent-factories`, not the nested worktree checkout.
 - Distinguish merged PR truth from queue completion truth explicitly; all four PRs can be MERGED while drain rows remain `init/INITIAL`.
+- Use `classifyMergedPrDrainRowOutcome` / `buildMergedPrDrainRowsClassificationReport` for per-row `consume` / `complete` / `no-op` outcomes; stale `init/INITIAL` drain rows with terminal-complete content lanes classify as `consume`, and rows without drain rows classify as `no-op` (`already-settled`).
 
 ## 2026-07-02T19:18:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-001
 - Implemented read-only merged PR drain row evidence capture module, planner report script, unit tests, and process documentation for PRs #281, #282, #284, and #286.
@@ -11,4 +12,13 @@
   - Drain rows `ltx-23-pr281-drain`, `mamba-pr282-drain`, and `glossary-decomposition-pr284-conflict-refresh` are `init/INITIAL` while content lanes are `complete/terminal`; `bpe-page` has no dedicated drain row.
   - All four merge commits are in `origin/main` lineage at SHA `209d1bd8ced0cced5fd99992fe50f23296d126e8`.
   - Use `gh pr view <number>` (not open-only `gh pr list`) for merged PR truth lookup.
+---
+
+## 2026-07-02T19:22:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-002
+- Implemented per-row `consume` / `complete` / `no-op` classification on top of the evidence report, extended the planner CLI to emit classification in text/JSON output, and documented live outcomes for all four rows.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Live classification (2026-07-02T19:21:11Z UTC): `ltx-23`/#281, `MAMBA`/#282, and `glossary-decomposition`/#284 → `consume`; `bpe-page`/#286 → `no-op` (`already-settled`, no drain row).
+  - Unavailable worktree metadata does not block classification when queue tokens and PR truth are sufficient; only stamped PR mismatch blocks via `row-pr-mismatch`.
+  - `complete` applies when content lane is terminal-complete but the drain row is non-terminal (not `init/INITIAL`).
 ---
