@@ -16,6 +16,10 @@ watchdog summaries, or planner-facing linkage reports.
   ownerless root dirty path recovery guidance.
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
+* `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` — read-only
+  terminal or near-terminal lane candidate discovery for main-branch landing
+  audits; reuse `parseTerminalCompleteWorkItems` / queue TERMINAL evidence and
+  worktree metadata instead of duplicating lane parsing.
 
 ## Planner-facing commands
 
