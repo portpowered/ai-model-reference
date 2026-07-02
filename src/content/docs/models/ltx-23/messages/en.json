@@ -36,5 +36,54 @@
     "references": {
       "title": "References"
     }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "LTX-2.3 architecture diagram showing text, image, and audio references encoded into conditioning features, cross-attention steering a diffusion transformer that denoises joint audio-video latents, and separate decoders rendering synchronized video and audio."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "syncOutput": {
+        "label": "Synchronized\nVideo + Audio",
+        "summary": "The finished clip where motion and sound were generated together rather than stitched afterward"
+      },
+      "videoDecoder": {
+        "label": "Video\nDecoder",
+        "summary": "Renders denoised video latents into viewable frames"
+      },
+      "audioDecoder": {
+        "label": "Audio\nDecoder",
+        "summary": "Renders denoised audio latents into a matching waveform"
+      },
+      "latentDenoising": {
+        "label": "Latent Audio-Video\nDenoising",
+        "summary": "Iteratively removes noise from compressed spatiotemporal audio-video latents"
+      },
+      "diffusionTransformer": {
+        "label": "Diffusion\nTransformer",
+        "summary": "Transformer backbone that predicts denoising updates across the joint latent sequence"
+      },
+      "crossAttention": {
+        "label": "Cross-\nAttention",
+        "summary": "Lets the denoiser read text and reference conditioning while updating latents"
+      },
+      "conditioning": {
+        "label": "Conditioning\nFeatures",
+        "summary": "Encoded prompt and reference signals that steer generation"
+      },
+      "textPrompt": {
+        "label": "Text\nPrompt",
+        "summary": "Natural-language instructions that describe the desired clip"
+      },
+      "imageReference": {
+        "label": "Image\nReference",
+        "summary": "Optional still image that can guide framing or visual style"
+      },
+      "audioReference": {
+        "label": "Audio\nReference",
+        "summary": "Optional audio clip that can guide tone, rhythm, or ambience"
+      }
+    }
   }
 }

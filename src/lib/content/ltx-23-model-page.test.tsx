@@ -33,7 +33,9 @@ describe("ltx-23 model page", () => {
     expect(page.messages.title).toBe("LTX-2.3");
     expect(page.messages.openingSummary).toContain("LTX-2.3");
     expect(page.messages.openingSummary).toContain("diffusion-transformer");
-    expect(page.messages.openingSummary).toContain("synchronized video and audio");
+    expect(page.messages.openingSummary).toContain(
+      "synchronized video and audio",
+    );
   });
 
   test("renders module, training, and related sections without empty placeholders", async () => {
@@ -51,6 +53,8 @@ describe("ltx-23 model page", () => {
     expect(html).toContain('href="/docs/glossary/latent-space"');
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/glossary/multimodal-model"');
+    expect(html).toContain('data-page-asset="architectureGraph"');
+    expect(html).toContain('data-graph-id="graph.ltx-23-architecture"');
     expect(html).toContain('id="important-modules"');
     expect(html).toContain("cross-attention");
     expect(html).toContain(
