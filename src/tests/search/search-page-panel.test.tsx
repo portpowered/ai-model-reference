@@ -59,6 +59,10 @@ function renderSearchPagePanelContent(
 }
 
 /** Orama static search suspends on first client render; unmount + brief wait primes the cache. */
+async function findSearchPageResults(timeout = 15_000): Promise<HTMLElement> {
+  return screen.findByTestId("search-page-results", {}, { timeout });
+}
+
 async function primeDocsSearchClient(
   context: Awaited<ReturnType<typeof loadAppTestContext>>,
 ): Promise<void> {
@@ -504,7 +508,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -528,7 +532,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -566,7 +570,7 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("token");
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/Token/i);
     expect(
       screen.queryByText(

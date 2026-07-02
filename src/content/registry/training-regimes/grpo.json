@@ -6,9 +6,9 @@
   "defaultSummaryKey": "description",
   "aliases": [
     "GRPO",
-    "Group Relative Preference Optimization",
-    "group relative preference optimization",
-    "group relative policy optimization"
+    "Group Relative Policy Optimization",
+    "group relative policy optimization",
+    "group relative preference optimization"
   ],
   "tags": ["alignment", "foundations"],
   "relatedIds": [

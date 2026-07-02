@@ -124,7 +124,8 @@ describe("GRPO training-regime slice verification (grpo-page-005)", () => {
     expect(document?.aliases).toEqual(
       expect.arrayContaining([
         "GRPO",
-        "Group Relative Preference Optimization",
+        "Group Relative Policy Optimization",
+        "group relative policy optimization",
         "group relative preference optimization",
       ]),
     );

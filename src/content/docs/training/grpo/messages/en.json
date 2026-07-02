@@ -1,23 +1,23 @@
 {
-  "title": "Group Relative Preference Optimization",
+  "title": "Group Relative Policy Optimization",
   "description": "A groupwise alignment training regime that samples multiple candidate answers for the same prompt and updates the model from how those answers rank relative to one another.",
-  "openingSummary": "Group Relative Preference Optimization, usually shortened to GRPO, is a post-training alignment method that samples several candidate answers for the same prompt, scores them as a group, and nudges the model toward answers that rank higher relative to the other samples in that group.",
+  "openingSummary": "Group Relative Policy Optimization, usually shortened to GRPO, is a post-training alignment method that samples several candidate answers for the same prompt, scores them as a group, and nudges the model toward answers that rank higher relative to the other samples in that group.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Group Relative Preference Optimization is a post-training alignment regime for language models. For each prompt, the current model samples a small group of candidate answers, compares them against one another, and uses that within-group ranking as the training signal instead of learning from one fixed preferred-versus-rejected pair."
+      "body": "Group Relative Policy Optimization is a post-training alignment regime for language models. For each prompt, the current model samples a small group of candidate answers, compares them against one another, and uses that within-group ranking as the training signal instead of learning from one fixed preferred-versus-rejected pair."
     },
     "whyItExists": {
       "title": "Why It Exists",
-      "body": "During post-training, teams often need updates that react to freshly sampled model behavior instead of only to comparisons frozen in a dataset. A single prompt can produce several candidate answers with different strengths, and the useful signal is often how those answers rank relative to one another in the same group. Group Relative Preference Optimization exists so post-training can learn from those grouped relative rankings rather than from one static preference pair at a time."
+      "body": "During post-training, teams often need updates that react to freshly sampled model behavior instead of only to comparisons frozen in a dataset. A single prompt can produce several candidate answers with different strengths, and the useful signal is often how those answers rank relative to one another in the same group. Group Relative Policy Optimization exists so post-training can learn from those grouped relative rankings rather than from one static preference pair at a time."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "For each training prompt, the current model samples several candidate answers from the same policy. A reward or preference signal scores every answer in that group. Group Relative Preference Optimization then compares those scores relative to one another: answers that beat the group average receive a positive training signal, while weaker answers are pushed down. The policy update follows that within-group ranking instead of a single fixed preferred-versus-rejected pair."
+      "body": "For each training prompt, the current model samples several candidate answers from the same policy. A reward or preference signal scores every answer in that group. Group Relative Policy Optimization then compares those scores relative to one another: answers that beat the group average receive a positive training signal, while weaker answers are pushed down. The policy update follows that within-group ranking instead of a single fixed preferred-versus-rejected pair."
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
-      "body": "Reinforcement learning from human feedback, often shortened to RLHF, is the broader feedback-driven post-training workflow: collect human rankings or comparisons, shape a reward signal, and update the policy so the model behaves more like what people prefer. Group Relative Preference Optimization is not that whole workflow. It is one specific optimization approach used inside preference-shaped or reward-shaped post-training when teams want grouped relative comparisons over freshly sampled answers.\n\nCompared with Proximal Policy Optimization, or PPO, GRPO keeps the policy-learning idea but changes how the update signal is formed. PPO-style loops often maintain a separate value model to estimate how good a trajectory is while the policy explores. GRPO instead samples a small group of answers for the same prompt, scores them together, and updates from how each answer ranks relative to the others in that group—without needing a separate value model for that grouped signal.\n\nCompared with Direct Preference Optimization, or DPO, GRPO learns from groups of sampled candidates for one prompt rather than only from stored chosen-versus-rejected pairs. DPO nudges the model toward a fixed preferred answer and away from a fixed rejected one already in the dataset. GRPO lets the current policy produce several live candidates, compares them within the group, and trains on that within-group ranking."
+      "body": "Reinforcement learning from human feedback, often shortened to RLHF, is the broader feedback-driven post-training workflow: collect human rankings or comparisons, shape a reward signal, and update the policy so the model behaves more like what people prefer. Group Relative Policy Optimization is not that whole workflow. It is one specific optimization approach used inside preference-shaped or reward-shaped post-training when teams want grouped relative comparisons over freshly sampled answers.\n\nCompared with Proximal Policy Optimization, or PPO, GRPO keeps the policy-learning idea but changes how the update signal is formed. PPO-style loops often maintain a separate value model to estimate how good a trajectory is while the policy explores. GRPO instead samples a small group of answers for the same prompt, scores them together, and updates from how each answer ranks relative to the others in that group—without needing a separate value model for that grouped signal.\n\nCompared with Direct Preference Optimization, or DPO, GRPO learns from groups of sampled candidates for one prompt rather than only from stored chosen-versus-rejected pairs. DPO nudges the model toward a fixed preferred answer and away from a fixed rejected one already in the dataset. GRPO lets the current policy produce several live candidates, compares them within the group, and trains on that within-group ranking."
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
@@ -35,7 +35,7 @@
   },
   "assets": {
     "trainingFlow": {
-      "title": "Group Relative Preference Optimization training flow",
+      "title": "Group Relative Policy Optimization training flow",
       "alt": "A three-step GRPO flow: prompt with multiple sampled answers, grouped relative objective, then the updated aligned model.",
       "caption": "GRPO compares sampled answers within each prompt group before applying the policy update.",
       "legend": {

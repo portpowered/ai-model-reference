@@ -64,9 +64,9 @@ describe("GRPO training-regime page contracts", () => {
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual([
       "GRPO",
-      "Group Relative Preference Optimization",
-      "group relative preference optimization",
+      "Group Relative Policy Optimization",
       "group relative policy optimization",
+      "group relative preference optimization",
     ]);
     expect(record?.tags).toEqual(["alignment", "foundations"]);
     expect(record?.relatedIds).toEqual([
@@ -91,7 +91,7 @@ describe("GRPO training-regime page contracts", () => {
 
     expect(page.frontmatter.kind).toBe("training-regime");
     expect(page.frontmatter.registryId).toBe(record.id);
-    expect(page.messages.title).toBe("Group Relative Preference Optimization");
+    expect(page.messages.title).toBe("Group Relative Policy Optimization");
     expect(page.messages.description).toContain("groupwise alignment");
     expect(page.messages.openingSummary).toContain("usually shortened to GRPO");
     expect(page.messages.sections?.howItWorks.body).toContain(
@@ -150,11 +150,11 @@ describe("GRPO training-regime page contracts", () => {
     const page = await loadTrainingRegimePage("grpo");
 
     expect(page.messages.openingSummary).toContain(
-      "Group Relative Preference Optimization",
+      "Group Relative Policy Optimization",
     );
     expect(page.messages.openingSummary).toContain("usually shortened to GRPO");
     expect(page.messages.sections?.whatItIs.body).toContain(
-      "Group Relative Preference Optimization",
+      "Group Relative Policy Optimization",
     );
     expect(page.messages.sections?.whatItIs.body?.toLowerCase()).toContain(
       "post-training",
@@ -193,7 +193,7 @@ describe("GRPO training-regime page contracts", () => {
     }
     expect(validatePageAssetReferences(assets, page.messages)).toEqual([]);
     expect(page.messages.assets?.trainingFlow.title).toBe(
-      "Group Relative Preference Optimization training flow",
+      "Group Relative Policy Optimization training flow",
     );
     expect(page.messages.assets?.trainingFlow.alt).toContain("sampled answers");
     expect(page.messages.assets?.trainingFlow.caption).toContain(
@@ -318,7 +318,8 @@ describe("GRPO training-regime page contracts", () => {
     expect(document?.aliases).toEqual(
       expect.arrayContaining([
         "GRPO",
-        "Group Relative Preference Optimization",
+        "Group Relative Policy Optimization",
+        "group relative policy optimization",
         "group relative preference optimization",
       ]),
     );

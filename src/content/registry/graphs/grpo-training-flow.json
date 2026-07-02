@@ -6,6 +6,7 @@
   "defaultSummaryKey": "description",
   "aliases": [
     "GRPO training flow",
+    "group relative policy optimization flow",
     "group relative preference optimization flow"
   ],
   "tags": ["alignment", "foundations"],
