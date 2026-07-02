@@ -1,9 +1,9 @@
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
-import {
-  type CommandResult,
-  type RunCommand,
+import type {
+  CommandResult,
+  RunCommand,
 } from "@/lib/factory/active-pr-mergeability-watchdog";
 import { readWorktreeLaneMetadata } from "@/lib/factory/worktree-lane-metadata";
 
@@ -110,7 +110,10 @@ export interface MergedVsQueueTruthDistinction {
   contentLaneQueueTruth: QueueCompletionTruth;
   drainRowQueueTruth: QueueCompletionTruth;
   distinctionNote: string;
-  mergedPullRequestTruth: "merged-into-origin-main" | "not-merged" | "unavailable";
+  mergedPullRequestTruth:
+    | "merged-into-origin-main"
+    | "not-merged"
+    | "unavailable";
 }
 
 export interface MergedPrDrainRowEvidence {
@@ -362,11 +365,16 @@ function missingQueueToken(workItemName: string): QueueTokenEvidence {
 function classifyContentLaneQueueTruth(
   tokens: QueueTokenEvidence[],
 ): QueueCompletionTruth {
-  if (tokens.length === 0 || tokens.every((token) => token.availability === "missing-from-queue")) {
+  if (
+    tokens.length === 0 ||
+    tokens.every((token) => token.availability === "missing-from-queue")
+  ) {
     return "missing-from-queue";
   }
 
-  const presentTokens = tokens.filter((token) => token.availability === "present");
+  const presentTokens = tokens.filter(
+    (token) => token.availability === "present",
+  );
   const hasTerminalComplete = presentTokens.some((token) => {
     const stateName = token.stateName?.toLowerCase();
     const stateType = token.stateType?.toUpperCase();
@@ -387,11 +395,16 @@ function classifyDrainRowQueueTruth(
     return "no-drain-row";
   }
 
-  if (tokens.length === 0 || tokens.every((token) => token.availability === "missing-from-queue")) {
+  if (
+    tokens.length === 0 ||
+    tokens.every((token) => token.availability === "missing-from-queue")
+  ) {
     return "missing-from-queue";
   }
 
-  const presentTokens = tokens.filter((token) => token.availability === "present");
+  const presentTokens = tokens.filter(
+    (token) => token.availability === "present",
+  );
   const hasInitial = presentTokens.some((token) => {
     const stateName = token.stateName?.toLowerCase();
     const stateType = token.stateType?.toUpperCase();
@@ -485,10 +498,10 @@ export function defaultMergedPullRequestLookupByNumber(
   }
 
   try {
-    const parsed = parseJsonText(result.stdout, `gh pr view ${pullRequestNumber}`) as Record<
-      string,
-      unknown
-    >;
+    const parsed = parseJsonText(
+      result.stdout,
+      `gh pr view ${pullRequestNumber}`,
+    ) as Record<string, unknown>;
     const number = typeof parsed.number === "number" ? parsed.number : NaN;
     if (!Number.isFinite(number)) {
       return {
@@ -506,7 +519,8 @@ export function defaultMergedPullRequestLookupByNumber(
       pullRequest: {
         number,
         url: readString(parsed.url),
-        headRefName: readString(parsed.headRefName) ?? `pr-${pullRequestNumber}`,
+        headRefName:
+          readString(parsed.headRefName) ?? `pr-${pullRequestNumber}`,
         state: readString(parsed.state),
         mergedAt: readString(parsed.mergedAt),
         mergeCommitSha,
@@ -603,7 +617,10 @@ function collectWorktreeMetadataEvidence(options: {
   runCommand: RunCommand;
   worktreesDir: string;
 }): WorktreeMetadataEvidence {
-  const worktreePath = join(options.worktreesDir, options.definition.workItemName);
+  const worktreePath = join(
+    options.worktreesDir,
+    options.definition.workItemName,
+  );
   const metadataPath = join(worktreePath, ".claude", "lane-metadata.json");
 
   if (!existsSync(worktreePath)) {
@@ -658,7 +675,9 @@ function collectRootCheckoutEvidence(options: {
     ["rev-parse", options.remoteBaseRef],
     options.repoRoot,
   );
-  const originMainSha = originResult.ok ? originResult.stdout.trim() : undefined;
+  const originMainSha = originResult.ok
+    ? originResult.stdout.trim()
+    : undefined;
 
   const statusResult = options.runCommand(
     "git",
@@ -751,7 +770,8 @@ export function collectMergedPrDrainRowsEvidence(
   const remoteBaseRef = options.remoteBaseRef ?? "origin/main";
   const mainRepoRoot = resolveMainRepoRoot(options.repoRoot, runCommand);
   const worktreesDir =
-    options.worktreesDir ?? resolveDefaultWorktreesDir(options.repoRoot, runCommand);
+    options.worktreesDir ??
+    resolveDefaultWorktreesDir(options.repoRoot, runCommand);
   const lookupPullRequestByNumber =
     options.lookupPullRequestByNumber ?? defaultMergedPullRequestLookupByNumber;
   const sourceSession =
@@ -832,7 +852,9 @@ function formatRowEvidence(row: MergedPrDrainRowEvidence): string[] {
     );
   }
 
-  lines.push(`  merged-vs-queue-truth ${row.mergedVsQueueTruth.distinctionNote}`);
+  lines.push(
+    `  merged-vs-queue-truth ${row.mergedVsQueueTruth.distinctionNote}`,
+  );
 
   return lines;
 }
@@ -947,7 +969,9 @@ export function classifyMergedPrDrainRowOutcome(
     });
   }
 
-  if (row.mergedVsQueueTruth.mergedPullRequestTruth !== "merged-into-origin-main") {
+  if (
+    row.mergedVsQueueTruth.mergedPullRequestTruth !== "merged-into-origin-main"
+  ) {
     return buildNoOpClassification({
       row,
       noOpReason: "pr-not-merged",
@@ -1077,7 +1101,9 @@ export function buildMergedPrDrainRowsClassificationReport(
   };
 }
 
-function formatClassificationRow(row: MergedPrDrainRowClassification): string[] {
+function formatClassificationRow(
+  row: MergedPrDrainRowClassification,
+): string[] {
   const lines = [
     `- work-item=${row.row.definition.workItemName} pr=#${row.pullRequestNumber} outcome=${row.outcome}`,
     `  observed-queue-state=${row.observedQueueState}`,
@@ -1137,21 +1163,22 @@ export function formatMergedPrDrainRowsReconciliationReport(
   const resolvedNoOpReport =
     options?.noOpReport ??
     buildMergedPrDrainRowsNoOpReport(classificationReport);
-  const reconciliationOutputForVerification: MergedPrDrainRowsReconciliationOutput = {
-    evidenceReport,
-    classificationReport,
-    consumeReport: resolvedConsumeReport,
-    completeReport: resolvedCompleteReport,
-    noOpReport: resolvedNoOpReport,
-    finalVerificationReport:
-      options?.finalVerificationReport ??
-      buildMergedPrDrainRowsFinalVerificationReport({
-        evidenceReport,
-        consumeReport: resolvedConsumeReport,
-        completeReport: resolvedCompleteReport,
-        noOpReport: resolvedNoOpReport,
-      }),
-  };
+  const reconciliationOutputForVerification: MergedPrDrainRowsReconciliationOutput =
+    {
+      evidenceReport,
+      classificationReport,
+      consumeReport: resolvedConsumeReport,
+      completeReport: resolvedCompleteReport,
+      noOpReport: resolvedNoOpReport,
+      finalVerificationReport:
+        options?.finalVerificationReport ??
+        buildMergedPrDrainRowsFinalVerificationReport({
+          evidenceReport,
+          consumeReport: resolvedConsumeReport,
+          completeReport: resolvedCompleteReport,
+          noOpReport: resolvedNoOpReport,
+        }),
+    };
   return `${formatMergedPrDrainRowsEvidenceReport(evidenceReport).trimEnd()}\n\n${formatMergedPrDrainRowsClassificationReport(classificationReport).trimEnd()}\n\n${formatMergedPrDrainRowsConsumeReport(resolvedConsumeReport).trimEnd()}\n\n${formatMergedPrDrainRowsCompleteReport(resolvedCompleteReport).trimEnd()}\n\n${formatMergedPrDrainRowsNoOpReport(resolvedNoOpReport).trimEnd()}\n\n${formatMergedPrDrainRowsFinalVerificationReport(reconciliationOutputForVerification.finalVerificationReport).trimEnd()}\n`;
 }
 
@@ -1207,7 +1234,10 @@ function summarizeDrainRowState(row: MergedPrDrainRowEvidence): string {
 }
 
 function isDrainRowTerminalComplete(row: MergedPrDrainRowEvidence): boolean {
-  return row.mergedVsQueueTruth.drainRowQueueTruth === "content-lane-terminal-complete";
+  return (
+    row.mergedVsQueueTruth.drainRowQueueTruth ===
+    "content-lane-terminal-complete"
+  );
 }
 
 function buildDrainRowConsumeCommand(options: {
@@ -1341,8 +1371,7 @@ export function executeMergedPrDrainRowConsumeHandoff(
   }
 
   const runCommand = options.runCommand ?? defaultRunCommand;
-  const sessionId =
-    options.sessionId ?? MERGED_PR_DRAIN_ROWS_TARGET_SESSION_ID;
+  const sessionId = options.sessionId ?? MERGED_PR_DRAIN_ROWS_TARGET_SESSION_ID;
   const consumeCommand = buildDrainRowConsumeCommand({
     drainWorkId: handoff.drainWorkId,
     sessionId,
@@ -1358,7 +1387,8 @@ export function executeMergedPrDrainRowConsumeHandoff(
       consumeCommand,
       executionStatus: "failed",
       executionFailureReason:
-        result.stderr.trim() || `consume move failed with exit ${result.exitCode}`,
+        result.stderr.trim() ||
+        `consume move failed with exit ${result.exitCode}`,
     };
   }
 
@@ -1394,7 +1424,9 @@ export function executeMergedPrDrainRowsConsumeReport(
   };
 }
 
-function formatConsumeHandoffRow(handoff: MergedPrDrainRowConsumeHandoff): string[] {
+function formatConsumeHandoffRow(
+  handoff: MergedPrDrainRowConsumeHandoff,
+): string[] {
   const lines = [
     `- work-item=${handoff.classification.row.definition.workItemName} drain-row=${handoff.drainWorkItemName} pr=#${handoff.classification.pullRequestNumber}`,
     `  consume-operation=${handoff.consumeOperation}`,
@@ -1622,7 +1654,9 @@ function detectCompleteHandoffBlocker(
     };
   }
 
-  if (row.mergedVsQueueTruth.mergedPullRequestTruth !== "merged-into-origin-main") {
+  if (
+    row.mergedVsQueueTruth.mergedPullRequestTruth !== "merged-into-origin-main"
+  ) {
     return {
       noOpReason: "pr-not-merged",
       evidenceSentence:
@@ -1650,12 +1684,14 @@ export function buildMergedPrDrainRowCompleteHandoff(
       completeOperation: MERGED_PR_DRAIN_ROW_COMPLETE_OPERATION_NAME,
       drainRowStateBefore: summarizeDrainRowState(row),
       drainWorkItemName:
-        row.definition.drainWorkItemName ?? `${row.definition.workItemName}-drain`,
+        row.definition.drainWorkItemName ??
+        `${row.definition.workItemName}-drain`,
       evidenceSentence: blocker.evidenceSentence,
       executionStatus: "reclassified-no-op",
       implementationAndReviewFinished: false,
       mergedIntoOriginMain:
-        row.mergedVsQueueTruth.mergedPullRequestTruth === "merged-into-origin-main",
+        row.mergedVsQueueTruth.mergedPullRequestTruth ===
+        "merged-into-origin-main",
       reclassifiedAsNoOp: blocker,
       sourceState: summarizeDrainRowState(row),
       targetTerminalState: MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE,
@@ -1685,11 +1721,12 @@ export function buildMergedPrDrainRowCompleteHandoff(
     : `you work move <drain-work-id> complete --session ${sessionId}`;
 
   const alreadyTerminal = isDrainRowTerminalComplete(row);
-  const executionStatus: MergedPrDrainRowCompleteExecutionStatus = alreadyTerminal
-    ? "already-complete"
-    : drainWorkId
-      ? "not-attempted"
-      : "manual-handoff-required";
+  const executionStatus: MergedPrDrainRowCompleteExecutionStatus =
+    alreadyTerminal
+      ? "already-complete"
+      : drainWorkId
+        ? "not-attempted"
+        : "manual-handoff-required";
 
   const transitionValidityReason = [
     `PR #${row.definition.pullRequestNumber} is merged into current origin/main.`,
@@ -1771,8 +1808,7 @@ export function executeMergedPrDrainRowCompleteHandoff(
   }
 
   const runCommand = options.runCommand ?? defaultRunCommand;
-  const sessionId =
-    options.sessionId ?? MERGED_PR_DRAIN_ROWS_TARGET_SESSION_ID;
+  const sessionId = options.sessionId ?? MERGED_PR_DRAIN_ROWS_TARGET_SESSION_ID;
   const completeCommand = buildDrainRowCompleteCommand({
     drainWorkId: handoff.drainWorkId,
     sessionId,
@@ -1788,7 +1824,8 @@ export function executeMergedPrDrainRowCompleteHandoff(
       completeCommand,
       executionStatus: "failed",
       executionFailureReason:
-        result.stderr.trim() || `complete move failed with exit ${result.exitCode}`,
+        result.stderr.trim() ||
+        `complete move failed with exit ${result.exitCode}`,
     };
   }
 
@@ -1824,7 +1861,9 @@ export function executeMergedPrDrainRowsCompleteReport(
   };
 }
 
-function formatCompleteHandoffRow(handoff: MergedPrDrainRowCompleteHandoff): string[] {
+function formatCompleteHandoffRow(
+  handoff: MergedPrDrainRowCompleteHandoff,
+): string[] {
   const lines = [
     `- work-item=${handoff.workItemName} drain-row=${handoff.drainWorkItemName} pr=#${handoff.classification.pullRequestNumber}`,
     `  complete-operation=${handoff.completeOperation}`,
@@ -1844,8 +1883,12 @@ function formatCompleteHandoffRow(handoff: MergedPrDrainRowCompleteHandoff): str
     lines.push(`  drain-row-state-after=${handoff.drainRowStateAfter}`);
   }
   if (handoff.reclassifiedAsNoOp) {
-    lines.push(`  reclassified-no-op-reason=${handoff.reclassifiedAsNoOp.noOpReason}`);
-    lines.push(`  reclassified-evidence=${handoff.reclassifiedAsNoOp.evidenceSentence}`);
+    lines.push(
+      `  reclassified-no-op-reason=${handoff.reclassifiedAsNoOp.noOpReason}`,
+    );
+    lines.push(
+      `  reclassified-evidence=${handoff.reclassifiedAsNoOp.evidenceSentence}`,
+    );
   }
   if (handoff.executionFailureReason) {
     lines.push(`  execution-failure=${handoff.executionFailureReason}`);
@@ -1892,7 +1935,9 @@ function resolveNoOpMissingEvidence(
       return `GitHub PR state for PR #${row.definition.pullRequestNumber}.`;
     case "missing-queue-evidence": {
       const parts: string[] = [];
-      if (row.mergedVsQueueTruth.contentLaneQueueTruth === "missing-from-queue") {
+      if (
+        row.mergedVsQueueTruth.contentLaneQueueTruth === "missing-from-queue"
+      ) {
         parts.push("content-lane queue tokens");
       }
       if (row.mergedVsQueueTruth.drainRowQueueTruth === "missing-from-queue") {
@@ -1938,7 +1983,9 @@ export function buildMergedPrDrainRowNoOpHandoff(
     classification,
     evidenceSentence: classification.evidenceSentence,
     missingEvidence: resolveNoOpMissingEvidence(classification),
-    nextSafeOwnerAction: resolveNoOpNextSafeOwnerAction(classification.noOpReason),
+    nextSafeOwnerAction: resolveNoOpNextSafeOwnerAction(
+      classification.noOpReason,
+    ),
     noOpReason: classification.noOpReason,
     observedPrState: classification.observedPrState,
     observedQueueState: classification.observedQueueState,
@@ -1953,7 +2000,9 @@ export function buildMergedPrDrainRowsNoOpReport(
 ): MergedPrDrainRowsNoOpReport {
   const rows = classificationReport.rows
     .map((classification) => buildMergedPrDrainRowNoOpHandoff(classification))
-    .filter((handoff): handoff is MergedPrDrainRowNoOpHandoff => Boolean(handoff));
+    .filter((handoff): handoff is MergedPrDrainRowNoOpHandoff =>
+      Boolean(handoff),
+    );
 
   return {
     classificationReport,
@@ -2019,8 +2068,7 @@ function isRegistryContentPath(path: string): boolean {
 
 function isPageContentPath(path: string): boolean {
   return (
-    path.startsWith("src/content/") &&
-    !path.startsWith("src/content/registry/")
+    path.startsWith("src/content/") && !path.startsWith("src/content/registry/")
   );
 }
 
@@ -2081,8 +2129,12 @@ export function collectMergedPrDrainRowsContentSafetyEvidence(options: {
     ...newWorktreeDirtyPaths.filter(isProtectedContentPath),
   ];
   const pageContentDirtyPaths = contentDirtyPaths.filter(isPageContentPath);
-  const registryContentDirtyPaths = contentDirtyPaths.filter(isRegistryContentPath);
-  const generatedContentDirtyPaths = contentDirtyPaths.filter(isGeneratedContentPath);
+  const registryContentDirtyPaths = contentDirtyPaths.filter(
+    isRegistryContentPath,
+  );
+  const generatedContentDirtyPaths = contentDirtyPaths.filter(
+    isGeneratedContentPath,
+  );
 
   const pageContentUntouched = pageContentDirtyPaths.length === 0;
   const registryContentUntouched = registryContentDirtyPaths.length === 0;
@@ -2091,7 +2143,9 @@ export function collectMergedPrDrainRowsContentSafetyEvidence(options: {
   const unrelatedWorktreeFilesUntouched = newWorktreeDirtyPaths.length === 0;
 
   const evidenceSentence = [
-    pageContentUntouched ? "page content untouched" : "page content dirty paths observed",
+    pageContentUntouched
+      ? "page content untouched"
+      : "page content dirty paths observed",
     registryContentUntouched
       ? "registry content untouched"
       : "registry content dirty paths observed",
@@ -2201,10 +2255,7 @@ function buildDefaultVerificationCommandEvidence(): MergedPrDrainRowsVerificatio
 export function buildMergedPrDrainRowsFinalVerificationReport(
   output: Pick<
     MergedPrDrainRowsReconciliationOutput,
-    | "completeReport"
-    | "consumeReport"
-    | "evidenceReport"
-    | "noOpReport"
+    "completeReport" | "consumeReport" | "evidenceReport" | "noOpReport"
   >,
   options?: {
     generatedAtUtc?: string;
@@ -2247,7 +2298,8 @@ export function buildMergedPrDrainRowsFinalVerificationReport(
     queueTransitions,
     queueTransitionOccurred,
     verificationCommands:
-      options?.verificationCommands ?? buildDefaultVerificationCommandEvidence(),
+      options?.verificationCommands ??
+      buildDefaultVerificationCommandEvidence(),
   };
 }
 
@@ -2324,12 +2376,18 @@ export function buildMergedPrDrainRowsReconciliationOutput(
   const sessionId = options?.sessionId ?? evidenceReport.sourceSession;
   const classificationReport =
     buildMergedPrDrainRowsClassificationReport(evidenceReport);
-  let consumeReport = buildMergedPrDrainRowsConsumeReport(classificationReport, {
-    sessionId,
-  });
-  let completeReport = buildMergedPrDrainRowsCompleteReport(classificationReport, {
-    sessionId,
-  });
+  let consumeReport = buildMergedPrDrainRowsConsumeReport(
+    classificationReport,
+    {
+      sessionId,
+    },
+  );
+  let completeReport = buildMergedPrDrainRowsCompleteReport(
+    classificationReport,
+    {
+      sessionId,
+    },
+  );
 
   const executionOptions = {
     runCommand: options?.runCommand,

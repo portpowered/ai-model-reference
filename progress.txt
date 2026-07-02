@@ -4,6 +4,7 @@
 - Distinguish merged PR truth from queue completion truth explicitly; all four PRs can be MERGED while drain rows remain `init/INITIAL`.
 - Use `classifyMergedPrDrainRowOutcome` / `buildMergedPrDrainRowsClassificationReport` for per-row `consume` / `complete` / `no-op` outcomes; stale `init/INITIAL` drain rows with terminal-complete content lanes classify as `consume`, and rows without drain rows classify as `no-op` (`already-settled`).
 - Use `buildMergedPrDrainRowNoOpHandoff` / `buildMergedPrDrainRowsNoOpReport` for explicit no-op handoffs with `row-left-untouched=true`, `missing-evidence`, and `next-safe-owner-action` when blockers apply.
+- Use `buildMergedPrDrainRowsFinalVerificationReport` for post-reconciliation root checkout, baseline-aware content safety (`observedDirtyPaths` on root/worktree evidence), and queue transition summaries; compare dirty paths with `findNewDirtyPaths` so pre-existing worktree drift does not fail verification.
 - Accepted consume operation for standalone merged drain idea rows is `manual-drain-row-move-to-complete` via `you work move <drain-work-id> complete --session 930b51a6-07ce-44e6-a639-7a6217f6e864`; the standard factory `consume` workstation does not apply without a paired task token.
 - Accepted complete operation for non-terminal drain rows is `manual-drain-row-terminal-completion` via the same `you work move <drain-work-id> complete --session <session>` command; `buildMergedPrDrainRowCompleteHandoff` reclassifies to no-op when unfinished implementation/review, PR mismatch, or missing metadata block the transition.
 
@@ -51,4 +52,13 @@
   - Live no-op state (2026-07-02T19:35Z UTC): all four rows are `no-op` — three `already-terminal` post-consume drain rows plus `bpe-page` `already-settled`.
   - No-op handoffs are read-only; they never mutate queue rows and surface owner actions only for unfinished implementation/review or PR/queue blockers.
   - `buildMergedPrDrainRowsReconciliationOutput` now always includes `noOpReport` alongside consume and complete reports.
+---
+
+## 2026-07-02T19:45:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-006
+- Implemented final verification report with post-reconciliation root checkout evidence, baseline-aware content safety (`observedDirtyPaths` on root/worktree evidence), queue transition summaries, unified CLI/JSON output, and process documentation.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Do not `.trim()` git porcelain lines before `slice(3)` — trimming removes the leading status-column space and corrupts path extraction.
+  - Compare dirty-path baselines with `findNewDirtyPaths` so pre-existing worktree drift does not fail final verification; capture `observedDirtyPaths` during evidence gathering.
+  - Live final state (2026-07-02T19:45Z UTC): all four rows `left-untouched`; queue transitions occurred in story 003; read-only verification passes with content safety intact.
 ---

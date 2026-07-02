@@ -3,12 +3,12 @@ import {
   buildMergedPrDrainRowCompleteHandoff,
   buildMergedPrDrainRowConsumeHandoff,
   buildMergedPrDrainRowNoOpHandoff,
+  buildMergedPrDrainRowQueueTransitionEvidence,
   buildMergedPrDrainRowsClassificationReport,
   buildMergedPrDrainRowsCompleteReport,
   buildMergedPrDrainRowsConsumeReport,
-  buildMergedPrDrainRowsNoOpReport,
-  buildMergedPrDrainRowQueueTransitionEvidence,
   buildMergedPrDrainRowsFinalVerificationReport,
+  buildMergedPrDrainRowsNoOpReport,
   buildMergedPrDrainRowsReconciliationOutput,
   classifyMergedPrDrainRowOutcome,
   collectMergedPrDrainRowsContentSafetyEvidence,
@@ -121,7 +121,11 @@ describe("collectMergedPrDrainRowsEvidence", () => {
         },
       }),
       runCommand: (binary, args) => {
-        if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+        if (
+          binary === "git" &&
+          args[0] === "rev-parse" &&
+          args[1] === "--git-common-dir"
+        ) {
           return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
         }
         if (binary === "git" && args[0] === "merge-base") {
@@ -145,12 +149,16 @@ describe("collectMergedPrDrainRowsEvidence", () => {
     expect(report.sourceSession).toBe(SESSION_ID);
     expect(report.rows).toHaveLength(4);
 
-    const ltxRow = report.rows.find((row) => row.definition.workItemName === "ltx-23");
+    const ltxRow = report.rows.find(
+      (row) => row.definition.workItemName === "ltx-23",
+    );
     expect(ltxRow?.pullRequestTruth.state).toBe("MERGED");
     expect(ltxRow?.mergedVsQueueTruth.contentLaneQueueTruth).toBe(
       "content-lane-terminal-complete",
     );
-    expect(ltxRow?.mergedVsQueueTruth.drainRowQueueTruth).toBe("drain-row-initial");
+    expect(ltxRow?.mergedVsQueueTruth.drainRowQueueTruth).toBe(
+      "drain-row-initial",
+    );
     expect(ltxRow?.mergedVsQueueTruth.mergedPullRequestTruth).toBe(
       "merged-into-origin-main",
     );
@@ -158,7 +166,9 @@ describe("collectMergedPrDrainRowsEvidence", () => {
       "queue-completion-truth-is-not-inferred-from-pr-status-alone",
     );
 
-    const bpeRow = report.rows.find((row) => row.definition.workItemName === "bpe-page");
+    const bpeRow = report.rows.find(
+      (row) => row.definition.workItemName === "bpe-page",
+    );
     expect(bpeRow?.mergedVsQueueTruth.drainRowQueueTruth).toBe("no-drain-row");
     expect(bpeRow?.mergedVsQueueTruth.contentLaneQueueTruth).toBe(
       "content-lane-terminal-complete",
@@ -183,7 +193,11 @@ describe("collectMergedPrDrainRowsEvidence", () => {
         },
       }),
       runCommand: (binary, args) => {
-        if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+        if (
+          binary === "git" &&
+          args[0] === "rev-parse" &&
+          args[1] === "--git-common-dir"
+        ) {
           return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
         }
         if (binary === "git" && args[0] === "merge-base") {
@@ -242,7 +256,11 @@ function buildClassificationFixtureReport() {
       },
     }),
     runCommand: (binary, args) => {
-      if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+      if (
+        binary === "git" &&
+        args[0] === "rev-parse" &&
+        args[1] === "--git-common-dir"
+      ) {
         return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
       }
       if (binary === "git" && args[0] === "merge-base") {
@@ -274,10 +292,14 @@ describe("classifyMergedPrDrainRowOutcome", () => {
         (candidate) => candidate.definition.workItemName === workItemName,
       );
       expect(row).toBeDefined();
-      const classification = classifyMergedPrDrainRowOutcome(row as NonNullable<typeof row>);
+      const classification = classifyMergedPrDrainRowOutcome(
+        row as NonNullable<typeof row>,
+      );
       expect(classification.outcome).toBe("consume");
       expect(classification.observedPrState).toContain("MERGED");
-      expect(classification.observedQueueState).toContain("drain-row=drain-row-initial");
+      expect(classification.observedQueueState).toContain(
+        "drain-row=drain-row-initial",
+      );
       expect(classification.evidenceSentence).toContain("terminal-complete");
     }
   });
@@ -289,17 +311,23 @@ describe("classifyMergedPrDrainRowOutcome", () => {
     );
     expect(bpeRow).toBeDefined();
 
-    const classification = classifyMergedPrDrainRowOutcome(bpeRow as NonNullable<typeof bpeRow>);
+    const classification = classifyMergedPrDrainRowOutcome(
+      bpeRow as NonNullable<typeof bpeRow>,
+    );
     expect(classification.outcome).toBe("no-op");
     expect(classification.noOpReason).toBe("already-settled");
-    expect(classification.observedQueueState).toContain("drain-row=no-drain-row");
+    expect(classification.observedQueueState).toContain(
+      "drain-row=no-drain-row",
+    );
   });
 
   test("classifies open PR truth as no-op with pr-not-merged reason", () => {
     const report = buildClassificationFixtureReport();
     const ltxRow = report.rows.find(
       (row) => row.definition.workItemName === "ltx-23",
-    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+    ) as NonNullable<
+      ReturnType<typeof buildClassificationFixtureReport>["rows"][number]
+    >;
 
     ltxRow.pullRequestTruth.state = "OPEN";
     ltxRow.pullRequestTruth.availability = "open";
@@ -314,7 +342,9 @@ describe("classifyMergedPrDrainRowOutcome", () => {
     const report = buildClassificationFixtureReport();
     const ltxRow = report.rows.find(
       (row) => row.definition.workItemName === "ltx-23",
-    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+    ) as NonNullable<
+      ReturnType<typeof buildClassificationFixtureReport>["rows"][number]
+    >;
 
     ltxRow.mergedVsQueueTruth.drainRowQueueTruth = "non-terminal";
     ltxRow.drainRowTokens = [
@@ -329,7 +359,9 @@ describe("classifyMergedPrDrainRowOutcome", () => {
 
     const classification = classifyMergedPrDrainRowOutcome(ltxRow);
     expect(classification.outcome).toBe("complete");
-    expect(classification.evidenceSentence).toContain("terminal completion transition");
+    expect(classification.evidenceSentence).toContain(
+      "terminal completion transition",
+    );
   });
 
   test("builds and formats a classification report for all four rows", () => {
@@ -350,8 +382,11 @@ describe("classifyMergedPrDrainRowOutcome", () => {
       { workItemName: "bpe-page", outcome: "no-op" },
     ]);
 
-    const formatted = formatMergedPrDrainRowsClassificationReport(classificationReport);
-    expect(formatted).toContain("Merged PR Drain Rows Reconciliation — Classification");
+    const formatted =
+      formatMergedPrDrainRowsClassificationReport(classificationReport);
+    expect(formatted).toContain(
+      "Merged PR Drain Rows Reconciliation — Classification",
+    );
     expect(formatted).toContain("work-item=ltx-23 pr=#281 outcome=consume");
     expect(formatted).toContain("work-item=bpe-page pr=#286 outcome=no-op");
 
@@ -374,7 +409,8 @@ describe("buildMergedPrDrainRowConsumeHandoff", () => {
     const evidenceReport = buildClassificationFixtureReport();
     const classificationReport =
       buildMergedPrDrainRowsClassificationReport(evidenceReport);
-    const consumeReport = buildMergedPrDrainRowsConsumeReport(classificationReport);
+    const consumeReport =
+      buildMergedPrDrainRowsConsumeReport(classificationReport);
 
     expect(consumeReport.rows).toHaveLength(3);
     expect(consumeReport.rows.map((row) => row.drainWorkItemName)).toEqual([
@@ -393,15 +429,20 @@ describe("buildMergedPrDrainRowConsumeHandoff", () => {
     expect(ltxHandoff.mergedIntoOriginMain).toBe(true);
     expect(ltxHandoff.noUnfinishedImplementationOrReview).toBe(true);
     expect(ltxHandoff.executionStatus).toBe("not-attempted");
-    expect(ltxHandoff.evidenceSentence).toContain("merged into current origin/main");
+    expect(ltxHandoff.evidenceSentence).toContain(
+      "merged into current origin/main",
+    );
   });
 
   test("marks already-terminal drain rows as already-complete without a pending move", () => {
     const evidenceReport = buildClassificationFixtureReport();
     const ltxRow = evidenceReport.rows.find(
       (row) => row.definition.workItemName === "ltx-23",
-    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
-    ltxRow.mergedVsQueueTruth.drainRowQueueTruth = "content-lane-terminal-complete";
+    ) as NonNullable<
+      ReturnType<typeof buildClassificationFixtureReport>["rows"][number]
+    >;
+    ltxRow.mergedVsQueueTruth.drainRowQueueTruth =
+      "content-lane-terminal-complete";
     ltxRow.drainRowTokens = [
       {
         availability: "present",
@@ -424,7 +465,8 @@ describe("buildMergedPrDrainRowConsumeHandoff", () => {
     const evidenceReport = buildClassificationFixtureReport();
     const classificationReport =
       buildMergedPrDrainRowsClassificationReport(evidenceReport);
-    const consumeReport = buildMergedPrDrainRowsConsumeReport(classificationReport);
+    const consumeReport =
+      buildMergedPrDrainRowsConsumeReport(classificationReport);
     const ltxHandoff = consumeReport.rows[0];
 
     const executed = executeMergedPrDrainRowConsumeHandoff(ltxHandoff, {
@@ -459,11 +501,16 @@ describe("buildMergedPrDrainRowConsumeHandoff", () => {
     const evidenceReport = buildClassificationFixtureReport();
     const classificationReport =
       buildMergedPrDrainRowsClassificationReport(evidenceReport);
-    const consumeReport = buildMergedPrDrainRowsConsumeReport(classificationReport);
+    const consumeReport =
+      buildMergedPrDrainRowsConsumeReport(classificationReport);
 
     const formatted = formatMergedPrDrainRowsConsumeReport(consumeReport);
-    expect(formatted).toContain("Merged PR Drain Rows Reconciliation — Consume Handoff");
-    expect(formatted).toContain("consume-operation=manual-drain-row-move-to-complete");
+    expect(formatted).toContain(
+      "Merged PR Drain Rows Reconciliation — Consume Handoff",
+    );
+    expect(formatted).toContain(
+      "consume-operation=manual-drain-row-move-to-complete",
+    );
     expect(formatted).toContain("drain-row=ltx-23-pr281-drain");
     expect(formatted).toContain("execution-status=not-attempted");
 
@@ -485,7 +532,9 @@ describe("buildMergedPrDrainRowCompleteHandoff", () => {
     const evidenceReport = buildClassificationFixtureReport();
     const ltxRow = evidenceReport.rows.find(
       (row) => row.definition.workItemName === "ltx-23",
-    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+    ) as NonNullable<
+      ReturnType<typeof buildClassificationFixtureReport>["rows"][number]
+    >;
 
     ltxRow.mergedVsQueueTruth.drainRowQueueTruth = "non-terminal";
     ltxRow.drainRowTokens = [
@@ -518,14 +567,20 @@ describe("buildMergedPrDrainRowCompleteHandoff", () => {
       MERGED_PR_DRAIN_ROW_COMPLETE_OPERATION_NAME,
     );
     expect(handoff.sourceState).toBe("in-review/processing");
-    expect(handoff.targetTerminalState).toBe(MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE);
+    expect(handoff.targetTerminalState).toBe(
+      MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE,
+    );
     expect(handoff.completeCommand).toBe(
       `you work move batch-pr281-ltx-drain complete --session ${SESSION_ID}`,
     );
     expect(handoff.mergedIntoOriginMain).toBe(true);
     expect(handoff.implementationAndReviewFinished).toBe(true);
-    expect(handoff.transitionValidityReason).toContain("merged into current origin/main");
-    expect(handoff.evidenceSentence).toContain("in-review/processing -> complete/terminal");
+    expect(handoff.transitionValidityReason).toContain(
+      "merged into current origin/main",
+    );
+    expect(handoff.evidenceSentence).toContain(
+      "in-review/processing -> complete/terminal",
+    );
     expect(handoff.executionStatus).toBe("not-attempted");
   });
 
@@ -533,7 +588,9 @@ describe("buildMergedPrDrainRowCompleteHandoff", () => {
     const evidenceReport = buildClassificationFixtureReport();
     const ltxRow = evidenceReport.rows.find(
       (row) => row.definition.workItemName === "ltx-23",
-    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+    ) as NonNullable<
+      ReturnType<typeof buildClassificationFixtureReport>["rows"][number]
+    >;
 
     ltxRow.mergedVsQueueTruth.drainRowQueueTruth = "non-terminal";
     ltxRow.drainRowTokens = [
@@ -566,7 +623,9 @@ describe("buildMergedPrDrainRowCompleteHandoff", () => {
     const evidenceReport = buildClassificationFixtureReport();
     const ltxRow = evidenceReport.rows.find(
       (row) => row.definition.workItemName === "ltx-23",
-    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+    ) as NonNullable<
+      ReturnType<typeof buildClassificationFixtureReport>["rows"][number]
+    >;
 
     ltxRow.mergedVsQueueTruth.drainRowQueueTruth = "non-terminal";
     ltxRow.drainRowTokens = [
@@ -605,7 +664,9 @@ describe("buildMergedPrDrainRowCompleteHandoff", () => {
     const evidenceReport = buildClassificationFixtureReport();
     const ltxRow = evidenceReport.rows.find(
       (row) => row.definition.workItemName === "ltx-23",
-    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+    ) as NonNullable<
+      ReturnType<typeof buildClassificationFixtureReport>["rows"][number]
+    >;
 
     ltxRow.mergedVsQueueTruth.drainRowQueueTruth = "non-terminal";
     ltxRow.drainRowTokens = [
@@ -629,32 +690,37 @@ describe("buildMergedPrDrainRowCompleteHandoff", () => {
     const handoff = buildMergedPrDrainRowCompleteHandoff(classification);
     expect(handoff).not.toBeNull();
 
-    const executed = executeMergedPrDrainRowCompleteHandoff(handoff as NonNullable<typeof handoff>, {
-      runCommand: (binary, args) => {
-        expect(binary).toBe("you");
-        expect(args).toEqual([
-          "work",
-          "move",
-          "batch-pr281-ltx-drain",
-          "complete",
-          "--session",
-          SESSION_ID,
-        ]);
-        return {
-          ok: true,
-          stdout: JSON.stringify({
-            workId: "batch-pr281-ltx-drain",
-            previousState: "in-review",
-            newState: "complete",
-          }),
-          stderr: "",
-          exitCode: 0,
-        };
+    const executed = executeMergedPrDrainRowCompleteHandoff(
+      handoff as NonNullable<typeof handoff>,
+      {
+        runCommand: (binary, args) => {
+          expect(binary).toBe("you");
+          expect(args).toEqual([
+            "work",
+            "move",
+            "batch-pr281-ltx-drain",
+            "complete",
+            "--session",
+            SESSION_ID,
+          ]);
+          return {
+            ok: true,
+            stdout: JSON.stringify({
+              workId: "batch-pr281-ltx-drain",
+              previousState: "in-review",
+              newState: "complete",
+            }),
+            stderr: "",
+            exitCode: 0,
+          };
+        },
       },
-    });
+    );
 
     expect(executed.executionStatus).toBe("executed");
-    expect(executed.drainRowStateAfter).toBe(MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE);
+    expect(executed.drainRowStateAfter).toBe(
+      MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE,
+    );
   });
 
   test("formats and serializes complete handoff reports with empty live rows", () => {
@@ -666,7 +732,9 @@ describe("buildMergedPrDrainRowCompleteHandoff", () => {
     expect(completeReport.rows).toHaveLength(0);
 
     const formatted = formatMergedPrDrainRowsCompleteReport(completeReport);
-    expect(formatted).toContain("Merged PR Drain Rows Reconciliation — Complete Handoff");
+    expect(formatted).toContain(
+      "Merged PR Drain Rows Reconciliation — Complete Handoff",
+    );
     expect(formatted).toContain(
       `complete-operation=${MERGED_PR_DRAIN_ROW_COMPLETE_OPERATION_NAME}`,
     );
@@ -756,7 +824,11 @@ function buildPostConsumeFixtureReport() {
       },
     }),
     runCommand: (binary, args) => {
-      if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+      if (
+        binary === "git" &&
+        args[0] === "rev-parse" &&
+        args[1] === "--git-common-dir"
+      ) {
         return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
       }
       if (binary === "git" && args[0] === "merge-base") {
@@ -804,11 +876,13 @@ describe("buildMergedPrDrainRowNoOpHandoff", () => {
     const classificationReport =
       buildMergedPrDrainRowsClassificationReport(evidenceReport);
 
-    expect(classificationReport.rows.every((row) => row.outcome === "no-op")).toBe(
-      true,
-    );
+    expect(
+      classificationReport.rows.every((row) => row.outcome === "no-op"),
+    ).toBe(true);
 
-    const ltxHandoff = buildMergedPrDrainRowNoOpHandoff(classificationReport.rows[0]);
+    const ltxHandoff = buildMergedPrDrainRowNoOpHandoff(
+      classificationReport.rows[0],
+    );
     expect(ltxHandoff?.noOpReason).toBe("already-terminal");
     expect(ltxHandoff?.rowLeftUntouched).toBe(true);
     expect(ltxHandoff?.observedQueueState).toContain(
@@ -820,7 +894,9 @@ describe("buildMergedPrDrainRowNoOpHandoff", () => {
     const report = buildClassificationFixtureReport();
     const ltxRow = report.rows.find(
       (row) => row.definition.workItemName === "ltx-23",
-    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+    ) as NonNullable<
+      ReturnType<typeof buildClassificationFixtureReport>["rows"][number]
+    >;
 
     ltxRow.contentLaneTokens = [
       {
@@ -846,7 +922,9 @@ describe("buildMergedPrDrainRowNoOpHandoff", () => {
     const report = buildClassificationFixtureReport();
     const ltxRow = report.rows.find(
       (row) => row.definition.workItemName === "ltx-23",
-    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+    ) as NonNullable<
+      ReturnType<typeof buildClassificationFixtureReport>["rows"][number]
+    >;
 
     ltxRow.pullRequestTruth.availability = "unavailable";
     ltxRow.mergedVsQueueTruth.mergedPullRequestTruth = "unavailable";
@@ -873,7 +951,9 @@ describe("buildMergedPrDrainRowNoOpHandoff", () => {
     ]);
 
     const formatted = formatMergedPrDrainRowsNoOpReport(noOpReport);
-    expect(formatted).toContain("Merged PR Drain Rows Reconciliation — No-Op Handoff");
+    expect(formatted).toContain(
+      "Merged PR Drain Rows Reconciliation — No-Op Handoff",
+    );
     expect(formatted).toContain("work-item=ltx-23 pr=#281");
     expect(formatted).toContain("no-op-reason=already-terminal");
     expect(formatted).toContain("row-left-untouched=true");
@@ -894,11 +974,14 @@ describe("buildMergedPrDrainRowNoOpHandoff", () => {
     expect(output.consumeReport.rows).toHaveLength(0);
     expect(output.completeReport.rows).toHaveLength(0);
 
-    const formatted = formatMergedPrDrainRowsReconciliationReport(evidenceReport, {
-      consumeReport: output.consumeReport,
-      completeReport: output.completeReport,
-      noOpReport: output.noOpReport,
-    });
+    const formatted = formatMergedPrDrainRowsReconciliationReport(
+      evidenceReport,
+      {
+        consumeReport: output.consumeReport,
+        completeReport: output.completeReport,
+        noOpReport: output.noOpReport,
+      },
+    );
     expect(formatted).toContain("No-Op Handoff");
     expect(formatted).toContain("no-op-reason=already-terminal");
   });
@@ -909,7 +992,11 @@ describe("buildMergedPrDrainRowsFinalVerificationReport", () => {
     const evidenceReport = buildPostConsumeFixtureReport();
     const output = buildMergedPrDrainRowsReconciliationOutput(evidenceReport, {
       runCommand: (binary, args) => {
-        if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+        if (
+          binary === "git" &&
+          args[0] === "rev-parse" &&
+          args[1] === "--git-common-dir"
+        ) {
           return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
         }
         if (binary === "git" && args[0] === "rev-parse") {
@@ -943,7 +1030,9 @@ describe("buildMergedPrDrainRowsFinalVerificationReport", () => {
     expect(report.verificationCommands.length).toBeGreaterThan(0);
 
     const formatted = formatMergedPrDrainRowsFinalVerificationReport(report);
-    expect(formatted).toContain("Merged PR Drain Rows Reconciliation — Final Verification");
+    expect(formatted).toContain(
+      "Merged PR Drain Rows Reconciliation — Final Verification",
+    );
     expect(formatted).toContain("pre-existing-dirty-state-untouched=true");
     expect(formatted).toContain("queue-transition-occurred=false");
     expect(formatted).toContain("transition=left-untouched");
@@ -952,7 +1041,9 @@ describe("buildMergedPrDrainRowsFinalVerificationReport", () => {
     const serialized = JSON.parse(
       serializeMergedPrDrainRowsFinalVerificationReport(report),
     ) as { queueTransitions: Array<{ transitionKind: string }> };
-    expect(serialized.queueTransitions.map((row) => row.transitionKind)).toEqual([
+    expect(
+      serialized.queueTransitions.map((row) => row.transitionKind),
+    ).toEqual([
       "left-untouched",
       "left-untouched",
       "left-untouched",
@@ -964,7 +1055,8 @@ describe("buildMergedPrDrainRowsFinalVerificationReport", () => {
     const evidenceReport = buildClassificationFixtureReport();
     const classificationReport =
       buildMergedPrDrainRowsClassificationReport(evidenceReport);
-    const consumeReport = buildMergedPrDrainRowsConsumeReport(classificationReport);
+    const consumeReport =
+      buildMergedPrDrainRowsConsumeReport(classificationReport);
     const executedConsumeReport = {
       classificationReport,
       rows: consumeReport.rows.map((handoff, index) =>
@@ -981,7 +1073,8 @@ describe("buildMergedPrDrainRowsFinalVerificationReport", () => {
       evidenceReport,
       classificationReport,
       consumeReport: executedConsumeReport,
-      completeReport: buildMergedPrDrainRowsCompleteReport(classificationReport),
+      completeReport:
+        buildMergedPrDrainRowsCompleteReport(classificationReport),
       noOpReport: buildMergedPrDrainRowsNoOpReport(classificationReport),
     };
 
@@ -1002,7 +1095,11 @@ describe("buildMergedPrDrainRowsFinalVerificationReport", () => {
     const report = buildMergedPrDrainRowsFinalVerificationReport(output, {
       generatedAtUtc: "2026-07-02T19:40:00.000Z",
       runCommand: (binary, args) => {
-        if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+        if (
+          binary === "git" &&
+          args[0] === "rev-parse" &&
+          args[1] === "--git-common-dir"
+        ) {
           return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
         }
         if (binary === "git" && args[0] === "rev-parse") {
@@ -1037,10 +1134,18 @@ describe("buildMergedPrDrainRowsFinalVerificationReport", () => {
       },
       repoRoot: "/tmp/root-repo",
       runCommand: (binary, args, cwd) => {
-        if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+        if (
+          binary === "git" &&
+          args[0] === "rev-parse" &&
+          args[1] === "--git-common-dir"
+        ) {
           return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
         }
-        if (binary === "git" && args[0] === "status" && cwd === "/tmp/root-repo") {
+        if (
+          binary === "git" &&
+          args[0] === "status" &&
+          cwd === "/tmp/root-repo"
+        ) {
           return {
             ok: true,
             stdout: " M src/content/docs/modules/bpe.mdx\n",
@@ -1064,14 +1169,20 @@ describe("buildMergedPrDrainRowsFinalVerificationReport", () => {
     expect(safety.observedContentDirtyPaths).toContain(
       "src/content/docs/modules/bpe.mdx",
     );
-    expect(safety.evidenceSentence).toContain("page content dirty paths observed");
+    expect(safety.evidenceSentence).toContain(
+      "page content dirty paths observed",
+    );
   });
 
   test("includes final verification in unified reconciliation output", () => {
     const evidenceReport = buildPostConsumeFixtureReport();
     const output = buildMergedPrDrainRowsReconciliationOutput(evidenceReport, {
       runCommand: (binary, args) => {
-        if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+        if (
+          binary === "git" &&
+          args[0] === "rev-parse" &&
+          args[1] === "--git-common-dir"
+        ) {
           return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
         }
         if (binary === "git" && args[0] === "rev-parse") {
@@ -1091,12 +1202,15 @@ describe("buildMergedPrDrainRowsFinalVerificationReport", () => {
 
     expect(output.finalVerificationReport.queueTransitions).toHaveLength(4);
 
-    const formatted = formatMergedPrDrainRowsReconciliationReport(evidenceReport, {
-      consumeReport: output.consumeReport,
-      completeReport: output.completeReport,
-      finalVerificationReport: output.finalVerificationReport,
-      noOpReport: output.noOpReport,
-    });
+    const formatted = formatMergedPrDrainRowsReconciliationReport(
+      evidenceReport,
+      {
+        consumeReport: output.consumeReport,
+        completeReport: output.completeReport,
+        finalVerificationReport: output.finalVerificationReport,
+        noOpReport: output.noOpReport,
+      },
+    );
     expect(formatted).toContain("Final Verification");
     expect(formatted).toContain("content-safety page-content-untouched=true");
   });
