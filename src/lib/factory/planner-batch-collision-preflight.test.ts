@@ -510,6 +510,38 @@ describe("planner batch collision preflight", () => {
     );
   });
 
+  test("keeps candidate present with explicit active-lane evidence gap when linkage ledger is unavailable", () => {
+    const snapshot = collectPlannerBatchCollisionPreflightSnapshot(
+      ["novel-lane=src/lib/new-module.ts"],
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        hotspotSnapshot,
+      },
+    );
+
+    expect(snapshot.candidates).toHaveLength(1);
+    expect(snapshot.candidates[0]).toEqual(
+      expect.objectContaining({
+        name: "novel-lane",
+        expectedSurfaceHints: ["src/lib/new-module.ts"],
+        activeLaneOverlaps: [],
+        activeOwnershipGaps: [
+          "Active-lane ownership was not collected because queue/worktree linkage data was unavailable.",
+        ],
+        collisionRisk: "low",
+        recommendation: "dispatch now",
+      }),
+    );
+    expect(snapshot.candidates[0]?.activeLaneEvidenceSummary).toContain(
+      "Ownership coverage gaps: Active-lane ownership was not collected because queue/worktree linkage data was unavailable.",
+    );
+    expect(snapshot.activeLaneEvidence).toEqual({
+      activeLaneCount: 0,
+      generatedAtUtc: expect.any(String),
+      linkedWithGapsLaneCount: 0,
+    });
+  });
+
   test("formats every submitted candidate by name in one compact report", () => {
     const output = formatPlannerBatchCollisionPreflightSnapshot({
       activeLaneEvidence: {
