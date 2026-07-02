@@ -5,9 +5,7 @@ import {
   getRegistryRecordById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import {
-  deriveCuratedRelatedItems,
-} from "@/lib/content/related-docs";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
 describe("byte-level tokenization registry identity (byte-level-tokenization-page-004)", () => {
   test("keeps a single canonical module.byte-level-tokenization record", async () => {
