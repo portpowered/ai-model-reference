@@ -207,7 +207,8 @@ describe("memory docs route render", () => {
     expect(html).toContain('href="/tags/context-window"');
     expect(html).toContain("active requests remain alive");
     expect(html).toContain("KV cache");
-    expect(html).toContain("latency rises because the runtime spends longer");
+    expect(html).toContain('href="/docs/glossary/inter-token-latency"');
+    expect(html).toContain("rises because the runtime spends longer");
     expect(html).toContain("total throughput can flatten");
     expect(html).toContain("Larger or denser batches can improve throughput");
     expect(html).toContain(
