@@ -5,9 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
-import {
-  getDocsPageDir,
-} from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import {
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
