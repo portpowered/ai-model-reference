@@ -1,22 +1,23 @@
 {
   "title": "FLOPs",
-  "description": "Floating-point operations counted to estimate model inference compute, including the gap between peak hardware rates and achieved serving throughput.",
+  "description": "Floating-point operations counted to estimate how much arithmetic work a model needs during inference, before teams compare serving cost, throughput plans, or hardware capability.",
+  "openingSummary": "A floating-point operation is one arithmetic step on real-number values stored in floating-point format. Engineers count these operations—written as FLOPs—to estimate how much compute a model needs during inference before they compare serving plans, hardware headlines, or per-request cost.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "A floating-point operation is one arithmetic step on floating-point values. FLOPs counts those operations so teams can estimate how much compute a model needs during inference."
+      "body": "One floating-point operation is one arithmetic action on floating-point numbers, such as a multiply or add inside a larger matrix calculation. FLOPs is the shorthand count of those operations. Inference estimates often total the floating-point work in large matrix multiplies and attention score calculations so teams can reason about compute demand without running every workload on every chip first."
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Serving cost, throughput planning, and hardware comparisons often cite FLOPs, but peak hardware FLOPs and achieved inference compute can differ sharply once memory movement, batching, and runtime scheduling enter the picture."
+      "body": "Serving capacity planning, throughput targets, and hardware comparisons often start with a FLOPs estimate because it names how much arithmetic a model asks for on each forward pass. Wider matrices, deeper stacks, longer prompts, and more generated tokens usually raise that count. The estimate helps teams spot when compute might dominate a serving budget, but it is only a starting point: real stacks can complete less floating-point work per second than a headline hardware rate once memory movement, batch shape, and runtime scheduling enter the picture."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "A matrix multiply between two large tensors performs many floating-point operations in one kernel launch, so inference estimates often count attention and feed-forward matrix work in FLOPs."
+      "body": "Imagine multiplying two large tables of numbers where each inner step combines one pair of values. One matrix multiply between those tables performs millions of floating-point operations inside a single accelerated kernel. Inference planners often count similar work inside attention scoring blocks and dense matrix layers when they estimate total FLOPs for one forward pass through a model."
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "FLOPs are not the same as parameter count, memory footprint, tokens per second, or peak hardware headline rates. A chip can advertise high peak FLOPs while a concrete model still achieves lower compute during real serving."
+      "body": "FLOPs count arithmetic work, not model size. Parameter count, checkpoint bytes on disk, tokens per second, and time to first token answer different questions. A chip can advertise very high peak FLOPs while a concrete model still completes less floating-point work per second during real serving because memory bandwidth, kernel efficiency, and batching shape change what the hardware actually delivers."
     },
     "related": {
       "title": "Related Concepts And Modules"

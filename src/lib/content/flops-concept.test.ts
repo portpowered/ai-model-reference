@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
 import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
@@ -146,5 +149,67 @@ describe("flops concept discovery (flops-concept-page-001)", () => {
       const results = await docsSearchApi.search(query);
       expect(results.some((result) => result.url === CONCEPT_URL)).toBe(true);
     }
+  });
+});
+
+describe("flops concept page (flops-concept-page-002)", () => {
+  test("messages define floating-point operations before FLOPs and teach matrix and attention compute counting", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.openingSummary?.length).toBeGreaterThan(0);
+    const opening = messages.openingSummary ?? "";
+    expect(
+      opening.toLowerCase().indexOf("floating-point operation"),
+    ).toBeLessThan(opening.indexOf("FLOPs"));
+    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
+      "floating-point operation",
+    );
+    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
+      "matrix multiplies",
+    );
+    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
+      "attention score",
+    );
+    expect(messages.sections?.simpleExample.body?.toLowerCase()).toContain(
+      "matrix multiply",
+    );
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "parameter count",
+    );
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "tokens per second",
+    );
+  });
+
+  test("page renders title, sections, opening summary, and curated related links", async () => {
+    const page = await loadConceptPage("flops");
+
+    expect(page.frontmatter.kind).toBe("concept");
+    expect(page.frontmatter.status).toBe("published");
+    expect(page.frontmatter.registryId).toBe("concept.flops");
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("What It Is");
+    expect(html).toContain("Why It Matters");
+    expect(html).toContain("floating-point operation");
+    expect(html).toContain("matrix multiplies");
+    expect(html).toContain('href="/docs/concepts/transformer-architecture"');
+    expect(html).toContain('href="/docs/concepts/mixture-of-experts"');
+    expect(html).toContain('href="/docs/concepts/quantization"');
+    expect(html).toContain('href="/docs/systems/inference-engine"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).not.toContain("Reader Shortcut");
+    expect(html).not.toContain("Phase");
   });
 });
