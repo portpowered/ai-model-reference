@@ -1,14 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import {
-  closePlaywrightBrowserWithTimeout,
-  launchPlaywrightBrowser,
-} from "@/lib/verify/launch-playwright-browser";
-import {
-  acquireVerifyServerSession,
-  shouldRunVerifyProductionIntegrationTests,
-} from "@/lib/verify/server-lifecycle";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
@@ -37,6 +29,14 @@ import { loadUiMessages } from "@/lib/content/ui-messages";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import { docsSearchApi } from "@/lib/search/search-server";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "@/lib/verify/launch-playwright-browser";
+import {
+  acquireVerifyServerSession,
+  shouldRunVerifyProductionIntegrationTests,
+} from "@/lib/verify/server-lifecycle";
 
 const REGISTRY_ID = "training-regime.rlhf";
 const SLUG = "rlhf";
