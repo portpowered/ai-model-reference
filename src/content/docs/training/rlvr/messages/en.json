@@ -1,0 +1,78 @@
+{
+  "title": "Reinforcement Learning with Verifiable Rewards",
+  "description": "A post-training reinforcement learning regime where rewards come from externally checkable task outcomes rather than human preference labels alone.",
+  "openingSummary": "Reinforcement Learning with Verifiable Rewards, usually shortened to RLVR, is a post-training method that uses reinforcement learning when a task outcome can be checked by an external verifier instead of relying only on human preference labels.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Reinforcement Learning with Verifiable Rewards is a post-training regime for language models. The model acts as a policy, samples candidate answers or reasoning traces, and receives reward from deterministic checks on whether those outputs satisfy task rules. RLVR is most natural when the answer or behavior can be checked by an external verifier, such as exact-answer math grading, code unit tests, formal proof checkers, or other rule-based validators."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Many reasoning-heavy tasks have objectively checkable success criteria. A math problem may have one exact final answer, a programming task may pass or fail a test suite, and a logic puzzle may satisfy a rule-based grader. Those checks provide reward signals without asking humans to rank every model output. RLVR exists so teams can optimize models on those tasks with reinforcement learning while keeping the reward grounded in verifiable outcomes rather than subjective preference alone. Public work such as DeepSeek-R1 shows how verifier-based reinforcement learning can strengthen math and code reasoning when checkable rewards are available."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Training usually starts from a capable checkpoint, often after supervised fine-tuning. Each training step follows the same observable loop. First, a task prompt is drawn from a verifiable task distribution. The model samples a candidate response for that prompt. An external verifier checks whether the response passes the task rules, such as exact-answer grading, unit tests, or formal checks. The verifier outcome is turned into a reward signal, often a pass-or-fail score or a shaped numeric reward. A reinforcement learning optimizer then applies a policy update so higher-reward responses become more likely. The loop repeats across many prompts until the model improves on the verifiable task distribution."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Supervised fine-tuning, often shortened to SFT, teaches the model to imitate labeled demonstrations directly. RLVR instead samples multiple candidate outputs and keeps updates that score well under external checks rather than copying one fixed demonstration per prompt. Reinforcement learning from human feedback, often shortened to RLHF, relies on human preference signals or learned reward models that approximate what people like. RLVR relies on externally checkable outcomes where a verifier can score success without ranking subjective quality. Group Relative Policy Optimization, or GRPO, is a nearby reinforcement-learning optimizer that compares rewards across a group of sampled candidates. GRPO can be used with human-preference rewards or with verifier-based rewards, but RLVR names the reward source—verifiable task outcomes—not the optimizer family."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "RLVR only applies where verifier coverage is strong enough to trust the reward signal. Tasks without checkable outcomes still need human feedback or other reward sources. Narrow verifiers can encourage reward hacking, where the model satisfies the checked rule without learning the broader behavior teams want. Task narrowness is another limit: strong scores on one verifiable benchmark do not guarantee transfer to open-ended reasoning, safety, or style. Verifiable success can also miss qualities humans care about, such as helpful explanations, honest uncertainty, or refusal of unsafe requests, because those traits may not appear in the verifier at all."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "alignment": "Alignment",
+    "postTraining": "Post-training",
+    "supervisedFineTuning": "Supervised fine-tuning",
+    "instructionTuning": "Instruction tuning",
+    "dpo": "Direct Preference Optimization",
+    "rlhfSearch": "RLHF search",
+    "grpoSearch": "GRPO search",
+    "nemotron3SuperModelPage": "Nemotron 3 Super model page",
+    "deepseekV4PaperPage": "DeepSeek-V4 paper page"
+  },
+  "assets": {
+    "trainingFlow": {
+      "title": "RLVR training flow",
+      "alt": "A five-step RLVR flow: task prompt, model response, verifier check, reward assignment, then policy update toward higher verifier reward.",
+      "caption": "RLVR samples model outputs, checks them with an external verifier, assigns reward from the check outcome, and updates the policy from that reward.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and reward flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "prompt": {
+        "label": "Task prompt"
+      },
+      "response": {
+        "label": "Model response"
+      },
+      "verifier": {
+        "label": "Verifier check"
+      },
+      "reward": {
+        "label": "Reward assignment"
+      },
+      "updatedModel": {
+        "label": "Policy update"
+      }
+    }
+  }
+}

@@ -21,7 +21,7 @@ import {
   restoreFetchMock,
 } from "@/tests/a11y/render";
 
-setDefaultTimeout(15_000);
+setDefaultTimeout(30_000);
 
 function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {

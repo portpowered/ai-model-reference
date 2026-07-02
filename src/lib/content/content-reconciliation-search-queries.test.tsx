@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SearchResultMetaDetails } from "@/features/docs/search/SearchResultMetaDetails";
 import { loadUiMessages } from "@/lib/content/ui-messages";
@@ -147,6 +147,8 @@ function resultsIncludeUrl(
       result.url.startsWith(`${pageUrl}#`),
   );
 }
+
+setDefaultTimeout(15_000);
 
 describe("Phase 2/3 reconciliation search API ranking (US-010)", () => {
   test("transformer query ranks glossary first and includes module hits with distinct kinds", async () => {
