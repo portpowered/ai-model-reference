@@ -24,7 +24,7 @@ const REPRESENTATIVE_SUBGROUP_PLACEMENTS = [
   {
     folderName: "Glossary",
     separator: "Math And Training",
-    url: "/docs/glossary/activation",
+    url: "/docs/glossary/entropy",
   },
   {
     folderName: "Glossary",

@@ -16,6 +16,7 @@ const SECTION_FOLDER_NAMES = {
 const GLOSSARY_DERIVED_FOLDER_NAMES = [
   "Model Types",
   "Inference",
+  "Module Components",
   "Glossary",
 ] as const;
 
@@ -26,14 +27,15 @@ const REPRESENTATIVE_GLOSSARY_DERIVED_URLS = {
     "/docs/glossary/top-k-sampling",
     "/docs/glossary/decode",
   ],
+  "Module Components": [
+    "/docs/glossary/softmax",
+    "/docs/glossary/residual-connection",
+    "/docs/glossary/embedding",
+  ],
 } as const;
 
 const REPRESENTATIVE_SECTION_URLS = {
-  glossary: [
-    "/docs/glossary/activation",
-    "/docs/glossary/token",
-    "/docs/glossary/denoising-generation",
-  ],
+  glossary: ["/docs/glossary/token", "/docs/glossary/denoising-generation"],
   concepts: [
     "/docs/concepts/alibi",
     "/docs/concepts/transformer-architecture",

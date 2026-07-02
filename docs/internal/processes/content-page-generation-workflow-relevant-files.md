@@ -86,7 +86,7 @@ Model Types or Inference without changing canonical `/docs/glossary/<slug>`
 routes:
 
 - Add or extend ontology classifications under `classification.concept.*` (for
-  example `classification.concept.model-type`).
+  example `classification.concept.model-type`, `classification.concept.module`).
 - Derive browse cards through `buildDocsBrowseSections` and
   `src/lib/docs/glossary-derived-browse-sections.ts`, using
   `primaryClassificationId` / `secondaryClassificationIds` membership rather
@@ -96,7 +96,7 @@ routes:
 - Pass `config.starterSlugs.length` into `toDocsIndexEntries` for derived browse
   sections when starter slugs exceed the default six-entry preview cap.
 - Sidebar reconciliation tests that previously compared every glossary page to the
-  `Glossary` folder must union `Model Types`, `Inference`, and remaining
+  `Glossary` folder must union `Model Types`, `Inference`, `Module Components`, and remaining
   `Glossary` URLs, or filter out `isGlossaryPageAssignedToDerivedSection`
   pages when asserting the residual glossary folder.
 - Inference terms with canonical concept routes (`concepts/prefill`,

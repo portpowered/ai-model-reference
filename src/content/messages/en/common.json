@@ -115,6 +115,9 @@
     "inferenceSectionTitle": "Inference",
     "inferenceSectionDescription": "Inference glossary pages cover decoding, sampling controls, runtime latency, and inference-time optimizations such as KV cache and quantization.",
     "inferenceSectionLinkLabel": "Browse inference glossary pages",
+    "moduleComponentsSectionTitle": "Module Components",
+    "moduleComponentsSectionDescription": "Module-component glossary pages explain building blocks such as activations, normalization, embeddings, residual paths, and the tensors and logits that flow through model layers.",
+    "moduleComponentsSectionLinkLabel": "Browse module-component glossary pages",
     "glossarySectionTitle": "Glossary",
     "glossarySectionDescription": "Glossary pages define the vocabulary around model architecture, training, inference, and evaluation so the rest of the atlas reads more naturally.",
     "glossarySectionLinkLabel": "Browse the full glossary"

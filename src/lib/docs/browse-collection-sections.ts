@@ -37,6 +37,7 @@ export const DOCS_BROWSE_SECTION_ORDER = [
   { kind: "collection", id: "models" },
   { kind: "glossary-derived", id: "model-types" },
   { kind: "collection", id: "modules" },
+  { kind: "glossary-derived", id: "module-components" },
   { kind: "collection", id: "concepts" },
   { kind: "glossary-derived", id: "inference" },
   { kind: "collection", id: "papers" },

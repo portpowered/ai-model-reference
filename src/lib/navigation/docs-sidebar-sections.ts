@@ -21,6 +21,7 @@ type DocsSidebarSectionRef =
 export const DOCS_SIDEBAR_SECTION_ORDER = [
   { kind: "glossary-derived", id: "model-types" },
   { kind: "glossary-derived", id: "inference" },
+  { kind: "glossary-derived", id: "module-components" },
   { kind: "collection", id: "glossary" },
   { kind: "collection", id: "concepts" },
   { kind: "collection", id: "modules" },

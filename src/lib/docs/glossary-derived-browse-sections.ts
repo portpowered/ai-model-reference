@@ -18,6 +18,7 @@ import {
 export const GLOSSARY_DERIVED_BROWSE_SECTION_IDS = [
   "model-types",
   "inference",
+  "module-components",
 ] as const;
 
 export type GlossaryDerivedBrowseSectionId =
@@ -25,7 +26,7 @@ export type GlossaryDerivedBrowseSectionId =
 
 type GlossaryDerivedSectionConfig = {
   classificationRootId: string;
-  browseMessagePrefix: "modelTypes" | "inference";
+  browseMessagePrefix: "modelTypes" | "inference" | "moduleComponents";
   sidebarLabel: string;
   starterSlugs: readonly string[];
 };
@@ -60,6 +61,23 @@ const GLOSSARY_DERIVED_SECTION_CONFIG = {
       "glossary/kv-cache",
       "glossary/time-to-first-token",
       "glossary/inter-token-latency",
+    ],
+  },
+  "module-components": {
+    classificationRootId: "classification.concept.module",
+    browseMessagePrefix: "moduleComponents",
+    sidebarLabel: "Module Components",
+    starterSlugs: [
+      "glossary/softmax",
+      "glossary/residual-connection",
+      "glossary/skip-connection",
+      "glossary/activation",
+      "glossary/normalization",
+      "glossary/embedding",
+      "glossary/logit",
+      "glossary/tensor",
+      "glossary/vector",
+      "glossary/vocabulary-size",
     ],
   },
 } as const satisfies Record<

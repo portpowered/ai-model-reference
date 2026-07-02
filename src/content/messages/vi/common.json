@@ -115,6 +115,9 @@
     "inferenceSectionTitle": "Suy luận",
     "inferenceSectionDescription": "Trang thuật ngữ suy luận bao gồm giải mã, điều khiển lấy mẫu, độ trễ runtime, và tối ưu suy luận như KV cache và lượng tử hóa.",
     "inferenceSectionLinkLabel": "Duyệt thuật ngữ suy luận",
+    "moduleComponentsSectionTitle": "Thành phần mô-đun",
+    "moduleComponentsSectionDescription": "Trang thuật ngữ thành phần mô-đun giải thích các khối xây dựng như kích hoạt, chuẩn hóa, embedding, đường residual, và tensor hoặc logit chảy qua các lớp mô hình.",
+    "moduleComponentsSectionLinkLabel": "Duyệt thuật ngữ thành phần mô-đun",
     "glossarySectionTitle": "Thuật ngữ",
     "glossarySectionDescription": "Trang thuật ngữ định nghĩa từ vựng về kiến trúc mô hình, huấn luyện, suy luận, và đánh giá để phần còn lại của atlas dễ đọc hơn.",
     "glossarySectionLinkLabel": "Duyệt toàn bộ thuật ngữ"

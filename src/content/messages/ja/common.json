@@ -115,6 +115,9 @@
     "inferenceSectionTitle": "推論",
     "inferenceSectionDescription": "推論の用語集ページでは、デコード、サンプリング制御、実行時レイテンシ、KV キャッシュや量子化など推論時の最適化を扱います。",
     "inferenceSectionLinkLabel": "推論の用語集を見る",
+    "moduleComponentsSectionTitle": "モジュール構成要素",
+    "moduleComponentsSectionDescription": "モジュール構成要素の用語集ページでは、活性化、正規化、埋め込み、残差経路、および層を流れるテンソルやロジットなどの構成要素を説明します。",
+    "moduleComponentsSectionLinkLabel": "モジュール構成要素の用語集を見る",
     "glossarySectionTitle": "用語集",
     "glossarySectionDescription": "用語集ページでは、モデルアーキテクチャ、学習、推論、評価まわりの語彙を定義し、アトラス全体を読みやすくします。",
     "glossarySectionLinkLabel": "用語集をすべて見る"

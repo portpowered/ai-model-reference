@@ -33,6 +33,7 @@ describe("Phase 2/3 reconciliation docs sidebar meta (US-004)", () => {
 
     expect(folderNames).toContain("Model Types");
     expect(folderNames).toContain("Inference");
+    expect(folderNames).toContain("Module Components");
     expect(folderNames).toContain("Glossary");
     expect(folderNames).toContain("Concepts");
     expect(folderNames).toContain("Modules");
