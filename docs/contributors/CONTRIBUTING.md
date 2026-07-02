@@ -435,6 +435,29 @@ If you keep a manual list in a test, document the behavior class it protects so
 future contributors can tell that it is curated on purpose rather than acting as
 hidden whole-site inventory.
 
+When you add or change discovery or navigation coverage, run the **focused
+touched tests** and other **cheap validation** targets for that surface before
+opening a pull request. Typical commands:
+
+```sh
+bun run pretest
+bun test src/lib/source.test.ts
+bun test src/lib/navigation/generated-docs-page-tree.test.ts
+bun test src/lib/content/phase-1-published-resources.test.ts
+bun run typecheck
+make validate-data
+```
+
+Run only the files you changed when that is enough to prove the behavior under
+review. Use `make ci` once before review when you need the full required GitHub
+**ci** check.
+
+If you skip broader checks such as `make ci`, `make test`, or integration
+build/export gates, say so in the PR description with a **concrete reason**
+(for example disk limits, unrelated failing checks on `main`, or a docs-only
+change that already passed the focused discovery tests above). Do not treat
+skipped broad checks as silent approval.
+
 For a visual pass on a published page, start the dev server after installing
 dependencies:
 
