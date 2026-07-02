@@ -130,6 +130,9 @@ describe("nemotron 3 super reader-facing discovery (nemotron-3-super-model-page-
 
     expect(curatedHtml).toContain('data-testid="curated-related-docs"');
     expect(curatedHtml).toContain('href="/docs/modules/mixture-of-experts"');
+    expect(curatedHtml).toContain(
+      'href="/docs/modules/mamba-selective-state-space"',
+    );
     expect(curatedHtml).toContain('href="/docs/glossary/context-window"');
     expect(curatedHtml).toContain('href="/docs/systems/routing"');
     expect(curatedHtml).toContain('href="/docs/systems/inference-engine"');
@@ -152,6 +155,7 @@ describe("nemotron 3 super reader-facing discovery (nemotron-3-super-model-page-
     expect(html).toContain("What It Is");
     expect(html).toContain("Architecture");
     expect(html).toContain("Practical Notes");
+    expect(html).toContain('href="/docs/modules/mamba-selective-state-space"');
     expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="citation-list"');

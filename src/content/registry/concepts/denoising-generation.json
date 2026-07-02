@@ -25,7 +25,8 @@
   "status": "published",
   "createdAt": "2026-06-04T12:00:00.000Z",
   "updatedAt": "2026-06-04T12:50:00.000Z",
-  "conceptType": "general",
+  "primaryClassificationId": "classification.concept.architecture",
+  "conceptType": "architecture",
   "sidebarGrouping": {
     "glossary": "generation-and-diffusion"
   },

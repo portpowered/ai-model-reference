@@ -369,6 +369,7 @@ describe("registry-runtime", () => {
         "classification.module.feed-forward",
         "classification.module.normalization",
         "classification.module.positional-encoding",
+        "classification.module.state-space",
         "classification.module.tokenization",
         "classification.module.transformer-block",
         "classification.module.attention.grouped-query",
@@ -407,6 +408,7 @@ describe("registry-runtime", () => {
         "classification.module.feed-forward",
         "classification.module.normalization",
         "classification.module.positional-encoding",
+        "classification.module.state-space",
         "classification.module.tokenization",
         "classification.module.transformer-block",
       ]),
@@ -472,6 +474,7 @@ describe("registry-runtime", () => {
       "classification.module.feed-forward",
       "classification.module.normalization",
       "classification.module.positional-encoding",
+      "classification.module.state-space",
       "classification.module.tokenization",
       "classification.module.transformer-block",
     ]);
@@ -574,6 +577,7 @@ describe("registry-runtime", () => {
           "classification.module.feed-forward",
           "classification.module.normalization",
           "classification.module.positional-encoding",
+          "classification.module.state-space",
           "classification.module.tokenization",
           "classification.module.transformer-block",
         ],
@@ -746,7 +750,7 @@ describe("registry-runtime", () => {
 
   test("seeded activation records resolve through ontology classification helpers", () => {
     expect(getPrimaryClassificationForRecord("concept.activation")?.id).toBe(
-      "classification.concept.architecture.activation",
+      "classification.concept.module",
     );
     expect(getPrimaryClassificationForRecord("module.sigmoid")?.id).toBe(
       "classification.module.activation",

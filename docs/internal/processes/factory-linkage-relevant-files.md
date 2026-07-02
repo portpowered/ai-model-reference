@@ -152,7 +152,10 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   `bun run report:planner-root-checkout-reconciliation` on the planner root.
 * [looped-transformers-pr288-clean-drain-relevant-files](./looped-transformers-pr288-clean-drain-relevant-files.md)
   — PR #288 drain evidence snapshot: live queue tokens on session
-  `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata, diverged branch
-  drift, CONFLICTING/DIRTY GitHub state with BLOCKING PR conversation review
-  (story 003 review handoff), and watchdog omission because `work-task-64` is
-  `init` not `active`/`failed`.
+  `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata, merge consumed
+  outcome (PR #288 merged at `91f6beb3`), and final drain lane state.
+* [generic-pr277-pr279-conflict-refresh-handoff-relevant-files](./generic-pr277-pr279-conflict-refresh-handoff-relevant-files.md)
+  — PR #277/#279 conflict-refresh evidence: batch 066 drain ownership on session
+  `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata for both target
+  branches, DIRTY/CONFLICTING GitHub state with passing CI, and non-mutating
+  merge-tree conflict paths for story 002 classification.

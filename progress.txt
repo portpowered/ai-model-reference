@@ -1,0 +1,65 @@
+## Codebase Patterns
+- Concept registry ids route to `/docs/concepts/<slug>` only after adding to `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS` in `published-docs-registry-ids.ts`; until then glossary pages at `/docs/glossary/<slug>` remain the live surface.
+- Serving-path glossary concepts (`prefill`, `decode`, `kv-cache`, `prefill-decode-split`) share tags `foundations`, `attention`, and `kv-cache` for attention-tag discovery without new taxonomy tags.
+- Registry `relatedIds` on `concept.prefill-decode-split` should stay limited to serving foundations (`prefill`, `decode`, `kv-cache`, `autoregressive-generation`); attention modules and transformer links belong on inbound records, not on the split concept itself.
+- Inbound serving-path glossary pages (`prefill`, `decode`) link to `/docs/concepts/prefill-decode-split`; update hardcoded `LocalizedLinkList` hrefs when migrating a glossary concept to the concepts tree.
+- Concept page bundles require an `assets.json` file (even `{}`) because `loadConceptPageFromDisk` always reads it; run `bun run fumadocs-mdx` after adding or moving MDX so `.source` picks up the new route.
+- Migrating a glossary page to concepts removes it from glossary index counts/tests and surfaces it under the attention tag `concept` kind group instead of `glossary`.
+- Story 004 slice verification: add `*-slice-verification.test.tsx` with registry/message alignment, `renderDocsSlugPage` route proof, and rendered HTML/search assertions; routine bundle invariants stay in `make validate-data`; run `audit:canonical-page-surface` from the root repo with `--repo-root` pointing at the worktree when the script is absent locally.
+- After merging `main`, regenerate published-docs manifests with `bun run generate:published-docs-registry` (or `make validate-data` / `prepare:content-runtime`) instead of hand-editing `published-docs-registry-ids.ts`.
+
+## 2026-07-01T00:00:00Z - prefill-decode-split-concept-page-001
+- Wired `concept.prefill-decode-split` discovery metadata: added `attention` tag, trimmed `relatedIds` to serving-path foundations, and bumped registry `updatedAt`.
+- Added `prefill-decode-split-concept.test.ts` for registry aliases/tags/related-link and search discovery assertions while the glossary page remains live.
+- Added `PREFILL_DECODE_SPLIT_CONCEPT_PAGE_DIR` in `content-paths.ts` for the upcoming concept bundle.
+- Synced glossary frontmatter tags and updated attention-tag reconciliation tests for the new attention-tagged glossary entry.
+- **Learnings for future iterations:**
+  - Adding `attention` to a glossary concept immediately surfaces it on `/tags/attention`; update `content-reconciliation-attention-tag.test.ts` when tagging serving concepts.
+  - Keep glossary render tests in `prefill-decode-split-glossary.test.ts` until story 002 migrates the page to `src/content/docs/concepts/prefill-decode-split` and adds the id to `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS`.
+  - Story 002 should move messages/MDX from glossary to concepts and switch related-link href expectations from `/docs/glossary/*` to concept routes where applicable.
+---
+
+## 2026-07-02T04:55:00Z - prefill-decode-split-concept-page-002
+- Published canonical concept bundle at `src/content/docs/concepts/prefill-decode-split` with structural `page.mdx`, localized `messages/en.json`, and empty `assets.json`.
+- Added `concept.prefill-decode-split` to `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS` and removed the competing glossary bundle.
+- Refined prose for isolation-first teaching: prefill reads prompt once, decode repeats next-token generation, serving-layout framing, and tradeoffs for worker scheduling, time to first token, inter-token latency, KV-cache reuse, and memory movement.
+- Merged glossary render coverage into `prefill-decode-split-concept.test.ts` and updated index/search/tag reconciliation tests for the `/docs/concepts/prefill-decode-split` canonical URL.
+- Browser-verified the built route renders title, serving prose, related links, and curated related docs.
+- **Learnings for future iterations:**
+  - Run `bun run fumadocs-mdx` before concept-page render tests after adding MDX bundles.
+  - Inbound serving-path glossary pages (`prefill`, `decode`) still hardcode `/docs/glossary/prefill-decode-split` links; story 003 should retarget those to `/docs/concepts/prefill-decode-split`.
+  - Attention tag landing now includes a `concept` kind group for this page; update reconciliation tests when migrating other attention-tagged glossary pages to concepts.
+---
+
+## 2026-07-02T12:30:00Z - prefill-decode-split-concept-page-003
+- Retargeted prefill and decode glossary serving-path links from `/docs/glossary/prefill-decode-split` to `/docs/concepts/prefill-decode-split`.
+- Extended curated-related and render tests on prefill, decode, and kv-cache glossary pages so inbound journeys and related docs resolve to the canonical concept route.
+- Added search/tag distinction coverage so split-serving aliases rank first while quantization, paged attention, chunked prefill, and tokens-per-second stay on their own surfaces.
+- Browser-verified prefill, decode, kv-cache, and concept routes render concept URLs without broken glossary links.
+- **Learnings for future iterations:**
+  - `deriveCuratedRelatedItems` already routes published concept-section ids to `/docs/concepts/*`; hardcoded `LocalizedLinkList` hrefs in neighboring glossary MDX still need manual retargeting after migration.
+  - Common-confusions prose that names nearby techniques can still surface the split page in search for those terms; assert ranking and alias/tag separation instead of zero-result checks.
+  - KV-cache related docs already expose the split concept through registry `relatedIds` once the concept page is published.
+---
+
+## 2026-07-02T13:45:00Z - prefill-decode-split-concept-page-004
+- Added consolidated `prefill-decode-split-slice-verification.test.tsx` proving registry/message/asset alignment, English `renderDocsSlugPage` resolution, rendered tags/related links, and search alias discovery.
+- Ran `make validate-data`, typecheck, lint, focused tests, and built-route browser verification on port 3742 for title, serving prose, tags, and serving-path related links without missing-content placeholders.
+- Ran `audit:canonical-page-surface` from root repo against this worktree; branch is over-budget due to expected shared reconciliation from stories 001–003 (glossary inbound links, published-docs registry, shared tests).
+- **Learnings for future iterations:**
+  - Prose auto-linking lowercases visible link text in static render HTML; slice tests should assert lowercase phrases or href targets instead of title-case strings in body HTML.
+  - Worktrees without `audit:canonical-page-surface` in local `package.json` can invoke it from the root repo with `--repo-root` and `--page-dir`.
+  - `renderDocsSlugPage` plus `buildDocsPageMetadata` give stronger app-route proof than loader-only render tests for story 004 acceptance.
+---
+
+## 2026-07-02T18:10:00Z - PRD closure (all stories)
+- Synced `prd.json` to `passes: true` for stories 001–004 after re-verifying the published concept bundle, registry metadata, inbound serving links, and slice tests.
+- Fixed Biome line-wrap lint in `prefill-decode-split-concept.test.ts` so `bun run lint` passes on the branch head.
+- Merged `origin/main` to resolve PR merge conflicts: adopted generated `published-docs-registry` manifests, removed the competing glossary bundle, reconciled attention-tag and architecture-index tests with main's concept-route migrations, and retargeted `prefill-concept.test.ts` split links to `/docs/concepts/prefill-decode-split`.
+- Re-ran `make validate-data`, typecheck, lint, focused tests, production build, and browser verification on port 3742; route renders title, sections, and serving-path related links with zero missing-content placeholders.
+- No blocking PR conversation feedback on #272; PR updated for review after merge-resolution push.
+- **Learnings for future iterations:**
+  - Keep `progress.txt` / `prd.json` local-only commits off the review branch; reset soft and recommit code-only fixes when a progress chore commit was pushed accidentally.
+  - Long `await docsSearchApi.search(...)` assignments may need Biome line breaks even when tests otherwise pass.
+  - When `main` migrates glossary pages to concepts in parallel, merge conflicts often duplicate `conceptGroup` assertions—merge into one `arrayContaining` block instead of redeclaring the variable.
+---

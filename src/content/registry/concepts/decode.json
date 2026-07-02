@@ -31,6 +31,7 @@
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.inference",
   "conceptType": "inference",
   "sidebarGrouping": {
     "glossary": "sequence-and-attention"

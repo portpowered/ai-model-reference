@@ -11,7 +11,8 @@
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T00:00:00.000Z",
-  "conceptType": "general",
+  "primaryClassificationId": "classification.concept.architecture",
+  "conceptType": "architecture",
   "prerequisiteIds": ["concept.architecture"],
   "explainsIds": ["concept.component"]
 }

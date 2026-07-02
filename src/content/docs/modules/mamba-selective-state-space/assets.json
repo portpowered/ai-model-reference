@@ -1,0 +1,26 @@
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "mamba",
+    "variants": [
+      {
+        "variantId": "mha",
+        "graphId": "graph.multi-head-attention-time-pattern",
+        "labelKey": "assets.computeFlow.variants.mha.label"
+      },
+      {
+        "variantId": "mamba",
+        "graphId": "graph.mamba-selective-state-space-state-flow",
+        "labelKey": "assets.computeFlow.variants.mamba.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.mamba-selective-state-space-comparison"
+  }
+}

@@ -21,7 +21,7 @@
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Regular attention scores every token pair. Sparse attention is the broader family that allows many different masks, including irregular ones. Sliding-window attention is a nearby local pattern that mainly keeps a diagonal band. Block-sparse attention sits between them: it is sparse because it skips many pairs, but it keeps those skips aligned to block boundaries so implementations can batch work cleanly."
+      "body": "Regular attention scores every token pair. Sparse attention is the broader family that allows many different masks, including irregular ones. Local attention limits each query to a nearby neighborhood; sliding-window attention is one common fixed-band version of that idea. Block-sparse attention sits between them: it is sparse because it skips many pairs, but it keeps those skips aligned to block boundaries so implementations can batch work cleanly. Compared with purely local patterns, block-sparse attention can still keep selected distant blocks when the mask allows."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
@@ -71,6 +71,9 @@
         "sparse": {
           "title": "Sparse Attention"
         },
+        "local": {
+          "title": "Local Attention"
+        },
         "window": {
           "title": "Sliding-Window Attention"
         }
@@ -95,6 +98,11 @@
           "connectivityPattern": "General sparse pair mask with no required block regularity",
           "computeScaling": "Subquadratic when sparsity fraction is fixed",
           "distantReach": "Depends on the chosen sparse pattern"
+        },
+        "local": {
+          "connectivityPattern": "Nearby-only neighborhoods around each query token",
+          "computeScaling": "Often near-linear O(n·r) when the local radius stays fixed",
+          "distantReach": "Usually indirect; far information moves through layers or companion links"
         },
         "window": {
           "connectivityPattern": "Fixed local band around each query token",

@@ -31,7 +31,7 @@ const EXPECTED_CURATED_RELATED = [
   },
   {
     registryId: "concept.prefill-decode-split",
-    href: "/docs/glossary/prefill-decode-split",
+    href: "/docs/concepts/prefill-decode-split",
   },
   {
     registryId: "system.continuous-batching",
