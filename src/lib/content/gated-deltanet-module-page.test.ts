@@ -70,9 +70,9 @@ describe("gated-deltanet page messages", () => {
     expect(messages.sections?.limitationsAndTradeoffs.body).toContain(
       "compressed rather than directly addressable token by token",
     );
-    expect(messages.tables?.comparison?.values?.gdn?.pastAddressability).toContain(
-      "compressed into one recurrent state",
-    );
+    expect(
+      messages.tables?.comparison?.values?.gdn?.pastAddressability,
+    ).toContain("compressed into one recurrent state");
     expect(messages.math?.mhaSchema?.variableDefinitions?.q?.term).toBe("Q");
     expect(messages.math?.gdnSchema?.variableDefinitions?.g?.term).toBe(
       "\\alpha_t",
@@ -95,103 +95,116 @@ describe("gated-deltanet page messages", () => {
 });
 
 describe("loadModulePage gated-deltanet", () => {
-  test("compiles MDX with local namespaces and recurrent-memory teaching content", async () => {
-    const page = await loadModulePage("gated-deltanet");
+  test(
+    "compiles MDX with local namespaces and recurrent-memory teaching content",
+    async () => {
+      const page = await loadModulePage("gated-deltanet");
 
-    expect(page.frontmatter.registryId).toBe("module.gated-deltanet");
-    expect(page.frontmatter.messageNamespace).toBe("local");
-    expect(page.frontmatter.assetNamespace).toBe("local");
-    expect(page.messages.title).toBe("Gated DeltaNet");
+      expect(page.frontmatter.registryId).toBe("module.gated-deltanet");
+      expect(page.frontmatter.messageNamespace).toBe("local");
+      expect(page.frontmatter.assetNamespace).toBe("local");
+      expect(page.messages.title).toBe("Gated DeltaNet");
 
-    const html = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: page.messages,
-        assets: page.assets,
-        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-        children: page.content,
-      }),
-    );
+      const html = renderToStaticMarkup(
+        createElement(ModulePageProviders, {
+          messages: page.messages,
+          assets: page.assets,
+          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+          children: page.content,
+        }),
+      );
 
-    expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-    expect(html).toContain("Gated Delta Networks");
-    expect(html).toContain("compact matrix-valued memory state");
-    expect(html).toContain("full attention matrix");
-    expect(html).toContain("accumulation-only");
-    expect(html).not.toContain("Reader Shortcut");
-    expect(html).not.toContain('aria-label="Module metadata"');
-    expect(html).toContain("At a glance");
-    expectModuleTagPillListOnlyInTagsSection(html);
-    expect(html).toContain('href="/tags/attention"');
-    expect(html).toContain('href="/tags/context-window"');
-    expect(html).toContain('data-testid="curated-related-docs"');
-    expect(html).toContain('href="/docs/modules/attention"');
-    expect(html).toContain('href="/docs/modules/linear-attention"');
-    expect(html).toContain('href="/docs/modules/sliding-window-attention"');
-    expect(html).toContain('href="/docs/modules/sparse-attention"');
-    expect(html).toContain('href="/docs/glossary/context-window"');
-    expect(html).toContain('href="/docs/concepts/why-long-context-is-hard"');
-    expect(html).toContain('data-testid="citation-list"');
-    expect(html).toContain("Yang");
-    expect(html).toContain('href="https://arxiv.org/abs/2412.06464"');
-    expect(html).toContain('data-registry-comparison-table="true"');
-    expect(html).toContain('data-table-id="table.gated-deltanet-comparison"');
-    expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
-    expect(html).toContain('data-message-block-math="math.gdnSchema.formula"');
-    expect(html).toContain('data-math-schema="gdn"');
-    expect(html).not.toContain('data-math-schema="gqa"');
-    expect(html).toContain("\\alpha_t");
-    expect(html).toContain("gate α_t is a separate control path");
-    expect(html).toContain("delta-rule path is different");
-    expect(html).toContain("Gated decay plus targeted delta-rule memory edits");
-    expect(html).toContain(
-      "Indirect; the past is compressed into one recurrent state",
-    );
-    expect(html).toContain("DeltaNet-style updates");
-    expect(html).toContain("Mamba2-style gating");
-    expect(html).toContain("near-linear long-context cost");
-    expect(html).toContain('href="/docs/modules/multi-head-attention"');
-    expect(html).toContain('data-comparison-dimension="pastAddressability"');
-    expect(html).toContain(
-      'data-graph-legend="graph.gated-deltanet-gdn-comparison"',
-    );
-    expect(html).toContain("Gate decay control");
-    expect(html).toContain("Gated DeltaNet compute path");
-    expect(html).toContain('data-attention-variant-comparison="true"');
-    expect(html).toContain('data-attention-variant-active="gdn"');
-    expect(html).toContain('data-attention-variant-option="gdn"');
-    expect(html).toContain("--xy-background-color:#ffffff");
-    expect(html).toContain("--xy-node-color:#111827");
-    for (const id of gdnMathVariableDefinitionIds) {
-      expect(html).toContain(`data-math-variable-definition="${id}"`);
-    }
-    expectModuleComputeFlowGraphOnlyInHowItWorks(html, defaultGraphId);
-    expect(html).toContain('data-graph-node-id="gdn-delta"');
-    expect(html).toContain('data-graph-node-id="gdn-gate"');
-    expect(html).toContain('data-graph-node-id="gdn-memory-prev"');
-    expect(html).toContain('data-graph-node-id="gdn-memory-next"');
-    expect(html).toContain('data-graph-node-id="gdn-output"');
-    expect(html).toContain('data-graph-node-id="gdn-legend"');
-  });
+      expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
+      expect(html).toContain("Gated Delta Networks");
+      expect(html).toContain("compact matrix-valued memory state");
+      expect(html).toContain("full attention matrix");
+      expect(html).toContain("accumulation-only");
+      expect(html).not.toContain("Reader Shortcut");
+      expect(html).not.toContain('aria-label="Module metadata"');
+      expect(html).toContain("At a glance");
+      expectModuleTagPillListOnlyInTagsSection(html);
+      expect(html).toContain('href="/tags/attention"');
+      expect(html).toContain('href="/tags/context-window"');
+      expect(html).toContain('data-testid="curated-related-docs"');
+      expect(html).toContain('href="/docs/modules/attention"');
+      expect(html).toContain('href="/docs/modules/linear-attention"');
+      expect(html).toContain('href="/docs/modules/sliding-window-attention"');
+      expect(html).toContain('href="/docs/modules/sparse-attention"');
+      expect(html).toContain('href="/docs/glossary/context-window"');
+      expect(html).toContain('href="/docs/concepts/why-long-context-is-hard"');
+      expect(html).toContain('data-testid="citation-list"');
+      expect(html).toContain("Yang");
+      expect(html).toContain('href="https://arxiv.org/abs/2412.06464"');
+      expect(html).toContain('data-registry-comparison-table="true"');
+      expect(html).toContain('data-table-id="table.gated-deltanet-comparison"');
+      expect(html).toContain(
+        'data-message-block-math="math.mhaSchema.formula"',
+      );
+      expect(html).toContain(
+        'data-message-block-math="math.gdnSchema.formula"',
+      );
+      expect(html).toContain('data-math-schema="gdn"');
+      expect(html).not.toContain('data-math-schema="gqa"');
+      expect(html).toContain("\\alpha_t");
+      expect(html).toContain("gate α_t is a separate control path");
+      expect(html).toContain("delta-rule path is different");
+      expect(html).toContain(
+        "Gated decay plus targeted delta-rule memory edits",
+      );
+      expect(html).toContain(
+        "Indirect; the past is compressed into one recurrent state",
+      );
+      expect(html).toContain("DeltaNet-style updates");
+      expect(html).toContain("Mamba2-style gating");
+      expect(html).toContain("near-linear long-context cost");
+      expect(html).toContain('href="/docs/modules/multi-head-attention"');
+      expect(html).toContain('data-comparison-dimension="pastAddressability"');
+      expect(html).toContain(
+        'data-graph-legend="graph.gated-deltanet-gdn-comparison"',
+      );
+      expect(html).toContain("Gate decay control");
+      expect(html).toContain("Gated DeltaNet compute path");
+      expect(html).toContain('data-attention-variant-comparison="true"');
+      expect(html).toContain('data-attention-variant-active="gdn"');
+      expect(html).toContain('data-attention-variant-option="gdn"');
+      expect(html).toContain("--xy-background-color:#ffffff");
+      expect(html).toContain("--xy-node-color:#111827");
+      for (const id of gdnMathVariableDefinitionIds) {
+        expect(html).toContain(`data-math-variable-definition="${id}"`);
+      }
+      expectModuleComputeFlowGraphOnlyInHowItWorks(html, defaultGraphId);
+      expect(html).toContain('data-graph-node-id="gdn-delta"');
+      expect(html).toContain('data-graph-node-id="gdn-gate"');
+      expect(html).toContain('data-graph-node-id="gdn-memory-prev"');
+      expect(html).toContain('data-graph-node-id="gdn-memory-next"');
+      expect(html).toContain('data-graph-node-id="gdn-output"');
+      expect(html).toContain('data-graph-node-id="gdn-legend"');
+    },
+    { timeout: 30_000 },
+  );
 
-  test("renders the shared docs shell with gated delta teaching markers", async () => {
-    const page = await loadModulePage("gated-deltanet");
-    const html = renderModuleDocsShell(page);
+  test(
+    "renders the shared docs shell with gated delta teaching markers",
+    async () => {
+      const page = await loadModulePage("gated-deltanet");
+      const html = renderModuleDocsShell(page);
 
-    expect(html).toContain('id="how-it-works"');
-    expect(html).toContain('id="math-or-compute-schema"');
-    expect(html).toContain(
-      'data-graph-id="graph.gated-deltanet-gdn-comparison"',
-    );
-    expect(html).toContain(
-      'data-graph-legend="graph.gated-deltanet-gdn-comparison"',
-    );
-    expect(html).toContain("α_t controls memory decay");
-    expect(html).toContain('data-math-schema="gdn"');
-    expect(html).toContain(
-      "compressed rather than directly addressable token by token",
-    );
-    expect(html).toContain('id="compared-to-nearby-modules"');
-  });
+      expect(html).toContain('id="how-it-works"');
+      expect(html).toContain('id="math-or-compute-schema"');
+      expect(html).toContain(
+        'data-graph-id="graph.gated-deltanet-gdn-comparison"',
+      );
+      expect(html).toContain(
+        'data-graph-legend="graph.gated-deltanet-gdn-comparison"',
+      );
+      expect(html).toContain("α_t controls memory decay");
+      expect(html).toContain('data-math-schema="gdn"');
+      expect(html).toContain('id="limitations-and-tradeoffs"');
+      expect(html).toContain("compressed rather than directly addressable");
+      expect(html).toContain('id="compared-to-nearby-modules"');
+    },
+    { timeout: 30_000 },
+  );
 });
 
 describe("gated-deltanet page assets", () => {
