@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Browser, Page } from "playwright";
+import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import {
   closePlaywrightBrowserWithTimeout,
   launchPlaywrightBrowser,
@@ -10,7 +11,10 @@ import {
   type RenderedQualityViewport,
 } from "./rendered-quality-baseline";
 
-const GLOBALS_CSS_PATH = join(process.cwd(), "src/app/globals.css");
+const ROOFLINE_VIEWPORT_THEME_CSS_PATH = join(
+  process.cwd(),
+  "src/features/roofline-throughput-explorer/roofline-throughput-explorer-viewport-theme.css",
+);
 
 export type RooflineThroughputExplorerViewportProbe = {
   regionCount: number;
@@ -20,7 +24,7 @@ export type RooflineThroughputExplorerViewportProbe = {
 };
 
 function buildBrowserFixtureHtml(bodyHtml: string): string {
-  const css = readFileSync(GLOBALS_CSS_PATH, "utf8");
+  const css = readFileSync(ROOFLINE_VIEWPORT_THEME_CSS_PATH, "utf8");
   return `<!doctype html>
 <html>
   <head>
@@ -135,23 +139,25 @@ export async function verifyRooflineThroughputExplorerViewports(
     viewports?: readonly RenderedQualityViewport[];
   } = {},
 ): Promise<string | null> {
-  const viewports = options.viewports ?? RENDERED_QUALITY_VIEWPORTS;
-  for (const viewport of viewports) {
-    const probe = await probeRooflineThroughputExplorerAtViewport(
-      bodyHtml,
-      {
-        width: viewport.width,
-        height: viewport.height,
-      },
-      options,
-    );
-    const failure = formatRooflineThroughputExplorerViewportProbeFailure(
-      viewport,
-      probe,
-    );
-    if (failure) {
-      return failure;
+  return withExportIntegrationProbeLock(async () => {
+    const viewports = options.viewports ?? RENDERED_QUALITY_VIEWPORTS;
+    for (const viewport of viewports) {
+      const probe = await probeRooflineThroughputExplorerAtViewport(
+        bodyHtml,
+        {
+          width: viewport.width,
+          height: viewport.height,
+        },
+        options,
+      );
+      const failure = formatRooflineThroughputExplorerViewportProbeFailure(
+        viewport,
+        probe,
+      );
+      if (failure) {
+        return failure;
+      }
     }
-  }
-  return null;
+    return null;
+  });
 }

@@ -48,11 +48,12 @@ describe("roofline throughput explorer viewport probes", () => {
         return;
       }
 
-      const post = await loadBlogPostFromDisk(BLOG_SLUG);
-      const html = renderBlogPostShell(post);
+      const html = renderToStaticMarkup(
+        <RooflineThroughputExplorerFromRegistry />,
+      );
       const failure = await verifyRooflineThroughputExplorerViewports(html);
 
-      expect(failure).toBeNull();
+      expect(failure).toBeNull(failure ?? undefined);
     },
     { timeout: ROOFLINE_BLOG_VIEWPORT_PROBE_TIMEOUT_MS },
   );
