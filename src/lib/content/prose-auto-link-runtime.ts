@@ -1,4 +1,8 @@
-import { modulePageHref, tagPageHref } from "@/lib/content/content-hrefs";
+import {
+  modulePageHref,
+  systemPageHref,
+  tagPageHref,
+} from "@/lib/content/content-hrefs";
 import {
   buildProseAutoLinkPhrases,
   type ProseAutoLinkCandidate,
@@ -52,11 +56,20 @@ function tagCandidates(record: TagRecord): ProseAutoLinkCandidate[] {
   return aliasCandidates(record.aliases, tagPageHref(record.slug));
 }
 
+/**
+ * Published system aliases that also appear on concept records should stay
+ * ambiguous so searchable metric terms do not rewrite unrelated prose.
+ */
+const SYSTEM_ALIAS_AMBIGUITY_CANDIDATES: ProseAutoLinkCandidate[] = [
+  { phrase: "throughput", href: systemPageHref("request-scheduling") },
+];
+
 function buildCandidates(): ProseAutoLinkCandidate[] {
   return [
     ...listModuleRecords().flatMap(moduleCandidates),
     ...listConceptRecords().flatMap(conceptCandidates),
     ...listTagRecords().flatMap(tagCandidates),
+    ...SYSTEM_ALIAS_AMBIGUITY_CANDIDATES,
   ];
 }
 

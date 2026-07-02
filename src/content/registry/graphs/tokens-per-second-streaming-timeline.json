@@ -1,0 +1,182 @@
+{
+  "id": "graph.tokens-per-second-streaming-timeline",
+  "slug": "tokens-per-second-streaming-timeline",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "tokens per second streaming timeline",
+    "serving metrics timeline"
+  ],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [],
+  "citationIds": ["citation.orca-serving-system"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "concept.tokens-per-second",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "request-sent",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "request-sent",
+      "labelKey": "graph.nodes.requestSent.label",
+      "moduleKind": "input",
+      "position": { "x": 0, "y": 40 },
+      "size": { "width": 150, "height": 64 },
+      "visualRole": "process-node",
+      "childNodeIds": ["queue-wait"]
+    },
+    {
+      "id": "queue-wait",
+      "labelKey": "graph.nodes.queueWait.label",
+      "moduleKind": "other",
+      "position": { "x": 180, "y": 40 },
+      "size": { "width": 160, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["prefill"]
+    },
+    {
+      "id": "prefill",
+      "labelKey": "graph.nodes.prefill.label",
+      "moduleKind": "operation",
+      "position": { "x": 370, "y": 40 },
+      "size": { "width": 150, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["first-token"]
+    },
+    {
+      "id": "first-token",
+      "labelKey": "graph.nodes.firstToken.label",
+      "moduleKind": "output",
+      "position": { "x": 550, "y": 40 },
+      "size": { "width": 150, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["token-two"]
+    },
+    {
+      "id": "token-two",
+      "labelKey": "graph.nodes.tokenTwo.label",
+      "moduleKind": "cache",
+      "position": { "x": 730, "y": 150 },
+      "size": { "width": 120, "height": 64 },
+      "visualRole": "timeline-node",
+      "childNodeIds": ["token-three"]
+    },
+    {
+      "id": "token-three",
+      "labelKey": "graph.nodes.tokenThree.label",
+      "moduleKind": "cache",
+      "position": { "x": 900, "y": 150 },
+      "size": { "width": 120, "height": 64 },
+      "visualRole": "timeline-node-muted",
+      "childNodeIds": ["token-four"]
+    },
+    {
+      "id": "token-four",
+      "labelKey": "graph.nodes.tokenFour.label",
+      "moduleKind": "cache",
+      "position": { "x": 1070, "y": 150 },
+      "size": { "width": 120, "height": 64 },
+      "visualRole": "timeline-node",
+      "childNodeIds": ["token-five"]
+    },
+    {
+      "id": "token-five",
+      "labelKey": "graph.nodes.tokenFive.label",
+      "moduleKind": "cache",
+      "position": { "x": 1240, "y": 150 },
+      "size": { "width": 120, "height": 64 },
+      "visualRole": "timeline-node-muted",
+      "childNodeIds": []
+    },
+    {
+      "id": "ttft-annotation",
+      "labelKey": "graph.nodes.ttftAnnotation.label",
+      "moduleKind": "other",
+      "position": { "x": 120, "y": 250 },
+      "size": { "width": 420, "height": 56 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "itl-annotation",
+      "labelKey": "graph.nodes.itlAnnotation.label",
+      "moduleKind": "other",
+      "position": { "x": 820, "y": 250 },
+      "size": { "width": 260, "height": 56 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "tps-annotation",
+      "labelKey": "graph.nodes.tpsAnnotation.label",
+      "moduleKind": "other",
+      "position": { "x": 730, "y": 330 },
+      "size": { "width": 520, "height": 56 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "request-to-queue",
+      "source": "request-sent",
+      "target": "queue-wait",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "queue-to-prefill",
+      "source": "queue-wait",
+      "target": "prefill",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "prefill-to-first-token",
+      "source": "prefill",
+      "target": "first-token",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "first-token-to-token-two",
+      "source": "first-token",
+      "target": "token-two",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "token-two-to-token-three",
+      "source": "token-two",
+      "target": "token-three",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "token-three-to-token-four",
+      "source": "token-three",
+      "target": "token-four",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "token-four-to-token-five",
+      "source": "token-four",
+      "target": "token-five",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    }
+  ]
+}
