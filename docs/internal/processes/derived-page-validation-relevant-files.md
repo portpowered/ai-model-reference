@@ -46,6 +46,11 @@ Run these commands for touched content and validation infrastructure:
 | Pre-PR full gate (includes derived coverage via `validate-data`) | `make ci` |
 | Narrow content-branch proof before review | `bun run doctor:content-pr` |
 
+Focused doctor behavior tests live in `src/tests/ci/content-pr-doctor.test.ts`.
+They inject `runCommand` and `verifyRuntimeCompleteness` to assert stage order,
+failure stages, drifted paths, and repair guidance without running real git or
+generation.
+
 `make validate-data` is the primary evidence that ordinary page bundles satisfy
 the derived contract. Prefer it over adding shared per-page tests that only
 duplicate registry, message, tag, citation, or local-asset checks.

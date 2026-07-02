@@ -343,6 +343,54 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.citationIds).toContain("citation.kudo-sentencepiece");
   });
 
+  test("tokenizer-mismatch module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/tokenizer-mismatch.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.tokenizer-mismatch");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("tokenizer");
+    expect(module.moduleFamily).toBe("tokenization");
+    expect(module.variantGroup).toBe("tokenizer-failure-modes");
+    expect(module.tags).toEqual(
+      expect.arrayContaining(["tokenization", "foundations"]),
+    );
+    expect(module.aliases).toEqual(
+      expect.arrayContaining([
+        "tokenizer mismatch",
+        "wrong tokenizer",
+        "special token mismatch",
+      ]),
+    );
+    expect(module.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.tokenizers-overview",
+        "module.bpe",
+        "module.wordpiece",
+        "module.sentencepiece",
+        "concept.special-tokens",
+        "concept.embedding",
+        "model.gpt-3",
+      ]),
+    );
+    expect(module.exampleModelIds).toContain("model.gpt-3");
+    expect(module.usedByModelIds).toContain("model.gpt-3");
+    expect(module.citationIds).toEqual(
+      expect.arrayContaining([
+        "citation.zero-shot-tokenizer-transfer",
+        "citation.sennrich-bpe",
+        "citation.hugging-face-chat-templates",
+        "citation.hugging-face-chat-templates-docs",
+      ]),
+    );
+    expect(module.releaseDate).toBeUndefined();
+    expect(module.authors).toBeUndefined();
+    expect(module.sourceId).toBeUndefined();
+  });
+
   test("token concept JSON passes conceptRecordSchema", async () => {
     const concept = await readRegistryJson(
       "concepts/token.json",
@@ -498,6 +546,45 @@ describe("Phase 1 baseline registry records", () => {
       "Neural Machine Translation of Rare Words with Subword Units",
     );
     expect(citation.url).toBe("https://arxiv.org/abs/1508.07909");
+  });
+
+  test("zero-shot-tokenizer-transfer citation JSON passes citationRecordSchema", async () => {
+    const citation = await readRegistryJson(
+      "citations/zero-shot-tokenizer-transfer.json",
+      citationRecordSchema,
+    );
+
+    expect(citation.id).toBe("citation.zero-shot-tokenizer-transfer");
+    expect(citation.kind).toBe("citation");
+    expect(citation.status).toBe("published");
+    expect(citation.authors).toEqual(
+      expect.arrayContaining(["Benjamin Minixhofer", "Ivan Vulic"]),
+    );
+    expect(citation.title).toBe("Zero-Shot Tokenizer Transfer");
+    expect(citation.url).toBe("https://arxiv.org/abs/2405.07883");
+  });
+
+  test("hugging-face chat template citations pass citationRecordSchema", async () => {
+    const blogCitation = await readRegistryJson(
+      "citations/hugging-face-chat-templates.json",
+      citationRecordSchema,
+    );
+    const docsCitation = await readRegistryJson(
+      "citations/hugging-face-chat-templates-docs.json",
+      citationRecordSchema,
+    );
+
+    expect(blogCitation.id).toBe("citation.hugging-face-chat-templates");
+    expect(blogCitation.citationType).toBe("blog");
+    expect(blogCitation.authors).toEqual(["Matthew Carrigan"]);
+    expect(blogCitation.url).toBe("https://huggingface.co/blog/chat-templates");
+
+    expect(docsCitation.id).toBe("citation.hugging-face-chat-templates-docs");
+    expect(docsCitation.citationType).toBe("documentation");
+    expect(docsCitation.authors).toEqual(["Hugging Face"]);
+    expect(docsCitation.url).toBe(
+      "https://huggingface.co/docs/transformers/chat_templating",
+    );
   });
 
   test("Phase 1 starter records cross-reference via loadRegistry", async () => {

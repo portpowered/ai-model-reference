@@ -17,11 +17,18 @@ exported `*_PAGE_DIR` constant to `src/lib/content/content-paths.ts`.
 | --- | --- |
 | Page bundle and registry shape are aligned | `make validate-data` — primary derived page-bundle validation proof |
 | Structural proof passes and the review commit is ready | `bun run audit:canonical-page-surface` — owned-surface budget check before review |
+| Review commit excludes accidental generated framework drift | Inspect the diff and drop root `next-env.d.ts` when the task is ordinary page content, registry, messages, or colocated assets — see [CONTRIBUTING.md#drop-accidental-next-envdts-drift-before-review](../../contributors/CONTRIBUTING.md#drop-accidental-next-envdts-drift-before-review) |
 
 Derived validation contract and exceptions:
 [derived-page-validation-relevant-files.md](./derived-page-validation-relevant-files.md).
 Contributor-facing walkthrough:
 [CONTRIBUTING.md#review-preflight-before-opening-a-page-pr](../../contributors/CONTRIBUTING.md#review-preflight-before-opening-a-page-pr).
+
+## Routine review checklist for ordinary page PRs
+
+| When | Check |
+| --- | --- |
+| Ordinary page PR includes root `next-env.d.ts` changes unrelated to page behavior | Reject or request removal — see [review-standards.md#drop-accidental-next-envdts-drift](../../review-standards.md#drop-accidental-next-envdts-drift) |
 
 ## Page-local scope versus shared hotspot redirects
 
