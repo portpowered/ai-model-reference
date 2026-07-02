@@ -9,7 +9,11 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Language models and agents change their behavior as weights move. A demonstration set recorded last week, or traces from an older checkpoint, may not show the mistakes and answer styles the live policy makes today. On-policy loops try to close that gap by training on what the current policy actually does now. The tradeoff is cost and stability: refreshing samples takes compute, and weak sampling or rewards can reinforce bad habits—but the core idea is matching the update to present behavior."
+      "body": "Language models and agents change their behavior as weights move. Training on stale examples can teach the optimizer to fix problems the live model no longer makes, or miss failures that appear only after the latest update. On-policy loops try to keep the training signal aligned with present behavior so corrections target what users would see if the model shipped today."
+    },
+    "currentPolicyVsStatic": {
+      "title": "Current-policy data versus static examples",
+      "body": "The current policy is the model or agent you are updating right now. As its weights change, it can reach situations, make mistakes, and answer in styles that a fixed demonstration set or a replayed trace set never recorded. That older data still shows what some earlier version did—or what human labelers wrote once—not necessarily what the live policy would do after the latest fine-tune.\n\nRefreshing samples from the current policy can reduce train/deploy mismatch: the update sees the failures and habits the model actually produces now instead of polishing behavior that no longer appears. That match matters when you care whether training fixes the errors readers or users will see in production.\n\nThe same freshness has a downside. Current-policy data can also reinforce narrow or harmful behavior when sampling is too selective, rewards are misaligned, filters drop useful diversity, or a weak teacher approves bad answers. Off-policy training reuses static or older trajectories and is often cheaper and more stable; on-policy training pays extra compute to stay aligned with present behavior. Neither approach wins every setup—the useful question is whether your update needs data from the policy you are changing now."
     },
     "simpleExample": {
       "title": "Simple Example",
@@ -17,7 +21,7 @@
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "On-policy training is not the same as any single recipe. Reinforcement learning from human feedback, verifiable-reward training, and on-policy distillation can all use on-policy data, but on-policy names the data source—not the optimizer or loss function. It is also not automatically better than off-policy training. Off-policy methods reuse older trajectories or static datasets and can be cheaper and more stable; on-policy methods prioritize freshness. The useful question is whether the update needs behavior from the policy you are changing right now."
+      "body": "On-policy training is not the same as any single recipe. Reinforcement learning from human feedback, verifiable-reward training, and on-policy distillation can all use on-policy data, but on-policy names the data source—not the optimizer or loss function. A static supervised dataset is not automatically off-policy either: if the examples still match the behavior of the weights being updated, the data source can still be on-policy for that step."
     },
     "related": {
       "title": "Related Concepts And Modules"
