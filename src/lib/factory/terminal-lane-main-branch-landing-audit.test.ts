@@ -942,3 +942,234 @@ describe("collectTerminalLaneMainBranchLandingAuditReport", () => {
     }
   });
 });
+
+function expectActivationLandingSurfacesNamedInReport(input: {
+  humanOutput: string;
+  jsonLane: Record<string, unknown>;
+}): void {
+  for (const surface of activationLandingSurfaces) {
+    expect(input.humanOutput).toContain(surface.kind);
+    expect(input.humanOutput).toContain(surface.path);
+  }
+
+  const citedSurfaces = (
+    input.jsonLane.classification as {
+      citedSurfaces?: Array<{ surface: { kind: string; path: string } }>;
+    }
+  ).citedSurfaces;
+  expect(citedSurfaces?.map((entry) => entry.surface.kind)).toEqual([
+    "page-bundle",
+    "registry-record",
+    "focused-test",
+  ]);
+  expect(citedSurfaces?.map((entry) => entry.surface.path)).toEqual(
+    activationLandingSurfaces.map((surface) => surface.path),
+  );
+}
+
+describe("terminal lane main-branch landing audit mismatch evidence", () => {
+  test("end-to-end remote-only when terminal-complete lane has main evidence but planner root is dirty or deleted", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "terminal-lane-audit-mismatch-"),
+    );
+    const worktreesDir = join(repoRoot, ".claude", "worktrees");
+    createWorktreeFixture({
+      laneName: "activation-concept-current-main-page",
+      branchName: "activation-concept-current-main-page",
+      worktreesDir,
+    });
+
+    try {
+      const report = collectTerminalLaneMainBranchLandingAuditReport({
+        repoRoot,
+        worktreesDir,
+        mainRef: "origin/main",
+        plannerRootGitStatusText: [
+          " M src/content/docs/glossary/activation/page.mdx",
+          " D src/content/registry/concepts/activation.json",
+          " M src/lib/content/activation-concept-discovery.test.ts",
+        ].join("\n"),
+        runCommand: createGitRunCommandStub({
+          mainPaths: new Set(
+            activationLandingSurfaces.map((surface) => surface.path),
+          ),
+        }),
+        workListJsonText: JSON.stringify({
+          results: [
+            {
+              name: "activation-concept-current-main-page",
+              workTypeName: "task",
+              state: { name: "complete", type: "TERMINAL" },
+            },
+          ],
+        }),
+        expectedLandingSurfacesByLane: {
+          "activation-concept-current-main-page": activationLandingSurfaces,
+        },
+      });
+
+      expect(report.summary).toEqual({
+        laneCount: 1,
+        landed: 0,
+        remoteOnly: 1,
+        partial: 0,
+        reconciliationRequired: 0,
+      });
+      expect(report.lanes[0]?.classification.status).toBe("remote-only");
+      expect(report.lanes[0]?.recommendedAction).toBe("reconcile-planner-root");
+
+      const humanOutput =
+        formatTerminalLaneMainBranchLandingAuditReport(report);
+      expect(humanOutput).toContain("remote-only (1)");
+      expect(humanOutput).toContain(
+        "lane=activation-concept-current-main-page",
+      );
+      expect(humanOutput).toContain("main=present planner-root=dirty");
+      expect(humanOutput).toContain("main=present planner-root=deleted");
+      expectActivationLandingSurfacesNamedInReport({
+        humanOutput,
+        jsonLane: JSON.parse(
+          serializeTerminalLaneMainBranchLandingAuditReport(report),
+        ).lanes[0],
+      });
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("end-to-end partial when only some expected main surfaces are present", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "terminal-lane-audit-partial-"),
+    );
+    const worktreesDir = join(repoRoot, ".claude", "worktrees");
+    createWorktreeFixture({
+      laneName: "activation-concept-current-main-page",
+      branchName: "activation-concept-current-main-page",
+      worktreesDir,
+    });
+
+    try {
+      const report = collectTerminalLaneMainBranchLandingAuditReport({
+        repoRoot,
+        worktreesDir,
+        mainRef: "origin/main",
+        plannerRootGitStatusText: "",
+        runCommand: createGitRunCommandStub({
+          mainPaths: new Set([
+            "src/content/docs/glossary/activation/page.mdx",
+            "src/lib/content/activation-concept-discovery.test.ts",
+          ]),
+        }),
+        workListJsonText: JSON.stringify({
+          results: [
+            {
+              name: "activation-concept-current-main-page",
+              workTypeName: "task",
+              state: { name: "failed", type: "TERMINAL" },
+            },
+          ],
+        }),
+        expectedLandingSurfacesByLane: {
+          "activation-concept-current-main-page": activationLandingSurfaces,
+        },
+      });
+
+      expect(report.summary).toEqual({
+        laneCount: 1,
+        landed: 0,
+        remoteOnly: 0,
+        partial: 1,
+        reconciliationRequired: 0,
+      });
+      expect(report.lanes[0]?.classification.status).toBe("partial");
+      expect(report.lanes[0]?.recommendedAction).toBe(
+        "investigate-partial-landing",
+      );
+
+      const humanOutput =
+        formatTerminalLaneMainBranchLandingAuditReport(report);
+      expect(humanOutput).toContain("partial (1)");
+      expect(humanOutput).toContain(
+        "src/content/registry/concepts/activation.json",
+      );
+      expect(humanOutput).toContain("main=absent");
+
+      const jsonLane = JSON.parse(
+        serializeTerminalLaneMainBranchLandingAuditReport(report),
+      ).lanes[0];
+      expect(jsonLane.classification.status).toBe("partial");
+      expect(
+        jsonLane.classification.citedSurfaces.map(
+          (entry: { surface: { path: string } }) => entry.surface.path,
+        ),
+      ).toEqual(["src/content/registry/concepts/activation.json"]);
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("end-to-end reconciliation-required when terminal-complete lane lacks main surfaces", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "terminal-lane-audit-reconcile-"),
+    );
+    const worktreesDir = join(repoRoot, ".claude", "worktrees");
+    createWorktreeFixture({
+      laneName: "activation-concept-current-main-page",
+      branchName: "activation-concept-current-main-page",
+      worktreesDir,
+    });
+
+    try {
+      const report = collectTerminalLaneMainBranchLandingAuditReport({
+        repoRoot,
+        worktreesDir,
+        mainRef: "origin/main",
+        plannerRootGitStatusText:
+          " D src/content/docs/glossary/activation/page.mdx",
+        runCommand: createGitRunCommandStub({
+          mainPaths: new Set([
+            "src/content/registry/concepts/activation.json",
+            "src/lib/content/activation-concept-discovery.test.ts",
+          ]),
+        }),
+        workListJsonText: JSON.stringify({
+          results: [
+            {
+              name: "activation-concept-current-main-page",
+              workTypeName: "task",
+              state: { name: "complete", type: "TERMINAL" },
+            },
+          ],
+        }),
+        expectedLandingSurfacesByLane: {
+          "activation-concept-current-main-page": activationLandingSurfaces,
+        },
+      });
+
+      expect(report.summary).toEqual({
+        laneCount: 1,
+        landed: 0,
+        remoteOnly: 0,
+        partial: 0,
+        reconciliationRequired: 1,
+      });
+      expect(report.lanes[0]?.classification.status).toBe(
+        "reconciliation-required",
+      );
+      expect(report.lanes[0]?.recommendedAction).toBe(
+        "reconcile-terminal-mismatch",
+      );
+
+      const humanOutput =
+        formatTerminalLaneMainBranchLandingAuditReport(report);
+      expect(humanOutput).toContain("reconciliation-required (1)");
+      expect(humanOutput).toContain(
+        "page-bundle path=src/content/docs/glossary/activation/page.mdx",
+      );
+      expect(humanOutput).toContain("main=absent");
+      expect(humanOutput).toContain("planner-root=deleted");
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+});

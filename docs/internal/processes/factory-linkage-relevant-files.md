@@ -29,7 +29,10 @@ watchdog summaries, or planner-facing linkage reports.
   `landed` / `remote-only` / `partial` / `reconciliation-required` with cited
   surface reasons. Full planner report output is assembled by
   `collectTerminalLaneMainBranchLandingAuditReport` with grouped human-readable
-  and JSON serializers plus recommended planner actions.
+  and JSON serializers plus recommended planner actions. Mismatch regression
+  tests should exercise the full collect pipeline with fixture git status and
+  assert page-bundle, registry-record, and focused-test surface names in both
+  human-readable and JSON report output.
 
 ## Planner-facing commands
 
