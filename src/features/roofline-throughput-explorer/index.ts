@@ -1,5 +1,6 @@
 export type { RooflineThroughputExplorerProps } from "./RooflineThroughputExplorer";
 export { RooflineThroughputExplorer } from "./RooflineThroughputExplorer";
+export { RooflineThroughputExplorerFromRegistry } from "./RooflineThroughputExplorerFromRegistry";
 export {
   computeActiveWeightBytesPerToken,
   computeMaximumComputeFlopsPerSecond,
