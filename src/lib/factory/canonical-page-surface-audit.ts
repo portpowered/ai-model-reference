@@ -228,7 +228,12 @@ function collectPageSpecificLinkedRegistryPaths(
     }
 
     const kind = recordId.split(".")[0];
-    if (kind !== "citation" && kind !== "graph" && kind !== "paper" && kind !== "table") {
+    if (
+      kind !== "citation" &&
+      kind !== "graph" &&
+      kind !== "paper" &&
+      kind !== "table"
+    ) {
       continue;
     }
 

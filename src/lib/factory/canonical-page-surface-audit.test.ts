@@ -181,7 +181,10 @@ describe("canonical page surface audit", () => {
         },
       );
       writeJson(
-        join(repoRoot, "src/content/registry/citations/example-page-paper.json"),
+        join(
+          repoRoot,
+          "src/content/registry/citations/example-page-paper.json",
+        ),
         {
           id: "citation.example-page-paper",
         },
