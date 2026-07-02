@@ -155,6 +155,12 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata for both target
   branches, DIRTY/CONFLICTING GitHub state with passing CI, and non-mutating
   merge-tree conflict paths for story 002 classification.
+* [clean-open-pr-drain-current-handoffs-relevant-files](./clean-open-pr-drain-current-handoffs-relevant-files.md)
+  — live evidence for open/merged handoff PRs #294/#290/#273/#271/#268/#251:
+  queue row mapping on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, mergeability
+  and CI status, PR #294 merged/consumed proof, conflict-drift on #290/#273,
+  merge-ready #271/#268, queue-stale and review-blocked #251, and read-only capture
+  boundary for story 001.
 * [merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files](./merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files.md)
   — merged PR drain evidence for PRs #274/#275/#276/#278/#280: live queue tokens
   on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata,
