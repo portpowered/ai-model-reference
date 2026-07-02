@@ -506,3 +506,72 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T17:51Z UTC).
+
+## Story 002 merge re-evaluation (2026-07-02T18:05Z UTC)
+
+Fifth planner merge-path pass. Merge was **not** performed.
+
+### Fresh delta since prior evaluation (17:50Z UTC)
+
+| Signal | Prior (17:50Z UTC) | Current (18:05Z UTC) |
+| --- | --- | --- |
+| `origin/main` SHA | `d22d1e0` | unchanged `d22d1e0` |
+| PR #288 mergeability | CONFLICTING / DIRTY | unchanged CONFLICTING / DIRTY |
+| PR #288 head SHA | `fc575f9e` | unchanged `fc575f9e` |
+| BLOCKING review | unresolved (17:10:15Z) | still unresolved; no clearing comment |
+| Content worktree local HEAD | `43d64096` | **`cf13e353`** (`fix: drop process doc edit from page slice to keep branch surface narrow`) |
+| Content vs `origin/looped-transformers` | ahead=46, not pushed | ahead=47, **still not pushed** |
+| Content vs `origin/main` | synced at `43d64096` | **behind=9** (main advanced past local merge base) |
+| Content working tree | clean at evaluation time | dirty WIP on `table-registry.generated.ts` |
+
+The content lane advanced one commit addressing surface-budget scope, but the fixes
+remain local-only. GitHub still evaluates remote head `fc575f9e`, so merge state
+stays DIRTY and the BLOCKING review gate is unchanged.
+
+### Preconditions checked
+
+| Precondition | Status | Evidence |
+| --- | --- | --- |
+| GitHub mergeability | **FAIL** | `mergeable=CONFLICTING`, `mergeStateStatus=DIRTY` on head `fc575f9e` |
+| Required CI checks | PASS | 11/11 SUCCESS on remote head `fc575f9e` |
+| Review complete enough to proceed | **FAIL** | Unresolved BLOCKING PR conversation comment (2026-07-02T17:10:15Z) |
+| Queue/worktree metadata allows action | PASS | Lane metadata present; `work-task-64` at `init` |
+| Scope boundary | PASS | No unrelated edits in this drain lane |
+
+### Merge decision
+
+**Outcome:** do not merge PR #288 in this drain pass.
+
+**Reasons (both must clear before merge):**
+
+1. **Review incomplete:** BLOCKING conversation comment remains unresolved. Content
+   worktree local HEAD `cf13e353` (47 commits ahead of remote) begins addressing
+   audit/meta-test findings but is not on PR head `fc575f9e` and has not cleared
+   the BLOCKING comment.
+2. **Merge conflict (remote):** GitHub reports CONFLICTING/DIRTY on `fc575f9e`. Local
+   worktree is also 9 commits behind current `origin/main` `d22d1e0`.
+
+**Next safe planner action:** wait for the `looped-transformers` content lane to
+finish WIP, rebase/merge from `origin/main`, push to `origin/looped-transformers`,
+rerun `bun run audit:canonical-page-surface`, post a clearing PR conversation
+reply, then retry drain story 002.
+
+### Post-evaluation queue snapshot (2026-07-02T18:05Z UTC)
+
+| Work id | Type | State |
+| --- | --- | --- |
+| `work-task-64` (`looped-transformers`) | task | `init` / PROCESSING |
+| `work-task-88` (`looped-transformers-pr288-clean-drain`) | task | `init` / PROCESSING |
+
+No `review` work token is active. The BLOCKING PR conversation comment is the live
+review signal.
+
+## Quality gate (story 002, iteration 5)
+
+Merge evaluation only; no PR merge or content mutation.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T18:05Z UTC).
