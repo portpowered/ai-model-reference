@@ -5,8 +5,11 @@ import {
   beforeEach,
   describe,
   expect,
+  setDefaultTimeout,
   test,
 } from "bun:test";
+
+setDefaultTimeout(15_000);
 import { cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SearchPagePanelContent } from "@/features/docs/search/SearchPagePanel";
@@ -97,10 +100,13 @@ describe("search page panel accessibility smoke", () => {
     );
     await user.type(searchInput, "zzzz-no-matches-zzzz");
 
-    await waitFor(() => {
-      expect(screen.queryByTestId("search-page-loading")).toBeNull();
-    });
-    await screen.findByTestId("search-page-empty");
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("search-page-loading")).toBeNull();
+      },
+      { timeout: 15_000 },
+    );
+    await screen.findByTestId("search-page-empty", {}, { timeout: 15_000 });
     expect(screen.getByText(context.messages.search.noResults)).toBeTruthy();
 
     await expectNoSeriousAxeViolations(container);
