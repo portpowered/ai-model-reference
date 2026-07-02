@@ -323,6 +323,37 @@ describe("planner batch collision preflight", () => {
     expect(snapshot.candidates[0]?.recommendation).toBe("dispatch now");
   });
 
+  test("keeps candidate present with explicit hotspot evidence gap when snapshot has no ranked overlaps", () => {
+    const emptyHotspotSnapshot: ConflictHotspotSnapshot = {
+      ...hotspotSnapshot,
+      rankedSurfaces: [],
+      topPaths: [],
+    };
+    const snapshot = collectPlannerBatchCollisionPreflightSnapshot(
+      ["novel-lane=src/lib/new-module.ts"],
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        hotspotSnapshot: emptyHotspotSnapshot,
+        linkageLedger,
+      },
+    );
+
+    expect(snapshot.candidates).toHaveLength(1);
+    expect(snapshot.candidates[0]).toEqual(
+      expect.objectContaining({
+        name: "novel-lane",
+        expectedSurfaceHints: ["src/lib/new-module.ts"],
+        hotspotSurfaceOverlaps: [],
+        hotspotPathOverlaps: [],
+        collisionRisk: "low",
+        recommendation: "dispatch now",
+      }),
+    );
+    expect(snapshot.candidates[0]?.hotspotEvidenceSummary).toEqual([
+      "No ranked hotspot overlap found for novel-lane in the recent planner hotspot sample.",
+    ]);
+  });
+
   test("requires repo-local hotspot evidence when no injected snapshot is provided", () => {
     expect(() =>
       collectPlannerBatchCollisionPreflightSnapshot(
