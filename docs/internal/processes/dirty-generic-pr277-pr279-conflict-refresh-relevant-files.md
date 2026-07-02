@@ -207,3 +207,83 @@ drain ownership** for completion.
   resolution occurred in this story.
 - Local quality gate: `bun run typecheck` passed on this lane worktree
   (2026-07-02T20:15Z UTC).
+
+## Story 002 — Outcome classification per dirty PR
+
+Captured 2026-07-02T21:30Z UTC. Read-only refresh of live PR state, batch 066
+drain ownership, batch 073 handoff completion, and non-mutating `git merge-tree`
+conflict paths. No branch mutation, queue movement, or target-PR file edits.
+
+### Fresh drift vs `origin/main` (`209d1bd8`)
+
+| Branch | Ahead | Behind | Merge base |
+| --- | ---: | ---: | --- |
+| `origin/generic-search-ai-enrichment-plugin` | 8 | 95 | `798a0c7bd709d2a38037eecd6a01323507810e1b` |
+| `origin/generic-site-config-neutral-surfaces` | 6 | 107 | `9136cb1ef90e1eb5942cf811b7310191c8a5ea93` |
+
+Behind counts increased vs story 001 (95/107 vs prior 95/107 snapshot) as
+`origin/main` held at `209d1bd8`. Both PRs remain `mergeable: false` /
+`mergeable_state: dirty` with 11/11 required CI checks SUCCESS.
+
+### Conflict paths (`git merge-tree`, changed in both)
+
+**PR #277** — four paths, all within search/test surfaces aligned with the PR
+intent (enrichment adapter + search contract tests):
+
+- `src/lib/content/time-to-first-token-discovery.test.tsx`
+- `src/tests/search/orama-index.test.ts`
+- `src/tests/search/search-api.test.ts`
+- `src/tests/search/search-page-panel.test.tsx` (**shared with PR #279**)
+
+**PR #279** — sole conflict path outside core site-config contract files:
+
+- `src/tests/search/search-page-panel.test.tsx` (**shared with PR #277**)
+
+### Batch 066 drain duplication check (re-verified)
+
+| Drain idea | State | Trace |
+| --- | --- | --- |
+| `generic-search-ai-enrichment-pr277-drain` | `idea:init` / INITIAL | `trace-green-pr-drain-and-conflict-triage-batch-066` |
+| `generic-site-config-pr279-drain` | `idea:init` / INITIAL | `trace-green-pr-drain-and-conflict-triage-batch-066` |
+
+Both drain ideas remain the established owners for review/consume, branch refresh,
+conflict resolution, and merge completion. Batch 073 handoff lane is TERMINAL
+complete with prior **handoff-to-batch-066** outcome; no competing in-flight
+refresh lane exists, but refreshing from this batch 074 lane would still
+duplicate batch 066 drain ownership.
+
+### Latest blocking PR conversation (unresolved unless noted)
+
+| PR | Latest blocking comment | Cleared? |
+| --- | --- | --- |
+| #277 | **BLOCKING MERGE** (2026-07-02T14:59:47Z): review clear, CI green, local `make test` passed on `6a1530a0`, but `gh pr merge 277 --merge` failed — GitHub cannot create a clean merge commit. | **No** — no later PR conversation comment supersedes the merge blocker. Prior REVIEW CLEAR (14:56:54Z) cleared `make test` blockers only. |
+| #279 | **BLOCKING** (2026-07-02T13:12:04Z): local `make test` failed — `search-page-panel.a11y.test.tsx` smoke timed out at 15s on head `e5defbc8`. Live GitHub now also DIRTY/CONFLICTING. | **No** — no later clearing comment. Merge-conflict fix in `e5defbc8` was superseded by this a11y timeout blocker before main advanced again. |
+
+### Selected outcome per PR
+
+| PR | Classification | Rationale |
+| --- | --- | --- |
+| #277 | **active-review-handoff** | Sole remaining blocker is DIRTY merge drift (95 commits behind `209d1bd8`). Review is clear, CI and prior local `make test` passed on head `6a1530a0`. Conflicts are in-scope search/test files and resolvable within PR intent, but batch 066 `generic-search-ai-enrichment-pr277-drain` already owns refresh/merge completion. Shared `search-page-panel.test.tsx` conflict requires coordinated judgment with PR #279 drain lane. `refresh-pr-branch` is **not** selected: no third party is actively refreshing, but duplicating batch 066 drain work violates ownership rules. `blocked` is **not** selected: drain owner exists and blockers are in-scope merge conflicts, not workflow-repair gaps. |
+| #279 | **active-review-handoff** | Two stacked blockers on head `e5defbc8`: unresolved **BLOCKING** local `make test` a11y timeout (no clearing comment) plus DIRTY merge drift (107 commits behind `209d1bd8`). Sole conflict path is shared `search-page-panel.test.tsx`. Batch 066 `generic-site-config-pr279-drain` owns completion. `refresh-pr-branch` is **not** selected for the same ownership and cross-PR coordination reasons as #277. `blocked` is **not** selected: blockers are concrete and actionable by the batch 066 drain owner (a11y timeout stabilization + main merge), not missing metadata or out-of-scope conflicts. |
+
+### Story routing
+
+| PR | Story 002 outcome | Story 003 (refresh) | Story 004 (handoff) | Story 005 (blocked record) |
+| --- | --- | --- | --- | --- |
+| #277 | active-review-handoff | does not run | **runs** | does not run |
+| #279 | active-review-handoff | does not run | **runs** | does not run |
+
+### Cross-PR coordination (for story 004 handoff)
+
+Recommended drain order unchanged from batch 073: refresh PR #277 first (more
+conflict paths, search-surface owner), then PR #279 against updated
+`origin/main` and the resolved shared test file.
+
+### Story 002 verification
+
+- Classification cites story 001 evidence plus fresh `git fetch`, `gh pr checks`,
+  `gh api` mergeability, `you work list`, and non-mutating `git merge-tree`.
+- **No branch mutation**, queue movement, staging, committing, or conflict
+  resolution on target PR branches.
+- Local quality gate: `bun run typecheck` passed on this lane worktree
+  (2026-07-02T21:30Z UTC).
