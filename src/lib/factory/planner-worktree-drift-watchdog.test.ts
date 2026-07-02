@@ -97,6 +97,8 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
       evaluatedWorktreeCount: 1,
       generatedAtUtc: "2026-06-20T00:00:00.000Z",
       issues: [],
+      mergedLaneCount: 0,
+      mergedLanes: [],
       risks: [
         {
           category: "shared-helper",
@@ -183,7 +185,7 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
     const report = formatPlannerWorktreeDriftReport(snapshot);
     expect(report).toContain("Planner Worktree Drift Watchdog");
     expect(report).toContain(
-      "active-lanes=1 evaluated-worktrees=1 risk-cases=1 root-dirty-shared-paths=1 worktree-dirty-shared-paths=2 total-dirty-shared-paths=3",
+      "active-lanes=1 merged-lanes=0 evaluated-worktrees=1 risk-cases=1 root-dirty-shared-paths=1 worktree-dirty-shared-paths=2 total-dirty-shared-paths=3",
     );
     expect(report).toContain("- risks");
     expect(report).toContain(
@@ -376,5 +378,163 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
       },
     ]);
     expect(snapshot.worktrees[0]?.nextAction).toBe("wait");
+  });
+
+  test("classifies root drift tied to already-merged page lanes with reviewer-visible merge evidence", () => {
+    const snapshot = buildPlannerWorktreeDriftSnapshot(
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        laneCount: 1,
+        activeLaneCount: 1,
+        failedLaneCount: 0,
+        linkedLaneCount: 1,
+        linkedWithGapsLaneCount: 0,
+        prBackedLaneCount: 1,
+        actionableLinkageGapLaneCount: 0,
+        queueOnlyControlNoiseLaneCount: 0,
+        issues: [],
+        lanes: [
+          {
+            laneName: "tokens-per-second-serving-metric-page",
+            queueState: "active",
+            rawQueueState: "active",
+            linkageStatus: "linked",
+            worktreePath:
+              ".claude/worktrees/tokens-per-second-serving-metric-page",
+            branchName: "tokens-per-second-serving-metric-page",
+            pullRequest: { number: 201 },
+            pullRequestLookup: { status: "resolved" },
+            missingLinkageReasons: [],
+          },
+        ],
+      },
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        mergedLaneEvidence: [
+          {
+            laneName: "cross-attention-module-page",
+            branchName: "cross-attention-module-page",
+            worktreePath: "/repo/.claude/worktrees/cross-attention-module-page",
+            mergeEvidence: {
+              pullRequestNumber: 182,
+              mergeCommitSha: "f2343089abc1234567890abcdef1234567890abcd",
+              terminalState: "complete/terminal",
+              sessionId: "0fdc5077-95ed-4396-a183-06e5b16555ca",
+            },
+          },
+        ],
+        repoRoot: "/repo",
+        runGitStatus: (cwd) => {
+          if (cwd === "/repo") {
+            return [
+              "D  src/content/modules/cross-attention.mdx",
+              " M src/lib/content/cross-attention.test.ts",
+              " M package.json",
+            ].join("\n");
+          }
+          if (
+            cwd ===
+            "/repo/.claude/worktrees/tokens-per-second-serving-metric-page"
+          ) {
+            return " M docs/planner/active-lane.md";
+          }
+          if (cwd === "/repo/.claude/worktrees/cross-attention-module-page") {
+            return [
+              "D  src/content/modules/cross-attention.mdx",
+              " M src/lib/content/cross-attention.test.ts",
+            ].join("\n");
+          }
+          throw new Error(`unexpected cwd ${cwd}`);
+        },
+      },
+    );
+
+    expect(snapshot.mergedLaneCount).toBe(1);
+    expect(snapshot.mergedLanes[0]?.laneName).toBe(
+      "cross-attention-module-page",
+    );
+
+    const crossAttentionPage = snapshot.root.dirtyPaths.find(
+      (dirtyPath) =>
+        dirtyPath.path === "src/content/modules/cross-attention.mdx",
+    );
+    const crossAttentionTest = snapshot.root.dirtyPaths.find(
+      (dirtyPath) =>
+        dirtyPath.path === "src/lib/content/cross-attention.test.ts",
+    );
+    const packageJson = snapshot.root.dirtyPaths.find(
+      (dirtyPath) => dirtyPath.path === "package.json",
+    );
+
+    expect(crossAttentionPage?.ownership).toEqual({
+      branchName: "cross-attention-module-page",
+      kind: "already-merged-owned",
+      laneName: "cross-attention-module-page",
+      mergeEvidence: {
+        pullRequestNumber: 182,
+        mergeCommitSha: "f2343089abc1234567890abcdef1234567890abcd",
+        terminalState: "complete/terminal",
+        sessionId: "0fdc5077-95ed-4396-a183-06e5b16555ca",
+      },
+      reasonCode: "already-merged-lane-match",
+      reason:
+        "Root drift matches already-merged lane cross-attention-module-page (PR #182, merge f234308, complete/terminal, session 0fdc5077-95ed-4396-a183-06e5b16555ca).",
+      worktreePath: ".claude/worktrees/cross-attention-module-page",
+    });
+    expect(crossAttentionTest?.ownership.kind).toBe("already-merged-owned");
+    expect(packageJson?.ownership).toEqual({
+      kind: "root-owned",
+      reasonCode: "root-unmatched",
+      reason:
+        "No active lane currently matches this dirty path or shared surface, so the drift remains rooted in the planner checkout.",
+    });
+    expect(snapshot.risks).toEqual([
+      {
+        category: "authored-content",
+        evidenceSummary:
+          "Root dirty path src/content/modules/cross-attention.mdx is already-merged root drift from lane cross-attention-module-page (PR #182, merge f234308, complete/terminal, session 0fdc5077-95ed-4396-a183-06e5b16555ca).",
+        kind: "already-merged-root-drift",
+        laneNames: ["cross-attention-module-page"],
+        nextAction: "investigate",
+        path: "src/content/modules/cross-attention.mdx",
+        surface: "src/content/modules",
+      },
+      {
+        category: "shared-test",
+        evidenceSummary:
+          "Root dirty path src/lib/content/cross-attention.test.ts is already-merged root drift from lane cross-attention-module-page (PR #182, merge f234308, complete/terminal, session 0fdc5077-95ed-4396-a183-06e5b16555ca).",
+        kind: "already-merged-root-drift",
+        laneNames: ["cross-attention-module-page"],
+        nextAction: "investigate",
+        path: "src/lib/content/cross-attention.test.ts",
+        surface: "src/lib/content",
+      },
+      {
+        category: "shared-helper",
+        evidenceSummary:
+          "Root dirty path package.json has no obvious active owner.",
+        kind: "root-drift-without-obvious-owner",
+        laneNames: [],
+        nextAction: "investigate",
+        path: "package.json",
+        surface: "package.json",
+      },
+    ]);
+
+    const report = formatPlannerWorktreeDriftReport(snapshot);
+    expect(report).toContain("merged-lanes=1");
+    expect(report).toContain("- merged-lanes");
+    expect(report).toContain(
+      "lane=cross-attention-module-page branch=cross-attention-module-page merge-evidence=PR #182, merge f234308, complete/terminal, session 0fdc5077-95ed-4396-a183-06e5b16555ca",
+    );
+    expect(report).toContain(
+      "owner=already-merged-owned:cross-attention-module-page merge-evidence=PR #182, merge f234308, complete/terminal, session 0fdc5077-95ed-4396-a183-06e5b16555ca",
+    );
+    expect(report).toContain(
+      "risk=already-merged-root-drift path=src/content/modules/cross-attention.mdx",
+    );
+    expect(report).not.toContain(
+      "risk=root-drift-without-obvious-owner path=src/content/modules/cross-attention.mdx",
+    );
   });
 });

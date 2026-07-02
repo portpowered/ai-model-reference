@@ -93,8 +93,9 @@ describe("planner-worktree-drift-watchdog script", () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("Planner Worktree Drift Watchdog");
     expect(result.stdout).toContain(
-      "active-lanes=1 evaluated-worktrees=1 risk-cases=1 root-dirty-shared-paths=1 worktree-dirty-shared-paths=1 total-dirty-shared-paths=2",
+      "active-lanes=1 merged-lanes=0 evaluated-worktrees=1 risk-cases=1 root-dirty-shared-paths=1 worktree-dirty-shared-paths=1 total-dirty-shared-paths=2",
     );
+    expect(result.stdout).not.toContain("- merged-lanes");
     expect(result.stdout).toContain("- risks");
     expect(result.stdout).toContain(
       "risk=root-drift-without-obvious-owner path=src/lib/factory/root.ts surface=src/lib/factory lanes=none next-action=investigate evidence=Root dirty path src/lib/factory/root.ts has no obvious active owner.",
