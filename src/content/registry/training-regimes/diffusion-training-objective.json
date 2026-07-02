@@ -1,0 +1,36 @@
+{
+  "id": "training-regime.diffusion-training-objective",
+  "slug": "diffusion-training-objective",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Diffusion Training Objective",
+    "diffusion training objective",
+    "diffusion objective",
+    "denoising objective",
+    "diffusion loss",
+    "noise prediction objective"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "concept.diffusion-model",
+    "concept.denoising-generation",
+    "concept.latent-space",
+    "concept.autoregressive-generation",
+    "training-regime.pretraining"
+  ],
+  "citationIds": ["citation.denoising-diffusion-probabilistic-models"],
+  "status": "published",
+  "createdAt": "2026-07-01T20:00:00.000Z",
+  "updatedAt": "2026-07-01T20:00:00.000Z",
+  "releaseDate": "2020-06-19",
+  "authors": ["Jonathan Ho", "Ajay Jain", "Pieter Abbeel"],
+  "sourceId": "citation.denoising-diffusion-probabilistic-models",
+  "primaryClassificationId": "classification.training.pretraining",
+  "regimeType": "pretraining",
+  "usedByModelIds": [],
+  "relatedModuleIds": [],
+  "paperIds": [],
+  "conceptType": "training"
+}
