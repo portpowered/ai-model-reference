@@ -3,6 +3,7 @@ import {
   buildLatentDiffusionRootDirtyPathClassificationReport,
   buildLatentDiffusionRootReconciliationReport,
   formatLatentDiffusionCompletedWorktreeEvidenceReport,
+  formatLatentDiffusionContentLaneHoldDecision,
   formatLatentDiffusionLandedEvidenceReport,
   formatLatentDiffusionRootDirtyPathClassificationReport,
   formatLatentDiffusionRootReconciliationReport,
@@ -79,9 +80,10 @@ process.stdout.write(
               reconciliationReport,
             ),
           ),
+          contentLaneHold: reconciliationReport.contentLaneHoldDecision,
         },
         null,
         2,
       )}\n`
-    : `${formatLatentDiffusionLandedEvidenceReport(report)}\n\n${formatLatentDiffusionCompletedWorktreeEvidenceReport(worktreeEvidenceReport)}\n\n${formatLatentDiffusionRootDirtyPathClassificationReport(classificationReport)}\n\n${formatLatentDiffusionRootReconciliationReport(reconciliationReport)}\n`,
+    : `${formatLatentDiffusionLandedEvidenceReport(report)}\n\n${formatLatentDiffusionCompletedWorktreeEvidenceReport(worktreeEvidenceReport)}\n\n${formatLatentDiffusionRootDirtyPathClassificationReport(classificationReport)}\n\n${formatLatentDiffusionRootReconciliationReport(reconciliationReport)}\n\n${formatLatentDiffusionContentLaneHoldDecision(reconciliationReport.contentLaneHoldDecision)}\n`,
 );

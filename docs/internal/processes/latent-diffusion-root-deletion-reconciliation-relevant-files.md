@@ -35,8 +35,9 @@ on the current checkout head.
   `origin/main` for every reconciliation dirty path, and root dirty path
   ownership/intent classification (`stale-merge-checkouter-drift`,
   `operator-owned-work`, `intended-removal`, `blocked-unknown`, `cleared`),
-  and root reconciliation outcomes (`buildLatentDiffusionRootReconciliationReport`)
-  that plan or perform provably safe stale-drift restore vs operator handoff.
+  root reconciliation outcomes (`buildLatentDiffusionRootReconciliationReport`)
+  that plan or perform provably safe stale-drift restore vs operator handoff, and
+  content-lane hold/release decisions (`determineLatentDiffusionContentLaneHoldDecision`).
 * `src/lib/factory/planner-latent-diffusion-root-deletion-reconciliation.test.ts`
   — fixture git repo tests for shipped-vs-dirty separation and completed-worktree
   path evidence against `origin/main`.
@@ -142,6 +143,23 @@ completed-branch removal signal may be restored via
 `git restore --source=<remote-base-ref> --staged --worktree`. Shared modified
 tests and other `blocked-unknown` paths produce an operator handoff naming the
 exact blocking paths and ownership decision needed.
+
+## Story 005 — Content lane hold/release (2026-07-02 UTC)
+
+Content-lane decision via `determineLatentDiffusionContentLaneHoldDecision` and
+`bun run report:planner-latent-diffusion-root-deletion-reconciliation`.
+
+| Decision | Result |
+| --- | --- |
+| Content lane status | **released** |
+| Blocking paths | none |
+| Hold reason | none |
+| Release evidence | `latent-diffusion-dirty-paths=0`, `all-paths-cleared=true`, `handoff-required=false` |
+
+**Hold/release rule:** future content lanes are **held** when any listed path
+remains ownerless, deleted, blocked/unknown, or requires operator handoff.
+Lanes are **released** only when all nine reconciliation paths are cleared and
+the root checkout reports zero latent-diffusion dirty paths.
 
 ## Verification commands
 

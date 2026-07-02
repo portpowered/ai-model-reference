@@ -44,6 +44,12 @@ export const LATENT_DIFFUSION_SHARED_MODIFIED_TEST_PATHS = [
   "src/lib/source.test.ts",
 ] as const;
 
+export const LATENT_DIFFUSION_CONTENT_LANE_HOLD =
+  "Hold future content lanes until ownerless latent diffusion root deletion drift is cleared or explicitly owned.";
+
+export const LATENT_DIFFUSION_CONTENT_LANE_RELEASE =
+  "Future content lanes may proceed; root checkout reports no ownerless latent diffusion deletion drift for listed paths.";
+
 export type LatentDiffusionRootPathClassification =
   | "stale-merge-checkouter-drift"
   | "operator-owned-work"
@@ -1243,11 +1249,23 @@ export interface LatentDiffusionOperatorHandoff {
   summary: string;
 }
 
+export type LatentDiffusionContentLaneHoldStatus = "held" | "released";
+
+export interface LatentDiffusionContentLaneHoldDecision {
+  blockingPathCount: number;
+  blockingPaths: string[];
+  evidence: string[];
+  holdReason: string | null;
+  releaseEvidence: string[];
+  status: LatentDiffusionContentLaneHoldStatus;
+}
+
 export interface LatentDiffusionRootReconciliationReport {
   allPathsCleared: boolean;
   blockedCount: number;
   cleanupPerformedCount: number;
   clearedCount: number;
+  contentLaneHoldDecision: LatentDiffusionContentLaneHoldDecision;
   explicitlyOwnedCount: number;
   generatedAtUtc: string;
   handoffRequired: boolean;
@@ -1270,6 +1288,92 @@ export interface BuildLatentDiffusionRootReconciliationReportOptions {
   runGit?: RunGit;
   runGitStatus?: RunGitStatus;
   statusOutput?: string;
+}
+
+export function determineLatentDiffusionContentLaneHoldDecision(input: {
+  landedEvidenceReport: LatentDiffusionLandedEvidenceReport;
+  reconciliationReport: Pick<
+    LatentDiffusionRootReconciliationReport,
+    "allPathsCleared" | "handoffRequired" | "pathOutcomes"
+  >;
+}): LatentDiffusionContentLaneHoldDecision {
+  const dirtyPaths =
+    input.landedEvidenceReport.rootCheckoutEvidence.latentDiffusionDirtyPaths;
+  const ownerlessOrBlockedOutcomes = input.reconciliationReport.pathOutcomes.filter(
+    (outcome) =>
+      outcome.classification === "blocked-unknown" ||
+      outcome.classification === "intended-removal" ||
+      (outcome.classification === "stale-merge-checkouter-drift" &&
+        outcome.finalRootState !== "cleared") ||
+      (outcome.priorRootCheckoutStatus === "deleted" &&
+        outcome.finalRootState !== "cleared"),
+  );
+  const nonClearedOutcomes = input.reconciliationReport.pathOutcomes.filter(
+    (outcome) => outcome.finalRootState !== "cleared",
+  );
+
+  const shouldHold =
+    !input.reconciliationReport.allPathsCleared ||
+    input.reconciliationReport.handoffRequired ||
+    dirtyPaths.length > 0 ||
+    ownerlessOrBlockedOutcomes.length > 0;
+
+  if (shouldHold) {
+    const blockingPaths = [
+      ...new Set([
+        ...dirtyPaths.map((entry) => entry.path),
+        ...ownerlessOrBlockedOutcomes.map((outcome) => outcome.path),
+        ...nonClearedOutcomes.map((outcome) => outcome.path),
+      ]),
+    ].sort();
+
+    const evidence = [
+      `latent-diffusion-dirty-paths=${dirtyPaths.length}`,
+      `all-paths-cleared=${input.reconciliationReport.allPathsCleared}`,
+      `handoff-required=${input.reconciliationReport.handoffRequired}`,
+      `ownerless-or-blocked-outcomes=${ownerlessOrBlockedOutcomes.length}`,
+    ];
+
+    if (dirtyPaths.length > 0) {
+      for (const dirtyPath of dirtyPaths) {
+        evidence.push(
+          `dirty-path=${dirtyPath.path} status=${dirtyPath.statusCode.trim()} change=${dirtyPath.changeKind}`,
+        );
+      }
+    }
+
+    for (const outcome of ownerlessOrBlockedOutcomes) {
+      evidence.push(
+        `blocking-outcome path=${outcome.path} classification=${outcome.classification} final-root-state=${outcome.finalRootState}`,
+      );
+    }
+
+    return {
+      blockingPathCount: blockingPaths.length,
+      blockingPaths,
+      evidence,
+      holdReason: LATENT_DIFFUSION_CONTENT_LANE_HOLD,
+      releaseEvidence: [],
+      status: "held",
+    };
+  }
+
+  const releaseEvidence = [
+    `latent-diffusion-dirty-paths=0`,
+    `all-paths-cleared=${input.reconciliationReport.allPathsCleared}`,
+    `handoff-required=${input.reconciliationReport.handoffRequired}`,
+    `reconciliation-path-count=${input.reconciliationReport.pathOutcomes.length}`,
+    `cleared-path-count=${input.reconciliationReport.pathOutcomes.filter((outcome) => outcome.finalRootState === "cleared").length}`,
+  ];
+
+  return {
+    blockingPathCount: 0,
+    blockingPaths: [],
+    evidence: releaseEvidence,
+    holdReason: null,
+    releaseEvidence,
+    status: "released",
+  };
 }
 
 export function determineLatentDiffusionPathReconciliationPlan(input: {
@@ -1438,12 +1542,22 @@ export function buildLatentDiffusionRootReconciliationReport(
   const runGitStatus = options.runGitStatus ?? defaultRunGitStatus;
   const remoteBaseRef =
     options.remoteBaseRef ?? detectDefaultRemoteBaseRef(repoRoot, runGit);
+  const landedEvidenceReport =
+    options.landedEvidenceReport ??
+    verifyLatentDiffusionLandedEvidence({
+      generatedAtUtc: options.generatedAtUtc,
+      remoteBaseRef,
+      repoRoot,
+      runGit,
+      runGitStatus,
+      statusOutput: options.statusOutput,
+    });
   const classificationReport =
     options.classificationReport ??
     buildLatentDiffusionRootDirtyPathClassificationReport({
       completedWorktreeReport: options.completedWorktreeReport,
       generatedAtUtc: options.generatedAtUtc,
-      landedEvidenceReport: options.landedEvidenceReport,
+      landedEvidenceReport,
       remoteBaseRef,
       repoRoot,
       runGit,
@@ -1480,7 +1594,7 @@ export function buildLatentDiffusionRootReconciliationReport(
     pathOutcomes.length > 0 &&
     pathOutcomes.every((outcome) => outcome.finalRootState === "cleared");
 
-  return {
+  const reconciliationWithoutHoldDecision = {
     allPathsCleared,
     blockedCount: countByFinalState("blocked"),
     cleanupPerformedCount,
@@ -1493,6 +1607,18 @@ export function buildLatentDiffusionRootReconciliationReport(
     remoteBaseRef,
     repoRoot,
     staleDriftCleanupCount,
+  };
+
+  const contentLaneHoldDecision = determineLatentDiffusionContentLaneHoldDecision(
+    {
+      landedEvidenceReport,
+      reconciliationReport: reconciliationWithoutHoldDecision,
+    },
+  );
+
+  return {
+    ...reconciliationWithoutHoldDecision,
+    contentLaneHoldDecision,
   };
 }
 
@@ -1553,6 +1679,45 @@ export function formatLatentDiffusionRootReconciliationReport(
   lines.push(
     "- reconciliation-note: only stale-merge-checkouter-drift paths may be restored from origin/main; blocked or operator-owned paths require explicit ownership before any file action.",
   );
+
+  return lines.join("\n");
+}
+
+export function formatLatentDiffusionContentLaneHoldDecision(
+  decision: LatentDiffusionContentLaneHoldDecision,
+): string {
+  const decisionLine =
+    decision.status === "held"
+      ? `content-lane-hold=${decision.holdReason ?? LATENT_DIFFUSION_CONTENT_LANE_HOLD}`
+      : `content-lane-release=${LATENT_DIFFUSION_CONTENT_LANE_RELEASE}`;
+
+  const lines = [
+    `${LATENT_DIFFUSION_ROOT_DELETION_RECONCILIATION_HEADER} — Content Lane Hold Decision`,
+    `- ${decisionLine}`,
+    `- content-lane-status=${decision.status} blocking-path-count=${decision.blockingPathCount}`,
+  ];
+
+  if (decision.blockingPaths.length === 0) {
+    lines.push("    - blocking-paths: none");
+  } else {
+    for (const path of decision.blockingPaths) {
+      lines.push(`    - blocking-path=${path}`);
+    }
+  }
+
+  if (decision.status === "released") {
+    lines.push(
+      `- release-evidence count=${decision.releaseEvidence.length}`,
+    );
+    for (const evidence of decision.releaseEvidence) {
+      lines.push(`    - ${evidence}`);
+    }
+  } else {
+    lines.push(`- hold-evidence count=${decision.evidence.length}`);
+    for (const evidence of decision.evidence) {
+      lines.push(`    - ${evidence}`);
+    }
+  }
 
   return lines.join("\n");
 }

@@ -11,16 +11,20 @@ import {
   collectLatentDiffusionOriginMainSurfaceEvidence,
   collectLatentDiffusionRootCheckoutEvidence,
   determineLatentDiffusionCompletedWorktreePathDisposition,
+  determineLatentDiffusionContentLaneHoldDecision,
   determineLatentDiffusionLandedEvidenceVerificationStatus,
   determineLatentDiffusionPathReconciliationPlan,
   determineLatentDiffusionRootPathClassification,
   formatLatentDiffusionCompletedWorktreeEvidenceReport,
+  formatLatentDiffusionContentLaneHoldDecision,
   formatLatentDiffusionLandedEvidenceReport,
   formatLatentDiffusionRootDirtyPathClassificationReport,
   formatLatentDiffusionRootReconciliationReport,
   inspectLatentDiffusionCompletedWorktreeEvidence,
   isLatentDiffusionSharedModifiedTestPath,
   isMergeCommitInLineage,
+  LATENT_DIFFUSION_CONTENT_LANE_HOLD,
+  LATENT_DIFFUSION_CONTENT_LANE_RELEASE,
   LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA,
   LATENT_DIFFUSION_LANDING_PR_NUMBER,
   LATENT_DIFFUSION_ORIGIN_MAIN_SURFACES,
@@ -846,5 +850,146 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
         operatorDecisionNeeded: null,
       }),
     );
+  });
+
+  test("determineLatentDiffusionContentLaneHoldDecision releases when all paths are cleared", () => {
+    const decision = determineLatentDiffusionContentLaneHoldDecision({
+      landedEvidenceReport: {
+        generatedAtUtc: "2026-07-02T09:00:00.000Z",
+        mergeEvidence: {
+          mergeCommitSha: LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA,
+          mergeCommitShort: LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA.slice(0, 7),
+          presentInLineage: true,
+          pullRequestNumber: LATENT_DIFFUSION_LANDING_PR_NUMBER,
+          status: "present-in-lineage",
+        },
+        originMainSha: "abc1234",
+        originMainSurfaces: [],
+        remoteBaseRef: "origin/main",
+        repoRoot: "/tmp/repo",
+        rootCheckoutEvidence: {
+          dirtyPathCount: 0,
+          isClean: true,
+          latentDiffusionDirtyPaths: [],
+        },
+        verificationStatus: "verified",
+      },
+      reconciliationReport: {
+        allPathsCleared: true,
+        handoffRequired: false,
+        pathOutcomes: LATENT_DIFFUSION_RECONCILIATION_DIRTY_PATHS.map(
+          (path) => ({
+            classification: "cleared" as const,
+            cleanupPerformed: false,
+            cleanupSafetyRationale: null,
+            finalRootState: "cleared" as const,
+            operatorDecisionNeeded: null,
+            ownershipProof: [],
+            path,
+            plannedCleanupAction: "none" as const,
+            priorRootCheckoutStatus: "clean" as const,
+            priorStatusCode: null,
+          }),
+        ),
+      },
+    });
+
+    expect(decision.status).toBe("released");
+    expect(decision.blockingPathCount).toBe(0);
+    expect(decision.holdReason).toBeNull();
+    expect(decision.releaseEvidence).toContain("latent-diffusion-dirty-paths=0");
+    expect(decision.releaseEvidence).toContain("all-paths-cleared=true");
+  });
+
+  test("determineLatentDiffusionContentLaneHoldDecision holds when ownerless deletion drift remains", () => {
+    const pagePath = "src/content/docs/papers/latent-diffusion/page.mdx";
+    const decision = determineLatentDiffusionContentLaneHoldDecision({
+      landedEvidenceReport: {
+        generatedAtUtc: "2026-07-02T09:00:00.000Z",
+        mergeEvidence: {
+          mergeCommitSha: LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA,
+          mergeCommitShort: LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA.slice(0, 7),
+          presentInLineage: true,
+          pullRequestNumber: LATENT_DIFFUSION_LANDING_PR_NUMBER,
+          status: "present-in-lineage",
+        },
+        originMainSha: "abc1234",
+        originMainSurfaces: [],
+        remoteBaseRef: "origin/main",
+        repoRoot: "/tmp/repo",
+        rootCheckoutEvidence: {
+          dirtyPathCount: 1,
+          isClean: false,
+          latentDiffusionDirtyPaths: [
+            {
+              changeKind: "deleted",
+              path: pagePath,
+              statusCode: " D",
+            },
+          ],
+        },
+        verificationStatus: "verified",
+      },
+      reconciliationReport: {
+        allPathsCleared: false,
+        handoffRequired: true,
+        pathOutcomes: [
+          {
+            classification: "stale-merge-checkouter-drift",
+            cleanupPerformed: false,
+            cleanupSafetyRationale: "restore pending",
+            finalRootState: "blocked",
+            operatorDecisionNeeded: null,
+            ownershipProof: [],
+            path: pagePath,
+            plannedCleanupAction: "restore-from-remote-base-ref",
+            priorRootCheckoutStatus: "deleted",
+            priorStatusCode: " D",
+          },
+        ],
+      },
+    });
+
+    expect(decision.status).toBe("held");
+    expect(decision.holdReason).toBe(LATENT_DIFFUSION_CONTENT_LANE_HOLD);
+    expect(decision.blockingPaths).toContain(pagePath);
+    expect(decision.evidence.some((entry) => entry.includes(pagePath))).toBe(
+      true,
+    );
+  });
+
+  test("formatLatentDiffusionContentLaneHoldDecision renders release decision visibly", () => {
+    const formatted = formatLatentDiffusionContentLaneHoldDecision({
+      blockingPathCount: 0,
+      blockingPaths: [],
+      evidence: ["latent-diffusion-dirty-paths=0", "all-paths-cleared=true"],
+      holdReason: null,
+      releaseEvidence: [
+        "latent-diffusion-dirty-paths=0",
+        "all-paths-cleared=true",
+      ],
+      status: "released",
+    });
+
+    expect(formatted).toContain("Content Lane Hold Decision");
+    expect(formatted).toContain(`content-lane-release=${LATENT_DIFFUSION_CONTENT_LANE_RELEASE}`);
+    expect(formatted).toContain("content-lane-status=released");
+    expect(formatted).toContain("release-evidence count=2");
+  });
+
+  test("buildLatentDiffusionRootReconciliationReport includes content lane hold decision", () => {
+    const fixture = createFixtureRepo();
+    try {
+      const report = buildLatentDiffusionRootReconciliationReport({
+        generatedAtUtc: "2026-07-02T09:00:00.000Z",
+        remoteBaseRef: fixture.mainRef,
+        repoRoot: fixture.repoRoot,
+      });
+
+      expect(report.contentLaneHoldDecision.status).toBe("released");
+      expect(report.contentLaneHoldDecision.blockingPathCount).toBe(0);
+    } finally {
+      fixture.cleanup();
+    }
   });
 });
