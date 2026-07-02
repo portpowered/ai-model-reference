@@ -506,3 +506,55 @@ drain ideas as the sole owners; this batch 073 lane does not perform the refresh
   branches, or unrelated content editing occurred while gathering evidence.
 - Only `git fetch` (read-only remote refresh) and non-mutating `git merge-tree`,
   drift queries, and `you work list` reads were used.
+
+## Story 005 — Final verification (quality gate and non-duplication)
+
+Captured 2026-07-02T20:45Z UTC. Confirms the narrow planner handoff outcome is
+complete, non-duplicative, and passes local quality gates on this batch 073 lane.
+
+### Selected outcome per PR (final)
+
+| PR | Final outcome | Blocker type on target PR (unchanged; batch 066 owns fix) |
+| --- | --- | --- |
+| #277 | **handed off to batch 066** (`generic-search-ai-enrichment-pr277-drain`) | BLOCKING MERGE — conflict drift; head `6a1530a0` unchanged |
+| #279 | **handed off to batch 066** (`generic-site-config-pr279-drain`) | BLOCKING — local `make test` a11y timeout; head `e5defbc8` unchanged |
+
+Neither PR was **refreshed** in this lane. Neither PR is **blocked with
+workflow-repair** — batch 066 drain items already exist at `idea:init` and own
+completion.
+
+### Non-duplication and scope constraints (verified)
+
+| Check | Result |
+| --- | --- |
+| New generic shell features implemented | **no** — only evidence/handoff docs on this branch |
+| Queue items manually moved | **no** — batch 066 drain ideas remain `idea:init` / INITIAL (re-verified 2026-07-02T20:45Z UTC) |
+| Competing drain lanes created | **no** |
+| Target PR branches mutated | **no** — heads `6a1530a0` (#277) and `e5defbc8` (#279) unchanged |
+| Unrelated route/search/sidebar/site-config files edited | **no** |
+| Root checkout dirty files unrelated to #277/#279 cleaned or modified | **no** — this lane diff is docs-only (see branch diff below) |
+
+### Branch diff scope (this handoff lane vs `main`)
+
+Only these files changed on `generic-pr277-pr279-conflict-refresh-handoff`:
+
+- `docs/internal/processes/generic-pr277-pr279-conflict-refresh-handoff-relevant-files.md`
+- `docs/internal/processes/factory-linkage-relevant-files.md`
+
+No `src/` application code, search, sidebar, route, or site-config runtime files
+were touched.
+
+### Quality gate results (2026-07-02T20:45Z UTC)
+
+| Command | Result |
+| --- | --- |
+| `bun run typecheck` | **pass** |
+| `bun run lint` | **pass** (3 pre-existing `noNonNullAssertion` warnings in unrelated test files; 0 errors) |
+| `make test` | **pass** — 3462 pass / 0 fail / 29448 expect() calls across 517 files (~1218s, 2026-07-02T18:33:48Z UTC) |
+
+### Planner handoff summary
+
+Batch 073 (`generic-pr277-pr279-conflict-refresh-handoff`) produced evidence and
+exact next actions only. Batch 066 owns PR #277 and PR #279 refresh, conflict
+resolution, local gate fixes, review/consume, and merge. See story 004 handoff
+payload for numbered next actions per drain lane.
