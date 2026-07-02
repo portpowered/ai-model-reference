@@ -24,6 +24,10 @@ watchdog summaries, or planner-facing linkage reports.
   `parsePlannerRelevantDirtyPaths` for planner-root drift, keeping those signals
   separate. Expected surfaces accept explicit per-lane fixtures or derive from
   branch diff filtered to page-bundle, registry-record, and focused-test paths.
+  Landing-status classification consumes `TerminalLaneLandingSurfaceComparison`
+  plus optional candidate terminal-state evidence to emit
+  `landed` / `remote-only` / `partial` / `reconciliation-required` with cited
+  surface reasons.
 
 ## Planner-facing commands
 

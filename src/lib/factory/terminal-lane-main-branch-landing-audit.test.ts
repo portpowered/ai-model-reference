@@ -4,10 +4,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { RunCommand } from "@/lib/factory/active-pr-mergeability-watchdog";
 import {
+  classifyTerminalLaneLandingStatus,
+  classifyTerminalLaneLandingStatuses,
   classifyTerminalLaneLandingSurfaceKind,
   compareTerminalLaneLandingSurfaces,
   discoverTerminalLaneLandingCandidates,
   formatTerminalLaneLandingCandidateDiscovery,
+  formatTerminalLaneLandingClassificationReport,
   formatTerminalLaneLandingSurfaceComparisonReport,
   TerminalLaneLandingAuditDiscoveryError,
   UNAVAILABLE_EVIDENCE,
@@ -550,6 +553,213 @@ describe("compareTerminalLaneLandingSurfaces", () => {
     expect(report.comparisons[0]?.surfaceSource).toBe(UNAVAILABLE_EVIDENCE);
     expect(report.comparisons[0]?.surfaces).toEqual([]);
     expect(report.comparisons[0]?.issues[0]).toContain("branch identity");
+  });
+});
+
+const activationTerminalCompleteCandidate = {
+  laneName: "activation-concept-current-main-page",
+  source: "queue-terminal-complete" as const,
+  terminalState: {
+    status: "present" as const,
+    rawState: "complete",
+    stateType: "TERMINAL",
+  },
+  branchIdentity: {
+    status: "present" as const,
+    branchName: "activation-concept-current-main-page",
+    source: "metadata" as const,
+  },
+  worktreeIdentity: {
+    status: "present" as const,
+    worktreePath:
+      "/repo/.claude/worktrees/activation-concept-current-main-page",
+  },
+};
+
+function buildActivationSurfaceComparison(input: {
+  mainStatuses: Array<"present" | "absent" | typeof UNAVAILABLE_EVIDENCE>;
+  plannerRootStatuses: Array<
+    "clean" | "dirty" | "deleted" | typeof UNAVAILABLE_EVIDENCE
+  >;
+  surfaceSource?: "explicit" | "branch-diff" | typeof UNAVAILABLE_EVIDENCE;
+  issues?: string[];
+}): ReturnType<typeof compareTerminalLaneLandingSurfaces> {
+  const surfaces = activationLandingSurfaces.map((surface, index) => ({
+    surface,
+    main: {
+      status: input.mainStatuses[index] ?? "absent",
+      mainRef: "origin/main",
+      reason: `main status ${input.mainStatuses[index] ?? "absent"}`,
+    },
+    plannerRoot: {
+      status: input.plannerRootStatuses[index] ?? UNAVAILABLE_EVIDENCE,
+      reason: `planner-root status ${input.plannerRootStatuses[index] ?? UNAVAILABLE_EVIDENCE}`,
+    },
+  }));
+
+  return {
+    generatedAtUtc: "2026-07-01T12:00:00.000Z",
+    repoRoot: "/repo",
+    mainRef: "origin/main",
+    comparisonCount: 1,
+    comparisons: [
+      {
+        laneName: "activation-concept-current-main-page",
+        mainRef: "origin/main",
+        surfaceSource: input.surfaceSource ?? "explicit",
+        issues: input.issues ?? [],
+        surfaces,
+      },
+    ],
+  };
+}
+
+function activationSurfaceComparisonFixture(
+  input: Parameters<typeof buildActivationSurfaceComparison>[0],
+): NonNullable<
+  ReturnType<typeof buildActivationSurfaceComparison>["comparisons"][number]
+> {
+  const comparison = buildActivationSurfaceComparison(input).comparisons[0];
+  if (!comparison) {
+    throw new Error("expected activation surface comparison fixture");
+  }
+  return comparison;
+}
+
+describe("classifyTerminalLaneLandingStatus", () => {
+  test("classifies terminal-complete lanes with all main surfaces and clean planner root as landed", () => {
+    const classification = classifyTerminalLaneLandingStatus({
+      candidate: activationTerminalCompleteCandidate,
+      comparison: activationSurfaceComparisonFixture({
+        mainStatuses: ["present", "present", "present"],
+        plannerRootStatuses: ["clean", "clean", "clean"],
+      }),
+    });
+
+    expect(classification.status).toBe("landed");
+    expect(classification.reasons[0]).toContain("terminal-complete");
+    expect(classification.reasons[0]).toContain("origin/main");
+    expect(classification.surfaceEvidence).toEqual({
+      totalSurfaces: 3,
+      mainPresent: 3,
+      mainAbsent: 0,
+      mainUnavailable: 0,
+      plannerRootClean: 3,
+      plannerRootDrift: 0,
+      plannerRootUnavailable: 0,
+    });
+  });
+
+  test("classifies main-present planner-root drift as remote-only with cited surfaces", () => {
+    const classification = classifyTerminalLaneLandingStatus({
+      candidate: activationTerminalCompleteCandidate,
+      comparison: activationSurfaceComparisonFixture({
+        mainStatuses: ["present", "present", "present"],
+        plannerRootStatuses: ["dirty", "deleted", "dirty"],
+      }),
+    });
+
+    expect(classification.status).toBe("remote-only");
+    expect(classification.reasons.join(" ")).toContain("planner-root checkout");
+    expect(classification.citedSurfaces).toHaveLength(3);
+    expect(
+      classification.citedSurfaces.map((surface) => surface.surface.kind),
+    ).toEqual(["page-bundle", "registry-record", "focused-test"]);
+  });
+
+  test("classifies partial main evidence as partial for near-terminal lanes", () => {
+    const classification = classifyTerminalLaneLandingStatus({
+      candidate: {
+        ...activationTerminalCompleteCandidate,
+        source: "queue-near-terminal",
+        terminalState: {
+          status: "present",
+          rawState: "failed",
+          stateType: "TERMINAL",
+        },
+      },
+      comparison: activationSurfaceComparisonFixture({
+        mainStatuses: ["present", "absent", "present"],
+        plannerRootStatuses: ["clean", "clean", "clean"],
+      }),
+    });
+
+    expect(classification.status).toBe("partial");
+    expect(classification.reasons[0]).toContain("2/3");
+    expect(classification.citedSurfaces).toHaveLength(1);
+    expect(classification.citedSurfaces[0]?.surface.path).toBe(
+      "src/content/registry/concepts/activation.json",
+    );
+  });
+
+  test("classifies terminal-complete lanes with missing main surfaces as reconciliation-required", () => {
+    const classification = classifyTerminalLaneLandingStatus({
+      candidate: activationTerminalCompleteCandidate,
+      comparison: activationSurfaceComparisonFixture({
+        mainStatuses: ["absent", "present", "present"],
+        plannerRootStatuses: ["deleted", "clean", "dirty"],
+      }),
+    });
+
+    expect(classification.status).toBe("reconciliation-required");
+    expect(classification.reasons[0]).toContain("terminal-complete");
+    expect(classification.reasons[0]).toContain("missing main-branch");
+    expect(classification.citedSurfaces[0]?.surface.kind).toBe("page-bundle");
+  });
+
+  test("classifies unavailable expected surfaces for terminal-complete lanes as reconciliation-required", () => {
+    const classification = classifyTerminalLaneLandingStatus({
+      candidate: activationTerminalCompleteCandidate,
+      comparison: activationSurfaceComparisonFixture({
+        mainStatuses: [],
+        plannerRootStatuses: [],
+        surfaceSource: UNAVAILABLE_EVIDENCE,
+        issues: [
+          "expected landing surfaces unavailable because branch identity is missing",
+        ],
+      }),
+    });
+
+    expect(classification.status).toBe("reconciliation-required");
+    expect(classification.reasons[0]).toContain(
+      "lacks verifiable landing surfaces",
+    );
+  });
+});
+
+describe("classifyTerminalLaneLandingStatuses", () => {
+  test("classifies each comparison with candidate context and formats grouped output", () => {
+    const comparisonReport = compareTerminalLaneLandingSurfaces({
+      repoRoot: "/repo",
+      mainRef: "origin/main",
+      plannerRootGitStatusText: [
+        " M src/content/docs/glossary/activation/page.mdx",
+        " D src/content/registry/concepts/activation.json",
+      ].join("\n"),
+      runCommand: createGitRunCommandStub({
+        mainPaths: new Set(
+          activationLandingSurfaces.map((surface) => surface.path),
+        ),
+      }),
+      candidates: [activationTerminalCompleteCandidate],
+      expectedLandingSurfacesByLane: {
+        "activation-concept-current-main-page": activationLandingSurfaces,
+      },
+    });
+
+    const report = classifyTerminalLaneLandingStatuses({
+      comparisonReport,
+      candidates: [activationTerminalCompleteCandidate],
+    });
+
+    expect(report.classificationCount).toBe(1);
+    expect(report.classifications[0]?.status).toBe("remote-only");
+
+    const output = formatTerminalLaneLandingClassificationReport(report);
+    expect(output).toContain("landing status classification");
+    expect(output).toContain("status=remote-only");
+    expect(output).toContain("page-bundle");
+    expect(output).toContain("registry-record");
   });
 });
 

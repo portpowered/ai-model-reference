@@ -1070,6 +1070,397 @@ export function formatTerminalLaneLandingSurfaceComparison(
   return lines.join("\n");
 }
 
+export type TerminalLaneLandingStatus =
+  | "landed"
+  | "remote-only"
+  | "partial"
+  | "reconciliation-required";
+
+export interface TerminalLaneLandingSurfaceEvidenceSummary {
+  totalSurfaces: number;
+  mainPresent: number;
+  mainAbsent: number;
+  mainUnavailable: number;
+  plannerRootClean: number;
+  plannerRootDrift: number;
+  plannerRootUnavailable: number;
+}
+
+export interface TerminalLaneLandingClassification {
+  laneName: string;
+  status: TerminalLaneLandingStatus;
+  reasons: string[];
+  surfaceEvidence: TerminalLaneLandingSurfaceEvidenceSummary;
+  citedSurfaces: TerminalLaneLandingSurfaceEvidence[];
+}
+
+export interface TerminalLaneLandingClassificationReport {
+  generatedAtUtc: string;
+  repoRoot: string;
+  mainRef: string;
+  classificationCount: number;
+  classifications: TerminalLaneLandingClassification[];
+}
+
+export interface ClassifyTerminalLaneLandingStatusesOptions {
+  candidates?: TerminalLaneLandingCandidate[];
+  classificationReport?: TerminalLaneLandingClassificationReport;
+  comparisonReport: TerminalLaneLandingSurfaceComparisonReport;
+}
+
+function summarizeSurfaceEvidence(
+  surfaces: TerminalLaneLandingSurfaceEvidence[],
+): TerminalLaneLandingSurfaceEvidenceSummary {
+  const summary: TerminalLaneLandingSurfaceEvidenceSummary = {
+    totalSurfaces: surfaces.length,
+    mainPresent: 0,
+    mainAbsent: 0,
+    mainUnavailable: 0,
+    plannerRootClean: 0,
+    plannerRootDrift: 0,
+    plannerRootUnavailable: 0,
+  };
+
+  for (const surface of surfaces) {
+    switch (surface.main.status) {
+      case "present":
+        summary.mainPresent += 1;
+        break;
+      case "absent":
+        summary.mainAbsent += 1;
+        break;
+      case UNAVAILABLE_EVIDENCE:
+        summary.mainUnavailable += 1;
+        break;
+    }
+
+    switch (surface.plannerRoot.status) {
+      case "clean":
+        summary.plannerRootClean += 1;
+        break;
+      case "dirty":
+      case "deleted":
+        summary.plannerRootDrift += 1;
+        break;
+      case UNAVAILABLE_EVIDENCE:
+        summary.plannerRootUnavailable += 1;
+        break;
+    }
+  }
+
+  return summary;
+}
+
+function formatSurfaceCitation(
+  evidence: TerminalLaneLandingSurfaceEvidence,
+): string {
+  return `${evidence.surface.kind} ${evidence.surface.path} (main=${evidence.main.status}, planner-root=${evidence.plannerRoot.status})`;
+}
+
+function isTerminalCompleteCandidate(
+  candidate: TerminalLaneLandingCandidate | undefined,
+): boolean {
+  if (!candidate) {
+    return false;
+  }
+
+  if (candidate.source === "queue-terminal-complete") {
+    return true;
+  }
+
+  if (candidate.terminalState.status !== "present") {
+    return false;
+  }
+
+  const rawState = candidate.terminalState.rawState.toLowerCase();
+  return rawState.includes("complete");
+}
+
+export function classifyTerminalLaneLandingStatus(input: {
+  candidate?: TerminalLaneLandingCandidate;
+  comparison: TerminalLaneLandingSurfaceComparison;
+}): TerminalLaneLandingClassification {
+  const { comparison, candidate } = input;
+  const surfaces = comparison.surfaces;
+  const surfaceEvidence = summarizeSurfaceEvidence(surfaces);
+  const terminalComplete = isTerminalCompleteCandidate(candidate);
+  const citedSurfaces: TerminalLaneLandingSurfaceEvidence[] = [];
+  const reasons: string[] = [];
+
+  const citeSurface = (evidence: TerminalLaneLandingSurfaceEvidence): void => {
+    citedSurfaces.push(evidence);
+  };
+
+  if (
+    comparison.surfaceSource === UNAVAILABLE_EVIDENCE ||
+    surfaces.length === 0
+  ) {
+    const issueSummary =
+      comparison.issues.join("; ") ||
+      "expected landing surfaces are unavailable";
+    if (terminalComplete) {
+      reasons.push(
+        `terminal-complete lane lacks verifiable landing surfaces: ${issueSummary}`,
+      );
+    } else {
+      reasons.push(`landing surface evidence is incomplete: ${issueSummary}`);
+    }
+    return {
+      laneName: comparison.laneName,
+      status: terminalComplete ? "reconciliation-required" : "partial",
+      reasons,
+      surfaceEvidence,
+      citedSurfaces,
+    };
+  }
+
+  if (surfaceEvidence.mainUnavailable > 0) {
+    for (const surface of surfaces) {
+      if (surface.main.status === UNAVAILABLE_EVIDENCE) {
+        citeSurface(surface);
+      }
+    }
+    reasons.push(
+      `main-branch landing evidence is unavailable for ${surfaceEvidence.mainUnavailable}/${surfaceEvidence.totalSurfaces} expected surfaces`,
+    );
+    return {
+      laneName: comparison.laneName,
+      status: "partial",
+      reasons,
+      surfaceEvidence,
+      citedSurfaces,
+    };
+  }
+
+  const allMainPresent =
+    surfaceEvidence.mainPresent === surfaceEvidence.totalSurfaces;
+  const allMainAbsent =
+    surfaceEvidence.mainAbsent === surfaceEvidence.totalSurfaces;
+  const someMainAbsent = surfaceEvidence.mainAbsent > 0;
+  const allPlannerRootClean =
+    surfaceEvidence.plannerRootClean === surfaceEvidence.totalSurfaces;
+  const plannerRootDrift = surfaces.filter(
+    (surface) =>
+      surface.plannerRoot.status === "dirty" ||
+      surface.plannerRoot.status === "deleted",
+  );
+
+  if (allMainPresent && allPlannerRootClean) {
+    if (terminalComplete) {
+      reasons.push(
+        `terminal-complete lane and all ${surfaceEvidence.totalSurfaces} expected landing surfaces are present on ${comparison.mainRef} with clean planner-root checkout`,
+      );
+      return {
+        laneName: comparison.laneName,
+        status: "landed",
+        reasons,
+        surfaceEvidence,
+        citedSurfaces: [...surfaces],
+      };
+    }
+
+    reasons.push(
+      `all ${surfaceEvidence.totalSurfaces} expected landing surfaces are present on ${comparison.mainRef}, but terminal-complete queue evidence is unavailable`,
+    );
+    return {
+      laneName: comparison.laneName,
+      status: "partial",
+      reasons,
+      surfaceEvidence,
+      citedSurfaces: [...surfaces],
+    };
+  }
+
+  if (allMainPresent && plannerRootDrift.length > 0) {
+    for (const surface of plannerRootDrift) {
+      citeSurface(surface);
+    }
+    reasons.push(
+      `${comparison.mainRef} contains all expected landing surfaces, but planner-root checkout does not reflect them cleanly`,
+    );
+    return {
+      laneName: comparison.laneName,
+      status: "remote-only",
+      reasons,
+      surfaceEvidence,
+      citedSurfaces,
+    };
+  }
+
+  if (allMainPresent && surfaceEvidence.plannerRootUnavailable > 0) {
+    for (const surface of surfaces) {
+      if (surface.plannerRoot.status === UNAVAILABLE_EVIDENCE) {
+        citeSurface(surface);
+      }
+    }
+    reasons.push(
+      `all expected landing surfaces are present on ${comparison.mainRef}, but planner-root checkout evidence is incomplete`,
+    );
+    return {
+      laneName: comparison.laneName,
+      status: "partial",
+      reasons,
+      surfaceEvidence,
+      citedSurfaces,
+    };
+  }
+
+  if (someMainAbsent) {
+    for (const surface of surfaces) {
+      if (surface.main.status === "absent") {
+        citeSurface(surface);
+      }
+    }
+
+    if (terminalComplete) {
+      reasons.push(
+        `terminal-complete lane conflicts with missing main-branch landing surfaces (${surfaceEvidence.mainAbsent}/${surfaceEvidence.totalSurfaces} absent on ${comparison.mainRef})`,
+      );
+      return {
+        laneName: comparison.laneName,
+        status: "reconciliation-required",
+        reasons,
+        surfaceEvidence,
+        citedSurfaces,
+      };
+    }
+
+    reasons.push(
+      `only ${surfaceEvidence.mainPresent}/${surfaceEvidence.totalSurfaces} expected landing surfaces are present on ${comparison.mainRef}`,
+    );
+    return {
+      laneName: comparison.laneName,
+      status: "partial",
+      reasons,
+      surfaceEvidence,
+      citedSurfaces,
+    };
+  }
+
+  if (allMainAbsent) {
+    for (const surface of surfaces) {
+      citeSurface(surface);
+    }
+
+    if (terminalComplete) {
+      reasons.push(
+        `terminal-complete lane has no expected landing surfaces present on ${comparison.mainRef}`,
+      );
+      return {
+        laneName: comparison.laneName,
+        status: "reconciliation-required",
+        reasons,
+        surfaceEvidence,
+        citedSurfaces,
+      };
+    }
+
+    reasons.push(
+      `none of the ${surfaceEvidence.totalSurfaces} expected landing surfaces are present on ${comparison.mainRef}`,
+    );
+    return {
+      laneName: comparison.laneName,
+      status: "partial",
+      reasons,
+      surfaceEvidence,
+      citedSurfaces,
+    };
+  }
+
+  reasons.push(
+    "landing surface evidence does not match landed, remote-only, partial, or reconciliation-required patterns",
+  );
+  return {
+    laneName: comparison.laneName,
+    status: "partial",
+    reasons,
+    surfaceEvidence,
+    citedSurfaces: [...surfaces],
+  };
+}
+
+export function classifyTerminalLaneLandingStatuses(
+  options: ClassifyTerminalLaneLandingStatusesOptions,
+): TerminalLaneLandingClassificationReport {
+  if (options.classificationReport) {
+    return options.classificationReport;
+  }
+
+  const candidatesByLane = new Map(
+    (options.candidates ?? []).map((candidate) => [
+      candidate.laneName,
+      candidate,
+    ]),
+  );
+
+  const classifications = options.comparisonReport.comparisons.map(
+    (comparison) =>
+      classifyTerminalLaneLandingStatus({
+        comparison,
+        candidate: candidatesByLane.get(comparison.laneName),
+      }),
+  );
+
+  return {
+    generatedAtUtc: new Date().toISOString(),
+    repoRoot: options.comparisonReport.repoRoot,
+    mainRef: options.comparisonReport.mainRef,
+    classificationCount: classifications.length,
+    classifications: classifications.sort((left, right) =>
+      left.laneName.localeCompare(right.laneName),
+    ),
+  };
+}
+
+export function formatTerminalLaneLandingClassification(
+  classification: TerminalLaneLandingClassification,
+): string {
+  const evidenceSummary = [
+    `surfaces=${classification.surfaceEvidence.totalSurfaces}`,
+    `main-present=${classification.surfaceEvidence.mainPresent}`,
+    `main-absent=${classification.surfaceEvidence.mainAbsent}`,
+    `planner-root-drift=${classification.surfaceEvidence.plannerRootDrift}`,
+  ].join(" ");
+
+  const lines = [
+    `lane=${classification.laneName} status=${classification.status} ${evidenceSummary}`,
+    `  reasons: ${classification.reasons.join("; ")}`,
+  ];
+
+  if (classification.citedSurfaces.length > 0) {
+    lines.push("  cited-surfaces:");
+    for (const surface of classification.citedSurfaces) {
+      lines.push(`    - ${formatSurfaceCitation(surface)}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
+export function formatTerminalLaneLandingClassificationReport(
+  report: TerminalLaneLandingClassificationReport,
+): string {
+  const lines = [
+    "Terminal Lane Main-Branch Landing Audit — landing status classification",
+    `Generated: ${report.generatedAtUtc}`,
+    `Repo root: ${report.repoRoot}`,
+    `Main ref: ${report.mainRef}`,
+    `Classifications: ${report.classificationCount}`,
+  ];
+
+  if (report.classifications.length === 0) {
+    lines.push("No landing-status classifications were produced.");
+    return lines.join("\n");
+  }
+
+  lines.push("Classifications:");
+  for (const classification of report.classifications) {
+    lines.push(formatTerminalLaneLandingClassification(classification));
+  }
+
+  return lines.join("\n");
+}
+
 export function formatTerminalLaneLandingSurfaceComparisonReport(
   report: TerminalLaneLandingSurfaceComparisonReport,
 ): string {
