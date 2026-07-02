@@ -2,11 +2,13 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  annotateRemotePresentDeletionFamilies,
   buildPlannerRootCheckoutOperatorNextActions,
   buildPlannerRootCheckoutReconciliationReport,
   classifyRootCheckoutDirtyPaths,
   formatPlannerRootCheckoutOperatorNextActions,
   formatPlannerRootCheckoutReconciliationReport,
+  isTokenizerMismatchRemotePresentDeletionPath,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD,
@@ -15,6 +17,8 @@ import {
   PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
   PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
+  PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY,
+  PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_STALE_DRIFT_GUIDANCE,
   summarizeManualInspectionChangeKinds,
 } from "@/lib/factory/planner-root-checkout-reconciliation";
 
@@ -22,6 +26,14 @@ const MIXED_DIRTY_STATUS_FIXTURE = readFileSync(
   join(
     import.meta.dir,
     "../../tests/fixtures/planner-root-checkout-reconciliation/mixed-dirty-status.txt",
+  ),
+  "utf8",
+);
+
+const TOKENIZER_MISMATCH_DIRTY_STATUS_FIXTURE = readFileSync(
+  join(
+    import.meta.dir,
+    "../../tests/fixtures/planner-root-checkout-reconciliation/tokenizer-mismatch-dirty-status.txt",
   ),
   "utf8",
 );
@@ -61,6 +73,70 @@ function createFixtureRunGit(remotePresentPaths: ReadonlySet<string>) {
     return { status: 0, stdout: "", stderr: "" };
   };
 }
+
+describe("isTokenizerMismatchRemotePresentDeletionPath", () => {
+  test("matches tokenizer-mismatch docs, registry, graph, citation, and focused test paths", () => {
+    const matchingPaths = [
+      "src/content/docs/modules/tokenizer-mismatch/page.mdx",
+      "src/content/docs/modules/tokenizer-mismatch/messages/en.json",
+      "src/content/registry/modules/tokenizer-mismatch.json",
+      "src/content/registry/tables/tokenizer-mismatch-comparison.json",
+      "src/content/registry/graphs/tokenizer-mismatch-compute-flow.json",
+      "src/content/registry/citations/zero-shot-tokenizer-transfer.json",
+      "src/lib/content/tokenizer-mismatch-module-page.test.ts",
+      "src/lib/content/tokenizer-mismatch-registry.test.ts",
+    ];
+
+    for (const path of matchingPaths) {
+      expect(isTokenizerMismatchRemotePresentDeletionPath(path)).toBe(true);
+    }
+  });
+
+  test("does not match unrelated remote-present deletion paths", () => {
+    expect(
+      isTokenizerMismatchRemotePresentDeletionPath(
+        "src/content/docs/models/clip/page.mdx",
+      ),
+    ).toBe(false);
+    expect(
+      isTokenizerMismatchRemotePresentDeletionPath("src/lib/factory/root.ts"),
+    ).toBe(false);
+  });
+});
+
+describe("annotateRemotePresentDeletionFamilies", () => {
+  test("labels tokenizer-mismatch remote-present deletions separately from other deletions", () => {
+    const annotated = annotateRemotePresentDeletionFamilies([
+      {
+        changeKind: "deleted",
+        classification: "ownerless-root-checkout-drift",
+        comparisonTarget: "origin/main",
+        evidence: PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
+        headPresent: true,
+        path: "src/content/docs/modules/tokenizer-mismatch/page.mdx",
+        remoteMainPresent: true,
+        statusCode: " D",
+      },
+      {
+        changeKind: "deleted",
+        classification: "ownerless-root-checkout-drift",
+        comparisonTarget: "origin/main",
+        evidence: PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
+        headPresent: true,
+        path: "src/content/docs/models/clip/page.mdx",
+        remoteMainPresent: true,
+        statusCode: " D",
+      },
+    ]);
+
+    expect(annotated[0]?.remotePresentDeletionFamily).toBe(
+      PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY,
+    );
+    expect(annotated[1]?.remotePresentDeletionFamily).toBe(
+      "other-remote-present-deletions",
+    );
+  });
+});
 
 describe("classifyRootCheckoutDirtyPaths", () => {
   test("classifies local deletions present on origin/main as ownerless root checkout drift", () => {
@@ -425,7 +501,7 @@ describe("buildPlannerRootCheckoutReconciliationReport", () => {
       "remote-base-ref=origin/main root-dirty-paths=2 remote-present-deletions=1 manual-inspection=1",
     );
     expect(formatted).toContain(
-      "path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift",
+      "path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=other-remote-present-deletions",
     );
     expect(formatted).toContain(
       "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection",
@@ -513,7 +589,11 @@ describe("planner root checkout reconciliation fixture evidence", () => {
         "remote-base-ref=origin/main root-dirty-paths=2 remote-present-deletions=1 manual-inspection=1",
         "- location=root repo=/repo",
         "- remote-present-ownerless-deletions count=1 comparison-target=origin/main",
-        "  - path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift",
+        `  - ${PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY} count=0 comparison-target=origin/main`,
+        `    - guidance=${PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_STALE_DRIFT_GUIDANCE}`,
+        "    - none",
+        "  - other-remote-present-deletions count=1 comparison-target=origin/main",
+        "    - path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=other-remote-present-deletions",
         "- manual-inspection count=1",
         `  - guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE}`,
         "  - change-kind-counts=modified=1",
@@ -524,6 +604,62 @@ describe("planner root checkout reconciliation fixture evidence", () => {
         `  - manual-inspection count=1 guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE}`,
       ].join("\n"),
     );
+  });
+
+  test("groups tokenizer-mismatch remote-present deletions as stale root checkout drift", () => {
+    const remotePresentPaths = new Set([
+      "src/content/docs/modules/tokenizer-mismatch/page.mdx",
+      "src/content/docs/modules/tokenizer-mismatch/assets.json",
+      "src/content/registry/modules/tokenizer-mismatch.json",
+      "src/content/registry/tables/tokenizer-mismatch-comparison.json",
+      "src/content/registry/graphs/tokenizer-mismatch-compute-flow.json",
+      "src/content/registry/citations/zero-shot-tokenizer-transfer.json",
+      "src/lib/content/tokenizer-mismatch-module-page.test.ts",
+      "src/lib/content/tokenizer-mismatch-registry.test.ts",
+      "src/content/docs/models/clip/page.mdx",
+    ]);
+
+    const report = buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-02T04:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: TOKENIZER_MISMATCH_DIRTY_STATUS_FIXTURE,
+      runGit: createFixtureRunGit(remotePresentPaths),
+    });
+
+    expect(report.tokenizerMismatchRemotePresentDeletions).toHaveLength(8);
+    expect(report.remotePresentDeletions).toHaveLength(9);
+
+    const formatted = formatPlannerRootCheckoutReconciliationReport(report);
+    expect(formatted).toContain(
+      `  - ${PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY} count=8 comparison-target=origin/main`,
+    );
+    expect(formatted).toContain(
+      `    - guidance=${PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_STALE_DRIFT_GUIDANCE}`,
+    );
+    expect(formatted).toContain(
+      "path=src/content/docs/modules/tokenizer-mismatch/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+    expect(formatted).toContain(
+      "path=src/content/registry/modules/tokenizer-mismatch.json status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+    expect(formatted).toContain(
+      "path=src/content/registry/tables/tokenizer-mismatch-comparison.json status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+    expect(formatted).toContain(
+      "path=src/content/registry/graphs/tokenizer-mismatch-compute-flow.json status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/content/tokenizer-mismatch-module-page.test.ts status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+    expect(formatted).toContain(
+      "  - other-remote-present-deletions count=1 comparison-target=origin/main",
+    );
+    expect(formatted).toContain(
+      "path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=other-remote-present-deletions",
+    );
+    expect(formatted).not.toContain("page-refill request");
+    expect(formatted).toContain("do not treat as missing content");
   });
 
   test("fixture snapshot keeps real local modification in manual inspection", () => {

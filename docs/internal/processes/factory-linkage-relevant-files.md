@@ -17,11 +17,14 @@ watchdog summaries, or planner-facing linkage reports.
 * `src/lib/factory/planner-root-checkout-reconciliation.ts` — non-destructive
   root checkout reconciliation that compares dirty paths against `HEAD` and
   `origin/main`, classifies remote-present local deletions as ownerless root
-  checkout drift with `present-on-origin-main` evidence, keeps other dirty
-  paths in manual-inspection groups with per-change-kind counts and preserve
-  guidance, and prints operator next actions (page-refill hold, safe cleanup
-  path for remote-present deletions, manual ownership inspection) with target
-  session `0fdc5077-95ed-4396-a183-06e5b16555ca`.
+  checkout drift with `present-on-origin-main` evidence, groups
+  tokenizer-mismatch remote-present deletions under
+  `tokenizer-mismatch-remote-present-deletions` with stale root checkout drift
+  guidance, keeps other dirty paths in manual-inspection groups with
+  per-change-kind counts and preserve guidance, and prints operator next
+  actions (page-refill hold, safe cleanup path for remote-present deletions,
+  manual ownership inspection) with target session
+  `0fdc5077-95ed-4396-a183-06e5b16555ca`.
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 
@@ -73,6 +76,7 @@ inventory checks. Supported fixture flags:
 * `--worktrees-dir`
 * `--pr-map-json`
 * `--status-output` for root checkout reconciliation fixture status porcelain
+  (`mixed-dirty-status.txt`, `tokenizer-mismatch-dirty-status.txt`)
 * `--session` for live `you work list` discovery in integration-style tests
 
 Representative regression coverage lives in

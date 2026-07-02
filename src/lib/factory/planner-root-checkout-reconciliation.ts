@@ -29,11 +29,21 @@ export const PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE =
 export const PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE =
   "Inspect each path for explicit ownership before cleanup; do not revert, stage, or overwrite user or planner work.";
 
+export const PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY =
+  "tokenizer-mismatch-remote-present-deletions";
+
+export const PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_STALE_DRIFT_GUIDANCE =
+  "Stale root checkout drift: content exists on origin/main; do not treat as missing content or request a page refill.";
+
 export type RootCheckoutComparisonTarget = "HEAD" | "origin/main";
 
 export type RootCheckoutDriftClassification =
   | "ownerless-root-checkout-drift"
   | "manual-inspection";
+
+export type RootCheckoutRemotePresentDeletionFamily =
+  | typeof PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY
+  | "other-remote-present-deletions";
 
 export interface RootCheckoutDirtyPathReport {
   changeKind: PlannerWorktreeDriftChangeKind;
@@ -43,6 +53,7 @@ export interface RootCheckoutDirtyPathReport {
   headPresent: boolean;
   path: string;
   remoteMainPresent: boolean;
+  remotePresentDeletionFamily?: RootCheckoutRemotePresentDeletionFamily;
   statusCode: string;
 }
 
@@ -62,6 +73,7 @@ export interface PlannerRootCheckoutReconciliationReport {
   remoteBaseRef: string;
   remotePresentDeletions: RootCheckoutDirtyPathReport[];
   repoRoot: string;
+  tokenizerMismatchRemotePresentDeletions: RootCheckoutDirtyPathReport[];
   totalDirtyPathCount: number;
 }
 
@@ -153,6 +165,80 @@ export function pathExistsOnGitRef(
   runGit: RunGit = defaultRunGit,
 ): boolean {
   return runGit(repoRoot, ["cat-file", "-e", `${ref}:${path}`]).status === 0;
+}
+
+export function isTokenizerMismatchRemotePresentDeletionPath(
+  path: string,
+): boolean {
+  if (path.startsWith("src/content/docs/modules/tokenizer-mismatch/")) {
+    return true;
+  }
+
+  if (
+    path === "src/content/registry/modules/tokenizer-mismatch.json" ||
+    path === "src/content/registry/tables/tokenizer-mismatch-comparison.json"
+  ) {
+    return true;
+  }
+
+  if (
+    path.startsWith("src/content/registry/graphs/") &&
+    path.includes("tokenizer-mismatch")
+  ) {
+    return true;
+  }
+
+  if (
+    path.startsWith("src/content/registry/citations/") &&
+    (path.includes("tokenizer-mismatch") ||
+      path.endsWith("zero-shot-tokenizer-transfer.json"))
+  ) {
+    return true;
+  }
+
+  return (
+    path === "src/lib/content/tokenizer-mismatch-registry.test.ts" ||
+    path === "src/lib/content/tokenizer-mismatch-module-page.test.ts"
+  );
+}
+
+export function annotateRemotePresentDeletionFamilies(
+  remotePresentDeletions: RootCheckoutDirtyPathReport[],
+): RootCheckoutDirtyPathReport[] {
+  return remotePresentDeletions.map((pathReport) => ({
+    ...pathReport,
+    remotePresentDeletionFamily: isTokenizerMismatchRemotePresentDeletionPath(
+      pathReport.path,
+    )
+      ? PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY
+      : "other-remote-present-deletions",
+  }));
+}
+
+export function partitionTokenizerMismatchRemotePresentDeletions(
+  remotePresentDeletions: RootCheckoutDirtyPathReport[],
+): {
+  otherRemotePresentDeletions: RootCheckoutDirtyPathReport[];
+  tokenizerMismatchRemotePresentDeletions: RootCheckoutDirtyPathReport[];
+} {
+  const annotated = annotateRemotePresentDeletionFamilies(
+    remotePresentDeletions,
+  );
+  const tokenizerMismatchRemotePresentDeletions = annotated.filter(
+    (pathReport) =>
+      pathReport.remotePresentDeletionFamily ===
+      PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY,
+  );
+  const otherRemotePresentDeletions = annotated.filter(
+    (pathReport) =>
+      pathReport.remotePresentDeletionFamily ===
+      "other-remote-present-deletions",
+  );
+
+  return {
+    otherRemotePresentDeletions,
+    tokenizerMismatchRemotePresentDeletions,
+  };
 }
 
 function classifyDeletedDirtyPath(
@@ -314,12 +400,19 @@ export function buildPlannerRootCheckoutReconciliationReport(
     runGit,
   });
 
+  const remotePresentDeletions = annotateRemotePresentDeletionFamilies(
+    classified.remotePresentDeletions,
+  );
+  const { tokenizerMismatchRemotePresentDeletions } =
+    partitionTokenizerMismatchRemotePresentDeletions(remotePresentDeletions);
+
   const reportWithoutNextActions = {
     generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
     manualInspectionPaths: classified.manualInspectionPaths,
     remoteBaseRef,
-    remotePresentDeletions: classified.remotePresentDeletions,
+    remotePresentDeletions,
     repoRoot,
+    tokenizerMismatchRemotePresentDeletions,
     totalDirtyPathCount: dirtyPaths.length,
   };
 
@@ -380,14 +473,47 @@ export function formatPlannerRootCheckoutOperatorNextActions(
 function formatDirtyPathReport(
   pathReport: RootCheckoutDirtyPathReport,
 ): string {
-  return [
+  const fields = [
     `path=${pathReport.path}`,
     `status=${pathReport.statusCode}`,
     `change=${pathReport.changeKind}`,
     `comparison-target=${pathReport.comparisonTarget}`,
     `evidence=${pathReport.evidence}`,
     `classification=${pathReport.classification}`,
-  ].join(" ");
+  ];
+
+  if (pathReport.remotePresentDeletionFamily) {
+    fields.push(`drift-family=${pathReport.remotePresentDeletionFamily}`);
+  }
+
+  return fields.join(" ");
+}
+
+function formatRemotePresentDeletionFamilySection(
+  family: RootCheckoutRemotePresentDeletionFamily,
+  pathReports: RootCheckoutDirtyPathReport[],
+  options: {
+    comparisonTarget: string;
+    guidance?: string;
+  },
+): string[] {
+  const lines = [
+    `  - ${family} count=${pathReports.length} comparison-target=${options.comparisonTarget}`,
+  ];
+
+  if (options.guidance) {
+    lines.push(`    - guidance=${options.guidance}`);
+  }
+
+  if (pathReports.length === 0) {
+    lines.push("    - none");
+  } else {
+    for (const pathReport of pathReports) {
+      lines.push(`    - ${formatDirtyPathReport(pathReport)}`);
+    }
+  }
+
+  return lines;
 }
 
 export function formatPlannerRootCheckoutReconciliationReport(
@@ -405,9 +531,30 @@ export function formatPlannerRootCheckoutReconciliationReport(
   if (report.remotePresentDeletions.length === 0) {
     lines.push("  - none");
   } else {
-    for (const pathReport of report.remotePresentDeletions) {
-      lines.push(`  - ${formatDirtyPathReport(pathReport)}`);
-    }
+    const { otherRemotePresentDeletions } =
+      partitionTokenizerMismatchRemotePresentDeletions(
+        report.remotePresentDeletions,
+      );
+    lines.push(
+      ...formatRemotePresentDeletionFamilySection(
+        PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY,
+        report.tokenizerMismatchRemotePresentDeletions,
+        {
+          comparisonTarget: report.remoteBaseRef,
+          guidance:
+            PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_STALE_DRIFT_GUIDANCE,
+        },
+      ),
+    );
+    lines.push(
+      ...formatRemotePresentDeletionFamilySection(
+        "other-remote-present-deletions",
+        otherRemotePresentDeletions,
+        {
+          comparisonTarget: report.remoteBaseRef,
+        },
+      ),
+    );
   }
 
   lines.push(
