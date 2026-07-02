@@ -47,7 +47,23 @@
   },
   "assets": {
     "computeFlow": {
+      "title": "Sequence mixing over time",
       "alt": "Dense multi-head attention versus Mamba selective state update over time",
+      "caption": "Dense attention compares the current query against every past key position. Mamba instead walks tokens in order and updates a compact hidden state through input-dependent gates at each step.",
+      "legend": {
+        "data-flow": {
+          "label": "Input-dependent update path"
+        },
+        "cache-read": {
+          "label": "State carried across steps"
+        },
+        "summary-node": {
+          "label": "Current token input"
+        },
+        "process-node": {
+          "label": "Selective gate parameters"
+        }
+      },
       "variants": {
         "mha": {
           "label": "Multi-head"
@@ -127,39 +143,39 @@
         }
       }
     },
-    "gqaSchema": {
+    "ssmSchema": {
       "label": "Selective state-space step",
       "formula": "h_t = \\bar{A}_t h_{t-1} + \\bar{B}_t x_t, \\quad y_t = C_t h_t",
       "variableDefinitions": {
-        "q": {
+        "ht": {
           "term": "h_t",
           "definition": "Hidden state after processing token at position t."
         },
-        "k": {
+        "htm1": {
           "term": "h_{t-1}",
           "definition": "Hidden state carried from the previous position."
         },
-        "v": {
+        "xt": {
           "term": "x_t",
           "definition": "Input vector for the token at position t."
         },
-        "h": {
+        "yt": {
           "term": "y_t",
           "definition": "Output vector emitted at position t."
         },
-        "g": {
+        "at": {
           "term": "\\bar{A}_t",
           "definition": "Input-dependent state transition applied at step t."
         },
-        "dk": {
+        "bt": {
           "term": "\\bar{B}_t",
           "definition": "Input-dependent input injection at step t."
         },
-        "i": {
+        "ct": {
           "term": "C_t",
           "definition": "Input-dependent output projection at step t."
         },
-        "gi": {
+        "t": {
           "term": "t",
           "definition": "Sequence position index."
         }
@@ -170,6 +186,9 @@
     "nodes": {
       "timeCurrentInput": {
         "label": "x_t"
+      },
+      "timeRowLabel": {
+        "label": "Step t selective update"
       },
       "timeStatePrev": {
         "label": "h_{t-1}"
@@ -182,6 +201,9 @@
       },
       "timeOutput": {
         "label": "y_t"
+      },
+      "timeTimelineLabel": {
+        "label": "Earlier token inputs"
       },
       "timeKv0": {
         "label": "x_0"

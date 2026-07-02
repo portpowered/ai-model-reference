@@ -22,21 +22,24 @@
       "id": "mamba-time-current-input",
       "labelKey": "graph.nodes.timeCurrentInput.label",
       "moduleKind": "projection",
-      "position": { "x": 360, "y": 0 },
+      "position": { "x": 320, "y": 0 },
       "headCountRole": "query",
       "visualRole": "summary-node",
-      "childNodeIds": [
-        "mamba-time-state-prev",
-        "mamba-time-selective-gate",
-        "mamba-time-state-next",
-        "mamba-time-output"
-      ]
+      "childNodeIds": []
+    },
+    {
+      "id": "mamba-time-row-label",
+      "labelKey": "graph.nodes.timeRowLabel.label",
+      "moduleKind": "attention",
+      "position": { "x": 0, "y": 170 },
+      "visualRole": "annotation",
+      "childNodeIds": []
     },
     {
       "id": "mamba-time-state-prev",
       "labelKey": "graph.nodes.timeStatePrev.label",
       "moduleKind": "cache",
-      "position": { "x": 0, "y": 220 },
+      "position": { "x": 80, "y": 220 },
       "headCountRole": "kv",
       "visualRole": "timeline-node",
       "childNodeIds": []
@@ -45,16 +48,16 @@
       "id": "mamba-time-selective-gate",
       "labelKey": "graph.nodes.timeSelectiveGate.label",
       "moduleKind": "attention",
-      "position": { "x": 180, "y": 220 },
+      "position": { "x": 240, "y": 220 },
       "headCountRole": "kv",
-      "visualRole": "timeline-node",
+      "visualRole": "process-node",
       "childNodeIds": []
     },
     {
       "id": "mamba-time-state-next",
       "labelKey": "graph.nodes.timeStateNext.label",
       "moduleKind": "cache",
-      "position": { "x": 360, "y": 220 },
+      "position": { "x": 400, "y": 220 },
       "headCountRole": "kv",
       "visualRole": "timeline-node",
       "childNodeIds": []
@@ -63,16 +66,24 @@
       "id": "mamba-time-output",
       "labelKey": "graph.nodes.timeOutput.label",
       "moduleKind": "attention",
-      "position": { "x": 540, "y": 220 },
+      "position": { "x": 560, "y": 220 },
       "headCountRole": "kv",
       "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "mamba-time-timeline-label",
+      "labelKey": "graph.nodes.timeTimelineLabel.label",
+      "moduleKind": "cache",
+      "position": { "x": 0, "y": 390 },
+      "visualRole": "annotation",
       "childNodeIds": []
     },
     {
       "id": "mamba-time-kv-0",
       "labelKey": "graph.nodes.timeKv0.label",
       "moduleKind": "cache",
-      "position": { "x": 0, "y": 400 },
+      "position": { "x": 80, "y": 440 },
       "headCountRole": "kv",
       "visualRole": "timeline-node-muted",
       "childNodeIds": []
@@ -81,7 +92,7 @@
       "id": "mamba-time-kv-1",
       "labelKey": "graph.nodes.timeKv1.label",
       "moduleKind": "cache",
-      "position": { "x": 140, "y": 400 },
+      "position": { "x": 200, "y": 440 },
       "headCountRole": "kv",
       "visualRole": "timeline-node-muted",
       "childNodeIds": []
@@ -90,7 +101,7 @@
       "id": "mamba-time-kv-ellipsis",
       "labelKey": "graph.nodes.timeKvEllipsis.label",
       "moduleKind": "cache",
-      "position": { "x": 280, "y": 400 },
+      "position": { "x": 320, "y": 440 },
       "headCountRole": "kv",
       "visualRole": "timeline-node-muted",
       "childNodeIds": []
@@ -99,7 +110,7 @@
       "id": "mamba-time-kv-t-2",
       "labelKey": "graph.nodes.timeKvT2.label",
       "moduleKind": "cache",
-      "position": { "x": 420, "y": 400 },
+      "position": { "x": 440, "y": 440 },
       "headCountRole": "kv",
       "visualRole": "timeline-node-muted",
       "childNodeIds": []
@@ -108,11 +119,42 @@
       "id": "mamba-time-kv-t-1",
       "labelKey": "graph.nodes.timeKvT1.label",
       "moduleKind": "cache",
-      "position": { "x": 560, "y": 400 },
+      "position": { "x": 560, "y": 440 },
       "headCountRole": "kv",
-      "visualRole": "timeline-node-muted",
+      "visualRole": "timeline-node",
       "childNodeIds": []
     }
   ],
-  "edges": []
+  "edges": [
+    {
+      "id": "mamba-time-kv-t-1-to-state-prev",
+      "source": "mamba-time-kv-t-1",
+      "target": "mamba-time-state-prev",
+      "edgeKind": "cache-read"
+    },
+    {
+      "id": "mamba-time-state-prev-to-gate",
+      "source": "mamba-time-state-prev",
+      "target": "mamba-time-selective-gate",
+      "edgeKind": "cache-read"
+    },
+    {
+      "id": "mamba-time-input-to-gate",
+      "source": "mamba-time-current-input",
+      "target": "mamba-time-selective-gate",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "mamba-time-gate-to-state-next",
+      "source": "mamba-time-selective-gate",
+      "target": "mamba-time-state-next",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "mamba-time-state-next-to-output",
+      "source": "mamba-time-state-next",
+      "target": "mamba-time-output",
+      "edgeKind": "data-flow"
+    }
+  ]
 }
