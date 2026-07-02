@@ -1,0 +1,48 @@
+## Codebase Patterns
+- Use session `930b51a6-07ce-44e6-a639-7a6217f6e864` for generic-shell lane queue lookups (`you work list --session … --name … --json`); default factory session returns empty for generic lane names.
+- Gather PR mergeability evidence with read-only `git fetch`, `gh api repos/.../pulls/N --jq '{mergeable, mergeable_state, head: .head.sha}'`, and non-mutating `git merge-tree` — do not probe with `git merge` on target PR branches during evidence-only stories.
+- Batch 066 drain ideas (`generic-search-ai-enrichment-pr277-drain`, `generic-site-config-pr279-drain`) remain `idea:init` / INITIAL and own PR completion; batch 073 handoff lane (`generic-pr277-pr279-conflict-refresh-handoff`) is TERMINAL complete.
+- Both PR #277 and #279 share `src/tests/search/search-page-panel.test.tsx` in their merge-tree conflict sets; PR #277 also conflicts on search test/discovery files as main advances.
+- Story 002 outcome `active-review-handoff` applies when batch 066 drain owns completion even if drain ideas are still INITIAL — do not select `refresh-pr-branch` from batch 074 without drain ownership clearance.
+- Story 003 is N/A when story 002 selects `active-review-handoff`; document precondition skip and unchanged PR heads rather than attempting refresh.
+
+## 2026-07-02T19:15Z UTC - dirty-generic-pr277-pr279-conflict-refresh-001
+- Gathered fresh live evidence for PR #277 and PR #279: both OPEN, DIRTY/CONFLICTING against `origin/main` (`209d1bd8`), heads `6a1530a0` / `e5defbc8`, all 11 CI checks passing.
+- Recorded batch 066 drain ownership (`idea:init` on trace `trace-green-pr-drain-and-conflict-triage-batch-066`) and batch 073 handoff lane status (TERMINAL complete; prior outcome handoff-to-batch-066).
+- Documented stamped lane metadata, worktree refresh ownership, non-mutating merge-tree conflict paths (4 files on #277, 1 on #279), and unresolved PR conversation blocking feedback (#277 BLOCKING MERGE; #279 BLOCKING local `make test` a11y timeout).
+- Ran `bun run typecheck` on this lane worktree — passed.
+- Files changed:
+  - `docs/internal/processes/dirty-generic-pr277-pr279-conflict-refresh-relevant-files.md` (new)
+  - `docs/internal/processes/factory-linkage-relevant-files.md`
+- **Learnings for future iterations:**
+  - `origin/main` advanced to `209d1bd8`; both PR branches are now 95/107 commits behind (worse than batch 073 snapshot).
+  - PR #277 merge-tree conflict set grew to four paths including `orama-index.test.ts` as main moved.
+  - PR #279 latest blocking feedback is unresolved local `make test` a11y timeout — no clearing PR conversation reply exists.
+  - No PR exists yet for `dirty-generic-pr277-pr279-conflict-refresh`; create only when all PRD stories pass.
+---
+
+## 2026-07-02T21:30Z UTC - dirty-generic-pr277-pr279-conflict-refresh-002
+- Classified PR #277 and PR #279 as **active-review-handoff** to batch 066 drain lanes (not `refresh-pr-branch` or `blocked`).
+- PR #277: sole blocker is BLOCKING MERGE / DIRTY drift (95 behind `209d1bd8`); review clear and CI green on `6a1530a0`; four in-scope conflict paths including shared `search-page-panel.test.tsx`.
+- PR #279: stacked BLOCKING local `make test` a11y timeout (unresolved) plus DIRTY drift (107 behind); sole conflict path is shared `search-page-panel.test.tsx`.
+- Re-verified batch 066 drain ideas remain `idea:init` / INITIAL; batch 073 handoff TERMINAL complete; no in-flight competing refresh lane.
+- Ran `bun run typecheck` — passed.
+- Files changed:
+  - `docs/internal/processes/dirty-generic-pr277-pr279-conflict-refresh-relevant-files.md` (story 002 classification section)
+- **Learnings for future iterations:**
+  - Batch 066 ownership blocks `refresh-pr-branch` from batch 074 even when drain ideas are still INITIAL — duplicating drain work violates ownership rules.
+  - PR #279 a11y timeout blocker (2026-07-02T13:12:04Z) remains unresolved in PR conversation; story 004 handoff must include it explicitly.
+  - Recommended drain order: #277 first (more conflict paths), then #279 against updated main and shared test resolution.
+---
+
+## 2026-07-02T23:45Z UTC - dirty-generic-pr277-pr279-conflict-refresh-003
+- Documented story 003 as **N/A**: story 002 classified both PR #277 and PR #279 as `active-review-handoff`, so no in-lane branch refresh was attempted.
+- Re-verified live PR state unchanged: heads `6a1530a0` / `e5defbc8`, DIRTY/CONFLICTING, 11/11 CI SUCCESS, `origin/main` at `209d1bd8`.
+- Confirmed batch 066 drain ideas remain `idea:init` / INITIAL; no queue movement or target-branch mutation.
+- Quality gates: `bun run typecheck` pass; `make test` 3596 pass / 0 fail (~1256s).
+- Files changed:
+  - `docs/internal/processes/dirty-generic-pr277-pr279-conflict-refresh-relevant-files.md` (story 003 N/A section)
+- **Learnings for future iterations:**
+  - Story 003 completion for handoff-classified PRs is docs-only: record precondition skip, unchanged heads, and route to story 004.
+  - `make test` on this lane worktree passes cleanly; PR #279 a11y timeout blocker remains on the target PR branch, not this lane.
+---
