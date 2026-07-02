@@ -158,6 +158,7 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
 * [merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files](./merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files.md)
   — merged PR drain evidence for PRs #274/#275/#276/#278/#280: live queue tokens
   on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata,
-  merge-commit ancestry on `origin/main`, and explicit separation of merged PR
-  truth from queue completion truth (including stale `rlvr` drain ideas at
-  `init` / INITIAL).
+  merge-commit ancestry on `origin/main`, explicit separation of merged PR
+  truth from queue completion truth, and story 002 per-row consume/complete/no-op
+  classification (including `rlvr-pr275-drain` consume and
+  `ownerless-rlvr-navigation-root-dirty-handoff` no-op).

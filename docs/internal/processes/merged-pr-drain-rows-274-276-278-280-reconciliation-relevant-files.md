@@ -189,3 +189,66 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T19:15Z UTC).
+
+## Story 002 — per-row outcome classification
+
+Captured 2026-07-02T20:45Z UTC. Classifications use evidence from story 001 only;
+no queue rows, page content, registry content, root work, or worktree files were
+mutated during classification.
+
+### Classification rules applied
+
+| Outcome | When selected |
+| --- | --- |
+| **consume** | PR merged on current `origin/main`; row is a stale drain/handoff idea whose purpose is fulfilled; primary implementation and review are already terminal-complete; no active implementation or review would be skipped. |
+| **complete** | Row is finished but requires an explicit terminal completion transition (`idea:to-complete` + `task:to-complete` pairing or equivalent valid move). |
+| **no-op** | Primary content trace already terminal; unfinished implementation or review; row/PR mismatch; missing evidence; or unsafe root/worktree state. |
+
+### Selected outcome per named row
+
+| Work item | PR | Observed queue state | Observed PR state | Outcome | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| `rlhf-page` | #274 | Primary trace `trace-bd671d53944a8fbb1bb26d36bb901210`: idea/plan/review/task all `complete` / TERMINAL | MERGED (`bfc8858e` on `origin/main`) | **no-op** | Primary content lane already terminal-complete; PR merge agrees with queue; no separate stale drain ideas. |
+| `rlvr` | #275 | Primary trace `trace-33c44bbf53a68499cb32584bac7ef541`: all tokens `complete` / TERMINAL; two separate ideas at `init` / INITIAL on other traces (see subsidiary table) | MERGED (`798a0c7b` on `origin/main`) | **no-op** (primary lane) | Primary `rlvr` content trace already terminal-complete with merged PR truth; stale drain/handoff ideas on separate traces are classified below and are not inferred closed from PR merge alone. |
+| `diffusion-transformer-block-module` | #276 | Primary trace `trace-d628c2883fff2f5669ef550565b2f345`: all tokens `complete` / TERMINAL | MERGED (`9136cb1e` on `origin/main`) | **no-op** | Primary content lane already terminal-complete; PR merge agrees with queue; no separate stale drain ideas. |
+| `generic-sidebar-ai-adapter-extraction` | #278 | Primary trace `trace-generic-shell-hardening-batch-002`: all tokens `complete` / TERMINAL | MERGED (`c59b4c31` on `origin/main`) | **no-op** | Primary content lane already terminal-complete; PR merge agrees with queue; no separate stale drain ideas. |
+| `grpo-page` | #280 | Primary trace `trace-171559a3dbb95c08cdc49729ce68750a`: all tokens `complete` / TERMINAL | MERGED (`3469da83` on `origin/main`) | **no-op** | Primary content lane already terminal-complete; PR merge agrees with queue; no separate stale drain ideas. |
+
+No row received a **complete** classification: none of the five primary content
+traces sit in a non-terminal `to-complete` / PROCESSING pairing that still
+requires a valid terminal completion transition.
+
+### `rlvr` subsidiary stale tokens (explicit)
+
+Story 001 required explicit classification of the two separate `init` / INITIAL
+ideas returned by `you work list --name rlvr`. These are not the primary content
+lane but are stale drain/handoff rows tied to PR #275.
+
+| Work id | Trace | Observed state | Outcome | Evidence |
+| --- | --- | --- | --- | --- |
+| `batch-green-pr-drain-and-wordpiece-refill-batch-067-rlvr-pr275-drain` | `trace-green-pr-drain-and-wordpiece-refill-batch-067` | `init` / INITIAL | **consume** | PR #275 merged on `origin/main`; primary `rlvr` implementation and review are terminal-complete; drain idea scoped to green-PR merge/consume handoff is fulfilled and safe to consume without skipping unfinished work. |
+| `batch-conflict-drift-and-root-dirty-handoff-batch-071-ownerless-rlvr-navigation-root-dirty-handoff` | `trace-conflict-drift-and-root-dirty-handoff-batch-071` | `init` / INITIAL | **no-op** | Unfinished implementation: handoff scopes root-dirty ownership classification, not PR merge drain; executing consume or complete would skip required root-checkout analysis. |
+
+### Classification summary
+
+| Outcome | Count | Targets |
+| --- | --- | --- |
+| **no-op** (primary lanes) | 5 | All five named work items — primary content traces already terminal |
+| **consume** | 1 | `rlvr-pr275-drain` subsidiary stale drain idea |
+| **no-op** (subsidiary) | 1 | `ownerless-rlvr-navigation-root-dirty-handoff` — unfinished root-dirty handoff |
+| **complete** | 0 | — |
+
+Stories 003–005 execute handoffs for the consume, complete, and no-op targets
+respectively. This lane (`merged-pr-drain-rows-274-276-278-280-reconciliation`)
+remains in `to-complete` / PROCESSING until those handoffs finish.
+
+## Quality gate (story 002)
+
+Handoff-only classification; no page content, registry content, root work,
+worktree files, queue rows, staging area, or branch history were changed.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T20:45Z UTC).
