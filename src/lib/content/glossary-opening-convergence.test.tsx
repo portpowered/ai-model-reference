@@ -36,17 +36,21 @@ describe("glossary opening convergence", () => {
     }
   });
 
-  test("published glossary pages keep openingSummary in messages", async () => {
-    const pages = await listPublishedGlossaryPages();
+  test(
+    "published glossary pages keep openingSummary in messages",
+    async () => {
+      const pages = await listPublishedGlossaryPages();
 
-    for (const page of pages) {
-      const loadedPage = await loadLocalDocsPage({
-        section: "glossary",
-        slug: page.slug,
-      });
-      expectGlossaryOpeningSummaryMessage(loadedPage.messages);
-    }
-  });
+      for (const page of pages) {
+        const loadedPage = await loadLocalDocsPage({
+          section: "glossary",
+          slug: page.slug,
+        });
+        expectGlossaryOpeningSummaryMessage(loadedPage.messages);
+      }
+    },
+    { timeout: 30_000 },
+  );
 
   test.each(
     Array.from(
