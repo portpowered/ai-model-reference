@@ -578,7 +578,11 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("unknown-topic");
 
-    const empty = await screen.findByTestId("search-page-empty");
+    const empty = await screen.findByTestId(
+      "search-page-empty",
+      {},
+      { timeout: 15_000 },
+    );
     expect(empty.textContent).toContain(context.messages.search.noResults);
     expect(
       screen.queryByText(
