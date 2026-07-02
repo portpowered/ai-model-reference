@@ -356,3 +356,78 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T20:48Z UTC).
+
+## Story 005 — no-op handoffs for unsafe or already-settled rows
+
+Captured 2026-07-02T20:50Z UTC. Story 002 classified three primary content lanes as
+**no-op**. This story documents explicit no-op handoffs only; no page content,
+registry content, root work, worktree files, or queue rows were changed.
+
+### No-op reason categories
+
+| Category | Meaning in this reconciliation |
+| --- | --- |
+| **already-terminal** | Primary content trace idea/plan/review/task all `complete` / TERMINAL |
+| **unfinished-implementation** | Active handoff scope still requires operator work before any queue move |
+| **unfinished-review** | Review token still active or blocked |
+| **row/PR mismatch** | Row scope does not match the merged-PR drain target |
+| **missing-queue-row** | Target session has no queue row for the named work item |
+| **missing-metadata** | Required lane/worktree metadata unavailable |
+| **inaccessible PR truth** | GitHub PR state could not be verified |
+| **unsafe root/worktree** | Move would require reverting, cleaning, or staging root/worktree state |
+
+### Primary lane no-op handoffs (three named PR rows)
+
+Re-verified with `you work list --session 930b51a6-07ce-44e6-a639-7a6217f6e864
+--name <work-item> --json` on 2026-07-02T20:50Z UTC.
+
+| Work item | PR | Observed queue state | Observed PR state | No-op reason | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| `block-sparse-attention-module-page` | #287 | Primary trace `trace-tokenizer-and-attention-refill-batch-064`: idea/plan/review/task all `complete` / TERMINAL | MERGED (`b5716eff` on `origin/main`) | **already-terminal** | Primary content lane finished implementation and review before PR merge; subsidiary `block-sparse-attention-pr287-clean-drain` was consumed in story 003 and is now `complete` / TERMINAL; moving the primary lane would be redundant queue churn. |
+| `byte-level-tokenization-page` | #289 | Primary trace `trace-tokenizer-and-attention-refill-batch-064`: all tokens `complete` / TERMINAL; conflict-refresh drain trace `trace-fresh-pr-drain-and-conflict-refresh-batch-073` also terminal-complete | MERGED (`2d0b21c4` on `origin/main`) | **already-terminal** | Primary content lane and `byte-level-tokenization-pr289-conflict-refresh` drain trace are both settled; PR merge agrees with queue completion truth; no separate stale drain ideas remain at `init` / INITIAL. |
+| `pr-surface-module-linked-support-records` | #291 | Zero queue rows in session `930b51a6-07ce-44e6-a639-7a6217f6e864` for this work item name; no worktree under `.claude/worktrees/` | MERGED (`5cc5f1a4` on `origin/main`) | **missing-queue-row** | Throughput/factory PR merged without a content-lane queue token; queue closure cannot be inferred from PR merge status alone and no consume/complete transition applies to a non-existent row. |
+
+**Operations executed for primary lanes:** none. All three rows left untouched.
+
+### Next safe owner actions
+
+| Work item | No-op reason | Next safe owner action |
+| --- | --- | --- |
+| `block-sparse-attention-module-page` | **already-terminal** | None required for queue movement; content is on `origin/main` via PR #287. Stale worktree branch drift (86 behind main) is read-only evidence and was not cleaned. |
+| `byte-level-tokenization-page` | **already-terminal** | None required for queue movement; content is on `origin/main` via PR #289. Stale worktree branch drift (90 behind main) is read-only evidence and was not cleaned. |
+| `pr-surface-module-linked-support-records` | **missing-queue-row** | Do not infer queue closure from PR #291 merge alone. If planner tracking is needed, create a dedicated throughput/factory lane with explicit scope rather than retroactively completing a non-existent content row. |
+
+No row in this reconciliation required a **unfinished-implementation**,
+**unfinished-review**, **row/PR mismatch**, **missing-metadata**,
+**inaccessible PR truth**, or **unsafe root/worktree** no-op reason.
+
+### Rows not covered by story 005 no-op
+
+| Work item | Story 002 outcome | Handled in |
+| --- | --- | --- |
+| `block-sparse-attention-pr287-clean-drain` | **consume** | Story 003 — moved to `complete` / TERMINAL |
+| — | **complete** (zero rows) | Story 004 — no transitions required |
+
+### No-op summary
+
+| No-op reason | Count | Targets |
+| --- | --- | --- |
+| **already-terminal** | 2 | `block-sparse-attention-module-page`, `byte-level-tokenization-page` |
+| **missing-queue-row** | 1 | `pr-surface-module-linked-support-records` |
+| **unfinished-implementation** | 0 | — |
+| **unfinished-review** | 0 | — |
+| **row/PR mismatch** | 0 | — |
+| **missing-metadata** | 0 | — |
+| **inaccessible PR truth** | 0 | — |
+| **unsafe root/worktree** | 0 | — |
+
+## Quality gate (story 005)
+
+Handoff-only no-op documentation; no page content, registry content, root work,
+worktree files, queue rows, staging area, or branch history were changed.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T20:50Z UTC).
