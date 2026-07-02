@@ -13,15 +13,15 @@
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "Training usually starts from a capable checkpoint, often after supervised fine-tuning. The model samples responses for prompts drawn from verifiable tasks. A verifier scores each response for correctness, formatting, or other rule-based criteria. Those scores become rewards that drive policy updates through a reinforcement learning optimizer. The loop repeats until the model improves on the verifiable task distribution."
+      "body": "Training usually starts from a capable checkpoint, often after supervised fine-tuning. Each training step follows the same observable loop. First, a task prompt is drawn from a verifiable task distribution. The model samples a candidate response for that prompt. An external verifier checks whether the response passes the task rules, such as exact-answer grading, unit tests, or formal checks. The verifier outcome is turned into a reward signal, often a pass-or-fail score or a shaped numeric reward. A reinforcement learning optimizer then applies a policy update so higher-reward responses become more likely. The loop repeats across many prompts until the model improves on the verifiable task distribution."
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
-      "body": "Supervised fine-tuning teaches the model to imitate labeled demonstrations directly. RLVR instead explores multiple candidate outputs and keeps updates that score well under external checks. Reinforcement learning from human feedback, often shortened to RLHF, relies on human preference signals or learned reward models. RLVR relies on externally checkable outcomes where those checks exist."
+      "body": "Supervised fine-tuning, often shortened to SFT, teaches the model to imitate labeled demonstrations directly. RLVR instead samples multiple candidate outputs and keeps updates that score well under external checks rather than copying one fixed demonstration per prompt. Reinforcement learning from human feedback, often shortened to RLHF, relies on human preference signals or learned reward models that approximate what people like. RLVR relies on externally checkable outcomes where a verifier can score success without ranking subjective quality. Group Relative Policy Optimization, or GRPO, is a nearby reinforcement-learning optimizer that compares rewards across a group of sampled candidates. GRPO can be used with human-preference rewards or with verifier-based rewards, but RLVR names the reward source—verifiable task outcomes—not the optimizer family."
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
-      "body": "RLVR only applies where a reliable verifier exists. Tasks without checkable outcomes still need human feedback or other reward sources. Narrow verifiers can encourage reward hacking or overfitting to the checked format rather than the intended behavior. Strong verifiable scores on one task family do not guarantee broader reasoning or safety."
+      "body": "RLVR only applies where verifier coverage is strong enough to trust the reward signal. Tasks without checkable outcomes still need human feedback or other reward sources. Narrow verifiers can encourage reward hacking, where the model satisfies the checked rule without learning the broader behavior teams want. Task narrowness is another limit: strong scores on one verifiable benchmark do not guarantee transfer to open-ended reasoning, safety, or style. Verifiable success can also miss qualities humans care about, such as helpful explanations, honest uncertainty, or refusal of unsafe requests, because those traits may not appear in the verifier at all."
     },
     "related": {
       "title": "Related To"
@@ -36,8 +36,8 @@
   "assets": {
     "trainingFlow": {
       "title": "RLVR training flow",
-      "alt": "A four-step RLVR flow: task prompt, model response, verifier check, then policy update toward higher verifier reward.",
-      "caption": "RLVR samples model outputs, scores them with an external verifier, and updates the policy from the resulting reward.",
+      "alt": "A five-step RLVR flow: task prompt, model response, verifier check, reward assignment, then policy update toward higher verifier reward.",
+      "caption": "RLVR samples model outputs, checks them with an external verifier, assigns reward from the check outcome, and updates the policy from that reward.",
       "legend": {
         "data-flow": {
           "label": "Request and reward flow"
@@ -55,6 +55,9 @@
       },
       "verifier": {
         "label": "Verifier check"
+      },
+      "reward": {
+        "label": "Reward assignment"
       },
       "updatedModel": {
         "label": "Policy update"

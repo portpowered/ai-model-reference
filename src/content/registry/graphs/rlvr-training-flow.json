@@ -43,13 +43,22 @@
       "position": { "x": 250, "y": 252 },
       "size": { "width": 210, "height": 84 },
       "visualRole": "summary-node",
+      "childNodeIds": ["reward"]
+    },
+    {
+      "id": "reward",
+      "labelKey": "graph.nodes.reward.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 386 },
+      "size": { "width": 210, "height": 84 },
+      "visualRole": "summary-node",
       "childNodeIds": ["updatedModel"]
     },
     {
       "id": "updatedModel",
       "labelKey": "graph.nodes.updatedModel.label",
       "moduleKind": "output",
-      "position": { "x": 250, "y": 386 },
+      "position": { "x": 250, "y": 520 },
       "size": { "width": 210, "height": 76 },
       "visualRole": "process-node",
       "childNodeIds": []
@@ -73,8 +82,16 @@
       "targetHandleSide": "top"
     },
     {
-      "id": "verifier-updated",
+      "id": "verifier-reward",
       "source": "verifier",
+      "target": "reward",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "reward-updated",
+      "source": "reward",
       "target": "updatedModel",
       "edgeKind": "data-flow",
       "sourceHandleSide": "bottom",

@@ -178,7 +178,16 @@ describe("RLVR training-regime identity contracts", () => {
       expect(html).toContain("Limitations And Failure Modes");
       expect(html).toContain(`data-graph-id="${GRAPH_ID}"`);
       expect(html).toContain("Task prompt");
+      expect(html).toContain("Model response");
       expect(html).toContain("Verifier check");
+      expect(html).toContain("Reward assignment");
+      expect(html).toContain("Policy update");
+      expect(html).toContain("human preference signals");
+      expect(html).toContain("Group Relative Policy Optimization");
+      expect(html).toContain("Supervised fine-tuning");
+      expect(html).toContain("verifier coverage");
+      expect(html).toContain("reward hacking");
+      expect(html).toContain("Task narrowness");
       expect(html).toContain('href="/tags/alignment"');
       expect(html).toContain('data-testid="tag-pill-list"');
       expect(html).toContain('data-testid="citation-list"');
@@ -189,4 +198,28 @@ describe("RLVR training-regime identity contracts", () => {
     },
     { timeout: 15000 },
   );
+
+  test("English messages teach the verifier loop steps and adjacent-regime distinctions", async () => {
+    const page = await loadTrainingRegimePage(SLUG);
+    const howItWorks = page.messages.sections?.howItWorks.body ?? "";
+    const compared = page.messages.sections?.comparedToNearbyRegimes.body ?? "";
+    const limits =
+      page.messages.sections?.limitationsAndFailureModes.body ?? "";
+
+    expect(howItWorks).toContain("task prompt");
+    expect(howItWorks).toContain("candidate response");
+    expect(howItWorks).toContain("external verifier");
+    expect(howItWorks).toContain("reward signal");
+    expect(howItWorks).toContain("policy update");
+
+    expect(compared).toContain("Supervised fine-tuning");
+    expect(compared).toContain("human preference signals");
+    expect(compared).toContain("Group Relative Policy Optimization");
+    expect(compared).toContain("externally checkable outcomes");
+
+    expect(limits).toContain("verifier coverage");
+    expect(limits).toContain("reward hacking");
+    expect(limits).toContain("Task narrowness");
+    expect(limits).toContain("Verifiable success");
+  });
 });
