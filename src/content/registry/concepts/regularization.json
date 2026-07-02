@@ -1,0 +1,27 @@
+{
+  "id": "concept.regularization",
+  "slug": "regularization",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Regularization",
+    "regularizer",
+    "model regularization",
+    "training regularization"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.overfitting",
+    "concept.generalization",
+    "concept.model-capacity",
+    "concept.loss-function"
+  ],
+  "citationIds": ["citation.goodfellow-deep-learning"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.training",
+  "prerequisiteIds": ["concept.model-capacity", "concept.loss-function"],
+  "explainsIds": []
+}

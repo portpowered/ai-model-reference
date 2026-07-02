@@ -1,0 +1,46 @@
+{
+  "title": "Regularization",
+  "description": "Training-time and model-design choices that discourage brittle memorization so a model is more likely to perform well on new examples.",
+  "openingSummary": "Regularization is the broad family of training-time and model-design choices that push a model away from brittle memorization and toward patterns that still work on new examples.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Regularization is any deliberate constraint, noise injection, or penalty added during training that makes the model less free to memorize quirks of the training set. The goal is not to make training harder for its own sake, but to steer learning toward stable structure that still holds when inputs change. Methods in this family limit how sharply weights can grow, randomly disrupt co-adapted pathways, stop training before memorization dominates, or encourage simpler solutions. Different techniques change different parts of the training loop, but they share one idea: reduce reliance on fragile training-set detail."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "A model with enough capacity can fit training examples very closely, including noise and one-off patterns that do not repeat in the real world. Without regularization, that tight fit can look like success on training metrics while performance on held-out or shifted data collapses. Regularization gives training a counterweight: it trades some freedom on the training set for behavior that is more likely to transfer. Teams tune how strong that counterweight is because too little leaves memorization in place and too much can wash out useful signal."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine fitting a curve through scattered points. A very flexible curve can thread through every training point exactly, including outliers. A regularized fit allows small errors on training points in exchange for a smoother shape. At serve time, the smoother curve is more likely to land near new points that follow the same underlying trend rather than chasing every training oddity."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Regularization is not the same as choosing a smaller model, though both can limit memorization. It is also not identical to the optimization algorithm that updates weights; regularization changes what the training objective rewards or how updates are applied. Finally, regularization is a family of methods, not one switch. Different techniques intervene at different stages of training and inference preparation."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "relatedDocs": {
+    "concept.overfitting": {
+      "reason": "Overfitting is the failure mode regularization often targets when a model memorizes training detail instead of learning transferable structure."
+    },
+    "concept.generalization": {
+      "reason": "Generalization is the outcome regularization aims to improve: useful performance on held-out or shifted data."
+    },
+    "concept.model-capacity": {
+      "reason": "Model capacity sets how much detail a model can memorize; regularization interacts with capacity when teams balance fit and stability."
+    },
+    "concept.loss-function": {
+      "reason": "Many regularizers appear as extra terms in the loss or as constraints on how the loss can be minimized."
+    }
+  }
+}
