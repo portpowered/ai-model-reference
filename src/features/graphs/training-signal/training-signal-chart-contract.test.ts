@@ -41,6 +41,13 @@ describe("resolveTrainingSignalChart", () => {
     expect(resolution.chart.labeling.accessibleDescription).toContain(
       "illustrative",
     );
+    expect(resolution.chart.labeling.accessibleBandNames).toHaveLength(6);
+    expect(resolution.chart.labeling.accessibleName).toBe(
+      "LLM training-signal shift chart",
+    );
+    expect(resolution.chart.labeling.tooltipStatusHint).toBe(
+      "Illustrative values",
+    );
   });
 
   test("supports sourced quantitative metadata with source-aware wording", () => {
@@ -61,6 +68,9 @@ describe("resolveTrainingSignalChart", () => {
       "Example Lab 2025 training-mix report",
     );
     expect(resolution.chart.labeling.yAxisLabel).toBe("Relative signal mix");
+    expect(resolution.chart.labeling.tooltipStatusHint).toContain(
+      "Example Lab 2025 training-mix report",
+    );
     expect(formatTrainingSignalValue(42, "quantitative")).toBe("42%");
   });
 

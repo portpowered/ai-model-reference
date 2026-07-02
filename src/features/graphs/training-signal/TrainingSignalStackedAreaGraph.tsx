@@ -38,11 +38,13 @@ function buildTrainingSignalChartConfig(): ChartConfig {
 }
 
 export function TrainingSignalStackedAreaGraph({
+  chartTitleId,
   dataTestId,
   labeling,
   metadata,
   timeline,
 }: {
+  chartTitleId: string;
   dataTestId: string;
   labeling: TrainingSignalChartLabeling;
   metadata: TrainingSignalChartMetadata;
@@ -67,6 +69,7 @@ export function TrainingSignalStackedAreaGraph({
         axisLabelX={TRAINING_SIGNAL_X_AXIS_LABEL}
         axisLabelY={labeling.yAxisLabel}
         chartLabel={labeling.accessibleName}
+        chartTitleId={chartTitleId}
         legend={TRAINING_SIGNAL_BAND_KEYS.map((bandKey) => ({
           color: TRAINING_SIGNAL_BAND_COLORS[bandKey],
           label: TRAINING_SIGNAL_BAND_LABELS[bandKey],
@@ -109,6 +112,9 @@ export function TrainingSignalStackedAreaGraph({
                 cursor={{ stroke: "var(--border)", strokeDasharray: "4 4" }}
                 content={
                   <ChartTooltipContent
+                    labelFormatter={(timeLabel) =>
+                      `${timeLabel} (${labeling.tooltipStatusHint})`
+                    }
                     formatter={(value, _name) =>
                       formatTrainingSignalValue(
                         Number(value),

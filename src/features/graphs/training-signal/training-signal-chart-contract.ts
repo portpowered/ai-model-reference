@@ -1,5 +1,6 @@
 import {
   TRAINING_SIGNAL_BAND_KEYS,
+  TRAINING_SIGNAL_BAND_LABELS,
   type TrainingSignalBandKey,
 } from "@/features/graphs/training-signal/training-signal-band-keys";
 
@@ -13,7 +14,9 @@ export type TrainingSignalChartMetadata = {
 export type TrainingSignalTimelinePointInput = {
   timeLabel: string;
   timeKey: string;
-} & Partial<Record<TrainingSignalBandKey, number | null | undefined>>;
+} & {
+  [K in TrainingSignalBandKey]?: number | null | undefined;
+};
 
 export type TrainingSignalTimelinePoint = {
   timeLabel: string;
@@ -26,12 +29,18 @@ export type TrainingSignalChartInput = {
 };
 
 export type TrainingSignalChartLabeling = {
+  accessibleBandNames: readonly string[];
   accessibleDescription: string;
   accessibleName: string;
   statusText: string;
+  tooltipStatusHint: string;
   valueMode: TrainingSignalValueMode;
   yAxisLabel: string;
 };
+
+const TRAINING_SIGNAL_ACCESSIBLE_BAND_NAMES = TRAINING_SIGNAL_BAND_KEYS.map(
+  (bandKey) => TRAINING_SIGNAL_BAND_LABELS[bandKey],
+);
 
 export type ResolvedTrainingSignalChart = {
   labeling: TrainingSignalChartLabeling;
@@ -68,21 +77,25 @@ function buildLabeling(
     const sourceLabel =
       metadata.quantitativeSource?.trim() || "unspecified source";
     return {
+      accessibleBandNames: TRAINING_SIGNAL_ACCESSIBLE_BAND_NAMES,
       accessibleDescription:
         "Stacked training-signal chart with sourced quantitative values over time.",
       accessibleName: "LLM training-signal shift chart",
       statusText: `Quantitative values from ${sourceLabel}.`,
+      tooltipStatusHint: `Values from ${sourceLabel}`,
       valueMode: "quantitative",
       yAxisLabel: "Relative signal mix",
     };
   }
 
   return {
+    accessibleBandNames: TRAINING_SIGNAL_ACCESSIBLE_BAND_NAMES,
     accessibleDescription:
       "Conceptual stacked bands showing how training-signal mix shifts over time. Values are illustrative, not measured percentages.",
     accessibleName: "LLM training-signal shift chart",
     statusText:
       "Conceptual illustration — values are illustrative, not measured data.",
+    tooltipStatusHint: "Illustrative values",
     valueMode: "conceptual",
     yAxisLabel: "Relative signal mix (illustrative)",
   };

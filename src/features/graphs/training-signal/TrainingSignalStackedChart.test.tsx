@@ -119,6 +119,82 @@ describe("TrainingSignalStackedChart", () => {
     }
   });
 
+  test("exposes accessible name, description, band summary, and conceptual status text", () => {
+    const { container } = render(
+      <TrainingSignalStackedChart
+        chartInput={DEFAULT_TRAINING_SIGNAL_CHART_INPUT}
+        dataTestId="training-signal-accessibility"
+      />,
+    );
+
+    const figure = container.querySelector(
+      '[data-testid="training-signal-accessibility"]',
+    );
+    expect(figure).toBeTruthy();
+
+    const labelledBy = figure?.getAttribute("aria-labelledby");
+    expect(labelledBy).toBe("training-signal-accessibility-title");
+
+    const title = container.querySelector(
+      "#training-signal-accessibility-title",
+    );
+    expect(title?.textContent).toBe("LLM training-signal shift chart");
+
+    const describedBy = figure?.getAttribute("aria-describedby") ?? "";
+    expect(describedBy).toContain("training-signal-accessibility-description");
+    expect(describedBy).toContain("training-signal-accessibility-status");
+    expect(describedBy).toContain(
+      "training-signal-accessibility-bands-summary",
+    );
+
+    const description = container.querySelector(
+      "#training-signal-accessibility-description",
+    );
+    expect(description?.textContent).toContain("Conceptual stacked bands");
+    expect(description?.textContent).toContain("illustrative");
+
+    const status = container.querySelector(
+      '[data-training-signal-status="true"]',
+    );
+    expect(status?.textContent).toContain("Conceptual illustration");
+
+    const bandSummaryItems = container.querySelectorAll(
+      "#training-signal-accessibility-bands-summary li",
+    );
+    expect(bandSummaryItems.length).toBe(6);
+    for (const bandKey of TRAINING_SIGNAL_BAND_KEYS) {
+      expect(container.textContent).toContain(
+        TRAINING_SIGNAL_BAND_LABELS[bandKey],
+      );
+    }
+  });
+
+  test("names each band in the legend without relying on color alone", () => {
+    const { container } = render(
+      <TrainingSignalStackedChart
+        chartInput={DEFAULT_TRAINING_SIGNAL_CHART_INPUT}
+      />,
+    );
+
+    const legend = container.querySelector(
+      '[data-graph-legend="training-signal-stacked-chart"]',
+    );
+    expect(legend?.getAttribute("aria-label")).toBe("Chart legend");
+    expect(legend?.tagName.toLowerCase()).toBe("ul");
+
+    const legendItems = legend?.querySelectorAll("li") ?? [];
+    expect(legendItems.length).toBe(6);
+
+    for (const bandKey of TRAINING_SIGNAL_BAND_KEYS) {
+      const label = TRAINING_SIGNAL_BAND_LABELS[bandKey];
+      const item = Array.from(legendItems).find((node) =>
+        node.textContent?.includes(label),
+      );
+      expect(item).toBeTruthy();
+      expect(item?.querySelector('[aria-hidden="true"]')).toBeTruthy();
+    }
+  });
+
   test("maps each training-signal band to a stable chart token in legend order", () => {
     const { container, rerender } = render(
       <TrainingSignalStackedChart

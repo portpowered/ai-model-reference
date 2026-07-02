@@ -78,13 +78,16 @@ export function TrainingSignalStackedChart({
 
   const { chart } = resolution;
   const { labeling, metadata, timeline } = chart;
+  const titleId = `${dataTestId}-title`;
   const statusId = `${dataTestId}-status`;
   const descriptionId = `${dataTestId}-description`;
+  const bandsSummaryId = `${dataTestId}-bands-summary`;
+  const describedByIds = [descriptionId, statusId, bandsSummaryId].join(" ");
 
   return (
     <figure
-      aria-describedby={descriptionId}
-      aria-labelledby={statusId}
+      aria-describedby={describedByIds}
+      aria-labelledby={titleId}
       className={className}
       data-testid={dataTestId}
       data-training-signal-chart="ready"
@@ -100,12 +103,17 @@ export function TrainingSignalStackedChart({
         </p>
 
         <div className="sr-only" id={descriptionId}>
-          <p>{labeling.accessibleName}</p>
           <p>{labeling.accessibleDescription}</p>
-          <p>Y-axis: {labeling.yAxisLabel}</p>
         </div>
 
+        <ul className="sr-only" id={bandsSummaryId}>
+          {labeling.accessibleBandNames.map((bandName) => (
+            <li key={bandName}>{bandName}</li>
+          ))}
+        </ul>
+
         <TrainingSignalStackedAreaGraph
+          chartTitleId={titleId}
           dataTestId={dataTestId}
           labeling={labeling}
           metadata={metadata}
