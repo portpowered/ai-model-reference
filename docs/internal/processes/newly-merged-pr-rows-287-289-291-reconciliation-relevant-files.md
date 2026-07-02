@@ -431,3 +431,101 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T20:50Z UTC).
+
+## Story 006 — final root and content safety verification
+
+Captured 2026-07-02T21:15Z UTC. This story verifies that reconciliation changed
+only allowed queue state (story 003 consume) or handoff notes (stories 001–002,
+004–005). No page content, registry content, generated content, root user work,
+or unrelated worktree files were edited, reverted, staged, or cleaned.
+
+### Root checkout after reconciliation
+
+| Field | Value |
+| --- | --- |
+| Root repo path | `/Users/abdifamily/work/learn-agent-factories` |
+| Root branch | `main` |
+| Root HEAD | `a502405d49badc50b8b3c0ea49cd8d35a402738e` (matches `origin/main`) |
+| Root dirty paths | 0 |
+| Pre-existing dirty state | none — root remained clean throughout reconciliation |
+
+Root checkout status is unchanged from story 001 pre-mutation evidence.
+
+### Content and worktree safety
+
+Branch diff vs `origin/main` is limited to handoff documentation only:
+
+```bash
+git diff origin/main...HEAD --name-only
+```
+
+Observed (2026-07-02T21:15Z UTC):
+
+- `docs/internal/processes/newly-merged-pr-rows-287-289-291-reconciliation-relevant-files.md`
+
+No page content (`src/content/**`), registry content, generated runtime
+artifacts committed to the branch, or unrelated worktree files were modified.
+
+Content worktree pre-existing drift (read-only, untouched):
+
+| Work item | Working tree notes |
+| --- | --- |
+| `block-sparse-attention-module-page` | untracked `progress.txt`; branch 86 behind `origin/main` |
+| `byte-level-tokenization-page` | untracked `progress.txt`; branch 90 behind `origin/main` |
+| `pr-surface-module-linked-support-records` | no worktree directory |
+
+These paths were present before reconciliation and were not reverted, staged,
+deleted, or cleaned during stories 001–006.
+
+### Queue transition record
+
+One queue transition occurred during reconciliation (story 003):
+
+| Work id | Work item | Before | After | Story |
+| --- | --- | --- | --- | --- |
+| `batch-fresh-pr-drain-and-conflict-refresh-batch-073-block-sparse-attention-pr287-clean-drain` | `block-sparse-attention-pr287-clean-drain` | `init` / INITIAL | `complete` / TERMINAL | 003 |
+
+Post-reconciliation verification (2026-07-02T21:15Z UTC):
+
+```bash
+you work show batch-fresh-pr-drain-and-conflict-refresh-batch-073-block-sparse-attention-pr287-clean-drain \
+  --session 930b51a6-07ce-44e6-a639-7a6217f6e864 --json
+```
+
+Observed: `state.name` = `complete`, `state.type` = `TERMINAL`.
+
+### Rows left untouched
+
+All other named drain rows received handoff-only outcomes with no queue move:
+
+| Target | Outcome | Reason |
+| --- | --- | --- |
+| `block-sparse-attention-module-page` | no-op | already-terminal |
+| `byte-level-tokenization-page` | no-op | already-terminal |
+| `pr-surface-module-linked-support-records` | no-op | missing-queue-row |
+
+### Planner verification commands
+
+```bash
+bun run report:planner-queue-health
+```
+
+Result: PASS (2026-07-02T20:51:36Z UTC). Default-session summary reports
+`active=4 blocked=0 repairable=0 noise=6`; none of the three merged PR drain
+rows appear as active blocked lanes because primary content traces are
+terminal-complete and the `block-sparse-attention-pr287-clean-drain` consume
+closed the subsidiary drain idea.
+
+## Quality gate (story 006)
+
+Final verification; branch history contains only handoff documentation plus the
+single allowed queue consume from story 003.
+
+```bash
+bun run typecheck
+bun run test
+```
+
+Typecheck: PASS (2026-07-02T21:14Z UTC).
+
+Tests: PASS — 3597 pass, 0 fail across 533 files (2026-07-02T21:35Z UTC).
