@@ -13,6 +13,7 @@ import {
 import {
   discoverPlannerWorktreeDriftSnapshot,
   type PlannerWorktreeDirtyPath,
+  type PlannerWorktreeDriftOwnership,
   type PlannerWorktreeDriftSnapshot,
 } from "./planner-worktree-drift-watchdog";
 
@@ -60,9 +61,35 @@ export interface DriftHandoffEvidenceSourceRecord {
   unavailableReason?: string;
 }
 
+export type DriftHandoffPathClassification =
+  | "existing-lane-owned"
+  | "operator-cleanup-needed"
+  | "dedicated-implementation-repair-needed"
+  | "safely-ignorable"
+  | "clean"
+  | "unresolved";
+
+export type DriftHandoffNextSafeAction =
+  | "wait-for-owning-lane"
+  | "request-operator-cleanup"
+  | "open-dedicated-repair-lane"
+  | "ignore-with-evidence"
+  | "keep-refill-blocked"
+  | "no-action-needed"
+  | "operator-verification-needed";
+
+export interface DriftHandoffPathClassificationRecord {
+  classification: DriftHandoffPathClassification;
+  classificationEvidence: string[];
+  nextSafeAction: DriftHandoffNextSafeAction;
+  nextSafeActionReason: string;
+  path: PlannerRootReconciliationDriftHandoffTargetPath;
+}
+
 export interface PlannerRootReconciliationDriftHandoffReport {
   evidenceCapturedAtUtc: string;
   evidenceSources: DriftHandoffEvidenceSourceRecord[];
+  pathClassifications: DriftHandoffPathClassificationRecord[];
   reportedDriftAtUtc: string;
   repoRoot: string;
   targetPathGitStatus: DriftHandoffTargetPathGitStatus[];
@@ -396,6 +423,400 @@ function unavailableEvidenceSource(
   };
 }
 
+const DRIFT_HANDOFF_FIXTURE_PATH_PREFIX =
+  "src/tests/fixtures/planner-root-checkout-reconciliation/";
+
+const DRIFT_HANDOFF_PROCESS_DOC_PATH_PREFIX = "docs/internal/processes/";
+
+function isDriftHandoffFixturePath(
+  path: PlannerRootReconciliationDriftHandoffTargetPath,
+): boolean {
+  return path.startsWith(DRIFT_HANDOFF_FIXTURE_PATH_PREFIX);
+}
+
+function isDriftHandoffProcessDocPath(
+  path: PlannerRootReconciliationDriftHandoffTargetPath,
+): boolean {
+  return path.startsWith(DRIFT_HANDOFF_PROCESS_DOC_PATH_PREFIX);
+}
+
+function isDriftHandoffImplementationPath(
+  path: PlannerRootReconciliationDriftHandoffTargetPath,
+): boolean {
+  return (
+    path.startsWith("src/lib/factory/") ||
+    path.startsWith("scripts/") ||
+    path.startsWith("src/tests/")
+  );
+}
+
+function formatWorktreeOwnershipEvidence(
+  ownership: PlannerWorktreeDriftOwnership,
+): string {
+  const owner = ownership.laneName
+    ? `${ownership.kind}:${ownership.laneName}`
+    : ownership.kind;
+  return `worktree-drift owner=${owner} reason-code=${ownership.reasonCode} reason=${ownership.reason}`;
+}
+
+function formatReconciliationEvidence(
+  pathReport: RootCheckoutDirtyPathReport,
+): string {
+  return `root-checkout-reconciliation classification=${pathReport.classification} change=${pathReport.changeKind} evidence=${pathReport.evidence}`;
+}
+
+function formatLaneMatchEvidence(
+  kind: "active-pr-linkage" | "merged-lane-metadata",
+  laneName: string,
+  branchName?: string,
+): string {
+  return `${kind} lane=${laneName} branch=${branchName ?? "?"}`;
+}
+
+export interface ClassifyDriftHandoffTargetPathsInput {
+  activeLaneMatchesByPath?: ReadonlyMap<
+    PlannerRootReconciliationDriftHandoffTargetPath,
+    string[]
+  >;
+  evidenceSources: DriftHandoffEvidenceSourceRecord[];
+  mergedLaneMatchesByPath?: ReadonlyMap<
+    PlannerRootReconciliationDriftHandoffTargetPath,
+    string[]
+  >;
+  reconciliationReportsByPath?: ReadonlyMap<
+    PlannerRootReconciliationDriftHandoffTargetPath,
+    RootCheckoutDirtyPathReport
+  >;
+  targetPathGitStatus: DriftHandoffTargetPathGitStatus[];
+  worktreeDriftPathsByPath?: ReadonlyMap<
+    PlannerRootReconciliationDriftHandoffTargetPath,
+    PlannerWorktreeDirtyPath
+  >;
+}
+
+function hasUnavailableOwnershipEvidence(
+  evidenceSources: DriftHandoffEvidenceSourceRecord[],
+): boolean {
+  const ownershipKinds: DriftHandoffEvidenceSourceKind[] = [
+    "worktree-drift",
+    "active-pr-linkage",
+    "merged-lane-metadata",
+  ];
+
+  return ownershipKinds.every((kind) => {
+    const source = evidenceSources.find((entry) => entry.kind === kind);
+    return !source || source.availability === "unavailable";
+  });
+}
+
+function collectActiveLaneMatchesByPath(
+  snapshot: PlannerWorktreeDriftSnapshot,
+  targetPathSet: ReadonlySet<PlannerRootReconciliationDriftHandoffTargetPath>,
+): Map<PlannerRootReconciliationDriftHandoffTargetPath, string[]> {
+  const matches = new Map<
+    PlannerRootReconciliationDriftHandoffTargetPath,
+    string[]
+  >();
+
+  for (const worktree of snapshot.worktrees) {
+    for (const dirtyPath of worktree.dirtyPaths) {
+      if (
+        !targetPathSet.has(
+          dirtyPath.path as PlannerRootReconciliationDriftHandoffTargetPath,
+        )
+      ) {
+        continue;
+      }
+
+      const path =
+        dirtyPath.path as PlannerRootReconciliationDriftHandoffTargetPath;
+      const existing = matches.get(path) ?? [];
+      if (!existing.includes(worktree.laneName)) {
+        matches.set(path, [...existing, worktree.laneName]);
+      }
+    }
+  }
+
+  return matches;
+}
+
+function collectMergedLaneMatchesByPath(
+  mergedLaneEvidence: PlannerMergedLaneEvidence[],
+  targetPathSet: ReadonlySet<PlannerRootReconciliationDriftHandoffTargetPath>,
+): Map<PlannerRootReconciliationDriftHandoffTargetPath, string[]> {
+  const matches = new Map<
+    PlannerRootReconciliationDriftHandoffTargetPath,
+    string[]
+  >();
+
+  for (const lane of mergedLaneEvidence) {
+    for (const targetPath of targetPathSet) {
+      if (
+        lane.laneName.includes(
+          targetPath
+            .split("/")
+            .pop()
+            ?.replace(/\.[^.]+$/, "") ?? targetPath,
+        )
+      ) {
+        const existing = matches.get(targetPath) ?? [];
+        if (!existing.includes(lane.laneName)) {
+          matches.set(targetPath, [...existing, lane.laneName]);
+        }
+      }
+    }
+  }
+
+  return matches;
+}
+
+export function classifyDriftHandoffTargetPath(input: {
+  activeLaneMatches: string[];
+  evidenceSources: DriftHandoffEvidenceSourceRecord[];
+  gitStatus: DriftHandoffTargetPathGitStatus;
+  mergedLaneMatches: string[];
+  path: PlannerRootReconciliationDriftHandoffTargetPath;
+  reconciliationReport?: RootCheckoutDirtyPathReport;
+  worktreeDriftPath?: PlannerWorktreeDirtyPath;
+}): DriftHandoffPathClassificationRecord {
+  const classificationEvidence: string[] = [
+    `git-status-scoped observed=${input.gitStatus.observedStatus}${
+      input.gitStatus.statusLine
+        ? ` status-line=${input.gitStatus.statusLine}`
+        : ""
+    }`,
+  ];
+
+  if (input.gitStatus.observedStatus === "clean") {
+    return {
+      classification: "clean",
+      classificationEvidence,
+      nextSafeAction: "no-action-needed",
+      nextSafeActionReason:
+        "Path is clean in scoped git status; no drift handoff action required.",
+      path: input.path,
+    };
+  }
+
+  if (input.reconciliationReport) {
+    classificationEvidence.push(
+      formatReconciliationEvidence(input.reconciliationReport),
+    );
+  }
+
+  if (input.worktreeDriftPath) {
+    classificationEvidence.push(
+      formatWorktreeOwnershipEvidence(input.worktreeDriftPath.ownership),
+    );
+  }
+
+  for (const laneName of input.activeLaneMatches) {
+    classificationEvidence.push(
+      formatLaneMatchEvidence("active-pr-linkage", laneName),
+    );
+  }
+
+  for (const laneName of input.mergedLaneMatches) {
+    classificationEvidence.push(
+      formatLaneMatchEvidence("merged-lane-metadata", laneName),
+    );
+  }
+
+  const ownership = input.worktreeDriftPath?.ownership;
+  const ambiguousOwnership =
+    ownership?.reasonCode === "ambiguous-shared-surface" ||
+    input.activeLaneMatches.length > 1 ||
+    (input.activeLaneMatches.length > 0 && input.mergedLaneMatches.length > 0);
+
+  if (ambiguousOwnership) {
+    return {
+      classification: "unresolved",
+      classificationEvidence,
+      nextSafeAction: "operator-verification-needed",
+      nextSafeActionReason:
+        "Ownership evidence conflicts across active lanes, merged lanes, or shared surfaces.",
+      path: input.path,
+    };
+  }
+
+  if (ownership?.kind === "worktree-owned" && ownership.laneName) {
+    return {
+      classification: "existing-lane-owned",
+      classificationEvidence,
+      nextSafeAction: "wait-for-owning-lane",
+      nextSafeActionReason: `Wait for active lane ${ownership.laneName} to finish without mutating root work.`,
+      path: input.path,
+    };
+  }
+
+  if (input.activeLaneMatches.length === 1) {
+    const [laneName] = input.activeLaneMatches;
+    return {
+      classification: "existing-lane-owned",
+      classificationEvidence,
+      nextSafeAction: "wait-for-owning-lane",
+      nextSafeActionReason: `Wait for active lane ${laneName} to finish without mutating root work.`,
+      path: input.path,
+    };
+  }
+
+  if (
+    input.reconciliationReport?.classification ===
+    "ownerless-root-checkout-drift"
+  ) {
+    return {
+      classification: "operator-cleanup-needed",
+      classificationEvidence,
+      nextSafeAction: "request-operator-cleanup",
+      nextSafeActionReason:
+        "Reconciliation reports ownerless root checkout drift; operator-reviewed cleanup is required.",
+      path: input.path,
+    };
+  }
+
+  if (ownership?.kind === "already-merged-owned" && ownership.laneName) {
+    if (isDriftHandoffProcessDocPath(input.path)) {
+      return {
+        classification: "safely-ignorable",
+        classificationEvidence,
+        nextSafeAction: "ignore-with-evidence",
+        nextSafeActionReason: `Process-doc drift matches already-merged lane ${ownership.laneName}; ignore until optional operator cleanup.`,
+        path: input.path,
+      };
+    }
+
+    return {
+      classification: "operator-cleanup-needed",
+      classificationEvidence,
+      nextSafeAction: "request-operator-cleanup",
+      nextSafeActionReason: `Root drift matches already-merged lane ${ownership.laneName}; preserve until operator cleanup.`,
+      path: input.path,
+    };
+  }
+
+  if (input.mergedLaneMatches.length === 1) {
+    const [laneName] = input.mergedLaneMatches;
+    return {
+      classification: "operator-cleanup-needed",
+      classificationEvidence,
+      nextSafeAction: "request-operator-cleanup",
+      nextSafeActionReason: `Merged-lane metadata matches ${laneName}; preserve until operator cleanup.`,
+      path: input.path,
+    };
+  }
+
+  if (
+    isDriftHandoffFixturePath(input.path) ||
+    isDriftHandoffImplementationPath(input.path) ||
+    isDriftHandoffProcessDocPath(input.path)
+  ) {
+    if (hasUnavailableOwnershipEvidence(input.evidenceSources)) {
+      return {
+        classification: "unresolved",
+        classificationEvidence,
+        nextSafeAction: "keep-refill-blocked",
+        nextSafeActionReason:
+          "Dirty path lacks ownership proof because worktree drift, active PR linkage, and merged-lane metadata are unavailable.",
+        path: input.path,
+      };
+    }
+
+    return {
+      classification: "dedicated-implementation-repair-needed",
+      classificationEvidence,
+      nextSafeAction: "open-dedicated-repair-lane",
+      nextSafeActionReason:
+        "No owning lane evidence; open a dedicated repair lane instead of broad root cleanup.",
+      path: input.path,
+    };
+  }
+
+  return {
+    classification: "unresolved",
+    classificationEvidence,
+    nextSafeAction: "keep-refill-blocked",
+    nextSafeActionReason:
+      "Dirty path remains without explicit ownership or safe disposition evidence.",
+    path: input.path,
+  };
+}
+
+export function classifyDriftHandoffTargetPaths(
+  input: ClassifyDriftHandoffTargetPathsInput,
+): DriftHandoffPathClassificationRecord[] {
+  return input.targetPathGitStatus.map((gitStatus) =>
+    classifyDriftHandoffTargetPath({
+      activeLaneMatches:
+        input.activeLaneMatchesByPath?.get(gitStatus.path) ?? [],
+      evidenceSources: input.evidenceSources,
+      gitStatus,
+      mergedLaneMatches:
+        input.mergedLaneMatchesByPath?.get(gitStatus.path) ?? [],
+      path: gitStatus.path,
+      reconciliationReport: input.reconciliationReportsByPath?.get(
+        gitStatus.path,
+      ),
+      worktreeDriftPath: input.worktreeDriftPathsByPath?.get(gitStatus.path),
+    }),
+  );
+}
+
+function buildReconciliationReportsByPath(
+  report: PlannerRootCheckoutReconciliationReport,
+  targetPathSet: ReadonlySet<PlannerRootReconciliationDriftHandoffTargetPath>,
+): Map<
+  PlannerRootReconciliationDriftHandoffTargetPath,
+  RootCheckoutDirtyPathReport
+> {
+  const reportsByPath = new Map<
+    PlannerRootReconciliationDriftHandoffTargetPath,
+    RootCheckoutDirtyPathReport
+  >();
+
+  for (const pathReport of collectReconciliationPathReports(report)) {
+    if (
+      targetPathSet.has(
+        pathReport.path as PlannerRootReconciliationDriftHandoffTargetPath,
+      )
+    ) {
+      reportsByPath.set(
+        pathReport.path as PlannerRootReconciliationDriftHandoffTargetPath,
+        pathReport,
+      );
+    }
+  }
+
+  return reportsByPath;
+}
+
+function buildWorktreeDriftPathsByPath(
+  snapshot: PlannerWorktreeDriftSnapshot,
+  targetPathSet: ReadonlySet<PlannerRootReconciliationDriftHandoffTargetPath>,
+): Map<
+  PlannerRootReconciliationDriftHandoffTargetPath,
+  PlannerWorktreeDirtyPath
+> {
+  const pathsByTarget = new Map<
+    PlannerRootReconciliationDriftHandoffTargetPath,
+    PlannerWorktreeDirtyPath
+  >();
+
+  for (const dirtyPath of snapshot.root.dirtyPaths) {
+    if (
+      targetPathSet.has(
+        dirtyPath.path as PlannerRootReconciliationDriftHandoffTargetPath,
+      )
+    ) {
+      pathsByTarget.set(
+        dirtyPath.path as PlannerRootReconciliationDriftHandoffTargetPath,
+        dirtyPath,
+      );
+    }
+  }
+
+  return pathsByTarget;
+}
+
 export function buildPlannerRootReconciliationDriftHandoffReport(
   options: DiscoverPlannerRootReconciliationDriftHandoffOptions,
 ): PlannerRootReconciliationDriftHandoffReport {
@@ -406,6 +827,9 @@ export function buildPlannerRootReconciliationDriftHandoffReport(
     PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_TARGET_PATHS,
   );
   const evidenceSources: DriftHandoffEvidenceSourceRecord[] = [];
+  let reconciliationReport: PlannerRootCheckoutReconciliationReport | undefined;
+  let driftSnapshot: PlannerWorktreeDriftSnapshot | undefined;
+  let mergedLaneEvidence: PlannerMergedLaneEvidence[] | undefined;
 
   const scopedGitStatusOutput = runScopedGitStatusForTargetPaths(
     repoRoot,
@@ -431,18 +855,15 @@ export function buildPlannerRootReconciliationDriftHandoffReport(
     );
   } else {
     try {
-      const reconciliationReport = buildPlannerRootCheckoutReconciliationReport(
-        {
-          generatedAtUtc:
-            options.generatedAtUtc ?? options.evidenceCapturedAtUtc,
-          laneDiscoveryReport: options.laneDiscoveryReport,
-          remoteBaseRef: options.remoteBaseRef,
-          repoRoot,
-          runGit,
-          runGitStatus,
-          statusOutput: options.statusOutput,
-        },
-      );
+      reconciliationReport = buildPlannerRootCheckoutReconciliationReport({
+        generatedAtUtc: options.generatedAtUtc ?? options.evidenceCapturedAtUtc,
+        laneDiscoveryReport: options.laneDiscoveryReport,
+        remoteBaseRef: options.remoteBaseRef,
+        repoRoot,
+        runGit,
+        runGitStatus,
+        statusOutput: options.statusOutput,
+      });
       evidenceSources.push(
         buildRootCheckoutReconciliationEvidenceSource(
           reconciliationReport,
@@ -482,7 +903,7 @@ export function buildPlannerRootReconciliationDriftHandoffReport(
     );
   } else {
     try {
-      const driftSnapshot = discoverPlannerWorktreeDriftSnapshot({
+      driftSnapshot = discoverPlannerWorktreeDriftSnapshot({
         baseBranchName: options.remoteBaseRef,
         generatedAtUtc: options.generatedAtUtc ?? options.evidenceCapturedAtUtc,
         mergedLaneEvidence: options.mergedLaneEvidence,
@@ -552,7 +973,7 @@ export function buildPlannerRootReconciliationDriftHandoffReport(
     );
   } else {
     try {
-      const mergedLaneEvidence =
+      mergedLaneEvidence =
         options.mergedLaneEvidence ??
         discoverMergedLaneEvidence({
           repoRoot,
@@ -577,10 +998,28 @@ export function buildPlannerRootReconciliationDriftHandoffReport(
     }
   }
 
+  const pathClassifications = classifyDriftHandoffTargetPaths({
+    activeLaneMatchesByPath: driftSnapshot
+      ? collectActiveLaneMatchesByPath(driftSnapshot, targetPathSet)
+      : undefined,
+    evidenceSources,
+    mergedLaneMatchesByPath: mergedLaneEvidence
+      ? collectMergedLaneMatchesByPath(mergedLaneEvidence, targetPathSet)
+      : undefined,
+    reconciliationReportsByPath: reconciliationReport
+      ? buildReconciliationReportsByPath(reconciliationReport, targetPathSet)
+      : undefined,
+    targetPathGitStatus,
+    worktreeDriftPathsByPath: driftSnapshot
+      ? buildWorktreeDriftPathsByPath(driftSnapshot, targetPathSet)
+      : undefined,
+  });
+
   return {
     evidenceCapturedAtUtc:
       options.evidenceCapturedAtUtc ?? new Date().toISOString(),
     evidenceSources,
+    pathClassifications,
     reportedDriftAtUtc:
       options.reportedDriftAtUtc ??
       PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_REPORTED_AT_UTC,
@@ -632,6 +1071,18 @@ function formatEvidenceSourceRecord(
   return lines;
 }
 
+function formatPathClassificationRecord(
+  record: DriftHandoffPathClassificationRecord,
+): string[] {
+  return [
+    `- path=${record.path} classification=${record.classification} next-safe-action=${record.nextSafeAction}`,
+    `  next-safe-action-reason=${record.nextSafeActionReason}`,
+    ...record.classificationEvidence.map(
+      (evidence) => `  evidence=${evidence}`,
+    ),
+  ];
+}
+
 export function formatPlannerRootReconciliationDriftHandoffReport(
   report: PlannerRootReconciliationDriftHandoffReport,
 ): string {
@@ -647,6 +1098,8 @@ export function formatPlannerRootReconciliationDriftHandoffReport(
     ...report.targetPathGitStatus.map(
       (entry) => `  - ${formatTargetPathGitStatus(entry)}`,
     ),
+    "- path-classifications",
+    ...report.pathClassifications.flatMap(formatPathClassificationRecord),
     "- evidence-sources",
     ...report.evidenceSources.flatMap(formatEvidenceSourceRecord),
   ];

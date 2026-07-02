@@ -22,9 +22,9 @@ The handoff classifies exactly these eight root dirty paths:
 * `src/lib/factory/planner-root-reconciliation-drift-handoff.ts` — read-only
   evidence capture for the eight paths: scoped
   `git status --short --branch -- <paths>`, root checkout reconciliation
-  excerpts, worktree drift excerpts, active PR linkage summary, and merged-lane
-  metadata summary. Records `unavailable` when an evidence source cannot be
-  collected.
+  excerpts, worktree drift excerpts, active PR linkage summary, merged-lane
+  metadata summary, and per-path ownership classification with one next safe
+  action. Records `unavailable` when an evidence source cannot be collected.
 * `scripts/report-planner-root-reconciliation-drift-handoff.ts` — planner-facing
   CLI with fixture flags aligned to other factory reports.
 
@@ -41,7 +41,7 @@ Reuse existing reports instead of duplicating git or lane parsing:
 
 | When | Command |
 | --- | --- |
-| Capture read-only drift evidence for the eight root reconciliation paths | `bun run report:planner-root-reconciliation-drift-handoff` |
+| Capture read-only drift evidence and per-path ownership classification for the eight root reconciliation paths | `bun run report:planner-root-reconciliation-drift-handoff` |
 
 Fixture flags mirror other planner reports:
 
