@@ -7,7 +7,9 @@ import {
 } from "@/lib/docs/collection-definition-contract";
 import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
 import {
+  getAiDocsShellPageTreeSettings,
   getAiDocsShellSidebarGroupingResolvers,
+  listAiDocsCollectionIds,
   listAiDocsShellSidebarDefinitions,
   resolveAiDocsSidebarFolderLabel,
 } from "@/lib/navigation/ai-docs-sidebar-adapter";
@@ -39,9 +41,20 @@ describe("AI docs sidebar adapter", () => {
     expect(definitions.map((definition) => definition.id)).toEqual([
       ...DOCS_COLLECTION_IDS,
     ]);
+    expect(listAiDocsCollectionIds()).toEqual([...DOCS_COLLECTION_IDS]);
     expect(definitions.map((definition) => definition.sidebarLabel)).toEqual([
       ...EXPECTED_AI_SIDEBAR_FOLDER_LABELS,
     ]);
+  });
+
+  test("bundles adapter page-tree settings for generic shell composition", () => {
+    const settings = getAiDocsShellPageTreeSettings();
+
+    expect(settings.definitions).toEqual(listAiDocsShellSidebarDefinitions());
+    expect(settings.collectionIds).toEqual(listAiDocsCollectionIds());
+    expect(Object.keys(settings.groupingResolvers).sort()).toEqual(
+      [...DOCS_COLLECTION_SIDEBAR_GROUPING_RESOLVER_IDS].sort(),
+    );
   });
 
   test("preserves collection routing and grouping resolver ids from definitions", () => {

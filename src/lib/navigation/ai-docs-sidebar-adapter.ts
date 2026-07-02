@@ -42,6 +42,26 @@ export function listAiDocsShellSidebarDefinitions(): ShellCollectionSidebarDefin
   return listDocsCollectionDefinitions().map(toAiDocsShellSidebarDefinition);
 }
 
+export function listAiDocsCollectionIds(): DocsCollectionId[] {
+  return listDocsCollectionDefinitions().map((definition) => definition.id);
+}
+
+export type AiDocsShellPageTreeSettings = {
+  definitions: ShellCollectionSidebarDefinition[];
+  collectionIds: DocsCollectionId[];
+  groupingResolvers: Record<string, ShellSidebarGroupingResolver>;
+};
+
+export function getAiDocsShellPageTreeSettings(): AiDocsShellPageTreeSettings {
+  const definitions = listAiDocsShellSidebarDefinitions();
+
+  return {
+    definitions,
+    collectionIds: listAiDocsCollectionIds(),
+    groupingResolvers: getAiDocsShellSidebarGroupingResolvers(),
+  };
+}
+
 function createAiDocsGroupingResolver(
   resolverId: DocsCollectionSidebarGroupingResolverId,
 ): ShellSidebarGroupingResolver {
