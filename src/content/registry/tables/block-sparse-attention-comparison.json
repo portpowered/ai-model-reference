@@ -15,6 +15,10 @@
       "titleKey": "tables.comparison.columns.sparse.title"
     },
     {
+      "moduleId": "module.local-attention",
+      "titleKey": "tables.comparison.columns.local.title"
+    },
+    {
       "moduleId": "module.sliding-window-attention",
       "titleKey": "tables.comparison.columns.window.title"
     }
@@ -48,6 +52,11 @@
       "connectivityPattern": "tables.comparison.values.sparse.connectivityPattern",
       "computeScaling": "tables.comparison.values.sparse.computeScaling",
       "distantReach": "tables.comparison.values.sparse.distantReach"
+    },
+    "module.local-attention": {
+      "connectivityPattern": "tables.comparison.values.local.connectivityPattern",
+      "computeScaling": "tables.comparison.values.local.computeScaling",
+      "distantReach": "tables.comparison.values.local.distantReach"
     },
     "module.sliding-window-attention": {
       "connectivityPattern": "tables.comparison.values.window.connectivityPattern",
