@@ -40,10 +40,6 @@ behavior requires shared infrastructure changes.
 - Page bundle under `src/content/docs/<section>/<slug>/`
 - Matching primary registry record and page-specific supporting graph/table
   records
-- Page-specific citation and paper registry records linked from the module
-  record when their slug matches the page slug (`looped-transformers`,
-  `looped-transformers-iclr-2024`, etc.); `bun run audit:canonical-page-surface`
-  classifies those paths as page-owned support records
 
 **Shared hotspot (redirect):**
 
