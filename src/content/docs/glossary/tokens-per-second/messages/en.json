@@ -1,0 +1,92 @@
+{
+  "title": "Tokens Per Second",
+  "description": "Tokens per second (tokens/s, tok/s, or TPS) is a throughput rate: how many model tokens a serving system generates per second over the measurement window you choose.",
+  "openingSummary": "Tokens per second (tokens/s, tok/s, or TPS) is a throughput rate: how many model tokens a serving system generates per second over the measurement window you choose. It counts generated model tokens, not human words or characters, and it describes aggregate output pace rather than one reader's wait time.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Tokens per second (tokens/s, tok/s, or TPS) measures how many model tokens a serving system completes per second over a chosen window. A token is the model's text unit—the piece a tokenizer splits text into before the network runs. The same visible sentence can map to different token counts across models or tokenizers, so throughput always refers to model tokens, not words, characters, or bytes."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Operators use tokens per second to see how much generation work a deployment can sustain. Higher throughput can mean better accelerator use or more concurrent answers, but the headline number depends on batching, prompt length, and whether the window includes prefill, decode, or both. Readers may care indirectly when capacity limits queue depth or streaming pace, even though throughput is usually averaged across many tokens or requests."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "If a server emits 120 generated tokens in two seconds of steady streaming, that slice averages 60 tokens per second. The same deployment might report a different rate over a longer window that also includes queueing, prompt prefill, or idle gaps between requests. The window you choose changes the number even when each individual token took the same time to produce."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Tokens per second is not the same as total request latency, time to first token, or inter-token latency. Latency metrics describe waits and gaps for one stream. Throughput describes how many tokens move through the system per second, often averaged across many tokens, requests, or a benchmark window. A deployment can show high aggregate throughput while one reader still waits a long time before streaming starts."
+    },
+    "metricComparison": {
+      "title": "How Serving Metrics Compare",
+      "body": "Total request latency measures wall time from send until the streamed answer finishes. A reader feels it as the full wait for the complete reply, including queueing, prompt work, every token gap, and any tail cleanup. It answers how long one answer took end to end, not how many tokens the fleet averaged per second.\n\nTime to first token measures elapsed time from request start until the first streamed output token appears. A reader feels it as the pause before anything starts printing. Prefill cost, prompt length, queue wait, cold start, and cache misses before decode begins usually move it. A fast headline throughput number can still leave a long blank screen if TTFT is high.\n\nInter-token latency measures elapsed time between consecutive streamed output tokens after generation has started. A reader feels it as the rhythm or choppiness of the answer once streaming is underway. Decode work per step, KV cache reads, memory bandwidth, scheduler contention, and batching decisions usually move it. Steady per-token gaps can still add up to modest throughput when each step is expensive.\n\nTokens per second measures aggregate output rate—generated tokens completed over a chosen window, often averaged across many tokens or requests. A reader may feel it only indirectly as how quickly capacity seems to recover under load, because throughput is usually a fleet or benchmark figure rather than one visible gap. Batch size, device utilization, queue depth, request mix, and how much work shares each accelerator step usually move it."
+    },
+    "whatAffectsThroughput": {
+      "title": "What Moves Tokens Per Second",
+      "body": "Batch size can raise aggregate throughput by letting one accelerator step finish more generated tokens at once. That efficiency gain does not guarantee a smoother experience for one reader: a larger batch may improve tok/s while lengthening queue wait before streaming starts or changing how evenly tokens arrive mid-stream.\n\nThe prefill/decode mix changes throughput because prompt processing and repeated output-token generation stress different parts of the system. A window dominated by long prompts may report lower generation throughput even when decode itself is fast, while a decode-heavy burst can push tok/s up until memory movement or scheduler limits appear.\n\nKV cache reads and writes plus memory bandwidth often cap decode-heavy serving. Each new token reuses growing cache state, so bandwidth and cache traffic can become the bottleneck even when raw compute headroom remains. That is why throughput can flatten as sequences lengthen or concurrency rises.\n\nActive model size shifts tokens per second through compute cost per step, how much state must move each decode, and whether the deployed hardware can keep weights and cache resident without spilling or oversubscribing memory. A smaller model on the same devices may report higher tok/s; a larger one may need more replicas, narrower batches, or different precision just to stay within memory limits."
+    },
+    "servingPath": {
+      "title": "Go Deeper Into Serving",
+      "body": "The sections above name the factors that move throughput. Follow the links below to the serving pages that explain execution policy, batching tradeoffs, scheduler contention, and the mechanics behind each throughput limit."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "timeToFirstToken": "Time to first token",
+    "interTokenLatency": "Inter-token latency",
+    "prefill": "Prefill",
+    "decode": "Decode",
+    "kvCache": "KV cache",
+    "prefillDecodeSplit": "Prefill/decode split",
+    "batching": "Batching",
+    "continuousBatching": "Continuous batching",
+    "requestScheduling": "Request scheduling",
+    "memory": "Memory",
+    "inferenceEngine": "Inference engine"
+  },
+  "relatedDocs": {
+    "concept.time-to-first-token": {
+      "reason": "Time to first token measures wait before streaming starts, so compare it with throughput when a deployment looks fast on paper but slow to begin answering."
+    },
+    "concept.inter-token-latency": {
+      "reason": "Inter-token latency tracks per-token streaming rhythm, which can feel uneven even when aggregate tokens per second looks healthy."
+    },
+    "concept.prefill": {
+      "reason": "Prefill dominates prompt work, so a prefill-heavy request mix can lower reported generation throughput even when decode itself is efficient."
+    },
+    "concept.decode": {
+      "reason": "Decode is where generated tokens are produced repeatedly, so decode cost and cache traffic set the baseline for sustained tok/s."
+    },
+    "concept.kv-cache": {
+      "reason": "KV cache growth raises memory movement each decode step, which often caps throughput before raw compute does."
+    },
+    "concept.prefill-decode-split": {
+      "reason": "Split deployments move cache state between workers, which can change how much generation work each pool sustains per second."
+    },
+    "system.batching": {
+      "reason": "Batching decides how many requests share each accelerator step, which is one of the main levers for raising aggregate throughput."
+    },
+    "system.continuous-batching": {
+      "reason": "Continuous batching keeps decode slots filled as sequences finish, which can lift tok/s under steady streaming load."
+    },
+    "system.request-scheduling": {
+      "reason": "Request scheduling decides which work runs next under contention, so queueing and fairness policies shape realized throughput."
+    },
+    "system.memory": {
+      "reason": "Memory bandwidth and residency limits how quickly weights and KV cache state can move during decode-heavy bursts."
+    },
+    "system.inference-engine": {
+      "reason": "The inference engine implements batching, scheduling, and the decode loop that turn hardware capacity into reported tokens per second."
+    }
+  }
+}

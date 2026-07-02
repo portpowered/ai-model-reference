@@ -74,6 +74,7 @@ watchdog summaries, or planner-facing linkage reports.
 | Terminal or near-terminal lane landing audit against main | `bun run report:terminal-lane-main-branch-landing-audit` |
 | Root checkout reconciliation against HEAD and origin/main | `bun run report:planner-root-checkout-reconciliation` |
 | Latent diffusion root deletion landed-evidence verification | `bun run report:planner-latent-diffusion-root-deletion-reconciliation` |
+| Merged PR drain row evidence for PRs #281/#282/#284/#286 | `bun run report:merged-pr-drain-rows-reconciliation` |
 
 Direct script paths remain supported for fixture-driven tests:
 
@@ -82,6 +83,7 @@ Direct script paths remain supported for fixture-driven tests:
 * `bun ./scripts/report-terminal-lane-main-branch-landing-audit.ts`
 * `bun ./scripts/report-planner-root-checkout-reconciliation.ts`
 * `bun ./scripts/report-planner-latent-diffusion-root-deletion-reconciliation.ts`
+* `bun ./scripts/report-merged-pr-drain-rows-reconciliation.ts`
 
 ## Classification contract
 
