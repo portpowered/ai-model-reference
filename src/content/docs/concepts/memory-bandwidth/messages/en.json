@@ -1,0 +1,32 @@
+{
+  "title": "Memory bandwidth",
+  "description": "How quickly weights, activations, and KV cache bytes can move between memory and compute during model serving, and why that movement can cap useful throughput.",
+  "openingSummary": "Memory bandwidth is how fast bytes can move between memory and compute during model serving. Inference repeatedly reads model weights, intermediate activations, and KV cache entries; when those moves consume most of the available time, useful tokens per second can stall even when arithmetic units still have headroom.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Memory bandwidth measures how quickly a serving stack can transfer bytes between memory and the processors running matrix multiplies, attention, and other layer math. It is a movement rate, not a storage size. A machine may have enough memory capacity to hold a model and a long context window while still spending much of each step waiting for weights or cache state to arrive from memory."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Serving is not a one-time load. Each request revisits stored weights, and autoregressive decode revisits a growing KV cache on every new token. Larger batches and longer contexts multiply how many bytes must move per second to sustain a target throughput. When byte movement dominates wall-clock time, the service hits a throughput ceiling that arithmetic peak ratings alone do not explain."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a decode worker generating one token at a time for a large model. That step may need to read billions of weight bytes and reread a KV cache that grows with every prior token. If the memory system cannot supply those bytes quickly enough, the worker idles on data transfers even though the compute units are not fully busy. The limit is the pipe for moving bytes, not whether the model fits in memory."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Memory bandwidth is not the same as memory capacity, peak FLOPs, or a hardware benchmark leaderboard. Capacity answers whether tensors fit; bandwidth answers how fast they can move during serving. This page explains the serving constraint in general terms and does not rank devices, quote prices, or prescribe hardware purchases."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

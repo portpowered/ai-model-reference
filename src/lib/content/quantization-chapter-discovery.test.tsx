@@ -97,12 +97,16 @@ describe("Phase 5 quantization chapter discovery and locale stability (chapter-5
     const groups = await loadTagResourceGroups("quantization", messages, "en");
     const conceptGroup = groups.find((group) => group.kind === "concept");
 
-    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual(
+    const conceptUrls =
+      conceptGroup?.resources.map((resource) => resource.url) ?? [];
+
+    expect(conceptUrls).toEqual(
       expect.arrayContaining(QUANTIZATION_CHAPTER_URLS as unknown as string[]),
     );
-    expect(conceptGroup?.resources).toHaveLength(
+    expect(conceptUrls.length).toBeGreaterThanOrEqual(
       QUANTIZATION_CHAPTER_URLS.length,
     );
+    expect(conceptUrls).toContain("/docs/concepts/memory-bandwidth");
   });
 
   test("nearby published pages expose reader-visible paths into the quantization chapter", async () => {

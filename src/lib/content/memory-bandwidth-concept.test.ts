@@ -1,6 +1,19 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { loadConceptPage } from "@/lib/content/concept-page";
+import {
+  getDocsPageDir,
+  MEMORY_BANDWIDTH_CONCEPT_PAGE_DIR,
+} from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
-import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import {
+  PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
 import {
   getConceptById,
@@ -8,9 +21,15 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const REGISTRY_ID = "concept.memory-bandwidth";
+const SLUG = "memory-bandwidth";
+const CONCEPT_URL = "/docs/concepts/memory-bandwidth";
+const pageDir = getDocsPageDir("concepts", SLUG);
+const messagesPath = join(pageDir, "messages/en.json");
 
 describe("memory-bandwidth concept discovery (memory-bandwidth-concept-page-001)", () => {
   test("registry record is published with serving aliases, inference classification, and focused related ids", () => {
@@ -52,7 +71,8 @@ describe("memory-bandwidth concept discovery (memory-bandwidth-concept-page-001)
     expect(listConceptRecords().map((entry) => entry.id)).toContain(
       REGISTRY_ID,
     );
-    expect(PUBLISHED_DOCS_REGISTRY_IDS.has(REGISTRY_ID)).toBe(false);
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has(REGISTRY_ID)).toBe(true);
+    expect(PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has(REGISTRY_ID)).toBe(true);
   });
 
   test("curated related links resolve to published serving neighbors without competing system identity", () => {
@@ -123,5 +143,105 @@ describe("memory-bandwidth concept discovery (memory-bandwidth-concept-page-001)
     );
     expect(memoryDocument?.aliases).not.toContain("memory bandwidth");
     expect(memoryDocument?.relatedIds).toContain(REGISTRY_ID);
+  });
+
+  test("search index records memory bandwidth with aliases and serving tags", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+
+    const document = documents.find((entry) => entry.url === CONCEPT_URL);
+    expect(document?.kind).toBe("concept");
+    expect(document?.aliases).toEqual(
+      expect.arrayContaining([
+        "memory bandwidth",
+        "serving memory bandwidth",
+        "KV cache bandwidth",
+        "throughput ceiling",
+      ]),
+    );
+    expect(document?.tags).toEqual(
+      expect.arrayContaining(["foundations", "kv-cache", "quantization"]),
+    );
+  });
+
+  test("search finds memory bandwidth by title and aliases", async () => {
+    for (const query of [
+      "memory bandwidth",
+      "serving memory bandwidth",
+      "KV cache bandwidth",
+      "throughput ceiling",
+    ] as const) {
+      const results = await docsSearchApi.search(query);
+      expect(results.some((result) => result.url === CONCEPT_URL)).toBe(true);
+    }
+  });
+});
+
+describe("memory-bandwidth concept page (memory-bandwidth-concept-page-002)", () => {
+  test("messages define byte movement in isolation before neighboring topics", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.title).toBe("Memory bandwidth");
+    expect(messages.openingSummary?.toLowerCase()).toContain(
+      "bytes can move between memory and compute",
+    );
+    expect(messages.openingSummary?.toLowerCase()).toContain("model serving");
+    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
+      "transfer bytes",
+    );
+    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
+      "movement rate",
+    );
+    expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
+      "throughput ceiling",
+    );
+    expect(messages.sections?.simpleExample.body?.toLowerCase()).toContain(
+      "weight bytes",
+    );
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "memory capacity",
+    );
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "benchmark",
+    );
+  });
+
+  test("page bundle resolves from content path and renders sections, tags, and related links", async () => {
+    expect(MEMORY_BANDWIDTH_CONCEPT_PAGE_DIR).toBe(pageDir);
+
+    const page = await loadConceptPage(SLUG);
+
+    expect(page.frontmatter.kind).toBe("concept");
+    expect(page.frontmatter.status).toBe("published");
+    expect(page.frontmatter.registryId).toBe(REGISTRY_ID);
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
+
+    const pages = await loadPublishedDocsPages("en");
+    const publishedPage = pages.find((entry) => entry.pageDir === pageDir);
+    expect(publishedPage?.url).toBe(CONCEPT_URL);
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("What It Is");
+    expect(html).toContain("Why It Matters");
+    expect(html).toContain("movement rate");
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
+    expect(html).toContain('href="/docs/concepts/quantization"');
+    expect(html).toContain('href="/docs/systems/memory"');
+    expect(html).toContain('href="/tags/kv-cache"');
+    expect(html).toContain('href="/tags/quantization"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).not.toContain("Reader Shortcut");
+    expect(html).not.toContain("missing-message");
   });
 });
