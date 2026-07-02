@@ -13,6 +13,7 @@ const publishedRegistryIds = new Set([
   "module.byte-level-tokenization",
   "concept.transformer-architecture",
   "concept.scaling-law",
+  "concept.sampling-overview",
 ]);
 
 function requirePaperRecord() {
@@ -82,6 +83,7 @@ describe("gpt-2 report paper registry record", () => {
       "module.byte-level-tokenization",
       "concept.transformer-architecture",
       "concept.scaling-law",
+      "concept.sampling-overview",
     ]);
   });
 });

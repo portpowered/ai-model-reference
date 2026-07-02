@@ -18,6 +18,7 @@
     "concept.prefill-decode-split",
     "system.batching",
     "concept.autoregressive-generation",
+    "concept.sampling-overview",
     "module.attention",
     "module.multi-query-attention",
     "module.grouped-query-attention",
