@@ -271,3 +271,33 @@ occurred during classification.
 | 003 — Refresh PR #283 when conflicts are safe | **yes** | Merge/rebase `origin/main` into `gated-deltanet` in the owner worktree, resolve the seven known paths, push, rerun checks. |
 | 004 — Hand off unsafe conflicts | no | Not selected. |
 | 005 — Record blocked reason | no | Not selected. |
+
+## Story 003 — Branch refresh completed (2026-07-02T19:25Z UTC)
+
+Merged `origin/main` (`209d1bd8`) into `gated-deltanet` in the owner worktree
+(`.claude/worktrees/gated-deltanet`). Four content conflicts resolved; two paths
+auto-merged (`content-page-generation-workflow-relevant-files.md`,
+`content-reconciliation-variant-related-docs.test.tsx`,
+`table-registry.generated.ts`).
+
+### Conflict resolution summary
+
+| Path | Resolution |
+| --- | --- |
+| `AttentionVariantComparisonGraph.tsx` | Adopted main's `buildRegistryGraphLegend` + message-derived title; removed duplicate `buildModuleComputeFlowLegend` path |
+| `AttentionVariantComparisonGraph.test.tsx` | Kept Gated DeltaNet title/legend test plus main's Mamba comparison tests |
+| `ModuleGraph.tsx` | Preserved `attention-variant-graph` routing for Gated DeltaNet; main's `RegistryGraphFlow` path for standard graphs |
+| `derived-page-validation-relevant-files.md` | Listed Gated DeltaNet, diffusion-transformer-block, and Mamba slice verifiers |
+
+### Post-refresh PR #283 state
+
+| Field | Value |
+| --- | --- |
+| Head SHA | `c120a78501692fefbe26b06ec6fa538a57840d5f` |
+| Merge state | `CLEAN` |
+| Mergeable | `MERGEABLE` |
+| Base | `main` @ merge base advanced via merge commit |
+| Local validation | `make typecheck`, `make lint`, focused graph/gated-deltanet tests pass |
+
+Gated DeltaNet page, registry, graph, and discovery intent preserved. CI rerun
+in progress on refreshed head.
