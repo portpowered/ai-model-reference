@@ -41,7 +41,8 @@ import {
 } from "@/tests/search/helpers";
 
 // Budget grows with the autodiscovered attention and token-to-probability sets.
-const criticalDocsSmokePageCount = (await loadCriticalDocsSmokePages()).length;
+const criticalDocsSmokePages = await loadCriticalDocsSmokePages();
+const criticalDocsSmokePageCount = criticalDocsSmokePages.length;
 const CRITICAL_DOCS_AUTODISCOVERY_LOAD_TIMEOUT_MS =
   criticalDocsAutodiscoveryLoadTimeoutMs(criticalDocsSmokePageCount);
 const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS =
@@ -243,7 +244,7 @@ describe("Phase 1 discovery route smoke", () => {
   test(
     "critical canonical docs autodiscovery loads published local docs content",
     async () => {
-      const pages = await loadCriticalDocsSmokePages();
+      const pages = criticalDocsSmokePages;
 
       expect(pages.length).toBeGreaterThan(0);
 
@@ -319,7 +320,7 @@ describe("Phase 1 discovery route smoke", () => {
   test(
     "critical canonical docs autodiscovery renders discovered docs content without bespoke inventories",
     async () => {
-      const pages = await loadCriticalDocsSmokePages();
+      const pages = criticalDocsSmokePages;
 
       expect(pages.length).toBeGreaterThan(0);
 
