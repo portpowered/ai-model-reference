@@ -113,19 +113,19 @@ describe("LTX-2.3 reader-facing discovery (ltx-23-004)", () => {
     expect(pageBaseUrl(results[0]?.url ?? "")).toBe(MODEL_URL);
   });
 
-  test.each(["model-family", "foundations"] as const)(
-    "tag browsing lists LTX-2.3 under model groups for %s",
-    async (tagSlug) => {
-      const messages = await loadUiMessages();
-      const groups = await loadTagResourceGroups(tagSlug, messages, "en");
-      const modelGroup = groups.find((group) => group.kind === "model");
+  test.each([
+    "model-family",
+    "foundations",
+  ] as const)("tag browsing lists LTX-2.3 under model groups for %s", async (tagSlug) => {
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups(tagSlug, messages, "en");
+    const modelGroup = groups.find((group) => group.kind === "model");
 
-      expect(modelGroup).toBeDefined();
-      expect(
-        modelGroup?.resources.some((resource) => resource.url === MODEL_URL),
-      ).toBe(true);
-    },
-  );
+    expect(modelGroup).toBeDefined();
+    expect(
+      modelGroup?.resources.some((resource) => resource.url === MODEL_URL),
+    ).toBe(true);
+  });
 
   test("registry related metadata connects to diffusion, latent, multimodal, and transformer paths", () => {
     const model = getModelById(MODEL_ID);
