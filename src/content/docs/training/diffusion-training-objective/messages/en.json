@@ -40,6 +40,34 @@
     "latentSpace": "Latent space",
     "autoregressiveGeneration": "Autoregressive generation"
   },
+  "assets": {
+    "trainingFlow": {
+      "title": "Diffusion training objective flow",
+      "alt": "A four-step diffusion training flow: clean example, scheduled noising at level t, denoiser noise prediction, then repeated reverse denoising at generation.",
+      "caption": "Training corrupts clean examples on a noise schedule, teaches one-step denoiser predictions, and prepares the model for repeated reverse denoising during generation.",
+      "legend": {
+        "data-flow": {
+          "label": "Training and denoising flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "cleanExample": {
+        "label": "Clean training example"
+      },
+      "scheduledNoising": {
+        "label": "Noise schedule adds corruption at level t"
+      },
+      "denoiserPrediction": {
+        "label": "Denoiser predicts noise or clean-direction"
+      },
+      "reverseDenoising": {
+        "label": "Repeated reverse denoising at generation"
+      }
+    }
+  },
   "math": {
     "noisePredictionObjective": {
       "label": "Noise prediction objective",

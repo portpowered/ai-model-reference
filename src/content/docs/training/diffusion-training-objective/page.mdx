@@ -27,6 +27,7 @@ import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
 import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
 
 
 <TrainingRegimeAtAGlance registryId="training-regime.diffusion-training-objective" />
@@ -39,6 +40,10 @@ import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRe
 </Section>
 <Section id="how-it-works" titleKey="sections.howItWorks.title">
   <T k="sections.howItWorks.body" />
+  <TrainingRegimeFlow
+    registryId="training-regime.diffusion-training-objective"
+    assetId="trainingFlow"
+  />
   <BlockMath formula="\\mathcal{L} = \\mathbb{E}_{t,\\,x_0,\\,\\epsilon}\\left[\\left\\lVert \\epsilon - \\epsilon_\\theta(x_t, t) \\right\\rVert^2\\right]" />
   <div
     className="rounded-lg border border-border bg-card p-4"

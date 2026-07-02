@@ -1,1 +1,10 @@
-{}
+{
+  "trainingFlow": {
+    "type": "graph",
+    "graphId": "graph.diffusion-training-objective-training-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.trainingFlow.alt",
+    "captionKey": "assets.trainingFlow.caption"
+  }
+}

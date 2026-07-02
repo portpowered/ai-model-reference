@@ -1,7 +1,14 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { createElement } from "react";
 import { renderToReadableStream } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import {
+  parsePageAssetConfig,
+  validatePageAssetReferences,
+} from "@/lib/content/assets";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -13,6 +20,7 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { pageMessagesSchema } from "@/lib/content/schemas";
 import { loadTrainingRegimePage } from "@/lib/content/training-regime-page";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -27,6 +35,26 @@ async function renderHtml(
   const stream = await renderToReadableStream(element);
   await stream.allReady;
   return await new Response(stream).text();
+}
+
+function loadDiffusionTrainingObjectivePageBundle() {
+  const pageDir = getDocsPageDir("training", "diffusion-training-objective");
+  const source = readFileSync(join(pageDir, "page.mdx"), "utf8");
+  const frontmatterBlock = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!frontmatterBlock?.[1]) {
+    throw new Error(
+      "expected frontmatter block in diffusion-training-objective page",
+    );
+  }
+
+  return {
+    assets: JSON.parse(readFileSync(join(pageDir, "assets.json"), "utf8")) as {
+      trainingFlow: { type: string; graphId: string };
+    },
+    messages: pageMessagesSchema.parse(
+      JSON.parse(readFileSync(join(pageDir, "messages/en.json"), "utf8")),
+    ),
+  };
 }
 
 describe("diffusion training objective training-regime identity contracts", () => {
@@ -126,6 +154,23 @@ describe("diffusion training objective training-regime identity contracts", () =
     expect(citation?.title).toContain(
       "Denoising Diffusion Probabilistic Models",
     );
+    expect(page.assets.trainingFlow).toMatchObject({
+      type: "graph",
+      graphId: "graph.diffusion-training-objective-training-flow",
+    });
+  });
+
+  test("local asset config resolves the diffusion training flow graph with message-backed references", () => {
+    const page = loadDiffusionTrainingObjectivePageBundle();
+    const assets = parsePageAssetConfig(page.assets);
+
+    expect(assets.trainingFlow.type).toBe("graph");
+    if (assets.trainingFlow.type === "graph") {
+      expect(assets.trainingFlow.graphId).toBe(
+        "graph.diffusion-training-objective-training-flow",
+      );
+    }
+    expect(validatePageAssetReferences(assets, page.messages)).toEqual([]);
   });
 
   test("curated related docs keep diffusion training objective attached to diffusion, denoising, latent, autoregressive, and pretraining paths", () => {
@@ -181,9 +226,19 @@ describe("diffusion training objective training-regime identity contracts", () =
     expect(html).toContain("noise schedule picks how much corruption");
     expect(html).toContain("nearly clean states through highly noisy ones");
     expect(html).toContain("repeatedly in reverse along the schedule");
-    expect(html).toContain("pretraining trains a model to predict the next discrete");
+    expect(html).toContain(
+      "pretraining trains a model to predict the next discrete",
+    );
     expect(html).toContain("in sequence order");
     expect(html).toContain("denoising direction for a noisy state");
+    expect(html).toContain(
+      'data-graph-title="graph.diffusion-training-objective-training-flow"',
+    );
+    expect(html).toContain(
+      'data-graph-legend="graph.diffusion-training-objective-training-flow"',
+    );
+    expect(html).toContain("Noise schedule adds corruption at level t");
+    expect(html).toContain("Repeated reverse denoising at generation");
     expect(html).toContain('href="/docs/training/pretraining"');
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/glossary/denoising-generation"');

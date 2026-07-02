@@ -44,8 +44,10 @@ Copy structure from existing training-regime slices:
 
 * Page MDX: `src/content/docs/training/dpo/page.mdx`, `src/content/docs/training/pretraining/page.mdx`
 * Registry: `src/content/registry/training-regimes/pretraining.json` (pretraining-oriented regime metadata)
+* Training-flow graph: `src/content/registry/graphs/pretraining-training-flow.json` with page `assets.json` + `messages/en.json` asset and `graph.nodes` labels
 * Focused test: `src/lib/content/pretraining-training-regime.test.ts`
 * Templates: `docs/templates/training-regime.*`
+* Template conformance: add `training/diffusion-training-objective/page.mdx` exception in `page-template-conformance.ts` when using `LocalizedLinkList` in the comparison section (same as pretraining/post-training)
 
 Use `getDocsPageDir("training", "diffusion-training-objective")` in tests — do not add
 a new `*_PAGE_DIR` export.
