@@ -1,0 +1,17 @@
+## Codebase Patterns
+- New registry citations need both a JSON record under `src/content/registry/citations/` and an entry in `src/lib/content/citations.ts` so `CitationList` can resolve MLA references at render time.
+- `bun run generate:registry-runtime` (via pretest/pretypecheck) must run after adding registry JSON so `registry-runtime.generated.ts` stays current.
+- Published model records require `releaseDate`, `authors`, `sourceId`, and at least one `citationIds` entry; use `getCitationById` from registry-runtime for citation lookups (citations are not in `getRegistryRecordById`).
+- Connect model `relatedIds` and `architectureIds` only to registry ids that exist on the branch; CLIP currently ships as `citation.learning-transferable-visual-models-from-natural-language-supervision`, and latent-diffusion maps to `concept.latent` plus diffusion glossary concepts.
+
+## 2026-07-01T00:00:00Z - stable-diffusion-model-page-001
+- Registered `model.stable-diffusion` with image modality, stable-diffusion family metadata, search aliases, controlled tags, and citation references to the LDM paper, CLIP paper, and DDPM paper.
+- Added `citation.high-resolution-image-synthesis-with-latent-diffusion-models` and wired it into `citations.ts`.
+- Connected architecture and curated related links to shipped adjacent concepts: diffusion-model, denoising-generation, latent-space, latent, conditioning, and loss-function (diffusion training objective).
+- Added focused registry validation tests in `stable-diffusion-model-registry.test.ts`.
+- Files changed: `src/content/registry/models/stable-diffusion.json`, `src/content/registry/citations/high-resolution-image-synthesis-with-latent-diffusion-models.json`, `src/lib/content/citations.ts`, `src/lib/content/registry-runtime.generated.ts`, `src/lib/content/stable-diffusion-model-registry.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: model-page citations render through the static `citations.ts` bundle, not only registry JSON.
+  - Gotchas encountered: `deriveCuratedRelatedItems` needs `getPublishedDocsRegistryIds()` to produce hrefs for glossary neighbors; empty published-id sets yield no links in tests.
+  - Useful context: no dedicated CLIP module/concept or latent-diffusion concept page exists yet—CLIP links via citation id, latent diffusion via `concept.latent` and diffusion glossary pages.
+---
