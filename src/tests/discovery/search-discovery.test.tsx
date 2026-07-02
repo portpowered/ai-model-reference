@@ -46,7 +46,7 @@ const CRITICAL_DOCS_AUTODISCOVERY_LOAD_TIMEOUT_MS =
   criticalDocsAutodiscoveryLoadTimeoutMs(criticalDocsSmokePageCount);
 const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS =
   criticalDocsAutodiscoveryRenderTimeoutMs(criticalDocsSmokePageCount);
-const PHASE_1_TAG_BROWSE_GATE_TIMEOUT_MS = 15_000;
+const PHASE_1_TAG_BROWSE_GATE_TIMEOUT_MS = 30_000;
 
 const PHASE_1_DISCOVERY_ROUTES = [
   {

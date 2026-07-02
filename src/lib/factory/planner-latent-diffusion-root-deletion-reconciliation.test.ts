@@ -82,8 +82,10 @@ function createFixtureRepo(): {
     encoding: "utf8",
   }).stdout.trim();
 
+  runGit(repoRoot, ["remote", "add", "origin", repoRoot]);
   runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", mergeCommitSha]);
   runGit(repoRoot, ["update-ref", "refs/heads/main", initialSha]);
+  runGit(repoRoot, ["rev-parse", "--verify", "origin/main"]);
 
   return {
     cleanup: () => rmSync(dir, { force: true, recursive: true }),

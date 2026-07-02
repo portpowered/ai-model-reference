@@ -51,6 +51,8 @@ const EXPECTED_CURATED_RELATED = [
   },
 ] as const;
 
+const TTFT_SEARCH_GATE_TIMEOUT_MS = 30_000;
+
 describe("time to first token serving foundations (time-to-first-token-serving-metric-page-003)", () => {
   test("curated related links resolve to published serving foundation pages only", () => {
     const source = getConceptById("concept.time-to-first-token");
@@ -117,7 +119,7 @@ describe("time to first token serving foundations (time-to-first-token-serving-m
         expect(results.some((result) => result.url === TTFT_URL)).toBe(true);
       }
     },
-    { timeout: 30_000 },
+    { timeout: TTFT_SEARCH_GATE_TIMEOUT_MS },
   );
 
   test("rendered related sections expose serving foundations and omit batch-owned pages", async () => {

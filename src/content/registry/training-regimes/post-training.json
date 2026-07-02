@@ -17,6 +17,7 @@
     "concept.alignment",
     "training-regime.rlhf",
     "training-regime.dpo",
+    "training-regime.grpo",
     "training-regime.instruction-tuning",
     "training-regime.specialist-training",
     "model.gpt-3",

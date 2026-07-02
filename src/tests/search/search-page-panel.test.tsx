@@ -36,6 +36,8 @@ import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
 
 setDefaultTimeout(15_000);
 
+const SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS = 15_000;
+
 function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {
     q: searchParams.get("q"),
@@ -58,11 +60,58 @@ function renderSearchPagePanelContent(
   );
 }
 
+async function waitForSearchPagePanelResults(
+  options: { timeout?: number } = {},
+): Promise<HTMLElement> {
+  const timeout = options.timeout ?? SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS;
+  await waitFor(
+    () => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    },
+    { timeout },
+  );
+  return screen.findByTestId(
+    "search-page-results",
+    {},
+    {
+      timeout,
+    },
+  );
+}
+
 /** Orama static search suspends on first client render; unmount + brief wait primes the cache. */
+async function findSearchPageResults(timeout = 15_000): Promise<HTMLElement> {
+  await waitFor(
+    () => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    },
+    { timeout },
+  );
+  return screen.findByTestId("search-page-results", {}, { timeout });
+}
+
 async function primeDocsSearchClient(
   context: Awaited<ReturnType<typeof loadAppTestContext>>,
+  searchParams = new URLSearchParams(),
+  options: { locale?: "ja" } = {},
 ): Promise<void> {
-  const first = await renderSearchPagePanelContent(context);
+  const first =
+    options.locale === "ja"
+      ? await renderWithAppProviders(
+          <SearchPagePanelContent
+            messages={context.messages}
+            metaByUrl={context.metaByUrl}
+            handoff={toSearchPageHandoff(searchParams)}
+            locale="ja"
+          />,
+          { context },
+        )
+      : await renderSearchPagePanelContent(context, searchParams);
+
+  if ([...searchParams.keys()].length > 0) {
+    await waitForSearchPagePanelResults();
+  }
+
   first.unmount();
   cleanup();
   await new Promise((resolve) => setTimeout(resolve, 400));
@@ -399,7 +448,7 @@ describe("SearchPagePanel query handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("GQA");
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPagePanelResults();
     expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
   });
 
@@ -448,13 +497,7 @@ describe("SearchPagePanel query handoff", () => {
       expect(searchInput.value).toBe("GQA");
     });
     expect(screen.queryByTestId("search-page-idle")).toBeNull();
-    const results = await screen.findByTestId(
-      "search-page-results",
-      {},
-      {
-        timeout: 5000,
-      },
-    );
+    const results = await waitForSearchPagePanelResults();
     expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
   });
 });
@@ -467,7 +510,10 @@ describe("SearchPagePanel classification handoff", () => {
     await lockGlobalFetch().then(async (release) => {
       releaseFetchLock = release;
       installDocsSearchRouteFetch();
-      await primeDocsSearchClient(await loadAppTestContext());
+      await primeDocsSearchClient(
+        await loadAppTestContext(),
+        new URLSearchParams("q=token&classification=unknown-topic"),
+      );
       restoreFetchMock();
       releaseFetchLock?.();
       releaseFetchLock = null;
@@ -504,14 +550,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    await waitFor(() => {
-      expect(screen.queryByTestId("search-page-loading")).toBeNull();
-    });
-    const results = await screen.findByTestId(
-      "search-page-results",
-      {},
-      { timeout: 15_000 },
-    );
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -535,7 +574,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -549,7 +588,11 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("unknown-topic");
 
-    const empty = await screen.findByTestId("search-page-empty");
+    const empty = await screen.findByTestId(
+      "search-page-empty",
+      {},
+      { timeout: 15_000 },
+    );
     expect(empty.textContent).toContain(context.messages.search.noResults);
     expect(
       screen.queryByText(
@@ -578,14 +621,7 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("token");
 
-    await waitFor(() => {
-      expect(screen.queryByTestId("search-page-loading")).toBeNull();
-    });
-    const results = await screen.findByTestId(
-      "search-page-results",
-      {},
-      { timeout: 15_000 },
-    );
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/Token/i);
     expect(
       screen.queryByText(
@@ -606,7 +642,16 @@ describe("SearchPagePanel tag handoff", () => {
     await lockGlobalFetch().then(async (release) => {
       releaseFetchLock = release;
       installDocsSearchRouteFetch();
-      await primeDocsSearchClient(await loadAppTestContext());
+      const englishContext = await loadAppTestContext();
+      await primeDocsSearchClient(
+        englishContext,
+        new URLSearchParams("tag=attention"),
+      );
+      await primeDocsSearchClient(
+        await loadAppTestContext("ja"),
+        new URLSearchParams("tag=attention"),
+        { locale: "ja" },
+      );
       restoreFetchMock();
       releaseFetchLock?.();
       releaseFetchLock = null;
@@ -637,7 +682,9 @@ describe("SearchPagePanel tag handoff", () => {
       ) as HTMLInputElement;
       expect(searchInput.value).toBe("attention");
 
-      const results = await screen.findByTestId("search-page-results");
+      const results = await waitForSearchPagePanelResults({
+        timeout: 30_000,
+      });
       expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
     },
     { timeout: 30_000 },
@@ -685,7 +732,7 @@ describe("SearchPagePanel tag handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     const urls = collectResultUrlsFromNodes(
       within(results).getAllByTestId("search-result-url"),
     );

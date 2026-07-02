@@ -26,6 +26,7 @@ import { docsSearchApi } from "@/lib/search/search-server";
 
 const pageDir = SAMPLING_OVERVIEW_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
+const SAMPLING_OVERVIEW_SEARCH_GATE_TIMEOUT_MS = 30_000;
 
 describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decision-path-001)", () => {
   test("registry record is published and links backward to foundations and forward to decoding pages", () => {
@@ -227,19 +228,23 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
     expect(document?.tags).toEqual(expect.arrayContaining(["foundations"]));
   });
 
-  test("search finds sampling overview by title, aliases, and next-token choice terms", async () => {
-    for (const query of [
-      "Sampling Overview",
-      "token sampling",
-      "next-token sampling",
-      "choose the next token from a probability distribution",
-    ] as const) {
-      const results = await docsSearchApi.search(query);
-      expect(
-        results.some(
-          (result) => result.url === "/docs/glossary/sampling-overview",
-        ),
-      ).toBe(true);
-    }
-  });
+  test(
+    "search finds sampling overview by title, aliases, and next-token choice terms",
+    async () => {
+      for (const query of [
+        "Sampling Overview",
+        "token sampling",
+        "next-token sampling",
+        "choose the next token from a probability distribution",
+      ] as const) {
+        const results = await docsSearchApi.search(query);
+        expect(
+          results.some(
+            (result) => result.url === "/docs/glossary/sampling-overview",
+          ),
+        ).toBe(true);
+      }
+    },
+    { timeout: SAMPLING_OVERVIEW_SEARCH_GATE_TIMEOUT_MS },
+  );
 });

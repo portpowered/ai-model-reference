@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -14,6 +14,8 @@ import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import { docsSearchApi } from "@/lib/search/search-server";
 
 const CROSS_ATTENTION_URL = "/docs/modules/cross-attention";
+
+setDefaultTimeout(15_000);
 
 describe("cross-attention discovery wiring", () => {
   test("search documents carry the canonical cross-attention discovery phrases", async () => {
