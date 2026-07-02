@@ -1,0 +1,147 @@
+---
+title: Tokens Per Second
+description: The serving metric that measures how quickly a model generates output tokens once streaming has begun.
+kind: "glossary"
+registryId: "concept.tokens-per-second"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - kv-cache
+aliases:
+  - "Tokens Per Second"
+  - "tokens per second"
+  - "tok/s"
+  - "output tokens per second"
+  - "generation rate"
+  - "throughput"
+  - "fleet throughput"
+  - "serving throughput"
+  - "streaming speed"
+updatedAt: "2026-07-01"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { PageAsset } from "@/features/docs/components/PageAsset";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section
+  id="what-changes-the-number"
+  titleKey="sections.whatChangesTheNumber.title"
+>
+  <T k="sections.whatChangesTheNumber.body" />
+</Section>
+
+<Section
+  id="streaming-vs-throughput"
+  titleKey="sections.streamingVsThroughput.title"
+>
+  <T k="sections.streamingVsThroughput.body" />
+</Section>
+
+<Section
+  id="serving-metrics-compared"
+  titleKey="sections.servingMetricsCompared.title"
+>
+  <T k="sections.servingMetricsCompared.body" />
+  <p className="mt-4 text-sm font-medium text-foreground">
+    <T k="links.streamingTimelineTitle" />
+  </p>
+  <p className="mb-4 text-sm text-muted-foreground">
+    <T k="links.streamingTimelineLegend" />
+  </p>
+  <PageAsset assetId="streamingTimeline" />
+</Section>
+
+<Section
+  id="prefill-queue-and-decode"
+  titleKey="sections.prefillQueueAndDecode.title"
+>
+  <T k="sections.prefillQueueAndDecode.body" />
+</Section>
+
+<Section
+  id="batching-and-scheduling"
+  titleKey="sections.batchingAndScheduling.title"
+>
+  <T k="sections.batchingAndScheduling.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/systems/batching", labelKey: "links.batching" },
+      {
+        href: "/docs/systems/continuous-batching",
+        labelKey: "links.continuousBatching",
+      },
+      {
+        href: "/docs/systems/dynamic-batching",
+        labelKey: "links.dynamicBatching",
+      },
+      {
+        href: "/docs/systems/request-scheduling",
+        labelKey: "links.requestScheduling",
+      },
+      {
+        href: "/docs/systems/inference-engine",
+        labelKey: "links.inferenceEngine",
+      },
+    ]}
+  />
+</Section>
+
+<Section id="memory-and-kv-cache" titleKey="sections.memoryAndKvCache.title">
+  <T k="sections.memoryAndKvCache.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/concepts/kv-cache", labelKey: "links.kvCache" },
+      { href: "/docs/systems/memory", labelKey: "links.memory" },
+    ]}
+  />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="serving-path" titleKey="sections.servingPath.title">
+  <T k="sections.servingPath.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/concepts/prefill", labelKey: "links.prefill" },
+      { href: "/docs/glossary/decode", labelKey: "links.decode" },
+      { href: "/docs/concepts/kv-cache", labelKey: "links.kvCache" },
+      {
+        href: "/docs/glossary/prefill-decode-split",
+        labelKey: "links.prefillDecodeSplit",
+      },
+    ]}
+  />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="concept.tokens-per-second" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.tokens-per-second" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.tokens-per-second" />
+</Section>

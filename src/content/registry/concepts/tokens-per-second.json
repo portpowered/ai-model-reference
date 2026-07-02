@@ -1,0 +1,43 @@
+{
+  "id": "concept.tokens-per-second",
+  "slug": "tokens-per-second",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Tokens Per Second",
+    "tokens per second",
+    "tok/s",
+    "output tokens per second",
+    "generation rate",
+    "throughput",
+    "fleet throughput",
+    "serving throughput",
+    "streaming speed"
+  ],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [
+    "concept.time-to-first-token",
+    "concept.prefill",
+    "concept.decode",
+    "concept.kv-cache",
+    "concept.prefill-decode-split",
+    "system.batching",
+    "system.continuous-batching",
+    "system.dynamic-batching",
+    "system.request-scheduling",
+    "system.memory",
+    "system.deployment",
+    "system.inference-engine"
+  ],
+  "citationIds": ["citation.orca-serving-system", "citation.brown-gpt-3"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "conceptType": "inference",
+  "sidebarGrouping": {
+    "glossary": "sequence-and-attention"
+  },
+  "prerequisiteIds": ["concept.decode", "concept.prefill"],
+  "explainsIds": []
+}
