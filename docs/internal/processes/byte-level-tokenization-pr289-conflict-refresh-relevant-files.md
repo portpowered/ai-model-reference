@@ -237,6 +237,39 @@ Re-fetched after push of `f010c064` to `origin/byte-level-tokenization-page`
 | Merge state status | CLEAN |
 | Required checks | all SUCCESS (lint, typecheck, test, test-verify-contract, coverage, test-build-contract, build-export, test-integration, validate-data, linkcheck, ci) |
 
+## Handoff assessment (story 004, 2026-07-02T18:45Z UTC)
+
+**Outcome summary:** `handoff-required=false`
+
+The drain outcome selected in story 002 is `refresh-safe`, not
+`handoff-required`. Story 004 therefore records that no unsafe-conflict handoff
+is needed and that no partial conflict resolution was committed or hidden on
+this conflict-refresh lane.
+
+### Why no handoff
+
+| Criterion | Result |
+| --- | --- |
+| Partial conflict resolution committed or hidden | none on `byte-level-tokenization-pr289-conflict-refresh`; story 003 merge in the page lane was conflict-free (`f010c064`, ort, zero conflict markers) |
+| Conflicting or colliding paths requiring cross-lane ownership | none — collision preflight `active-lane-overlap=none` (2026-07-02T17:22:40Z) |
+| Direct byte-level tokenization conflicts vs shared policy / root-drift / WordPiece / BPE | no unsafe collisions — nearby lanes (`bpe-page`, `wordpiece-page`, `tokenizer-mismatch-root-drift-reconciliation`) show no active ownership overlap on byte-level surfaces |
+| Unsafe paths for local resolution | none identified |
+
+### Reproducibility snapshot (re-fetched 2026-07-02T18:45Z UTC)
+
+| Field | Value |
+| --- | --- |
+| `origin/main` SHA | `d22d1e0dd88f94341fc6a8590eff26aaac29ce51` |
+| PR #289 head SHA | `f010c06496df7e7b3b91e2a86aede0f56a9ca9d5` |
+| PR #289 mergeability | MERGEABLE |
+| PR #289 merge state | CLEAN |
+| Page lane drift vs `origin/main` | ahead=12, behind=8 (main advanced after story 003 refresh; no new unsafe collision surfaced) |
+| Required checks on PR #289 head | all SUCCESS |
+
+**Next operator action:** none for handoff. If `origin/main` drift later makes PR
+#289 DIRTY again, re-run story 003 refresh-safe verification before considering
+handoff.
+
 ## Evidence commands (read-only)
 
 ```bash

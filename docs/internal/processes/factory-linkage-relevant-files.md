@@ -154,5 +154,5 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   — PR #289 conflict-refresh evidence: queue `idea:to-complete` + `task:init` on
   session `930b51a6-07ce-44e6-a639-7a6217f6e864`, missing lane PR linkage,
   CLEAN/MERGEABLE GitHub state after `85dfc333` merge-main, tokenizer-lane
-  collision preflight with `active-lane-overlap=none`, and drain outcome
-  `refresh-safe` (story 002).
+  collision preflight with `active-lane-overlap=none`, drain outcome
+  `refresh-safe` (story 002), and `handoff-required=false` (story 004).
