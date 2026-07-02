@@ -8,8 +8,7 @@
     "Prefill",
     "prompt processing",
     "prompt pass",
-    "initial prompt pass",
-    "time to first token stage"
+    "initial prompt pass"
   ],
   "tags": ["foundations", "attention", "kv-cache"],
   "relatedIds": [
@@ -22,7 +21,11 @@
     "module.grouped-query-attention",
     "concept.transformer"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.attention-is-all-you-need",
+    "citation.brown-gpt-3",
+    "citation.orca-serving-system"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

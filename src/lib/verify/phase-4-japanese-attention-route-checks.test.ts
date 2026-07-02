@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { createServer as createHttpServer } from "node:http";
+import { CANONICAL_GITHUB_PAGES_BASE_PATH } from "./phase-1-github-pages-deploy-workflow";
 import {
   assertJapaneseAttentionRouteChecks,
   formatJapaneseAttentionRouteCheckFailure,
@@ -22,7 +23,7 @@ const PASSING_STUB_HTML: Record<string, string> = {
   "/ja/search": `<html>
     <h1>検索</h1>
     <p>正規の検索エントリ URL: /search。</p>
-    <p>attention タグの付いたリソースの結果を表示しています。</p>
+    <p>?tag=&lt;slug&gt;</p>
     <output data-testid="search-page-idle"></output>
   </html>`,
   "/ja/docs/modules/multi-head-attention": `<html>
@@ -105,6 +106,29 @@ describe("JAPANESE_ATTENTION_ROUTE_ASSERTIONS", () => {
 describe("runJapaneseAttentionRouteChecks", () => {
   test("returns no failures when stub server serves the shipped Japanese proof markers", async () => {
     const httpServer = createJapaneseAttentionStubServer(PASSING_STUB_HTML);
+    const port = await listenOnEphemeralPort(httpServer);
+
+    try {
+      const failures = await runJapaneseAttentionRouteChecks(
+        `http://127.0.0.1:${port}`,
+        { timeoutMs: 2_000 },
+      );
+      expect(failures).toEqual([]);
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("accepts GitHub Pages base-path-prefixed localized links", async () => {
+    const basePath = `/${CANONICAL_GITHUB_PAGES_BASE_PATH}`;
+    const prefixedHtmlByPath = Object.fromEntries(
+      Object.entries(PASSING_STUB_HTML).map(([path, html]) => [
+        path,
+        html.replaceAll('href="/', `href="${basePath}/`),
+      ]),
+    );
+    const httpServer = createJapaneseAttentionStubServer(prefixedHtmlByPath);
     const port = await listenOnEphemeralPort(httpServer);
 
     try {

@@ -20,6 +20,7 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
       "concept.module",
     ]);
     expect(record?.relatedIds).toEqual([
+      "concept.tokenizers-overview",
       "module.attention",
       "concept.feed-forward-network",
       "concept.normalization",
@@ -72,7 +73,7 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
     const normalization = items.find(
       (item) => item.registryId === "concept.normalization",
     );
-    expect(normalization?.href).toBe("/docs/glossary/normalization");
+    expect(normalization?.href).toBe("/docs/concepts/normalization");
     expect(normalization?.isPlanned).toBe(false);
   });
 
@@ -102,8 +103,9 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
     expect(html).not.toContain('id="where-it-appears"');
     expect(html).not.toContain('data-testid="folded-summary"');
     expect(html).toContain('href="/docs/modules/attention"');
+    expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
     expect(html).toContain('href="/docs/modules/feed-forward-network"');
-    expect(html).toContain('href="/docs/glossary/normalization"');
+    expect(html).toContain('href="/docs/concepts/normalization"');
     expect(html).toContain('href="/docs/glossary/residual-connection"');
     expect(html).toContain('href="/docs/concepts/positional-encodings"');
     expect(html).toContain('data-testid="curated-related-docs"');

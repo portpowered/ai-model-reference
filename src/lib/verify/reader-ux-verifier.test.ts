@@ -5,6 +5,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
@@ -398,6 +399,11 @@ function writeFakeNextBin(projectRoot: string, scriptBody: string): void {
 function createVerifyCliFixtureRoot(options: { nextBinBody: string }): string {
   const projectRoot = mkdtempSync(join(tmpdir(), "verify-cli-fixture-"));
   mkdirSync(join(projectRoot, ".next"));
+  mkdirSync(join(projectRoot, "src"));
+  symlinkSync(
+    join(repoRoot, "src", "content"),
+    join(projectRoot, "src/content"),
+  );
   writeFakeNextBin(projectRoot, options.nextBinBody);
   return projectRoot;
 }

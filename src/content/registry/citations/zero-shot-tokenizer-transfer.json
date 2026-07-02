@@ -1,0 +1,20 @@
+{
+  "id": "citation.zero-shot-tokenizer-transfer",
+  "slug": "zero-shot-tokenizer-transfer",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Zero-Shot Tokenizer Transfer paper", "ZeTT paper"],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Benjamin Minixhofer", "Edoardo Maria Ponti", "Ivan Vulic"],
+  "title": "Zero-Shot Tokenizer Transfer",
+  "year": 2024,
+  "url": "https://arxiv.org/abs/2405.07883",
+  "mla": "Minixhofer, Benjamin, et al. \"Zero-Shot Tokenizer Transfer.\" arXiv, 2024, https://arxiv.org/abs/2405.07883."
+}

@@ -7,13 +7,9 @@
       "title": "これは何か",
       "body": "Multi-head attention は Transformer で使われる元の scaled dot-product attention です。1 回の大きな attention lookup を行う代わりに、複数の head に処理を分けます。各 head が key と value に対する自分専用の attention 分布を計算し、その出力を最後にまとめます。"
     },
-    "whatItOptimizes": {
+    "whyItExists": {
       "title": "何を最適化するか",
       "body": "MHA は表現の幅を最適化します。異なる query head が同じ系列の中で別々の関係に注目でき、key-value のパラメータを共有する必要がありません。"
-    },
-    "practicalBenefit": {
-      "title": "実務上の利点",
-      "body": "モデルは学習時も推論時も、head ごとの完全な表現力を維持できます。KV-cache の大きさより品質を優先したいときの基準設計であり、multi-query attention や grouped-query attention を比べる出発点にもなります。"
     },
     "howItWorks": {
       "title": "どう動くか",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Multi-head attention と multi-query attention の head 数比較",
-      "caption": "Multi-head attention と multi-query attention を切り替えて、query head 数と key-value head 数を 1 つの図で比較します。",
       "variants": {
         "mha": {
           "label": "MHA"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "Multi-head attention と近い attention 変種の比較"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

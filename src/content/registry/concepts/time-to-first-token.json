@@ -1,0 +1,35 @@
+{
+  "id": "concept.time-to-first-token",
+  "slug": "time-to-first-token",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Time To First Token",
+    "TTFT",
+    "time to first token",
+    "first token latency",
+    "serving latency"
+  ],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [
+    "concept.prefill",
+    "concept.decode",
+    "concept.kv-cache",
+    "concept.prefill-decode-split",
+    "system.continuous-batching",
+    "system.memory",
+    "system.deployment",
+    "system.inference-engine"
+  ],
+  "citationIds": ["citation.orca-serving-system", "citation.brown-gpt-3"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "conceptType": "inference",
+  "sidebarGrouping": {
+    "glossary": "sequence-and-attention"
+  },
+  "prerequisiteIds": ["concept.prefill", "concept.decode"],
+  "explainsIds": []
+}

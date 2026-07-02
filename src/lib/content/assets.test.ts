@@ -1,8 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import assetFixture from "@/lib/content/__fixtures__/page-assets.json";
-import messageFixture from "@/lib/content/__fixtures__/page-messages.json";
 import {
   InvalidPageAssetConfigError,
   lookupAsset,
@@ -12,22 +11,36 @@ import {
   resolveAssetText,
   validatePageAssetReferences,
 } from "./assets";
+import { getDocsPageDir } from "./content-paths";
 import {
   AssetLoadError,
   loadPageAssets,
   resolvePageAsset,
   resolvePageAssetWithMessages,
 } from "./page-assets-load";
-import {
-  getMessageString,
-  groupedQueryAttentionPageDir,
-  loadPageMessages,
-  tokenGlossaryPageDir,
-} from "./page-messages-load";
+import { getMessageString, loadPageMessages } from "./page-messages-load";
 import type { PageAssetConfig, PageMessages } from "./schemas";
+
+const assetFixture = JSON.parse(
+  readFileSync(
+    join(import.meta.dir, "__fixtures__", "page-assets.json"),
+    "utf8",
+  ),
+);
+const messageFixture = JSON.parse(
+  readFileSync(
+    join(import.meta.dir, "__fixtures__", "page-messages.json"),
+    "utf8",
+  ),
+);
 
 const syncAssets = assetFixture as PageAssetConfig;
 const syncMessages = messageFixture as PageMessages;
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
+const tokenGlossaryPageDir = getDocsPageDir("glossary", "token");
 
 const validAssetConfig = {
   computeFlow: {

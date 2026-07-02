@@ -33,8 +33,7 @@
   },
   "assets": {
     "architectureGraph": {
-      "alt": "DeepSeek-V4-Flash architecture diagram with token embeddings, RoPE position encoding, a repeated decoder block containing compressed attention, RMSNorm, and DeepSeekMoE, then an output projection and softmax.",
-      "caption": "DeepSeek-V4-Flash keeps the same GPT-style decoder stack shape as the larger V4 model, while still highlighting the family's RoPE, compressed attention, RMSNorm, and DeepSeekMoE choices."
+      "alt": "DeepSeek-V4-Flash architecture diagram with token embeddings, RoPE position encoding, a repeated decoder block containing compressed attention, RMSNorm, and DeepSeekMoE, then an output projection and softmax."
     }
   },
   "graph": {

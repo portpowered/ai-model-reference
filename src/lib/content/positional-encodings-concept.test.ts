@@ -78,7 +78,7 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     expect(rope?.title).toBe("RoPE");
 
     const alibi = items.find((item) => item.registryId === "concept.alibi");
-    expect(alibi?.href).toBe("/docs/modules/alibi");
+    expect(alibi?.href).toBe("/docs/concepts/alibi");
     expect(alibi?.isPlanned).toBe(false);
     expect(alibi?.title).toBe("ALiBi");
 
@@ -114,7 +114,7 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     );
     expect(html).toContain('href="/docs/concepts/relative-position-bias"');
     expect(html).toContain('href="/docs/modules/rope"');
-    expect(html).toContain('href="/docs/modules/alibi"');
+    expect(html).toContain('href="/docs/concepts/alibi"');
     expect(html).toContain('href="/docs/modules/nope"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Phase");

@@ -1,3 +1,14 @@
+/**
+ * Canonical filesystem paths for committed content and generated runtime artifacts.
+ *
+ * **Derived page directory contract.** Ordinary canonical docs pages live under
+ * `src/content/docs/<section>/<slug>`. Callers should resolve a page directory with
+ * {@link getDocsPageDir} from a {@link DocsSection} and slug instead of importing
+ * page-specific exported constants. Shared roots ({@link getDocsRoot},
+ * {@link getRegistryRoot}, {@link getMessagesRoot}, generated roots) and section
+ * roots ({@link getDocsSectionRoot}, `get*DocsRoot`) remain the stable surface for
+ * section-wide or tree-wide operations.
+ */
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -20,44 +31,132 @@ export function getDocsRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "docs");
 }
 
+/** Supported canonical docs sections under `src/content/docs`. */
+export const DOCS_SECTIONS = [
+  "glossary",
+  "concepts",
+  "modules",
+  "models",
+  "papers",
+  "training",
+  "systems",
+] as const;
+
+/** Canonical docs section identifier for derived page directory lookup. */
+export type DocsSection = (typeof DOCS_SECTIONS)[number];
+
+/** Supported docs sections keyed to the canonical content tree. */
+const docsSectionPaths: Record<DocsSection, string> = {
+  glossary: "glossary",
+  concepts: "concepts",
+  modules: "modules",
+  models: "models",
+  papers: "papers",
+  training: "training",
+  systems: "systems",
+};
+
+/** Docs section root under `src/content/docs/<section>`. */
+export function getDocsSectionRoot(
+  section: DocsSection,
+  docsRoot = getDocsRoot(),
+): string {
+  return join(docsRoot, docsSectionPaths[section]);
+}
+
+/**
+ * Derived docs page directory under `src/content/docs/<section>/<slug>`.
+ *
+ * Use this for ordinary canonical page bundles (model, concept, module, system,
+ * paper, training, or glossary). Do not add new page-specific exported constants
+ * for routine page additions; pass the section and slug here instead.
+ */
+export function getDocsPageDir(
+  section: DocsSection,
+  slug: string,
+  docsRoot = getDocsRoot(),
+): string {
+  return join(getDocsSectionRoot(section, docsRoot), slug);
+}
+
 /** Glossary docs under `src/content/docs/glossary`. */
 export function getGlossaryDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "glossary");
+  return getDocsSectionRoot("glossary", docsRoot);
 }
 
 /** Concept docs under `src/content/docs/concepts`. */
 export function getConceptsDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "concepts");
+  return getDocsSectionRoot("concepts", docsRoot);
 }
 
 /** Module docs under `src/content/docs/modules`. */
 export function getModulesDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "modules");
+  return getDocsSectionRoot("modules", docsRoot);
 }
 
 /** Model docs under `src/content/docs/models`. */
 export function getModelsDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "models");
+  return getDocsSectionRoot("models", docsRoot);
 }
 
 /** Paper docs under `src/content/docs/papers`. */
 export function getPapersDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "papers");
+  return getDocsSectionRoot("papers", docsRoot);
 }
 
 /** Training-regime docs under `src/content/docs/training`. */
 export function getTrainingDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "training");
+  return getDocsSectionRoot("training", docsRoot);
 }
 
 /** System docs under `src/content/docs/systems`. */
 export function getSystemsDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "systems");
+  return getDocsSectionRoot("systems", docsRoot);
 }
 
 /** Registry JSON under `src/content/registry`. */
 export function getRegistryRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "registry");
+}
+
+export const REGISTRY_COLLECTIONS = [
+  "citations",
+  "classifications",
+  "concepts",
+  "datasets",
+  "graphs",
+  "models",
+  "modules",
+  "organizations",
+  "papers",
+  "systems",
+  "tables",
+  "tags",
+  "training-regimes",
+] as const;
+
+export type RegistryCollection = (typeof REGISTRY_COLLECTIONS)[number];
+
+/** Supported registry collection root under `src/content/registry/<collection>`. */
+export function getRegistryCollectionRoot(
+  collection: RegistryCollection,
+  registryRoot = getRegistryRoot(),
+): string {
+  return join(registryRoot, collection);
+}
+
+/** Generated content runtime artifacts under `src/lib/content/generated`. */
+export function getGeneratedContentRuntimeRoot(
+  projectRoot = getProjectRoot(),
+): string {
+  return join(projectRoot, "src", "lib", "content", "generated");
+}
+
+/** Generated Fumadocs bindings under `.source`. */
+export function getGeneratedDocsSourceRoot(
+  projectRoot = getProjectRoot(),
+): string {
+  return join(projectRoot, ".source");
 }
 
 /** Site-wide UI messages under `src/content/messages`. */
@@ -67,7 +166,7 @@ export function getMessagesRoot(contentRoot = getContentRoot()): string {
 
 /** Localized tag copy under `src/content/registry/tags/messages`. */
 export function getTagMessagesRoot(registryRoot = getRegistryRoot()): string {
-  return join(registryRoot, "tags", "messages");
+  return join(getRegistryCollectionRoot("tags", registryRoot), "messages");
 }
 
 const contentRoot = getContentRoot();
@@ -102,6 +201,12 @@ export const SYSTEMS_DOCS_ROOT = getSystemsDocsRoot(DOCS_ROOT);
 /** Default `src/content/registry` root. */
 export const REGISTRY_ROOT = getRegistryRoot(contentRoot);
 
+/** Default generated content runtime artifact root. */
+export const GENERATED_CONTENT_RUNTIME_ROOT = getGeneratedContentRuntimeRoot();
+
+/** Default generated Fumadocs bindings root. */
+export const GENERATED_DOCS_SOURCE_ROOT = getGeneratedDocsSourceRoot();
+
 /** Default `src/content/messages` root. */
 export const MESSAGES_ROOT = getMessagesRoot(contentRoot);
 
@@ -119,6 +224,12 @@ export const GROUPED_QUERY_ATTENTION_PAGE_DIR = join(
 
 /** Phase 4 byte pair encoding module page directory. */
 export const BPE_MODULE_PAGE_DIR = join(MODULES_DOCS_ROOT, "bpe");
+
+/** Phase 4 SentencePiece module page directory. */
+export const SENTENCEPIECE_MODULE_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "sentencepiece",
+);
 
 /** Phase 3 multi-head attention module page directory. */
 export const MULTI_HEAD_ATTENTION_PAGE_DIR = join(
@@ -144,6 +255,12 @@ export const LINEAR_ATTENTION_PAGE_DIR = join(
   "linear-attention",
 );
 
+/** Local attention module page directory. */
+export const LOCAL_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "local-attention",
+);
+
 /** Phase 3 sliding-window attention module page directory. */
 export const SLIDING_WINDOW_ATTENTION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,
@@ -156,10 +273,22 @@ export const SPARSE_ATTENTION_PAGE_DIR = join(
   "sparse-attention",
 );
 
+/** Block-sparse attention module page directory. */
+export const BLOCK_SPARSE_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "block-sparse-attention",
+);
+
 /** Byte-level tokenization module page directory. */
 export const BYTE_LEVEL_TOKENIZATION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,
   "byte-level-tokenization",
+);
+
+/** Tokenization module page directory. */
+export const UNIGRAM_TOKENIZER_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "unigram-tokenizer",
 );
 
 /** Phase 1 token glossary sample page directory. */
@@ -179,6 +308,9 @@ export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
   "hidden-size",
 );
+
+/** Prefill concept page directory. */
+export const PREFILL_CONCEPT_PAGE_DIR = join(CONCEPTS_DOCS_ROOT, "prefill");
 
 /** Vocabulary size glossary page directory. */
 export const VOCABULARY_SIZE_GLOSSARY_PAGE_DIR = join(
@@ -240,6 +372,15 @@ export const LEAKY_RELU_GLOSSARY_PAGE_DIR = join(
 /** Phase 3 SiLU glossary page directory. */
 export const SILU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "silu");
 
+/** Phase 3 sigmoid activation glossary page directory. */
+export const SIGMOID_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "sigmoid");
+
+/** Phase 3 tanh activation glossary page directory. */
+export const TANH_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "tanh");
+
+/** Phase 3 GELU activation glossary page directory. */
+export const GELU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "gelu");
+
 /** Phase 3 SwiGLU glossary page directory. */
 export const SWIGLU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "swiglu");
 
@@ -266,6 +407,9 @@ export const POSITIONAL_ENCODINGS_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,
   "positional-encodings",
 );
+
+/** ALiBi concept page directory. */
+export const ALIBI_CONCEPT_PAGE_DIR = join(CONCEPTS_DOCS_ROOT, "alibi");
 
 /** Phase 3 RoPE glossary page directory. */
 export const ROPE_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "rope");

@@ -1,0 +1,87 @@
+{
+  "id": "graph.diffusion-training-objective-training-flow",
+  "slug": "diffusion-training-objective-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "diffusion training objective flow",
+    "diffusion denoising training flow"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": ["citation.denoising-diffusion-probabilistic-models"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "subjectId": "training-regime.diffusion-training-objective",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "cleanExample",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "cleanExample",
+      "labelKey": "graph.nodes.cleanExample.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 220, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": ["scheduledNoising"]
+    },
+    {
+      "id": "scheduledNoising",
+      "labelKey": "graph.nodes.scheduledNoising.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 112 },
+      "size": { "width": 230, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["denoiserPrediction"]
+    },
+    {
+      "id": "denoiserPrediction",
+      "labelKey": "graph.nodes.denoiserPrediction.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 244 },
+      "size": { "width": 230, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["reverseDenoising"]
+    },
+    {
+      "id": "reverseDenoising",
+      "labelKey": "graph.nodes.reverseDenoising.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 376 },
+      "size": { "width": 230, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "clean-scheduled-noising",
+      "source": "cleanExample",
+      "target": "scheduledNoising",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "scheduled-denoiser-prediction",
+      "source": "scheduledNoising",
+      "target": "denoiserPrediction",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "denoiser-reverse-loop",
+      "source": "denoiserPrediction",
+      "target": "reverseDenoising",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

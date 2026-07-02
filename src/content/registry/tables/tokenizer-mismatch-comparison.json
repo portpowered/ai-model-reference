@@ -1,0 +1,31 @@
+{
+  "id": "table.tokenizer-mismatch-comparison",
+  "subjectId": "module.tokenizer-mismatch",
+  "columns": [
+    {
+      "moduleId": "module.tokenizer-mismatch",
+      "titleKey": "tables.comparison.columns.tokenizerMismatch.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "sourceOfDrift",
+      "labelKey": "tables.comparison.dimensions.sourceOfDrift"
+    },
+    {
+      "id": "readerVisibleSymptom",
+      "labelKey": "tables.comparison.dimensions.readerVisibleSymptom"
+    },
+    {
+      "id": "whyItHurts",
+      "labelKey": "tables.comparison.dimensions.whyItHurts"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.tokenizer-mismatch": {
+      "sourceOfDrift": "tables.comparison.values.tokenizerMismatch.sourceOfDrift",
+      "readerVisibleSymptom": "tables.comparison.values.tokenizerMismatch.readerVisibleSymptom",
+      "whyItHurts": "tables.comparison.values.tokenizerMismatch.whyItHurts"
+    }
+  }
+}

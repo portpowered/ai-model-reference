@@ -7,13 +7,9 @@
       "title": "これは何か",
       "body": "Grouped-query attention (GQA) は multi-head attention から派生した attention 変種です。複数の query head を保ちつつ、それらを group に分け、各 group が同じ key-value head の組を読むようにします。"
     },
-    "whatItOptimizes": {
+    "whyItExists": {
       "title": "何を最適化するか",
       "body": "GQA は KV-cache のサイズ、自回帰 decoding 中のメモリ帯域、そして head 数がそのまま cache サイズを増やしてしまう長文脈 serving のコストを対象に最適化します。"
-    },
-    "practicalBenefit": {
-      "title": "実務上の利点",
-      "body": "複数の query head は維持したいが、推論 cache を軽くし、デプロイ時の key-value 転送量を減らしたいときに GQA が採用されます。GQA は multi-query attention より多くの query の多様性を保ちつつ、完全な multi-head attention より小さな cache で動かせます。"
     },
     "howItWorks": {
       "title": "どう動くか",
@@ -52,7 +48,7 @@
   "assets": {
     "computeFlow": {
       "alt": "Multi-head attention と grouped-query attention の head 数比較",
-      "caption": "Multi-head attention と grouped-query attention を切り替えて、query head 数と key-value head 数を同じ図で比較します。",
+      "caption": "Grouped-query attention は複数の query head に各 key-value pair を共有させることで、key-value head 数を減らします。",
       "variants": {
         "mha": {
           "label": "Multi-head"
@@ -62,9 +58,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "Grouped-query attention と近い attention 変種の比較"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

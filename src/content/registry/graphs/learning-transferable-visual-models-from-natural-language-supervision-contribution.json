@@ -1,0 +1,120 @@
+{
+  "id": "graph.learning-transferable-visual-models-from-natural-language-supervision-contribution",
+  "slug": "learning-transferable-visual-models-from-natural-language-supervision-contribution",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["CLIP contribution graph", "CLIP paper contribution graph"],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.learning-transferable-visual-models-from-natural-language-supervision"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "paper.learning-transferable-visual-models-from-natural-language-supervision",
+  "graphType": "paper-contribution",
+  "rootNodeId": "paper",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "paper",
+      "labelKey": "graph.nodes.paper.label",
+      "moduleKind": "other",
+      "position": { "x": 360, "y": 0 },
+      "size": { "width": 240, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["pairs"]
+    },
+    {
+      "id": "pairs",
+      "labelKey": "graph.nodes.pairs.label",
+      "moduleKind": "input",
+      "position": { "x": 360, "y": 120 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["encoders"]
+    },
+    {
+      "id": "encoders",
+      "labelKey": "graph.nodes.encoders.label",
+      "moduleKind": "block",
+      "position": { "x": 360, "y": 230 },
+      "size": { "width": 220, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["contrastive"]
+    },
+    {
+      "id": "contrastive",
+      "labelKey": "graph.nodes.contrastive.label",
+      "moduleKind": "block",
+      "position": { "x": 360, "y": 340 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["embedding"]
+    },
+    {
+      "id": "embedding",
+      "labelKey": "graph.nodes.embedding.label",
+      "moduleKind": "block",
+      "position": { "x": 360, "y": 450 },
+      "size": { "width": 220, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["downstream"]
+    },
+    {
+      "id": "downstream",
+      "labelKey": "graph.nodes.downstream.label",
+      "moduleKind": "output",
+      "position": { "x": 360, "y": 560 },
+      "size": { "width": 260, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "paper-pairs",
+      "source": "paper",
+      "target": "pairs",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "pairs-encoders",
+      "source": "pairs",
+      "target": "encoders",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "encoders-contrastive",
+      "source": "encoders",
+      "target": "contrastive",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "contrastive-embedding",
+      "source": "contrastive",
+      "target": "embedding",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "embedding-downstream",
+      "source": "embedding",
+      "target": "downstream",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

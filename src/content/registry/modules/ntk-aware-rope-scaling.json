@@ -22,9 +22,17 @@
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2023-09-01",
+  "authors": [
+    "Bowen Peng",
+    "Jeffrey Quesnelle",
+    "Honglu Fan",
+    "Enrico Shippole"
+  ],
+  "sourceId": "citation.peng-yarn",
+  "primaryClassificationId": "classification.module.positional-encoding",
   "moduleType": "position-encoding",
   "optimizes": ["long-context-extrapolation"],
-  "practicalBenefits": ["retunes RoPE frequencies for longer context"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

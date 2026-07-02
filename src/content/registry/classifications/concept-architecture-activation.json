@@ -1,0 +1,20 @@
+{
+  "id": "classification.concept.architecture.activation",
+  "slug": "concept-architecture-activation",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["activation concept", "activation behavior concept"],
+  "tags": ["activation", "foundations"],
+  "relatedIds": ["concept.activation"],
+  "citationIds": [
+    "citation.goodfellow-deep-learning",
+    "citation.rectified-linear-units-improve-restricted-boltzmann-machines"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "behavior",
+  "classifiesKinds": ["concept"],
+  "parentClassificationId": "classification.concept.architecture"
+}

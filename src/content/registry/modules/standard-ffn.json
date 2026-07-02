@@ -8,6 +8,7 @@
   "tags": ["feed-forward", "foundations"],
   "relatedIds": [
     "module.feed-forward-network",
+    "concept.mixture-of-experts",
     "module.mixture-of-experts",
     "concept.activation"
   ],
@@ -15,18 +16,34 @@
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
-  "moduleType": "feed-forward",
-  "optimizes": ["per-token-capacity"],
-  "practicalBenefits": [
-    "provides a simple dense baseline for transformer blocks"
+  "releaseDate": "2017-06-01",
+  "authors": [
+    "Ashish Vaswani",
+    "Noam Shazeer",
+    "Niki Parmar",
+    "Jakob Uszkoreit",
+    "Llion Jones",
+    "Aidan N. Gomez",
+    "Łukasz Kaiser",
+    "Illia Polosukhin"
   ],
+  "sourceId": "citation.attention-is-all-you-need",
+  "primaryClassificationId": "classification.module.feed-forward",
+  "relationships": [
+    {
+      "relationshipType": "variant",
+      "targetId": "module.feed-forward-network"
+    },
+    {
+      "relationshipType": "uses",
+      "targetId": "concept.activation"
+    }
+  ],
+  "optimizes": ["per-token-capacity"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "none",
-  "moduleFamily": "feed-forward-network",
-  "conceptType": "feed-forward-variant",
-  "variantGroup": "feed-forward-family"
+  "mathLevel": "none"
 }

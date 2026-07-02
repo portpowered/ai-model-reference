@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "The leaky rectified linear unit (LeakyReLU) is a small variation on the rectified linear unit. Positive values pass through as usual, but negative values are multiplied by a small constant such as 0.01 instead of becoming zero. In feed-forward layers, that means the model can keep a weak negative signal instead of shutting it off completely."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "LeakyReLU optimizes for better negative-side gradient flow while staying very close to ReLU. It keeps the same cheap piecewise-linear shape, but it avoids a fully dead negative branch."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "LeakyReLU is useful because it shows how much behavior can change without redesigning the whole layer. The model keeps the same general dense path, and only the negative half of the activation rule changes."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Activation comparison chart showing how rectified linear unit, leaky rectified linear unit, and sigmoid linear unit treat negative values",
-      "caption": "LeakyReLU keeps the same basic path as ReLU, but the negative branch now leaks through at a small scale.",
       "variants": {
         "relu": {
           "label": "ReLU"
@@ -65,9 +60,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How leaky rectified linear unit compares with nearby activation variants"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

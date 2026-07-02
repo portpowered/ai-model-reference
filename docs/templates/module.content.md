@@ -2,19 +2,18 @@
 
 Use `module.mdx` as the production page structure. Put localized reader-facing text in `messages/<locale>.json` using the keys from `module.messages.en.json`. Put module diagrams and comparison tables in `assets.json` using `module.assets.json`.
 
-Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone, math placement, and graph rules.
+Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for layperson tone, isolation-first writing, math placement, and graph rules.
 
 ## Required Content
 
 * `title`: canonical module or mechanism name.
 * `description`: short search and metadata description.
-* `openingSummary`: one folded summary that states the reader problem and the module mechanism in plain language (merge legacy `problemStatement` + `coreIdea` into this single key).
+* `openingSummary`: optional lead copy when the page benefits from it. If used, keep it to one concise block and prefer it over legacy split summary keys.
 
 ## Sections
 
-* `whatItIs`: explain the module plainly and where it appears in a model.
-* `whatItOptimizes`: name concrete bottlenecks this module improves. These should map to registry `optimizes`.
-* `practicalBenefit`: explain the user-facing or engineering consequence. These should map to registry `practicalBenefits`.
+* `whatItIs`: explain the module plainly. Mention where it appears only after the standalone definition is clear.
+* `whyItExists`: explain the need that caused this module to appear. That can include concrete bottlenecks it improves, but it can also include capability gaps, architectural limits, or training problems that older choices left unsolved.
 * `howItWorks`: explain the computation step by step. Link to prerequisites instead of redefining them. Render the **single primary React Flow graph** here.
 * `mathOrComputeSchema`: equations and symbol-only definitions under each formula—no second React Flow canvas. Attention modules use `ModuleAttentionSchemaComparison` with `math.mhaSchema` / `math.gqaSchema` keys.
 * `comparedToNearbyModules`: explain why this module exists relative to nearby modules. Table values should come from an asset or registry-backed comparison config.
@@ -42,8 +41,20 @@ Do not define projections, grouping mechanics, or head-count concepts as math-bl
 ## Baseline exclusions
 
 * No `callouts.readerShortcut` in the module template or converged pages.
-* No separate `problemStatement` / `coreIdea` keys in new starter bundles—use `openingSummary` only.
+* No separate `problemStatement` / `coreIdea` keys in new starter bundles. If lead copy is needed, use `openingSummary`.
 
 ## Registry Expectations
 
-The module registry record should include `moduleType`, `moduleFamily`, `conceptType`, `variantGroup`, `optimizes`, `practicalBenefits`, `exampleModelIds`, `usedByModelIds`, `introducedByPaperIds`, tags, aliases, citations, and curated `relatedIds` only when derived relationships are insufficient.
+Canonical taxonomy authoring for modules should start with
+`primaryClassificationId`, optional `secondaryClassificationIds`, and
+`relationships`. Use [the ontology convergence plan](../temp/ontology-classification-topology-convergence-plan.md)
+for the staged deprecation matrix.
+
+Treat `moduleType`, `moduleFamily`, `conceptType`, and `variantGroup` as
+deprecated compatibility fields in this slice. Do not introduce them as the
+preferred path in new starter content unless a current compatibility workflow
+still requires them.
+
+The module registry record should still include `optimizes`, `exampleModelIds`,
+`usedByModelIds`, `introducedByPaperIds`, tags, aliases, citations, and curated
+`relatedIds` only when derived relationships are insufficient.

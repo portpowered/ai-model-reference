@@ -1,0 +1,50 @@
+{
+  "id": "system.continuous-batching",
+  "slug": "continuous-batching",
+  "kind": "system",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "continuous batching",
+    "continuous decode batching",
+    "decode refill",
+    "static vs continuous batching"
+  ],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [
+    "concept.decode",
+    "concept.prefill-decode-split",
+    "concept.kv-cache",
+    "system.batching",
+    "system.speculative-decoding",
+    "system.routing",
+    "system.inference-engine",
+    "system.on-disk-kv-cache",
+    "system.deployment"
+  ],
+  "citationIds": ["citation.orca-serving-system"],
+  "status": "published",
+  "createdAt": "2026-06-22T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
+  "releaseDate": "2022-07-01",
+  "authors": [
+    "Gyeong-In Yu",
+    "Joo Seong Jeong",
+    "Geon-Woo Kim",
+    "Soojeong Kim",
+    "Byung-Gon Chun"
+  ],
+  "sourceId": "citation.orca-serving-system",
+  "systemType": "serving",
+  "relatedModelIds": [],
+  "relatedModuleIds": [],
+  "relatedConceptIds": [
+    "concept.decode",
+    "concept.prefill-decode-split",
+    "concept.kv-cache"
+  ],
+  "paperIds": [],
+  "datasetIds": [],
+  "conceptType": "inference",
+  "variantGroup": "serving-runtime-foundations"
+}

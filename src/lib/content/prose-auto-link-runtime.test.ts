@@ -20,7 +20,9 @@ const BRIDGE_PHRASE_HREFS = [
   { phrase: "hidden size", href: "/docs/glossary/hidden-size" },
   { phrase: "model width", href: "/docs/glossary/hidden-size" },
   { phrase: "attention", href: "/docs/modules/attention" },
-  { phrase: "self-attention", href: "/docs/modules/attention" },
+  { phrase: "self-attention", href: "/docs/concepts/self-attention" },
+  { phrase: "low-bit inference", href: "/docs/concepts/quantization" },
+  { phrase: "transformer model", href: "/docs/glossary/transformer" },
 ] as const;
 
 describe("prose auto-link runtime bridge phrases", () => {
@@ -49,12 +51,15 @@ describe("prose auto-link runtime bridge phrases", () => {
   test("ProseAutoLinkText links bridge phrases with word boundaries", () => {
     const html = renderToStaticMarkup(
       createElement(ProseAutoLinkText, {
-        text: "A dense vector with model width matching hidden size uses attention and self-attention.",
+        text: "A dense vector with model width matching hidden size uses attention, self-attention, and low-bit inference inside a transformer model.",
       }),
     );
 
     expect(html).toContain('href="/docs/glossary/vector"');
     expect(html).toContain('href="/docs/glossary/hidden-size"');
     expect(html).toContain('href="/docs/modules/attention"');
+    expect(html).toContain('href="/docs/concepts/self-attention"');
+    expect(html).toContain('href="/docs/concepts/quantization"');
+    expect(html).toContain('href="/docs/glossary/transformer"');
   });
 });

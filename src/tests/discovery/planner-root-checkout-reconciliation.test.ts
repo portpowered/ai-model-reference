@@ -1,0 +1,645 @@
+import { describe, expect, test } from "bun:test";
+import { spawnSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+const MIXED_DIRTY_STATUS_FIXTURE = join(
+  import.meta.dir,
+  "../fixtures/planner-root-checkout-reconciliation/mixed-dirty-status.txt",
+);
+
+function runGit(repoRoot: string, args: string[]): void {
+  const result = spawnSync("git", args, {
+    cwd: repoRoot,
+    encoding: "utf8",
+  });
+
+  expect(result.status).toBe(0);
+}
+
+describe("planner-root-checkout-reconciliation script", () => {
+  test("classifies remote-present local deletions from live git fixture without mutating state", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "planner-root-checkout-reconciliation-"),
+    );
+    const repoRoot = join(dir, "repo");
+
+    mkdirSync(repoRoot, { recursive: true });
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+
+    mkdirSync(join(repoRoot, "src", "content", "docs", "models", "clip"), {
+      recursive: true,
+    });
+    mkdirSync(
+      join(
+        repoRoot,
+        "src",
+        "content",
+        "docs",
+        "training",
+        "diffusion-training-objective",
+      ),
+      { recursive: true },
+    );
+    mkdirSync(join(repoRoot, "src", "lib", "factory"), { recursive: true });
+    mkdirSync(join(repoRoot, "src", "content", "registry", "models"), {
+      recursive: true,
+    });
+
+    writeFileSync(
+      join(repoRoot, "src", "content", "docs", "models", "clip", "page.mdx"),
+      "# clip\n",
+    );
+    writeFileSync(
+      join(
+        repoRoot,
+        "src",
+        "content",
+        "docs",
+        "training",
+        "diffusion-training-objective",
+        "page.mdx",
+      ),
+      "# diffusion\n",
+    );
+    writeFileSync(
+      join(repoRoot, "src", "content", "registry", "models", "clip.json"),
+      "{}\n",
+    );
+    writeFileSync(
+      join(repoRoot, "src", "lib", "factory", "root.ts"),
+      "export const rootValue = 1;\n",
+    );
+    runGit(repoRoot, ["add", "."]);
+    runGit(repoRoot, ["commit", "-m", "initial"]);
+
+    runGit(repoRoot, ["branch", "origin-main"]);
+    runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "origin-main"]);
+
+    runGit(repoRoot, [
+      "rm",
+      "src/content/docs/models/clip/page.mdx",
+      "src/content/docs/training/diffusion-training-objective/page.mdx",
+      "src/content/registry/models/clip.json",
+    ]);
+    writeFileSync(
+      join(repoRoot, "src", "lib", "factory", "root.ts"),
+      "export const rootValue = 2;\n",
+    );
+
+    const statusBefore = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-root-checkout-reconciliation.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+        "--skip-lane-discovery",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("Planner Root Checkout Reconciliation");
+    expect(result.stdout).toContain(
+      "remote-base-ref=origin/main root-dirty-paths=4 remote-present-deletions=3 manual-inspection=1",
+    );
+    expect(result.stdout).toContain(
+      "path=src/content/docs/models/clip/page.mdx",
+    );
+    expect(result.stdout).toContain("change=deleted");
+    expect(result.stdout).toContain("evidence=present-on-origin-main");
+    expect(result.stdout).toContain(
+      "classification=ownerless-root-checkout-drift",
+    );
+    expect(result.stdout).toContain(
+      "path=src/content/docs/training/diffusion-training-objective/page.mdx",
+    );
+    expect(result.stdout).toContain(
+      "path=src/content/registry/models/clip.json",
+    );
+    expect(result.stdout).toContain("path=src/lib/factory/root.ts");
+    expect(result.stdout).toContain("change=modified");
+    expect(result.stdout).toContain("classification=manual-inspection");
+    expect(result.stdout).toContain(
+      "guidance=Review each manual-inspection path for ownership; do not revert, stage, or auto-clean these paths.",
+    );
+    expect(result.stdout).toContain("change-kind-counts=modified=1");
+    expect(result.stdout).toContain("- operator-next-actions");
+    expect(result.stdout).toContain(
+      "page-refill-hold=Hold new page refills until the root checkout is clean or dirty-path ownership is explicit.",
+    );
+    expect(result.stdout).toContain(
+      "merge-conflict-priority=Merge-conflict reduction takes priority over page refill for this batch.",
+    );
+    expect(result.stdout).toContain(
+      "target-session=0fdc5077-95ed-4396-a183-06e5b16555ca",
+    );
+    expect(result.stdout).toContain(
+      "remote-present-deletions count=3 guidance=Operator-reviewed root cleanup outside this doctor command; do not auto-revert, checkout, restore, stage, or overwrite.",
+    );
+    expect(result.stdout).toContain(
+      "manual-inspection count=1 guidance=Inspect each path for explicit ownership before cleanup; do not revert, stage, or overwrite user or planner work.",
+    );
+
+    const statusAfter = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+    expect(statusAfter).toBe(statusBefore);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("keeps local deletions absent on origin/main in manual inspection", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "planner-root-checkout-reconciliation-"),
+    );
+    const repoRoot = join(dir, "repo");
+
+    mkdirSync(repoRoot, { recursive: true });
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+
+    mkdirSync(join(repoRoot, "src", "content", "docs", "models", "clip"), {
+      recursive: true,
+    });
+    writeFileSync(
+      join(repoRoot, "src", "content", "docs", "models", "clip", "page.mdx"),
+      "# clip\n",
+    );
+    runGit(repoRoot, ["add", "."]);
+    runGit(repoRoot, ["commit", "-m", "initial"]);
+
+    runGit(repoRoot, ["branch", "origin-main"]);
+    runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "origin-main"]);
+
+    writeFileSync(
+      join(repoRoot, "src", "content", "docs", "models", "clip", "extra.mdx"),
+      "# extra\n",
+    );
+    runGit(repoRoot, ["add", "src/content/docs/models/clip/extra.mdx"]);
+    runGit(repoRoot, ["commit", "-m", "add extra"]);
+    runGit(repoRoot, ["rm", "src/content/docs/models/clip/extra.mdx"]);
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-root-checkout-reconciliation.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+        "--skip-lane-discovery",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      "remote-present-deletions=0 manual-inspection=1",
+    );
+    expect(result.stdout).toContain(
+      "path=src/content/docs/models/clip/extra.mdx",
+    );
+    expect(result.stdout).toContain("change=deleted");
+    expect(result.stdout).toContain("comparison-target=origin/main");
+    expect(result.stdout).toContain("evidence=absent-on-origin-main");
+    expect(result.stdout).toContain("classification=manual-inspection");
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("groups tokenizer-mismatch remote-present deletions as stale root checkout drift", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "planner-root-checkout-reconciliation-tokenizer-"),
+    );
+    const repoRoot = join(dir, "repo");
+
+    mkdirSync(repoRoot, { recursive: true });
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+
+    const tokenizerPaths = [
+      "src/content/docs/modules/tokenizer-mismatch/page.mdx",
+      "src/content/registry/modules/tokenizer-mismatch.json",
+      "src/content/registry/tables/tokenizer-mismatch-comparison.json",
+      "src/content/registry/graphs/tokenizer-mismatch-compute-flow.json",
+      "src/lib/content/tokenizer-mismatch-module-page.test.ts",
+    ];
+
+    for (const relativePath of tokenizerPaths) {
+      const absolutePath = join(repoRoot, relativePath);
+      mkdirSync(join(absolutePath, ".."), { recursive: true });
+      writeFileSync(absolutePath, "# tokenizer-mismatch\n");
+    }
+
+    runGit(repoRoot, ["add", "."]);
+    runGit(repoRoot, ["commit", "-m", "initial"]);
+    runGit(repoRoot, ["branch", "origin-main"]);
+    runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "origin-main"]);
+    runGit(repoRoot, ["rm", ...tokenizerPaths]);
+
+    const statusBefore = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-root-checkout-reconciliation.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+        "--skip-lane-discovery",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      "tokenizer-mismatch-remote-present-deletions count=5 comparison-target=origin/main",
+    );
+    expect(result.stdout).toContain(
+      "guidance=Stale root checkout drift: content exists on origin/main; do not treat as missing content or request a page refill.",
+    );
+    expect(result.stdout).toContain(
+      "path=src/content/docs/modules/tokenizer-mismatch/page.mdx",
+    );
+    expect(result.stdout).toContain("change=deleted");
+    expect(result.stdout).toContain("evidence=present-on-origin-main");
+    expect(result.stdout).toContain(
+      "drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+
+    const statusAfter = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+    expect(statusAfter).toBe(statusBefore);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("groups modified shared paths in manual-inspection-shared-edits from live git fixture", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "planner-root-checkout-reconciliation-shared-edits-"),
+    );
+    const repoRoot = join(dir, "repo");
+
+    mkdirSync(repoRoot, { recursive: true });
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+
+    const sharedEditPaths = [
+      "src/features/models/components/ModuleGraph.tsx",
+      "src/lib/content/table-registry-runtime.ts",
+      "src/lib/content/validate-registry.ts",
+      "src/lib/source.test.ts",
+    ];
+
+    for (const relativePath of sharedEditPaths) {
+      const absolutePath = join(repoRoot, relativePath);
+      mkdirSync(join(absolutePath, ".."), { recursive: true });
+      writeFileSync(absolutePath, "export const initial = 1;\n");
+    }
+    mkdirSync(join(repoRoot, "src", "lib", "factory"), { recursive: true });
+    writeFileSync(
+      join(repoRoot, "src", "lib", "factory", "root.ts"),
+      "export const rootValue = 1;\n",
+    );
+
+    runGit(repoRoot, ["add", "."]);
+    runGit(repoRoot, ["commit", "-m", "initial"]);
+    runGit(repoRoot, ["branch", "origin-main"]);
+    runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "origin-main"]);
+
+    for (const relativePath of sharedEditPaths) {
+      writeFileSync(
+        join(repoRoot, relativePath),
+        "export const initial = 2;\n",
+      );
+    }
+    writeFileSync(
+      join(repoRoot, "src", "lib", "factory", "root.ts"),
+      "export const rootValue = 2;\n",
+    );
+
+    const statusBefore = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-root-checkout-reconciliation.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+        "--skip-lane-discovery",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      "  - manual-inspection-shared-edits count=4",
+    );
+    expect(result.stdout).toContain(
+      "path=src/features/models/components/ModuleGraph.tsx",
+    );
+    expect(result.stdout).toContain(
+      "path=src/lib/content/table-registry-runtime.ts",
+    );
+    expect(result.stdout).toContain(
+      "inspection-family=manual-inspection-shared-edits",
+    );
+    expect(result.stdout).toContain("  - other-manual-inspection count=1");
+    expect(result.stdout).toContain("path=src/lib/factory/root.ts");
+    expect(result.stdout).toContain(
+      "guidance=Modified shared paths require explicit ownership before cleanup; do not revert, stage, or overwrite user or planner work.",
+    );
+
+    const statusAfter = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+    expect(statusAfter).toBe(statusBefore);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("groups generated table-registry drift separately from live git fixture", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "planner-root-checkout-reconciliation-table-registry-"),
+    );
+    const repoRoot = join(dir, "repo");
+
+    mkdirSync(repoRoot, { recursive: true });
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+
+    const tableRegistryPaths = [
+      "src/lib/content/generated/table-registry.generated.ts",
+      "src/lib/content/table-registry-runtime.ts",
+      "src/lib/content/validate-registry.ts",
+    ];
+
+    for (const relativePath of tableRegistryPaths) {
+      const absolutePath = join(repoRoot, relativePath);
+      mkdirSync(join(absolutePath, ".."), { recursive: true });
+      writeFileSync(absolutePath, "export const initial = 1;\n");
+    }
+
+    runGit(repoRoot, ["add", "."]);
+    runGit(repoRoot, ["commit", "-m", "initial"]);
+    runGit(repoRoot, ["branch", "origin-main"]);
+    runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "origin-main"]);
+
+    for (const relativePath of tableRegistryPaths) {
+      writeFileSync(
+        join(repoRoot, relativePath),
+        "export const initial = 2;\n",
+      );
+    }
+
+    const statusBefore = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-root-checkout-reconciliation.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+        "--skip-lane-discovery",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("generated-table-registry-drift count=3");
+    expect(result.stdout).toContain(
+      "guidance=Run table-registry validation or regeneration proof before any cleanup decision; do not auto-revert, restore, or overwrite generated or runtime registry paths.",
+    );
+    expect(result.stdout).toContain("  - generated-artifact count=1");
+    expect(result.stdout).toContain(
+      "path=src/lib/content/generated/table-registry.generated.ts",
+    );
+    expect(result.stdout).toContain("registry-drift-family=generated-artifact");
+    expect(result.stdout).toContain(
+      "  - table-registry-associated-runtime count=2",
+    );
+    expect(result.stdout).toContain(
+      "path=src/lib/content/table-registry-runtime.ts",
+    );
+    expect(result.stdout).toContain(
+      "registry-drift-family=table-registry-associated-runtime",
+    );
+    expect(result.stdout).toContain(
+      "inspection-family=manual-inspection-shared-edits",
+    );
+
+    const statusAfter = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+    expect(statusAfter).toBe(statusBefore);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("reads fixture status output without mutating git state", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "planner-root-checkout-reconciliation-fixture-"),
+    );
+    const repoRoot = join(dir, "repo");
+
+    mkdirSync(repoRoot, { recursive: true });
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+
+    mkdirSync(join(repoRoot, "src", "content", "docs", "models", "clip"), {
+      recursive: true,
+    });
+    writeFileSync(
+      join(repoRoot, "src", "content", "docs", "models", "clip", "page.mdx"),
+      "# clip\n",
+    );
+    runGit(repoRoot, ["add", "."]);
+    runGit(repoRoot, ["commit", "-m", "initial"]);
+    runGit(repoRoot, ["branch", "origin-main"]);
+    runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "origin-main"]);
+
+    const statusBefore = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-root-checkout-reconciliation.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+        "--skip-lane-discovery",
+        "--status-output",
+        MIXED_DIRTY_STATUS_FIXTURE,
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      "path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=other-remote-present-deletions",
+    );
+    expect(result.stdout).toContain(
+      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
+    );
+    expect(result.stdout).toContain(
+      "remote-present-deletions=1 manual-inspection=1",
+    );
+
+    const statusAfter = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+    expect(statusAfter).toBe(statusBefore);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("surfaces conflict-drift PRs with branch-refresh guidance from lane fixtures", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "planner-root-checkout-reconciliation-conflict-drift-"),
+    );
+    const repoRoot = join(dir, "repo");
+    const workListPath = join(dir, "work-list.json");
+    const sessionListPath = join(dir, "session-list.json");
+    const prMapPath = join(dir, "pr-map.json");
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+
+    mkdirSync(repoRoot, { recursive: true });
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+    runGit(repoRoot, ["commit", "--allow-empty", "-m", "initial"]);
+
+    mkdirSync(worktreesRoot, { recursive: true });
+    const alphaPath = join(worktreesRoot, "alpha");
+    mkdirSync(alphaPath, { recursive: true });
+    writeFileSync(
+      join(alphaPath, "prd.json"),
+      JSON.stringify({ branchName: "alpha" }, null, 2),
+    );
+    const metadataDir = join(alphaPath, ".claude");
+    mkdirSync(metadataDir, { recursive: true });
+    writeFileSync(
+      join(metadataDir, "lane-metadata.json"),
+      `${JSON.stringify(
+        {
+          schemaVersion: 1,
+          workItemName: "alpha",
+          branchName: "alpha",
+          branchMetadataSource: "setup",
+          worktreePath: alphaPath,
+          sessionId: "sess-1",
+          pullRequest: {
+            number: 42,
+            url: "https://example.com/pull/42",
+          },
+          createdAtUtc: "2026-06-20T21:08:34.000Z",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+        null,
+        2,
+      )}\n`,
+    );
+
+    writeFileSync(
+      workListPath,
+      JSON.stringify({
+        items: [{ name: "alpha", state: "active", sessionId: "sess-1" }],
+      }),
+    );
+    writeFileSync(
+      sessionListPath,
+      JSON.stringify({
+        sessions: [{ id: "sess-1", workItemName: "alpha", status: "running" }],
+      }),
+    );
+    writeFileSync(
+      prMapPath,
+      JSON.stringify({
+        alpha: {
+          number: 42,
+          headRefName: "alpha",
+          mergeStateStatus: "DIRTY",
+          statusCheckRollup: [{ conclusion: "SUCCESS" }],
+        },
+      }),
+    );
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-root-checkout-reconciliation.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+        "--work-list-json",
+        workListPath,
+        "--session-list-json",
+        sessionListPath,
+        "--worktrees-dir",
+        worktreesRoot,
+        "--pr-map-json",
+        prMapPath,
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("conflict-drift-prs count=1");
+    expect(result.stdout).toContain(
+      "guidance=Refresh or repair the PR branch before page refill; merge-conflict reduction takes priority over refill.",
+    );
+    expect(result.stdout).toContain(
+      "work-item=alpha pr=#42 branch=alpha mergeability=conflicting risk=conflict-drift next-action=refresh-branch",
+    );
+    expect(result.stdout).toContain(
+      "page-refill-hold=Hold new page refills until the root checkout is clean or dirty-path ownership is explicit.",
+    );
+    expect(result.stdout).toContain(
+      "merge-conflict-priority=Merge-conflict reduction takes priority over page refill for this batch.",
+    );
+    expect(result.stdout).not.toContain("queue-only-missing-linkage");
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+});

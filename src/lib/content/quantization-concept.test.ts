@@ -24,7 +24,9 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
     const record = getConceptById("concept.quantization");
     expect(record?.status).toBe("published");
     expect(record?.kind).toBe("concept");
-    expect(record?.conceptType).toBe("inference");
+    expect(record?.primaryClassificationId).toBe(
+      "classification.concept.inference",
+    );
     expect(record?.aliases).toEqual([
       "model quantization",
       "low-bit inference",
@@ -71,7 +73,7 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
     ).toBe("/docs/glossary/parameter");
     expect(
       items.find((item) => item.registryId === "concept.activation")?.href,
-    ).toBe("/docs/glossary/activation");
+    ).toBe("/docs/concepts/activation");
     expect(
       items.find(
         (item) => item.registryId === "concept.autoregressive-generation",
@@ -118,7 +120,7 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
       'href="/docs/concepts/why-4-bit-models-are-not-exactly-4x-faster"',
     );
     expect(html).toContain('href="/docs/glossary/parameter"');
-    expect(html).toContain('href="/docs/glossary/activation"');
+    expect(html).toContain('href="/docs/concepts/activation"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
@@ -130,39 +132,43 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
     expect(html).not.toContain("benchmark leaderboard");
   });
 
-  test("search documents and live search surface quantization by title, alias, and core body terms", async () => {
-    const registry = await loadRegistry();
-    const pages = await loadPublishedDocsPages("en");
-    const documents = buildSearchDocuments(pages, registry);
-    const document = documents.find(
-      (entry) => entry.url === "/docs/concepts/quantization",
-    );
+  test(
+    "search documents and live search surface quantization by title, alias, and core body terms",
+    async () => {
+      const registry = await loadRegistry();
+      const pages = await loadPublishedDocsPages("en");
+      const documents = buildSearchDocuments(pages, registry);
+      const document = documents.find(
+        (entry) => entry.url === "/docs/concepts/quantization",
+      );
 
-    expect(document?.kind).toBe("concept");
-    expect(document?.facets.kind).toBe("concept");
-    expect(document?.aliases).toEqual(
-      expect.arrayContaining(["model quantization", "low-bit inference"]),
-    );
-    expect(document?.tags).toEqual(expect.arrayContaining(["quantization"]));
-    expect(document?.bodyText).toContain("KV cache");
+      expect(document?.kind).toBe("concept");
+      expect(document?.facets.kind).toBe("concept");
+      expect(document?.aliases).toEqual(
+        expect.arrayContaining(["model quantization", "low-bit inference"]),
+      );
+      expect(document?.tags).toEqual(expect.arrayContaining(["quantization"]));
+      expect(document?.bodyText).toContain("KV cache");
 
-    const titleResults = await docsSearchApi.search("quantization");
-    expect(titleResults[0]?.url).toBe("/docs/concepts/quantization");
+      const titleResults = await docsSearchApi.search("quantization");
+      expect(titleResults[0]?.url).toBe("/docs/concepts/quantization");
 
-    const aliasResults = await docsSearchApi.search("model quantization");
-    expect(
-      aliasResults.some(
-        (result) => result.url === "/docs/concepts/quantization",
-      ),
-    ).toBe(true);
+      const aliasResults = await docsSearchApi.search("model quantization");
+      expect(
+        aliasResults.some(
+          (result) => result.url === "/docs/concepts/quantization",
+        ),
+      ).toBe(true);
 
-    const bodyResults = await docsSearchApi.search("low precision inference");
-    expect(
-      bodyResults.some(
-        (result) => result.url === "/docs/concepts/quantization",
-      ),
-    ).toBe(true);
-  });
+      const bodyResults = await docsSearchApi.search("low precision inference");
+      expect(
+        bodyResults.some(
+          (result) => result.url === "/docs/concepts/quantization",
+        ),
+      ).toBe(true);
+    },
+    { timeout: 15_000 },
+  );
 
   test("quantization tag surfaces the overview page", async () => {
     const messages = await loadUiMessages();

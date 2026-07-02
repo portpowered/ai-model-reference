@@ -1,0 +1,20 @@
+{
+  "id": "citation.qwen3-0-6b-huggingface",
+  "slug": "qwen3-0-6b-huggingface",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Qwen/Qwen3-0.6B Hugging Face model card"],
+  "tags": ["model-family", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["Qwen Team"],
+  "title": "Qwen/Qwen3-0.6B",
+  "url": "https://huggingface.co/Qwen/Qwen3-0.6B",
+  "mla": "Qwen Team. \"Qwen/Qwen3-0.6B.\" Hugging Face, 2025.",
+  "year": 2025
+}

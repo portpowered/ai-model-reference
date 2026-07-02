@@ -204,7 +204,7 @@ describe("relative position bias concept slice verification (relative-position-b
     expect(html).toContain(`href="${POSITIONAL_ENCODINGS_URL}"`);
     expect(html).toContain(`href="${T5_BIAS_MODULE_URL}"`);
     expect(html).toContain('href="/docs/modules/rope"');
-    expect(html).toContain('href="/docs/modules/alibi"');
+    expect(html).toContain('href="/docs/concepts/alibi"');
     expect(html).toContain(
       'href="/docs/modules/absolute-positional-embeddings"',
     );

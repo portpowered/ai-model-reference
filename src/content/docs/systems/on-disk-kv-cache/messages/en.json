@@ -19,8 +19,7 @@
       "title": "Practical Impact",
       "body": "This makes million-token sessions easier to sustain in practice, especially when multiple long-running sessions compete for memory."
     },
-    "associatedRecords": { "title": "Associated Records" },
-    "related": { "title": "Related" },
+    "related": { "title": "Related To" },
     "tags": { "title": "Tags" },
     "references": { "title": "References" }
   },

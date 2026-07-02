@@ -1,0 +1,17 @@
+{
+  "id": "classification.module.attention.grouped-query",
+  "slug": "attention-grouped-query",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["grouped-query attention", "GQA"],
+  "tags": ["attention", "kv-cache", "foundations"],
+  "relatedIds": ["module.grouped-query-attention"],
+  "citationIds": ["citation.gqa-paper"],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "mechanism",
+  "classifiesKinds": ["module"],
+  "parentClassificationId": "classification.module.attention"
+}

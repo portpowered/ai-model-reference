@@ -1,0 +1,18 @@
+{
+  "systemFlow": {
+    "type": "graph",
+    "graphId": "graph.request-scheduling-system-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.systemFlow.alt",
+    "captionKey": "assets.systemFlow.caption"
+  },
+  "schedulerDecision": {
+    "type": "graph",
+    "graphId": "graph.request-scheduling-decision-factors",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.schedulerDecision.alt",
+    "captionKey": "assets.schedulerDecision.caption"
+  }
+}

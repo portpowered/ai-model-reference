@@ -1,0 +1,109 @@
+{
+  "id": "graph.memory-system-flow",
+  "slug": "memory-system-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["memory system flow", "serving memory flow"],
+  "tags": ["foundations", "kv-cache", "context-window"],
+  "relatedIds": [],
+  "citationIds": ["citation.orca-serving-system", "citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-22T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
+  "subjectId": "system.memory",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "weights",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "weights",
+      "labelKey": "graph.nodes.weights.label",
+      "moduleKind": "input",
+      "position": { "x": 260, "y": 0 },
+      "size": { "width": 240, "height": 88 },
+      "visualRole": "process-node",
+      "childNodeIds": ["prefill"]
+    },
+    {
+      "id": "prefill",
+      "labelKey": "graph.nodes.prefill.label",
+      "moduleKind": "operation",
+      "position": { "x": 260, "y": 128 },
+      "size": { "width": 250, "height": 96 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["kv-cache", "decode"]
+    },
+    {
+      "id": "kv-cache",
+      "labelKey": "graph.nodes.kvCache.label",
+      "moduleKind": "cache",
+      "position": { "x": 90, "y": 286 },
+      "size": { "width": 250, "height": 96 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["pressure"]
+    },
+    {
+      "id": "decode",
+      "labelKey": "graph.nodes.decode.label",
+      "moduleKind": "operation",
+      "position": { "x": 430, "y": 286 },
+      "size": { "width": 250, "height": 96 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["pressure"]
+    },
+    {
+      "id": "pressure",
+      "labelKey": "graph.nodes.pressure.label",
+      "moduleKind": "output",
+      "position": { "x": 260, "y": 444 },
+      "size": { "width": 260, "height": 96 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "weights-prefill",
+      "source": "weights",
+      "target": "prefill",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "prefill-kv-cache",
+      "source": "prefill",
+      "target": "kv-cache",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "left",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "prefill-decode",
+      "source": "prefill",
+      "target": "decode",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "kv-cache-pressure",
+      "source": "kv-cache",
+      "target": "pressure",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "decode-pressure",
+      "source": "decode",
+      "target": "pressure",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "right"
+    }
+  ]
+}

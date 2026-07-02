@@ -1,0 +1,9 @@
+{
+  "architectureGraph": {
+    "type": "graph",
+    "graphId": "graph.qwen-3-6-35b-a3b-architecture",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.architectureGraph.alt"
+  }
+}

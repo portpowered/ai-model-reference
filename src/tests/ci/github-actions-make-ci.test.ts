@@ -40,7 +40,10 @@ type WorkflowMatrixEntry = {
   name: string;
   command: string;
   installPlaywright: boolean;
+  websiteTestParallelWorkers?: number;
 };
+
+type PackageScripts = Record<string, string>;
 
 function parseMakefileCiPrerequisites(makefile: string): string[] {
   const ciLine = makefile
@@ -75,6 +78,16 @@ function parseWorkflowMatrixEntries(workflow: string): WorkflowMatrixEntry[] {
         name,
         command,
         installPlaywright: /^\s*install_playwright:\s*true\s*$/m.test(block),
+        websiteTestParallelWorkers: (() => {
+          const raw = block.match(
+            /^\s*website_test_parallel_workers:\s+([^\n]+)/m,
+          )?.[1];
+          if (!raw) {
+            return undefined;
+          }
+
+          return Number.parseInt(raw, 10);
+        })(),
       };
     });
 }
@@ -96,6 +109,9 @@ describe("GitHub Actions make ci", () => {
     expect(workflow).toContain("needs: gate");
     expect(workflow).toMatch(/if: \$\{\{ always\(\) \}\}/);
     expect(workflow).toMatch(/if: \$\{\{ matrix\.install_playwright \}\}/);
+    expect(workflow).toMatch(
+      /WEBSITE_TEST_PARALLEL_WORKERS: \$\{\{ matrix\.website_test_parallel_workers \}\}/,
+    );
     expect(workflow).not.toMatch(/continue-on-error:\s*true/i);
   });
 
@@ -105,32 +121,60 @@ describe("GitHub Actions make ci", () => {
     const packageJson = JSON.parse(
       readFileSync(join(repoRoot, "package.json"), "utf8"),
     ) as {
-      scripts: {
-        linkcheck: string;
-        test: string;
-        "test:build-contract": string;
-        "test:verify-contract": string;
-        prelinkcheck: string;
-      };
+      scripts: PackageScripts;
     };
-    expect(packageJson.scripts.prelinkcheck).toBe("fumadocs-mdx");
-    expect(packageJson.scripts.linkcheck).toBe(
-      "bun ./scripts/validate-links.ts",
+    const scripts = packageJson.scripts;
+
+    expect(scripts["prepare:content-runtime"]).toBe(
+      "bun ./scripts/prepare-content-runtime.ts",
     );
-    expect(packageJson.scripts.test).toBe("bun run test:website");
-    expect(packageJson.scripts["test:verify-contract"]).toBe(
+    expect(scripts.predev).toBe("bun run prepare:content-runtime");
+    expect(scripts.prestart).toBe("bun run prepare:content-runtime");
+    expect(scripts.prebuild).toBe("bun run prepare:content-runtime");
+    expect(scripts["prebuild:export"]).toBe("bun run prepare:content-runtime");
+    expect(scripts.pretypecheck).toBe(
+      "bun run prepare:content-runtime && fumadocs-mdx",
+    );
+    expect(scripts.pretest).toBe(
+      "bun run prepare:content-runtime && fumadocs-mdx",
+    );
+    expect(scripts["pretest:website"]).toBe(
+      "bun run prepare:content-runtime && fumadocs-mdx",
+    );
+    expect(scripts["pretest:build-contract"]).toBe(
+      "bun run prepare:content-runtime && fumadocs-mdx",
+    );
+    expect(scripts["pretest:verify-contract"]).toBe(
+      "bun run prepare:content-runtime && fumadocs-mdx",
+    );
+    expect(scripts.precoverage).toBe(
+      "bun run prepare:content-runtime && fumadocs-mdx",
+    );
+    expect(scripts["prevalidate-data"]).toBe("bun run prepare:content-runtime");
+    expect(scripts.prelinkcheck).toBe(
+      "bun run prepare:content-runtime && fumadocs-mdx",
+    );
+    expect(scripts.linkcheck).toBe("bun ./scripts/validate-links.ts");
+    expect(scripts.test).toBe("bun run test:website");
+    expect(scripts["test:verify-contract"]).toBe(
       "bun ./scripts/run-website-verifier-tests.ts",
     );
-    expect(packageJson.scripts["test:build-contract"]).toContain(
+    expect(scripts.build).toContain(
+      "fumadocs-mdx && bun ./scripts/run-next.ts build --webpack",
+    );
+    expect(scripts["build:export"]).toContain(
+      "fumadocs-mdx && NEXT_STATIC_EXPORT=1 bun ./scripts/run-next.ts build --webpack",
+    );
+    expect(scripts["test:build-contract"]).toContain(
       "src/tests/build/next-build-tracing-warning.test.ts",
     );
-    expect(packageJson.scripts["test:build-contract"]).toContain(
+    expect(scripts["test:build-contract"]).toContain(
       "src/tests/build/static-export-base-path-contract.test.ts",
     );
-    expect(packageJson.scripts["test:build-contract"]).not.toContain(
+    expect(scripts["test:build-contract"]).not.toContain(
       "static-export-contract.test.ts",
     );
-    expect(packageJson.scripts["test:build-contract"]).not.toContain(
+    expect(scripts["test:build-contract"]).not.toContain(
       "static-export-search-ux-integration.test.ts",
     );
 
@@ -147,6 +191,7 @@ describe("GitHub Actions make ci", () => {
     const testVerifyContract = matrixEntries.find(
       (entry) => entry.name === "test-verify-contract",
     );
+    const test = matrixEntries.find((entry) => entry.name === "test");
     const testBuildContract = matrixEntries.find(
       (entry) => entry.name === "test-build-contract",
     );
@@ -157,6 +202,7 @@ describe("GitHub Actions make ci", () => {
       (entry) => entry.name === "test-integration",
     );
 
+    expect(test?.websiteTestParallelWorkers).toBe(1);
     expect(testVerifyContract?.installPlaywright).toBe(true);
     expect(testBuildContract?.installPlaywright).toBe(true);
     expect(buildExport?.command).toBe("make build-export");

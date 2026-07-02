@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Multi-query attention (MQA) is an attention variant derived from multi-head attention. Every query head still computes its own attention scores, but all heads read from the same key head and value head."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "MQA targets key-value cache size and memory bandwidth during autoregressive decoding. Sharing one key-value pair across all query heads minimizes the number of tensors stored per token."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Serving stacks adopt MQA when long-context inference would otherwise multiply cache size by head count. MQA delivers the smallest key-value footprint in the head-sharing family while keeping distinct query projections."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Multi-head attention versus multi-query attention head-count comparison",
-      "caption": "Toggle multi-head attention and multi-query attention to compare query-head count against key-value head count on one canvas.",
       "variants": {
         "mha": {
           "label": "Multi-head"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How multi-query attention compares with nearby attention variants"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

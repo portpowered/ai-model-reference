@@ -1,0 +1,23 @@
+{
+  "id": "citation.nemotron-3-super-model-card",
+  "slug": "nemotron-3-super-model-card",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Nemotron-3-Super-120B-A12B-BF16 model card",
+    "NVIDIA-Nemotron-3-Super-120B-A12B-BF16"
+  ],
+  "tags": ["foundations", "model-family", "context-window", "quantization"],
+  "relatedIds": ["paper.nemotron-3-super"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["NVIDIA"],
+  "title": "NVIDIA-Nemotron-3-Super-120B-A12B-BF16 Model Card",
+  "url": "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16",
+  "mla": "NVIDIA. \"NVIDIA-Nemotron-3-Super-120B-A12B-BF16 Model Card.\" Hugging Face, 2026.",
+  "year": 2026
+}

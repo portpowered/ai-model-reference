@@ -1,6 +1,7 @@
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import type { DocsPageSource } from "./pages";
 import { getRegistryRecord, type RegistryIndexes } from "./registry-index";
+import { listClassificationAncestors } from "./registry-runtime";
 import type { ConceptRecord } from "./schemas";
 
 export type ArchitectureEntry = {
@@ -19,7 +20,27 @@ function isConceptRecord(
 function isArchitectureConceptRecord(
   record: ReturnType<typeof getRegistryRecord>,
 ): boolean {
-  return isConceptRecord(record) && record.conceptType === "architecture";
+  if (!isConceptRecord(record)) {
+    return false;
+  }
+
+  if (record.conceptType === "architecture") {
+    return true;
+  }
+
+  const primaryClassificationId = record.primaryClassificationId;
+  if (!primaryClassificationId) {
+    return false;
+  }
+
+  if (primaryClassificationId === "classification.concept.architecture") {
+    return true;
+  }
+
+  return listClassificationAncestors(primaryClassificationId).some(
+    (classification) =>
+      classification.id === "classification.concept.architecture",
+  );
 }
 
 function isTaxonomyConceptRecord(

@@ -73,7 +73,7 @@ describe("Phase 3 positional encoding family hub (US-001)", () => {
     );
     expect(
       items.find((item) => item.registryId === "concept.alibi")?.href,
-    ).toBe("/docs/modules/alibi");
+    ).toBe("/docs/concepts/alibi");
     expect(items.find((item) => item.registryId === "concept.nope")?.href).toBe(
       "/docs/modules/nope",
     );
@@ -101,7 +101,7 @@ describe("Phase 3 positional encoding family hub (US-001)", () => {
     );
     expect(html).toContain('href="/docs/concepts/relative-position-bias"');
     expect(html).toContain('href="/docs/modules/rope"');
-    expect(html).toContain('href="/docs/modules/alibi"');
+    expect(html).toContain('href="/docs/concepts/alibi"');
     expect(html).toContain('href="/docs/modules/nope"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("[Absolute positional embeddings]");

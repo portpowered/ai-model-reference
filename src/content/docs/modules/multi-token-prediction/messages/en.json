@@ -1,0 +1,204 @@
+{
+  "title": "Multi-Token Prediction",
+  "description": "A training objective that asks each position to predict several future tokens through independent output heads on a shared model trunk.",
+  "openingSummary": "Multi-token prediction is a language-model training objective where each position predicts the next N future tokens at once, using independent output heads on a shared trunk, instead of predicting only the single next token.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Multi-token prediction is a training objective for decoder language models. At each token position, the model still reads the same prefix of earlier tokens, but it is trained to predict several future tokens instead of only the next one. Each future offset gets its own output head on top of the same shared trunk, so the heads stay independent even though they read the same hidden state."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Standard next-token prediction gives the model one supervised target per position. Multi-token prediction adds more future targets from the same context, which the paper argues can improve sample efficiency during pretraining and can optionally speed up inference when the extra heads are reused for self-speculative decoding."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The baseline next-token objective trains one output head to predict token t+1 from the hidden state at position t. Multi-token prediction keeps that shared trunk but adds N independent heads that predict offsets t+1 through t+N from the same hidden state. During training, each head is scored against its matching future token, and the losses are combined. At inference time, the model can still generate with the primary next-token head, or use the auxiliary heads when a serving stack wants draft-and-verify style speedups."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "Both objectives read the same prefix and shared hidden state h_t at position t. The next-token objective supervises one future token. The multi-token objective averages the same style of loss across offsets 1 through N, with each offset using its own output head on h_t."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Next-token pretraining is the usual baseline objective: each position supervises one future token at offset t+1. Multi-token prediction changes training by adding independent heads for offsets t+2 through t+N from the same hidden state. Ordinary multi-step generation is different: at inference the model still emits one token per step and re-runs the trunk as the prefix grows, unless a serving stack uses auxiliary heads for drafting. Speculative decoding is an inference-time serving technique that can reuse MTP auxiliary heads, but ordinary generation can still rely on the primary next-token head alone."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "The source paper studies decoder-only transformer language models trained with multi-token prediction as an auxiliary objective on top of the standard trunk. The method is presented as a training recipe that can be added to large-scale pretraining runs rather than as one fixed public checkpoint family."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Multi-token prediction adds output-head complexity and depends on the chosen horizon N. Larger N increases supervision signal but also increases head count and training overhead. The paper reports stronger gains at larger model sizes and on code generation, but the method is not a universal replacement for every serving or decoding optimization."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Multi-token prediction matters because it reframes what each training position supervises without changing the core autoregressive trunk. That makes it a useful bridge between ordinary next-token pretraining and faster inference ideas that draft multiple tokens before verification."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Side-by-side comparison of single-target next-token prediction versus multi-token prediction with N independent output heads on a shared trunk",
+      "caption": "Multi-token prediction keeps one shared trunk but adds independent heads for future offsets t+1 through t+N, while standard next-token prediction supervises only x_{t+1}.",
+      "variants": {
+        "nextToken": {
+          "label": "Next-token target"
+        },
+        "mtp": {
+          "label": "N future targets"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "nextToken": {
+          "title": "Next-token pretraining"
+        },
+        "mtp": {
+          "title": "Multi-token prediction"
+        },
+        "speculativeDecoding": {
+          "title": "Speculative decoding"
+        }
+      },
+      "dimensions": {
+        "predictionTargets": "Prediction targets per position",
+        "trainingRole": "Training-time role",
+        "inferenceRole": "Inference-time role"
+      },
+      "values": {
+        "nextToken": {
+          "predictionTargets": "One future token at offset t+1",
+          "trainingRole": "Default pretraining objective for decoder language models",
+          "inferenceRole": "Standard autoregressive next-token generation"
+        },
+        "mtp": {
+          "predictionTargets": "N future tokens at offsets t+1 through t+N",
+          "trainingRole": "Auxiliary objective with independent heads on a shared trunk",
+          "inferenceRole": "Can keep the primary next-token head or reuse auxiliary heads for self-speculative decoding"
+        },
+        "speculativeDecoding": {
+          "predictionTargets": "Draft tokens proposed then verified by the main model",
+          "trainingRole": "Not a training objective by itself",
+          "inferenceRole": "Serving technique that can accept drafts from MTP heads or a separate draft model"
+        }
+      }
+    }
+  },
+  "math": {
+    "nextTokenSchema": {
+      "label": "Next-token prediction objective",
+      "formula": "\\mathcal{L}_{\\text{NTP}} = -\\log p_\\theta(x_{t+1} \\mid h_t)",
+      "variableDefinitions": {
+        "xt": {
+          "term": "x_t",
+          "definition": "Token at position t."
+        },
+        "ht": {
+          "term": "h_t",
+          "definition": "Hidden state at position t from the shared trunk."
+        },
+        "xtplus1": {
+          "term": "x_{t+1}",
+          "definition": "Observed next token at offset 1."
+        },
+        "xprefix": {
+          "term": "x_{\\leq t}",
+          "definition": "Prefix tokens up to position t."
+        },
+        "theta": {
+          "term": "\\theta",
+          "definition": "Model parameters."
+        },
+        "ptheta": {
+          "term": "p_\\theta(\\cdot)",
+          "definition": "Conditional distribution from one output head on h_t."
+        }
+      }
+    },
+    "mtpSchema": {
+      "label": "Multi-token prediction objective",
+      "formula": "\\mathcal{L}_{\\text{MTP}} = \\frac{1}{N}\\sum_{k=1}^{N} -\\log p_\\theta^{(k)}(x_{t+k} \\mid h_t)",
+      "variableDefinitions": {
+        "xt": {
+          "term": "x_t",
+          "definition": "Token at position t."
+        },
+        "ht": {
+          "term": "h_t",
+          "definition": "Hidden state at position t from the shared trunk."
+        },
+        "n": {
+          "term": "N",
+          "definition": "Number of future offsets supervised at each position."
+        },
+        "k": {
+          "term": "k",
+          "definition": "Future offset index from 1 to N."
+        },
+        "xtplusk": {
+          "term": "x_{t+k}",
+          "definition": "Observed token k steps ahead of position t."
+        },
+        "xprefix": {
+          "term": "x_{\\leq t}",
+          "definition": "Prefix tokens up to position t."
+        },
+        "theta": {
+          "term": "\\theta",
+          "definition": "Shared trunk parameters plus independent head parameters."
+        },
+        "ptheta": {
+          "term": "p_\\theta^{(k)}(\\cdot)",
+          "definition": "Conditional distribution from output head k on h_t."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "contextPrefix": {
+        "label": "Context prefix x_{≤t}"
+      },
+      "sharedTrunk": {
+        "label": "Shared trunk h_t"
+      },
+      "singleOutputHead": {
+        "label": "Output head"
+      },
+      "targetTPlusOne": {
+        "label": "Target x_{t+1}"
+      },
+      "outputHeadK1": {
+        "label": "Head k = 1"
+      },
+      "outputHeadK2": {
+        "label": "Head k = 2"
+      },
+      "outputHeadKN": {
+        "label": "Head k = N"
+      },
+      "targetTPlusTwo": {
+        "label": "Target x_{t+2}"
+      },
+      "targetTPlusN": {
+        "label": "Target x_{t+N}"
+      },
+      "independentHeadsNote": {
+        "label": "N independent heads on one shared trunk"
+      }
+    }
+  }
+}

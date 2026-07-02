@@ -103,7 +103,7 @@ describe("Relative position bias concept page (US-001)", () => {
     expect(rope?.isPlanned).toBe(false);
 
     const alibi = items.find((item) => item.registryId === "concept.alibi");
-    expect(alibi?.href).toBe("/docs/modules/alibi");
+    expect(alibi?.href).toBe("/docs/concepts/alibi");
     expect(alibi?.isPlanned).toBe(false);
   });
 
@@ -128,7 +128,7 @@ describe("Relative position bias concept page (US-001)", () => {
     expect(html).toContain('href="/docs/concepts/positional-encodings"');
     expect(html).toContain('href="/docs/modules/t5-relative-position-bias"');
     expect(html).toContain('href="/docs/modules/rope"');
-    expect(html).toContain('href="/docs/modules/alibi"');
+    expect(html).toContain('href="/docs/concepts/alibi"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain("Related Concepts And Modules");
     expect(html).toContain("References");

@@ -1,0 +1,40 @@
+{
+  "kind": "model",
+  "slug": "nemotron-3-super",
+  "title": "Nemotron 3 Super",
+  "summary": "Open-weights 120B-total / 12B-active hybrid Mamba-Attention Mixture-of-Experts text model from NVIDIA's Nemotron 3 family, with long-context support up to 1M tokens and NVFP4/BF16 deployment variants.",
+  "status": "draft",
+  "aliases": [
+    "Nemotron 3 Super",
+    "Nemotron-3-Super-120B-A12B-BF16",
+    "Nemotron-3-Super-120B-A12B-NVFP4",
+    "nvidia/nemotron-3-super-120b-a12b"
+  ],
+  "tags": ["foundations", "model-family", "context-window", "quantization"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.nemotron-3-super-technical-report",
+    "citation.nemotron-3-super-research-page",
+    "citation.nemotron-3-super-model-card",
+    "citation.nemotron-3-super-nim-build-page"
+  ],
+  "authors": ["NVIDIA"],
+  "sourceId": "citation.nemotron-3-super-technical-report",
+  "family": "nemotron",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "organizationId": "organization.nvidia",
+  "architectureIds": [
+    "concept.transformer-architecture",
+    "concept.context-extension"
+  ],
+  "moduleIds": ["module.mixture-of-experts"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": ["paper.nemotron-3-super"],
+  "releaseDate": "2026-03-11",
+  "parameterCount": "120 billion total parameters",
+  "activeParameterCount": "12 billion active parameters",
+  "contextLength": 1048576,
+  "precision": ["bf16", "nvfp4"]
+}

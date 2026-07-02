@@ -1,12 +1,17 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
+
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
 
 describe("grouped-query-attention canonical page template convergence", () => {
   test("published page.mdx follows hardened module template structure", () => {
     const template = readFileSync(
-      join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "page.mdx"),
+      join(groupedQueryAttentionPageDir, "page.mdx"),
       "utf8",
     );
 
@@ -27,7 +32,7 @@ describe("grouped-query-attention canonical page template convergence", () => {
   test("published messages use folded summary and symbol math keys", () => {
     const messages = JSON.parse(
       readFileSync(
-        join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "messages/en.json"),
+        join(groupedQueryAttentionPageDir, "messages/en.json"),
         "utf8",
       ),
     ) as {
@@ -54,10 +59,7 @@ describe("grouped-query-attention canonical page template convergence", () => {
 
   test("published assets omit computeSchema graph slot", () => {
     const assets = JSON.parse(
-      readFileSync(
-        join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "assets.json"),
-        "utf8",
-      ),
+      readFileSync(join(groupedQueryAttentionPageDir, "assets.json"), "utf8"),
     ) as Record<string, unknown>;
 
     expect(assets.computeFlow).toBeDefined();
