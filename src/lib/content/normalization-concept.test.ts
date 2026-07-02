@@ -45,12 +45,28 @@ describe("Normalization concept page (normalization-concept-page-001)", () => {
     );
     expect(page.messages.sections?.whatItIs.body).toContain("rescaling");
     expect(page.messages.sections?.whyItMatters.body).toContain("training");
-    expect(page.messages.sections?.whyItMatters.body).toContain("inference");
-    expect(page.messages.sections?.whenToOpenAVariantPage.body)?.toContain(
-      "Layer norm",
+    expect(page.messages.sections?.whyItMatters.body).toContain("gradients");
+    expect(page.messages.sections?.whyItMatters.body).toContain("optimization");
+    expect(page.messages.sections?.whyItMatters.body).toContain(
+      "predictable range",
     );
     expect(page.messages.sections?.whenToOpenAVariantPage.body)?.toContain(
-      "QK norm",
+      "Layer normalization",
+    );
+    expect(page.messages.sections?.whenToOpenAVariantPage.body)?.toContain(
+      "RMSNorm",
+    );
+    expect(page.messages.sections?.whenToOpenAVariantPage.body)?.toContain(
+      "Batch normalization",
+    );
+    expect(page.messages.sections?.whenToOpenAVariantPage.body)?.toContain(
+      "Group normalization",
+    );
+    expect(page.messages.sections?.whenToOpenAVariantPage.body)?.toContain(
+      "Query-key normalization",
+    );
+    expect(page.messages.sections?.whenToOpenAVariantPage.body)?.toContain(
+      "where that rescaling sits",
     );
     expect(page.toc.map((item) => item.title)).toEqual(
       expect.arrayContaining([
@@ -127,7 +143,7 @@ describe("Normalization concept page (normalization-concept-page-001)", () => {
     expect(messages.title).toBe("Normalization");
     expect(messages.description).not.toContain("Draft placeholder");
     expect(messages.openingSummary).toBe(page.messages.openingSummary);
-    expect(messages.sections?.whyItMatters.body).toContain("stabilize");
+    expect(messages.sections?.whyItMatters.body).toContain("stable");
     expect(page.messages.title).toBe(messages.title);
     expect(page.messages.description).toBe(messages.description);
     expect(Object.keys(assets)).toEqual([]);

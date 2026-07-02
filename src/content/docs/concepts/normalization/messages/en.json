@@ -9,7 +9,7 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Deep networks repeatedly multiply, add, and route activations. Without some control over scale, those values can grow, shrink, or wobble enough that optimization becomes fragile and later layers see noisy inputs. Normalization helps stabilize training, and in some inference settings it keeps attention scores or hidden states from becoming numerically awkward. That is why normalization shows up as a recurring support mechanism rather than as the main task-performing layer."
+      "body": "Deep networks repeatedly multiply, add, and route activations from one layer to the next. When scales drift, gradients can swing with them, optimization steps become less reliable, and the signal handed between blocks is harder to read. Normalization keeps activation and tensor magnitudes in a steadier band so later layers receive values in a more predictable range. That steadier flow helps training stay stable and, at inference time, can keep attention scores or hidden states from becoming numerically awkward. Normalization is recurring support for the stack rather than the main task-performing layer."
     },
     "simpleExample": {
       "title": "Simple Example",
@@ -17,7 +17,7 @@
     },
     "whenToOpenAVariantPage": {
       "title": "When To Open A Variant Page",
-      "body": "Stay on this page when you want the family-level idea: why normalization exists, what problem it addresses, and why many architectures need some form of it. Open a variant page when the question becomes about one specific rule. Layer norm and RMSNorm are common per-token choices in transformers, batch norm is the classic minibatch-based rule from convolutional networks, group norm splits channels into fixed groups, and QK norm specifically rescales query and key paths inside attention rather than acting as the general block-level normalization slot."
+      "body": "Stay on this page when you want the family-level idea: why normalization exists, what problem it addresses, and why many architectures need some form of it. Open a variant page when the question becomes which values get normalized and where that rescaling sits in the stack. Layer normalization and RMSNorm aggregate statistics across the features inside each token vector and usually sit after attention or feed-forward sublayers. Batch normalization aggregates across the minibatch dimension in convolutional stacks. Group normalization splits channel groups within one example. Query-key normalization rescales query and key vectors inside attention rather than the whole block output. Those pages explain one rule's statistics, placement, and tradeoffs; this page keeps to the shared family idea."
     },
     "related": {
       "title": "Related Concepts And Modules"
