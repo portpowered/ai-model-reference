@@ -1,15 +1,15 @@
 {
   "title": "Activation",
   "description": "The nonlinear step that reshapes a layer's output so stacked layers can model richer patterns than repeated linear transforms alone.",
-  "openingSummary": "An activation function applies a simple nonlinear rule to a layer output so the model can keep, dampen, or reshape signals before the next layer. Without those nonlinear steps, stacking many layers would still behave like one larger linear transform, and the network would lose much of the expressive behavior people expect from deep models.",
+  "openingSummary": "An activation is the value a hidden layer passes forward after a learned linear transform and, commonly, an activation function. That nonlinear step lets the model keep, dampen, or reshape signals before the next layer. Without those steps, stacked linear layers collapse into another linear transform and cannot build the same kind of intermediate features people expect from deep networks.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "An activation is the value a layer passes forward after applying its learned transform and then an activation rule such as rectified linear unit (ReLU) or sigmoid linear unit (SiLU). In plain language, the weights produce a draft signal and the activation function decides how strongly each part of that signal should survive. That extra rule is usually applied point by point across the hidden values rather than by mixing tokens together."
+      "body": "An activation is the value a layer passes forward after a learned linear transform and, commonly, an activation function such as rectified linear unit (ReLU) or sigmoid linear unit (SiLU). The linear transform scales and mixes the incoming features; the activation function then applies a simple nonlinear rule point by point across those hidden values. In plain language, the weights produce a draft signal and the activation decides how strongly each part should survive before the next layer reads it."
     },
     "whyNonlinearStepsMatter": {
       "title": "Why Nonlinear Steps Matter",
-      "body": "Nonlinearity is the reason stacked layers can build richer patterns instead of collapsing into one big linear mapping. A linear layer can scale and combine features, but repeated linear steps alone cannot create the same kinds of thresholds, smooth gates, and selective feature responses that modern models rely on. Activation functions give the network a way to bend the signal between layers so later blocks can react differently to different ranges of input."
+      "body": "Without nonlinearity, stacked linear layers collapse into another linear transform. Each layer can still scale and combine features, but the stack as a whole cannot bend the signal in the ways deep models rely on. Nonlinear activation functions break that collapse: they let later layers respond differently to different ranges of input, create thresholds and smooth gates, and build intermediate features that a single linear map could not express on its own."
     },
     "whereReadersMeetIt": {
       "title": "Where Readers Meet It",
@@ -17,7 +17,7 @@
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "A hidden-layer activation is not the same as output softmax. Hidden activations are internal signals between layers, while softmax is a final normalization step that turns output logits into a probability distribution over vocabulary items or classes. People also use the word activation in two nearby ways: for the activation function itself and for the resulting hidden values. Both meanings are common, but the key distinction is still internal nonlinear shaping versus final output normalization."
+      "body": "Hidden activations are not the same as output softmax. Hidden activations are internal signals passed between layers after nonlinear shaping; softmax is a final step on the output head that converts logits into a probability distribution over vocabulary items or classes. People also use the word activation in two nearby ways: for the activation function itself and for the resulting hidden values. Both usages are common, but neither is the same as the softmax probabilities you read at the end of a classifier or language model."
     },
     "related": {
       "title": "Related Concepts And Modules"
