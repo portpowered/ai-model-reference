@@ -2,14 +2,16 @@ import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import { buildSearchDocumentsForLocale } from "./build-documents";
-import type { SearchDocument } from "./types";
+import type { SearchDocument, SearchDocumentTopology } from "./types";
 
 export type SearchResultMeta = {
   title: string;
   kind: string;
   description: string;
   tags: string[];
+  directAliases: string[];
   aliases: string[];
+  topology: SearchDocumentTopology;
 };
 
 export function buildSearchResultMetaMap(
@@ -22,7 +24,9 @@ export function buildSearchResultMetaMap(
       kind: document.kind,
       description: document.description,
       tags: document.tags,
+      directAliases: document.directAliases,
       aliases: document.aliases,
+      topology: document.topology,
     });
   }
   return map;

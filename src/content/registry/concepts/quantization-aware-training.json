@@ -24,7 +24,7 @@
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
-  "conceptType": "training",
+  "primaryClassificationId": "classification.concept.training",
   "prerequisiteIds": ["concept.quantization", "concept.activation"],
   "explainsIds": []
 }

@@ -1,0 +1,50 @@
+{
+  "title": "Distillation",
+  "description": "A teacher-student training regime where a smaller model learns from supervision produced by a larger or stronger teacher model.",
+  "openingSummary": "Distillation is a teacher-student training regime. A stronger teacher model produces supervision, and a smaller student model learns to match it so teams can deploy a cheaper model that keeps much of the teacher's useful behavior.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Distillation is a teacher-student training regime. A larger or stronger teacher model produces supervision, and a smaller student model learns to match that supervision. The teacher signal can appear as soft targets that spread probability across many plausible tokens, generated traces the teacher writes for the student to imitate, or labeled examples where the teacher marks the outputs the student should copy."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Teams distill when they need a model they can run cheaply at scale. The student usually costs less per request, responds with lower latency than the full teacher, and fits deployment constraints such as smaller GPUs, on-device serving, or tighter serving budgets. Distillation trades extra training time and teacher compute for a model that keeps much of the teacher's useful behavior after deployment."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The teacher model produces supervision such as soft targets, generated traces, or labeled examples. Those training examples or traces become the data the student learns from, the student weights are updated to match the teacher signal, and the trained student is the deployment-oriented model teams serve instead of the full teacher."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Distillation is broader than any one variant. Offline distillation trains the student on a fixed or precomputed teacher data source: teacher outputs are collected once and replayed while the student learns. On-policy distillation refreshes supervision from behavior produced under the current student policy, so each update can use trajectories aligned with what the student would actually visit at inference time."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "A student can only recover what the teacher signal actually covers. Weak supervision, narrow training data, or a student that is too small for the target behavior can all leave capability gaps."
+    },
+    "related": { "title": "Related To" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "trainingFlow": {
+      "title": "Distillation training flow",
+      "alt": "A four-step distillation flow: teacher model, training examples or traces, student update, then deployment-oriented student output.",
+      "caption": "Distillation turns teacher supervision into training examples or traces, updates the student on that signal, and yields a model sized for deployment.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "teacher": { "label": "Teacher model" },
+      "traces": { "label": "Training examples or traces" },
+      "update": { "label": "Student update" },
+      "deployment": { "label": "Deployment-oriented student" }
+    }
+  }
+}

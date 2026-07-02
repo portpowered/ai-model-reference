@@ -1,0 +1,71 @@
+{
+  "id": "graph.pretraining-training-flow",
+  "slug": "pretraining-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["pretraining flow", "language model pretraining flow"],
+  "tags": ["foundations", "tokenization"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.gpt-2-report",
+    "citation.brown-gpt-3",
+    "citation.kaplan-scaling-laws"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "subjectId": "training-regime.pretraining",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "corpus",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "corpus",
+      "labelKey": "graph.nodes.corpus.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 220, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": ["objective"]
+    },
+    {
+      "id": "objective",
+      "labelKey": "graph.nodes.objective.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 122 },
+      "size": { "width": 230, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["baseModel"]
+    },
+    {
+      "id": "baseModel",
+      "labelKey": "graph.nodes.baseModel.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 258 },
+      "size": { "width": 220, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "corpus-objective",
+      "source": "corpus",
+      "target": "objective",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "objective-base-model",
+      "source": "objective",
+      "target": "baseModel",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

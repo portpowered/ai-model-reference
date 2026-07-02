@@ -5,7 +5,7 @@ import type { SearchItemType } from "fumadocs-ui/components/dialog/search";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { searchInlineResultsListClassName } from "@/features/docs/components/list-decoration";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
@@ -14,6 +14,8 @@ import {
   type SiteLocale,
   switchRouteLocale,
 } from "@/lib/i18n/locale-routing";
+import { resolveSearchClassificationScope } from "@/lib/search/classification-scope";
+import { documentsByUrlFromMeta } from "@/lib/search/collapse-search-results-from-meta";
 import { SearchInlineResultItem } from "./SearchResults";
 import { useModelAtlasDocsSearch } from "./search-client";
 import {
@@ -62,17 +64,34 @@ export function SearchPagePanelContent({
     null,
   );
   const { searchEntry, search: searchCopy } = messages;
-  const { search, setSearch, query } = useModelAtlasDocsSearch({
-    metaByUrl,
-    locale,
-    client: searchClient,
-  });
   const effectiveHandoff = resolveEffectiveSearchPageHandoff(
     handoff,
     clientHandoff,
   );
   const tagSlug = effectiveHandoff.tag?.trim() || undefined;
+  const documentsByUrl = useMemo(
+    () => documentsByUrlFromMeta(metaByUrl),
+    [metaByUrl],
+  );
+  const classificationScope = useMemo(
+    () =>
+      resolveSearchClassificationScope(
+        effectiveHandoff.classification,
+        documentsByUrl,
+      ),
+    [documentsByUrl, effectiveHandoff.classification],
+  );
+  const classificationSlug = classificationScope?.slug;
   const queryParam = effectiveHandoff.q;
+  const { search, setSearch, query } = useModelAtlasDocsSearch(
+    {
+      metaByUrl,
+      locale,
+      client: searchClient,
+      classification: effectiveHandoff.classification,
+    },
+    [effectiveHandoff.classification],
+  );
 
   useEffect(() => {
     const resolvedHandoff = hasSearchPageHandoff(handoff)
@@ -86,6 +105,7 @@ export function SearchPagePanelContent({
     const initial = resolveInitialSearchPageQuery(
       resolvedHandoff.q,
       resolvedHandoff.tag,
+      resolvedHandoff.classification,
     );
     if (!initial) {
       return;
@@ -125,6 +145,14 @@ export function SearchPagePanelContent({
       {tagSlug && !queryParam ? (
         <p className="mb-3 text-sm text-muted-foreground">
           {searchEntry.tagFilterDescription.replace("{tag}", tagSlug)}
+        </p>
+      ) : null}
+      {classificationSlug ? (
+        <p className="mb-3 text-sm text-muted-foreground">
+          {searchEntry.classificationScopeDescription.replace(
+            "{classification}",
+            classificationSlug,
+          )}
         </p>
       ) : null}
       <label className="sr-only" htmlFor="search-page-input">
@@ -247,6 +275,7 @@ export function SearchPagePanel({ messages, metaByUrl }: SearchPagePanelProps) {
       handoff={{
         q: searchParams.get("q"),
         tag: searchParams.get("tag"),
+        classification: searchParams.get("classification"),
       }}
       locale={defaultLocale}
     />

@@ -7,14 +7,25 @@
   "aliases": ["activations", "hidden activation", "layer output"],
   "tags": ["token-to-probability-chain", "foundations"],
   "relatedIds": ["concept.computational-graph", "concept.quantization"],
-  "citationIds": [],
+  "citationIds": [
+    "citation.goodfellow-deep-learning",
+    "citation.rectified-linear-units-improve-restricted-boltzmann-machines",
+    "citation.sigmoid-weighted-linear-units"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T23:00:00.000Z",
-  "conceptType": "architecture",
-  "sidebarGrouping": {
-    "glossary": "math-and-training"
-  },
+  "primaryClassificationId": "classification.concept.architecture.activation",
+  "relationships": [
+    {
+      "relationshipType": "part-of",
+      "targetId": "classification.concept.architecture"
+    },
+    {
+      "relationshipType": "used-by",
+      "targetId": "module.feed-forward-network"
+    }
+  ],
   "prerequisiteIds": ["concept.parameter"],
   "explainsIds": []
 }

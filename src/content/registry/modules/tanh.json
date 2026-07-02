@@ -1,0 +1,52 @@
+{
+  "id": "module.tanh",
+  "slug": "tanh",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["tanh", "hyperbolic tangent", "tanh activation"],
+  "tags": ["activation", "foundations"],
+  "relatedIds": [
+    "concept.activation",
+    "module.feed-forward-network",
+    "module.standard-ffn",
+    "module.sigmoid",
+    "module.relu"
+  ],
+  "citationIds": [
+    "citation.learning-representations-by-back-propagating-errors",
+    "citation.goodfellow-deep-learning"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "releaseDate": "1986-10-01",
+  "authors": ["David E. Rumelhart", "Geoffrey E. Hinton", "Ronald J. Williams"],
+  "sourceId": "citation.learning-representations-by-back-propagating-errors",
+  "primaryClassificationId": "classification.module.activation",
+  "relationships": [
+    {
+      "relationshipType": "variant",
+      "targetId": "concept.activation"
+    },
+    {
+      "relationshipType": "used-by",
+      "targetId": "module.standard-ffn"
+    },
+    {
+      "relationshipType": "related",
+      "targetId": "module.sigmoid"
+    },
+    {
+      "relationshipType": "related",
+      "targetId": "module.relu"
+    }
+  ],
+  "optimizes": ["centered-activation"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}

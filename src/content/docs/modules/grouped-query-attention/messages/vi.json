@@ -7,13 +7,9 @@
       "title": "Nó là gì",
       "body": "Grouped-query attention là một biến thể attention phát triển từ multi-head attention. Nó vẫn giữ nhiều query head nhưng gom chúng thành nhóm để mỗi nhóm cùng đọc từ một cặp key-value head."
     },
-    "whatItOptimizes": {
+    "whyItExists": {
       "title": "Nó tối ưu điều gì",
       "body": "GQA nhắm vào kích thước KV cache, băng thông bộ nhớ trong giải mã tự hồi quy, và chi phí phục vụ ngữ cảnh dài khi số head sẽ làm cache phình lên."
-    },
-    "practicalBenefit": {
-      "title": "Lợi ích thực tế",
-      "body": "Các nhóm triển khai chọn GQA khi họ muốn giữ mức biểu đạt của multi-head trong lúc huấn luyện nhưng cần cache suy luận gọn hơn và ít lưu lượng KV hơn khi triển khai. GQA giữ được nhiều độ đa dạng của query hơn multi-query attention nhưng dùng cache nhỏ hơn full multi-head attention."
     },
     "howItWorks": {
       "title": "Cách nó hoạt động",
@@ -52,7 +48,7 @@
   "assets": {
     "computeFlow": {
       "alt": "So sánh số head giữa multi-head attention và grouped-query attention",
-      "caption": "Chuyển giữa MHA và GQA để so sánh số query head với số KV head trên cùng một đồ thị",
+      "caption": "Grouped-query attention giảm số lượng key-value head bằng cách cho nhiều query head dùng chung từng cặp key-value.",
       "variants": {
         "mha": {
           "label": "MHA"
@@ -62,9 +58,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "Cách GQA so với các biến thể attention lân cận"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

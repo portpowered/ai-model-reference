@@ -11,7 +11,7 @@
     "concept.encoder-decoder",
     "concept.autoregressive-generation"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.attention-is-all-you-need", "citation.brown-gpt-3"],
   "status": "published",
   "createdAt": "2026-06-04T11:39:45.780Z",
   "updatedAt": "2026-06-04T12:30:00.000Z",

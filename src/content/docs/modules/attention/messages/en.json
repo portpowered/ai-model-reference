@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Attention is the mechanism that lets one token read information from other tokens. Each position produces a query, key, and value. The query asks what to look for, the keys describe what each position offers, and the values carry the information that gets mixed into the output."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "Attention optimizes for flexible context mixing. Instead of using a fixed local rule, it lets the model decide which positions matter for the current token and how strongly they should contribute."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Once you understand attention, many later model variants become easier to read. Most attention pages are not replacing the whole transformer. They are changing how attention stores context, how far each token can look, or how much computation each lookup costs."
     },
     "howItWorks": {
       "title": "How It Works",

@@ -126,7 +126,7 @@ describe("Phase 3 RMSNorm module page (US-006)", () => {
     expectHtmlToContainProse(html, "root mean square");
     expectHtmlToContainProse(
       html,
-      "full mean-and-variance normalization against lighter scale-only normalization",
+      "keeps the scale correction but drops mean centering",
     );
     expect(html).toContain('href="/docs/modules/layer-norm"');
     expect(html).toContain('href="/docs/concepts/normalization"');

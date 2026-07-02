@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "A standard feed-forward network, often shortened to standard FFN, is the default dense feed-forward block used in most transformer layers. After attention updates a token state, the layer sends that state through one wide linear layer, applies a pointwise activation, and projects it back to the model width."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "The standard feed-forward network optimizes for a simple, uniform dense path after attention. Every token uses the same parameters and the same full hidden width, which keeps the block easy to reason about and easy to compare against later variants."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "This is the baseline most transformer readers see in diagrams, code, and papers. Once you know the dense baseline, it becomes much easier to spot what later feed-forward variants are actually changing."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -51,12 +47,9 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Standard feed-forward network graph showing one dense expand, activate, and project path for each token",
-      "caption": "A standard feed-forward network keeps one dense path for every token: widen the hidden state, apply an activation, then project back to the model width."
+      "alt": "Standard feed-forward network graph showing one dense expand, activate, and project path for each token"
     },
-    "comparisonTable": {
-      "caption": "How the standard feed-forward network compares with nearby variants"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {
@@ -150,26 +143,20 @@
       "inputState": {
         "label": "Token state h_t"
       },
-      "sharedDensePath": {
-        "label": "One shared dense feed-forward network"
+      "ffnInternals": {
+        "label": " "
       },
-      "allUnitsActive": {
-        "label": "All wide hidden units activate for every token"
-      },
-      "denseBranchOne": {
-        "label": "Wide projection branch A"
-      },
-      "denseBranchTwo": {
-        "label": "Wide projection branch B"
+      "ffnInternalsHeader": {
+        "label": "Feed forward network"
       },
       "expandProjection": {
-        "label": "Wide projection"
+        "label": "Expand to hidden width"
       },
       "wideHidden": {
-        "label": "Expanded hidden width"
+        "label": "One shared hidden layer"
       },
       "activationStep": {
-        "label": "Activation"
+        "label": "Activation on that hidden layer"
       },
       "projectBack": {
         "label": "Project back"
@@ -178,10 +165,13 @@
         "label": "Updated token state"
       },
       "noRouterNote": {
-        "label": "No router and no expert choice: every token uses the same dense block"
+        "label": "No router and no expert choice: every token uses this same single hidden layer"
+      },
+      "feedForwardDescription": {
+        "label": "Take data, multiply by matrix, pass through activation, return"
       },
       "denseNote": {
-        "label": "Every token uses the same dense expand -> activate -> project path"
+        "label": "Every token uses one shared expand -> hidden layer -> activate -> project path"
       }
     }
   }

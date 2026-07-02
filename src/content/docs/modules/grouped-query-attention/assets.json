@@ -21,7 +21,6 @@
   },
   "comparisonTable": {
     "type": "table",
-    "tableId": "table.grouped-query-attention-comparison",
-    "captionKey": "assets.comparisonTable.caption"
+    "tableId": "table.grouped-query-attention-comparison"
   }
 }

@@ -7,6 +7,10 @@ import {
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
 import { buildSearchDocumentsForLocale } from "./build-documents";
+import {
+  resolveClassificationSearchQuery,
+  resolveSearchClassificationScope,
+} from "./classification-scope";
 import { collapseSearchResultsToPageHits } from "./collapse-search-results-to-page-hits";
 import { rerankSearchResults } from "./rerank-search-results";
 import { toAdvancedSearchIndexes } from "./to-advanced-index";
@@ -55,6 +59,7 @@ function readSearchOptions(url: URL) {
 
   return {
     tag: params.get("tag")?.split(","),
+    classification: params.get("classification") ?? undefined,
     locale: localeParam ? resolveLocale(localeParam) : undefined,
     limit: Number.isInteger(limit) ? limit : undefined,
   };
@@ -64,14 +69,32 @@ async function search(
   query: string,
   searchOptions?: {
     tag?: string[];
+    classification?: string;
     locale?: SiteLocale;
     limit?: number;
   },
 ) {
   const locale = searchOptions?.locale ?? defaultLocale;
   const { searchServer, documentsByUrl } = await getSearchCatalog(locale);
-  const results = await searchServer.search(query, searchOptions);
-  const reranked = rerankSearchResults(query, results, documentsByUrl);
+  const classificationScope = resolveSearchClassificationScope(
+    searchOptions?.classification,
+    documentsByUrl,
+  );
+  const effectiveQuery = resolveClassificationSearchQuery(
+    query,
+    searchOptions?.classification,
+    classificationScope,
+  );
+  if (!effectiveQuery) {
+    return [];
+  }
+
+  const { tag, limit } = searchOptions ?? {};
+  const results = await searchServer.search(effectiveQuery, { tag, limit });
+  const rerankQuery = query.trim() || effectiveQuery;
+  const reranked = rerankSearchResults(rerankQuery, results, documentsByUrl, {
+    classificationScope,
+  });
   return collapseSearchResultsToPageHits(reranked, documentsByUrl);
 }
 
@@ -85,12 +108,12 @@ export const docsSearchApi = {
     const url = new URL(request.url);
     const searchOptions = readSearchOptions(url);
     const query = url.searchParams.get("query");
-    if (!query) {
+    if (!query && !searchOptions.classification) {
       return Response.json(
         await docsSearchApi.export(searchOptions.locale ?? defaultLocale),
       );
     }
 
-    return Response.json(await search(query, searchOptions));
+    return Response.json(await search(query ?? "", searchOptions));
   },
 };

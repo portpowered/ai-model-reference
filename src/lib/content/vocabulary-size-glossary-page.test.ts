@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { VOCABULARY_SIZE_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryPresentationConvergence,
@@ -20,7 +20,7 @@ import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = VOCABULARY_SIZE_GLOSSARY_PAGE_DIR;
+const pageDir = getDocsPageDir("glossary", "vocabulary-size");
 const messagesPath = join(pageDir, "messages/en.json");
 
 describe("vocabulary size glossary page", () => {

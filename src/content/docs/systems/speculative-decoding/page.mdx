@@ -1,0 +1,62 @@
+---
+title: "Speculative Decoding"
+description: "A serving technique that uses a cheaper draft path to propose several next tokens, then asks the main model to verify them so decode-heavy requests can finish with fewer expensive turns."
+kind: "system"
+registryId: "system.speculative-decoding"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - kv-cache
+aliases:
+  - "speculative decoding"
+  - "draft and verify decoding"
+  - "draft-and-verify decoding"
+  - "draft model serving"
+  - "assisted decoding"
+updatedAt: "2026-06-22"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { SystemAtAGlance } from "@/features/models/components/SystemAtAGlance";
+import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
+
+
+<SystemAtAGlance registryId="system.speculative-decoding" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="where-it-sits" titleKey="sections.whereItSits.title">
+  <T k="sections.whereItSits.body" />
+</Section>
+
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+  <SystemFlowGraph registryId="system.speculative-decoding" assetId="systemFlow" />
+</Section>
+
+<Section id="practical-impact" titleKey="sections.practicalImpact.title">
+  <T k="sections.practicalImpact.body" />
+  <BlockMath formula="\\text{visible delay per emitted token} \\approx \\frac{\\text{expensive verifier turn cost} + \\text{draft overhead}}{\\text{accepted tokens per verifier turn}}" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <T k="sections.related.body" />
+  <RelatedDocs registryId="system.speculative-decoding" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="system.speculative-decoding" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="system.speculative-decoding" />
+</Section>

@@ -1,0 +1,53 @@
+{
+  "id": "system.request-scheduling",
+  "slug": "request-scheduling",
+  "kind": "system",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "scheduler",
+    "request scheduling",
+    "queueing",
+    "admission control",
+    "fairness",
+    "latency",
+    "throughput"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.prefill",
+    "concept.decode",
+    "concept.prefill-decode-split",
+    "system.batching",
+    "system.continuous-batching",
+    "system.routing",
+    "system.memory",
+    "system.deployment",
+    "system.inference-engine"
+  ],
+  "citationIds": ["citation.orca-serving-system"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "releaseDate": "2022-07-01",
+  "authors": [
+    "Gyeong-In Yu",
+    "Joo Seong Jeong",
+    "Geon-Woo Kim",
+    "Soojeong Kim",
+    "Byung-Gon Chun"
+  ],
+  "sourceId": "citation.orca-serving-system",
+  "systemType": "serving",
+  "relatedModelIds": [],
+  "relatedModuleIds": [],
+  "relatedConceptIds": [
+    "concept.prefill",
+    "concept.decode",
+    "concept.prefill-decode-split"
+  ],
+  "paperIds": [],
+  "datasetIds": [],
+  "conceptType": "inference",
+  "variantGroup": "serving-runtime-foundations"
+}

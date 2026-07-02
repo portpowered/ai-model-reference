@@ -1,0 +1,154 @@
+{
+  "id": "graph.bert-pre-training-contribution",
+  "slug": "bert-pre-training-contribution",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["BERT paper contribution graph"],
+  "tags": ["foundations", "model-family", "attention", "tokenization"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.bert-pre-training-of-deep-bidirectional-transformers"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "paper.bert-pre-training-of-deep-bidirectional-transformers",
+  "graphType": "paper-contribution",
+  "rootNodeId": "paper",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "paper",
+      "labelKey": "graph.nodes.paper.label",
+      "moduleKind": "other",
+      "position": { "x": 340, "y": 0 },
+      "size": { "width": 220, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": [
+        "inputs",
+        "encoder",
+        "bidirectional-attention",
+        "pretraining",
+        "downstream"
+      ]
+    },
+    {
+      "id": "inputs",
+      "labelKey": "graph.nodes.inputs.label",
+      "registryId": "module.wordpiece",
+      "moduleKind": "tokenizer",
+      "position": { "x": 0, "y": 150 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "encoder",
+      "labelKey": "graph.nodes.encoder.label",
+      "registryId": "concept.transformer-architecture",
+      "moduleKind": "block",
+      "position": { "x": 190, "y": 150 },
+      "size": { "width": 190, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "bidirectional-attention",
+      "labelKey": "graph.nodes.bidirectionalAttention.label",
+      "registryId": "module.bidirectional-attention",
+      "moduleKind": "attention",
+      "position": { "x": 390, "y": 150 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "pretraining",
+      "labelKey": "graph.nodes.pretraining.label",
+      "registryId": "training-regime.pretraining",
+      "moduleKind": "block",
+      "position": { "x": 600, "y": 150 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "downstream",
+      "labelKey": "graph.nodes.downstream.label",
+      "moduleKind": "other",
+      "position": { "x": 810, "y": 150 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "paper-inputs",
+      "source": "paper",
+      "target": "inputs",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-encoder",
+      "source": "paper",
+      "target": "encoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-bidirectional-attention",
+      "source": "paper",
+      "target": "bidirectional-attention",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-pretraining",
+      "source": "paper",
+      "target": "pretraining",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-downstream",
+      "source": "paper",
+      "target": "downstream",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "inputs-encoder",
+      "source": "inputs",
+      "target": "encoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "encoder-bidirectional-attention",
+      "source": "encoder",
+      "target": "bidirectional-attention",
+      "edgeKind": "contains",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "pretraining-downstream",
+      "source": "pretraining",
+      "target": "downstream",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    }
+  ]
+}

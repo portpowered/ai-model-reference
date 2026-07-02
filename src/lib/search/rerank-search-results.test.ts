@@ -17,10 +17,17 @@ function documentForUrl(
     description: "Architecture description",
     bodyText: "",
     headings: [],
+    directAliases: ["model architecture"],
     aliases: ["model architecture"],
     tags: ["taxonomy"],
     relatedIds: [],
     facets: { kind: "glossary", tags: ["taxonomy"] },
+    topology: {
+      secondaryClassificationIds: [],
+      secondaryClassifications: [],
+      relationships: [],
+      terms: [],
+    },
     ...overrides,
   };
 }
@@ -39,6 +46,7 @@ describe("rerankSearchResults", () => {
         documentForUrl(moduleUrl, {
           kind: "module",
           title: "Grouped-Query Attention",
+          directAliases: ["GQA"],
           aliases: ["GQA"],
           facets: { kind: "module", tags: ["attention"] },
         }),
@@ -73,6 +81,7 @@ describe("rerankSearchResults", () => {
         "/docs/glossary/token",
         documentForUrl("/docs/glossary/token", {
           title: "Token",
+          directAliases: ["tokens"],
           aliases: ["tokens"],
         }),
       ],
@@ -112,5 +121,363 @@ describe("rerankSearchResults", () => {
     expect(findBestTitleMatchPageUrl("generative model", documentsByUrl)).toBe(
       generativeModelUrl,
     );
+  });
+
+  test("uses direct aliases instead of broad tag aliases for exact page boosts", () => {
+    const canonicalUrl = "/docs/modules/feed-forward-network";
+    const taggedUrl = "/docs/systems/expert-parallel-overlap";
+    const documentsByUrl = new Map<string, SearchDocument>([
+      [
+        taggedUrl,
+        documentForUrl(taggedUrl, {
+          kind: "system",
+          title: "Expert Parallel Overlap",
+          directAliases: ["expert parallel overlap"],
+          aliases: ["expert parallel overlap", "FFN"],
+          tags: ["feed-forward"],
+          facets: { kind: "system", tags: ["feed-forward"] },
+        }),
+      ],
+      [
+        canonicalUrl,
+        documentForUrl(canonicalUrl, {
+          kind: "module",
+          title: "Feed-Forward Network",
+          directAliases: ["FFN", "feedforward network"],
+          aliases: ["FFN", "feedforward network", "feed-forward"],
+          tags: ["feed-forward"],
+          facets: { kind: "module", tags: ["feed-forward"] },
+        }),
+      ],
+    ]);
+
+    expect(findBestTitleMatchPageUrl("ffn", documentsByUrl)).toBe(canonicalUrl);
+  });
+
+  test("ranks primary classification matches before secondary matches and non-priority relationships", () => {
+    const relationshipUrl = "/docs/modules/relationship";
+    const secondaryUrl = "/docs/modules/secondary";
+    const primaryUrl = "/docs/modules/primary";
+    const documentsByUrl = new Map<string, SearchDocument>([
+      [
+        relationshipUrl,
+        documentForUrl(relationshipUrl, {
+          topology: {
+            secondaryClassificationIds: [],
+            secondaryClassifications: [],
+            relationships: [
+              {
+                relationshipType: "uses",
+                targetId: "classification.activation-functions",
+                targetSlug: "activation-functions",
+                targetAliases: ["activation family"],
+              },
+            ],
+            terms: ["uses", "activation family"],
+          },
+        }),
+      ],
+      [
+        secondaryUrl,
+        documentForUrl(secondaryUrl, {
+          topology: {
+            secondaryClassificationIds: ["classification.activation-functions"],
+            secondaryClassifications: [
+              {
+                id: "classification.activation-functions",
+                slug: "activation-functions",
+                label: "activation functions",
+                aliases: ["activation family"],
+                terms: ["activation-functions", "activation family"],
+              },
+            ],
+            relationships: [],
+            terms: ["activation-functions", "activation family"],
+          },
+        }),
+      ],
+      [
+        primaryUrl,
+        documentForUrl(primaryUrl, {
+          topology: {
+            primaryClassificationId: "classification.activation-functions",
+            secondaryClassificationIds: [],
+            primaryClassification: {
+              id: "classification.activation-functions",
+              slug: "activation-functions",
+              label: "activation functions",
+              aliases: ["activation family"],
+              terms: ["activation-functions", "activation family"],
+            },
+            secondaryClassifications: [],
+            relationships: [],
+            terms: ["activation-functions", "activation family"],
+          },
+        }),
+      ],
+    ]);
+
+    const results = rerankSearchResults(
+      "activation",
+      [
+        {
+          id: "relationship",
+          type: "page",
+          url: relationshipUrl,
+          content: "Relationship",
+        },
+        {
+          id: "secondary",
+          type: "page",
+          url: secondaryUrl,
+          content: "Secondary",
+        },
+        {
+          id: "primary",
+          type: "page",
+          url: primaryUrl,
+          content: "Primary",
+        },
+      ],
+      documentsByUrl,
+    );
+
+    expect(results.map((result) => result.url)).toEqual([
+      primaryUrl,
+      relationshipUrl,
+      secondaryUrl,
+    ]);
+  });
+
+  test("lets ontology relationships that outrank siblings beat generic sibling matches", () => {
+    const relationshipUrl = "/docs/modules/relationship";
+    const secondaryUrl = "/docs/modules/secondary";
+    const primaryUrl = "/docs/modules/primary";
+    const documentsByUrl = new Map<string, SearchDocument>([
+      [
+        secondaryUrl,
+        documentForUrl(secondaryUrl, {
+          topology: {
+            secondaryClassificationIds: ["classification.activation-functions"],
+            secondaryClassifications: [
+              {
+                id: "classification.activation-functions",
+                slug: "activation-functions",
+                label: "activation functions",
+                aliases: ["activation family"],
+                terms: ["activation-functions", "activation family"],
+              },
+            ],
+            relationships: [],
+            terms: ["activation-functions", "activation family"],
+          },
+        }),
+      ],
+      [
+        relationshipUrl,
+        documentForUrl(relationshipUrl, {
+          topology: {
+            secondaryClassificationIds: [],
+            secondaryClassifications: [],
+            relationships: [
+              {
+                relationshipType: "variant",
+                targetId: "classification.activation-functions",
+                targetSlug: "activation-functions",
+                targetAliases: ["activation family"],
+              },
+            ],
+            terms: ["variant", "activation-functions", "activation family"],
+          },
+        }),
+      ],
+      [
+        primaryUrl,
+        documentForUrl(primaryUrl, {
+          topology: {
+            primaryClassificationId: "classification.activation-functions",
+            secondaryClassificationIds: [],
+            primaryClassification: {
+              id: "classification.activation-functions",
+              slug: "activation-functions",
+              label: "activation functions",
+              aliases: ["activation family"],
+              terms: ["activation-functions", "activation family"],
+            },
+            secondaryClassifications: [],
+            relationships: [],
+            terms: ["activation-functions", "activation family"],
+          },
+        }),
+      ],
+    ]);
+
+    const results = rerankSearchResults(
+      "activation",
+      [
+        {
+          id: "secondary",
+          type: "page",
+          url: secondaryUrl,
+          content: "Secondary",
+        },
+        {
+          id: "relationship",
+          type: "page",
+          url: relationshipUrl,
+          content: "Relationship",
+        },
+        {
+          id: "primary",
+          type: "page",
+          url: primaryUrl,
+          content: "Primary",
+        },
+      ],
+      documentsByUrl,
+    );
+
+    expect(results.map((result) => result.url)).toEqual([
+      primaryUrl,
+      relationshipUrl,
+      secondaryUrl,
+    ]);
+  });
+
+  test("classification scope prefers exact matches, then descendants, then direct relationships", () => {
+    const primaryUrl = "/docs/concepts/neural-components";
+    const descendantUrl = "/docs/modules/relu";
+    const relationshipUrl = "/docs/concepts/activation";
+    const documentsByUrl = new Map<string, SearchDocument>([
+      [
+        relationshipUrl,
+        documentForUrl(relationshipUrl, {
+          topology: {
+            primaryClassificationId: "classification.activation-functions",
+            secondaryClassificationIds: [],
+            primaryClassification: {
+              id: "classification.activation-functions",
+              slug: "activation-functions",
+              label: "activation functions",
+              aliases: ["activation family"],
+              terms: ["activation-functions", "activation family"],
+            },
+            secondaryClassifications: [],
+            ancestorClassificationIds: [],
+            ancestorClassifications: [],
+            relationships: [
+              {
+                relationshipType: "part-of",
+                targetId: "classification.neural-network-components",
+                targetSlug: "neural-network-components",
+                targetAliases: ["network components"],
+              },
+            ],
+            terms: [
+              "activation-functions",
+              "neural-network-components",
+              "network components",
+            ],
+          },
+        }),
+      ],
+      [
+        descendantUrl,
+        documentForUrl(descendantUrl, {
+          topology: {
+            primaryClassificationId: "classification.activation-functions",
+            secondaryClassificationIds: [],
+            primaryClassification: {
+              id: "classification.activation-functions",
+              slug: "activation-functions",
+              label: "activation functions",
+              aliases: ["activation family"],
+              terms: ["activation-functions", "activation family"],
+            },
+            secondaryClassifications: [],
+            ancestorClassificationIds: [
+              "classification.neural-network-components",
+            ],
+            ancestorClassifications: [
+              {
+                id: "classification.neural-network-components",
+                slug: "neural-network-components",
+                label: "neural network components",
+                aliases: ["network components"],
+                terms: ["neural-network-components", "network components"],
+              },
+            ],
+            relationships: [],
+            terms: [
+              "activation-functions",
+              "neural-network-components",
+              "network components",
+            ],
+          },
+        }),
+      ],
+      [
+        primaryUrl,
+        documentForUrl(primaryUrl, {
+          topology: {
+            primaryClassificationId: "classification.neural-network-components",
+            secondaryClassificationIds: [],
+            primaryClassification: {
+              id: "classification.neural-network-components",
+              slug: "neural-network-components",
+              label: "neural network components",
+              aliases: ["network components"],
+              terms: ["neural-network-components", "network components"],
+            },
+            secondaryClassifications: [],
+            ancestorClassificationIds: [],
+            ancestorClassifications: [],
+            relationships: [],
+            terms: ["neural-network-components", "network components"],
+          },
+        }),
+      ],
+    ]);
+
+    const results = rerankSearchResults(
+      "neural network components",
+      [
+        {
+          id: "relationship",
+          type: "page",
+          url: relationshipUrl,
+          content: "Activation",
+        },
+        {
+          id: "descendant",
+          type: "page",
+          url: descendantUrl,
+          content: "ReLU",
+        },
+        {
+          id: "primary",
+          type: "page",
+          url: primaryUrl,
+          content: "Neural network components",
+        },
+      ],
+      documentsByUrl,
+      {
+        classificationScope: {
+          id: "classification.neural-network-components",
+          slug: "neural-network-components",
+          label: "neural network components",
+          requested: "neural-network-components",
+          terms: ["neural-network-components", "network components"],
+          query: "neural-network-components network components",
+        },
+      },
+    );
+
+    expect(results.map((result) => result.url)).toEqual([
+      primaryUrl,
+      descendantUrl,
+      relationshipUrl,
+    ]);
   });
 });

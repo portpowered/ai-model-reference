@@ -6,10 +6,12 @@ import {
   modelModalitySchema,
   modelSourceTypeSchema,
   moduleTypeSchema,
+  ontologyRelationshipSchema,
   type PageFrontmatter,
   type PageKind,
   pageAssetConfigSchema,
   pageGraphMessagesSchema,
+  pageTableMessagesSchema,
   registryStatusSchema,
   systemTypeSchema,
   trainingRegimeTypeSchema,
@@ -66,43 +68,98 @@ const pageSpecBaseSchema = z.object({
   tags: z.array(z.string()).default([]),
   relatedIds: z.array(z.string()).default([]),
   citationIds: z.array(z.string()).default([]),
-  openingSummary: z.string().optional(),
   sections: z.record(z.string(), pageSpecSectionSchema).optional(),
   callouts: z.record(z.string(), pageSpecCalloutSchema).optional(),
   assets: pageAssetConfigSchema.optional(),
   assetMessages: pageSpecAssetMessagesSchema.optional(),
   graph: pageGraphMessagesSchema.optional(),
+  tables: z.record(z.string(), pageTableMessagesSchema).optional(),
 });
 
-const conceptBackedPageSpecSchema = pageSpecBaseSchema.extend({
+const pageSpecOntologyShape = {
+  primaryClassificationId: z.string().min(1).optional(),
+  secondaryClassificationIds: z.array(z.string().min(1)).default([]),
+  relationships: z.array(ontologyRelationshipSchema).default([]),
+};
+
+function hasOntologyTopology(input: {
+  primaryClassificationId?: string;
+  secondaryClassificationIds: string[];
+  relationships: Array<unknown>;
+}): boolean {
+  return (
+    input.primaryClassificationId !== undefined ||
+    input.secondaryClassificationIds.length > 0 ||
+    input.relationships.length > 0
+  );
+}
+
+function collectOntologyFirstOrLegacyTypedFieldIssues(options: {
+  legacyFieldLabel: string;
+  legacyFieldValue: string | undefined;
+  input: {
+    primaryClassificationId?: string;
+    secondaryClassificationIds: string[];
+    relationships: Array<unknown>;
+  };
+}): PageSpecValidationIssue[] {
+  const { legacyFieldLabel, legacyFieldValue, input } = options;
+  const issues: PageSpecValidationIssue[] = [];
+
+  if (
+    input.primaryClassificationId === undefined &&
+    (input.secondaryClassificationIds.length > 0 ||
+      input.relationships.length > 0)
+  ) {
+    issues.push({
+      field: "primaryClassificationId",
+      message:
+        "primaryClassificationId is required when secondaryClassificationIds or relationships are provided.",
+    });
+  }
+
+  if (!legacyFieldValue && !hasOntologyTopology(input)) {
+    issues.push({
+      field: "primaryClassificationId",
+      message: `Provide primaryClassificationId for ontology-first authoring or ${legacyFieldLabel} as a temporary compatibility field.`,
+    });
+  }
+
+  return issues;
+}
+
+const conceptBackedPageSpecShape = {
+  ...pageSpecOntologyShape,
   releaseDate: z.string().optional(),
   authors: z.array(z.string().min(1)).min(1).optional(),
   sourceId: z.string().min(1).optional(),
-  conceptType: conceptTypeSchema,
+  conceptType: conceptTypeSchema.optional(),
   prerequisiteIds: z.array(z.string()).default([]),
   explainsIds: z.array(z.string()).default([]),
-});
+};
 
-export const conceptPageSpecSchema = conceptBackedPageSpecSchema.extend({
+export const conceptPageSpecSchema = pageSpecBaseSchema.extend({
   kind: z.literal("concept"),
+  ...conceptBackedPageSpecShape,
 });
 
-export const glossaryPageSpecSchema = conceptBackedPageSpecSchema.extend({
+export const glossaryPageSpecSchema = pageSpecBaseSchema.extend({
   kind: z.literal("glossary"),
+  ...conceptBackedPageSpecShape,
 });
 
 export const modulePageSpecSchema = pageSpecBaseSchema.extend({
   kind: z.literal("module"),
+  ...pageSpecOntologyShape,
   releaseDate: z.string().optional(),
   authors: z.array(z.string().min(1)).min(1).optional(),
   sourceId: z.string().min(1).optional(),
-  moduleType: moduleTypeSchema,
+  moduleType: moduleTypeSchema.optional(),
   mathLevel: mathLevelSchema.default("none"),
   moduleFamily: z.string().optional(),
   variantGroup: z.string().optional(),
   variantOf: z.string().optional(),
   optimizes: z.array(z.string()).default([]),
-  practicalBenefits: z.array(z.string()).default([]),
   exampleModelIds: z.array(z.string()).default([]),
   improvesOnIds: z.array(z.string()).default([]),
   tradeoffIds: z.array(z.string()).default([]),
@@ -147,10 +204,11 @@ export const paperPageSpecSchema = pageSpecBaseSchema.extend({
 
 export const trainingRegimePageSpecSchema = pageSpecBaseSchema.extend({
   kind: z.literal("training-regime"),
+  ...pageSpecOntologyShape,
   releaseDate: z.string().optional(),
   authors: z.array(z.string().min(1)).min(1).optional(),
   sourceId: z.string().min(1).optional(),
-  regimeType: trainingRegimeTypeSchema,
+  regimeType: trainingRegimeTypeSchema.optional(),
   conceptType: conceptTypeSchema.optional(),
   variantGroup: z.string().optional(),
   usedByModelIds: z.array(z.string()).default([]),
@@ -160,10 +218,11 @@ export const trainingRegimePageSpecSchema = pageSpecBaseSchema.extend({
 
 export const systemPageSpecSchema = pageSpecBaseSchema.extend({
   kind: z.literal("system"),
+  ...pageSpecOntologyShape,
   releaseDate: z.string().optional(),
   authors: z.array(z.string().min(1)).min(1).optional(),
   sourceId: z.string().min(1).optional(),
-  systemType: systemTypeSchema,
+  systemType: systemTypeSchema.optional(),
   conceptType: conceptTypeSchema.optional(),
   variantGroup: z.string().optional(),
   relatedModelIds: z.array(z.string()).default([]),
@@ -199,6 +258,147 @@ export type PageSpecValidationIssue = {
   field: string;
   message: string;
 };
+
+export type PageSpecWarning = {
+  field: string;
+  message: string;
+};
+
+type DeprecatedTaxonomyFieldWarningOptions = {
+  field: string;
+  recordKind: "concept" | "glossary" | "module" | "training-regime" | "system";
+  replacement: string;
+};
+
+function createDeprecatedTaxonomyFieldWarning(
+  options: DeprecatedTaxonomyFieldWarningOptions,
+): PageSpecWarning {
+  const { field, recordKind, replacement } = options;
+  return {
+    field,
+    message: `${field} is deprecated for ${recordKind} page specs. Use ${replacement} instead for ontology-first authoring.`,
+  };
+}
+
+export function collectDeprecatedTaxonomyWarnings(
+  spec: PageSpec,
+): PageSpecWarning[] {
+  switch (spec.kind) {
+    case "concept":
+    case "glossary":
+      return spec.conceptType
+        ? [
+            createDeprecatedTaxonomyFieldWarning({
+              field: "conceptType",
+              recordKind: spec.kind,
+              replacement:
+                "primaryClassificationId plus optional secondaryClassificationIds and relationships",
+            }),
+          ]
+        : [];
+    case "module":
+      return [
+        ...(spec.moduleType
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "moduleType",
+                recordKind: "module",
+                replacement:
+                  "primaryClassificationId plus optional secondaryClassificationIds",
+              }),
+            ]
+          : []),
+        ...(spec.moduleFamily
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "moduleFamily",
+                recordKind: "module",
+                replacement:
+                  "secondaryClassificationIds for additional taxonomy membership",
+              }),
+            ]
+          : []),
+        ...(spec.variantGroup
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "variantGroup",
+                recordKind: "module",
+                replacement:
+                  "relationships for variant or related-module topology",
+              }),
+            ]
+          : []),
+      ];
+    case "training-regime":
+      return [
+        ...(spec.regimeType
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "regimeType",
+                recordKind: "training-regime",
+                replacement:
+                  "primaryClassificationId plus optional secondaryClassificationIds",
+              }),
+            ]
+          : []),
+        ...(spec.conceptType
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "conceptType",
+                recordKind: "training-regime",
+                replacement:
+                  "primaryClassificationId plus optional secondaryClassificationIds",
+              }),
+            ]
+          : []),
+        ...(spec.variantGroup
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "variantGroup",
+                recordKind: "training-regime",
+                replacement:
+                  "relationships for variant or nearby-regime topology",
+              }),
+            ]
+          : []),
+      ];
+    case "system":
+      return [
+        ...(spec.systemType
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "systemType",
+                recordKind: "system",
+                replacement:
+                  "primaryClassificationId plus optional secondaryClassificationIds",
+              }),
+            ]
+          : []),
+        ...(spec.conceptType
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "conceptType",
+                recordKind: "system",
+                replacement:
+                  "primaryClassificationId plus optional secondaryClassificationIds",
+              }),
+            ]
+          : []),
+        ...(spec.variantGroup
+          ? [
+              createDeprecatedTaxonomyFieldWarning({
+                field: "variantGroup",
+                recordKind: "system",
+                replacement:
+                  "relationships for variant or related-system topology",
+              }),
+            ]
+          : []),
+      ];
+    default:
+      return [];
+  }
+}
 
 export class PageSpecValidationError extends Error {
   readonly issues: PageSpecValidationIssue[];
@@ -241,7 +441,62 @@ export function validatePageSpec(input: unknown): PageSpec {
       formatPageSpecValidationIssues(result.error),
     );
   }
+
+  const issues = collectPageSpecCompatibilityIssues(result.data);
+  if (issues.length > 0) {
+    throw new PageSpecValidationError(issues);
+  }
+
   return result.data;
+}
+
+function collectPageSpecCompatibilityIssues(
+  spec: PageSpec,
+): PageSpecValidationIssue[] {
+  const compatibilityIssues: PageSpecValidationIssue[] = [];
+  const ontologyInput = {
+    primaryClassificationId:
+      "primaryClassificationId" in spec
+        ? spec.primaryClassificationId
+        : undefined,
+    secondaryClassificationIds:
+      "secondaryClassificationIds" in spec
+        ? spec.secondaryClassificationIds
+        : [],
+    relationships: "relationships" in spec ? spec.relationships : [],
+  };
+  const addCompatibilityIssues = (
+    legacyFieldLabel: string,
+    legacyFieldValue: string | undefined,
+  ) => {
+    compatibilityIssues.push(
+      ...collectOntologyFirstOrLegacyTypedFieldIssues({
+        legacyFieldLabel,
+        legacyFieldValue,
+        input: ontologyInput,
+      }),
+    );
+  };
+
+  switch (spec.kind) {
+    case "concept":
+    case "glossary":
+      addCompatibilityIssues("conceptType", spec.conceptType);
+      break;
+    case "module":
+      addCompatibilityIssues("moduleType", spec.moduleType);
+      break;
+    case "training-regime":
+      addCompatibilityIssues("regimeType", spec.regimeType);
+      break;
+    case "system":
+      addCompatibilityIssues("systemType", spec.systemType);
+      break;
+    default:
+      break;
+  }
+
+  return compatibilityIssues;
 }
 
 export function parsePageSpecJson(raw: string): PageSpec {

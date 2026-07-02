@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Batch normalization computes feature statistics across the minibatch, rescales each feature with those shared numbers, then applies learned scale and shift. One example is partly normalized using information from its batch neighbors rather than only from its own hidden state."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "Batch norm mainly targets training stability in settings where many examples share the same feature layout. It can reduce internal scale drift and make optimization easier when minibatches are large enough to give reliable statistics."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "In convolutional networks, batch norm often lets models train faster and with less sensitivity to raw feature scale. It became a default building block for vision systems long before layer-style norms became the normal choice inside large language models."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -51,12 +47,9 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Batch norm flow from activations to batch statistics, normalized channels, and scaled output",
-      "caption": "Batch norm measures minibatch statistics, normalizes each channel with them, then applies learned scale and shift"
+      "alt": "Batch norm flow from activations to batch statistics, normalized channels, and scaled output"
     },
-    "comparisonTable": {
-      "caption": "How batch norm differs from nearby normalization modules"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

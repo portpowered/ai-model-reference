@@ -82,4 +82,25 @@ describe("Phase 1 published-resource discovery contract", () => {
     expect(moduleUrls).toContain("/docs/modules/attention");
     expect(moduleUrls.length).toBeGreaterThanOrEqual(8);
   });
+
+  test("non-default locale tag discovery only includes shipped localized resources", async () => {
+    const canonicalPages = await loadPublishedResourcesForTag(
+      PHASE_1_ATTENTION_TAG_SLUG,
+      "vi",
+    );
+    const tagEntries = await loadTagResourceEntries(
+      PHASE_1_ATTENTION_TAG_SLUG,
+      "vi",
+    );
+
+    expect(canonicalPages.map((page) => page.url).sort()).toEqual(
+      tagEntries.map((entry) => entry.url).sort(),
+    );
+    expect(canonicalPages.map((page) => page.url)).toContain(
+      "/vi/docs/modules/grouped-query-attention",
+    );
+    expect(canonicalPages.map((page) => page.url)).not.toContain(
+      "/vi/docs/modules/sparse-attention",
+    );
+  });
 });

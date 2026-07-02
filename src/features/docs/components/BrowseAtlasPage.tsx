@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import type { BrowseCollectionSection } from "@/lib/docs/browse-collection-sections";
 import {
   buildLocalizedRoute,
   defaultLocale,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
-import { type DocsIndexEntry, DocsIndexEntryList } from "./DocsIndexEntryList";
+import { DocsIndexEntryList } from "./DocsIndexEntryList";
 import {
   bulletlessListClassName,
   docsResourceCardLinkClassName,
@@ -14,13 +15,7 @@ import {
 type BrowseAtlasPageProps = {
   messages: UiMessages;
   locale?: SiteLocale;
-  models: DocsIndexEntry[];
-  modules: DocsIndexEntry[];
-  concepts: DocsIndexEntry[];
-  papers: DocsIndexEntry[];
-  training: DocsIndexEntry[];
-  systems: DocsIndexEntry[];
-  glossary: DocsIndexEntry[];
+  sections: BrowseCollectionSection[];
 };
 
 type BrowseRouteCard = {
@@ -59,14 +54,7 @@ function BrowseSection({
   entries,
   linkLabel,
   linkHref,
-}: {
-  id: string;
-  title: string;
-  description: string;
-  entries: DocsIndexEntry[];
-  linkLabel?: string;
-  linkHref?: string;
-}) {
+}: BrowseCollectionSection) {
   return (
     <section
       id={id}
@@ -97,16 +85,24 @@ function BrowseSection({
   );
 }
 
+export function BrowseCollectionSectionList({
+  sections,
+}: {
+  sections: BrowseCollectionSection[];
+}) {
+  return (
+    <>
+      {sections.map((section) => (
+        <BrowseSection key={section.id} {...section} />
+      ))}
+    </>
+  );
+}
+
 export function BrowseAtlasPage({
   messages,
   locale = defaultLocale,
-  models,
-  modules,
-  concepts,
-  papers,
-  training,
-  systems,
-  glossary,
+  sections,
 }: BrowseAtlasPageProps) {
   const {
     browseIndex,
@@ -160,80 +156,9 @@ export function BrowseAtlasPage({
         />
       </section>
 
-      <BrowseSection
-        id="models"
-        title={browseIndex.modelsSectionTitle}
-        description={browseIndex.modelsSectionDescription}
-        entries={models}
-        linkHref={buildLocalizedRoute(
-          { surface: "docs-page", slug: "models" },
-          locale,
-        )}
-        linkLabel={browseIndex.modelsSectionLinkLabel}
-      />
-      <BrowseSection
-        id="modules"
-        title={browseIndex.modulesSectionTitle}
-        description={browseIndex.modulesSectionDescription}
-        entries={modules}
-        linkHref={buildLocalizedRoute(
-          { surface: "docs-page", slug: "modules" },
-          locale,
-        )}
-        linkLabel={browseIndex.modulesSectionLinkLabel}
-      />
-      <BrowseSection
-        id="concepts"
-        title={browseIndex.conceptsSectionTitle}
-        description={browseIndex.conceptsSectionDescription}
-        entries={concepts}
-        linkHref={buildLocalizedRoute(
-          { surface: "docs-page", slug: "concepts" },
-          locale,
-        )}
-        linkLabel={browseIndex.conceptsSectionLinkLabel}
-      />
-      <BrowseSection
-        id="papers"
-        title={browseIndex.papersSectionTitle}
-        description={browseIndex.papersSectionDescription}
-        entries={papers}
-        linkHref={buildLocalizedRoute(
-          { surface: "docs-page", slug: "papers" },
-          locale,
-        )}
-        linkLabel={browseIndex.papersSectionLinkLabel}
-      />
-      <BrowseSection
-        id="training"
-        title={browseIndex.trainingSectionTitle}
-        description={browseIndex.trainingSectionDescription}
-        entries={training}
-        linkHref={buildLocalizedRoute(
-          { surface: "docs-page", slug: "training" },
-          locale,
-        )}
-        linkLabel={browseIndex.trainingSectionLinkLabel}
-      />
-      <BrowseSection
-        id="systems"
-        title={browseIndex.systemsSectionTitle}
-        description={browseIndex.systemsSectionDescription}
-        entries={systems}
-        linkHref={buildLocalizedRoute(
-          { surface: "docs-page", slug: "systems" },
-          locale,
-        )}
-        linkLabel={browseIndex.systemsSectionLinkLabel}
-      />
-      <BrowseSection
-        id="glossary"
-        title={browseIndex.glossarySectionTitle}
-        description={browseIndex.glossarySectionDescription}
-        entries={glossary}
-        linkHref={buildLocalizedRoute({ surface: "glossary-index" }, locale)}
-        linkLabel={browseIndex.glossarySectionLinkLabel}
-      />
+      {sections.map((section) => (
+        <BrowseSection key={section.id} {...section} />
+      ))}
     </>
   );
 }

@@ -6,7 +6,11 @@
   "defaultSummaryKey": "description",
   "aliases": ["DeepSeekMoE", "DeepSeek MoE"],
   "tags": ["feed-forward", "foundations"],
-  "relatedIds": ["module.mixture-of-experts", "paper.deepseek-v4"],
+  "relatedIds": [
+    "module.mixture-of-experts",
+    "paper.deepseek-v4",
+    "system.routing"
+  ],
   "citationIds": ["citation.deepseek-v4-paper"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
@@ -14,22 +18,16 @@
   "releaseDate": "2026-06-13",
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
-  "moduleType": "feed-forward",
+  "primaryClassificationId": "classification.module.feed-forward",
   "optimizes": [
     "parameter-capacity",
     "compute-efficiency",
     "routing-specialization"
-  ],
-  "practicalBenefits": [
-    "uses specialized experts without paying dense-feed-forward cost on every token"
   ],
   "exampleModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "improvesOnIds": ["module.mixture-of-experts"],
   "tradeoffIds": [],
   "usedByModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "introducedByPaperIds": ["paper.deepseek-v4"],
-  "mathLevel": "none",
-  "moduleFamily": "feed-forward-network",
-  "conceptType": "feed-forward-variant",
-  "variantGroup": "moe-family"
+  "mathLevel": "none"
 }

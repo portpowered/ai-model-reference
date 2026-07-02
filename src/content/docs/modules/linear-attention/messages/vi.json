@@ -7,13 +7,9 @@
       "title": "Nó là gì",
       "body": "Linear attention là một biến thể attention viết lại phép attention mà không cần dựng toàn bộ ma trận điểm softmax. Feature map áp lên query và key cho phép mô hình tích lũy thống kê key-value theo thời gian tuyến tính thay vì chấm điểm tường minh cho mọi cặp query-key."
     },
-    "whatItOptimizes": {
+    "whyItExists": {
       "title": "Nó tối ưu điều gì",
       "body": "Linear attention nhắm vào độ tăng chi phí theo độ dài chuỗi, chi phí tính attention, và băng thông bộ nhớ khi attention bậc hai dày đặc sẽ chi phối thời gian chạy trên ngữ cảnh dài."
-    },
-    "practicalBenefit": {
-      "title": "Lợi ích thực tế",
-      "body": "Các nhóm chọn linear attention khi cần xử lý chuỗi dài nhưng không đủ khả năng trả chi phí attention bậc hai. Góc nhìn kernel hoặc hồi quy cho phép mỗi token mới cập nhật thống kê đang chạy thay vì quay lại toàn bộ ma trận điểm."
     },
     "howItWorks": {
       "title": "Cách nó hoạt động",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "So sánh luồng tính của multi-head attention dày đặc và linear attention dùng feature map",
-      "caption": "Chuyển giữa MHA và linear attention để so sánh cách chấm điểm softmax đầy đủ với các phép cộng dồn kết hợp qua feature map trên cùng một đồ thị",
       "variants": {
         "mha": {
           "label": "MHA"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "Cách linear attention so với các biến thể attention lân cận"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

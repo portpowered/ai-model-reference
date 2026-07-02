@@ -1,0 +1,49 @@
+{
+  "id": "table.tanh-comparison",
+  "subjectId": "module.tanh",
+  "columns": [
+    {
+      "moduleId": "module.tanh",
+      "titleKey": "tables.comparison.columns.tanh.title"
+    },
+    {
+      "moduleId": "module.sigmoid",
+      "titleKey": "tables.comparison.columns.sigmoid.title"
+    },
+    {
+      "moduleId": "module.relu",
+      "titleKey": "tables.comparison.columns.relu.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "outputRange",
+      "labelKey": "tables.comparison.dimensions.outputRange"
+    },
+    {
+      "id": "centerPoint",
+      "labelKey": "tables.comparison.dimensions.centerPoint"
+    },
+    {
+      "id": "mainTradeoff",
+      "labelKey": "tables.comparison.dimensions.mainTradeoff"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.tanh": {
+      "outputRange": "tables.comparison.values.tanh.outputRange",
+      "centerPoint": "tables.comparison.values.tanh.centerPoint",
+      "mainTradeoff": "tables.comparison.values.tanh.mainTradeoff"
+    },
+    "module.sigmoid": {
+      "outputRange": "tables.comparison.values.sigmoid.outputRange",
+      "centerPoint": "tables.comparison.values.sigmoid.centerPoint",
+      "mainTradeoff": "tables.comparison.values.sigmoid.mainTradeoff"
+    },
+    "module.relu": {
+      "outputRange": "tables.comparison.values.relu.outputRange",
+      "centerPoint": "tables.comparison.values.relu.centerPoint",
+      "mainTradeoff": "tables.comparison.values.relu.mainTradeoff"
+    }
+  }
+}

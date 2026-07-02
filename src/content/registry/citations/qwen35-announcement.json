@@ -1,0 +1,23 @@
+{
+  "id": "citation.qwen35-announcement",
+  "slug": "qwen35-announcement",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Qwen3.5 announcement",
+    "Qwen3.5: Towards Native Multimodal Agents"
+  ],
+  "tags": ["model-family", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["Qwen Team"],
+  "title": "Qwen3.5: Towards Native Multimodal Agents",
+  "url": "https://qwen.ai/blog?id=qwen3.5",
+  "mla": "Qwen Team. \"Qwen3.5: Towards Native Multimodal Agents.\" Qwen, February 2026.",
+  "year": 2026
+}

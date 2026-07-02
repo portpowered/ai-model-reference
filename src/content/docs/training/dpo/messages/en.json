@@ -1,0 +1,61 @@
+{
+  "title": "Direct Preference Optimization",
+  "description": "A preference-optimization training regime that teaches a model from preferred versus rejected answer pairs without fitting a separate reward model and PPO loop first.",
+  "openingSummary": "Direct Preference Optimization, usually shortened to DPO, teaches a model from prompt-plus-choice comparisons: for each prompt, the model sees one answer people preferred and one they rejected, then learns to score the preferred answer higher without first building a separate reward model and reinforcement-learning loop.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Direct Preference Optimization is a post-training regime for alignment. Instead of asking annotators for one perfect answer, it uses side-by-side preference pairs: a prompt, a preferred response, and a rejected response. The model is then updated so the preferred response becomes more likely than the rejected one."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Classic reinforcement learning from human feedback, often shortened to RLHF, usually splits the job into two stages: fit a reward model from human rankings, then run reinforcement learning such as Proximal Policy Optimization, or PPO, against that reward. DPO exists because many teams want the behavior-shaping value of preference data without carrying that extra reward-model and reinforcement-learning machinery."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "A base or instruction-tuned model is kept as the starting point. For each prompt, the training set provides two candidate answers: one preferred and one rejected. DPO compares how much the current model likes those two answers relative to a reference model, then directly nudges the current model toward the preferred answer and away from the rejected one. In practice, the preference comparison stands in for the separate reward-model-fitting step and the later PPO policy-update loop."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Compared with RLHF plus PPO, DPO is operationally simpler because it learns from preference pairs in one direct objective instead of maintaining a separate reward model and then optimizing a policy against that reward. The tradeoff is that DPO only learns from the comparisons already present in the dataset, so it does not explore new answers the way a reinforcement-learning loop can. Compared with GRPO, DPO still uses explicit preferred-versus-rejected examples, while GRPO-style methods are usually framed as groupwise policy optimization over sampled candidates rather than as a fixed pairwise preference dataset."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "DPO is only as good as its preference pairs. If the preferred answers are shallow, inconsistent, or overly narrow, the model will copy those weaknesses. It can also struggle when the desired behavior depends on long multi-step exploration, because the method updates from known comparisons instead of searching widely through new trajectories."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "trainingFlow": {
+      "title": "Direct Preference Optimization training flow",
+      "alt": "A three-step DPO flow: prompt with preferred and rejected answers, direct preference objective against a reference model, then the updated aligned model.",
+      "caption": "DPO turns prompt-plus-preference pairs directly into policy updates instead of first training a separate reward model and PPO loop.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "pairs": {
+        "label": "Prompt + preferred / rejected pair"
+      },
+      "objective": {
+        "label": "Direct preference objective"
+      },
+      "alignedModel": {
+        "label": "Updated aligned model"
+      }
+    }
+  }
+}

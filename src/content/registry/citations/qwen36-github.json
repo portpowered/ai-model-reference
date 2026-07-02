@@ -1,0 +1,20 @@
+{
+  "id": "citation.qwen36-github",
+  "slug": "qwen36-github",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Qwen3.6 GitHub", "QwenLM/Qwen3.6"],
+  "tags": ["model-family", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "repository",
+  "authors": ["Qwen Team"],
+  "title": "QwenLM/Qwen3.6",
+  "url": "https://github.com/QwenLM/Qwen3.6",
+  "mla": "Qwen Team. \"QwenLM/Qwen3.6.\" GitHub, 2026.",
+  "year": 2026
+}

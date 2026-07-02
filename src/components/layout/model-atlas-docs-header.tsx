@@ -10,29 +10,39 @@ import { MobileDocsDrawer } from "@/components/layout/mobile-docs-drawer";
 import {
   getPrimaryNavItems,
   PRIMARY_NAV_LINK_CLASS,
+  PRIMARY_NAV_MOBILE_LINK_CLASS,
   PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS,
 } from "@/components/layout/primary-nav";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
+import type { TopologyNavigationOption } from "@/lib/content/topology-navigation";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
+import { modelAtlasSiteConfig } from "@/lib/site/model-atlas-site-config";
+import type { SiteConfig } from "@/lib/site/site-config.contract";
 
 type ModelAtlasDocsHeaderProps = {
   messages: UiMessages;
   pageTree: PageTree.Root;
   locale?: SiteLocale;
+  siteConfig?: SiteConfig;
+  topologyOptions?: readonly TopologyNavigationOption[];
   trailing?: ReactNode;
 };
-
-const PROJECT_GITHUB_URL = "https://github.com/portpowered/ai-model-reference";
 
 export function ModelAtlasDocsHeader({
   messages,
   pageTree,
   locale = defaultLocale,
+  siteConfig = modelAtlasSiteConfig,
+  topologyOptions = [],
   trailing,
 }: ModelAtlasDocsHeaderProps) {
-  const primaryNavItems = getPrimaryNavItems(messages, locale);
+  const repositoryUrl = siteConfig.repositoryUrl;
+  const primaryNavItems = getPrimaryNavItems(messages, locale, {
+    siteConfig,
+    topologyOptions,
+  });
   const [menuOpen, setMenuOpen] = useState(false);
   const menuPanelId = useId();
 
@@ -56,7 +66,7 @@ export function ModelAtlasDocsHeader({
             className="hidden md:col-start-3 md:col-end-4 md:row-start-1 md:block"
             aria-label="Primary"
           >
-            <div className="mx-auto flex w-full max-w-[900px] items-center gap-4 px-6 xl:px-8">
+            <div className="mx-auto flex w-full max-w-[900px] flex-wrap items-center gap-x-4 gap-y-2 px-6 text-sm xl:px-8">
               {primaryNavItems.map((item) => (
                 <Link
                   key={item.href}
@@ -73,7 +83,7 @@ export function ModelAtlasDocsHeader({
           <div className="pointer-events-auto min-w-0 flex-1 md:flex-none">
             <SearchTrigger
               messages={messages}
-              className="flex w-full min-w-0 items-center justify-between px-3 py-2 md:inline-flex md:w-auto md:justify-start md:px-2 md:py-1.5"
+              className="flex w-full min-w-0 items-center justify-between !px-4 !py-2 md:inline-flex md:w-auto md:justify-start md:!px-3 md:!py-1.5"
             />
           </div>
           <div className="pointer-events-auto">
@@ -83,10 +93,10 @@ export function ModelAtlasDocsHeader({
           </div>
           <div className="pointer-events-auto">
             <Link
-              href={PROJECT_GITHUB_URL}
+              href={repositoryUrl}
               aria-label="Open project GitHub repository"
               title="Open project GitHub repository"
-              className={buttonVariants({ variant: "outline", size: "icon" })}
+              className={`${buttonVariants({ variant: "outline", size: "icon" })} header-action-icon`}
             >
               <FaGithub className="size-4" aria-hidden />
             </Link>
@@ -109,7 +119,7 @@ export function ModelAtlasDocsHeader({
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="flex rounded-lg border border-sidebar-border px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  className={PRIMARY_NAV_MOBILE_LINK_CLASS}
                   onClick={() => setMenuOpen(false)}
                 >
                   {item.label}

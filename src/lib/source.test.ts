@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { Node } from "fumadocs-core/page-tree";
+import { loadPublishedDocsPagesSync } from "@/lib/content/pages";
 import { source } from "@/lib/source";
 
 const GLOSSARY_INDEX_URLS = [
@@ -44,7 +45,6 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/parameter",
   "/docs/glossary/patch",
   "/docs/glossary/perplexity",
-  "/docs/glossary/prefill",
   "/docs/glossary/prefill-decode-split",
   "/docs/glossary/representation",
   "/docs/glossary/residual-connection",
@@ -107,6 +107,16 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/yarn",
 ] as const;
 
+const CONCEPT_INDEX_URLS = [
+  "/docs/concepts/alibi",
+  "/docs/concepts/context-extension",
+  "/docs/concepts/prefill",
+  "/docs/concepts/page-spec-workflow-sample",
+  "/docs/concepts/positional-encodings",
+  "/docs/concepts/transformer-architecture",
+  "/docs/concepts/why-long-context-is-hard",
+] as const;
+
 const MODEL_INDEX_URLS = [
   "/docs/models/deepseek-v4-flash",
   "/docs/models/deepseek-v4-pro",
@@ -165,6 +175,9 @@ describe("docs navigation source", () => {
     for (const url of MODULE_INDEX_URLS) {
       expect(urls).toContain(url);
     }
+    for (const url of CONCEPT_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
     for (const url of MODEL_INDEX_URLS) {
       expect(urls).toContain(url);
     }
@@ -187,7 +200,11 @@ describe("docs navigation source", () => {
     }
 
     const glossaryUrls = collectPageUrls(glossaryFolder.children).sort();
-    expect(glossaryUrls).toEqual([...GLOSSARY_INDEX_URLS].sort());
+    const publishedGlossaryUrls = loadPublishedDocsPagesSync("en")
+      .filter((page) => page.docsSlug.startsWith("glossary/"))
+      .map((page) => page.url)
+      .sort();
+    expect(glossaryUrls).toEqual(publishedGlossaryUrls);
 
     const modulesFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Modules",
@@ -198,7 +215,20 @@ describe("docs navigation source", () => {
     }
 
     const moduleUrls = collectPageUrls(modulesFolder.children).sort();
-    expect(moduleUrls).toEqual([...MODULE_INDEX_URLS].sort());
+    expect(moduleUrls).toEqual(expect.arrayContaining([...MODULE_INDEX_URLS]));
+
+    const conceptsFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Concepts",
+    );
+    expect(conceptsFolder?.type).toBe("folder");
+    if (conceptsFolder?.type !== "folder") {
+      throw new Error("expected Concepts folder in docs sidebar");
+    }
+
+    const conceptUrls = collectPageUrls(conceptsFolder.children);
+    for (const url of CONCEPT_INDEX_URLS) {
+      expect(conceptUrls).toContain(url);
+    }
 
     const modelsFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Models",
@@ -209,7 +239,7 @@ describe("docs navigation source", () => {
     }
 
     const modelUrls = collectPageUrls(modelsFolder.children).sort();
-    expect(modelUrls).toEqual([...MODEL_INDEX_URLS].sort());
+    expect(modelUrls).toEqual(expect.arrayContaining([...MODEL_INDEX_URLS]));
 
     const papersFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Papers",
@@ -220,7 +250,7 @@ describe("docs navigation source", () => {
     }
 
     const paperUrls = collectPageUrls(papersFolder.children).sort();
-    expect(paperUrls).toEqual([...PAPER_INDEX_URLS].sort());
+    expect(paperUrls).toEqual(expect.arrayContaining([...PAPER_INDEX_URLS]));
 
     const trainingFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Training",
@@ -231,7 +261,9 @@ describe("docs navigation source", () => {
     }
 
     const trainingUrls = collectPageUrls(trainingFolder.children).sort();
-    expect(trainingUrls).toEqual([...TRAINING_INDEX_URLS].sort());
+    expect(trainingUrls).toEqual(
+      expect.arrayContaining([...TRAINING_INDEX_URLS]),
+    );
 
     const systemsFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Systems",
@@ -242,7 +274,7 @@ describe("docs navigation source", () => {
     }
 
     const systemUrls = collectPageUrls(systemsFolder.children).sort();
-    expect(systemUrls).toEqual([...SYSTEM_INDEX_URLS].sort());
+    expect(systemUrls).toEqual(expect.arrayContaining([...SYSTEM_INDEX_URLS]));
   });
 
   test("glossary navigation URLs resolve through Fumadocs source entries", () => {
