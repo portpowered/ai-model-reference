@@ -1484,3 +1484,318 @@ export function formatTerminalLaneLandingSurfaceComparisonReport(
 
   return lines.join("\n");
 }
+
+export type TerminalLaneLandingRecommendedAction =
+  | "ignore-landed"
+  | "reconcile-planner-root"
+  | "investigate-partial-landing"
+  | "reconcile-terminal-mismatch";
+
+export interface TerminalLaneLandingAuditLaneReport {
+  laneName: string;
+  candidate: TerminalLaneLandingCandidate;
+  comparison: TerminalLaneLandingSurfaceComparison;
+  classification: TerminalLaneLandingClassification;
+  recommendedAction: TerminalLaneLandingRecommendedAction;
+  recommendedActionSummary: string;
+}
+
+export interface TerminalLaneMainBranchLandingAuditSummary {
+  laneCount: number;
+  landed: number;
+  remoteOnly: number;
+  partial: number;
+  reconciliationRequired: number;
+}
+
+export interface TerminalLaneMainBranchLandingAuditReport {
+  generatedAtUtc: string;
+  repoRoot: string;
+  mainRef: string;
+  summary: TerminalLaneMainBranchLandingAuditSummary;
+  lanes: TerminalLaneLandingAuditLaneReport[];
+}
+
+export interface CollectTerminalLaneMainBranchLandingAuditReportOptions {
+  explicitLaneNames?: string[];
+  expectedLandingSurfacesByLane?: Record<string, TerminalLaneLandingSurface[]>;
+  landingAuditReport?: TerminalLaneMainBranchLandingAuditReport;
+  landingCandidates?: TerminalLaneLandingCandidate[];
+  mainRef?: string;
+  plannerRootGitStatusText?: string;
+  repoRoot: string;
+  runCommand?: RunCommand;
+  workListJsonText?: string;
+  worktreesDir?: string;
+}
+
+export class TerminalLaneMainBranchLandingAuditError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "TerminalLaneMainBranchLandingAuditError";
+  }
+}
+
+export function recommendTerminalLaneLandingAction(
+  classification: TerminalLaneLandingClassification,
+): {
+  action: TerminalLaneLandingRecommendedAction;
+  summary: string;
+} {
+  switch (classification.status) {
+    case "landed":
+      return {
+        action: "ignore-landed",
+        summary:
+          "Work appears landed on main with a clean planner-root checkout; no reconciliation needed.",
+      };
+    case "remote-only":
+      return {
+        action: "reconcile-planner-root",
+        summary:
+          "Expected landing surfaces are present on main but planner-root checkout drift remains; reconcile the planner root before treating the lane as unfinished.",
+      };
+    case "partial":
+      return {
+        action: "investigate-partial-landing",
+        summary:
+          "Landing evidence is incomplete or only partially present on main; inspect missing surfaces or unavailable evidence before scheduling new work.",
+      };
+    case "reconciliation-required":
+      return {
+        action: "reconcile-terminal-mismatch",
+        summary:
+          "Terminal lane evidence conflicts with main or planner-root landing surfaces; human review is required before ignoring or re-queueing the lane.",
+      };
+  }
+}
+
+function buildLandingAuditLaneReport(input: {
+  candidate: TerminalLaneLandingCandidate;
+  comparison: TerminalLaneLandingSurfaceComparison;
+  classification: TerminalLaneLandingClassification;
+}): TerminalLaneLandingAuditLaneReport {
+  const recommendation = recommendTerminalLaneLandingAction(
+    input.classification,
+  );
+
+  return {
+    laneName: input.candidate.laneName,
+    candidate: input.candidate,
+    comparison: input.comparison,
+    classification: input.classification,
+    recommendedAction: recommendation.action,
+    recommendedActionSummary: recommendation.summary,
+  };
+}
+
+function summarizeLandingAuditReport(
+  lanes: TerminalLaneLandingAuditLaneReport[],
+): TerminalLaneMainBranchLandingAuditSummary {
+  const summary: TerminalLaneMainBranchLandingAuditSummary = {
+    laneCount: lanes.length,
+    landed: 0,
+    remoteOnly: 0,
+    partial: 0,
+    reconciliationRequired: 0,
+  };
+
+  for (const lane of lanes) {
+    switch (lane.classification.status) {
+      case "landed":
+        summary.landed += 1;
+        break;
+      case "remote-only":
+        summary.remoteOnly += 1;
+        break;
+      case "partial":
+        summary.partial += 1;
+        break;
+      case "reconciliation-required":
+        summary.reconciliationRequired += 1;
+        break;
+    }
+  }
+
+  return summary;
+}
+
+export function collectTerminalLaneMainBranchLandingAuditReport(
+  options: CollectTerminalLaneMainBranchLandingAuditReportOptions,
+): TerminalLaneMainBranchLandingAuditReport {
+  if (options.landingAuditReport) {
+    return options.landingAuditReport;
+  }
+
+  const discovery = discoverTerminalLaneLandingCandidates({
+    explicitLaneNames: options.explicitLaneNames,
+    landingCandidates: options.landingCandidates,
+    repoRoot: options.repoRoot,
+    runCommand: options.runCommand,
+    workListJsonText: options.workListJsonText,
+    worktreesDir: options.worktreesDir,
+  });
+
+  const comparisonReport = compareTerminalLaneLandingSurfaces({
+    candidates: discovery.candidates,
+    expectedLandingSurfacesByLane: options.expectedLandingSurfacesByLane,
+    mainRef: options.mainRef,
+    plannerRootGitStatusText: options.plannerRootGitStatusText,
+    repoRoot: options.repoRoot,
+    runCommand: options.runCommand,
+  });
+
+  const classificationReport = classifyTerminalLaneLandingStatuses({
+    candidates: discovery.candidates,
+    comparisonReport,
+  });
+
+  const comparisonsByLane = new Map(
+    comparisonReport.comparisons.map((comparison) => [
+      comparison.laneName,
+      comparison,
+    ]),
+  );
+  const candidatesByLane = new Map(
+    discovery.candidates.map((candidate) => [candidate.laneName, candidate]),
+  );
+
+  const lanes = classificationReport.classifications.map((classification) => {
+    const candidate = candidatesByLane.get(classification.laneName);
+    const comparison = comparisonsByLane.get(classification.laneName);
+    if (!candidate || !comparison) {
+      throw new TerminalLaneMainBranchLandingAuditError(
+        `Missing candidate or comparison evidence for lane ${classification.laneName}`,
+      );
+    }
+
+    return buildLandingAuditLaneReport({
+      candidate,
+      comparison,
+      classification,
+    });
+  });
+
+  return {
+    generatedAtUtc: new Date().toISOString(),
+    repoRoot: discovery.repoRoot,
+    mainRef: comparisonReport.mainRef,
+    summary: summarizeLandingAuditReport(lanes),
+    lanes: lanes.sort((left, right) =>
+      left.laneName.localeCompare(right.laneName),
+    ),
+  };
+}
+
+function formatTerminalLaneLandingAuditLaneReport(
+  lane: TerminalLaneLandingAuditLaneReport,
+): string {
+  const terminalState =
+    lane.candidate.terminalState.status === "present"
+      ? lane.candidate.terminalState.rawState
+      : lane.candidate.terminalState.status;
+  const branchIdentity =
+    lane.candidate.branchIdentity.status === "present"
+      ? lane.candidate.branchIdentity.branchName
+      : lane.candidate.branchIdentity.status;
+
+  const lines = [
+    `lane=${lane.laneName} status=${lane.classification.status} terminal-state=${terminalState} branch=${branchIdentity}`,
+    `  recommended-action=${lane.recommendedAction}`,
+    `  recommendation=${lane.recommendedActionSummary}`,
+    `  reasons=${lane.classification.reasons.join("; ")}`,
+    `  surface-source=${lane.comparison.surfaceSource}`,
+  ];
+
+  if (lane.comparison.surfaces.length === 0) {
+    lines.push("  expected-surfaces: none");
+  } else {
+    lines.push("  expected-surfaces:");
+    for (const surfaceEvidence of lane.comparison.surfaces) {
+      lines.push(
+        `    - ${formatTerminalLaneLandingSurfaceEvidence(surfaceEvidence)}`,
+      );
+    }
+  }
+
+  if (lane.classification.citedSurfaces.length > 0) {
+    lines.push("  cited-surfaces:");
+    for (const surface of lane.classification.citedSurfaces) {
+      lines.push(`    - ${formatSurfaceCitation(surface)}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
+function getLandingAuditLanesForStatus(
+  report: TerminalLaneMainBranchLandingAuditReport,
+  status: TerminalLaneLandingStatus,
+): TerminalLaneLandingAuditLaneReport[] {
+  return report.lanes.filter((lane) => lane.classification.status === status);
+}
+
+export function serializeTerminalLaneMainBranchLandingAuditReport(
+  report: TerminalLaneMainBranchLandingAuditReport,
+): string {
+  return `${JSON.stringify(report, null, 2)}\n`;
+}
+
+export function formatTerminalLaneMainBranchLandingAuditReport(
+  report: TerminalLaneMainBranchLandingAuditReport,
+): string {
+  const groupedStatuses: Array<{
+    count: number;
+    lanes: TerminalLaneLandingAuditLaneReport[];
+    status: TerminalLaneLandingStatus;
+  }> = [
+    {
+      status: "landed",
+      count: report.summary.landed,
+      lanes: getLandingAuditLanesForStatus(report, "landed"),
+    },
+    {
+      status: "remote-only",
+      count: report.summary.remoteOnly,
+      lanes: getLandingAuditLanesForStatus(report, "remote-only"),
+    },
+    {
+      status: "partial",
+      count: report.summary.partial,
+      lanes: getLandingAuditLanesForStatus(report, "partial"),
+    },
+    {
+      status: "reconciliation-required",
+      count: report.summary.reconciliationRequired,
+      lanes: getLandingAuditLanesForStatus(report, "reconciliation-required"),
+    },
+  ];
+
+  const lines = [
+    "Terminal Lane Main-Branch Landing Audit",
+    `Generated: ${report.generatedAtUtc}`,
+    `Repo root: ${report.repoRoot}`,
+    `Main ref: ${report.mainRef}`,
+    `Summary lanes=${report.summary.laneCount} landed=${report.summary.landed} remote-only=${report.summary.remoteOnly} partial=${report.summary.partial} reconciliation-required=${report.summary.reconciliationRequired}`,
+    "",
+  ];
+
+  if (report.lanes.length === 0) {
+    lines.push("No terminal or near-terminal landing lanes were audited.");
+    return lines.join("\n");
+  }
+
+  for (const group of groupedStatuses) {
+    lines.push(`${group.status} (${group.count})`);
+    if (group.lanes.length === 0) {
+      lines.push("- none");
+    } else {
+      for (const lane of group.lanes) {
+        lines.push(formatTerminalLaneLandingAuditLaneReport(lane));
+      }
+    }
+    lines.push("");
+  }
+
+  return lines.join("\n").trimEnd();
+}

@@ -7,11 +7,15 @@ import {
   classifyTerminalLaneLandingStatus,
   classifyTerminalLaneLandingStatuses,
   classifyTerminalLaneLandingSurfaceKind,
+  collectTerminalLaneMainBranchLandingAuditReport,
   compareTerminalLaneLandingSurfaces,
   discoverTerminalLaneLandingCandidates,
   formatTerminalLaneLandingCandidateDiscovery,
   formatTerminalLaneLandingClassificationReport,
   formatTerminalLaneLandingSurfaceComparisonReport,
+  formatTerminalLaneMainBranchLandingAuditReport,
+  recommendTerminalLaneLandingAction,
+  serializeTerminalLaneMainBranchLandingAuditReport,
   TerminalLaneLandingAuditDiscoveryError,
   UNAVAILABLE_EVIDENCE,
   UNKNOWN_EVIDENCE,
@@ -802,5 +806,139 @@ describe("formatTerminalLaneLandingSurfaceComparisonReport", () => {
     expect(output).toContain(
       "page-bundle path=src/content/docs/glossary/activation/page.mdx main=present planner-root=dirty",
     );
+  });
+});
+
+describe("collectTerminalLaneMainBranchLandingAuditReport", () => {
+  test("builds grouped human-readable and JSON report output with recommended actions", () => {
+    const comparisonReport = compareTerminalLaneLandingSurfaces({
+      repoRoot: "/repo",
+      mainRef: "origin/main",
+      plannerRootGitStatusText: [
+        " M src/content/docs/glossary/activation/page.mdx",
+        " D src/content/registry/concepts/activation.json",
+      ].join("\n"),
+      runCommand: createGitRunCommandStub({
+        mainPaths: new Set(
+          activationLandingSurfaces.map((surface) => surface.path),
+        ),
+      }),
+      candidates: [activationTerminalCompleteCandidate],
+      expectedLandingSurfacesByLane: {
+        "activation-concept-current-main-page": activationLandingSurfaces,
+      },
+    });
+    const classificationReport = classifyTerminalLaneLandingStatuses({
+      comparisonReport,
+      candidates: [activationTerminalCompleteCandidate],
+    });
+    const classification = classificationReport.classifications[0];
+    if (!classification) {
+      throw new Error("expected activation classification fixture");
+    }
+
+    const report = collectTerminalLaneMainBranchLandingAuditReport({
+      repoRoot: "/repo",
+      landingAuditReport: {
+        generatedAtUtc: "2026-07-01T12:00:00.000Z",
+        repoRoot: "/repo",
+        mainRef: "origin/main",
+        summary: {
+          laneCount: 1,
+          landed: 0,
+          remoteOnly: 1,
+          partial: 0,
+          reconciliationRequired: 0,
+        },
+        lanes: [
+          {
+            laneName: activationTerminalCompleteCandidate.laneName,
+            candidate: activationTerminalCompleteCandidate,
+            comparison: comparisonReport.comparisons[0] ?? {
+              laneName: activationTerminalCompleteCandidate.laneName,
+              mainRef: "origin/main",
+              surfaceSource: "explicit",
+              surfaces: [],
+              issues: [],
+            },
+            classification,
+            recommendedAction:
+              recommendTerminalLaneLandingAction(classification).action,
+            recommendedActionSummary:
+              recommendTerminalLaneLandingAction(classification).summary,
+          },
+        ],
+      },
+    });
+
+    const humanOutput = formatTerminalLaneMainBranchLandingAuditReport(report);
+    expect(humanOutput).toContain("Terminal Lane Main-Branch Landing Audit");
+    expect(humanOutput).toContain("remote-only (1)");
+    expect(humanOutput).toContain("lane=activation-concept-current-main-page");
+    expect(humanOutput).toContain("recommended-action=reconcile-planner-root");
+    expect(humanOutput).toContain("page-bundle");
+    expect(humanOutput).toContain("registry-record");
+    expect(humanOutput).toContain("focused-test");
+    expect(humanOutput).toContain("main=present planner-root=dirty");
+
+    const jsonOutput = JSON.parse(
+      serializeTerminalLaneMainBranchLandingAuditReport(report),
+    );
+    expect(jsonOutput.summary).toEqual({
+      laneCount: 1,
+      landed: 0,
+      remoteOnly: 1,
+      partial: 0,
+      reconciliationRequired: 0,
+    });
+    expect(jsonOutput.lanes[0]?.recommendedAction).toBe(
+      "reconcile-planner-root",
+    );
+    expect(jsonOutput.lanes[0]?.classification.status).toBe("remote-only");
+  });
+
+  test("wires discovery, comparison, and classification into one report", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "terminal-lane-audit-report-"));
+    const worktreesDir = join(repoRoot, ".claude", "worktrees");
+    createWorktreeFixture({
+      laneName: "activation-concept-current-main-page",
+      branchName: "activation-concept-current-main-page",
+      worktreesDir,
+    });
+
+    try {
+      const report = collectTerminalLaneMainBranchLandingAuditReport({
+        repoRoot,
+        worktreesDir,
+        mainRef: "origin/main",
+        plannerRootGitStatusText: "",
+        runCommand: createGitRunCommandStub({
+          mainPaths: new Set(
+            activationLandingSurfaces.map((surface) => surface.path),
+          ),
+        }),
+        workListJsonText: JSON.stringify({
+          results: [
+            {
+              name: "activation-concept-current-main-page",
+              workTypeName: "task",
+              state: { name: "complete", type: "TERMINAL" },
+            },
+          ],
+        }),
+        expectedLandingSurfacesByLane: {
+          "activation-concept-current-main-page": activationLandingSurfaces,
+        },
+      });
+
+      expect(report.summary.laneCount).toBe(1);
+      expect(report.lanes[0]?.classification.status).toBe("landed");
+      expect(report.lanes[0]?.recommendedAction).toBe("ignore-landed");
+      expect(formatTerminalLaneMainBranchLandingAuditReport(report)).toContain(
+        "landed (1)",
+      );
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
   });
 });

@@ -27,7 +27,9 @@ watchdog summaries, or planner-facing linkage reports.
   Landing-status classification consumes `TerminalLaneLandingSurfaceComparison`
   plus optional candidate terminal-state evidence to emit
   `landed` / `remote-only` / `partial` / `reconciliation-required` with cited
-  surface reasons.
+  surface reasons. Full planner report output is assembled by
+  `collectTerminalLaneMainBranchLandingAuditReport` with grouped human-readable
+  and JSON serializers plus recommended planner actions.
 
 ## Planner-facing commands
 
@@ -37,11 +39,13 @@ watchdog summaries, or planner-facing linkage reports.
 | Inspect queue/worktree/PR linkage ledger with optional metadata refresh | `bun run report:queue-worktree-pr-linkage-ledger` |
 | Planner batch dispatch: collision preflight before scheduling overlapping lanes | `bun run report:planner-batch-collision-preflight` |
 | Planner worktree drift against active lanes | `bun run report:planner-worktree-drift-watchdog` |
+| Terminal or near-terminal lane landing audit against main | `bun run report:terminal-lane-main-branch-landing-audit` |
 
 Direct script paths remain supported for fixture-driven tests:
 
 * `bun ./scripts/active-pr-mergeability-watchdog.ts`
 * `bun ./scripts/report-queue-worktree-pr-linkage-ledger.ts`
+* `bun ./scripts/report-terminal-lane-main-branch-landing-audit.ts`
 
 ## Classification contract
 

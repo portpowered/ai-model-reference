@@ -51,6 +51,7 @@
     "report:planner-concurrency-floor": "bun ./scripts/report-planner-concurrency-floor.ts",
     "report:planner-queue-health": "bun ./scripts/report-planner-queue-health.ts",
     "report:planner-loopback-reconciliation": "bun ./scripts/report-planner-loopback-reconciliation.ts",
+    "report:terminal-lane-main-branch-landing-audit": "bun ./scripts/report-terminal-lane-main-branch-landing-audit.ts",
     "audit:canonical-page-surface": "bun ./scripts/audit-canonical-page-surface.ts",
     "prereport:legacy-taxonomy-compatibility-budget": "bun run prepare:content-runtime",
     "report:legacy-taxonomy-compatibility-budget": "bun ./scripts/report-legacy-taxonomy-compatibility-budget.ts",
