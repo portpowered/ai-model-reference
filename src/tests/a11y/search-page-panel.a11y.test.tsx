@@ -8,8 +8,6 @@ import {
   setDefaultTimeout,
   test,
 } from "bun:test";
-
-setDefaultTimeout(15_000);
 import { cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SearchPagePanelContent } from "@/features/docs/search/SearchPagePanel";
@@ -22,6 +20,8 @@ import {
   renderWithAppProviders,
   restoreFetchMock,
 } from "@/tests/a11y/render";
+
+setDefaultTimeout(15_000);
 
 function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {
