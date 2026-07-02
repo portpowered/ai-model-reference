@@ -191,7 +191,8 @@ describe("RLVR training-regime slice verification (rlvr-training-regime-page-005
     );
 
     expect(
-      relatedItems.find((item) => item.registryId === "concept.alignment")?.href,
+      relatedItems.find((item) => item.registryId === "concept.alignment")
+        ?.href,
     ).toBe("/docs/concepts/alignment");
     expect(
       relatedItems.find(
@@ -257,28 +258,32 @@ describe("RLVR training-regime slice verification (rlvr-training-regime-page-005
   test(
     "content and registry validation pass for the RLVR slice",
     async () => {
-    const registryPath = join(getRegistryRoot(), "training-regimes", `${SLUG}.json`);
-    const indexes = await loadRegistry({ registryRoot: getRegistryRoot() });
+      const registryPath = join(
+        getRegistryRoot(),
+        "training-regimes",
+        `${SLUG}.json`,
+      );
+      const indexes = await loadRegistry({ registryRoot: getRegistryRoot() });
 
-    const bundleErrors = await validateGeneratedPageBundle({
-      registryRoot: getRegistryRoot(),
-      docsRoot: join(getContentRoot(), "docs"),
-      pageDirectory: pageDir,
-      registryPath,
-      pageUrl: PAGE_URL,
-      indexes,
-    });
-    expect(bundleErrors).toEqual([]);
+      const bundleErrors = await validateGeneratedPageBundle({
+        registryRoot: getRegistryRoot(),
+        docsRoot: join(getContentRoot(), "docs"),
+        pageDirectory: pageDir,
+        registryPath,
+        pageUrl: PAGE_URL,
+        indexes,
+      });
+      expect(bundleErrors).toEqual([]);
 
-    const loaded = await loadTrainingRegimePageFromDisk(SLUG, "en");
-    expect(loaded.frontmatter.status).toBe("published");
-    expect(loaded.frontmatter.registryId).toBe(REGISTRY_ID);
+      const loaded = await loadTrainingRegimePageFromDisk(SLUG, "en");
+      expect(loaded.frontmatter.status).toBe("published");
+      expect(loaded.frontmatter.registryId).toBe(REGISTRY_ID);
 
-    const registryIssues = await validateRegistryContent();
-    const touchedIssues = registryIssues.filter((issue) =>
-      TOUCHED_RECORD_IDS.some((recordId) => issue.message.includes(recordId)),
-    );
-    expect(touchedIssues).toEqual([]);
+      const registryIssues = await validateRegistryContent();
+      const touchedIssues = registryIssues.filter((issue) =>
+        TOUCHED_RECORD_IDS.some((recordId) => issue.message.includes(recordId)),
+      );
+      expect(touchedIssues).toEqual([]);
     },
     { timeout: 30_000 },
   );
