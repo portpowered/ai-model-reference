@@ -43,6 +43,13 @@ watchdog summaries, or planner-facing linkage reports.
   outcomes for safe stale-drift restore vs operator handoff plus content-lane
   hold/release decisions. See
   [latent-diffusion-root-deletion-reconciliation-relevant-files](./latent-diffusion-root-deletion-reconciliation-relevant-files.md).
+* `src/lib/factory/planner-shared-factory-linkage-root-staged-drift-handoff.ts` —
+  read-only planner handoff for the 12-path shared factory/linkage staged root
+  drift: restates the supplied evidence snapshot (timestamp, session, root HEAD,
+  staged-only status, customer path list), preserves staged state, and will
+  classify ownership, operator recommendations, shared test drift, and planner
+  resume action in later stories. Customer paths are fixed constants; use
+  `--status-output` fixture for verification without mutating root git state.
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 * `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` — read-only
@@ -74,6 +81,7 @@ watchdog summaries, or planner-facing linkage reports.
 | Terminal or near-terminal lane landing audit against main | `bun run report:terminal-lane-main-branch-landing-audit` |
 | Root checkout reconciliation against HEAD and origin/main | `bun run report:planner-root-checkout-reconciliation` |
 | Latent diffusion root deletion landed-evidence verification | `bun run report:planner-latent-diffusion-root-deletion-reconciliation` |
+| Shared factory/linkage staged root drift handoff | `bun run report:planner-shared-factory-linkage-root-staged-drift-handoff` |
 
 Direct script paths remain supported for fixture-driven tests:
 
@@ -82,6 +90,7 @@ Direct script paths remain supported for fixture-driven tests:
 * `bun ./scripts/report-terminal-lane-main-branch-landing-audit.ts`
 * `bun ./scripts/report-planner-root-checkout-reconciliation.ts`
 * `bun ./scripts/report-planner-latent-diffusion-root-deletion-reconciliation.ts`
+* `bun ./scripts/report-planner-shared-factory-linkage-root-staged-drift-handoff.ts`
 
 ## Classification contract
 
@@ -125,6 +134,9 @@ inventory checks. Supported fixture flags:
   (`mixed-dirty-status.txt`, `tokenizer-mismatch-dirty-status.txt`,
   `manual-inspection-shared-edits-dirty-status.txt`,
   `table-registry-drift-dirty-status.txt`)
+* `--status-output` for shared factory/linkage staged drift fixture status
+  porcelain (`staged-drift-evidence-status.txt` under
+  `src/tests/fixtures/planner-shared-factory-linkage-root-staged-drift-handoff/`)
 * `--session` for live `you work list` discovery in integration-style tests
 
 Representative regression coverage lives in

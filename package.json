@@ -47,6 +47,7 @@
     "report:planner-worktree-drift-watchdog": "bun ./scripts/report-planner-worktree-drift-watchdog.ts",
     "report:planner-root-checkout-reconciliation": "bun ./scripts/report-planner-root-checkout-reconciliation.ts",
     "report:planner-latent-diffusion-root-deletion-reconciliation": "bun ./scripts/report-planner-latent-diffusion-root-deletion-reconciliation.ts",
+    "report:planner-shared-factory-linkage-root-staged-drift-handoff": "bun ./scripts/report-planner-shared-factory-linkage-root-staged-drift-handoff.ts",
     "cleanup:merged-worktrees": "bash ./scripts/cleanup-merged-worktrees.sh",
     "report:planner-conflict-hotspots": "bun ./scripts/report-planner-conflict-hotspots.ts",
     "report:planner-batch-collision-preflight": "bun ./scripts/report-planner-batch-collision-preflight.ts",

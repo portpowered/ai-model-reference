@@ -1,0 +1,12 @@
+M  docs/internal/processes/factory-linkage-relevant-files.md
+D  docs/internal/processes/tokens-per-second-stale-pr-follow-up-relevant-files.md
+M  src/lib/factory/active-pr-mergeability-watchdog.test.ts
+M  src/lib/factory/active-pr-mergeability-watchdog.ts
+D  src/lib/factory/planner-batch-collision-preflight.test.ts
+M  src/lib/factory/planner-worktree-drift-watchdog.test.ts
+M  src/lib/factory/queue-worktree-pr-linkage-ledger.test.ts
+M  src/lib/factory/queue-worktree-pr-linkage-ledger.ts
+M  src/tests/discovery/linkage-classifier-report-compatibility.test.ts
+M  src/tests/discovery/planner-live-queue-snapshot-alignment.test.ts
+M  src/tests/discovery/queue-worktree-pr-linkage-ledger.test.ts
+M  src/tests/discovery/tokens-per-second-stale-pr-follow-up-compatibility.test.ts
