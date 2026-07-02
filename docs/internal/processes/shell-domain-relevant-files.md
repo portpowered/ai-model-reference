@@ -14,7 +14,7 @@ or shell fixture proofs that must stay independent from AI registry helpers.
 * `src/lib/navigation/shell-collection-page-tree.ts`
   Generic sidebar/page-tree builder with optional grouping resolvers.
 * `src/lib/navigation/ai-docs-sidebar-adapter.ts`
-  Model Atlas-owned shell sidebar labels and adapter helpers for AI docs collections.
+  Model Atlas-owned shell sidebar labels, grouping resolvers, and adapter helpers for AI docs collections.
 * `src/lib/navigation/generated-docs-page-tree.ts`
   AI docs page tree; delegates to `buildShellCollectionPageTree`.
 * `src/app/(site)/site-renderers.tsx`

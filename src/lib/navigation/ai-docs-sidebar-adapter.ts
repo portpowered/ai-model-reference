@@ -1,9 +1,16 @@
-import type {
-  DocsCollectionDefinition,
-  DocsCollectionId,
+import type { DocsPageSource } from "@/lib/content/pages";
+import {
+  DOCS_COLLECTION_SIDEBAR_GROUPING_RESOLVER_IDS,
+  type DocsCollectionDefinition,
+  type DocsCollectionId,
+  type DocsCollectionSidebarGroupingResolverId,
 } from "@/lib/docs/collection-definition-contract";
 import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
-import type { ShellCollectionSidebarDefinition } from "@/lib/navigation/shell-collection-page-tree";
+import { buildGroupedSidebarNodes } from "@/lib/navigation/docs-sidebar-grouping-adapter";
+import type {
+  ShellCollectionSidebarDefinition,
+  ShellSidebarGroupingResolver,
+} from "@/lib/navigation/shell-collection-page-tree";
 
 const AI_SIDEBAR_FOLDER_LABELS: Record<DocsCollectionId, string> = {
   glossary: "Glossary",
@@ -33,4 +40,23 @@ export function toAiDocsShellSidebarDefinition(
 
 export function listAiDocsShellSidebarDefinitions(): ShellCollectionSidebarDefinition[] {
   return listDocsCollectionDefinitions().map(toAiDocsShellSidebarDefinition);
+}
+
+function createAiDocsGroupingResolver(
+  resolverId: DocsCollectionSidebarGroupingResolverId,
+): ShellSidebarGroupingResolver {
+  return (pages) =>
+    buildGroupedSidebarNodes(resolverId, pages as DocsPageSource[]);
+}
+
+export function getAiDocsShellSidebarGroupingResolvers(): Record<
+  string,
+  ShellSidebarGroupingResolver
+> {
+  return Object.fromEntries(
+    DOCS_COLLECTION_SIDEBAR_GROUPING_RESOLVER_IDS.map((resolverId) => [
+      resolverId,
+      createAiDocsGroupingResolver(resolverId),
+    ]),
+  );
 }

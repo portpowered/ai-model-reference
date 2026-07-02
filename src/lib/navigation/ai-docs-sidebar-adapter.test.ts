@@ -1,7 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { DOCS_COLLECTION_IDS } from "@/lib/docs/collection-definition-contract";
+import type { Node } from "fumadocs-core/page-tree";
+import { loadPublishedDocsPagesSync } from "@/lib/content/pages";
+import {
+  DOCS_COLLECTION_IDS,
+  DOCS_COLLECTION_SIDEBAR_GROUPING_RESOLVER_IDS,
+} from "@/lib/docs/collection-definition-contract";
 import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
 import {
+  getAiDocsShellSidebarGroupingResolvers,
   listAiDocsShellSidebarDefinitions,
   resolveAiDocsSidebarFolderLabel,
 } from "@/lib/navigation/ai-docs-sidebar-adapter";
@@ -15,6 +21,12 @@ const EXPECTED_AI_SIDEBAR_FOLDER_LABELS = [
   "Training",
   "Systems",
 ] as const;
+
+function getSeparatorLabels(nodes: Node[]): string[] {
+  return nodes
+    .filter((node) => node.type === "separator")
+    .map((node) => String(node.name));
+}
 
 describe("AI docs sidebar adapter", () => {
   test("exposes shell sidebar definitions in configured collection order", () => {
@@ -46,6 +58,35 @@ describe("AI docs sidebar adapter", () => {
       expect(definition.sidebarLabel).toBe(
         resolveAiDocsSidebarFolderLabel(sourceDefinition.id),
       );
+    }
+  });
+
+  test("exposes grouping resolvers for grouped collections only", () => {
+    const resolvers = getAiDocsShellSidebarGroupingResolvers();
+
+    expect(Object.keys(resolvers).sort()).toEqual(
+      [...DOCS_COLLECTION_SIDEBAR_GROUPING_RESOLVER_IDS].sort(),
+    );
+    expect(resolvers.models).toBeUndefined();
+    expect(resolvers.papers).toBeUndefined();
+  });
+
+  test("grouping resolvers produce separator labels for configured collections", () => {
+    const resolvers = getAiDocsShellSidebarGroupingResolvers();
+
+    for (const definition of listDocsCollectionDefinitions()) {
+      const resolverId = definition.sidebarGroupingResolverId;
+      if (!resolverId) {
+        continue;
+      }
+
+      const pages = loadPublishedDocsPagesSync("en").filter((page) =>
+        page.docsSlug.startsWith(`${definition.routeSlug}/`),
+      );
+      const nodes = resolvers[resolverId]?.(pages) ?? [];
+
+      expect(nodes.length).toBeGreaterThan(0);
+      expect(getSeparatorLabels(nodes).length).toBeGreaterThan(0);
     }
   });
 });
