@@ -53,7 +53,7 @@ describe("roofline throughput explorer viewport probes", () => {
       );
       const failure = await verifyRooflineThroughputExplorerViewports(html);
 
-      expect(failure).toBeNull(failure ?? undefined);
+      expect(failure).toBeNull();
     },
     { timeout: ROOFLINE_BLOG_VIEWPORT_PROBE_TIMEOUT_MS },
   );
