@@ -172,3 +172,63 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T20:42Z UTC).
+
+## Story 002 — per-row outcome classification
+
+Captured 2026-07-02T20:46Z UTC. Classifications use evidence from story 001 plus
+fresh read-only queue lookups for subsidiary drain tokens; no queue rows, page
+content, registry content, root work, or worktree files were mutated during
+classification.
+
+### Classification rules applied
+
+| Outcome | When selected |
+| --- | --- |
+| **consume** | PR merged on current `origin/main`; row is a stale drain/handoff idea whose purpose is fulfilled; primary implementation and review are already terminal-complete; no active implementation or review would be skipped. |
+| **complete** | Row is finished but requires an explicit terminal completion transition (`idea:to-complete` + `task:to-complete` pairing or equivalent valid move). |
+| **no-op** | Primary content trace already terminal; unfinished implementation or review; row/PR mismatch; missing queue row; missing evidence; or unsafe root/worktree state. |
+
+### Selected outcome per named row
+
+| Work item | PR | Observed queue state | Observed PR state | Outcome | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| `block-sparse-attention-module-page` | #287 | Primary trace `trace-tokenizer-and-attention-refill-batch-064`: idea/plan/review/task all `complete` / TERMINAL; separate `block-sparse-attention-pr287-clean-drain` idea at `init` / INITIAL on trace `trace-fresh-pr-drain-and-conflict-refresh-batch-073` (see subsidiary table) | MERGED (`b5716eff` on `origin/main`) | **no-op** (primary lane) | Primary content lane already terminal-complete with merged PR truth; stale drain idea on a separate trace is classified below and is not inferred closed from PR merge alone. |
+| `byte-level-tokenization-page` | #289 | Primary trace `trace-tokenizer-and-attention-refill-batch-064`: all tokens `complete` / TERMINAL; conflict-refresh drain trace `trace-fresh-pr-drain-and-conflict-refresh-batch-073` also terminal-complete | MERGED (`2d0b21c4` on `origin/main`) | **no-op** | Primary content lane and `byte-level-tokenization-pr289-conflict-refresh` drain trace are both terminal-complete; PR merge agrees with queue; no separate stale drain ideas remain at `init` / INITIAL. |
+| `pr-surface-module-linked-support-records` | #291 | Zero queue rows in session `930b51a6-07ce-44e6-a639-7a6217f6e864` for this work item name; no worktree under `.claude/worktrees/` | MERGED (`5cc5f1a4` on `origin/main`) | **no-op** | **missing-queue-row**: throughput/factory PR merged without a content-lane queue token; queue closure cannot be inferred from PR merge status alone and no consume/complete transition applies to a non-existent row. |
+
+No row received a **complete** classification: none of the three named work items
+sit in a non-terminal `to-complete` / PROCESSING pairing that still requires a
+valid terminal completion transition.
+
+### `block-sparse-attention-module-page` subsidiary stale token (explicit)
+
+Story 001 required explicit classification of the separate `init` / INITIAL drain
+idea returned by `you work list --name block-sparse-attention-pr287-clean-drain`.
+This is not the primary content lane but is a stale drain row tied to PR #287.
+
+| Work id | Trace | Observed state | Outcome | Evidence |
+| --- | --- | --- | --- | --- |
+| `batch-fresh-pr-drain-and-conflict-refresh-batch-073-block-sparse-attention-pr287-clean-drain` | `trace-fresh-pr-drain-and-conflict-refresh-batch-073` | `init` / INITIAL | **consume** | PR #287 merged on `origin/main`; primary `block-sparse-attention-module-page` implementation and review are terminal-complete; drain idea scoped to green-PR merge/consume handoff is fulfilled and safe to consume without skipping unfinished work. |
+
+### Classification summary
+
+| Outcome | Count | Targets |
+| --- | --- | --- |
+| **no-op** (primary lanes) | 3 | All three named work items — primary traces already terminal or no queue row |
+| **consume** | 1 | `block-sparse-attention-pr287-clean-drain` subsidiary stale drain idea |
+| **complete** | 0 | — |
+
+Stories 003–005 execute handoffs for the consume, complete, and no-op targets
+respectively. This lane (`newly-merged-pr-rows-287-289-291-reconciliation`)
+remains in `to-complete` / PROCESSING until those handoffs finish.
+
+## Quality gate (story 002)
+
+Handoff-only classification; no page content, registry content, root work,
+worktree files, queue rows, staging area, or branch history were changed.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T20:46Z UTC).
