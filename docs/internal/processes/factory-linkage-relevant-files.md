@@ -46,10 +46,14 @@ watchdog summaries, or planner-facing linkage reports.
 * `src/lib/factory/planner-shared-factory-linkage-root-staged-drift-handoff.ts` —
   read-only planner handoff for the 12-path shared factory/linkage staged root
   drift: restates the supplied evidence snapshot (timestamp, session, root HEAD,
-  staged-only status, customer path list), preserves staged state, and will
-  classify ownership, operator recommendations, shared test drift, and planner
-  resume action in later stories. Customer paths are fixed constants; use
-  `--status-output` fixture for verification without mutating root git state.
+  staged-only status, customer path list), classifies each path as
+  `active-lane-owned`, `represented-by-PR`, `safe-operator-handoff`, or
+  `unresolved-hold` with observable evidence, preserves staged state, and will
+  emit operator recommendations, shared test drift, and planner resume action in
+  later stories. Customer paths are fixed constants; remote-present deletion
+  paths are classified as ownerless root checkout drift with
+  `present-on-origin-main` evidence; use `--status-output` fixture for
+  verification without mutating root git state.
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 * `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` — read-only

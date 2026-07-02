@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import {
-  buildSharedFactoryLinkageStagedDriftEvidenceSnapshot,
-  formatSharedFactoryLinkageStagedDriftEvidenceSnapshot,
+  buildSharedFactoryLinkageOwnershipClassificationReport,
+  formatSharedFactoryLinkageOwnershipClassificationReport,
   serializeSharedFactoryLinkageStagedDriftEvidenceSnapshot,
 } from "../src/lib/factory/planner-shared-factory-linkage-root-staged-drift-handoff";
 
@@ -33,12 +33,12 @@ const statusOutput = statusOutputPath
   ? readOptionalFile(statusOutputPath, "status output")
   : undefined;
 
-const snapshot = buildSharedFactoryLinkageStagedDriftEvidenceSnapshot({
+const report = buildSharedFactoryLinkageOwnershipClassificationReport({
   statusOutput,
 });
 
 process.stdout.write(
   isJsonOutputRequested(process.argv)
-    ? `${serializeSharedFactoryLinkageStagedDriftEvidenceSnapshot(snapshot)}\n`
-    : `${formatSharedFactoryLinkageStagedDriftEvidenceSnapshot(snapshot)}\n`,
+    ? `${serializeSharedFactoryLinkageStagedDriftEvidenceSnapshot(report.snapshot)}\n`
+    : `${formatSharedFactoryLinkageOwnershipClassificationReport(report)}\n`,
 );

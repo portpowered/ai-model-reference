@@ -40,6 +40,12 @@ describe("planner-shared-factory-linkage-root-staged-drift-handoff script", () =
     expect(result.stdout).toContain(
       "read-only-policy This lane is read-only and must not mutate",
     );
+    expect(result.stdout).toContain("- path-classifications count=12");
+    expect(result.stdout).toContain("disposition=safe-operator-handoff");
+    expect(result.stdout).toContain("disposition=unresolved-hold");
+    expect(result.stdout).toContain(
+      "ownerless-root-checkout-drift;present-on-origin-main;no-active-or-merged-lane-claim",
+    );
     for (const path of SHARED_FACTORY_LINKAGE_CUSTOMER_SUPPLIED_DIRTY_PATHS) {
       expect(result.stdout).toContain(`path=${path}`);
     }

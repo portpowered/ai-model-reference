@@ -1,4 +1,5 @@
 import type { PlannerWorktreeDriftChangeKind } from "./planner-worktree-drift-watchdog";
+import { pathExistsOnGitRef } from "./planner-root-checkout-reconciliation";
 
 export const SHARED_FACTORY_LINKAGE_ROOT_STAGED_DRIFT_HANDOFF_HEADER =
   "Shared Factory Linkage Root Staged Drift Handoff";
@@ -17,6 +18,79 @@ export const SHARED_FACTORY_LINKAGE_READ_ONLY_POLICY =
 
 export const SHARED_FACTORY_LINKAGE_LATENT_DIFFUSION_RECONCILIATION_LANE =
   "latent-diffusion-root-deletion-reconciliation";
+
+export const SHARED_FACTORY_LINKAGE_REMOTE_BASE_REF = "origin/main";
+
+export const SHARED_FACTORY_LINKAGE_EVIDENCE_OWNERLESS_ROOT_CHECKOUT_DRIFT =
+  "ownerless-root-checkout-drift";
+
+export const SHARED_FACTORY_LINKAGE_EVIDENCE_PRESENT_ON_ORIGIN_MAIN =
+  "present-on-origin-main";
+
+export const SHARED_FACTORY_LINKAGE_EVIDENCE_NO_ACTIVE_OR_MERGED_LANE_CLAIM =
+  "no-active-or-merged-lane-claim";
+
+export const SHARED_FACTORY_LINKAGE_EVIDENCE_OWNERLESS_ROOT_DIRTY_PATH =
+  "ownerless-root-dirty-path";
+
+export const SHARED_FACTORY_LINKAGE_EVIDENCE_ROOT_UNMATCHED = "root-unmatched";
+
+export const SHARED_FACTORY_LINKAGE_EVIDENCE_NON_DELETION_DIRTY_PATH =
+  "non-deletion-dirty-path";
+
+export const SHARED_FACTORY_LINKAGE_EVIDENCE_MANUAL_INSPECTION_REQUIRED =
+  "manual-inspection-required";
+
+export const SHARED_FACTORY_LINKAGE_REMOTE_PRESENT_DELETION_PATHS = [
+  "docs/internal/processes/tokens-per-second-stale-pr-follow-up-relevant-files.md",
+  "src/lib/factory/planner-batch-collision-preflight.test.ts",
+] as const;
+
+export type SharedFactoryLinkagePathDisposition =
+  | "active-lane-owned"
+  | "represented-by-PR"
+  | "safe-operator-handoff"
+  | "unresolved-hold";
+
+export interface SharedFactoryLinkagePathClassification {
+  changeKind: PlannerWorktreeDriftChangeKind;
+  disposition: SharedFactoryLinkagePathDisposition;
+  evidence: string[];
+  path: string;
+  statusCode: string;
+}
+
+export interface SharedFactoryLinkageOwnershipClassificationReport {
+  generatedAtUtc: string;
+  pathClassifications: SharedFactoryLinkagePathClassification[];
+  remoteBaseRef: string;
+  snapshot: SharedFactoryLinkageStagedDriftEvidenceSnapshot;
+}
+
+export interface ClassifySharedFactoryLinkageStagedPathsOptions {
+  remotePresentDeletionPaths?: readonly string[];
+  remoteBaseRef?: string;
+  repoRoot?: string;
+  runGit?: (
+    repoRoot: string,
+    args: readonly string[],
+  ) => {
+    status: number | null;
+    stdout: string;
+    stderr: string;
+  };
+  stagedPathEvidence: SharedFactoryLinkageStagedPathEvidence[];
+  verifyRemotePresentDeletions?: boolean;
+}
+
+export interface BuildSharedFactoryLinkageOwnershipClassificationReportOptions
+  extends BuildSharedFactoryLinkageStagedDriftEvidenceSnapshotOptions {
+  classifyOptions?: Omit<
+    ClassifySharedFactoryLinkageStagedPathsOptions,
+    "stagedPathEvidence"
+  >;
+  generatedAtUtc?: string;
+}
 
 export const SHARED_FACTORY_LINKAGE_CUSTOMER_SUPPLIED_DIRTY_PATHS = [
   "docs/internal/processes/factory-linkage-relevant-files.md",
@@ -231,6 +305,160 @@ export function buildSharedFactoryLinkageStagedDriftEvidenceSnapshot(
       SHARED_FACTORY_LINKAGE_CUSTOMER_SUPPLIED_DIRTY_PATHS.length,
     stagedPathEvidence: parsedStatus.stagedPathEvidence,
   };
+}
+
+function isSharedFactoryLinkageRemotePresentDeletionPath(
+  path: string,
+  remotePresentDeletionPaths: ReadonlySet<string>,
+): boolean {
+  return remotePresentDeletionPaths.has(path);
+}
+
+function buildRemotePresentDeletionEvidence(
+  path: string,
+  remoteBaseRef: string,
+  options: ClassifySharedFactoryLinkageStagedPathsOptions,
+): string[] {
+  const evidence = [
+    SHARED_FACTORY_LINKAGE_EVIDENCE_OWNERLESS_ROOT_CHECKOUT_DRIFT,
+    SHARED_FACTORY_LINKAGE_EVIDENCE_PRESENT_ON_ORIGIN_MAIN,
+    SHARED_FACTORY_LINKAGE_EVIDENCE_NO_ACTIVE_OR_MERGED_LANE_CLAIM,
+  ];
+
+  if (
+    options.verifyRemotePresentDeletions &&
+    options.repoRoot &&
+    options.runGit
+  ) {
+    const remotePresent = pathExistsOnGitRef(
+      options.repoRoot,
+      remoteBaseRef,
+      path,
+      options.runGit,
+    );
+    evidence.push(
+      remotePresent
+        ? `verified-present-on-${remoteBaseRef}=true`
+        : `verified-present-on-${remoteBaseRef}=false`,
+    );
+  }
+
+  return evidence;
+}
+
+function buildModifiedPathClassificationEvidence(): string[] {
+  return [
+    SHARED_FACTORY_LINKAGE_EVIDENCE_OWNERLESS_ROOT_DIRTY_PATH,
+    SHARED_FACTORY_LINKAGE_EVIDENCE_ROOT_UNMATCHED,
+    SHARED_FACTORY_LINKAGE_EVIDENCE_NON_DELETION_DIRTY_PATH,
+    SHARED_FACTORY_LINKAGE_EVIDENCE_NO_ACTIVE_OR_MERGED_LANE_CLAIM,
+    SHARED_FACTORY_LINKAGE_EVIDENCE_MANUAL_INSPECTION_REQUIRED,
+  ];
+}
+
+export function classifySharedFactoryLinkageStagedPaths(
+  options: ClassifySharedFactoryLinkageStagedPathsOptions,
+): SharedFactoryLinkagePathClassification[] {
+  const remoteBaseRef =
+    options.remoteBaseRef ?? SHARED_FACTORY_LINKAGE_REMOTE_BASE_REF;
+  const remotePresentDeletionPaths = new Set(
+    options.remotePresentDeletionPaths ??
+      SHARED_FACTORY_LINKAGE_REMOTE_PRESENT_DELETION_PATHS,
+  );
+
+  return options.stagedPathEvidence.map((entry) => {
+    if (
+      entry.changeKind === "deleted" &&
+      isSharedFactoryLinkageRemotePresentDeletionPath(
+        entry.path,
+        remotePresentDeletionPaths,
+      )
+    ) {
+      return {
+        changeKind: entry.changeKind,
+        disposition: "safe-operator-handoff",
+        evidence: buildRemotePresentDeletionEvidence(
+          entry.path,
+          remoteBaseRef,
+          options,
+        ),
+        path: entry.path,
+        statusCode: entry.statusCode,
+      };
+    }
+
+    return {
+      changeKind: entry.changeKind,
+      disposition: "unresolved-hold",
+      evidence: buildModifiedPathClassificationEvidence(),
+      path: entry.path,
+      statusCode: entry.statusCode,
+    };
+  });
+}
+
+export function buildSharedFactoryLinkageOwnershipClassificationReport(
+  options: BuildSharedFactoryLinkageOwnershipClassificationReportOptions = {},
+): SharedFactoryLinkageOwnershipClassificationReport {
+  const snapshot = buildSharedFactoryLinkageStagedDriftEvidenceSnapshot(options);
+  const generatedAtUtc = options.generatedAtUtc ?? snapshot.generatedAtUtc;
+  const pathClassifications = classifySharedFactoryLinkageStagedPaths({
+    ...options.classifyOptions,
+    stagedPathEvidence: snapshot.stagedPathEvidence,
+  });
+
+  if (
+    pathClassifications.length !==
+    SHARED_FACTORY_LINKAGE_CUSTOMER_SUPPLIED_DIRTY_PATHS.length
+  ) {
+    throw new Error(
+      `Expected ${SHARED_FACTORY_LINKAGE_CUSTOMER_SUPPLIED_DIRTY_PATHS.length} path classifications, found ${pathClassifications.length}.`,
+    );
+  }
+
+  return {
+    generatedAtUtc,
+    pathClassifications,
+    remoteBaseRef:
+      options.classifyOptions?.remoteBaseRef ??
+      SHARED_FACTORY_LINKAGE_REMOTE_BASE_REF,
+    snapshot,
+  };
+}
+
+function formatPathClassificationLine(
+  classification: SharedFactoryLinkagePathClassification,
+): string {
+  return `    - path=${classification.path} disposition=${classification.disposition} change=${classification.changeKind} status=${classification.statusCode.trim()} evidence=${classification.evidence.join(";")}`;
+}
+
+export function formatSharedFactoryLinkagePathClassifications(
+  pathClassifications: SharedFactoryLinkagePathClassification[],
+): string {
+  const lines = [
+    `- path-classifications count=${pathClassifications.length}`,
+  ];
+
+  if (pathClassifications.length === 0) {
+    lines.push("    - none");
+  } else {
+    for (const classification of pathClassifications) {
+      lines.push(formatPathClassificationLine(classification));
+    }
+  }
+
+  return lines.join("\n");
+}
+
+export function formatSharedFactoryLinkageOwnershipClassificationReport(
+  report: SharedFactoryLinkageOwnershipClassificationReport,
+): string {
+  return [
+    formatSharedFactoryLinkageStagedDriftEvidenceSnapshot(report.snapshot),
+    formatSharedFactoryLinkagePathClassifications(report.pathClassifications),
+    `- remote-base-ref ${report.remoteBaseRef}`,
+    "- classification-note: deleted paths present on origin/main are ownerless root checkout drift; modified paths without lane ownership remain unresolved holds requiring manual inspection.",
+  ].join("\n");
 }
 
 function formatStagedPathEvidenceLine(
