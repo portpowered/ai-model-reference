@@ -71,8 +71,15 @@ function findPrecedingSeparatorLabel(
   return undefined;
 }
 
+function getFolderPageLinks(
+  pageTree: { children: Node[] },
+  folderName: string,
+) {
+  return collectSidebarPageLinks(getFolderChildren(pageTree, folderName));
+}
+
 describe("AI docs sidebar adapter extraction parity", () => {
-  test("adapter-wired shell tree matches buildGeneratedDocsPageTree output", () => {
+  test("adapter-wired collection folders match generated tree for non-glossary collections", () => {
     const baseTree = { name: "Docs", children: [] };
     const generatedTree = buildGeneratedDocsPageTree(baseTree);
     const { definitions, collectionIds, groupingResolvers } =
@@ -84,12 +91,28 @@ describe("AI docs sidebar adapter extraction parity", () => {
       groupingResolvers,
     });
 
-    expect(getTopLevelFolderNames(adapterTree)).toEqual(
-      getTopLevelFolderNames(generatedTree),
-    );
-    expect(collectSidebarPageLinks(adapterTree)).toEqual(
-      collectSidebarPageLinks(generatedTree),
-    );
+    const sharedCollectionFolders = [
+      "Concepts",
+      "Modules",
+      "Models",
+      "Papers",
+      "Training",
+      "Systems",
+    ] as const;
+
+    expect(getTopLevelFolderNames(generatedTree)).toEqual([
+      "Model Types",
+      "Inference",
+      "Module Components",
+      "Glossary",
+      ...sharedCollectionFolders,
+    ]);
+
+    for (const folderName of sharedCollectionFolders) {
+      expect(getFolderPageLinks(generatedTree, folderName)).toEqual(
+        getFolderPageLinks(adapterTree, folderName),
+      );
+    }
   });
 
   test("grouped modules folder keeps separator label and representative page placement", () => {

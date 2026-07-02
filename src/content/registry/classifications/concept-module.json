@@ -1,0 +1,26 @@
+{
+  "id": "classification.concept.module",
+  "slug": "concept-module",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "module concept",
+    "component concept",
+    "model component",
+    "neural network component"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "classification.module",
+    "concept.transformer-architecture",
+    "concept.activation"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["concept"],
+  "parentClassificationId": "classification.concept"
+}

@@ -23,6 +23,7 @@ import {
   pageFrontmatterSchema,
   pageMessagesSchema,
 } from "./schemas";
+import { validatePublishedGlossaryClassification } from "./validate-glossary-classification";
 import type { ValidationError } from "./validate-registry";
 import { parseYamlFrontmatterBlock } from "./yaml-frontmatter";
 
@@ -460,6 +461,7 @@ export async function validateDerivedPublishedPageBundles(
     errors.push(
       ...validateOrdinaryPublishedPageBundle(page, entry, indexes, locale),
     );
+    errors.push(...validatePublishedGlossaryClassification(page, indexes));
   }
 
   return errors;

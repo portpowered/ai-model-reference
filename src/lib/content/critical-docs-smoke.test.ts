@@ -8,6 +8,8 @@ import {
   CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PAGE_SEARCH_QUERIES,
   CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PROBES,
   CRITICAL_DOCS_SMOKE_RULES,
+  criticalDocsAutodiscoveryLoadTimeoutMs,
+  criticalDocsAutodiscoveryRenderTimeoutMs,
   deriveCriticalDocsSmokePages,
   loadCriticalDocsSmokePages,
   matchCriticalDocsSmokeRule,
@@ -142,6 +144,13 @@ describe("critical docs smoke contract", () => {
         tags: ["attention"],
       }),
     ).toBeNull();
+  });
+
+  test("scales autodiscovery smoke timeouts with discovered page count", () => {
+    expect(criticalDocsAutodiscoveryLoadTimeoutMs(37)).toBe(28_500);
+    expect(criticalDocsAutodiscoveryLoadTimeoutMs(1)).toBe(15_000);
+    expect(criticalDocsAutodiscoveryRenderTimeoutMs(37)).toBe(94_000);
+    expect(criticalDocsAutodiscoveryRenderTimeoutMs(1)).toBe(45_000);
   });
 
   test("autodiscovers representative critical canonical pages from published metadata", async () => {

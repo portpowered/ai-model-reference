@@ -105,12 +105,10 @@ describe("Phase 2 planned related docs (US-002)", () => {
     );
 
     expect(html).toContain('data-testid="derived-related-docs"');
-    expect(html).toContain(
-      'data-related-group="compatibility-same-concept-type"',
-    );
+    expect(html).toContain('data-related-group="classification-siblings"');
     expect(html).toContain("Transformers");
     expect(html).toContain('href="/docs/glossary/transformer"');
-    expect(html).toContain("Compatibility: same concept type");
+    expect(html).toContain("Same classification");
   });
 
   test("DerivedRelatedDocs still renders navigable links for published module peers", () => {

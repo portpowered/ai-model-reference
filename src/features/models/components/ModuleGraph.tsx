@@ -4,8 +4,8 @@ import { PageAsset } from "@/features/docs/components/PageAsset";
 import { usePageAssets } from "@/features/docs/components/page-assets-context";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
 import { AttentionVariantComparisonGraph } from "@/features/models/components/AttentionVariantComparisonGraph";
-import { buildModuleComputeFlowLegend } from "@/features/models/components/module-compute-flow-legend";
 import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
+import { buildRegistryGraphLegend } from "@/features/models/components/registry-graph-legend";
 import { lookupAsset, resolveAssetText } from "@/lib/content/assets";
 
 export function ModuleGraph({
@@ -35,8 +35,6 @@ export function ModuleGraph({
         defaultVariantId={asset.defaultVariantId}
         alt={text.alt}
         caption={text.caption}
-        title={assetMessages?.title}
-        legendMessages={assetMessages?.legend}
       />
     );
   }
@@ -52,10 +50,7 @@ export function ModuleGraph({
       alt={text.alt}
       caption={text.caption}
       title={assetMessages?.title}
-      legend={buildModuleComputeFlowLegend(
-        asset.graphId,
-        assetMessages?.legend,
-      )}
+      legend={buildRegistryGraphLegend(asset.graphId, assetMessages?.legend)}
     />
   );
 }

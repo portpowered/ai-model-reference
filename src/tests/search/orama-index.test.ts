@@ -305,7 +305,7 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "positional interpolation", url: POSITIONAL_INTERPOLATION_URL },
     { query: "feed-forward network", url: FEED_FORWARD_NETWORK_URL },
     { query: "standard FFN", url: STANDARD_FFN_URL },
-    { query: "normalization", url: NORMALIZATION_URL },
+    { query: "normalization glossary", url: NORMALIZATION_URL },
     { query: "layer norm", url: LAYER_NORM_URL },
     { query: "batch norm", url: BATCH_NORM_URL },
     { query: "group norm", url: GROUP_NORM_URL },

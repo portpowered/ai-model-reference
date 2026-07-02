@@ -317,6 +317,10 @@ const taxonomyExpectationPrefixes: Array<{
     expectation: { field: "moduleType", expectedValue: "other" },
   },
   {
+    classificationIdPrefix: "classification.module.state-space",
+    expectation: { field: "moduleType", expectedValue: "state-space" },
+  },
+  {
     classificationIdPrefix: "classification.concept.architecture",
     expectation: { field: "conceptType", expectedValue: "architecture" },
   },

@@ -5,8 +5,8 @@ import { useMemo, useState } from "react";
 import type { z } from "zod";
 import { MissingMessageKey } from "@/features/docs/components/MissingMessageKey";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
-import { buildModuleComputeFlowLegend } from "@/features/models/components/module-compute-flow-legend";
 import { RegistryGraphFlowCanvas } from "@/features/models/components/RegistryGraphFlow";
+import { buildRegistryGraphLegend } from "@/features/models/components/registry-graph-legend";
 import { lookupMessage } from "@/lib/content/messages";
 import type {
   attentionVariantGraphVariantSchema,
@@ -35,8 +35,6 @@ export function AttentionVariantComparisonGraph({
   defaultVariantId,
   alt,
   caption,
-  title,
-  legendMessages,
   isDev = false,
 }: {
   assetId: string;
@@ -44,8 +42,6 @@ export function AttentionVariantComparisonGraph({
   defaultVariantId: string;
   alt?: string;
   caption?: string;
-  title?: string;
-  legendMessages?: Record<string, { label: string }>;
   isDev?: boolean;
 }) {
   const { messages } = usePageMessages();
@@ -78,9 +74,11 @@ export function AttentionVariantComparisonGraph({
   }
 
   const accessibleLabel = alt ?? "Variant comparison graph";
-  const legend = buildModuleComputeFlowLegend(
+  const assetMessages = messages.assets?.[assetId];
+  const title = assetMessages?.title;
+  const legend = buildRegistryGraphLegend(
     activeVariant.graphId,
-    legendMessages,
+    assetMessages?.legend,
   );
 
   return (
@@ -94,7 +92,7 @@ export function AttentionVariantComparisonGraph({
     >
       {title ? (
         <div
-          className="mb-3 text-center text-sm font-semibold tracking-[0.16em] text-muted-foreground uppercase"
+          className="order-0 mb-3 text-center text-sm font-semibold tracking-[0.16em] text-muted-foreground uppercase"
           data-graph-title={activeVariant.graphId}
         >
           {title}
@@ -140,8 +138,7 @@ export function AttentionVariantComparisonGraph({
           {legend.map((item) => (
             <div key={item.label} className="flex items-center gap-2">
               <span
-                aria-hidden="true"
-                className="inline-block h-2.5 w-2.5 rounded-full"
+                className="size-2.5 shrink-0 rounded-full"
                 style={{ backgroundColor: item.color }}
               />
               <span>{item.label}</span>
@@ -149,7 +146,7 @@ export function AttentionVariantComparisonGraph({
           ))}
         </div>
       ) : null}
-      {caption ? <figcaption>{caption}</figcaption> : null}
+      {caption ? <figcaption className="order-4">{caption}</figcaption> : null}
     </figure>
   );
 }

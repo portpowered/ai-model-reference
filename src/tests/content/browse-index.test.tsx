@@ -12,8 +12,11 @@ const BROWSE_QUICK_ROUTE_HREFS = [
 
 const BROWSE_COLLECTION_SECTION_LABELS = [
   "Models",
+  "Model Types",
   "Modules",
+  "Module Components",
   "Concepts",
+  "Inference",
   "Papers",
   "Training",
   "Systems",
@@ -22,8 +25,11 @@ const BROWSE_COLLECTION_SECTION_LABELS = [
 
 const BROWSE_REPRESENTATIVE_STARTER_HREFS = [
   "/docs/models/gpt-3",
+  "/docs/glossary/world-model",
   "/docs/modules/grouped-query-attention",
+  "/docs/glossary/softmax",
   "/docs/concepts/transformer-architecture",
+  "/docs/glossary/temperature",
   "/docs/papers/deepseek-v4",
   "/docs/training/on-policy-distillation",
   "/docs/systems/deployment",
@@ -32,8 +38,11 @@ const BROWSE_REPRESENTATIVE_STARTER_HREFS = [
 
 const BROWSE_COLLECTION_SECTION_HEADING_IDS = [
   "models-heading",
+  "model-types-heading",
   "modules-heading",
+  "module-components-heading",
   "concepts-heading",
+  "inference-heading",
   "papers-heading",
   "training-heading",
   "systems-heading",

@@ -19,6 +19,7 @@ const TOUCHED_RECORD_IDS = [
   "paper.nemotron-3-super",
   "organization.nvidia",
   "module.mixture-of-experts",
+  "module.mamba-selective-state-space",
   "concept.context-window",
   "system.routing",
   "system.inference-engine",
@@ -33,7 +34,10 @@ describe("nemotron 3 super registry relationships", () => {
     expect(model?.slug).toBe("nemotron-3-super");
     expect(model?.organizationId).toBe("organization.nvidia");
     expect(model?.paperIds).toEqual(["paper.nemotron-3-super"]);
-    expect(model?.moduleIds).toEqual(["module.mixture-of-experts"]);
+    expect(model?.moduleIds).toEqual([
+      "module.mixture-of-experts",
+      "module.mamba-selective-state-space",
+    ]);
     expect(model?.architectureIds).toEqual([
       "concept.transformer-architecture",
       "concept.context-extension",
@@ -52,6 +56,7 @@ describe("nemotron 3 super registry relationships", () => {
       "paper.nemotron-3-super",
       "organization.nvidia",
       "module.mixture-of-experts",
+      "module.mamba-selective-state-space",
       "concept.context-window",
       "concept.context-extension",
       "concept.transformer-architecture",
@@ -112,6 +117,11 @@ describe("nemotron 3 super registry relationships", () => {
       items.find((item) => item.registryId === "module.mixture-of-experts")
         ?.href,
     ).toBe("/docs/modules/mixture-of-experts");
+    expect(
+      items.find(
+        (item) => item.registryId === "module.mamba-selective-state-space",
+      )?.href,
+    ).toBe("/docs/modules/mamba-selective-state-space");
     expect(
       items.find((item) => item.registryId === "concept.context-window")?.href,
     ).toBe("/docs/glossary/context-window");

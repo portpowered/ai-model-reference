@@ -15,6 +15,7 @@
     "paper.nemotron-3-super",
     "organization.nvidia",
     "module.mixture-of-experts",
+    "module.mamba-selective-state-space",
     "concept.context-window",
     "concept.context-extension",
     "concept.transformer-architecture",
@@ -42,7 +43,10 @@
     "concept.transformer-architecture",
     "concept.context-extension"
   ],
-  "moduleIds": ["module.mixture-of-experts"],
+  "moduleIds": [
+    "module.mixture-of-experts",
+    "module.mamba-selective-state-space"
+  ],
   "trainingRegimeIds": [],
   "datasetIds": [],
   "paperIds": ["paper.nemotron-3-super"],

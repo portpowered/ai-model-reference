@@ -1,0 +1,25 @@
+{
+  "id": "citation.mamba-selective-state-space-paper",
+  "slug": "mamba-selective-state-space-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Mamba paper",
+    "Mamba: Linear-Time Sequence Modeling with Selective State Spaces",
+    "selective state space paper",
+    "selective SSM paper"
+  ],
+  "tags": ["state-space"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Albert Gu", "Tri Dao"],
+  "title": "Mamba: Linear-Time Sequence Modeling with Selective State Spaces",
+  "year": 2023,
+  "url": "https://arxiv.org/abs/2312.00752",
+  "mla": "Gu, Albert, and Tri Dao. \"Mamba: Linear-Time Sequence Modeling with Selective State Spaces.\" arXiv, 2023, https://arxiv.org/abs/2312.00752."
+}

@@ -5,16 +5,28 @@
     {
       "moduleId": "module.byte-level-tokenization",
       "titleKey": "tables.comparison.columns.byteLevel.title"
+    },
+    {
+      "moduleId": "module.bpe",
+      "titleKey": "tables.comparison.columns.bpe.title"
+    },
+    {
+      "moduleId": "module.wordpiece",
+      "titleKey": "tables.comparison.columns.wordpiece.title"
     }
   ],
   "dimensions": [
     {
-      "id": "baseUnit",
-      "labelKey": "tables.comparison.dimensions.baseUnit"
+      "id": "primaryRole",
+      "labelKey": "tables.comparison.dimensions.primaryRole"
     },
     {
-      "id": "coverageBehavior",
-      "labelKey": "tables.comparison.dimensions.coverageBehavior"
+      "id": "startingUnit",
+      "labelKey": "tables.comparison.dimensions.startingUnit"
+    },
+    {
+      "id": "pairsWithByteFallback",
+      "labelKey": "tables.comparison.dimensions.pairsWithByteFallback"
     },
     {
       "id": "mainTradeoff",
@@ -23,9 +35,22 @@
   ],
   "valueKeysByModuleId": {
     "module.byte-level-tokenization": {
-      "baseUnit": "tables.comparison.values.byteLevel.baseUnit",
-      "coverageBehavior": "tables.comparison.values.byteLevel.coverageBehavior",
+      "primaryRole": "tables.comparison.values.byteLevel.primaryRole",
+      "startingUnit": "tables.comparison.values.byteLevel.startingUnit",
+      "pairsWithByteFallback": "tables.comparison.values.byteLevel.pairsWithByteFallback",
       "mainTradeoff": "tables.comparison.values.byteLevel.mainTradeoff"
+    },
+    "module.bpe": {
+      "primaryRole": "tables.comparison.values.bpe.primaryRole",
+      "startingUnit": "tables.comparison.values.bpe.startingUnit",
+      "pairsWithByteFallback": "tables.comparison.values.bpe.pairsWithByteFallback",
+      "mainTradeoff": "tables.comparison.values.bpe.mainTradeoff"
+    },
+    "module.wordpiece": {
+      "primaryRole": "tables.comparison.values.wordpiece.primaryRole",
+      "startingUnit": "tables.comparison.values.wordpiece.startingUnit",
+      "pairsWithByteFallback": "tables.comparison.values.wordpiece.pairsWithByteFallback",
+      "mainTradeoff": "tables.comparison.values.wordpiece.mainTradeoff"
     }
   }
 }

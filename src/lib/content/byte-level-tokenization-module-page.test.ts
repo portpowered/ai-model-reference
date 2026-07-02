@@ -9,10 +9,15 @@ import {
   validatePageAssetReferences,
 } from "@/lib/content/assets";
 import { BYTE_LEVEL_TOKENIZATION_PAGE_DIR } from "@/lib/content/content-paths";
-import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
+import {
+  expectGlossaryBodyOmitsTitleHeading,
+  expectHtmlToContainProse,
+} from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { getRegistryRecordById } from "@/lib/content/registry-runtime";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { getTableById } from "@/lib/content/table-registry-runtime";
 
 const pageDir = BYTE_LEVEL_TOKENIZATION_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
@@ -82,6 +87,138 @@ describe("loadModulePage byte-level-tokenization", () => {
     expect(html).toContain('data-math-schema="byteCoverage"');
     expect(html).toContain('data-math-schema="bytePairMerge"');
     expect(html).toContain('href="/docs/models/gpt-3"');
+  });
+});
+
+describe("byte-level-tokenization page coverage and tradeoffs (byte-level-tokenization-page-002)", () => {
+  test("opening summary defines byte-level tokenization before GPT-style references", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const summary = messages.openingSummary?.toLowerCase() ?? "";
+
+    expect(summary).toContain("byte-level tokenization");
+    expect(summary).toContain("utf-8");
+    expect(summary).toMatch(/emoji|code|mixed/);
+    expect(summary).toMatch(/word count|token count/);
+    expect(summary).not.toContain("gpt");
+  });
+
+  test("rendered page explains byte fallback coverage and tokenizer tradeoffs", async () => {
+    const page = await loadModulePage("byte-level-tokenization");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expectHtmlToContainProse(
+      html,
+      "Byte-level tokenization is a tokenizer design that treats text as byte data first.",
+    );
+    expect(html).toContain("emoji");
+    expect(html).toContain("mixed-script");
+    expect(html).toContain("word count");
+    expect(html).toContain("less readable");
+    expect(html).not.toContain("Reader Shortcut");
+
+    const definitionIndex = html
+      .toLowerCase()
+      .indexOf("treats text as byte data");
+    const gptReferenceIndex = html.toLowerCase().indexOf("gpt-style");
+    expect(definitionIndex).toBeGreaterThanOrEqual(0);
+    expect(gptReferenceIndex).toBeGreaterThan(definitionIndex);
+  });
+});
+
+describe("byte-level-tokenization BPE relationship (byte-level-tokenization-page-003)", () => {
+  test("comparison table contrasts byte fallback with BPE and nearby subword tokenizers", () => {
+    const table = getTableById("table.byte-level-tokenization-comparison");
+    expect(table?.columns.map((column) => column.moduleId)).toEqual([
+      "module.byte-level-tokenization",
+      "module.bpe",
+      "module.wordpiece",
+    ]);
+    expect(table?.dimensions.map((dimension) => dimension.id)).toEqual([
+      "primaryRole",
+      "startingUnit",
+      "pairsWithByteFallback",
+      "mainTradeoff",
+    ]);
+  });
+
+  test("rendered page explains byte fallback as the alphabet and BPE as the merge layer", async () => {
+    const page = await loadModulePage("byte-level-tokenization");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expectHtmlToContainProse(
+      html,
+      "Byte-level handling provides the fallback alphabet",
+    );
+    expect(html).toContain("BPE-style merge stage");
+    expect(html).toContain("often appears together with");
+    expect(html).toContain("rather than replacing");
+    expect(html).toContain("Bytes provide guaranteed coverage");
+    expect(html).toContain("provides compression into more reusable chunks");
+    expect(html).toContain(
+      'data-table-id="table.byte-level-tokenization-comparison"',
+    );
+    expect(html).toContain("BPE");
+    expect(html).toContain("WordPiece");
+    expect(html).toContain("Learned merge pass");
+    expect(html).toContain('data-math-schema="byteCoverage"');
+    expect(html).toContain('data-math-schema="bytePairMerge"');
+    expect(html).toContain('href="/docs/modules/bpe"');
+  });
+});
+
+describe("byte-level tokenization registry and related docs (byte-level-tokenization-page-004)", () => {
+  test("rendered page exposes curated related docs and GPT-2 citation links", async () => {
+    const page = await loadModulePage("byte-level-tokenization");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain('href="/docs/modules/bpe"');
+    expect(html).toContain('href="/docs/glossary/vocabulary-size"');
+    expect(html).toContain('href="/docs/models/gpt-3"');
+    expect(html).toContain('data-testid="citation-list"');
+    expect(html).toContain("Radford");
+    expect(html).toContain(
+      'href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf"',
+    );
+    expect(html).toContain('href="/tags/tokenization"');
+  });
+
+  test("published registry record stays bound to the canonical module page", () => {
+    const record = getRegistryRecordById("module.byte-level-tokenization");
+    expect(record?.kind).toBe("module");
+    if (record?.kind !== "module") {
+      throw new Error(
+        "expected module.byte-level-tokenization in registry runtime",
+      );
+    }
+
+    expect(record.slug).toBe("byte-level-tokenization");
+    expect(record.status).toBe("published");
+    expect(record.sourceId).toBe("citation.gpt-2-report");
   });
 });
 

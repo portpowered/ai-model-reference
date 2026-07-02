@@ -79,6 +79,44 @@ page-local but CI will require narrowly-scoped shared updates:
 Document the exception explicitly in the work-item PRD when this collision is
 inherent to the slice.
 
+## Glossary-derived browse and sidebar sections
+
+When glossary decomposition needs new reader-facing top-level areas such as
+Model Types or Inference without changing canonical `/docs/glossary/<slug>`
+routes:
+
+- Add or extend ontology classifications under `classification.concept.*` (for
+  example `classification.concept.model-type`, `classification.concept.module`).
+- Derive browse cards through `buildDocsBrowseSections` and
+  `src/lib/docs/glossary-derived-browse-sections.ts`, using
+  `primaryClassificationId` / `secondaryClassificationIds` membership rather
+  than new docs collection route slugs.
+- Split sidebar folders through `src/lib/navigation/docs-sidebar-sections.ts`
+  and keep the remaining glossary pages in the `Glossary` folder.
+- Pass `config.starterSlugs.length` into `toDocsIndexEntries` for derived browse
+  sections when starter slugs exceed the default six-entry preview cap.
+- Sidebar reconciliation tests that previously compared every glossary page to the
+  `Glossary` folder must union `Model Types`, `Inference`, `Module Components`, and remaining
+  `Glossary` URLs, or filter out `isGlossaryPageAssignedToDerivedSection`
+  pages when asserting the residual glossary folder.
+- Inference terms with canonical concept routes (`concepts/prefill`,
+  `concepts/quantization`, `concepts/kv-cache-quantization`,
+  `concepts/post-training-quantization`) still expose inference classification
+  in search even when they are absent from glossary-derived browse sections.
+- Update `browseIndex.*Section*` copy in `src/content/messages/*/common.json`
+  and extend `DOCS_BROWSE_SECTION_ORDER` when introducing another derived area.
+- Classify every remaining published glossary concept with `primaryClassificationId`;
+  align `conceptType` with `classification.concept.architecture`, and rely on ontology
+  sidebar resolution for math/training/evaluation before editorial `sidebarGrouping`
+  fallbacks for generation-and-diffusion or sequence-and-attention subgroups.
+- `validatePublishedGlossaryClassification` in `validate-glossary-classification.ts`
+  blocks published glossary pages that lack `primaryClassificationId` unless
+  `sidebarGrouping.glossary` provides an explicit editorial fallback; wired through
+  `validateDerivedPublishedPageBundles` and `make validate-data`.
+- Story-006 gates: `glossary-decomposition-validation.test.ts` for browse/search
+  placement fixtures and `glossary-decomposition-browse-built-app.test.tsx` for
+  desktop and narrow `/browse` category verification when integration tests run.
+
 ## PR-head mergeability for page branches (process executors)
 
 When a routine canonical page branch has finished its page PRD stories but the

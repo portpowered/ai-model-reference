@@ -1,7 +1,7 @@
 {
   "title": "Byte-Level Tokenization",
   "description": "A tokenizer design that starts from bytes so models can represent arbitrary text without unknown-character gaps.",
-  "openingSummary": "Byte-level tokenization starts from raw bytes instead of assuming text already fits a word or character inventory, which is why GPT-style tokenizers often use bytes instead of whole words when they need reliable UTF-8 coverage, even though the resulting token pieces are often longer and harder for humans to read.",
+  "openingSummary": "Byte-level tokenization is a tokenizer design that starts from raw UTF-8 bytes instead of assuming text already fits a word or character inventory, so unusual characters, punctuation-heavy text, code-like strings, emoji, and mixed-script input can still be represented without unknown-character gaps; the tradeoff is that token pieces are often less readable, sequences can grow longer for messy strings, and token counts may not line up with word counts.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -17,7 +17,7 @@
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "The two formulas below describe the two key stages. First, any string can be reduced to a byte sequence. Second, a merge rule can repeatedly combine common neighboring byte pieces into larger subword tokens."
+      "body": "The two formulas below separate coverage from compression. Byte-level handling provides the fallback alphabet: any string can be reduced to UTF-8 bytes that always represent the input. A BPE-style merge stage then sits on top of those byte pieces and repeatedly combines common neighboring symbols into larger reusable subword tokens."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
@@ -29,7 +29,7 @@
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "The tradeoff is that unusual strings can expand into many small pieces before merges help. That can raise token counts, which raises cost and uses context window budget faster. The pieces are also less readable to humans, so debugging tokenizer output can feel more opaque than with cleaner word-like splits."
+      "body": "The tradeoff is that unusual strings can expand into many small pieces before merges help. That can raise token counts beyond what a reader would guess from word count alone, which raises cost and uses context window budget faster. The pieces are also less readable to humans, so debugging tokenizer output can feel more opaque than with cleaner word-like splits."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
@@ -49,25 +49,47 @@
     "computeFlow": {
       "alt": "Byte-level tokenization graph showing raw text turning into UTF-8 bytes, then byte pieces, then merged subword tokens"
     },
-    "comparisonTable": {}
+    "comparisonTable": {
+      "caption": "How byte-level fallback, BPE-style merging, and word-oriented subword tokenizers compare"
+    }
   },
   "tables": {
     "comparison": {
       "columns": {
         "byteLevel": {
           "title": "Byte-Level Tokenization"
+        },
+        "bpe": {
+          "title": "BPE"
+        },
+        "wordpiece": {
+          "title": "WordPiece"
         }
       },
       "dimensions": {
-        "baseUnit": "Base unit before learned merges",
-        "coverageBehavior": "Coverage behavior",
+        "primaryRole": "Primary role in tokenization",
+        "startingUnit": "Starting unit",
+        "pairsWithByteFallback": "Relationship to byte fallback",
         "mainTradeoff": "Main tradeoff"
       },
       "values": {
         "byteLevel": {
-          "baseUnit": "UTF-8 byte pieces that can always represent the input string",
-          "coverageBehavior": "Falls back to bytes for arbitrary text, then often merges frequent byte sequences with BPE-style rules",
-          "mainTradeoff": "Robust coverage, but unusual strings can consume more tokens and produce less readable pieces"
+          "primaryRole": "Guarantees coverage by falling back to UTF-8 bytes for any input string",
+          "startingUnit": "UTF-8 byte pieces that can always represent the text",
+          "pairsWithByteFallback": "Provides the fallback alphabet that later merge stages build on",
+          "mainTradeoff": "Robust on messy text, but unusual strings can stay split into many small pieces"
+        },
+        "bpe": {
+          "primaryRole": "Compresses frequent neighboring symbols into larger reusable subword tokens",
+          "startingUnit": "Small symbols such as bytes or byte-derived pieces",
+          "pairsWithByteFallback": "Often layered on top of byte fallback in GPT-style tokenizers instead of replacing it",
+          "mainTradeoff": "Simple and reusable merges, but learned pieces can look unnatural to readers"
+        },
+        "wordpiece": {
+          "primaryRole": "Builds a vocabulary of scored subword pieces around word-like candidates",
+          "startingUnit": "Word or subword candidates after upstream text splitting",
+          "pairsWithByteFallback": "Usually assumes word-like pre-tokenization rather than a byte-first fallback alphabet",
+          "mainTradeoff": "Works well for many text models, but depends more on the upstream text split"
         }
       }
     }

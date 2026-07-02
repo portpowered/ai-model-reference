@@ -1,0 +1,66 @@
+{
+  "title": "Dropout",
+  "description": "A training-time regularization method that randomly disables a subset of activations during learning and uses the full network, with appropriate scaling, at inference.",
+  "openingSummary": "Dropout is a training-time regularization method. During learning it randomly turns off a fraction of activations or units so the network cannot rely on fixed co-adapted pathways, then at inference it runs the full network with scaling so expected outputs stay aligned.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Dropout is a training-time technique that randomly zeros out a chosen fraction of activations or units on each forward pass. The mask changes from step to step, so no single neuron or pathway can always be present. At inference the same weights are used, but dropout is turned off and surviving activations are scaled so the model's expected output matches what training prepared it for."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Large neural networks can memorize training detail by letting small groups of units co-adapt—each unit only useful when its partners are active. Dropout breaks that dependency by forcing many partial networks to share the work. The hope is a more robust ensemble effect inside one model: pathways learn features that still help when neighbors disappear, which can improve generalization on held-out data."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Each training step samples a dropout mask, applies it to activations inside selected layers, runs forward and backward through the thinned network, and updates weights. The dropout rate controls how many units are removed. Common implementations scale surviving activations during training—often by dividing by one minus the dropout rate—so inference can use the full network without an extra scaling pass. The flow below contrasts the noisy training path with the deterministic inference path teams serve."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Dropout is one regularization lever, not a replacement for the whole training recipe. Weight decay and similar penalties shrink weights in the loss instead of randomly removing activations. Data augmentation changes inputs; dropout changes which internal pathways are active. Early stopping ends training before memorization dominates, while dropout changes every step inside an ongoing run. Teams often combine dropout with other regularizers and tune the dropout rate against validation behavior rather than treating it as always beneficial."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "Dropout is not free regularization. Too much dropout can slow convergence or underfit by removing too much signal each step. Very small models, some recurrent setups, and certain low-data regimes may see little benefit or unstable training. It also adds a train-versus-inference mismatch that implementations must handle with correct scaling and mode switches. When validation does not improve, teams reduce the rate, move dropout to different layers, or rely on other regularizers instead of assuming dropout always helps."
+    },
+    "related": { "title": "Related To" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "links": {
+    "regularization": "Regularization",
+    "overfitting": "Overfitting",
+    "generalization": "Generalization"
+  },
+  "assets": {
+    "trainingFlow": {
+      "title": "Dropout training flow",
+      "alt": "A four-step dropout flow: training network, random dropout mask on activations, weight update from the thinned pass, then full scaled network at inference.",
+      "caption": "Training randomly drops activations and updates weights on partial networks; inference uses the full network with scaling so outputs stay calibrated.",
+      "legend": {
+        "data-flow": {
+          "label": "Activation and weight flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "trainingNetwork": { "label": "Network in training mode" },
+      "dropoutMask": { "label": "Random dropout mask on activations" },
+      "weightUpdate": { "label": "Gradient update from thinned pass" },
+      "inferenceNetwork": { "label": "Full network at inference with scaling" }
+    }
+  },
+  "relatedDocs": {
+    "concept.regularization": {
+      "reason": "Dropout is a concrete training-time regularization method within the broader regularization family."
+    },
+    "concept.overfitting": {
+      "reason": "Dropout targets co-adaptation and memorization patterns that often show up as overfitting on held-out data."
+    },
+    "concept.generalization": {
+      "reason": "Teams use dropout when they want internal pathways that still work under variation, improving generalization."
+    }
+  }
+}

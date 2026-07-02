@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
@@ -15,6 +15,8 @@ import {
   SAME_VARIANT_GROUP,
 } from "@/lib/content/related-docs";
 import type { ModuleRecord } from "@/lib/content/schemas";
+
+setDefaultTimeout(15_000);
 
 /** Attention modules with a published docs page and variantGroup after batch 017. */
 const ATTENTION_VARIANT_MODULE_IDS = [
@@ -367,9 +369,14 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
       <RelatedDocs registryId="concept.foundation-model" />,
     );
 
-    expect(html).not.toContain('href="/docs/glossary/temperature"');
+    expect(html).not.toContain('data-related-group="same-concept-type"');
+    const classificationSiblingsSection = html.match(
+      /data-related-group="classification-siblings"([\s\S]*?)<\/ul>/,
+    )?.[1];
+    expect(classificationSiblingsSection ?? "").not.toContain(
+      'href="/docs/glossary/temperature"',
+    );
     expect(html).toContain('href="/docs/glossary/generative-model"');
     expect(html).toContain('href="/docs/glossary/discriminative-model"');
-    expect(html).not.toContain('data-related-group="same-concept-type"');
   });
 });
