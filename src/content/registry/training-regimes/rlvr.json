@@ -1,0 +1,37 @@
+{
+  "id": "training-regime.rlvr",
+  "slug": "rlvr",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "RLVR",
+    "Reinforcement Learning with Verifiable Rewards",
+    "reinforcement learning from verifiable rewards",
+    "verifiable rewards"
+  ],
+  "tags": ["alignment", "foundations"],
+  "relatedIds": [
+    "concept.alignment",
+    "training-regime.post-training",
+    "training-regime.supervised-fine-tuning",
+    "training-regime.instruction-tuning",
+    "training-regime.dpo",
+    "model.nemotron-3-super",
+    "paper.deepseek-v4"
+  ],
+  "citationIds": ["citation.deepseek-r1"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "releaseDate": "2025-01-22",
+  "authors": ["DeepSeek-AI"],
+  "sourceId": "citation.deepseek-r1",
+  "primaryClassificationId": "classification.training",
+  "regimeType": "rl",
+  "usedByModelIds": [],
+  "relatedModuleIds": [],
+  "paperIds": [],
+  "conceptType": "training",
+  "variantGroup": "verifiable-reward-optimization"
+}

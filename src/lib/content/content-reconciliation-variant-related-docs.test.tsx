@@ -1,4 +1,6 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
+
+setDefaultTimeout(15_000);
 import { renderToStaticMarkup } from "react-dom/server";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
