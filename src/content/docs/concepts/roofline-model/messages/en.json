@@ -40,5 +40,35 @@
     "references": {
       "title": "References"
     }
+  },
+  "assets": {
+    "rooflineChart": {
+      "title": "Illustrative Roofline Ceiling",
+      "alt": "Roofline chart with a memory-bandwidth-bound sloped region, a compute-bound flat ceiling, and two illustrative workloads at different arithmetic intensities",
+      "caption": "Generic illustrative values show the roofline bend where memory movement and compute throughput meet; the chart teaches bounds, not hardware rankings.",
+      "legend": {
+        "attainableThroughput": {
+          "label": "Attainable throughput"
+        },
+        "memoryBoundRegion": {
+          "label": "Memory-bandwidth bound"
+        },
+        "computeBoundRegion": {
+          "label": "Compute bound"
+        },
+        "lowIntensityWorkload": {
+          "label": "Low-intensity workload"
+        },
+        "highIntensityWorkload": {
+          "label": "High-intensity workload"
+        },
+        "axisX": {
+          "label": "Arithmetic intensity (ops per byte)"
+        },
+        "axisY": {
+          "label": "Attainable throughput (GFLOP/s)"
+        }
+      }
+    }
   }
 }

@@ -9,6 +9,10 @@ export {
   isActivationChartId,
 } from "./ActivationFunctionChart";
 export {
+  isRooflineChartId,
+  RooflineTeachingChart,
+} from "./RooflineTeachingChart";
+export {
   AtAGlanceCard,
   AtAGlanceDefinitionRow,
   AtAGlanceListSection,

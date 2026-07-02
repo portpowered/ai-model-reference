@@ -187,3 +187,50 @@ describe("roofline model concept page (roofline-model-concept-page-002)", () => 
     expect(html).not.toContain("Reader Shortcut");
   });
 });
+
+describe("roofline model teaching visual (roofline-model-concept-page-003)", () => {
+  test("assets and messages define the primary roofline teaching chart", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.assets?.rooflineChart?.title).toContain("Roofline");
+    expect(messages.assets?.rooflineChart?.alt?.toLowerCase()).toContain(
+      "memory-bandwidth-bound",
+    );
+    expect(messages.assets?.rooflineChart?.alt?.toLowerCase()).toContain(
+      "compute-bound",
+    );
+    expect(messages.assets?.rooflineChart?.caption?.toLowerCase()).toContain(
+      "not hardware rankings",
+    );
+    expect(
+      messages.assets?.rooflineChart?.legend?.axisX?.label?.toLowerCase(),
+    ).toContain("arithmetic intensity");
+    expect(
+      messages.assets?.rooflineChart?.legend?.axisY?.label?.toLowerCase(),
+    ).toContain("throughput");
+  });
+
+  test("page renders the roofline teaching chart with legend and accessible markers", async () => {
+    const page = await loadConceptPage("roofline-model");
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('data-page-asset="rooflineChart"');
+    expect(html).toContain('data-chart-id="chart.roofline-model.teaching"');
+    expect(html).toContain("Illustrative Roofline Ceiling");
+    expect(html).toContain("Memory-bandwidth bound");
+    expect(html).toContain("Compute bound");
+    expect(html).toContain("Arithmetic intensity (ops per byte)");
+    expect(html).toContain("Attainable throughput (GFLOP/s)");
+    expect(html).toContain("teaches bounds, not hardware rankings");
+  });
+});
