@@ -32,7 +32,7 @@ below supersedes that queue snapshot where it diverges.
 | PR | Stale queue note | Fresh evidence summary (2026-07-02 UTC) |
 | --- | --- | --- |
 | #293 | failing test/CI | **11/11 CI checks SUCCESS**; `MERGEABLE` / `CLEAN`; blocking review on unrelated `progress.txt` deletion in PR diff |
-| #292 | DIRTY, no checks | **11/11 CI checks SUCCESS**; `MERGEABLE` / `CLEAN`; worktree clean except untracked local `progress.txt`; surface-audit blocking feedback addressed on head `46f76782` |
+| #292 | DIRTY, no checks | **MERGED** at 2026-07-02T21:04:48Z on head `46f76782`; last CI 11/11 SUCCESS; stale "no checks" and "DIRTY" notes obsolete |
 | #288 | UNSTABLE, failing test/CI | **MERGED** at 2026-07-02T19:58:31Z; last head CI 11/11 SUCCESS; no further triage action |
 | #283 | DIRTY, passing checks | **11/11 CI checks SUCCESS** on head `c120a785`; `MERGEABLE` / `CLEAN`; worktree clean except untracked local `progress.txt`; conflict refresh complete per PR conversation |
 | #279 | DIRTY, passing checks | Last recorded CI **11/11 SUCCESS** (2026-07-02T12:41Z); GitHub now **`CONFLICTING` / `DIRTY`**; `merge-tree` conflict in `src/tests/search/search-page-panel.test.tsx`; blocking review: local `make test` failed |
@@ -85,6 +85,20 @@ Preliminary lane outcome for story 002: **active-review handoff** or **focused t
 | PR conversation | Surface-audit **BLOCKING** addressed on `46f76782`; author posted fix mapping; no newer BLOCKING conversation comment |
 
 Preliminary lane outcome for story 003: **merge-ready handoff** pending CI confirmation on latest push (checks now present and green; stale "no checks" note is obsolete).
+
+#### Story 003 lane outcome (2026-07-02T22:15:00Z UTC)
+
+| Field | Value |
+| --- | --- |
+| Head SHA at merge | `46f76782c335ead7a69fe9f48cf2d72be8192689` |
+| PR state | **MERGED** (2026-07-02T21:04:48Z UTC by AndreasAbdi) |
+| Stale queue notes superseded | "DIRTY" and "no checks" — checks were triggered and 11/11 SUCCESS on head before merge |
+| Prior blocking feedback | **REJECTED/BLOCKING** surface-audit over-budget on shared test paths |
+| Fix applied (on lane branch) | Removed `tokens-per-second-slice-verification.test.tsx`, reverted `memory-system-page.test.ts`, narrowed aliases — audit `within-budget / keep-routine` on `46f76782` |
+| Reviewer follow-up | **Review complete — previous BLOCKING feedback cleared** (2026-07-02T21:04:40Z UTC); merged immediately after |
+| Worktree dirty state | `?? progress.txt` only (untracked factory local; not in PR diff) |
+| Browser / page verification | Page shipped on `main` via merge; no additional triage edits required on this lane |
+| **Final lane outcome** | **merge-complete** — no further triage action; reconcile queue/drain tokens only |
 
 ### PR #288 — `looped-transformers`
 
@@ -184,8 +198,8 @@ done
 
 | Status | PRs |
 | --- | --- |
-| **passing** (current head) | #293, #292, #283 |
-| **passing** (merged / terminal) | #288 |
+| **passing** (current head) | #293, #283 |
+| **passing** (merged / terminal) | #288, #292 |
 | **stale passing** (CI green on old head; branch now conflicts with `origin/main`) | #279, #277 |
 | **missing checks** | none (stale #292 note obsolete) |
 | **failing checks** | none on current recorded heads |
