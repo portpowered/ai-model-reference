@@ -260,6 +260,25 @@ describe("GRPO training-regime page contracts", () => {
     expect(html).toContain("mean score across the prompt group");
   });
 
+  test("messages distinguish GRPO from RLHF, PPO, and DPO without benchmark framing", () => {
+    const page = loadGrpoPageBundle();
+    const nearby = page.messages.sections?.comparedToNearbyRegimes.body ?? "";
+
+    expect(nearby.toLowerCase()).toContain(
+      "reinforcement learning from human feedback",
+    );
+    expect(nearby.toLowerCase()).toContain("broader feedback-driven");
+    expect(nearby.toLowerCase()).toContain("specific optimization approach");
+    expect(nearby.toLowerCase()).toContain("proximal policy optimization");
+    expect(nearby.toLowerCase()).toContain("separate value model");
+    expect(nearby.toLowerCase()).toContain("relative to the others");
+    expect(nearby.toLowerCase()).toContain("direct preference optimization");
+    expect(nearby.toLowerCase()).toContain("chosen-versus-rejected pairs");
+    expect(nearby.toLowerCase()).toContain("sampled candidates");
+    expect(nearby.toLowerCase()).not.toContain("benchmark");
+    expect(nearby.toLowerCase()).not.toContain("leaderboard");
+  });
+
   test("page renders alignment and nearby-regime links without reader-shortcut copy", async () => {
     const page = await loadTrainingRegimePage("grpo");
 
@@ -276,6 +295,10 @@ describe("GRPO training-regime page contracts", () => {
       }),
     );
 
+    expect(html).toContain("Compared To Nearby Regimes");
+    expect(html).toContain("broader feedback-driven");
+    expect(html).toContain("separate value model");
+    expect(html).toContain("chosen-versus-rejected pairs");
     expect(html).toContain('href="/docs/concepts/alignment"');
     expect(html).toContain('href="/docs/training/post-training"');
     expect(html).toContain('href="/docs/training/dpo"');
