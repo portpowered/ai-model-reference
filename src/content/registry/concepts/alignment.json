@@ -4,7 +4,13 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["Alignment", "RLHF", "preference alignment", "safety alignment"],
+  "aliases": [
+    "Alignment",
+    "model alignment",
+    "preference alignment",
+    "human feedback alignment",
+    "safety alignment"
+  ],
   "tags": ["foundations", "taxonomy"],
   "relatedIds": [
     "concept.model-capacity",
@@ -21,7 +27,7 @@
   "status": "published",
   "createdAt": "2026-06-04T11:52:13.229Z",
   "updatedAt": "2026-06-04T14:00:00.000Z",
-  "conceptType": "training",
+  "primaryClassificationId": "classification.concept.training",
   "prerequisiteIds": [
     "concept.conditioning",
     "concept.parameter",

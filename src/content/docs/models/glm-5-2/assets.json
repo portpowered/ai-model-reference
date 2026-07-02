@@ -1,0 +1,9 @@
+{
+  "architectureGraph": {
+    "type": "graph",
+    "graphId": "graph.glm-5-2-architecture",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.architectureGraph.alt"
+  }
+}

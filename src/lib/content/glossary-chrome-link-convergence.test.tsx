@@ -13,7 +13,7 @@ describe("glossary chrome link convergence", () => {
 
     expectGlossaryChromeLinksOmitUnderline(html);
     expect(html).toContain('href="/tags/attention"');
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain("embeddings");
   });
 });

@@ -1,0 +1,32 @@
+{
+  "id": "citation.multi-token-prediction-paper",
+  "slug": "multi-token-prediction-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "multi-token prediction paper",
+    "MTP paper",
+    "Better & Faster Large Language Models via Multi-token Prediction",
+    "2404.19737",
+    "arxiv:2404.19737"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Fabian Gloeckle",
+    "Badr Youbi Idrissi",
+    "Baptiste Rozière",
+    "David López-Paz",
+    "Gabriel Synnaeve"
+  ],
+  "title": "Better & Faster Large Language Models via Multi-token Prediction",
+  "year": 2024,
+  "url": "https://arxiv.org/abs/2404.19737",
+  "mla": "Gloeckle, Fabian, et al. \"Better & Faster Large Language Models via Multi-token Prediction.\" arXiv, 2024, https://arxiv.org/abs/2404.19737."
+}

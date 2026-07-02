@@ -23,8 +23,7 @@
   "releaseDate": "1986-10-01",
   "authors": ["David E. Rumelhart", "Geoffrey E. Hinton", "Ronald J. Williams"],
   "sourceId": "citation.learning-representations-by-back-propagating-errors",
-  "primaryClassificationId": "classification.activation-functions",
-  "secondaryClassificationIds": ["classification.feed-forward-networks"],
+  "primaryClassificationId": "classification.module.activation",
   "relationships": [
     {
       "relationshipType": "variant",
@@ -39,15 +38,11 @@
       "targetId": "module.silu"
     }
   ],
-  "moduleType": "activation",
   "optimizes": ["smooth-gating"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "light",
-  "moduleFamily": "activation-functions",
-  "conceptType": "activation-function",
-  "variantGroup": "activation-variants"
+  "mathLevel": "light"
 }

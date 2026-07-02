@@ -138,7 +138,9 @@ export function parseRecentPathTouches(
     });
 }
 
-function classifySurfaceCategory(path: string): ConflictHotspotSurfaceCategory {
+export function classifyConflictHotspotSurfaceCategory(
+  path: string,
+): ConflictHotspotSurfaceCategory {
   const normalizedPath = path.replace(/\\/g, "/");
 
   if (
@@ -221,7 +223,7 @@ export function rankConflictHotspotSurfaces(
 
   for (const pathTouch of pathTouches) {
     const surface = deriveSurfaceLabel(pathTouch.path);
-    const category = classifySurfaceCategory(pathTouch.path);
+    const category = classifyConflictHotspotSurfaceCategory(pathTouch.path);
     const surfaceKey = `${category}:${surface}`;
     const existing = surfaces.get(surfaceKey);
 
@@ -407,7 +409,7 @@ function formatWorktreePath(repoRoot: string, worktreePath: string): string {
     : worktreePath;
 }
 
-function formatSurfaceCategory(
+export function formatConflictHotspotSurfaceCategory(
   category: ConflictHotspotSurfaceCategory,
 ): string {
   switch (category) {
@@ -425,7 +427,7 @@ function formatSurfaceCategory(
 }
 
 function formatRankedSurfaceLine(surface: ConflictHotspotSurface): string {
-  return `- ${surface.surface} [${formatSurfaceCategory(surface.category)}] (${formatCount(surface.touches, "touch")} across ${formatCount(surface.distinctPaths, "path")}; examples: ${surface.representativePaths.join(", ")})`;
+  return `- ${surface.surface} [${formatConflictHotspotSurfaceCategory(surface.category)}] (${formatCount(surface.touches, "touch")} across ${formatCount(surface.distinctPaths, "path")}; examples: ${surface.representativePaths.join(", ")})`;
 }
 
 function formatDispatchRecommendationLine(
@@ -433,7 +435,7 @@ function formatDispatchRecommendationLine(
   action: "hold" | "prefer",
 ): string {
   const actionLabel = action === "hold" ? "Hold" : "Prefer";
-  return `- ${actionLabel} lanes around ${surface.surface} [${formatSurfaceCategory(surface.category)}] (${formatCount(surface.touches, "touch")}).`;
+  return `- ${actionLabel} lanes around ${surface.surface} [${formatConflictHotspotSurfaceCategory(surface.category)}] (${formatCount(surface.touches, "touch")}).`;
 }
 
 function formatDispatchGuidance(
@@ -470,12 +472,12 @@ function formatDispatchGuidance(
   if (lowerCollisionAuthoredSurface) {
     return [
       formatDispatchRecommendationLine(sharedHotspot, "hold"),
-      `- Prefer authored lanes around ${lowerCollisionAuthoredSurface.surface} [${formatSurfaceCategory(lowerCollisionAuthoredSurface.category)}] (${formatCount(lowerCollisionAuthoredSurface.touches, "touch")}) while ${sharedHotspot.surface} stays hotter in the same sample.`,
+      `- Prefer authored lanes around ${lowerCollisionAuthoredSurface.surface} [${formatConflictHotspotSurfaceCategory(lowerCollisionAuthoredSurface.category)}] (${formatCount(lowerCollisionAuthoredSurface.touches, "touch")}) while ${sharedHotspot.surface} stays hotter in the same sample.`,
     ];
   }
 
   return [
-    `- Evidence is insufficient for a lower-collision authored recommendation because every authored surface in the sample is at least as hot as ${sharedHotspot.surface} [${formatSurfaceCategory(sharedHotspot.category)}] (${formatCount(sharedHotspot.touches, "touch")}).`,
+    `- Evidence is insufficient for a lower-collision authored recommendation because every authored surface in the sample is at least as hot as ${sharedHotspot.surface} [${formatConflictHotspotSurfaceCategory(sharedHotspot.category)}] (${formatCount(sharedHotspot.touches, "touch")}).`,
     formatDispatchRecommendationLine(sharedHotspot, "hold"),
   ];
 }

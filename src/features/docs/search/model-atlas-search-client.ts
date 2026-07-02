@@ -9,12 +9,15 @@ import {
   collapseSearchResultsWithMeta,
   documentsByUrlFromMeta,
 } from "@/lib/search/collapse-search-results-from-meta";
-import { rerankSearchResults } from "@/lib/search/rerank-search-results";
+import {
+  findBestTitleMatchPageUrl,
+  rerankSearchResults,
+} from "@/lib/search/rerank-search-results";
 
 const DEFAULT_STATIC_SEARCH_OPTIONS = {
   limit: 120,
   groupBy: {
-    maxResult: 16,
+    maxResult: 64,
   },
 } as const;
 
@@ -56,9 +59,26 @@ export function modelAtlasOramaSearchClient(
 
       const results = await base.search(effectiveQuery);
       const rerankQuery = query.trim() || effectiveQuery;
+      const bestPageUrl = findBestTitleMatchPageUrl(
+        rerankQuery,
+        documentsByUrl,
+      );
+      const seededResults =
+        bestPageUrl &&
+        !results.some((result) => result.url.split("#")[0] === bestPageUrl)
+          ? [
+              {
+                id: bestPageUrl,
+                type: "page" as const,
+                url: bestPageUrl,
+                content: documentsByUrl.get(bestPageUrl)?.title ?? bestPageUrl,
+              },
+              ...results,
+            ]
+          : results;
       const reranked = rerankSearchResults(
         rerankQuery,
-        results,
+        seededResults,
         documentsByUrl,
         {
           classificationScope,

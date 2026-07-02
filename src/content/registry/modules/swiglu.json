@@ -20,10 +20,7 @@
   "releaseDate": "2020-02-01",
   "authors": ["Noam Shazeer"],
   "sourceId": "citation.glu-variants-improve-transformer",
-  "primaryClassificationId": "classification.feed-forward-networks",
-  "secondaryClassificationIds": [
-    "classification.transformer-feed-forward-components"
-  ],
+  "primaryClassificationId": "classification.module.feed-forward",
   "relationships": [
     {
       "relationshipType": "variant",
@@ -34,15 +31,11 @@
       "targetId": "module.silu"
     }
   ],
-  "moduleType": "feed-forward",
   "optimizes": ["feed-forward-expressiveness"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "none",
-  "moduleFamily": "feed-forward-network",
-  "conceptType": "feed-forward-variant",
-  "variantGroup": "feed-forward-family"
+  "mathLevel": "none"
 }

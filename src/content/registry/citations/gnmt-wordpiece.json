@@ -1,0 +1,31 @@
+{
+  "id": "citation.gnmt-wordpiece",
+  "slug": "gnmt-wordpiece",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GNMT WordPiece paper", "Google NMT WordPiece paper"],
+  "tags": ["tokenization", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Yonghui Wu",
+    "Mike Schuster",
+    "Zhifeng Chen",
+    "Quoc V. Le",
+    "Mohammad Norouzi",
+    "Wolfgang Macherey",
+    "Maxim Krikun",
+    "Yuan Cao",
+    "Qin Gao",
+    "Klaus Macherey"
+  ],
+  "title": "Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation",
+  "url": "https://arxiv.org/abs/1609.08144",
+  "mla": "Wu, Yonghui, et al. \"Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation.\" arXiv, 26 Sept. 2016, arxiv.org/abs/1609.08144.",
+  "year": 2016
+}

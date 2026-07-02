@@ -15,21 +15,17 @@
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T23:00:00.000Z",
-  "primaryClassificationId": "classification.activation-functions",
+  "primaryClassificationId": "classification.concept.architecture.activation",
   "relationships": [
     {
       "relationshipType": "part-of",
-      "targetId": "classification.neural-network-components"
+      "targetId": "classification.concept.architecture"
     },
     {
       "relationshipType": "used-by",
       "targetId": "module.feed-forward-network"
     }
   ],
-  "conceptType": "architecture",
-  "sidebarGrouping": {
-    "glossary": "math-and-training"
-  },
   "prerequisiteIds": ["concept.parameter"],
   "explainsIds": []
 }

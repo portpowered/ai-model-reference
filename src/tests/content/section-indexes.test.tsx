@@ -1,11 +1,17 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import ConceptsIndexPage from "@/app/(site)/docs/concepts/page";
-import ModelsIndexPage from "@/app/(site)/docs/models/page";
+import ModelsIndexPage, {
+  generateMetadata as generateModelsMetadata,
+} from "@/app/(site)/docs/models/page";
 import ModulesIndexPage from "@/app/(site)/docs/modules/page";
 import PapersIndexPage from "@/app/(site)/docs/papers/page";
 import SystemsIndexPage from "@/app/(site)/docs/systems/page";
 import TrainingIndexPage from "@/app/(site)/docs/training/page";
+import LocalizedModelsIndexPage, {
+  generateMetadata as generateLocalizedModelsMetadata,
+} from "@/app/[locale]/docs/models/page";
+import LocalizedModulesIndexPage from "@/app/[locale]/docs/modules/page";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("section index messages", () => {
@@ -65,8 +71,60 @@ describe("section index page render", () => {
     const html = renderToStaticMarkup(await SystemsIndexPage());
 
     expect(html).toContain("Systems");
+    expect(html).toContain('href="/docs/systems/deployment"');
     expect(html).toContain('href="/docs/systems/routing"');
+    expect(html).toContain('href="/docs/systems/batching"');
     expect(html).toContain('href="/docs/systems/on-disk-kv-cache"');
     expect(html).toContain('href="/docs/systems/expert-parallel-overlap"');
+  });
+});
+
+describe("localized section index page render", () => {
+  it("renders the vietnamese models index with localized title and empty-state copy", async () => {
+    const html = renderToStaticMarkup(
+      await LocalizedModelsIndexPage({
+        params: Promise.resolve({ locale: "vi" }),
+      }),
+    );
+
+    expect(html).toContain("Mô hình");
+    expect(html).toContain("Chưa có mục mô hình nào");
+    expect(html).toContain('href="/vi"');
+  });
+
+  it("renders the japanese modules index with localized title and entries", async () => {
+    const html = renderToStaticMarkup(
+      await LocalizedModulesIndexPage({
+        params: Promise.resolve({ locale: "ja" }),
+      }),
+    );
+
+    expect(html).toContain("モジュール");
+    expect(html).toContain('href="/ja/docs/modules/grouped-query-attention"');
+  });
+});
+
+describe("section index metadata", () => {
+  it("keeps default and localized models index metadata aligned", async () => {
+    const defaultMetadata = await generateModelsMetadata();
+    const localizedMetadata = await generateLocalizedModelsMetadata({
+      params: Promise.resolve({ locale: "vi" }),
+    });
+
+    expect(defaultMetadata.alternates).toEqual({
+      canonical: "/docs/models",
+      languages: {
+        en: "/docs/models",
+        vi: "/vi/docs/models",
+        ja: "/ja/docs/models",
+      },
+    });
+    expect(localizedMetadata.alternates).toEqual(defaultMetadata.alternates);
+
+    const viMessages = await loadUiMessages("vi");
+    expect(localizedMetadata.title).toBe(viMessages.modelsIndex.title);
+    expect(localizedMetadata.description).toBe(
+      viMessages.modelsIndex.description,
+    );
   });
 });

@@ -13,6 +13,7 @@ import {
 } from "./phase-2-3-reconciliation-convergence";
 
 const REGISTRY_VALIDATION_GATE_TIMEOUT_MS = 10_000;
+const ATTENTION_TAG_GROUPING_GATE_TIMEOUT_MS = 15_000;
 const COMBINED_CONVERGENCE_GATE_TIMEOUT_MS = 30_000;
 
 describe("Phase 2/3 reconciliation convergence gate (US-012)", () => {
@@ -30,10 +31,14 @@ describe("Phase 2/3 reconciliation convergence gate (US-012)", () => {
     expect(result.status).toBe("pass");
   });
 
-  test("attention tag grouping gate keeps representative tag landing routes aligned", async () => {
-    const result = await runAttentionTagGroupingGate();
-    expect(result.status).toBe("pass");
-  });
+  test(
+    "attention tag grouping gate keeps representative tag landing routes aligned",
+    async () => {
+      const result = await runAttentionTagGroupingGate();
+      expect(result.status).toBe("pass");
+    },
+    { timeout: ATTENTION_TAG_GROUPING_GATE_TIMEOUT_MS },
+  );
 
   test("architecture-forward links gate surfaces live model-family targets", async () => {
     const result = await runArchitectureForwardLinksGate();

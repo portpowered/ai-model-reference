@@ -27,6 +27,7 @@ import {
   expectUniqueCanonicalPageUrls,
   MULTI_HEAD_ATTENTION_URL,
   MULTI_QUERY_ATTENTION_URL,
+  PREFILL_URL,
   resultsIncludeSampleModule,
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
@@ -277,6 +278,28 @@ describe("SearchPagePanel Phase 1 queries", () => {
   });
 
   test.each([
+    "prefill",
+    "prompt processing",
+    "prompt pass",
+  ] as const)("%s query ranks the canonical prefill concept page first on /search", async (query) => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      query,
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    const firstRow = within(results).getAllByTestId("search-result-row")[0];
+    const firstUrl = within(results).getAllByTestId("search-result-url")[0];
+
+    expect(firstUrl?.textContent).toContain(PREFILL_URL);
+    expect(firstRow?.textContent).toMatch(/prefill/i);
+  });
+
+  test.each([
     {
       query: "MHA",
       url: MULTI_HEAD_ATTENTION_URL,
@@ -476,7 +499,7 @@ describe("SearchPagePanel classification handoff", () => {
       screen.getByText(
         context.messages.searchEntry.classificationScopeDescription.replace(
           "{classification}",
-          "activation",
+          "activation-functions",
         ),
       ),
     ).toBeTruthy();
@@ -500,7 +523,7 @@ describe("SearchPagePanel classification handoff", () => {
       screen.getByText(
         context.messages.searchEntry.classificationScopeDescription.replace(
           "{classification}",
-          "activation",
+          "activation-functions",
         ),
       ),
     ).toBeTruthy();
@@ -521,6 +544,38 @@ describe("SearchPagePanel classification handoff", () => {
 
     const empty = await screen.findByTestId("search-page-empty");
     expect(empty.textContent).toContain(context.messages.search.noResults);
+    expect(
+      screen.queryByText(
+        context.messages.searchEntry.classificationScopeDescription.replace(
+          "{classification}",
+          "unknown-topic",
+        ),
+      ),
+    ).toBeNull();
+  });
+
+  test("/search?q=token&classification=unknown-topic falls back to unscoped results without a scope banner", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams(
+      "q=token&classification=unknown-topic",
+    );
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("token");
+
+    const results = await screen.findByTestId("search-page-results");
+    expect(results.textContent).toMatch(/Token/i);
+    expect(
+      screen.queryByText(
+        context.messages.searchEntry.classificationScopeDescription.replace(
+          "{classification}",
+          "unknown-topic",
+        ),
+      ),
+    ).toBeNull();
   });
 });
 

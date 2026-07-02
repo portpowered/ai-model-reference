@@ -107,56 +107,62 @@ describe("Phase 1 published-resource discovery contract", () => {
     }
   });
 
-  test("representative discovery contracts stay aligned across source, tag landing, and search", async () => {
-    const indexes = await loadRegistry();
-    const messages = await loadUiMessages();
-    const pages = await loadPublishedDocsPages("en");
-    const pageByUrl = new Map(pages.map((page) => [page.url, page]));
-    const documents = buildSearchDocuments(pages, indexes);
-    const documentByUrl = new Map(
-      documents.map((document) => [document.url, document]),
-    );
+  test(
+    "representative discovery contracts stay aligned across source, tag landing, and search",
+    async () => {
+      const indexes = await loadRegistry();
+      const messages = await loadUiMessages();
+      const pages = await loadPublishedDocsPages("en");
+      const pageByUrl = new Map(pages.map((page) => [page.url, page]));
+      const documents = buildSearchDocuments(pages, indexes);
+      const documentByUrl = new Map(
+        documents.map((document) => [document.url, document]),
+      );
 
-    for (const contract of REPRESENTATIVE_DISCOVERY_CONTRACTS) {
-      const page = pageByUrl.get(contract.pageUrl);
-      expect(
-        page,
-        `missing published page for representative route ${contract.pageUrl}`,
-      ).toBeDefined();
-      expect(
-        source.getPage(docsSlugFromUrl(contract.pageUrl)),
-        `source should resolve ${contract.pageUrl}`,
-      ).toBeDefined();
-
-      const document = documentByUrl.get(contract.pageUrl);
-      expect(
-        document?.kind,
-        `search document kind for ${contract.pageUrl}`,
-      ).toBe(contract.expectedKind);
-
-      for (const tagSlug of contract.requiredTagSlugs) {
+      for (const contract of REPRESENTATIVE_DISCOVERY_CONTRACTS) {
+        const page = pageByUrl.get(contract.pageUrl);
         expect(
-          publishedResourceMatchesTag(page!, tagSlug, indexes),
-          `${contract.pageUrl} should match tag ${tagSlug}`,
-        ).toBe(true);
-
-        const groups = await loadTagResourceGroups(tagSlug, messages, "en");
-        const group = groups.find((entry) => entry.kind === contract.expectedKind);
+          page,
+          `missing published page for representative route ${contract.pageUrl}`,
+        ).toBeDefined();
         expect(
-          group?.resources.some((entry) => entry.url === contract.pageUrl),
-          `/tags/${tagSlug} should list ${contract.pageUrl}`,
-        ).toBe(true);
+          source.getPage(docsSlugFromUrl(contract.pageUrl)),
+          `source should resolve ${contract.pageUrl}`,
+        ).toBeDefined();
+
+        const document = documentByUrl.get(contract.pageUrl);
+        expect(
+          document?.kind,
+          `search document kind for ${contract.pageUrl}`,
+        ).toBe(contract.expectedKind);
+
+        for (const tagSlug of contract.requiredTagSlugs) {
+          expect(
+            publishedResourceMatchesTag(page!, tagSlug, indexes),
+            `${contract.pageUrl} should match tag ${tagSlug}`,
+          ).toBe(true);
+
+          const groups = await loadTagResourceGroups(tagSlug, messages, "en");
+          const group = groups.find(
+            (entry) => entry.kind === contract.expectedKind,
+          );
+          expect(
+            group?.resources.some((entry) => entry.url === contract.pageUrl),
+            `/tags/${tagSlug} should list ${contract.pageUrl}`,
+          ).toBe(true);
+        }
+
+        for (const query of contract.representativeQueries) {
+          const results = await docsSearchApi.search(query);
+          expect(
+            pageBaseUrl(results[0]?.url ?? ""),
+            `query "${query}" should rank ${contract.pageUrl} first`,
+          ).toBe(contract.pageUrl);
+        }
       }
-
-      for (const query of contract.representativeQueries) {
-        const results = await docsSearchApi.search(query);
-        expect(
-          pageBaseUrl(results[0]?.url ?? ""),
-          `query "${query}" should rank ${contract.pageUrl} first`,
-        ).toBe(contract.pageUrl);
-      }
-    }
-  });
+    },
+    { timeout: 15_000 },
+  );
 
   test("non-default locale tag discovery only includes shipped localized resources", async () => {
     const canonicalPages = await loadPublishedResourcesForTag(

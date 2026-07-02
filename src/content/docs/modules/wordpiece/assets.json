@@ -1,0 +1,14 @@
+{
+  "computeFlow": {
+    "type": "graph",
+    "graphId": "graph.wordpiece-compute-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.bpe-comparison",
+    "captionKey": "assets.comparisonTable.caption"
+  }
+}

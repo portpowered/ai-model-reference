@@ -87,7 +87,7 @@ describe("loadModulePage multi-head-latent-attention", () => {
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
-    expect(html).toContain("Same variant group");
+    expect(html).toContain("Same classification: attention mechanisms");
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("DeepSeek-AI");
     expect(html).toContain('href="https://arxiv.org/abs/2405.04434"');

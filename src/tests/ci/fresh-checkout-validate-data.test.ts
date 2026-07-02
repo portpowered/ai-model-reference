@@ -7,7 +7,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS,
@@ -26,6 +26,8 @@ import {
 } from "./fresh-checkout-command-proof";
 
 const mainSourceDir = join(repoRoot, CLEAN_WORKTREE_SOURCE_DIR);
+const INVALID_REGISTRY_FIXTURE_RELATIVE_PATH =
+  "src/content/registry/modules/__invalid-runtime-preparation-test.json";
 
 describe("fresh-checkout validate-data", () => {
   test(
@@ -70,6 +72,49 @@ describe("fresh-checkout validate-data", () => {
       }
 
       expect(existsSync(mainSourceDir)).toBe(mainHadSourceBefore);
+    },
+    FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS,
+  );
+
+  test(
+    "make validate-data fails at the registry-runtime preparation step for invalid registry JSON",
+    () => {
+      if (!shouldRunFreshCheckoutTypecheckProof()) {
+        return;
+      }
+      if (isGitWorktreeDirty(repoRoot)) {
+        return;
+      }
+
+      const fixture = provisionCleanWorktree(repoRoot);
+      const invalidRegistryFixturePath = join(
+        fixture.worktreePath,
+        INVALID_REGISTRY_FIXTURE_RELATIVE_PATH,
+      );
+
+      try {
+        writeFileSync(
+          invalidRegistryFixturePath,
+          "{ invalid registry json",
+          "utf8",
+        );
+
+        const result = spawnSync("make", ["validate-data"], {
+          cwd: fixture.worktreePath,
+          encoding: "utf8",
+          env: process.env,
+        });
+
+        expect(result.status).not.toBe(0);
+
+        const output = formatSubprocessOutput(result);
+        expect(output).toContain('Failed step "registry-runtime"');
+        expect(output).toContain("bun run generate:registry-runtime");
+        expect(output).toContain(INVALID_REGISTRY_FIXTURE_RELATIVE_PATH);
+      } finally {
+        rmSync(invalidRegistryFixturePath, { force: true });
+        fixture.cleanup();
+      }
     },
     FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS,
   );

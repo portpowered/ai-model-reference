@@ -52,12 +52,39 @@ function classificationMatchesRequest(
   return requestedVariants.some((variant) => candidateVariants.has(variant));
 }
 
+function classificationMatchScore(
+  requested: string,
+  classification: SearchDocumentTopologyClassification,
+): number {
+  const normalizedRequested = normalizeSearchTerm(requested);
+  const exactTerms = [
+    classification.id,
+    classification.slug,
+    classification.label,
+    ...classification.aliases,
+  ].map(normalizeSearchTerm);
+  if (exactTerms.includes(normalizedRequested)) {
+    return 100;
+  }
+
+  const expandedTerms = classificationTerms(classification).flatMap(
+    normalizedTermVariants,
+  );
+  if (expandedTerms.includes(normalizedRequested)) {
+    return 80;
+  }
+
+  return classificationMatchesRequest(requested, classification) ? 60 : 0;
+}
+
 function documentClassifications(
   document: SearchDocument,
 ): SearchDocumentTopologyClassification[] {
   return [
     document.topology.primaryClassification,
     ...document.topology.secondaryClassifications,
+    ...(document.topology.ancestorClassifications ?? []),
+    ...(document.topology.rootClassifications ?? []),
   ].filter(
     (classification): classification is SearchDocumentTopologyClassification =>
       classification !== undefined,
@@ -89,19 +116,34 @@ export function resolveSearchClassificationScope(
   }
 
   const seen = new Set<string>();
+  let bestMatch: SearchDocumentTopologyClassification | undefined;
+  let bestScore = 0;
   for (const document of documentsByUrl.values()) {
     for (const classification of documentClassifications(document)) {
       if (seen.has(classification.id)) {
         continue;
       }
       seen.add(classification.id);
-      if (classificationMatchesRequest(trimmed, classification)) {
-        return toClassificationScope(trimmed, classification);
+      const score = classificationMatchScore(trimmed, classification);
+      if (score > bestScore) {
+        bestMatch = classification;
+        bestScore = score;
+        continue;
+      }
+      if (
+        score === bestScore &&
+        score > 0 &&
+        bestMatch &&
+        (classification.id.length < bestMatch.id.length ||
+          (classification.id.length === bestMatch.id.length &&
+            classification.id.localeCompare(bestMatch.id) < 0))
+      ) {
+        bestMatch = classification;
       }
     }
   }
 
-  return undefined;
+  return bestMatch ? toClassificationScope(trimmed, bestMatch) : undefined;
 }
 
 export function resolveClassificationSearchQuery(

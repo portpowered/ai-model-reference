@@ -16,11 +16,14 @@ import {
 import type { GraphRegistryArtifact } from "./generate-page-bundle-graphs";
 import { buildGraphRegistryArtifacts } from "./generate-page-bundle-graphs";
 import {
+  collectDeprecatedTaxonomyWarnings,
   deriveDefaultSummaryKey,
   deriveDefaultTitleKey,
   derivePageFrontmatter,
+  type ModulePageSpec,
   type PageSpec,
   type PageSpecKind,
+  type PageSpecWarning,
   registryIdForPageSpec,
   registryKindForPageSpec,
   validatePageSpec,
@@ -50,6 +53,7 @@ export type GeneratePageBundleResult = {
   route: string;
   plannedFiles: PlannedBundleFile[];
   writtenFiles: string[];
+  warnings: PageSpecWarning[];
 };
 
 export type PageBundleArtifacts = {
@@ -125,6 +129,17 @@ export class GeneratePageBundleError extends Error {
     this.name = "GeneratePageBundleError";
   }
 }
+
+const defaultModulePrimaryClassificationByType: Partial<
+  Record<NonNullable<ModulePageSpec["moduleType"]>, string>
+> = {
+  attention: "classification.module.attention",
+  normalization: "classification.module.normalization",
+  "feed-forward": "classification.module.feed-forward",
+  activation: "classification.module.activation",
+  "position-encoding": "classification.module.positional-encoding",
+  tokenizer: "classification.module.tokenization",
+};
 
 function isoDateUtc(): string {
   return new Date().toISOString().slice(0, 10);
@@ -327,6 +342,18 @@ function buildPageMessages(
     };
   }
 
+  if (spec.tables) {
+    const mergedTables = mergeRecordSection(
+      templateMessages.tables as
+        | Record<string, Record<string, unknown>>
+        | undefined,
+      spec.tables as Record<string, Record<string, unknown>>,
+    );
+    if (mergedTables) {
+      messages.tables = mergedTables;
+    }
+  }
+
   if (spec.assetMessages) {
     const mergedAssets = mergeRecordSection(
       messages.assets as Record<string, Record<string, unknown>> | undefined,
@@ -367,6 +394,21 @@ function buildRegistryRecord(
   spec: PageSpec,
   timestamp: string,
 ): Record<string, unknown> {
+  const ontologyFirstFields =
+    "primaryClassificationId" in spec
+      ? {
+          ...(spec.primaryClassificationId
+            ? { primaryClassificationId: spec.primaryClassificationId }
+            : {}),
+          ...(spec.secondaryClassificationIds.length > 0
+            ? { secondaryClassificationIds: spec.secondaryClassificationIds }
+            : {}),
+          ...(spec.relationships.length > 0
+            ? { relationships: spec.relationships }
+            : {}),
+        }
+      : {};
+
   const base = {
     id: registryIdForPageSpec(spec),
     slug: spec.slug,
@@ -380,6 +422,7 @@ function buildRegistryRecord(
     status: spec.status,
     createdAt: timestamp,
     updatedAt: timestamp,
+    ...ontologyFirstFields,
   };
 
   switch (spec.kind) {
@@ -390,17 +433,29 @@ function buildRegistryRecord(
         ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
         ...(spec.authors ? { authors: spec.authors } : {}),
         ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
-        conceptType: spec.conceptType,
+        // Deprecated typed taxonomy fields remain compatibility-only inputs.
+        ...(spec.conceptType ? { conceptType: spec.conceptType } : {}),
         prerequisiteIds: spec.prerequisiteIds,
         explainsIds: spec.explainsIds,
       };
-    case "module":
+    case "module": {
+      const primaryClassificationId =
+        spec.primaryClassificationId ??
+        (spec.moduleType
+          ? defaultModulePrimaryClassificationByType[spec.moduleType]
+          : undefined);
+      if (!primaryClassificationId) {
+        throw new GeneratePageBundleError(
+          `Module page specs with moduleType "${spec.moduleType}" must declare primaryClassificationId until the ontology mapping is defined for that module type.`,
+        );
+      }
+
       return {
         ...base,
         ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
         ...(spec.authors ? { authors: spec.authors } : {}),
         ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
-        moduleType: spec.moduleType,
+        primaryClassificationId,
         mathLevel: spec.mathLevel,
         optimizes: spec.optimizes,
         exampleModelIds: spec.exampleModelIds,
@@ -408,10 +463,12 @@ function buildRegistryRecord(
         tradeoffIds: spec.tradeoffIds,
         usedByModelIds: spec.usedByModelIds,
         introducedByPaperIds: spec.introducedByPaperIds,
+        ...(spec.moduleType ? { moduleType: spec.moduleType } : {}),
         ...(spec.moduleFamily ? { moduleFamily: spec.moduleFamily } : {}),
         ...(spec.variantGroup ? { variantGroup: spec.variantGroup } : {}),
         ...(spec.variantOf ? { variantOf: spec.variantOf } : {}),
       };
+    }
     case "model":
       return {
         ...base,
@@ -455,10 +512,10 @@ function buildRegistryRecord(
         ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
         ...(spec.authors ? { authors: spec.authors } : {}),
         ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
-        regimeType: spec.regimeType,
         usedByModelIds: spec.usedByModelIds,
         relatedModuleIds: spec.relatedModuleIds,
         paperIds: spec.paperIds,
+        ...(spec.regimeType ? { regimeType: spec.regimeType } : {}),
         ...(spec.conceptType ? { conceptType: spec.conceptType } : {}),
         ...(spec.variantGroup ? { variantGroup: spec.variantGroup } : {}),
       };
@@ -468,13 +525,13 @@ function buildRegistryRecord(
         ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
         ...(spec.authors ? { authors: spec.authors } : {}),
         ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
-        systemType: spec.systemType,
         relatedModelIds: spec.relatedModelIds,
         relatedModuleIds: spec.relatedModuleIds,
         relatedConceptIds: spec.relatedConceptIds,
         paperIds: spec.paperIds,
         datasetIds: spec.datasetIds,
         ...(spec.organizationId ? { organizationId: spec.organizationId } : {}),
+        ...(spec.systemType ? { systemType: spec.systemType } : {}),
         ...(spec.conceptType ? { conceptType: spec.conceptType } : {}),
         ...(spec.variantGroup ? { variantGroup: spec.variantGroup } : {}),
       };
@@ -681,6 +738,7 @@ export async function generatePageBundle(
       route: routeForSpec(spec),
       plannedFiles,
       writtenFiles: [],
+      warnings: collectDeprecatedTaxonomyWarnings(spec),
     };
   }
 
@@ -708,6 +766,7 @@ export async function generatePageBundle(
     route: routeForSpec(spec),
     plannedFiles,
     writtenFiles: plannedFiles.map((file) => file.path),
+    warnings: collectDeprecatedTaxonomyWarnings(spec),
   };
 }
 
@@ -717,6 +776,14 @@ export function formatGeneratePageBundlePlan(
   const lines = [
     `Registry id: ${result.registryId}`,
     `Route: ${result.route}`,
+    ...(result.warnings.length > 0
+      ? [
+          "Warnings:",
+          ...result.warnings.map(
+            (warning) => `  - ${warning.field}: ${warning.message}`,
+          ),
+        ]
+      : []),
     "Planned files:",
     ...result.plannedFiles.map((file) => `  - ${file.path} (${file.label})`),
   ];

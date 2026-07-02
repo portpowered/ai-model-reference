@@ -1,12 +1,16 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { getRegistryCollectionRoot } from "@/lib/content/content-paths";
-import type { DocsPageSource } from "@/lib/content/pages";
+import {
+  type DocsPageSource,
+  loadPublishedDocsPagesSync,
+} from "@/lib/content/pages";
 import {
   docsSectionFromSlug,
   type PublishedDocsEntry,
   type PublishedDocsRegistryIds,
 } from "@/lib/content/published-docs-registry-contract";
+import type { SiteLocale } from "@/lib/i18n/locale-routing";
 
 export type ScannedPublishedDocsEntry = PublishedDocsEntry & {
   pageDir: string;
@@ -18,6 +22,47 @@ export type ScannedPublishedDocsIndex = {
   bySlug: ReadonlyMap<string, readonly ScannedPublishedDocsEntry[]>;
   registryIds: PublishedDocsRegistryIds;
 };
+
+export type PublishedDocsRuntimeManifest = {
+  entries: readonly PublishedDocsEntry[];
+  registryIds: readonly string[];
+  publishedConceptSectionRegistryIds: readonly string[];
+  moduleBackedConceptRegistryIds: readonly string[];
+};
+
+function publishedDocsRegistryEntryPriority(entry: PublishedDocsEntry): number {
+  if (entry.pageKind === "concept" && entry.section === "concepts") {
+    return 2;
+  }
+
+  if (entry.pageKind === "glossary" && entry.section === "glossary") {
+    return 1;
+  }
+
+  return 0;
+}
+
+function resolvePublishedDocsRegistryEntryCollision(
+  existingEntry: ScannedPublishedDocsEntry,
+  candidateEntry: ScannedPublishedDocsEntry,
+): ScannedPublishedDocsEntry {
+  const existingPriority = publishedDocsRegistryEntryPriority(existingEntry);
+  const candidatePriority = publishedDocsRegistryEntryPriority(candidateEntry);
+
+  if (existingPriority === 0 || candidatePriority === 0) {
+    throw new Error(
+      `Duplicate published docs registryId "${existingEntry.registryId}" at "${existingEntry.docsSlug}" and "${candidateEntry.docsSlug}"`,
+    );
+  }
+
+  if (existingPriority === candidatePriority) {
+    throw new Error(
+      `Ambiguous published docs registryId "${existingEntry.registryId}" at "${existingEntry.docsSlug}" and "${candidateEntry.docsSlug}"`,
+    );
+  }
+
+  return candidatePriority > existingPriority ? candidateEntry : existingEntry;
+}
 
 function toScannedPublishedDocsEntry(
   page: DocsPageSource,
@@ -50,12 +95,13 @@ export function buildPublishedDocsIndex(
   for (const entry of entries) {
     const existingEntry = byRegistryId.get(entry.registryId);
     if (existingEntry) {
-      throw new Error(
-        `Duplicate published docs registryId "${entry.registryId}" at "${existingEntry.docsSlug}" and "${entry.docsSlug}"`,
+      byRegistryId.set(
+        entry.registryId,
+        resolvePublishedDocsRegistryEntryCollision(existingEntry, entry),
       );
+    } else {
+      byRegistryId.set(entry.registryId, entry);
     }
-
-    byRegistryId.set(entry.registryId, entry);
 
     const slugEntries = bySlug.get(entry.slug);
     if (slugEntries) {
@@ -119,4 +165,24 @@ export function derivePublishedDocsRegistryIds(
   }
 
   return [...registryIds].sort();
+}
+
+export function derivePublishedDocsRuntimeManifest(
+  index: ScannedPublishedDocsIndex,
+): PublishedDocsRuntimeManifest {
+  return {
+    entries: index.entries.map(({ pageDir: _pageDir, ...entry }) => entry),
+    registryIds: derivePublishedDocsRegistryIds(index),
+    publishedConceptSectionRegistryIds:
+      derivePublishedConceptSectionRegistryIds(index),
+    moduleBackedConceptRegistryIds: deriveModuleBackedConceptRegistryIds(index),
+  };
+}
+
+export function loadPublishedDocsRuntimeManifestSync(
+  locale: SiteLocale,
+): PublishedDocsRuntimeManifest {
+  return derivePublishedDocsRuntimeManifest(
+    buildPublishedDocsIndex(loadPublishedDocsPagesSync(locale)),
+  );
 }

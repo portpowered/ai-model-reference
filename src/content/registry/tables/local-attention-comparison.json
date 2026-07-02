@@ -1,0 +1,58 @@
+{
+  "id": "table.local-attention-comparison",
+  "subjectId": "module.local-attention",
+  "columns": [
+    {
+      "moduleId": "module.local-attention",
+      "titleKey": "tables.comparison.columns.local.title"
+    },
+    {
+      "moduleId": "module.attention",
+      "titleKey": "tables.comparison.columns.attention.title"
+    },
+    {
+      "moduleId": "module.sliding-window-attention",
+      "titleKey": "tables.comparison.columns.slidingWindow.title"
+    },
+    {
+      "moduleId": "module.sparse-attention",
+      "titleKey": "tables.comparison.columns.sparse.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "reachPattern",
+      "labelKey": "tables.comparison.dimensions.reachPattern"
+    },
+    {
+      "id": "computeScaling",
+      "labelKey": "tables.comparison.dimensions.computeScaling"
+    },
+    {
+      "id": "distantTokenPath",
+      "labelKey": "tables.comparison.dimensions.distantTokenPath"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.local-attention": {
+      "reachPattern": "tables.comparison.values.local.reachPattern",
+      "computeScaling": "tables.comparison.values.local.computeScaling",
+      "distantTokenPath": "tables.comparison.values.local.distantTokenPath"
+    },
+    "module.attention": {
+      "reachPattern": "tables.comparison.values.attention.reachPattern",
+      "computeScaling": "tables.comparison.values.attention.computeScaling",
+      "distantTokenPath": "tables.comparison.values.attention.distantTokenPath"
+    },
+    "module.sliding-window-attention": {
+      "reachPattern": "tables.comparison.values.slidingWindow.reachPattern",
+      "computeScaling": "tables.comparison.values.slidingWindow.computeScaling",
+      "distantTokenPath": "tables.comparison.values.slidingWindow.distantTokenPath"
+    },
+    "module.sparse-attention": {
+      "reachPattern": "tables.comparison.values.sparse.reachPattern",
+      "computeScaling": "tables.comparison.values.sparse.computeScaling",
+      "distantTokenPath": "tables.comparison.values.sparse.distantTokenPath"
+    }
+  }
+}

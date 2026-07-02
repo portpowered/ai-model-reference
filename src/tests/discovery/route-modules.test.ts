@@ -20,6 +20,7 @@ const EXPLICIT_SITE_PAGE_MODULES = [
     modulePath: "(site)/docs/architecture/page.tsx",
   },
   { route: "/docs/glossary", modulePath: "(site)/docs/glossary/page.tsx" },
+  { route: "/docs/timeline", modulePath: "docs/timeline/page.tsx" },
   { route: "/tags", modulePath: "(site)/tags/page.tsx" },
   { route: "/tags/attention", modulePath: "(site)/tags/[slug]/page.tsx" },
 ] as const;

@@ -7,6 +7,10 @@ import {
 } from "@/lib/build/verify-export-base-path";
 import { verifyGroupedQueryAttentionBuiltRouteFromHtml } from "@/lib/build/verify-grouped-query-attention-built-route";
 import {
+  CRITICAL_DOCS_SMOKE_REPRESENTATIVE_EXPORT_ROUTES,
+  type CriticalDocsSmokeRepresentativeExportRoute,
+} from "@/lib/content/critical-docs-smoke";
+import {
   PHASE_1_ROUTE_ASSERTIONS,
   type Phase1RouteAssertion,
 } from "@/lib/verify/phase-1-route-checks";
@@ -14,18 +18,25 @@ import {
 /** Default static export output directory from `bun run build:export`. */
 export const DEFAULT_EXPORT_OUT_DIR = "out";
 
-/** Phase 1 reader routes verified in the exported `out/` artifact. */
-export const PHASE_1_EXPORT_ROUTES = [
+/** Non-doc shell routes that remain required regardless of critical-doc coverage. */
+const PHASE_1_CORE_EXPORT_ROUTES = [
   "/",
   "/search",
   "/docs/architecture",
   "/docs/glossary",
-  "/docs/modules/grouped-query-attention",
   "/tags",
   "/tags/attention",
 ] as const;
 
-export type Phase1ExportRoute = (typeof PHASE_1_EXPORT_ROUTES)[number];
+/** Phase 1 export routes plus representative critical-doc probes from shared discovery coverage. */
+export const PHASE_1_EXPORT_ROUTES: readonly Phase1ExportRoute[] = [
+  ...PHASE_1_CORE_EXPORT_ROUTES,
+  ...CRITICAL_DOCS_SMOKE_REPRESENTATIVE_EXPORT_ROUTES,
+];
+
+export type Phase1ExportRoute =
+  | (typeof PHASE_1_CORE_EXPORT_ROUTES)[number]
+  | CriticalDocsSmokeRepresentativeExportRoute;
 
 let cachedPhase1ExportRouteAssertions:
   | readonly Phase1RouteAssertion[]

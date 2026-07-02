@@ -4,7 +4,14 @@
   "title": "Page Spec Workflow Sample",
   "summary": "A small generated concept page that demonstrates the page-spec bundle workflow end to end.",
   "status": "published",
-  "conceptType": "general",
+  "primaryClassificationId": "classification.reference-workflows",
+  "secondaryClassificationIds": ["classification.authoring-systems"],
+  "relationships": [
+    {
+      "relationshipType": "related",
+      "targetId": "concept.context-extension"
+    }
+  ],
   "aliases": ["page spec sample"],
   "tags": ["foundations"],
   "relatedIds": ["concept.token", "concept.context-extension"],

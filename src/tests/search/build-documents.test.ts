@@ -8,6 +8,7 @@ import { buildSearchDocuments } from "@/lib/search/build-documents";
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 const RELU_MODULE_URL = "/docs/modules/relu";
+const UNIGRAM_TOKENIZER_URL = "/docs/modules/unigram-tokenizer";
 
 function buildRegistryIndexes(records: ModuleRecord[]): RegistryIndexes {
   return {
@@ -16,6 +17,28 @@ function buildRegistryIndexes(records: ModuleRecord[]): RegistryIndexes {
     classificationsById: new Map(),
     tagsById: new Map(),
     tagsBySlug: new Map(),
+  };
+}
+
+function buildClassificationRecord(
+  overrides: Partial<ClassificationRecord> = {},
+): ClassificationRecord {
+  return {
+    id: "classification.module.attention",
+    slug: "attention-mechanisms",
+    kind: "classification",
+    defaultTitleKey: "title",
+    defaultSummaryKey: "description",
+    aliases: ["attention mechanism"],
+    tags: [],
+    relatedIds: [],
+    citationIds: [],
+    status: "published",
+    createdAt: "2026-06-20T00:00:00.000Z",
+    updatedAt: "2026-06-20T00:00:00.000Z",
+    classificationType: "mechanism",
+    classifiesKinds: ["module"],
+    ...overrides,
   };
 }
 
@@ -134,12 +157,12 @@ describe("buildSearchDocuments", () => {
 
     expect(relu).toBeDefined();
     expect(relu?.topology.primaryClassificationId).toBe(
-      "classification.activation-functions",
+      "classification.module.activation",
     );
     expect(relu?.topology.secondaryClassificationIds).toEqual([]);
     expect(relu?.topology.primaryClassification).toEqual(
       expect.objectContaining({
-        id: "classification.activation-functions",
+        id: "classification.module.activation",
         slug: "activation-functions",
         label: "activation functions",
         aliases: expect.arrayContaining([
@@ -147,6 +170,7 @@ describe("buildSearchDocuments", () => {
           "activation family",
         ]),
         terms: expect.arrayContaining([
+          "classification.module.activation",
           "classification.activation-functions",
           "activation-functions",
           "activation functions",
@@ -199,11 +223,39 @@ describe("buildSearchDocuments", () => {
       secondaryClassificationIds: [],
       primaryClassification: undefined,
       secondaryClassifications: [],
+      classificationIds: [],
+      ancestorClassificationIds: [],
+      ancestorClassifications: [],
+      rootClassificationIds: [],
+      rootClassifications: [],
       relationships: [],
+      relatedTopologyIds: [],
       terms: [],
     });
     expect(document?.title).toBe("Synthetic Module");
     expect(document?.facets.moduleType).toBe("other");
+  });
+
+  test("derives moduleType from ontology classification when legacy moduleType disagrees", () => {
+    const record = buildSyntheticModule({
+      moduleType: "other",
+      primaryClassificationId: "classification.module.attention",
+    });
+    const classification = buildClassificationRecord();
+    const indexes = buildRegistryIndexes([record]);
+    indexes.byId.set(classification.id, classification);
+    indexes.bySlug.set(classification.slug, classification);
+    indexes.classificationsById.set(classification.id, classification);
+
+    const document = buildSearchDocuments(
+      [buildSyntheticPage(record.id)],
+      indexes,
+    )[0];
+
+    expect(document?.topology.primaryClassificationId).toBe(
+      "classification.module.attention",
+    );
+    expect(document?.facets.moduleType).toBe("attention");
   });
 
   test("keeps documents searchable when classification targets are missing or draft", () => {
@@ -246,9 +298,7 @@ describe("buildSearchDocuments", () => {
       indexes,
     )[0];
 
-    expect(document?.topology.primaryClassificationId).toBe(
-      "classification.missing-family",
-    );
+    expect(document?.topology.primaryClassificationId).toBeUndefined();
     expect(document?.topology.primaryClassification).toBeUndefined();
     expect(document?.topology.secondaryClassificationIds).toEqual([
       "classification.draft-family",
@@ -264,5 +314,33 @@ describe("buildSearchDocuments", () => {
       },
     ]);
     expect(document?.title).toBe("Synthetic Module");
+  });
+
+  test("indexes published unigram tokenizer page with tokenizer-specific aliases and body text", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const unigram = documents.find(
+      (document) => document.url === UNIGRAM_TOKENIZER_URL,
+    );
+
+    expect(unigram).toBeDefined();
+    expect(unigram?.title).toBe("Unigram Tokenizer");
+    expect(unigram?.description).toContain("highest-scoring");
+    expect(unigram?.kind).toBe("module");
+    expect(unigram?.registryId).toBe("module.unigram-tokenizer");
+    expect(unigram?.aliases).toEqual(
+      expect.arrayContaining([
+        "unigram tokenizer",
+        "unigram tokenization",
+        "SentencePiece unigram",
+      ]),
+    );
+    expect(unigram?.tags).toEqual(
+      expect.arrayContaining(["foundations", "token-to-probability-chain"]),
+    );
+    expect(unigram?.bodyText).toContain("SentencePiece-style");
+    expect(unigram?.bodyText).toContain("merge-based");
+    expect(unigram?.facets.moduleType).toBe("tokenizer");
   });
 });

@@ -1,0 +1,46 @@
+{
+  "id": "table.clip-image-tokenization-comparison",
+  "subjectId": "module.clip-image-tokenization",
+  "columns": [
+    {
+      "moduleId": "module.clip-image-tokenization",
+      "titleKey": "tables.comparison.columns.clipImage.title"
+    },
+    {
+      "moduleId": "module.bpe",
+      "titleKey": "tables.comparison.columns.bpe.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "inputType",
+      "labelKey": "tables.comparison.dimensions.inputType"
+    },
+    {
+      "id": "baseUnit",
+      "labelKey": "tables.comparison.dimensions.baseUnit"
+    },
+    {
+      "id": "outputForm",
+      "labelKey": "tables.comparison.dimensions.outputForm"
+    },
+    {
+      "id": "mainTradeoff",
+      "labelKey": "tables.comparison.dimensions.mainTradeoff"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.clip-image-tokenization": {
+      "inputType": "tables.comparison.values.clipImage.inputType",
+      "baseUnit": "tables.comparison.values.clipImage.baseUnit",
+      "outputForm": "tables.comparison.values.clipImage.outputForm",
+      "mainTradeoff": "tables.comparison.values.clipImage.mainTradeoff"
+    },
+    "module.bpe": {
+      "inputType": "tables.comparison.values.bpe.inputType",
+      "baseUnit": "tables.comparison.values.bpe.baseUnit",
+      "outputForm": "tables.comparison.values.bpe.outputForm",
+      "mainTradeoff": "tables.comparison.values.bpe.mainTradeoff"
+    }
+  }
+}

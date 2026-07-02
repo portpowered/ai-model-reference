@@ -19,7 +19,7 @@ const ROPE_GLOSSARY_URL = "/docs/modules/rope";
 const CONTEXT_WINDOW_GLOSSARY_URL = "/docs/glossary/context-window";
 const FEED_FORWARD_NETWORK_GLOSSARY_URL = "/docs/modules/feed-forward-network";
 const STANDARD_FFN_GLOSSARY_URL = "/docs/modules/standard-ffn";
-const MIXTURE_OF_EXPERTS_GLOSSARY_URL = "/docs/modules/mixture-of-experts";
+const MIXTURE_OF_EXPERTS_CONCEPT_URL = "/docs/concepts/mixture-of-experts";
 const RELU_GLOSSARY_URL = "/docs/modules/relu";
 const LEAKY_RELU_GLOSSARY_URL = "/docs/modules/leaky-relu";
 const SILU_GLOSSARY_URL = "/docs/modules/silu";
@@ -73,8 +73,8 @@ const GLOSSARY_CANONICAL_QUERIES = [
   },
   {
     query: "mixture of experts",
-    url: MIXTURE_OF_EXPERTS_GLOSSARY_URL,
-    kind: "module" as const,
+    url: MIXTURE_OF_EXPERTS_CONCEPT_URL,
+    kind: "concept" as const,
   },
   { query: "ReLU", url: RELU_GLOSSARY_URL, kind: "module" as const },
   {
@@ -200,7 +200,7 @@ describe("Phase 2/3 reconciliation search UI kind labels (US-010)", () => {
     [CONTEXT_WINDOW_GLOSSARY_URL, "glossary", "Glossary"],
     [FEED_FORWARD_NETWORK_GLOSSARY_URL, "module", "Module"],
     [STANDARD_FFN_GLOSSARY_URL, "module", "Module"],
-    [MIXTURE_OF_EXPERTS_GLOSSARY_URL, "module", "Module"],
+    [MIXTURE_OF_EXPERTS_CONCEPT_URL, "concept", "Concept"],
     [RELU_GLOSSARY_URL, "module", "Module"],
     [LEAKY_RELU_GLOSSARY_URL, "module", "Module"],
     [SILU_GLOSSARY_URL, "module", "Module"],

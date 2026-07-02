@@ -201,6 +201,21 @@ describe("createModelAtlasSearchClient", () => {
     });
   });
 
+  test("resolves ancestor classifications as scopes for descendant searches", async () => {
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const client = createModelAtlasSearchClient({
+        metaByUrl,
+        client: { from: TEST_DOCS_SEARCH_URL },
+        classification: "neural-network-components",
+      });
+      const results = await client.search("");
+
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeUrl(results, "/docs/modules/layer-norm")).toBe(true);
+      expect(resultsIncludeUrl(results, "/docs/modules/attention")).toBe(true);
+    });
+  });
+
   test("returns at most one hit per canonical page URL for KV cache query", async () => {
     await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
       const client = createModelAtlasSearchClient({

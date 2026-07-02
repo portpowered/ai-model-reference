@@ -1,46 +1,21 @@
-import type { Node, Root } from "fumadocs-core/page-tree";
+import type { Root } from "fumadocs-core/page-tree";
 import {
   type DocsPageSource,
   loadPublishedDocsPagesSync,
 } from "@/lib/content/pages";
+import type {
+  DocsCollectionDefinition,
+  DocsCollectionId,
+} from "@/lib/docs/collection-definition-contract";
+import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
+import { buildGroupedSidebarNodes } from "@/lib/navigation/docs-sidebar-grouping-adapter";
 import {
-  getConceptById,
-  getModuleById,
-  getSystemById,
-  getTrainingRegimeById,
-} from "@/lib/content/registry-runtime";
-import {
-  getSidebarGroupIdsForSection,
-  getSidebarGroupLabel,
-  resolveConceptsSidebarGroup,
-  resolveGlossarySidebarGroup,
-  resolveModulesSidebarGroup,
-  resolveSystemsSidebarGroup,
-  resolveTrainingSidebarGroup,
-  type SidebarGroupIdBySection,
-  type SidebarGroupingSection,
-} from "@/lib/content/sidebar-grouping";
+  buildShellCollectionPageTree,
+  type ShellCollectionSidebarDefinition,
+  type ShellSidebarGroupingResolver,
+} from "@/lib/navigation/shell-collection-page-tree";
 
-type SectionKey =
-  | "glossary"
-  | "concepts"
-  | "modules"
-  | "models"
-  | "papers"
-  | "training"
-  | "systems";
-
-const SECTION_ORDER: readonly SectionKey[] = [
-  "glossary",
-  "concepts",
-  "modules",
-  "models",
-  "papers",
-  "training",
-  "systems",
-];
-
-const SECTION_TITLES: Record<SectionKey, string> = {
+const SIDEBAR_FOLDER_TITLES: Record<DocsCollectionId, string> = {
   glossary: "Glossary",
   concepts: "Concepts",
   modules: "Modules",
@@ -50,192 +25,42 @@ const SECTION_TITLES: Record<SectionKey, string> = {
   systems: "Systems",
 };
 
-function createPageNode(page: DocsPageSource): Node {
+function toShellSidebarDefinition(
+  definition: DocsCollectionDefinition,
+): ShellCollectionSidebarDefinition {
   return {
-    type: "page",
-    name: page.messages.title,
-    url: page.url,
+    id: definition.id,
+    routeSlug: definition.routeSlug,
+    frontmatterKind: definition.frontmatterKind,
+    sidebarLabel: SIDEBAR_FOLDER_TITLES[definition.id],
+    sidebarGroupingResolverId: definition.sidebarGroupingResolverId,
   };
 }
 
-function createSeparator(name: string): Node {
-  return {
-    type: "separator",
-    name,
-  };
-}
-
-function sortPages(pages: DocsPageSource[]): DocsPageSource[] {
-  return [...pages].sort((left, right) =>
-    left.messages.title.localeCompare(right.messages.title, "en", {
-      sensitivity: "base",
-    }),
-  );
-}
-
-function groupPages(
-  pages: DocsPageSource[],
-  groups: ReadonlyArray<{
-    name: string;
-    matchesPage: (page: DocsPageSource) => boolean;
-  }>,
-): Node[] {
-  const remaining = new Set(pages.map((page) => page.docsSlug));
-  const nodes: Node[] = [];
-
-  for (const group of groups) {
-    const groupedPages = sortPages(
-      pages.filter(
-        (page) => remaining.has(page.docsSlug) && group.matchesPage(page),
-      ),
-    );
-    if (groupedPages.length === 0) {
-      continue;
-    }
-
-    nodes.push(createSeparator(group.name));
-    for (const page of groupedPages) {
-      remaining.delete(page.docsSlug);
-      nodes.push(createPageNode(page));
-    }
-  }
-
-  for (const page of sortPages(
-    pages.filter((page) => remaining.has(page.docsSlug)),
-  )) {
-    nodes.push(createPageNode(page));
-  }
-
-  return nodes;
-}
-
-function groupPagesBySection<Section extends SidebarGroupingSection>(
-  section: Section,
-  pages: DocsPageSource[],
-  resolveGroupId: (
-    page: DocsPageSource,
-  ) => SidebarGroupIdBySection[Section] | undefined,
-): Node[] {
-  return groupPages(
-    pages,
-    getSidebarGroupIdsForSection(section).map((groupId) => ({
-      name: getSidebarGroupLabel(section, groupId),
-      matchesPage: (page) => resolveGroupId(page) === groupId,
-    })),
-  );
-}
-
-function generateGlossaryNodes(pages: DocsPageSource[]): Node[] {
-  return groupPagesBySection("glossary", pages, (page) => {
-    const record = getConceptById(page.frontmatter.registryId);
-    return record ? resolveGlossarySidebarGroup(record) : undefined;
-  });
-}
-
-function generateConceptNodes(pages: DocsPageSource[]): Node[] {
-  return groupPagesBySection("concepts", pages, (page) => {
-    const record = getConceptById(page.frontmatter.registryId);
-    return record ? resolveConceptsSidebarGroup(record) : undefined;
-  });
-}
-
-function generateModuleNodes(pages: DocsPageSource[]): Node[] {
-  return groupPagesBySection("modules", pages, (page) => {
-    const record = getModuleById(page.frontmatter.registryId);
-    return record ? resolveModulesSidebarGroup(record) : undefined;
-  });
-}
-
-function generateTrainingNodes(pages: DocsPageSource[]): Node[] {
-  return groupPagesBySection("training", pages, (page) => {
-    const record = getTrainingRegimeById(page.frontmatter.registryId);
-    return record ? resolveTrainingSidebarGroup(record) : undefined;
-  });
-}
-
-function generateSystemNodes(pages: DocsPageSource[]): Node[] {
-  return groupPagesBySection("systems", pages, (page) => {
-    const record = getSystemById(page.frontmatter.registryId);
-    return record ? resolveSystemsSidebarGroup(record) : undefined;
-  });
-}
-
-function generateModelNodes(pages: DocsPageSource[]): Node[] {
-  return sortPages(pages).map(createPageNode);
-}
-
-function generatePaperNodes(pages: DocsPageSource[]): Node[] {
-  return sortPages(pages).map(createPageNode);
-}
-
-function generateSectionNodes(
-  section: SectionKey,
-  pages: DocsPageSource[],
-): Node[] {
-  switch (section) {
-    case "glossary":
-      return generateGlossaryNodes(pages);
-    case "concepts":
-      return generateConceptNodes(pages);
-    case "modules":
-      return generateModuleNodes(pages);
-    case "models":
-      return generateModelNodes(pages);
-    case "papers":
-      return generatePaperNodes(pages);
-    case "training":
-      return generateTrainingNodes(pages);
-    case "systems":
-      return generateSystemNodes(pages);
-  }
-}
+const AI_SIDEBAR_GROUPING_RESOLVERS: Record<
+  string,
+  ShellSidebarGroupingResolver
+> = {
+  glossary: (pages) =>
+    buildGroupedSidebarNodes("glossary", pages as DocsPageSource[]),
+  concepts: (pages) =>
+    buildGroupedSidebarNodes("concepts", pages as DocsPageSource[]),
+  modules: (pages) =>
+    buildGroupedSidebarNodes("modules", pages as DocsPageSource[]),
+  training: (pages) =>
+    buildGroupedSidebarNodes("training", pages as DocsPageSource[]),
+  systems: (pages) =>
+    buildGroupedSidebarNodes("systems", pages as DocsPageSource[]),
+};
 
 export function buildGeneratedDocsPageTree(baseTree: Root): Root {
+  const collectionDefinitions = listDocsCollectionDefinitions();
   const pages = loadPublishedDocsPagesSync("en");
-  const pagesBySection = new Map<SectionKey, DocsPageSource[]>(
-    SECTION_ORDER.map((section) => [section, []]),
-  );
 
-  for (const page of pages) {
-    const [section] = page.docsSlug.split("/", 1);
-    if (
-      section === "glossary" ||
-      section === "concepts" ||
-      section === "modules" ||
-      section === "models" ||
-      section === "papers" ||
-      section === "training" ||
-      section === "systems"
-    ) {
-      pagesBySection.get(section)?.push(page);
-    }
-  }
-
-  const gettingStarted = baseTree.children.find(
-    (node) =>
-      node.type === "page" &&
-      "url" in node &&
-      node.url === "/docs/getting-started",
-  );
-
-  const children: Node[] = [];
-  if (gettingStarted) {
-    children.push(gettingStarted);
-  }
-
-  for (const section of SECTION_ORDER) {
-    children.push({
-      type: "folder",
-      name: SECTION_TITLES[section],
-      children: generateSectionNodes(
-        section,
-        pagesBySection.get(section) ?? [],
-      ),
-    });
-  }
-
-  return {
-    ...baseTree,
-    children,
-  };
+  return buildShellCollectionPageTree(baseTree, {
+    pages,
+    definitions: collectionDefinitions.map(toShellSidebarDefinition),
+    collectionIds: collectionDefinitions.map((definition) => definition.id),
+    groupingResolvers: AI_SIDEBAR_GROUPING_RESOLVERS,
+  });
 }

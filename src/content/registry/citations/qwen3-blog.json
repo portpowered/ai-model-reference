@@ -1,0 +1,20 @@
+{
+  "id": "citation.qwen3-blog",
+  "slug": "qwen3-blog",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Qwen3 release blog", "Qwen3: Think Deeper, Act Faster"],
+  "tags": ["model-family", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["Qwen Team"],
+  "title": "Qwen3: Think Deeper, Act Faster",
+  "url": "https://qwenlm.github.io/blog/qwen3/",
+  "mla": "Qwen Team. \"Qwen3: Think Deeper, Act Faster.\" Qwen, April 2025.",
+  "year": 2025
+}

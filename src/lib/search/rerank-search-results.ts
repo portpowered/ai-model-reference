@@ -1,4 +1,8 @@
 import type { SortedResult } from "fumadocs-core/search";
+import {
+  ontologyRelationshipPriority,
+  relationshipOutranksClassificationSibling,
+} from "@/lib/content/ontology-peer-policy";
 import type { SearchClassificationScope } from "./classification-scope";
 import { pageBaseUrl } from "./collapse-search-results-to-page-hits";
 import { expandTopologySearchTerm } from "./topology-search-terms";
@@ -55,6 +59,39 @@ function topologyRelationshipTerms(document: SearchDocument): string[] {
   ]);
 }
 
+function matchingRelationshipPriority(
+  predicate: (
+    relationship: SearchDocument["topology"]["relationships"][number],
+  ) => boolean,
+  document: SearchDocument,
+): { priority: number; outranksClassificationSibling: boolean } | undefined {
+  const matchingRelationships =
+    document.topology.relationships.filter(predicate);
+  if (matchingRelationships.length === 0) {
+    return undefined;
+  }
+
+  let bestPriority = Number.POSITIVE_INFINITY;
+  let outranksSibling = false;
+
+  for (const relationship of matchingRelationships) {
+    bestPriority = Math.min(
+      bestPriority,
+      ontologyRelationshipPriority(relationship.relationshipType),
+    );
+    if (
+      relationshipOutranksClassificationSibling(relationship.relationshipType)
+    ) {
+      outranksSibling = true;
+    }
+  }
+
+  return {
+    priority: bestPriority,
+    outranksClassificationSibling: outranksSibling,
+  };
+}
+
 function topologyMatchPriority(
   query: string,
   document: SearchDocument | undefined,
@@ -73,19 +110,37 @@ function topologyMatchPriority(
     return 0;
   }
 
+  const relationshipPriority = matchingRelationshipPriority(
+    (relationship) =>
+      topologyTermsMatchQuery(query, [
+        relationship.relationshipType,
+        relationship.targetId,
+        relationship.targetSlug ?? "",
+        ...relationship.targetAliases,
+      ]),
+    document,
+  );
+  if (relationshipPriority?.outranksClassificationSibling) {
+    return 1 + relationshipPriority.priority;
+  }
+
   if (
     document.topology.secondaryClassifications.some((classification) =>
       topologyTermsMatchQuery(query, classification.terms),
     )
   ) {
-    return 1;
+    return 10;
+  }
+
+  if (relationshipPriority) {
+    return 20 + relationshipPriority.priority;
   }
 
   if (topologyTermsMatchQuery(query, topologyRelationshipTerms(document))) {
-    return 2;
+    return 30;
   }
 
-  return 3;
+  return 40;
 }
 
 function classificationScopePriority(
@@ -104,14 +159,31 @@ function classificationScopePriority(
     return 1;
   }
 
-  if (
-    topologyTermsMatchQuery(scope.label, document.topology.terms) ||
-    topologyTermsMatchQuery(scope.slug, document.topology.terms)
-  ) {
+  if (document.topology.ancestorClassificationIds?.includes(scope.id)) {
     return 2;
   }
 
-  return 3;
+  const relationshipPriority = matchingRelationshipPriority(
+    (relationship) => relationship.targetId === scope.id,
+    document,
+  );
+  if (relationshipPriority?.outranksClassificationSibling) {
+    return 3 + relationshipPriority.priority;
+  }
+
+  if (
+    topologyTermsMatchQuery(scope.label, document.topology.terms) ||
+    topologyTermsMatchQuery(scope.slug, document.topology.terms) ||
+    topologyTermsMatchQuery(scope.requested, document.topology.terms)
+  ) {
+    return 20;
+  }
+
+  if (relationshipPriority) {
+    return 30 + relationshipPriority.priority;
+  }
+
+  return 40;
 }
 
 function scoreDocumentMatch(query: string, document: SearchDocument): number {
@@ -136,6 +208,53 @@ function scoreDocumentMatch(query: string, document: SearchDocument): number {
   return 0;
 }
 
+function titleMatchKindPriority(kind: string): number {
+  if (kind === "concept") {
+    return 0;
+  }
+  if (kind === "glossary") {
+    return 1;
+  }
+  if (kind === "paper") {
+    return 2;
+  }
+  if (kind === "module") {
+    return 3;
+  }
+  return 4;
+}
+
+function shouldReplaceBestTitleMatch(
+  currentBestUrl: string | undefined,
+  currentBestScore: number,
+  candidateUrl: string,
+  candidateScore: number,
+  documentsByUrl: Map<string, SearchDocument>,
+): boolean {
+  if (candidateScore > currentBestScore) {
+    return true;
+  }
+
+  if (
+    candidateScore < 90 ||
+    candidateScore !== currentBestScore ||
+    !currentBestUrl
+  ) {
+    return false;
+  }
+
+  const currentBestDocument = documentsByUrl.get(currentBestUrl);
+  const candidateDocument = documentsByUrl.get(candidateUrl);
+  if (!currentBestDocument || !candidateDocument) {
+    return false;
+  }
+
+  return (
+    titleMatchKindPriority(candidateDocument.kind) <
+    titleMatchKindPriority(currentBestDocument.kind)
+  );
+}
+
 export function findBestTitleMatchPageUrl(
   query: string,
   documentsByUrl: Map<string, SearchDocument>,
@@ -145,13 +264,40 @@ export function findBestTitleMatchPageUrl(
 
   for (const [url, document] of documentsByUrl) {
     const score = scoreDocumentMatch(query, document);
-    if (score > bestScore) {
+    if (
+      shouldReplaceBestTitleMatch(
+        bestUrl,
+        bestScore,
+        url,
+        score,
+        documentsByUrl,
+      )
+    ) {
       bestScore = score;
       bestUrl = url;
     }
   }
 
-  return bestScore >= 90 ? bestUrl : undefined;
+  if (bestScore < 90 || !bestUrl) {
+    return undefined;
+  }
+
+  const bestDocument = documentsByUrl.get(bestUrl);
+  if (bestDocument?.kind !== "glossary" || !bestDocument.registryId) {
+    return bestUrl;
+  }
+
+  for (const [url, document] of documentsByUrl) {
+    if (
+      document.kind === "concept" &&
+      document.registryId === bestDocument.registryId &&
+      scoreDocumentMatch(query, document) >= 95
+    ) {
+      return url;
+    }
+  }
+
+  return bestUrl;
 }
 
 function resultPriority(

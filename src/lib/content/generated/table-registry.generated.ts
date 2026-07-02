@@ -3,8 +3,12 @@
 
 import batchNormComparisonTableRecord from "@/content/registry/tables/batch-norm-comparison.json";
 import bidirectionalAttentionComparisonTableRecord from "@/content/registry/tables/bidirectional-attention-comparison.json";
+import blockSparseAttentionComparisonTableRecord from "@/content/registry/tables/block-sparse-attention-comparison.json";
 import bpeComparisonTableRecord from "@/content/registry/tables/bpe-comparison.json";
 import byteLevelTokenizationComparisonTableRecord from "@/content/registry/tables/byte-level-tokenization-comparison.json";
+import causalAttentionComparisonTableRecord from "@/content/registry/tables/causal-attention-comparison.json";
+import clipImageTokenizationComparisonTableRecord from "@/content/registry/tables/clip-image-tokenization-comparison.json";
+import crossAttentionComparisonTableRecord from "@/content/registry/tables/cross-attention-comparison.json";
 import feedForwardNetworkComparisonTableRecord from "@/content/registry/tables/feed-forward-network-comparison.json";
 import geluComparisonTableRecord from "@/content/registry/tables/gelu-comparison.json";
 import groupNormComparisonTableRecord from "@/content/registry/tables/group-norm-comparison.json";
@@ -12,10 +16,12 @@ import groupedQueryAttentionComparisonTableRecord from "@/content/registry/table
 import layerNormComparisonTableRecord from "@/content/registry/tables/layer-norm-comparison.json";
 import leakyReluComparisonTableRecord from "@/content/registry/tables/leaky-relu-comparison.json";
 import linearAttentionComparisonTableRecord from "@/content/registry/tables/linear-attention-comparison.json";
+import localAttentionComparisonTableRecord from "@/content/registry/tables/local-attention-comparison.json";
 import mixtureOfExpertsComparisonTableRecord from "@/content/registry/tables/mixture-of-experts-comparison.json";
 import multiHeadAttentionComparisonTableRecord from "@/content/registry/tables/multi-head-attention-comparison.json";
 import multiHeadLatentAttentionComparisonTableRecord from "@/content/registry/tables/multi-head-latent-attention-comparison.json";
 import multiQueryAttentionComparisonTableRecord from "@/content/registry/tables/multi-query-attention-comparison.json";
+import multiTokenPredictionComparisonTableRecord from "@/content/registry/tables/multi-token-prediction-comparison.json";
 import qkNormComparisonTableRecord from "@/content/registry/tables/qk-norm-comparison.json";
 import reluComparisonTableRecord from "@/content/registry/tables/relu-comparison.json";
 import rmsnormComparisonTableRecord from "@/content/registry/tables/rmsnorm-comparison.json";
@@ -26,12 +32,17 @@ import sparseAttentionComparisonTableRecord from "@/content/registry/tables/spar
 import standardFfnComparisonTableRecord from "@/content/registry/tables/standard-ffn-comparison.json";
 import swigluComparisonTableRecord from "@/content/registry/tables/swiglu-comparison.json";
 import tanhComparisonTableRecord from "@/content/registry/tables/tanh-comparison.json";
+import unigramTokenizerComparisonTableRecord from "@/content/registry/tables/unigram-tokenizer-comparison.json";
 
 export const generatedTableRegistrySourceFiles = [
   "batch-norm-comparison.json",
   "bidirectional-attention-comparison.json",
+  "block-sparse-attention-comparison.json",
   "bpe-comparison.json",
   "byte-level-tokenization-comparison.json",
+  "causal-attention-comparison.json",
+  "clip-image-tokenization-comparison.json",
+  "cross-attention-comparison.json",
   "feed-forward-network-comparison.json",
   "gelu-comparison.json",
   "group-norm-comparison.json",
@@ -39,10 +50,12 @@ export const generatedTableRegistrySourceFiles = [
   "layer-norm-comparison.json",
   "leaky-relu-comparison.json",
   "linear-attention-comparison.json",
+  "local-attention-comparison.json",
   "mixture-of-experts-comparison.json",
   "multi-head-attention-comparison.json",
   "multi-head-latent-attention-comparison.json",
   "multi-query-attention-comparison.json",
+  "multi-token-prediction-comparison.json",
   "qk-norm-comparison.json",
   "relu-comparison.json",
   "rmsnorm-comparison.json",
@@ -53,13 +66,18 @@ export const generatedTableRegistrySourceFiles = [
   "standard-ffn-comparison.json",
   "swiglu-comparison.json",
   "tanh-comparison.json",
+  "unigram-tokenizer-comparison.json",
 ] as const;
 
 export const generatedTableRegistryPayloads = [
   batchNormComparisonTableRecord,
   bidirectionalAttentionComparisonTableRecord,
+  blockSparseAttentionComparisonTableRecord,
   bpeComparisonTableRecord,
   byteLevelTokenizationComparisonTableRecord,
+  causalAttentionComparisonTableRecord,
+  clipImageTokenizationComparisonTableRecord,
+  crossAttentionComparisonTableRecord,
   feedForwardNetworkComparisonTableRecord,
   geluComparisonTableRecord,
   groupNormComparisonTableRecord,
@@ -67,10 +85,12 @@ export const generatedTableRegistryPayloads = [
   layerNormComparisonTableRecord,
   leakyReluComparisonTableRecord,
   linearAttentionComparisonTableRecord,
+  localAttentionComparisonTableRecord,
   mixtureOfExpertsComparisonTableRecord,
   multiHeadAttentionComparisonTableRecord,
   multiHeadLatentAttentionComparisonTableRecord,
   multiQueryAttentionComparisonTableRecord,
+  multiTokenPredictionComparisonTableRecord,
   qkNormComparisonTableRecord,
   reluComparisonTableRecord,
   rmsnormComparisonTableRecord,
@@ -81,4 +101,5 @@ export const generatedTableRegistryPayloads = [
   standardFfnComparisonTableRecord,
   swigluComparisonTableRecord,
   tanhComparisonTableRecord,
+  unigramTokenizerComparisonTableRecord,
 ] as const;

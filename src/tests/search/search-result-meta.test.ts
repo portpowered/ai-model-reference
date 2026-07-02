@@ -71,6 +71,13 @@ describe("search result meta", () => {
       }),
     );
     expect(meta?.description.length).toBeGreaterThan(0);
+    expect(meta?.topology.primaryClassificationId).toBe(
+      "classification.module.attention.grouped-query",
+    );
+    expect(meta?.topology.ancestorClassificationIds).toEqual([
+      "classification.module.attention",
+      "classification.module",
+    ]);
   });
 
   test("resolveSearchResultMeta returns kind, description, and tags for token glossary", async () => {

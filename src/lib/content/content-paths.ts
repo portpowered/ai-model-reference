@@ -1,3 +1,14 @@
+/**
+ * Canonical filesystem paths for committed content and generated runtime artifacts.
+ *
+ * **Derived page directory contract.** Ordinary canonical docs pages live under
+ * `src/content/docs/<section>/<slug>`. Callers should resolve a page directory with
+ * {@link getDocsPageDir} from a {@link DocsSection} and slug instead of importing
+ * page-specific exported constants. Shared roots ({@link getDocsRoot},
+ * {@link getRegistryRoot}, {@link getMessagesRoot}, generated roots) and section
+ * roots ({@link getDocsSectionRoot}, `get*DocsRoot`) remain the stable surface for
+ * section-wide or tree-wide operations.
+ */
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -20,6 +31,7 @@ export function getDocsRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "docs");
 }
 
+/** Supported canonical docs sections under `src/content/docs`. */
 export const DOCS_SECTIONS = [
   "glossary",
   "concepts",
@@ -30,6 +42,7 @@ export const DOCS_SECTIONS = [
   "systems",
 ] as const;
 
+/** Canonical docs section identifier for derived page directory lookup. */
 export type DocsSection = (typeof DOCS_SECTIONS)[number];
 
 /** Supported docs sections keyed to the canonical content tree. */
@@ -51,7 +64,13 @@ export function getDocsSectionRoot(
   return join(docsRoot, docsSectionPaths[section]);
 }
 
-/** Docs page directory under `src/content/docs/<section>/<slug>`. */
+/**
+ * Derived docs page directory under `src/content/docs/<section>/<slug>`.
+ *
+ * Use this for ordinary canonical page bundles (model, concept, module, system,
+ * paper, training, or glossary). Do not add new page-specific exported constants
+ * for routine page additions; pass the section and slug here instead.
+ */
 export function getDocsPageDir(
   section: DocsSection,
   slug: string,
@@ -133,6 +152,13 @@ export function getGeneratedContentRuntimeRoot(
   return join(projectRoot, "src", "lib", "content", "generated");
 }
 
+/** Generated Fumadocs bindings under `.source`. */
+export function getGeneratedDocsSourceRoot(
+  projectRoot = getProjectRoot(),
+): string {
+  return join(projectRoot, ".source");
+}
+
 /** Site-wide UI messages under `src/content/messages`. */
 export function getMessagesRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "messages");
@@ -177,6 +203,9 @@ export const REGISTRY_ROOT = getRegistryRoot(contentRoot);
 
 /** Default generated content runtime artifact root. */
 export const GENERATED_CONTENT_RUNTIME_ROOT = getGeneratedContentRuntimeRoot();
+
+/** Default generated Fumadocs bindings root. */
+export const GENERATED_DOCS_SOURCE_ROOT = getGeneratedDocsSourceRoot();
 
 /** Default `src/content/messages` root. */
 export const MESSAGES_ROOT = getMessagesRoot(contentRoot);
@@ -226,6 +255,12 @@ export const LINEAR_ATTENTION_PAGE_DIR = join(
   "linear-attention",
 );
 
+/** Local attention module page directory. */
+export const LOCAL_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "local-attention",
+);
+
 /** Phase 3 sliding-window attention module page directory. */
 export const SLIDING_WINDOW_ATTENTION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,
@@ -238,10 +273,22 @@ export const SPARSE_ATTENTION_PAGE_DIR = join(
   "sparse-attention",
 );
 
+/** Block-sparse attention module page directory. */
+export const BLOCK_SPARSE_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "block-sparse-attention",
+);
+
 /** Byte-level tokenization module page directory. */
 export const BYTE_LEVEL_TOKENIZATION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,
   "byte-level-tokenization",
+);
+
+/** Tokenization module page directory. */
+export const UNIGRAM_TOKENIZER_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "unigram-tokenizer",
 );
 
 /** Phase 1 token glossary sample page directory. */
@@ -261,6 +308,9 @@ export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
   "hidden-size",
 );
+
+/** Prefill concept page directory. */
+export const PREFILL_CONCEPT_PAGE_DIR = join(CONCEPTS_DOCS_ROOT, "prefill");
 
 /** Vocabulary size glossary page directory. */
 export const VOCABULARY_SIZE_GLOSSARY_PAGE_DIR = join(

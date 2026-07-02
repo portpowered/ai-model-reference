@@ -69,7 +69,7 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
     const moe = items.find(
       (item) => item.registryId === "concept.mixture-of-experts",
     );
-    expect(moe?.href).toBe("/docs/modules/mixture-of-experts");
+    expect(moe?.href).toBe("/docs/concepts/mixture-of-experts");
     expect(moe?.isPlanned).toBe(false);
 
     const activation = items.find(

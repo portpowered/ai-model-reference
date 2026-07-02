@@ -1,0 +1,16 @@
+{
+  "id": "classification.concept",
+  "slug": "concept",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["concept classification root", "glossary taxonomy root"],
+  "tags": ["foundations"],
+  "relatedIds": ["concept.activation"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "domain",
+  "classifiesKinds": ["concept"]
+}

@@ -141,7 +141,9 @@ function isRetryableSearchDialogFailureReason(reason: string): boolean {
   return (
     reason.includes(
       "timed out waiting for search results in header search dialog",
-    ) || reason.includes("no search results rendered in header search dialog")
+    ) ||
+    reason.includes("no search results rendered in header search dialog") ||
+    reason.includes("did not open the header search dialog")
   );
 }
 

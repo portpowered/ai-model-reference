@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildClassificationSubtree,
+  buildClassificationTree,
+  CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE,
+  CLASSIFICATION_RUNTIME_ORDERING_RULE,
   getCitationById,
+  getClassificationBranchMembership,
   getClassificationById,
   getConceptById,
   getDatasetById,
@@ -8,17 +13,24 @@ import {
   getModuleById,
   getOrganizationById,
   getPaperById,
+  getParentClassificationById,
   getPrimaryClassificationForRecord,
   getRegistryCitationIds,
   getRegistryRecordById,
   getRegistryTags,
   getSystemById,
   getTrainingRegimeById,
+  listChildClassifications,
   listCitationRecords,
+  listClassificationAncestors,
+  listClassificationChildren,
+  listClassificationDescendants,
   listClassificationMembers,
   listClassificationRecords,
+  listClassificationRoots,
   listConceptRecords,
   listDatasetRecords,
+  listLegacyClassificationBridges,
   listModelRecords,
   listModuleRecords,
   listOntologyRelationshipsForRecord,
@@ -59,6 +71,67 @@ describe("registry-runtime", () => {
     ]);
   });
 
+  test("getModuleById returns causal attention with mask and generation neighbors", () => {
+    const record = getModuleById("module.causal-attention");
+    expect(record?.slug).toBe("causal-attention");
+    expect(record?.tags).toEqual(["attention"]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "causal attention",
+        "causal self-attention",
+        "causal mask",
+        "look-ahead mask",
+        "look ahead mask",
+      ]),
+    );
+    expect(record?.relatedIds).toEqual([
+      "module.attention",
+      "module.bidirectional-attention",
+      "concept.autoregressive-generation",
+      "concept.decoder",
+      "concept.token",
+      "concept.decode",
+      "concept.prefill-decode-split",
+    ]);
+    expect(record?.variantGroup).toBe("attention-mask-patterns");
+    expect(record?.moduleFamily).toBe("attention");
+    expect(record?.moduleType).toBe("attention");
+  });
+
+  test("getModuleById returns published unigram tokenizer with tokenizer-family metadata", () => {
+    const record = getModuleById("module.unigram-tokenizer");
+
+    expect(record?.slug).toBe("unigram-tokenizer");
+    expect(record?.status).toBe("published");
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "unigram tokenizer",
+        "unigram tokenization",
+        "SentencePiece unigram",
+      ]),
+    );
+    expect(record?.tags).toEqual([
+      "tokenization",
+      "foundations",
+      "token-to-probability-chain",
+    ]);
+    expect(record?.moduleType).toBe("tokenizer");
+    expect(record?.moduleFamily).toBe("tokenization");
+    expect(record?.conceptType).toBe("tokenizer-variant");
+    expect(record?.variantGroup).toBe("subword-tokenizers");
+    expect(record?.sourceId).toBe("citation.kudo-sentencepiece");
+    expect(record?.citationIds).toEqual([
+      "citation.kudo-sentencepiece",
+      "citation.sennrich-bpe",
+    ]);
+    expect(record?.relatedIds).toEqual([
+      "concept.token",
+      "concept.tokenizers-overview",
+      "module.sentencepiece",
+      "module.bpe",
+    ]);
+  });
+
   test("getModuleById returns bidirectional attention with encoder-side links", () => {
     const record = getModuleById("module.bidirectional-attention");
     expect(record?.slug).toBe("bidirectional-attention");
@@ -81,6 +154,58 @@ describe("registry-runtime", () => {
     ]);
   });
 
+  test("getModuleById returns sentencepiece as a tokenizer-family module", () => {
+    const record = getModuleById("module.sentencepiece");
+    expect(record?.slug).toBe("sentencepiece");
+    expect(record?.moduleType).toBe("tokenizer");
+    expect(record?.tags).toEqual([
+      "tokenization",
+      "foundations",
+      "token-to-probability-chain",
+    ]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "SentencePiece",
+        "sentencepiece",
+        "sentence piece",
+        "multilingual tokenizer",
+        "whitespace agnostic tokenizer",
+      ]),
+    );
+    expect(record?.relatedIds).toEqual([
+      "concept.tokenizers-overview",
+      "concept.token",
+      "module.bpe",
+      "module.unigram-tokenizer",
+      "module.wordpiece",
+    ]);
+    expect(record?.citationIds).toEqual(["citation.kudo-sentencepiece"]);
+  });
+
+  test("getModuleById returns cross-attention with nearby architecture links", () => {
+    const record = getModuleById("module.cross-attention");
+    expect(record?.slug).toBe("cross-attention");
+    expect(record?.tags).toEqual(["attention"]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "cross attention",
+        "cross-attention",
+        "encoder-decoder attention",
+        "encoder decoder attention",
+      ]),
+    );
+    expect(record?.relatedIds).toEqual([
+      "module.attention",
+      "module.multi-head-attention",
+      "module.causal-attention",
+      "module.bidirectional-attention",
+      "concept.transformer-architecture",
+      "concept.encoder-decoder",
+      "concept.multimodal-model",
+    ]);
+    expect(record?.variantGroup).toBe("attention-memory-sources");
+  });
+
   test("getRegistryTags returns tags for a known module", () => {
     expect(getRegistryTags("module.grouped-query-attention")).toEqual([
       "attention",
@@ -92,6 +217,22 @@ describe("registry-runtime", () => {
     expect(getRegistryTags("module.bidirectional-attention")).toEqual([
       "attention",
     ]);
+  });
+
+  test("getRegistryTags returns tokenization tags for sentencepiece", () => {
+    expect(getRegistryTags("module.sentencepiece")).toEqual([
+      "tokenization",
+      "foundations",
+      "token-to-probability-chain",
+    ]);
+  });
+
+  test("getRegistryTags returns tags for causal attention", () => {
+    expect(getRegistryTags("module.causal-attention")).toEqual(["attention"]);
+  });
+
+  test("getRegistryTags returns tags for cross-attention", () => {
+    expect(getRegistryTags("module.cross-attention")).toEqual(["attention"]);
   });
 
   test("getRegistryTags returns tags for a known concept", () => {
@@ -113,6 +254,7 @@ describe("registry-runtime", () => {
     expect(record?.relatedIds).toEqual([
       "module.byte-level-tokenization",
       "concept.special-tokens",
+      "concept.tokenizers-overview",
       "concept.embedding",
       "concept.vocabulary-size",
       "concept.logit",
@@ -136,6 +278,18 @@ describe("registry-runtime", () => {
     ]);
     expect(getRegistryCitationIds("module.multi-query-attention")).toEqual([
       "citation.shazeer-mqa-paper",
+    ]);
+  });
+
+  test("getRegistryCitationIds returns citations for causal attention", () => {
+    expect(getRegistryCitationIds("module.causal-attention")).toEqual([
+      "citation.attention-is-all-you-need",
+    ]);
+  });
+
+  test("getRegistryCitationIds returns citations for cross-attention", () => {
+    expect(getRegistryCitationIds("module.cross-attention")).toEqual([
+      "citation.attention-is-all-you-need",
     ]);
   });
 
@@ -169,14 +323,14 @@ describe("registry-runtime", () => {
 
   test("ontology helpers return stable empty results for records without ontology data", () => {
     expect(
-      getPrimaryClassificationForRecord("module.grouped-query-attention"),
+      getPrimaryClassificationForRecord("citation.sennrich-bpe"),
     ).toBeUndefined();
     expect(
-      listSecondaryClassificationsForRecord("module.grouped-query-attention"),
+      listSecondaryClassificationsForRecord("citation.sennrich-bpe"),
     ).toEqual([]);
-    expect(
-      listOntologyRelationshipsForRecord("module.grouped-query-attention"),
-    ).toEqual([]);
+    expect(listOntologyRelationshipsForRecord("citation.sennrich-bpe")).toEqual(
+      [],
+    );
   });
 
   test("ontology helpers return stable empty results for unknown records and classifications", () => {
@@ -196,55 +350,428 @@ describe("registry-runtime", () => {
 
   test("activation and feed-forward classification seed records are published", () => {
     expect(
-      getClassificationById("classification.activation-functions")?.kind,
+      getClassificationById("classification.module.activation")?.kind,
     ).toBe("classification");
     expect(
-      getClassificationById("classification.feed-forward-networks")
+      getClassificationById("classification.activation-functions")?.id,
+    ).toBe("classification.module.activation");
+    expect(
+      getClassificationById("classification.module.feed-forward")
         ?.parentClassificationId,
-    ).toBe("classification.neural-network-components");
+    ).toBe("classification.module");
 
     expect(listClassificationRecords().map((record) => record.id)).toEqual(
       expect.arrayContaining([
-        "classification.neural-network-components",
-        "classification.activation-functions",
-        "classification.feed-forward-networks",
+        "classification.module",
+        "classification.module.activation",
+        "classification.module.attention",
+        "classification.module.feed-forward",
+        "classification.module.normalization",
+        "classification.module.positional-encoding",
+        "classification.module.tokenization",
+        "classification.module.transformer-block",
+        "classification.module.attention.grouped-query",
+        "classification.module.attention.multi-head",
+        "classification.concept",
+        "classification.concept.architecture",
+        "classification.concept.architecture.activation",
+        "classification.training",
+        "classification.training.alignment",
+        "classification.training.pretraining",
+        "classification.system",
+        "classification.system.routing",
+      ]),
+    );
+  });
+
+  test("classification helpers expose explicit parent and child hierarchy edges", () => {
+    expect(
+      getParentClassificationById("classification.module.attention")?.id,
+    ).toBe("classification.module");
+    expect(
+      getParentClassificationById("classification.module"),
+    ).toBeUndefined();
+    expect(
+      getParentClassificationById("classification.attention-mechanisms")?.id,
+    ).toBe("classification.module");
+
+    expect(
+      listChildClassifications("classification.module").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "classification.module.activation",
+        "classification.module.attention",
+        "classification.module.feed-forward",
+        "classification.module.normalization",
+        "classification.module.positional-encoding",
+        "classification.module.tokenization",
+        "classification.module.transformer-block",
+      ]),
+    );
+    expect(
+      listChildClassifications("classification.attention-mechanisms").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "classification.module.attention.grouped-query",
+        "classification.module.attention.multi-head",
+      ]),
+    );
+    expect(
+      listChildClassifications("classification.training").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "classification.training.alignment",
+        "classification.training.pretraining",
+      ]),
+    );
+    expect(
+      listChildClassifications("classification.missing-runtime-record"),
+    ).toEqual([]);
+  });
+
+  test("classification traversal helpers expose stable roots, children, ancestors, and descendants", () => {
+    expect(CLASSIFICATION_RUNTIME_ORDERING_RULE.classifications).toBe(
+      "sortOrder asc, slug asc, id asc",
+    );
+    expect(CLASSIFICATION_RUNTIME_ORDERING_RULE.members).toBe(
+      "record.sortOrder asc, record.kind asc, record.slug asc, record.id asc, membershipType asc, classification sortOrder/slug/id",
+    );
+    expect(CLASSIFICATION_RUNTIME_ORDERING_RULE.nodeChildren).toBe(
+      "classification children first, then record children",
+    );
+
+    expect(
+      listClassificationRoots().map((classification) => classification.id),
+    ).toEqual([
+      "classification.concept",
+      "classification.module",
+      "classification.system",
+      "classification.training",
+    ]);
+
+    expect(
+      listClassificationRoots({
+        classifiesKinds: ["module"],
+      }).map((classification) => classification.id),
+    ).toEqual(["classification.module"]);
+
+    expect(
+      listClassificationChildren("classification.module").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual([
+      "classification.module.activation",
+      "classification.module.attention",
+      "classification.module.feed-forward",
+      "classification.module.normalization",
+      "classification.module.positional-encoding",
+      "classification.module.tokenization",
+      "classification.module.transformer-block",
+    ]);
+    expect(
+      listClassificationChildren("classification.attention-mechanisms").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual([
+      "classification.module.attention.grouped-query",
+      "classification.module.attention.multi-head",
+    ]);
+
+    expect(
+      listClassificationAncestors("classification.activation-functions").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual(["classification.module"]);
+    expect(
+      listClassificationAncestors(
+        "classification.module.attention.grouped-query",
+      ).map((classification) => classification.id),
+    ).toEqual(["classification.module.attention", "classification.module"]);
+    expect(
+      listClassificationRoots({
+        classifiesKinds: ["module"],
+        statuses: ["draft"],
+      }),
+    ).toEqual([]);
+    expect(
+      listClassificationChildren("classification.missing-runtime-record"),
+    ).toEqual([]);
+    expect(
+      listClassificationAncestors("classification.missing-runtime-record"),
+    ).toEqual([]);
+    expect(
+      listClassificationDescendants("classification.activation-functions"),
+    ).toEqual([]);
+    expect(
+      listClassificationDescendants("classification.attention-mechanisms").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual([
+      "classification.module.attention.grouped-query",
+      "classification.module.attention.multi-head",
+    ]);
+    const repeatedChildIds = listClassificationChildren(
+      "classification.module",
+    ).map((classification) => classification.id);
+    expect(repeatedChildIds).toEqual(
+      listClassificationChildren("classification.module").map(
+        (classification) => classification.id,
+      ),
+    );
+
+    const repeatedMemberIds = listClassificationMembers(
+      "classification.attention-mechanisms",
+      {
+        includeDescendants: true,
+      },
+    ).map(
+      (member) =>
+        `${member.record.id}:${member.membershipType}:${member.classificationId}:${member.isInherited}`,
+    );
+    expect(repeatedMemberIds).toEqual(
+      listClassificationMembers("classification.attention-mechanisms", {
+        includeDescendants: true,
+      }).map(
+        (member) =>
+          `${member.record.id}:${member.membershipType}:${member.classificationId}:${member.isInherited}`,
+      ),
+    );
+  });
+
+  test("classification tree runtime builds renderable nodes and hides empty branches by default", () => {
+    const tree = buildClassificationTree({
+      rootClassificationIds: ["classification.module"],
+      memberKinds: ["module"],
+    });
+
+    expect(
+      tree.map((node) => ({
+        id: node.classification.id,
+        directMemberCount: node.directMemberCount,
+        totalMemberCount: node.totalMemberCount,
+        childClassificationIds: node.classificationChildren.map(
+          (child) => child.classification.id,
+        ),
+        childRecordIds: node.recordChildren.map(
+          (child) => child.member.record.id,
+        ),
+      })),
+    ).toEqual([
+      {
+        id: "classification.module",
+        directMemberCount: 1,
+        totalMemberCount: expect.any(Number),
+        childClassificationIds: [
+          "classification.module.activation",
+          "classification.module.attention",
+          "classification.module.feed-forward",
+          "classification.module.normalization",
+          "classification.module.positional-encoding",
+          "classification.module.tokenization",
+          "classification.module.transformer-block",
+        ],
+        childRecordIds: ["module.multi-token-prediction"],
+      },
+    ]);
+
+    const activationBranch = tree[0]?.classificationChildren.find(
+      (child) => child.classification.id === "classification.module.activation",
+    );
+    expect(activationBranch?.children[0]?.nodeType).toBe("record");
+    expect(
+      activationBranch?.recordChildren.map((child) => child.member.record.id),
+    ).toEqual(
+      expect.arrayContaining([
+        "module.leaky-relu",
+        "module.relu",
+        "module.silu",
+        "module.sigmoid",
+      ]),
+    );
+    expect(
+      buildClassificationTree({
+        rootClassificationIds: ["classification.activation-functions"],
+        memberKinds: ["paper"],
+      }),
+    ).toEqual([]);
+    expect(
+      buildClassificationTree({
+        rootClassificationIds: ["classification.activation-functions"],
+        memberKinds: ["paper"],
+        includeEmptyClassifications: true,
+      }).map((node) => ({
+        id: node.classification.id,
+        totalMemberCount: node.totalMemberCount,
+      })),
+    ).toEqual([
+      {
+        id: "classification.module.activation",
+        totalMemberCount: 0,
+      },
+    ]);
+  });
+
+  test("classification subtree runtime exposes stable filters, owning-branch record placement, and empty results", () => {
+    const subtree = buildClassificationSubtree({
+      rootClassificationIds: ["classification.attention-mechanisms"],
+      memberKinds: ["module"],
+    });
+
+    expect(subtree).toMatchObject({
+      emptyBehavior: CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.defaultBehavior,
+      isEmpty: false,
+      memberPlacement:
+        CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.subtreeMemberPlacement,
+      filters: {
+        memberKinds: ["module"],
+        memberPlacement:
+          CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.subtreeMemberPlacement,
+        rootClassificationIds: ["classification.module.attention"],
+        statuses: ["published"],
+        includeSecondary: false,
+      },
+    });
+    expect(subtree.roots).toHaveLength(1);
+    expect(
+      subtree.roots[0]?.recordChildren.map((child) => child.member.record.id),
+    ).toEqual(
+      expect.arrayContaining([
+        "module.attention",
+        "module.bidirectional-attention",
+        "module.causal-attention",
+        "module.multi-query-attention",
+      ]),
+    );
+    expect(
+      subtree.roots[0]?.recordChildren.some(
+        (child) => child.member.record.id === "module.grouped-query-attention",
+      ),
+    ).toBe(false);
+
+    const groupedQueryBranch = subtree.roots[0]?.classificationChildren.find(
+      (child) =>
+        child.classification.id ===
+        "classification.module.attention.grouped-query",
+    );
+    expect(
+      groupedQueryBranch?.recordChildren.map((child) => child.member.record.id),
+    ).toEqual(["module.grouped-query-attention"]);
+
+    expect(
+      buildClassificationSubtree({
+        rootClassificationIds: ["classification.activation-functions"],
+        memberKinds: ["paper"],
+      }),
+    ).toMatchObject({
+      emptyBehavior: CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.defaultBehavior,
+      isEmpty: true,
+      roots: [],
+      memberPlacement:
+        CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.subtreeMemberPlacement,
+      filters: {
+        rootClassificationIds: ["classification.module.activation"],
+      },
+    });
+  });
+
+  test("classification branch membership keeps descendants separate from direct owners", () => {
+    const branchMembership = getClassificationBranchMembership(
+      "classification.attention-mechanisms",
+      {
+        memberKinds: ["module"],
+      },
+    );
+
+    expect(branchMembership).toMatchObject({
+      classification: {
+        id: "classification.module.attention",
+      },
+      directMemberCount: expect.any(Number),
+      descendantMemberCount: 2,
+      memberPlacement: "owning-classification",
+      totalMemberCount: expect.any(Number),
+    });
+    expect(
+      branchMembership?.directMembers.map((member) => member.record.id),
+    ).toEqual(
+      expect.arrayContaining([
+        "module.attention",
+        "module.bidirectional-attention",
+        "module.causal-attention",
+        "module.multi-query-attention",
+      ]),
+    );
+    expect(
+      branchMembership?.directMembers.some(
+        (member) => member.record.id === "module.grouped-query-attention",
+      ),
+    ).toBe(false);
+    expect(
+      branchMembership?.descendantMembers.map(
+        (member) =>
+          `${member.classificationId}:${member.isInherited}:${member.record.id}`,
+      ),
+    ).toEqual([
+      "classification.module.attention.grouped-query:true:module.grouped-query-attention",
+      "classification.module.attention.multi-head:true:module.multi-head-attention",
+    ]);
+    expect(
+      getClassificationBranchMembership(
+        "classification.missing-runtime-record",
+      ),
+    ).toBeUndefined();
+  });
+
+  test("legacy classification bridge remains explicit and measurable", () => {
+    expect(listLegacyClassificationBridges()).toEqual(
+      expect.arrayContaining([
+        {
+          legacyId: "classification.attention-mechanisms",
+          canonicalId: "classification.module.attention",
+        },
+        {
+          legacyId: "classification.activation-functions",
+          canonicalId: "classification.module.activation",
+        },
       ]),
     );
   });
 
   test("seeded activation records resolve through ontology classification helpers", () => {
     expect(getPrimaryClassificationForRecord("concept.activation")?.id).toBe(
-      "classification.activation-functions",
+      "classification.concept.architecture.activation",
     );
     expect(getPrimaryClassificationForRecord("module.sigmoid")?.id).toBe(
-      "classification.activation-functions",
+      "classification.module.activation",
     );
-    expect(listSecondaryClassificationsForRecord("module.sigmoid")).toEqual([
-      expect.objectContaining({
-        id: "classification.feed-forward-networks",
-      }),
-    ]);
+    expect(listSecondaryClassificationsForRecord("module.sigmoid")).toEqual([]);
     expect(getPrimaryClassificationForRecord("module.relu")?.id).toBe(
-      "classification.activation-functions",
+      "classification.module.activation",
     );
     expect(getPrimaryClassificationForRecord("module.leaky-relu")?.id).toBe(
-      "classification.activation-functions",
+      "classification.module.activation",
     );
     expect(getPrimaryClassificationForRecord("module.silu")?.id).toBe(
-      "classification.activation-functions",
+      "classification.module.activation",
     );
 
     expect(
       listClassificationMembers("classification.activation-functions").map(
-        (member) => `${member.membershipType}:${member.record.id}`,
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
     ).toEqual(
       expect.arrayContaining([
-        "primary:concept.activation",
-        "primary:module.sigmoid",
-        "primary:module.relu",
-        "primary:module.leaky-relu",
-        "primary:module.silu",
+        "primary:classification.module.activation:module.sigmoid",
+        "primary:classification.module.activation:module.relu",
+        "primary:classification.module.activation:module.leaky-relu",
+        "primary:classification.module.activation:module.silu",
       ]),
     );
   });
@@ -252,44 +779,143 @@ describe("registry-runtime", () => {
   test("seeded feed-forward records resolve through ontology classification helpers", () => {
     expect(
       getPrimaryClassificationForRecord("module.feed-forward-network")?.id,
-    ).toBe("classification.feed-forward-networks");
+    ).toBe("classification.module.feed-forward");
     expect(
       listSecondaryClassificationsForRecord("module.feed-forward-network"),
     ).toEqual([]);
-    for (const registryId of ["module.standard-ffn", "module.swiglu"]) {
+    for (const registryId of [
+      "module.standard-ffn",
+      "module.swiglu",
+      "module.mixture-of-experts",
+      "module.deepseekmoe",
+    ]) {
       expect(getPrimaryClassificationForRecord(registryId)?.id).toBe(
-        "classification.feed-forward-networks",
+        "classification.module.feed-forward",
       );
-      expect(listSecondaryClassificationsForRecord(registryId)).toEqual([
-        expect.objectContaining({
-          id: "classification.transformer-feed-forward-components",
-        }),
-      ]);
+      expect(listSecondaryClassificationsForRecord(registryId)).toEqual([]);
     }
 
     expect(
-      listClassificationMembers("classification.feed-forward-networks").map(
-        (member) => `${member.membershipType}:${member.record.id}`,
+      listClassificationMembers("classification.module.feed-forward").map(
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
     ).toEqual(
       expect.arrayContaining([
-        "secondary:module.sigmoid",
-        "primary:module.feed-forward-network",
-        "primary:module.standard-ffn",
-        "primary:module.swiglu",
+        "primary:classification.module.feed-forward:module.feed-forward-network",
+        "primary:classification.module.feed-forward:module.standard-ffn",
+        "primary:classification.module.feed-forward:module.swiglu",
+        "primary:classification.module.feed-forward:module.mixture-of-experts",
+        "primary:classification.module.feed-forward:module.deepseekmoe",
+      ]),
+    );
+  });
+
+  test("new module-family classifications cover supported attention, normalization, position, tokenization, and structural modules", () => {
+    expect(getPrimaryClassificationForRecord("module.attention")?.id).toBe(
+      "classification.module.attention",
+    );
+    expect(getPrimaryClassificationForRecord("module.layer-norm")?.id).toBe(
+      "classification.module.normalization",
+    );
+    expect(getPrimaryClassificationForRecord("module.rope")?.id).toBe(
+      "classification.module.positional-encoding",
+    );
+    expect(getPrimaryClassificationForRecord("module.bpe")?.id).toBe(
+      "classification.module.tokenization",
+    );
+    expect(
+      getPrimaryClassificationForRecord(
+        "module.manifold-constrained-hyper-connections",
+      )?.id,
+    ).toBe("classification.module.transformer-block");
+    expect(
+      getPrimaryClassificationForRecord("module.multi-head-attention")?.id,
+    ).toBe("classification.module.attention.multi-head");
+    expect(
+      getPrimaryClassificationForRecord("module.grouped-query-attention")?.id,
+    ).toBe("classification.module.attention.grouped-query");
+
+    expect(
+      listClassificationMembers("classification.module.attention").map(
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:classification.module.attention:module.attention",
+        "primary:classification.module.attention:module.causal-attention",
+      ]),
+    );
+    expect(
+      listClassificationMembers("classification.module.attention", {
+        includeSecondary: true,
+      }).map(
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "secondary:classification.module.attention:module.multi-head-attention",
+        "secondary:classification.module.attention:module.grouped-query-attention",
+      ]),
+    );
+    expect(
+      listClassificationMembers("classification.module.attention", {
+        includeDescendants: true,
+      }).map(
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}:${member.isInherited}`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:classification.module.attention.multi-head:module.multi-head-attention:true",
+        "primary:classification.module.attention.grouped-query:module.grouped-query-attention:true",
+      ]),
+    );
+    expect(
+      listClassificationMembers("classification.module.normalization").map(
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:classification.module.normalization:module.layer-norm",
+        "primary:classification.module.normalization:module.rmsnorm",
       ]),
     );
     expect(
       listClassificationMembers(
-        "classification.transformer-feed-forward-components",
-      ).map((member) => `${member.membershipType}:${member.record.id}`),
+        "classification.module.positional-encoding",
+      ).map(
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
+      ),
     ).toEqual(
       expect.arrayContaining([
-        "secondary:module.gelu",
-        "secondary:module.standard-ffn",
-        "secondary:module.swiglu",
+        "primary:classification.module.positional-encoding:module.rope",
+        "primary:classification.module.positional-encoding:module.alibi",
       ]),
     );
+    expect(
+      listClassificationMembers("classification.module.tokenization").map(
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:classification.module.tokenization:module.bpe",
+        "primary:classification.module.tokenization:module.wordpiece",
+      ]),
+    );
+    expect(
+      listClassificationMembers("classification.module.transformer-block").map(
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
+      ),
+    ).toEqual([
+      "primary:classification.module.transformer-block:module.manifold-constrained-hyper-connections",
+    ]);
   });
 
   test("seeded ontology relationships resolve typed activation and feed-forward topology", () => {
@@ -317,10 +943,7 @@ describe("registry-runtime", () => {
       listOntologyRelationshipsForRecord("module.feed-forward-network").map(
         (relationship) => relationship.targetId,
       ),
-    ).toEqual([
-      "classification.neural-network-components",
-      "concept.activation",
-    ]);
+    ).toEqual(["classification.module", "concept.activation"]);
   });
 
   test("seeded ontology fields preserve existing tags and curated related ids", () => {
@@ -435,7 +1058,7 @@ describe("registry-runtime", () => {
       "organization.deepseek-ai",
     );
     expect(listClassificationRecords().map((record) => record.id)).toContain(
-      "classification.activation-functions",
+      "classification.module.activation",
     );
     expect(listCitationRecords().map((record) => record.id)).toContain(
       "citation.gqa-paper",
@@ -461,9 +1084,14 @@ describe("registry-runtime", () => {
       "training-regime.specialist-training",
       "module.mixture-of-experts",
       "module.deepseekmoe",
+      "system.batching",
       "system.expert-parallel-overlap",
       "system.on-disk-kv-cache",
       "paper.deepseek-v4",
+      "paper.nemotron-3-super",
+      "model.mixtral-8x22b",
+      "model.mixtral-8x7b",
+      "model.nemotron-3-super",
     ]);
     expect(record?.relatedModuleIds).toEqual([
       "module.mixture-of-experts",
@@ -494,6 +1122,48 @@ describe("registry-runtime", () => {
     expect(
       getRegistryRecordById("training-regime.specialist-training")?.relatedIds,
     ).toContain("system.routing");
+  });
+
+  test("getSystemById returns batching as the canonical serving system record", () => {
+    const record = getSystemById("system.batching");
+
+    expect(record?.slug).toBe("batching");
+    expect(record?.systemType).toBe("serving");
+    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "request batching",
+        "inference batching",
+        "throughput latency tradeoff",
+      ]),
+    );
+    expect(record?.relatedIds).toEqual([
+      "concept.prefill",
+      "concept.decode",
+      "concept.prefill-decode-split",
+      "concept.kv-cache",
+      "system.continuous-batching",
+      "system.speculative-decoding",
+      "system.routing",
+      "system.inference-engine",
+      "system.on-disk-kv-cache",
+      "system.expert-parallel-overlap",
+    ]);
+    expect(record?.relatedConceptIds).toEqual([
+      "concept.prefill",
+      "concept.decode",
+      "concept.prefill-decode-split",
+      "concept.kv-cache",
+    ]);
+  });
+
+  test("routing and inference engine keep reciprocal registry-backed links to batching", () => {
+    expect(getSystemById("system.routing")?.relatedIds).toContain(
+      "system.batching",
+    );
+    expect(getSystemById("system.inference-engine")?.relatedIds).toContain(
+      "system.batching",
+    );
   });
 
   test("listRelatedRegistryRecords includes concepts and modules", () => {
@@ -588,5 +1258,13 @@ describe("registry-runtime", () => {
     expect(ids).toContain("module.bidirectional-attention");
     expect(ids).toContain("module.multi-query-attention");
     expect(ids).toContain("module.multi-head-attention");
+  });
+
+  test("listSystemRecords includes batching and adjacent system peers", () => {
+    const ids = listSystemRecords().map((record) => record.id);
+
+    expect(ids).toContain("system.batching");
+    expect(ids).toContain("system.on-disk-kv-cache");
+    expect(ids).toContain("system.expert-parallel-overlap");
   });
 });

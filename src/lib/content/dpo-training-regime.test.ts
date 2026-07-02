@@ -84,7 +84,7 @@ describe("DPO training-regime page contracts", () => {
     const alignment = items.find(
       (item) => item.registryId === "concept.alignment",
     );
-    expect(alignment?.href).toBe("/docs/glossary/alignment");
+    expect(alignment?.href).toBe("/docs/concepts/alignment");
     expect(alignment?.isPlanned).toBe(false);
   });
 

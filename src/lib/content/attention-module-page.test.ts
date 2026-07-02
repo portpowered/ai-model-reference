@@ -4,11 +4,11 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { ATTENTION_MODULE_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const pageDir = ATTENTION_MODULE_PAGE_DIR;
+const pageDir = getDocsPageDir("modules", "attention");
 const messagesPath = join(pageDir, "messages/en.json");
 const pageMdxPath = join(pageDir, "page.mdx");
 
@@ -84,7 +84,7 @@ describe("attention module variant hub page", () => {
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain("Show 2 more");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/tags/attention"');
