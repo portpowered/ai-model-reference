@@ -92,7 +92,9 @@ describe("Self-attention concept page (transformer-self-attention-page-001)", ()
     expect(html).toContain("Why It Matters");
     expect(html).toContain("Inside A Transformer Block");
     expect(html).toContain("Limitations And Tradeoffs");
-    expect(html).toContain("Where To Read Next");
+    expect(html).toContain("Related Concepts And Modules");
+    expect(html).not.toContain("Where To Read Next");
+    expect(html).not.toContain("Use the nearby pages below");
     expect(html).toContain(
       "hands the updated representation to the rest of the block",
     );

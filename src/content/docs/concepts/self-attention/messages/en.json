@@ -27,10 +27,6 @@
       "title": "Limitations And Tradeoffs",
       "body": "Full self-attention gives every token a chance to consult every other token in the same sequence, but that flexibility is expensive. As sequences grow, the score matrix and the saved key-value state grow quickly, which is why long-context systems often reach for memory-saving variants, sparse patterns, or serving tricks. Self-attention also does not guarantee good reasoning by itself: the model can still spread focus across too many irrelevant positions or miss the one clue that matters."
     },
-    "nearbyPages": {
-      "title": "Where To Read Next",
-      "body": "Use the nearby pages below to separate the broad idea from the surrounding architecture and the variants that change its cost profile."
-    },
     "related": {
       "title": "Related Concepts And Modules"
     },
