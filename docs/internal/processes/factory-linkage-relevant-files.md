@@ -155,3 +155,9 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata for both target
   branches, DIRTY/CONFLICTING GitHub state with passing CI, and non-mutating
   merge-tree conflict paths for story 002 classification.
+* [merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files](./merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files.md)
+  — merged PR drain evidence for PRs #274/#275/#276/#278/#280: live queue tokens
+  on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata,
+  merge-commit ancestry on `origin/main`, and explicit separation of merged PR
+  truth from queue completion truth (including stale `rlvr` drain ideas at
+  `init` / INITIAL).
