@@ -10,6 +10,7 @@ import {
   classifyRootCheckoutDirtyPaths,
   collectConflictDriftPrEvidence,
   determineConflictDriftMetadataRefreshGuidance,
+  determinePageRefillHold,
   formatPlannerRootCheckoutOperatorNextActions,
   formatPlannerRootCheckoutReconciliationReport,
   isConflictDriftLane,
@@ -26,7 +27,9 @@ import {
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD,
+  PLANNER_ROOT_CHECKOUT_PAGE_REFILL_RESUME,
   PLANNER_ROOT_CHECKOUT_RECONCILIATION_HEADER,
   PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_ABSENT,
   PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
@@ -500,19 +503,144 @@ describe("summarizeManualInspectionChangeKinds", () => {
   });
 });
 
-describe("buildPlannerRootCheckoutOperatorNextActions", () => {
-  test("returns null when the root checkout has no dirty paths", () => {
+describe("determinePageRefillHold", () => {
+  test("holds refills when ownerless remote-present deletions remain", () => {
     expect(
-      buildPlannerRootCheckoutOperatorNextActions({
+      determinePageRefillHold({
+        conflictDriftMetadataRefreshGuidance: undefined,
+        conflictDriftPrs: [],
+        manualInspectionPaths: [],
+        remotePresentDeletions: [
+          {
+            changeKind: "deleted",
+            classification: "ownerless-root-checkout-drift",
+            comparisonTarget: "origin/main",
+            evidence: PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
+            headPresent: true,
+            path: "src/content/docs/models/clip/page.mdx",
+            remoteMainPresent: true,
+            statusCode: " D",
+          },
+        ],
+        tableRegistryDriftPaths: [],
+      }),
+    ).toBe(true);
+  });
+
+  test("holds refills when manual-inspection or generated drift remains", () => {
+    expect(
+      determinePageRefillHold({
+        conflictDriftMetadataRefreshGuidance: undefined,
+        conflictDriftPrs: [],
+        manualInspectionPaths: [
+          {
+            changeKind: "modified",
+            classification: "manual-inspection",
+            comparisonTarget: "HEAD",
+            evidence: "non-deletion-dirty-path",
+            headPresent: true,
+            path: "src/lib/factory/root.ts",
+            remoteMainPresent: false,
+            statusCode: " M",
+          },
+        ],
+        remotePresentDeletions: [],
+        tableRegistryDriftPaths: [],
+      }),
+    ).toBe(true);
+    expect(
+      determinePageRefillHold({
+        conflictDriftMetadataRefreshGuidance: undefined,
+        conflictDriftPrs: [],
         manualInspectionPaths: [],
         remotePresentDeletions: [],
-        totalDirtyPathCount: 0,
+        tableRegistryDriftPaths: [
+          {
+            changeKind: "modified",
+            classification: "manual-inspection",
+            comparisonTarget: "HEAD",
+            evidence: "non-deletion-dirty-path",
+            headPresent: true,
+            path: "src/lib/content/generated/table-registry.generated.ts",
+            remoteMainPresent: false,
+            statusCode: " M",
+            tableRegistryDriftFamily: "generated-artifact",
+          },
+        ],
       }),
-    ).toBeNull();
+    ).toBe(true);
+  });
+
+  test("holds refills when conflict-drift PRs or metadata refresh guidance remain", () => {
+    expect(
+      determinePageRefillHold({
+        conflictDriftMetadataRefreshGuidance: undefined,
+        conflictDriftPrs: [
+          {
+            branchName: "alpha",
+            mergeabilityClass: "conflicting",
+            nextAction: "refresh-branch",
+            prNumber: 42,
+            queueMismatchRisk: "conflict-drift",
+            workItemName: "alpha",
+          },
+        ],
+        manualInspectionPaths: [],
+        remotePresentDeletions: [],
+        tableRegistryDriftPaths: [],
+      }),
+    ).toBe(true);
+    expect(
+      determinePageRefillHold({
+        conflictDriftMetadataRefreshGuidance:
+          PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_METADATA_REFRESH_GUIDANCE,
+        conflictDriftPrs: [],
+        manualInspectionPaths: [],
+        remotePresentDeletions: [],
+        tableRegistryDriftPaths: [],
+      }),
+    ).toBe(true);
+  });
+
+  test("allows resume when the root checkout is clean and no conflict drift remains", () => {
+    expect(
+      determinePageRefillHold({
+        conflictDriftMetadataRefreshGuidance: undefined,
+        conflictDriftPrs: [],
+        manualInspectionPaths: [],
+        remotePresentDeletions: [],
+        tableRegistryDriftPaths: [],
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("buildPlannerRootCheckoutOperatorNextActions", () => {
+  test("resumes page refills when the root checkout is clean", () => {
+    expect(
+      buildPlannerRootCheckoutOperatorNextActions({
+        conflictDriftMetadataRefreshGuidance: undefined,
+        conflictDriftPrs: [],
+        manualInspectionPaths: [],
+        remotePresentDeletions: [],
+        tableRegistryDriftPaths: [],
+      }),
+    ).toEqual({
+      conflictDriftPrCount: 0,
+      manualInspectionCount: 0,
+      mergeConflictPriorityGuidance:
+        PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE,
+      pageRefillHold: false,
+      remotePresentDeletionCount: 0,
+      tableRegistryDriftCount: 0,
+      targetSessionId: PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
+    });
   });
 
   test("holds page refills and names the planner session when dirty paths remain", () => {
     const nextActions = buildPlannerRootCheckoutOperatorNextActions({
+      conflictDriftMetadataRefreshGuidance: undefined,
+      conflictDriftPrs: [],
       manualInspectionPaths: [
         {
           changeKind: "modified",
@@ -537,40 +665,90 @@ describe("buildPlannerRootCheckoutOperatorNextActions", () => {
           statusCode: " D",
         },
       ],
-      totalDirtyPathCount: 2,
+      tableRegistryDriftPaths: [],
     });
 
     expect(nextActions).toEqual({
+      conflictDriftPrCount: 0,
       manualInspectionCount: 1,
       manualInspectionOwnershipGuidance:
         PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
+      mergeConflictPriorityGuidance:
+        PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE,
       pageRefillHold: true,
       remotePresentDeletionCleanupGuidance:
         PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE,
       remotePresentDeletionCount: 1,
+      tableRegistryDriftCount: 0,
       targetSessionId: PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
     });
+  });
+
+  test("holds page refills when only conflict-drift PR evidence remains", () => {
+    const nextActions = buildPlannerRootCheckoutOperatorNextActions({
+      conflictDriftMetadataRefreshGuidance: undefined,
+      conflictDriftPrs: [
+        {
+          branchName: "alpha",
+          mergeabilityClass: "conflicting",
+          nextAction: "refresh-branch",
+          prNumber: 42,
+          queueMismatchRisk: "conflict-drift",
+          workItemName: "alpha",
+        },
+      ],
+      manualInspectionPaths: [],
+      remotePresentDeletions: [],
+      tableRegistryDriftPaths: [],
+    });
+
+    expect(nextActions.pageRefillHold).toBe(true);
+    expect(nextActions.conflictDriftPrCount).toBe(1);
   });
 });
 
 describe("formatPlannerRootCheckoutOperatorNextActions", () => {
   test("prints non-destructive operator guidance for mixed dirty paths", () => {
     const formatted = formatPlannerRootCheckoutOperatorNextActions({
+      conflictDriftPrCount: 0,
       manualInspectionCount: 1,
       manualInspectionOwnershipGuidance:
         PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
+      mergeConflictPriorityGuidance:
+        PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE,
       pageRefillHold: true,
       remotePresentDeletionCleanupGuidance:
         PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE,
       remotePresentDeletionCount: 2,
+      tableRegistryDriftCount: 0,
       targetSessionId: PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
     });
 
     expect(formatted).toEqual([
       "- operator-next-actions",
       `  - page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD} target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
+      `  - merge-conflict-priority=${PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE}`,
       `  - remote-present-deletions count=2 guidance=${PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE}`,
       `  - manual-inspection count=1 guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE}`,
+    ]);
+  });
+
+  test("prints resume guidance when the checkout is clean", () => {
+    const formatted = formatPlannerRootCheckoutOperatorNextActions({
+      conflictDriftPrCount: 0,
+      manualInspectionCount: 0,
+      mergeConflictPriorityGuidance:
+        PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE,
+      pageRefillHold: false,
+      remotePresentDeletionCount: 0,
+      tableRegistryDriftCount: 0,
+      targetSessionId: PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
+    });
+
+    expect(formatted).toEqual([
+      "- operator-next-actions",
+      `  - page-refill-resume=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_RESUME} target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
+      `  - merge-conflict-priority=${PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE}`,
     ]);
   });
 });
@@ -745,6 +923,13 @@ describe("conflict-drift PR evidence", () => {
       "work-item=tokenizer-mismatch pr=#260 branch=tokenizer-mismatch mergeability=conflicting risk=conflict-drift next-action=refresh-branch",
     );
     expect(formatted).not.toContain("queue-only-missing-linkage");
+    expect(formatted).toContain("- operator-next-actions");
+    expect(formatted).toContain(
+      `page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD}`,
+    );
+    expect(formatted).toContain(
+      `  - ${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_PR_SECTION} count=1 guidance=${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_BRANCH_REFRESH_GUIDANCE}`,
+    );
   });
 });
 
@@ -786,6 +971,9 @@ describe("buildPlannerRootCheckoutReconciliationReport operator next actions", (
       `page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD}`,
     );
     expect(formatted).toContain(
+      `merge-conflict-priority=${PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE}`,
+    );
+    expect(formatted).toContain(
       `target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
     );
     expect(formatted).toContain(
@@ -796,7 +984,7 @@ describe("buildPlannerRootCheckoutReconciliationReport operator next actions", (
     );
   });
 
-  test("omits operator next actions when the root checkout is clean", () => {
+  test("emits resume operator next actions when the root checkout is clean", () => {
     const report = buildPlannerRootCheckoutReconciliationReport({
       generatedAtUtc: "2026-07-01T12:00:00.000Z",
       remoteBaseRef: "origin/main",
@@ -805,10 +993,16 @@ describe("buildPlannerRootCheckoutReconciliationReport operator next actions", (
       runGit: () => ({ status: 0, stdout: "", stderr: "" }),
     });
 
-    expect(report.operatorNextActions).toBeNull();
-    expect(formatPlannerRootCheckoutReconciliationReport(report)).not.toContain(
-      "- operator-next-actions",
+    expect(report.operatorNextActions.pageRefillHold).toBe(false);
+    const formatted = formatPlannerRootCheckoutReconciliationReport(report);
+    expect(formatted).toContain("- operator-next-actions");
+    expect(formatted).toContain(
+      `page-refill-resume=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_RESUME}`,
     );
+    expect(formatted).toContain(
+      `merge-conflict-priority=${PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE}`,
+    );
+    expect(formatted).not.toContain("page-refill-hold=");
   });
 });
 
@@ -962,6 +1156,7 @@ describe("planner root checkout reconciliation fixture evidence", () => {
         "  - none",
         "- operator-next-actions",
         `  - page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD} target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
+        `  - merge-conflict-priority=${PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE}`,
         `  - remote-present-deletions count=1 guidance=${PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE}`,
         `  - manual-inspection count=1 guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE}`,
       ].join("\n"),

@@ -27,6 +27,12 @@ export const PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID =
 export const PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD =
   "Hold new page refills until the root checkout is clean or dirty-path ownership is explicit.";
 
+export const PLANNER_ROOT_CHECKOUT_PAGE_REFILL_RESUME =
+  "Page refills may resume toward 3-4 useful workers while avoiding active dirty-path surfaces.";
+
+export const PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE =
+  "Merge-conflict reduction takes priority over page refill for this batch.";
+
 export const PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE =
   "Operator-reviewed root cleanup outside this doctor command; do not auto-revert, checkout, restore, stage, or overwrite.";
 
@@ -93,11 +99,14 @@ export interface RootCheckoutDirtyPathReport {
 }
 
 export interface PlannerRootCheckoutOperatorNextActions {
+  conflictDriftPrCount: number;
   manualInspectionCount: number;
   manualInspectionOwnershipGuidance?: string;
+  mergeConflictPriorityGuidance: string;
   pageRefillHold: boolean;
   remotePresentDeletionCleanupGuidance?: string;
   remotePresentDeletionCount: number;
+  tableRegistryDriftCount: number;
   targetSessionId: string;
 }
 
@@ -116,7 +125,7 @@ export interface PlannerRootCheckoutReconciliationReport {
   generatedAtUtc: string;
   manualInspectionPaths: RootCheckoutDirtyPathReport[];
   manualInspectionSharedEdits: RootCheckoutDirtyPathReport[];
-  operatorNextActions: PlannerRootCheckoutOperatorNextActions | null;
+  operatorNextActions: PlannerRootCheckoutOperatorNextActions;
   otherManualInspectionPaths: RootCheckoutDirtyPathReport[];
   remoteBaseRef: string;
   remotePresentDeletions: RootCheckoutDirtyPathReport[];
@@ -587,31 +596,70 @@ export function classifyRootCheckoutDirtyPaths(
   };
 }
 
+export function determinePageRefillHold(
+  report: Pick<
+    PlannerRootCheckoutReconciliationReport,
+    | "conflictDriftMetadataRefreshGuidance"
+    | "conflictDriftPrs"
+    | "manualInspectionPaths"
+    | "remotePresentDeletions"
+    | "tableRegistryDriftPaths"
+  >,
+): boolean {
+  if (report.conflictDriftPrs.length > 0) {
+    return true;
+  }
+
+  if (report.conflictDriftMetadataRefreshGuidance) {
+    return true;
+  }
+
+  if (report.remotePresentDeletions.length > 0) {
+    return true;
+  }
+
+  if (report.manualInspectionPaths.length > 0) {
+    return true;
+  }
+
+  if (report.tableRegistryDriftPaths.length > 0) {
+    return true;
+  }
+
+  return false;
+}
+
 export function buildPlannerRootCheckoutOperatorNextActions(
   report: Pick<
     PlannerRootCheckoutReconciliationReport,
-    "manualInspectionPaths" | "remotePresentDeletions" | "totalDirtyPathCount"
+    | "conflictDriftMetadataRefreshGuidance"
+    | "conflictDriftPrs"
+    | "manualInspectionPaths"
+    | "remotePresentDeletions"
+    | "tableRegistryDriftPaths"
   >,
-): PlannerRootCheckoutOperatorNextActions | null {
-  if (report.totalDirtyPathCount === 0) {
-    return null;
-  }
-
+): PlannerRootCheckoutOperatorNextActions {
   const remotePresentDeletionCount = report.remotePresentDeletions.length;
   const manualInspectionCount = report.manualInspectionPaths.length;
+  const tableRegistryDriftCount = report.tableRegistryDriftPaths.length;
+  const conflictDriftPrCount = report.conflictDriftPrs.length;
 
   return {
+    conflictDriftPrCount,
     manualInspectionCount,
     manualInspectionOwnershipGuidance:
       manualInspectionCount > 0
         ? PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE
         : undefined,
-    pageRefillHold: true,
+    mergeConflictPriorityGuidance:
+      PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE,
+    pageRefillHold: determinePageRefillHold(report),
     remotePresentDeletionCleanupGuidance:
       remotePresentDeletionCount > 0
         ? PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE
         : undefined,
     remotePresentDeletionCount,
+    tableRegistryDriftCount,
     targetSessionId: PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
   };
 }
@@ -709,9 +757,14 @@ export function summarizeManualInspectionChangeKinds(
 export function formatPlannerRootCheckoutOperatorNextActions(
   nextActions: PlannerRootCheckoutOperatorNextActions,
 ): string[] {
+  const refillDecision = nextActions.pageRefillHold
+    ? `page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD}`
+    : `page-refill-resume=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_RESUME}`;
+
   const lines = [
     "- operator-next-actions",
-    `  - page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD} target-session=${nextActions.targetSessionId}`,
+    `  - ${refillDecision} target-session=${nextActions.targetSessionId}`,
+    `  - merge-conflict-priority=${nextActions.mergeConflictPriorityGuidance}`,
   ];
 
   if (nextActions.remotePresentDeletionCount > 0) {
@@ -723,6 +776,18 @@ export function formatPlannerRootCheckoutOperatorNextActions(
   if (nextActions.manualInspectionCount > 0) {
     lines.push(
       `  - manual-inspection count=${nextActions.manualInspectionCount} guidance=${nextActions.manualInspectionOwnershipGuidance}`,
+    );
+  }
+
+  if (nextActions.tableRegistryDriftCount > 0) {
+    lines.push(
+      `  - ${PLANNER_ROOT_CHECKOUT_GENERATED_TABLE_REGISTRY_DRIFT_SECTION} count=${nextActions.tableRegistryDriftCount} guidance=${PLANNER_ROOT_CHECKOUT_TABLE_REGISTRY_DRIFT_GUIDANCE}`,
+    );
+  }
+
+  if (nextActions.conflictDriftPrCount > 0) {
+    lines.push(
+      `  - ${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_PR_SECTION} count=${nextActions.conflictDriftPrCount} guidance=${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_BRANCH_REFRESH_GUIDANCE}`,
     );
   }
 
@@ -972,13 +1037,9 @@ export function formatPlannerRootCheckoutReconciliationReport(
 
   lines.push(...formatConflictDriftPrSection(report));
 
-  if (report.operatorNextActions) {
-    lines.push(
-      ...formatPlannerRootCheckoutOperatorNextActions(
-        report.operatorNextActions,
-      ),
-    );
-  }
+  lines.push(
+    ...formatPlannerRootCheckoutOperatorNextActions(report.operatorNextActions),
+  );
 
   return lines.join("\n");
 }

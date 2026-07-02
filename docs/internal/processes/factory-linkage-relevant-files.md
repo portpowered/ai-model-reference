@@ -28,8 +28,9 @@ watchdog summaries, or planner-facing linkage reports.
   validation/regeneration guidance, names conflict-drift PRs under
   `conflict-drift-prs` with branch-refresh guidance and optional metadata-refresh
   guidance when linkage refresh is required, and prints operator next actions
-  (page-refill hold, safe cleanup path for remote-present deletions, manual
-  ownership inspection) with target session
+  (page-refill hold or resume, merge-conflict priority guidance, safe cleanup
+  path for remote-present deletions, generated drift and conflict-drift counts,
+  manual ownership inspection) with target session
   `0fdc5077-95ed-4396-a183-06e5b16555ca`.
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.

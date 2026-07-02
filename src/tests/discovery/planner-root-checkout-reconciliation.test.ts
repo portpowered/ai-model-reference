@@ -139,6 +139,9 @@ describe("planner-root-checkout-reconciliation script", () => {
       "page-refill-hold=Hold new page refills until the root checkout is clean or dirty-path ownership is explicit.",
     );
     expect(result.stdout).toContain(
+      "merge-conflict-priority=Merge-conflict reduction takes priority over page refill for this batch.",
+    );
+    expect(result.stdout).toContain(
       "target-session=0fdc5077-95ed-4396-a183-06e5b16555ca",
     );
     expect(result.stdout).toContain(
@@ -628,6 +631,12 @@ describe("planner-root-checkout-reconciliation script", () => {
     );
     expect(result.stdout).toContain(
       "work-item=alpha pr=#42 branch=alpha mergeability=conflicting risk=conflict-drift next-action=refresh-branch",
+    );
+    expect(result.stdout).toContain(
+      "page-refill-hold=Hold new page refills until the root checkout is clean or dirty-path ownership is explicit.",
+    );
+    expect(result.stdout).toContain(
+      "merge-conflict-priority=Merge-conflict reduction takes priority over page refill for this batch.",
     );
     expect(result.stdout).not.toContain("queue-only-missing-linkage");
 
