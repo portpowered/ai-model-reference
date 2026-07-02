@@ -33,3 +33,9 @@ export {
   type RooflineThroughputChartDataPoint,
   type RooflineThroughputChartModel,
 } from "./roofline-throughput-chart";
+export {
+  formatActiveWeightSizeBillions,
+  ROOFLINE_EMPTY_PRESETS_MESSAGE,
+  ROOFLINE_MODEL_PRESET_CONTROL_LABEL,
+  type RooflinePresetSelection,
+} from "./roofline-throughput-explorer-presets";
