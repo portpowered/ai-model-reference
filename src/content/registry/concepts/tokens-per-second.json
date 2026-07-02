@@ -10,7 +10,8 @@
     "tok/s",
     "output tokens per second",
     "generation rate",
-    "throughput",
+    "fleet throughput",
+    "serving throughput",
     "streaming speed"
   ],
   "tags": ["foundations", "kv-cache"],
