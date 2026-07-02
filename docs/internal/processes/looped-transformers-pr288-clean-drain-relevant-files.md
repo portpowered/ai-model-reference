@@ -426,3 +426,83 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T17:47Z UTC).
+
+## Story 004 exact blocker report (2026-07-02T17:50Z UTC)
+
+Planner outcome for PR #288: **identify the exact blocker**. Merge (story 002) and
+review handoff (story 003) are complete for this drain pass; PR #288 cannot be
+safely drained until the conditions below clear.
+
+### Final outcome
+
+**Blocker:** unresolved BLOCKING PR #288 conversation review plus unpushed
+content-lane fixes. GitHub still reports CONFLICTING/DIRTY on remote head
+`fc575f9e` even though the content worktree has a local `origin/main` sync at
+`43d64096` that is not on the PR branch yet.
+
+### Evidence
+
+| Condition | Status | Proof |
+| --- | --- | --- |
+| BLOCKING review unresolved | **blocker (primary)** | Sole PR conversation comment by `AndreasAbdi` (2026-07-02T17:10:15Z); no later clearing reply |
+| GitHub mergeability | **blocker (secondary on remote)** | `mergeable=CONFLICTING`, `mergeStateStatus=DIRTY` on head `fc575f9e` (2026-07-02T17:50Z UTC) |
+| Required CI checks | clear | 11/11 SUCCESS on remote head `fc575f9e` |
+| Lane metadata | clear | `.claude/worktrees/looped-transformers/.claude/lane-metadata.json` present; PR #288 linkage `current` |
+| Queue state | clear | `work-task-64` at `init`; no review token; readable on session `930b51a6-07ce-44e6-a639-7a6217f6e864` |
+| `origin/main` identity | `d22d1e0dd88f94341fc6a8590eff26aaac29ce51` | unchanged since 17:43Z UTC |
+| Content worktree local HEAD | `43d64096990f4233dd0c5eb392d3f954630fedc8` | merge commit `merge: sync looped-transformers with latest origin/main`; merge-base with `origin/main` is `d22d1e0` |
+| Remote `origin/looped-transformers` | `fc575f9e` | local work ahead by 46 commits; **not pushed** to PR head |
+| PR inaccessible | no | `gh pr view 288` succeeds |
+| Pending/stale CI | no | all required checks terminal SUCCESS |
+
+### Blocker distinction
+
+| Blocker class | Active? | Notes |
+| --- | --- | --- |
+| Review incomplete | **yes (primary)** | `audit:canonical-page-surface` over-budget and page-specific meta tests per BLOCKING comment |
+| Merge conflict / branch drift | **yes (remote only)** | GitHub DIRTY on `fc575f9e`; local `43d64096` already synced with `origin/main` but unpushed |
+| Failing checks | no | 11/11 SUCCESS |
+| Missing metadata / queue | no | lane metadata and queue tokens readable |
+| Authentication / merge API | no | merge was not attempted because review gate fails first |
+
+This is **not** a request for broad source inventory checks, docs link topology
+validation, asset-bundle assertions, or unrelated model-page cleanup.
+
+### Next safe planner action
+
+On the **`looped-transformers` content worktree**
+(`/Users/abdifamily/work/learn-agent-factories/.claude/worktrees/looped-transformers`):
+
+1. Finish and commit WIP addressing BLOCKING items (surface-budget audit,
+   remove/replace page-specific meta tests in shared verification paths).
+2. Confirm `bun run audit:canonical-page-surface` reports **in-budget**.
+3. Push local HEAD `43d64096` (and follow-on review-fix commits) to
+   `origin/looped-transformers` so PR #288 head advances and GitHub merge state
+   can return to CLEAN/MERGEABLE.
+4. Post a PR #288 conversation reply mapping each BLOCKING item to the concrete
+   fix and validation output.
+5. After review clears, rerun this drain lane story 002 to merge and consume PR
+   #288.
+
+Do **not** edit unrelated model pages, registry families, or shared runtime
+surfaces from this drain lane.
+
+### Post-blocker queue snapshot (2026-07-02T17:50Z UTC)
+
+| Work id | Type | State |
+| --- | --- | --- |
+| `work-task-64` (`looped-transformers`) | task | `init` / PROCESSING |
+| `work-task-88` (`looped-transformers-pr288-clean-drain`) | task | `init` / PROCESSING |
+
+No `review` work token is active. The BLOCKING PR conversation comment remains
+the authoritative review signal.
+
+## Quality gate (story 004)
+
+Blocker report only; no PR merge or content mutation on this drain lane.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T17:51Z UTC).
