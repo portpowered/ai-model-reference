@@ -1,22 +1,23 @@
 {
   "title": "Tokens Per Second",
-  "description": "The serving throughput metric that measures how many model tokens a system generates per second over a chosen measurement window.",
+  "description": "Tokens per second (tokens/s, tok/s, or TPS) is a throughput rate: how many model tokens a serving system generates per second over the measurement window you choose.",
+  "openingSummary": "Tokens per second (tokens/s, tok/s, or TPS) is a throughput rate: how many model tokens a serving system generates per second over the measurement window you choose. It counts generated model tokens, not human words or characters, and it describes aggregate output pace rather than one reader's wait time.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Tokens per second (tokens/s, tok/s, or TPS) is a throughput rate: how many model tokens a serving system generates per second over the measurement window you choose. It counts generated tokens, not human words or characters, and it describes aggregate output pace rather than one reader's wait time."
+      "body": "Tokens per second (tokens/s, tok/s, or TPS) measures how many model tokens a serving system completes per second over a chosen window. A token is the model's text unit—the piece a tokenizer splits text into before the network runs. The same visible sentence can map to different token counts across models or tokenizers, so throughput always refers to model tokens, not words, characters, or bytes."
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Operators use tokens per second to compare how much generation work a deployment can sustain. Higher throughput can mean better hardware utilization or more concurrent answers, but the headline number depends on batching, prompt length, and whether the window includes prefill, decode, or both."
+      "body": "Operators use tokens per second to see how much generation work a deployment can sustain. Higher throughput can mean better accelerator use or more concurrent answers, but the headline number depends on batching, prompt length, and whether the window includes prefill, decode, or both. Readers may care indirectly when capacity limits queue depth or streaming pace, even though throughput is usually averaged across many tokens or requests."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "If a server emits 120 generated tokens in two seconds of steady streaming, that slice averages 60 tokens per second. The same deployment might report a different rate over a longer window that also includes queueing, prompt prefill, or idle gaps between requests."
+      "body": "If a server emits 120 generated tokens in two seconds of steady streaming, that slice averages 60 tokens per second. The same deployment might report a different rate over a longer window that also includes queueing, prompt prefill, or idle gaps between requests. The window you choose changes the number even when each individual token took the same time to produce."
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Tokens per second is not the same as total request latency, time to first token, or inter-token latency. Latency metrics describe waits and gaps for one stream. Throughput describes how many tokens move through the system per second, often averaged across many tokens, requests, or a benchmark window."
+      "body": "Tokens per second is not the same as total request latency, time to first token, or inter-token latency. Latency metrics describe waits and gaps for one stream. Throughput describes how many tokens move through the system per second, often averaged across many tokens, requests, or a benchmark window. A deployment can show high aggregate throughput while one reader still waits a long time before streaming starts."
     },
     "related": {
       "title": "Related Concepts And Modules"
