@@ -201,7 +201,7 @@ Preliminary lane outcome for story 006: **conflict refresh** complete; **focused
 | Mergeability (GitHub) | **`MERGEABLE` / `CLEAN`** on head `6c47de90` |
 | Mergeability (`merge-tree` vs `origin/main` @ `9fa3fa8b`) | **no conflict markers** after merge commit `6c47de90` |
 | Behind/ahead `origin/main` | 0 behind / 9 ahead (after merge) |
-| CI status | **pending** — CI rerun triggered on push of `6c47de90`; prior head had stale 11/11 SUCCESS |
+| CI status | **passing** — 11/11 SUCCESS on head `6c47de90` (run 28625164329, completed ~2026-07-02T22:38Z UTC) |
 | Worktree path | `.claude/worktrees/generic-search-ai-enrichment-plugin` |
 | Worktree dirty paths | `M table-registry.generated.ts` (generated drift); `?? progress.txt.bak` (factory local) |
 | PR conversation | Prior **BLOCKING MERGE** (2026-07-02T14:59:47Z UTC) addressed via main merge and conflict resolution |
@@ -218,7 +218,7 @@ Preliminary lane outcome for story 007: **active-review handoff** after conflict
 | Prior blocking feedback | **BLOCKING MERGE** — `gh pr merge 277 --merge` failed because merge commit could not be created cleanly |
 | Fix applied | Main merge + conflict resolution pushed as `6c47de90`; merge state now `MERGEABLE`/`CLEAN` |
 | Local validation | `bun run typecheck` + `bun run lint` pass; focused search tests 97 pass, 0 fail |
-| **Final lane outcome** | **active-review handoff** — conflict refresh complete, mergeable, CI rerun pending; awaiting reviewer re-check and terminal green CI |
+| **Final lane outcome** | **active-review handoff** — conflict refresh complete, mergeable, 11/11 CI SUCCESS on `6c47de90`; awaiting reviewer re-check |
 
 ## Evidence commands (reproducible)
 
@@ -255,7 +255,7 @@ done
 | **passing** (current head) | #293, #283 |
 | **passing** (merged / terminal) | #288, #292 |
 | **stale passing** (CI green on old head; branch now conflicts with `origin/main`) | none (stale #279/#277 notes superseded by story 006/007 conflict refresh) |
-| **pending checks** (conflict refresh pushed; CI rerun in flight) | #277 |
+| **pending checks** (conflict refresh pushed; CI rerun in flight) | none at story 007 completion |
 | **missing checks** | none (stale #292 note obsolete) |
 | **failing checks** | none on current recorded heads |
 | **pending checks** | none at evidence capture time |
