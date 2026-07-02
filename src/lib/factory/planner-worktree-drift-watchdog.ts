@@ -5,6 +5,12 @@ import {
   classifyConflictHotspotSurfaceCategory,
 } from "./conflict-hotspot-report";
 import {
+  discoverMergedLaneEvidence,
+  formatMergedLaneEvidenceSummary,
+  type PlannerMergedLaneEvidence,
+  type PlannerMergedLaneMergeEvidence,
+} from "./planner-merged-lane-evidence";
+import {
   discoverQueueWorktreePrLinkageLedger,
   type QueueWorktreePrLinkageLane,
   type QueueWorktreePrLinkageLedger,
@@ -26,6 +32,7 @@ export type PlannerWorktreeDriftChangeKind =
 export type PlannerWorktreeDriftOwnershipKind =
   | "root-owned"
   | "worktree-owned"
+  | "already-merged-owned"
   | "unowned";
 export type PlannerWorktreeDriftOwnershipReasonCode =
   | "not-attributed-yet"
@@ -33,21 +40,35 @@ export type PlannerWorktreeDriftOwnershipReasonCode =
   | "shared-surface-match"
   | "ambiguous-shared-surface"
   | "linkage-gaps-unresolved"
-  | "root-unmatched";
+  | "root-unmatched"
+  | "already-merged-lane-match"
+  | "already-merged-surface-match";
 export type PlannerWorktreeDriftNextAction =
   | "wait"
   | "investigate"
+  | "investigate-and-preserve"
   | "open-follow-up-throughput-prd";
 export type PlannerWorktreeDriftRiskKind =
   | "multi-lane-hotspot-collision"
-  | "root-drift-without-obvious-owner"
-  | "ambiguous-shared-surface-ownership";
+  | "ownerless-root-dirty-paths"
+  | "ambiguous-shared-surface-ownership"
+  | "already-merged-root-drift";
+
+export const PLANNER_OWNERLESS_ROOT_DRIFT_PRESERVE_POLICY =
+  "Do not revert or overwrite root dirty paths as part of drift repair.";
+
+export const PLANNER_OWNERLESS_ROOT_DRIFT_NEXT_SAFE_ACTION =
+  "Investigate and preserve the root dirty paths until ownership is resolved.";
+
+export const PLANNER_OWNERLESS_ROOT_DRIFT_TARGET_SESSION_ID =
+  "0fdc5077-95ed-4396-a183-06e5b16555ca";
 
 export interface PlannerWorktreeDriftOwnership {
   branchName?: string;
   kind: PlannerWorktreeDriftOwnershipKind;
   laneName?: string;
   linkageStatus?: QueueWorktreePrLinkageLane["linkageStatus"];
+  mergeEvidence?: PlannerMergedLaneMergeEvidence;
   reasonCode: PlannerWorktreeDriftOwnershipReasonCode;
   reason: string;
   worktreePath?: string;
@@ -94,6 +115,8 @@ export interface PlannerWorktreeDriftSnapshot {
   evaluatedWorktreeCount: number;
   generatedAtUtc: string;
   issues: string[];
+  mergedLaneCount: number;
+  mergedLanes: PlannerMergedLaneEvidence[];
   risks: PlannerWorktreeDriftRisk[];
   root: PlannerWorktreeDriftRootSnapshot;
   totalDirtyPathCount: number;
@@ -101,8 +124,10 @@ export interface PlannerWorktreeDriftSnapshot {
 }
 
 export interface DiscoverPlannerWorktreeDriftOptions {
+  baseBranchName?: string;
   generatedAtUtc?: string;
   linkageLedger?: QueueWorktreePrLinkageLedger;
+  mergedLaneEvidence?: PlannerMergedLaneEvidence[];
   repoRoot?: string;
   sessionListJsonText?: string;
   workListJsonText?: string;
@@ -117,6 +142,14 @@ interface PlannerWorktreeOwnershipCandidate {
   laneName: string;
   linkageStatus: QueueWorktreePrLinkageLane["linkageStatus"];
   worktreePath: string;
+}
+
+interface PlannerMergedLaneOwnershipCandidate {
+  branchName?: string;
+  dirtyPaths: PlannerWorktreeDirtyPath[];
+  laneName: string;
+  mergeEvidence: PlannerMergedLaneMergeEvidence;
+  worktreePath?: string;
 }
 
 const NON_PLANNER_SURFACE_PATHS = new Set([
@@ -359,6 +392,72 @@ function buildOwnershipCandidates(
   }));
 }
 
+function buildMergedLaneOwnershipCandidates(
+  mergedLanes: PlannerMergedLaneEvidence[],
+  runGitStatus: RunGitStatus,
+): PlannerMergedLaneOwnershipCandidate[] {
+  return mergedLanes.map((lane) => ({
+    branchName: lane.branchName,
+    dirtyPaths: lane.worktreePath
+      ? parsePlannerRelevantDirtyPaths(
+          runGitStatus(lane.worktreePath),
+          "worktree",
+        )
+      : [],
+    laneName: lane.laneName,
+    mergeEvidence: lane.mergeEvidence,
+    worktreePath: lane.worktreePath,
+  }));
+}
+
+function collectMatchingMergedLaneCandidates(
+  dirtyPath: PlannerWorktreeDirtyPath,
+  candidates: PlannerMergedLaneOwnershipCandidate[],
+): PlannerMergedLaneOwnershipCandidate[] {
+  const pathMatches = candidates.filter((candidate) =>
+    candidate.dirtyPaths.some(
+      (candidatePath) => candidatePath.path === dirtyPath.path,
+    ),
+  );
+
+  if (pathMatches.length > 0) {
+    return pathMatches;
+  }
+
+  return candidates.filter((candidate) =>
+    candidate.dirtyPaths.some(
+      (candidatePath) => candidatePath.surface === dirtyPath.surface,
+    ),
+  );
+}
+
+function buildAlreadyMergedOwnership(
+  dirtyPath: PlannerWorktreeDirtyPath,
+  match: PlannerMergedLaneOwnershipCandidate,
+  repoRoot: string,
+): PlannerWorktreeDriftOwnership {
+  const directPathMatch = match.dirtyPaths.some(
+    (candidatePath) => candidatePath.path === dirtyPath.path,
+  );
+  const evidenceSummary = formatMergedLaneEvidenceSummary(match.mergeEvidence);
+
+  return {
+    branchName: match.branchName,
+    kind: "already-merged-owned",
+    laneName: match.laneName,
+    mergeEvidence: match.mergeEvidence,
+    reasonCode: directPathMatch
+      ? "already-merged-lane-match"
+      : "already-merged-surface-match",
+    reason: directPathMatch
+      ? `Root drift matches already-merged lane ${match.laneName} (${evidenceSummary}).`
+      : `Root drift matches shared surface ${dirtyPath.surface} from already-merged lane ${match.laneName} (${evidenceSummary}).`,
+    worktreePath: match.worktreePath
+      ? formatWorktreePath(repoRoot, match.worktreePath)
+      : undefined,
+  };
+}
+
 function collectMatchingOwnershipCandidates(
   dirtyPath: PlannerWorktreeDirtyPath,
   candidates: PlannerWorktreeOwnershipCandidate[],
@@ -383,6 +482,7 @@ function collectMatchingOwnershipCandidates(
 function attributeRootDirtyPathOwnership(
   dirtyPath: PlannerWorktreeDirtyPath,
   candidates: PlannerWorktreeOwnershipCandidate[],
+  mergedCandidates: PlannerMergedLaneOwnershipCandidate[],
   linkageIssues: string[],
   repoRoot: string,
 ): PlannerWorktreeDriftOwnership {
@@ -422,12 +522,30 @@ function attributeRootDirtyPathOwnership(
     };
   }
 
+  const matchingMergedCandidates = collectMatchingMergedLaneCandidates(
+    dirtyPath,
+    mergedCandidates,
+  );
+  if (matchingMergedCandidates.length === 1) {
+    const [match] = matchingMergedCandidates;
+    if (match) {
+      return buildAlreadyMergedOwnership(dirtyPath, match, repoRoot);
+    }
+  }
+  if (matchingMergedCandidates.length > 1) {
+    return {
+      kind: "unowned",
+      reasonCode: "ambiguous-shared-surface",
+      reason: `Ownership is ambiguous across already-merged lanes ${matchingMergedCandidates.map((candidate) => candidate.laneName).join(", ")} on shared surface ${dirtyPath.surface}.`,
+    };
+  }
+
   if (linkageIssues.length > 0) {
     return {
       kind: "unowned",
       reasonCode: "linkage-gaps-unresolved",
       reason:
-        "No active lane currently matches this root drift, and linkage gaps leave ownership unresolved.",
+        "Ownerless root dirty path: no active lane matches this drift and linkage gaps leave ownership unresolved.",
     };
   }
 
@@ -435,7 +553,7 @@ function attributeRootDirtyPathOwnership(
     kind: "root-owned",
     reasonCode: "root-unmatched",
     reason:
-      "No active lane currently matches this dirty path or shared surface, so the drift remains rooted in the planner checkout.",
+      "Ownerless root dirty path: no active or merged lane currently matches this dirty path or shared surface.",
   };
 }
 
@@ -511,11 +629,34 @@ function buildDriftRisks(
       dirtyPath.ownership.reasonCode === "root-unmatched" ||
       dirtyPath.ownership.reasonCode === "linkage-gaps-unresolved"
     ) {
+      const ownerlessReason =
+        dirtyPath.ownership.reasonCode === "linkage-gaps-unresolved"
+          ? "linkage gaps leave ownership unresolved"
+          : "no active or merged lane claims it";
       risks.push({
         category: dirtyPath.category,
-        evidenceSummary: `Root dirty path ${dirtyPath.path} has no obvious active owner.`,
-        kind: "root-drift-without-obvious-owner",
+        evidenceSummary: `Ownerless root dirty path ${dirtyPath.path} (${ownerlessReason}).`,
+        kind: "ownerless-root-dirty-paths",
         laneNames: [],
+        nextAction: "investigate-and-preserve",
+        path: dirtyPath.path,
+        surface: dirtyPath.surface,
+      });
+      continue;
+    }
+
+    if (
+      dirtyPath.ownership.kind === "already-merged-owned" &&
+      dirtyPath.ownership.laneName
+    ) {
+      const evidenceSummary = dirtyPath.ownership.mergeEvidence
+        ? formatMergedLaneEvidenceSummary(dirtyPath.ownership.mergeEvidence)
+        : dirtyPath.ownership.laneName;
+      risks.push({
+        category: dirtyPath.category,
+        evidenceSummary: `Root dirty path ${dirtyPath.path} is already-merged root drift from lane ${dirtyPath.ownership.laneName} (${evidenceSummary}).`,
+        kind: "already-merged-root-drift",
+        laneNames: [dirtyPath.ownership.laneName],
         nextAction: "investigate",
         path: dirtyPath.path,
         surface: dirtyPath.surface,
@@ -552,14 +693,20 @@ function recommendWorktreeNextAction(
 
 function attributeDirtyPathOwnership(
   snapshot: PlannerWorktreeDriftSnapshot,
+  runGitStatus: RunGitStatus,
 ): PlannerWorktreeDriftSnapshot {
   const ownershipCandidates = buildOwnershipCandidates(snapshot.worktrees);
+  const mergedOwnershipCandidates = buildMergedLaneOwnershipCandidates(
+    snapshot.mergedLanes,
+    runGitStatus,
+  );
 
   const rootDirtyPaths = snapshot.root.dirtyPaths.map((dirtyPath) => ({
     ...dirtyPath,
     ownership: attributeRootDirtyPathOwnership(
       dirtyPath,
       ownershipCandidates,
+      mergedOwnershipCandidates,
       snapshot.issues,
       snapshot.root.repoRoot,
     ),
@@ -595,9 +742,14 @@ function attributeDirtyPathOwnership(
 export function buildPlannerWorktreeDriftSnapshot(
   ledger: QueueWorktreePrLinkageLedger,
   options: {
+    baseBranchName?: string;
     generatedAtUtc?: string;
+    mergedLaneEvidence?: PlannerMergedLaneEvidence[];
     repoRoot: string;
     runGitStatus?: RunGitStatus;
+    sessionListJsonText?: string;
+    workListJsonText?: string;
+    worktreesDir?: string;
   },
 ): PlannerWorktreeDriftSnapshot {
   const repoRoot = resolve(options.repoRoot);
@@ -606,23 +758,39 @@ export function buildPlannerWorktreeDriftSnapshot(
   const worktrees = ledger.lanes
     .map((lane) => collectWorktreeSnapshot(repoRoot, lane, runGitStatus))
     .filter((lane): lane is PlannerWorktreeDriftLaneSnapshot => lane !== null);
+  const mergedLanes = discoverMergedLaneEvidence({
+    activeLaneNames: ledger.lanes
+      .filter((lane) => lane.queueState === "active")
+      .map((lane) => lane.laneName),
+    baseBranchName: options.baseBranchName,
+    mergedLaneEvidence: options.mergedLaneEvidence,
+    repoRoot,
+    sessionListJsonText: options.sessionListJsonText,
+    workListJsonText: options.workListJsonText,
+    worktreesDir: options.worktreesDir,
+  });
   const totalDirtyPathCount =
     root.dirtyPathCount +
     worktrees.reduce((total, lane) => total + lane.dirtyPathCount, 0);
 
-  return attributeDirtyPathOwnership({
-    activeLaneCount: ledger.activeLaneCount,
-    evaluatedWorktreeCount: worktrees.length,
-    generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
-    issues: [...ledger.issues],
-    risks: [],
-    root,
-    totalDirtyPathCount,
-    worktrees: worktrees.map((worktree) => ({
-      ...worktree,
-      nextAction: "wait",
-    })),
-  });
+  return attributeDirtyPathOwnership(
+    {
+      activeLaneCount: ledger.activeLaneCount,
+      evaluatedWorktreeCount: worktrees.length,
+      generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
+      issues: [...ledger.issues],
+      mergedLaneCount: mergedLanes.length,
+      mergedLanes,
+      risks: [],
+      root,
+      totalDirtyPathCount,
+      worktrees: worktrees.map((worktree) => ({
+        ...worktree,
+        nextAction: "wait",
+      })),
+    },
+    runGitStatus,
+  );
 }
 
 export function discoverPlannerWorktreeDriftSnapshot(
@@ -632,8 +800,13 @@ export function discoverPlannerWorktreeDriftSnapshot(
   const ledger = resolveLedger(options);
 
   return buildPlannerWorktreeDriftSnapshot(ledger, {
+    baseBranchName: options.baseBranchName,
     generatedAtUtc: options.generatedAtUtc,
+    mergedLaneEvidence: options.mergedLaneEvidence,
     repoRoot,
+    sessionListJsonText: options.sessionListJsonText,
+    workListJsonText: options.workListJsonText,
+    worktreesDir: options.worktreesDir,
   });
 }
 
@@ -641,7 +814,10 @@ function formatDirtyPath(path: PlannerWorktreeDirtyPath): string {
   const owner = path.ownership.laneName
     ? `${path.ownership.kind}:${path.ownership.laneName}`
     : path.ownership.kind;
-  return `path=${path.path} status=${path.statusCode} change=${path.changeKind} surface=${path.surface} category=${path.category} owner=${owner} ownership-reason=${path.ownership.reason}`;
+  const mergeEvidence = path.ownership.mergeEvidence
+    ? ` merge-evidence=${formatMergedLaneEvidenceSummary(path.ownership.mergeEvidence)}`
+    : "";
+  return `path=${path.path} status=${path.statusCode} change=${path.changeKind} surface=${path.surface} category=${path.category} owner=${owner}${mergeEvidence} ownership-reason=${path.ownership.reason}`;
 }
 
 function formatWorktreePath(repoRoot: string, worktreePath: string): string {
@@ -649,6 +825,39 @@ function formatWorktreePath(repoRoot: string, worktreePath: string): string {
   return relativePath && !relativePath.startsWith("..")
     ? relativePath
     : worktreePath;
+}
+
+function collectOwnerlessRootDirtyPaths(
+  snapshot: PlannerWorktreeDriftSnapshot,
+): PlannerWorktreeDirtyPath[] {
+  const ownerlessPaths = snapshot.root.dirtyPaths.filter((dirtyPath) =>
+    snapshot.risks.some(
+      (risk) =>
+        risk.kind === "ownerless-root-dirty-paths" &&
+        risk.path === dirtyPath.path,
+    ),
+  );
+
+  return ownerlessPaths.sort((left, right) =>
+    left.path.localeCompare(right.path),
+  );
+}
+
+function formatOwnerlessRootDriftRecoveryGuidance(
+  ownerlessPaths: PlannerWorktreeDirtyPath[],
+): string[] {
+  if (ownerlessPaths.length === 0) {
+    return [];
+  }
+
+  const pathList = ownerlessPaths.map((dirtyPath) => dirtyPath.path).join(", ");
+  return [
+    "- recovery-guidance",
+    `  - condition=ownerless-root-dirty-paths count=${ownerlessPaths.length} target-session=${PLANNER_OWNERLESS_ROOT_DRIFT_TARGET_SESSION_ID}`,
+    `  - preserve-policy=${PLANNER_OWNERLESS_ROOT_DRIFT_PRESERVE_POLICY}`,
+    `  - next-safe-action=${PLANNER_OWNERLESS_ROOT_DRIFT_NEXT_SAFE_ACTION}`,
+    `  - ownerless-paths=${pathList}`,
+  ];
 }
 
 export function formatPlannerWorktreeDriftReport(
@@ -661,7 +870,7 @@ export function formatPlannerWorktreeDriftReport(
   );
   const lines = [
     PLANNER_WORKTREE_DRIFT_WATCHDOG_HEADER,
-    `active-lanes=${snapshot.activeLaneCount} evaluated-worktrees=${snapshot.evaluatedWorktreeCount} risk-cases=${snapshot.risks.length} root-dirty-shared-paths=${rootDirtyCount} worktree-dirty-shared-paths=${worktreeDirtyCount} total-dirty-shared-paths=${snapshot.totalDirtyPathCount}`,
+    `active-lanes=${snapshot.activeLaneCount} merged-lanes=${snapshot.mergedLaneCount} evaluated-worktrees=${snapshot.evaluatedWorktreeCount} risk-cases=${snapshot.risks.length} root-dirty-shared-paths=${rootDirtyCount} worktree-dirty-shared-paths=${worktreeDirtyCount} total-dirty-shared-paths=${snapshot.totalDirtyPathCount}`,
   ];
 
   if (snapshot.issues.length > 0) {
@@ -684,11 +893,28 @@ export function formatPlannerWorktreeDriftReport(
     lines.push("");
   }
 
+  const ownerlessRecoveryGuidance = formatOwnerlessRootDriftRecoveryGuidance(
+    collectOwnerlessRootDirtyPaths(snapshot),
+  );
+  if (ownerlessRecoveryGuidance.length > 0) {
+    lines.push(...ownerlessRecoveryGuidance, "");
+  }
+
   lines.push(
     `- location=root repo=${snapshot.root.repoRoot} dirty-shared-paths=${snapshot.root.dirtyPathCount}`,
   );
   for (const dirtyPath of snapshot.root.dirtyPaths) {
     lines.push(`  - ${formatDirtyPath(dirtyPath)}`);
+  }
+
+  if (snapshot.mergedLanes.length > 0) {
+    lines.push("- merged-lanes");
+    for (const mergedLane of snapshot.mergedLanes) {
+      lines.push(
+        `  - lane=${mergedLane.laneName} branch=${mergedLane.branchName ?? "?"} merge-evidence=${formatMergedLaneEvidenceSummary(mergedLane.mergeEvidence)} worktree=${mergedLane.worktreePath ? formatWorktreePath(snapshot.root.repoRoot, mergedLane.worktreePath) : "-"}`,
+      );
+    }
+    lines.push("");
   }
 
   if (snapshot.worktrees.length === 0) {

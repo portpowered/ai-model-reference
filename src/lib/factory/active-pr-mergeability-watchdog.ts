@@ -124,6 +124,7 @@ export interface LaneDiscoveryRecord {
   mergeabilityClass?: MergeabilityClass;
   queueMismatchRisk?: QueueMismatchRisk;
   nextAction?: PlannerNextAction;
+  metadataRefreshHints?: string[];
   reasons: string[];
 }
 
@@ -823,7 +824,10 @@ export function classifyMergeability(
     return "mergeable";
   }
   if (state === "BLOCKED") {
-    return checkHealth === "passing" ? "unknown" : "check-blocked";
+    return checkHealth === "passing" ? "mergeable" : "check-blocked";
+  }
+  if (checkHealth === "passing") {
+    return "mergeable";
   }
   return "unknown";
 }
@@ -981,10 +985,73 @@ export function determineQueueMismatchRisk(
   if (lane.queueState === "failed" && lane.mergeabilityClass === "mergeable") {
     return "queue-stale";
   }
-  if (lane.mergeabilityClass === "unknown") {
+  if (
+    lane.mergeabilityClass === "unknown" &&
+    (lane.checkHealth === "unavailable" || lane.checkHealth === undefined)
+  ) {
     return "metadata-unavailable";
   }
   return "none";
+}
+
+export function isStaleLinkageRefreshHint(reason: string): boolean {
+  return (
+    reason.startsWith("stamped branch linkage is stale") ||
+    reason.startsWith("stamped pull request linkage is stale")
+  );
+}
+
+export function partitionStaleLinkageRefreshHints(reasons: string[]): {
+  reasons: string[];
+  metadataRefreshHints: string[];
+} {
+  const metadataRefreshHints: string[] = [];
+  const remainingReasons: string[] = [];
+
+  for (const reason of reasons) {
+    if (isStaleLinkageRefreshHint(reason)) {
+      metadataRefreshHints.push(reason);
+      continue;
+    }
+    remainingReasons.push(reason);
+  }
+
+  return { reasons: remainingReasons, metadataRefreshHints };
+}
+
+function collectWorktreeStaleLinkageRefreshHints(
+  worktree: WorktreeLaneRecord,
+): string[] {
+  const hints: string[] = [];
+
+  if (worktree.metadataBranchLinkage?.status === "stale") {
+    hints.push(
+      worktree.metadataBranchLinkage.issue
+        ? `stamped branch linkage is stale: ${worktree.metadataBranchLinkage.issue}`
+        : "stamped branch linkage is stale and should be refreshed",
+    );
+  }
+  if (worktree.metadataPullRequestLinkage?.status === "stale") {
+    hints.push(
+      worktree.metadataPullRequestLinkage.issue
+        ? `stamped pull request linkage is stale: ${worktree.metadataPullRequestLinkage.issue}`
+        : "stamped pull request linkage is stale and should be refreshed",
+    );
+  }
+
+  return hints;
+}
+
+function mergeMetadataRefreshHints(...hintGroups: string[][]): string[] {
+  const merged: string[] = [];
+  for (const hints of hintGroups) {
+    for (const hint of hints) {
+      if (!merged.includes(hint)) {
+        merged.push(hint);
+      }
+    }
+  }
+  return merged;
 }
 
 export function recommendPlannerNextAction(
@@ -1320,8 +1387,17 @@ export function discoverActivePrLaneReport(
     }
 
     const queueMismatchRisk = determineQueueMismatchRisk(laneRecord);
+    const partitionedReasons = partitionStaleLinkageRefreshHints(
+      laneRecord.reasons,
+    );
+    const metadataRefreshHints = mergeMetadataRefreshHints(
+      partitionedReasons.metadataRefreshHints,
+      collectWorktreeStaleLinkageRefreshHints(worktree),
+    );
     return {
       ...laneRecord,
+      reasons: partitionedReasons.reasons,
+      ...(metadataRefreshHints.length > 0 ? { metadataRefreshHints } : {}),
       queueMismatchRisk,
       nextAction: recommendPlannerNextAction({
         queueMismatchRisk,
@@ -1393,6 +1469,9 @@ export function formatActivePrLaneReport(report: LaneDiscoveryReport): string {
     }
     if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
       details.push(`risk=${lane.queueMismatchRisk}`);
+    }
+    if (lane.metadataRefreshHints && lane.metadataRefreshHints.length > 0) {
+      details.push(`metadata-refresh=${lane.metadataRefreshHints.join("; ")}`);
     }
     if (lane.nextAction) {
       details.push(`next-action=${lane.nextAction}`);

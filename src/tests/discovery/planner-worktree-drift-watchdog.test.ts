@@ -93,17 +93,28 @@ describe("planner-worktree-drift-watchdog script", () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("Planner Worktree Drift Watchdog");
     expect(result.stdout).toContain(
-      "active-lanes=1 evaluated-worktrees=1 risk-cases=1 root-dirty-shared-paths=1 worktree-dirty-shared-paths=1 total-dirty-shared-paths=2",
+      "active-lanes=1 merged-lanes=0 evaluated-worktrees=1 risk-cases=1 root-dirty-shared-paths=1 worktree-dirty-shared-paths=1 total-dirty-shared-paths=2",
     );
+    expect(result.stdout).not.toContain("- merged-lanes");
     expect(result.stdout).toContain("- risks");
     expect(result.stdout).toContain(
-      "risk=root-drift-without-obvious-owner path=src/lib/factory/root.ts surface=src/lib/factory lanes=none next-action=investigate evidence=Root dirty path src/lib/factory/root.ts has no obvious active owner.",
+      "risk=ownerless-root-dirty-paths path=src/lib/factory/root.ts surface=src/lib/factory lanes=none next-action=investigate-and-preserve evidence=Ownerless root dirty path src/lib/factory/root.ts (no active or merged lane claims it).",
+    );
+    expect(result.stdout).toContain("- recovery-guidance");
+    expect(result.stdout).toContain(
+      "condition=ownerless-root-dirty-paths count=1 target-session=0fdc5077-95ed-4396-a183-06e5b16555ca",
+    );
+    expect(result.stdout).toContain(
+      "preserve-policy=Do not revert or overwrite root dirty paths as part of drift repair.",
+    );
+    expect(result.stdout).toContain(
+      "next-safe-action=Investigate and preserve the root dirty paths until ownership is resolved.",
     );
     expect(result.stdout).toContain(
       `- location=root repo=${repoRoot} dirty-shared-paths=1`,
     );
     expect(result.stdout).toContain(
-      "path=src/lib/factory/root.ts status= M change=modified surface=src/lib/factory category=shared-helper owner=root-owned ownership-reason=No active lane currently matches this dirty path or shared surface, so the drift remains rooted in the planner checkout.",
+      "path=src/lib/factory/root.ts status= M change=modified surface=src/lib/factory category=shared-helper owner=root-owned ownership-reason=Ownerless root dirty path: no active or merged lane currently matches this dirty path or shared surface.",
     );
     expect(result.stdout).toContain(
       "- location=worktree lane=alpha branch=alpha linkage=linked-with-gaps worktree=.claude/worktrees/alpha dirty-shared-paths=1 next-action=wait",
@@ -146,8 +157,8 @@ describe("planner-worktree-drift-watchdog script", () => {
         }),
         risks: [
           expect.objectContaining({
-            kind: "root-drift-without-obvious-owner",
-            nextAction: "investigate",
+            kind: "ownerless-root-dirty-paths",
+            nextAction: "investigate-and-preserve",
             path: "src/lib/factory/root.ts",
           }),
         ],
