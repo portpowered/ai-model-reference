@@ -6,10 +6,13 @@ import {
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
 import type {
+  HomeFeaturedLinkCopy,
   HomeFeaturedLinkPlaceholder,
   SiteConfig,
   SitePrimaryNavEntry,
+  SiteRouteSurfaceId,
 } from "./site-config.contract";
+import { isHomeFeaturedLinkMessageCopy } from "./site-config.contract";
 
 export function resolveSiteConfigLayoutNav(
   config: SiteConfig,
@@ -17,7 +20,10 @@ export function resolveSiteConfigLayoutNav(
 ): { title: string; url: string } {
   return {
     title: config.brand.brandName,
-    url: buildLocalizedRoute(config.routeSurfaces.home, locale),
+    url: buildLocalizedRoute(
+      config.routeSurfaces[config.homeRouteSurface],
+      locale,
+    ),
   };
 }
 
@@ -48,12 +54,24 @@ export function resolveSiteConfigPrimaryNavHrefs(
   );
 }
 
+function assertHomeFeaturedRouteSurfaceConfigured(
+  config: SiteConfig,
+  routeSurface: SiteRouteSurfaceId,
+): void {
+  if (!(routeSurface in config.routeSurfaces)) {
+    throw new Error(
+      `Home featured link references unknown route surface "${routeSurface}".`,
+    );
+  }
+}
+
 function resolveHomeFeaturedLinkHref(
   config: SiteConfig,
   link: HomeFeaturedLinkPlaceholder,
   locale: SiteLocale,
 ): string {
   if (link.kind === "route") {
+    assertHomeFeaturedRouteSurfaceConfigured(config, link.routeSurface);
     return buildLocalizedRoute(config.routeSurfaces[link.routeSurface], locale);
   }
 
@@ -76,6 +94,46 @@ export function resolveSiteConfigHomeFeaturedLinkHrefs(
   );
 }
 
+function resolveHomeFeaturedLinkCopy(
+  copy: HomeFeaturedLinkCopy,
+  messages: UiMessages,
+): Pick<ResolvedHomeFeaturedLink, "title" | "description"> {
+  if (isHomeFeaturedLinkMessageCopy(copy)) {
+    const homeMessages = messages.home as Record<string, string>;
+    const title = homeMessages[copy.titleKey];
+    const description = homeMessages[copy.descriptionKey];
+
+    if (typeof title !== "string" || title.length === 0) {
+      throw new Error(
+        `Home featured link copy is missing message title for key "${copy.titleKey}".`,
+      );
+    }
+
+    if (typeof description !== "string" || description.length === 0) {
+      throw new Error(
+        `Home featured link copy is missing message description for key "${copy.descriptionKey}".`,
+      );
+    }
+
+    return { title, description };
+  }
+
+  if (typeof copy.title !== "string" || copy.title.length === 0) {
+    throw new Error("Home featured link copy is missing resolved title label.");
+  }
+
+  if (typeof copy.description !== "string" || copy.description.length === 0) {
+    throw new Error(
+      "Home featured link copy is missing resolved description label.",
+    );
+  }
+
+  return {
+    title: copy.title,
+    description: copy.description,
+  };
+}
+
 export function resolveSiteConfigHomeFeaturedLinks(
   config: SiteConfig,
   messages: UiMessages,
@@ -83,7 +141,6 @@ export function resolveSiteConfigHomeFeaturedLinks(
 ): ResolvedHomeFeaturedLink[] {
   return config.homeFeaturedLinks.map((link) => ({
     href: resolveHomeFeaturedLinkHref(config, link, locale),
-    title: messages.home[link.titleKey],
-    description: messages.home[link.descriptionKey],
+    ...resolveHomeFeaturedLinkCopy(link, messages),
   }));
 }

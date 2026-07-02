@@ -24,10 +24,7 @@ import {
   MODEL_ATLAS_REPOSITORY_URL,
   modelAtlasSiteConfig,
 } from "@/lib/site/model-atlas-site-config";
-import {
-  SITE_COLLECTION_FAMILIES,
-  type SiteConfig,
-} from "@/lib/site/site-config.contract";
+import type { SiteConfig } from "@/lib/site/site-config.contract";
 import { source } from "@/lib/source";
 import { assertPrimaryNavNoDuplicateSearchLink } from "@/lib/verify/customer-ask-home-header-convergence";
 import {
@@ -52,13 +49,22 @@ const alternateSiteConfig = {
     timeline: { surface: "docs-page", slug: "timeline" },
     tagsIndex: { surface: "tags-index" },
   },
+  homeRouteSurface: "home",
   primaryNav: [
     { routeSurface: "home", labelKey: "home" },
     { routeSurface: "topology", labelKey: "topology" },
     { routeSurface: "timeline", labelKey: "timeline" },
     { routeSurface: "tagsIndex", labelKey: "tags" },
   ],
-  collections: SITE_COLLECTION_FAMILIES.map((family) => ({ family })),
+  collections: [
+    { id: "glossary" },
+    { id: "concepts" },
+    { id: "modules" },
+    { id: "models" },
+    { id: "papers" },
+    { id: "training" },
+    { id: "systems" },
+  ],
   homeFeaturedLinks: [
     {
       kind: "route",

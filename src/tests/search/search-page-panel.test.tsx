@@ -61,11 +61,32 @@ function renderSearchPagePanelContent(
 /** Orama static search suspends on first client render; unmount + brief wait primes the cache. */
 async function primeDocsSearchClient(
   context: Awaited<ReturnType<typeof loadAppTestContext>>,
+  searchParams = new URLSearchParams(),
 ): Promise<void> {
-  const first = await renderSearchPagePanelContent(context);
+  const first = await renderSearchPagePanelContent(context, searchParams);
+  if (searchParams.toString()) {
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("search-page-loading")).toBeNull();
+      },
+      { timeout: 15_000 },
+    ).catch(() => {
+      // Handoff priming may still warm the Orama bootstrap even when results settle slowly.
+    });
+  }
   first.unmount();
   cleanup();
   await new Promise((resolve) => setTimeout(resolve, 400));
+}
+
+async function waitForSearchPageResults(): Promise<HTMLElement> {
+  await waitFor(
+    () => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    },
+    { timeout: 15_000 },
+  );
+  return screen.findByTestId("search-page-results", {}, { timeout: 15_000 });
 }
 
 function installDocsSearchRouteFetch(): void {
@@ -467,7 +488,16 @@ describe("SearchPagePanel classification handoff", () => {
     await lockGlobalFetch().then(async (release) => {
       releaseFetchLock = release;
       installDocsSearchRouteFetch();
-      await primeDocsSearchClient(await loadAppTestContext());
+      const context = await loadAppTestContext();
+      await primeDocsSearchClient(context);
+      await primeDocsSearchClient(
+        context,
+        new URLSearchParams("classification=activation"),
+      );
+      await primeDocsSearchClient(
+        context,
+        new URLSearchParams("q=relu&classification=activation"),
+      );
       restoreFetchMock();
       releaseFetchLock?.();
       releaseFetchLock = null;
@@ -504,7 +534,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -528,7 +558,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -566,7 +596,7 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("token");
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPageResults();
     expect(results.textContent).toMatch(/Token/i);
     expect(
       screen.queryByText(

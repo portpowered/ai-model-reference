@@ -1,91 +1,91 @@
 import { describe, expect, test } from "bun:test";
-import {
-  SITE_COLLECTION_FAMILIES,
-  SITE_NAMED_ROUTE_SURFACES,
-  type SiteConfig,
-} from "./site-config.contract";
+import type { SiteConfig } from "./site-config.contract";
 
-const representativeSiteConfig = {
+const representativeLibrarySiteConfig = {
   brand: {
-    scaffoldId: "example-scaffold",
-    brandName: "Example Atlas",
-    siteHeading: "Example Reference",
+    scaffoldId: "library-reference",
+    brandName: "Library Atlas",
+    siteHeading: "Library Reference",
   },
-  repositoryUrl: "https://github.com/example/example",
+  repositoryUrl: "https://github.com/example/library-reference",
   routeSurfaces: {
-    home: { surface: "home" },
-    browse: { surface: "browse" },
-    topology: { surface: "topology" },
-    timeline: { surface: "docs-page", slug: "timeline" },
-    tagsIndex: { surface: "tags-index" },
+    landing: { surface: "home" },
+    catalog: { surface: "browse" },
+    articles: { surface: "docs-page", slug: "articles" },
+    topics: { surface: "tags-index" },
   },
+  homeRouteSurface: "landing",
   primaryNav: [
-    { routeSurface: "home", labelKey: "home" },
-    { routeSurface: "topology", labelKey: "topology" },
-    { routeSurface: "timeline", labelKey: "timeline" },
-    { routeSurface: "tagsIndex", labelKey: "tags" },
+    { routeSurface: "landing", labelKey: "home" },
+    { routeSurface: "catalog", labelKey: "catalog" },
+    { routeSurface: "articles", labelKey: "articles" },
+    { routeSurface: "topics", labelKey: "topics" },
   ],
-  collections: SITE_COLLECTION_FAMILIES.map((family) => ({ family })),
+  collections: [{ id: "books" }, { id: "authors" }, { id: "guides" }],
   homeFeaturedLinks: [
     {
       kind: "route",
-      routeSurface: "browse",
-      titleKey: "atlasLinkTitle",
-      descriptionKey: "atlasLinkDescription",
+      routeSurface: "catalog",
+      titleKey: "catalogLinkTitle",
+      descriptionKey: "catalogLinkDescription",
     },
     {
       kind: "docs-page",
-      slug: "modules/grouped-query-attention",
-      titleKey: "gqaLinkTitle",
-      descriptionKey: "gqaLinkDescription",
-    },
-    {
-      kind: "docs-page",
-      slug: "modules/swiglu",
-      titleKey: "swigluLinkTitle",
-      descriptionKey: "swigluLinkDescription",
-    },
-    {
-      kind: "docs-page",
-      slug: "modules/relu",
-      titleKey: "reluLinkTitle",
-      descriptionKey: "reluLinkDescription",
+      slug: "guides/getting-started",
+      title: "Getting started",
+      description: "A resolved featured link label for onboarding guides.",
     },
   ],
 } satisfies SiteConfig;
 
 describe("site config contract", () => {
-  test("defines named route surfaces for current shell destinations", () => {
-    expect(SITE_NAMED_ROUTE_SURFACES).toEqual([
-      "home",
-      "browse",
-      "topology",
-      "timeline",
-      "tagsIndex",
+  test("accepts custom route surface ids for non-AI documentation sites", () => {
+    expect(Object.keys(representativeLibrarySiteConfig.routeSurfaces)).toEqual([
+      "landing",
+      "catalog",
+      "articles",
+      "topics",
     ]);
-  });
-
-  test("defines collection family placeholders for docs sections", () => {
-    expect(SITE_COLLECTION_FAMILIES).toEqual([
-      "glossary",
-      "concepts",
-      "modules",
-      "models",
-      "papers",
-      "training",
-      "systems",
-    ]);
-  });
-
-  test("accepts a representative config shape with route, nav, and featured link placeholders", () => {
-    expect(representativeSiteConfig.primaryNav).toHaveLength(4);
-    expect(representativeSiteConfig.homeFeaturedLinks).toHaveLength(4);
-    expect(representativeSiteConfig.collections).toHaveLength(
-      SITE_COLLECTION_FAMILIES.length,
-    );
-    expect(representativeSiteConfig.routeSurfaces.timeline).toEqual({
+    expect(representativeLibrarySiteConfig.homeRouteSurface).toBe("landing");
+    expect(representativeLibrarySiteConfig.routeSurfaces.articles).toEqual({
       surface: "docs-page",
-      slug: "timeline",
+      slug: "articles",
     });
+  });
+
+  test("accepts arbitrary collection placeholder ids", () => {
+    expect(
+      representativeLibrarySiteConfig.collections.map((entry) => entry.id),
+    ).toEqual(["books", "authors", "guides"]);
+  });
+
+  test("accepts message-backed and resolved featured home link copy bindings", () => {
+    expect(representativeLibrarySiteConfig.homeFeaturedLinks).toEqual([
+      {
+        kind: "route",
+        routeSurface: "catalog",
+        titleKey: "catalogLinkTitle",
+        descriptionKey: "catalogLinkDescription",
+      },
+      {
+        kind: "docs-page",
+        slug: "guides/getting-started",
+        title: "Getting started",
+        description: "A resolved featured link label for onboarding guides.",
+      },
+    ]);
+  });
+
+  test("keeps representative generic contract tests free of Model Atlas vocabulary", () => {
+    const serializedConfig = JSON.stringify(representativeLibrarySiteConfig);
+
+    expect(serializedConfig).not.toContain("topology");
+    expect(serializedConfig).not.toContain("timeline");
+    expect(serializedConfig).not.toContain("gqaLinkTitle");
+    expect(serializedConfig).not.toContain("swigluLinkTitle");
+    expect(serializedConfig).not.toContain("reluLinkTitle");
+    expect(serializedConfig).not.toContain('"models"');
+    expect(serializedConfig).not.toContain('"modules"');
+    expect(serializedConfig).not.toContain('"papers"');
   });
 });
