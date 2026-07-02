@@ -182,6 +182,30 @@ describe("registry-runtime", () => {
     expect(record?.citationIds).toEqual(["citation.kudo-sentencepiece"]);
   });
 
+  test("getModuleById returns cross-attention with nearby architecture links", () => {
+    const record = getModuleById("module.cross-attention");
+    expect(record?.slug).toBe("cross-attention");
+    expect(record?.tags).toEqual(["attention"]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "cross attention",
+        "cross-attention",
+        "encoder-decoder attention",
+        "encoder decoder attention",
+      ]),
+    );
+    expect(record?.relatedIds).toEqual([
+      "module.attention",
+      "module.multi-head-attention",
+      "module.causal-attention",
+      "module.bidirectional-attention",
+      "concept.transformer-architecture",
+      "concept.encoder-decoder",
+      "concept.multimodal-model",
+    ]);
+    expect(record?.variantGroup).toBe("attention-memory-sources");
+  });
+
   test("getRegistryTags returns tags for a known module", () => {
     expect(getRegistryTags("module.grouped-query-attention")).toEqual([
       "attention",
@@ -205,6 +229,10 @@ describe("registry-runtime", () => {
 
   test("getRegistryTags returns tags for causal attention", () => {
     expect(getRegistryTags("module.causal-attention")).toEqual(["attention"]);
+  });
+
+  test("getRegistryTags returns tags for cross-attention", () => {
+    expect(getRegistryTags("module.cross-attention")).toEqual(["attention"]);
   });
 
   test("getRegistryTags returns tags for a known concept", () => {
@@ -255,6 +283,12 @@ describe("registry-runtime", () => {
 
   test("getRegistryCitationIds returns citations for causal attention", () => {
     expect(getRegistryCitationIds("module.causal-attention")).toEqual([
+      "citation.attention-is-all-you-need",
+    ]);
+  });
+
+  test("getRegistryCitationIds returns citations for cross-attention", () => {
+    expect(getRegistryCitationIds("module.cross-attention")).toEqual([
       "citation.attention-is-all-you-need",
     ]);
   });

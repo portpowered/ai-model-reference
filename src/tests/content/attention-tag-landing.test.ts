@@ -14,6 +14,7 @@ import { loadUiMessages } from "@/lib/content/ui-messages";
 
 const REPRESENTATIVE_ATTENTION_MODULE_URLS = [
   "/docs/modules/attention",
+  "/docs/modules/cross-attention",
   "/docs/modules/grouped-query-attention",
   "/docs/modules/linear-attention",
   "/docs/modules/multi-head-attention",

@@ -1,0 +1,199 @@
+{
+  "title": "Cross-Attention",
+  "description": "An attention pattern where queries come from one stream while keys and values come from a different memory source.",
+  "openingSummary": "Cross-attention is the attention pattern where queries come from one stream while keys and values come from a separate memory source, so the active sequence can read information stored outside itself instead of only from its own hidden states.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Cross-attention is an attention variant in which the query vectors come from one stream, but the key and value vectors come from somewhere else. The model still performs a weighted lookup, but it no longer reads only from the same sequence that produced the query."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Self-attention is enough when one sequence only needs to mix information inside itself. Cross-attention solves the different problem of conditioning one stream on information stored elsewhere, such as a decoder reading an encoder memory or a text stack reading image features."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "A target stream produces queries, while a separate source stream produces keys and values. Each query scores the external memory slots, turns those scores into weights with softmax, and blends the matching value vectors into a context vector for the target stream. The critical difference from self-attention is the memory source: the target tokens ask, but a different representation answers."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formulas below contrast self-attention with cross-attention. The weighted lookup is still scaled dot-product attention, but cross-attention changes which hidden states create the queries versus the keys and values."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with self-attention, cross-attention changes where keys and values come from: self-attention builds queries, keys, and values from the same stream, while cross-attention keeps queries on the target stream but reads keys and values from a separate memory source. Compared with multi-head attention, the difference is not the memory layout: multi-head attention is the head-parallel execution pattern that splits attention across multiple heads and can run inside either self-attention or cross-attention blocks. Compared with causal attention, the key difference is masking and allowed positions, not the memory source: causal attention usually still reads the same growing sequence but blocks future positions, while cross-attention can read a different memory and may appear inside a causal decoder block. Compared with bidirectional attention, cross-attention again changes the memory source rather than simply opening left and right context inside one sequence."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Cross-attention appears in encoder-decoder Transformers where decoder states read encoder outputs, in multimodal models where text queries image or audio features, and in retrieval-style systems where the active stream reads an external memory representation."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Cross-attention adds another memory interface, which means extra projections, more tensors to keep available, and more places where weak source representations can hurt the result. If the external memory is noisy or badly aligned with the target stream, the lookup can pull in the wrong evidence."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Many important model designs depend on one stream reading another without collapsing both into one shared sequence. A dedicated cross-attention page makes that bridge mechanism clear instead of leaving it implied inside larger architecture diagrams."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Self-attention versus cross-attention memory source comparison",
+      "caption": "Cross-attention keeps the query on the active target stream while keys and values stay on a separate memory source, unlike self-attention where all three come from the same sequence.",
+      "variants": {
+        "self": {
+          "label": "Self-attention"
+        },
+        "cross": {
+          "label": "Cross-attention"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "cross": {
+          "title": "Cross-Attention"
+        },
+        "attention": {
+          "title": "Attention Overview"
+        },
+        "mha": {
+          "title": "Multi-Head Attention"
+        },
+        "causal": {
+          "title": "Causal Attention"
+        },
+        "bidirectional": {
+          "title": "Bidirectional Attention"
+        }
+      },
+      "dimensions": {
+        "querySource": "Where queries come from",
+        "memorySource": "Where keys and values come from",
+        "mainUse": "Main use context"
+      },
+      "values": {
+        "cross": {
+          "querySource": "The active target stream that needs outside information",
+          "memorySource": "A different source sequence or memory bank",
+          "mainUse": "Conditioning one stream on another, such as decoder-on-encoder or text-on-image"
+        },
+        "attention": {
+          "querySource": "Depends on the attention pattern being discussed",
+          "memorySource": "May be the same sequence or a separate memory depending on the design",
+          "mainUse": "General weighted lookup across Transformer modules"
+        },
+        "mha": {
+          "querySource": "Depends on the parent block: the same stream in self-attention or the target stream in cross-attention",
+          "memorySource": "Depends on the parent block: the same stream in self-attention or the external memory in cross-attention, split across parallel heads",
+          "mainUse": "Head-parallel attention execution that can wrap either self-attention or cross-attention lookups"
+        },
+        "causal": {
+          "querySource": "The active generated prefix up to the current token",
+          "memorySource": "The same growing sequence, but future positions are masked out",
+          "mainUse": "Autoregressive decoding where each token predicts the next one without seeing future tokens"
+        },
+        "bidirectional": {
+          "querySource": "The visible sequence being encoded",
+          "memorySource": "The same visible sequence with left and right context available",
+          "mainUse": "Encoder-style full-context understanding"
+        }
+      }
+    }
+  },
+  "math": {
+    "selfAttentionSchema": {
+      "label": "Self-attention",
+      "formula": "\\mathrm{Attention}(Q(X), K(X), V(X)) = \\mathrm{softmax}\\!\\left(\\frac{Q(X) K(X)^{\\top}}{\\sqrt{d_k}}\\right) V(X)",
+      "variableDefinitions": {
+        "x": {
+          "term": "X",
+          "definition": "Hidden states from the same source sequence."
+        },
+        "q": {
+          "term": "Q(X)",
+          "definition": "Query projection of X."
+        },
+        "k": {
+          "term": "K(X)",
+          "definition": "Key projection of X."
+        },
+        "v": {
+          "term": "V(X)",
+          "definition": "Value projection of X."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        }
+      }
+    },
+    "crossAttentionSchema": {
+      "label": "Cross-attention",
+      "formula": "\\mathrm{Attention}(Q(Y), K(X), V(X)) = \\mathrm{softmax}\\!\\left(\\frac{Q(Y) K(X)^{\\top}}{\\sqrt{d_k}}\\right) V(X)",
+      "variableDefinitions": {
+        "x": {
+          "term": "X",
+          "definition": "Hidden states from the external memory source."
+        },
+        "y": {
+          "term": "Y",
+          "definition": "Hidden states from the active target stream."
+        },
+        "q": {
+          "term": "Q(Y)",
+          "definition": "Query projection of Y."
+        },
+        "k": {
+          "term": "K(X)",
+          "definition": "Key projection of X."
+        },
+        "v": {
+          "term": "V(X)",
+          "definition": "Value projection of X."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "timeCurrentQuery": {
+        "label": "q_t"
+      },
+      "timeKv0": {
+        "label": "KV^X_0"
+      },
+      "timeKv1": {
+        "label": "KV^X_1"
+      },
+      "timeKvEllipsis": {
+        "label": "\\cdots"
+      },
+      "timeKvT3": {
+        "label": "KV^X_{s-3}"
+      },
+      "timeKvT2": {
+        "label": "KV^X_{s-2}"
+      },
+      "timeKvT1": {
+        "label": "KV^X_{s-1}"
+      }
+    }
+  }
+}
