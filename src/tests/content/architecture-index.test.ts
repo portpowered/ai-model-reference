@@ -34,7 +34,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/foundation-model",
         "/docs/glossary/kv-cache",
         "/docs/glossary/prefill",
-        "/docs/glossary/prefill-decode-split",
+        "/docs/concepts/prefill-decode-split",
         "/docs/glossary/skip-connection",
         "/docs/glossary/token",
       ]),

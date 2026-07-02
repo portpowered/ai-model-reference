@@ -15,6 +15,7 @@ export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
   "concept.activation-quantization",
   "concept.kv-cache-quantization",
   "concept.why-4-bit-models-are-not-exactly-4x-faster",
+  "concept.prefill-decode-split",
 ]);
 
 /** Registry ids for docs pages with `status: published` in frontmatter. */

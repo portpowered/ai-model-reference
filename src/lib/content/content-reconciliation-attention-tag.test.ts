@@ -81,6 +81,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(groups.map((group) => group.kind)).toEqual([
       "model",
       "module",
+      "concept",
       "paper",
       "glossary",
     ]);
@@ -99,6 +100,12 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
       "/docs/papers/deepseek-v4",
     ]);
 
+    const conceptGroup = groups.find((group) => group.kind === "concept");
+    expect(conceptGroup?.kindLabel).toBe("Concept");
+    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/concepts/prefill-decode-split",
+    ]);
+
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
     expect(glossaryGroup?.kindLabel).toBe("Glossary");
     expect(glossaryGroup?.resources.map((resource) => resource.url)).toEqual([
@@ -106,7 +113,6 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
       "/docs/glossary/decode",
       "/docs/glossary/kv-cache",
       "/docs/glossary/prefill",
-      "/docs/glossary/prefill-decode-split",
       "/docs/glossary/token",
     ]);
   });
@@ -159,7 +165,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/docs/glossary/prefill"');
-    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
+    expect(html).toContain('href="/docs/concepts/prefill-decode-split"');
     expect(html).toContain('href="/docs/glossary/token"');
   });
 });

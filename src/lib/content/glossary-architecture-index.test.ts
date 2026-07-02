@@ -32,7 +32,6 @@ const CURRENT_GLOSSARY_SLUGS = [
   "kv-cache",
   "normalization",
   "prefill",
-  "prefill-decode-split",
   "perplexity",
   "residual-connection",
   "skip-connection",
@@ -115,7 +114,6 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   patch: "Patch",
   perplexity: "Perplexity",
   prefill: "Prefill",
-  "prefill-decode-split": "Prefill/decode split",
   representation: "Representation",
   "residual-connection": "Residual connection",
   "sampling-overview": "Sampling Overview",
@@ -134,7 +132,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   "world-model": "World Model",
 };
 
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
 const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
 
 const GLOSSARY_SEPARATOR_TITLES = [
@@ -151,6 +149,7 @@ const ARCHITECTURE_CONCEPT_URLS = [
   "/docs/concepts/positional-encodings",
   "/docs/concepts/transformer-architecture",
   "/docs/concepts/why-long-context-is-hard",
+  "/docs/concepts/prefill-decode-split",
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {

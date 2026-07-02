@@ -45,7 +45,6 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/patch",
   "/docs/glossary/perplexity",
   "/docs/glossary/prefill",
-  "/docs/glossary/prefill-decode-split",
   "/docs/glossary/representation",
   "/docs/glossary/residual-connection",
   "/docs/glossary/sampling-overview",
@@ -114,6 +113,7 @@ const CONCEPT_INDEX_URLS = [
   "/docs/concepts/positional-encodings",
   "/docs/concepts/transformer-architecture",
   "/docs/concepts/why-long-context-is-hard",
+  "/docs/concepts/prefill-decode-split",
 ] as const;
 
 const MODEL_INDEX_URLS = [

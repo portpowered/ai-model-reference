@@ -29,8 +29,8 @@ const PHASE_5_SERVING_DOCS = [
     query: "token-by-token generation",
   },
   {
-    docsSlug: "glossary/prefill-decode-split",
-    url: "/docs/glossary/prefill-decode-split",
+    docsSlug: "concepts/prefill-decode-split",
+    url: "/docs/concepts/prefill-decode-split",
     query: "disaggregated serving",
   },
 ] as const;

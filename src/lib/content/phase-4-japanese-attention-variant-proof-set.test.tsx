@@ -75,7 +75,7 @@ const JAPANESE_MODULE_EXPECTATIONS: readonly JapaneseModuleExpectation[] = [
     expectedCanonicalFallbackHrefs: [
       "/docs/glossary/kv-cache",
       "/docs/glossary/decode",
-      "/docs/glossary/prefill-decode-split",
+      "/docs/concepts/prefill-decode-split",
       "/docs/concepts/quantization",
     ],
   },
@@ -107,7 +107,7 @@ const JAPANESE_MODULE_EXPECTATIONS: readonly JapaneseModuleExpectation[] = [
     expectedCanonicalFallbackHrefs: [
       "/docs/glossary/kv-cache",
       "/docs/glossary/decode",
-      "/docs/glossary/prefill-decode-split",
+      "/docs/concepts/prefill-decode-split",
     ],
   },
   {
