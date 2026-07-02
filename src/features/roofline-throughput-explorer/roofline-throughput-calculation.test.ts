@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
   computeActiveWeightBytesPerToken,
-  computeMemoryBoundComputeFlopsPerSecond,
+  computeMaximumDecodeTokensPerSecond,
+  computeMemoryBoundDecodeTokensPerSecond,
   computeRooflineScenario,
   DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS,
   DEFAULT_ROOFLINE_PEAK_COMPUTE_FLOPS_PER_SECOND,
@@ -28,10 +29,14 @@ describe("computeRooflineScenario", () => {
     }
 
     expect(result.activeWeightBytesPerToken).toBe(27 * 1e9 * 2);
-    expectFiniteNonNegative(result.memoryBoundComputeFlopsPerSecond);
-    expectFiniteNonNegative(result.maximumComputeFlopsPerSecond);
-    expect(result.maximumComputeFlopsPerSecond).toBeLessThanOrEqual(
-      DEFAULT_ROOFLINE_PEAK_COMPUTE_FLOPS_PER_SECOND,
+    expectFiniteNonNegative(result.memoryBoundDecodeTokensPerSecond);
+    expectFiniteNonNegative(result.computeBoundDecodeTokensPerSecond);
+    expectFiniteNonNegative(result.maximumDecodeTokensPerSecond);
+    expect(result.maximumDecodeTokensPerSecond).toBeLessThanOrEqual(
+      result.memoryBoundDecodeTokensPerSecond,
+    );
+    expect(result.maximumDecodeTokensPerSecond).toBeLessThanOrEqual(
+      result.computeBoundDecodeTokensPerSecond,
     );
   });
 
@@ -56,8 +61,11 @@ describe("computeRooflineScenario", () => {
     expect(smallModel.activeWeightBytesPerToken).toBeLessThan(
       largeModel.activeWeightBytesPerToken,
     );
-    expect(smallModel.memoryBoundComputeFlopsPerSecond).toBe(
-      largeModel.memoryBoundComputeFlopsPerSecond,
+    expect(smallModel.memoryBoundDecodeTokensPerSecond).toBeGreaterThan(
+      largeModel.memoryBoundDecodeTokensPerSecond,
+    );
+    expect(smallModel.maximumDecodeTokensPerSecond).toBeGreaterThan(
+      largeModel.maximumDecodeTokensPerSecond,
     );
   });
 
@@ -142,17 +150,45 @@ describe("sampleMaximumThroughputBoundarySeries", () => {
     );
 
     for (const point of result.points) {
-      expectFiniteNonNegative(point.maximumComputeFlopsPerSecond);
-      expect(Number.isNaN(point.maximumComputeFlopsPerSecond)).toBe(false);
+      expectFiniteNonNegative(point.maximumDecodeTokensPerSecond);
+      expect(Number.isNaN(point.maximumDecodeTokensPerSecond)).toBe(false);
     }
 
     const values = result.points.map(
-      (point) => point.maximumComputeFlopsPerSecond,
+      (point) => point.maximumDecodeTokensPerSecond,
     );
     const firstValue = values[0] ?? 0;
     expect(
       values.every((value, index) => index === 0 || value >= firstValue),
     ).toBe(true);
+  });
+
+  test("shifts the boundary down when active weight size increases", () => {
+    const smallModel = sampleMaximumThroughputBoundarySeries({
+      activeWeightSizeBillions: 7,
+      bytesPerParameter: 2,
+      domain: DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS,
+      sampleCount: 5,
+    });
+    const largeModel = sampleMaximumThroughputBoundarySeries({
+      activeWeightSizeBillions: 70,
+      bytesPerParameter: 2,
+      domain: DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS,
+      sampleCount: 5,
+    });
+
+    expect(smallModel.kind).toBe("valid");
+    expect(largeModel.kind).toBe("valid");
+    if (smallModel.kind !== "valid" || largeModel.kind !== "valid") {
+      return;
+    }
+
+    expect(
+      smallModel.points[2]?.maximumDecodeTokensPerSecond ?? 0,
+    ).toBeGreaterThan(
+      largeModel.points[2]?.maximumDecodeTokensPerSecond ??
+        Number.POSITIVE_INFINITY,
+    );
   });
 
   test("returns typed invalid states for incomplete series inputs", () => {
@@ -185,18 +221,33 @@ describe("roofline throughput helpers", () => {
     expect(computeActiveWeightBytesPerToken(3, 2)).toBe(6e9);
   });
 
-  test("derives memory-bound compute from bandwidth and precision assumptions", () => {
-    const memoryBound = computeMemoryBoundComputeFlopsPerSecond({
+  test("derives memory-bound decode throughput from bandwidth and active weight reads", () => {
+    const memoryBound = computeMemoryBoundDecodeTokensPerSecond({
       activeWeightSizeBillions: 10,
       bytesPerParameter: 2,
       memoryBandwidthGbps: 1000,
     });
 
-    expect(memoryBound).toBeCloseTo(
-      ((1000 * 1e9) / (10 * 1e9 * 2)) *
-        ROOFLINE_FLOPS_PER_PARAMETER_PER_TOKEN *
-        10 *
-        1e9,
-    );
+    expect(memoryBound).toBeCloseTo((1000 * 1e9) / (10 * 1e9 * 2));
+  });
+
+  test("derives maximum decode throughput as the minimum of memory and compute bounds", () => {
+    const maximum = computeMaximumDecodeTokensPerSecond({
+      activeWeightSizeBillions: 10,
+      bytesPerParameter: 2,
+      memoryBandwidthGbps: 1000,
+      peakComputeFlopsPerSecond: DEFAULT_ROOFLINE_PEAK_COMPUTE_FLOPS_PER_SECOND,
+    });
+
+    const memoryBound = computeMemoryBoundDecodeTokensPerSecond({
+      activeWeightSizeBillions: 10,
+      bytesPerParameter: 2,
+      memoryBandwidthGbps: 1000,
+    });
+    const computeBound =
+      DEFAULT_ROOFLINE_PEAK_COMPUTE_FLOPS_PER_SECOND /
+      (ROOFLINE_FLOPS_PER_PARAMETER_PER_TOKEN * 10 * 1e9);
+
+    expect(maximum).toBeCloseTo(Math.min(memoryBound, computeBound));
   });
 });

@@ -3,8 +3,9 @@ export { RooflineThroughputExplorer } from "./RooflineThroughputExplorer";
 export { RooflineThroughputExplorerFromRegistry } from "./RooflineThroughputExplorerFromRegistry";
 export {
   computeActiveWeightBytesPerToken,
-  computeMaximumComputeFlopsPerSecond,
-  computeMemoryBoundComputeFlopsPerSecond,
+  computeComputeBoundDecodeTokensPerSecond,
+  computeMaximumDecodeTokensPerSecond,
+  computeMemoryBoundDecodeTokensPerSecond,
   computeRooflineScenario,
   DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS,
   DEFAULT_ROOFLINE_PEAK_COMPUTE_FLOPS_PER_SECOND,
@@ -22,7 +23,7 @@ export {
 export {
   buildRooflineThroughputChartModel,
   formatRooflineBandwidthGbps,
-  formatRooflineComputeFlopsPerSecond,
+  formatRooflineDecodeTokensPerSecond,
   ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_COLOR,
   ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_LEGEND_LABEL,
   ROOFLINE_THROUGHPUT_BOUNDARY_COLOR,

@@ -48,14 +48,15 @@ export type RooflineScenarioResult =
   | {
       kind: "valid";
       activeWeightBytesPerToken: number;
-      memoryBoundComputeFlopsPerSecond: number;
-      maximumComputeFlopsPerSecond: number;
+      computeBoundDecodeTokensPerSecond: number;
+      memoryBoundDecodeTokensPerSecond: number;
+      maximumDecodeTokensPerSecond: number;
     }
   | RooflineInvalidResult;
 
 export type RooflineBoundaryPoint = {
   memoryBandwidthGbps: number;
-  maximumComputeFlopsPerSecond: number;
+  maximumDecodeTokensPerSecond: number;
 };
 
 export type RooflineBoundarySeriesResult =
@@ -168,7 +169,7 @@ export function computeActiveWeightBytesPerToken(
   return activeWeightSizeBillions * 1e9 * bytesPerParameter;
 }
 
-export function computeMemoryBoundComputeFlopsPerSecond({
+export function computeMemoryBoundDecodeTokensPerSecond({
   activeWeightSizeBillions,
   bytesPerParameter,
   memoryBandwidthGbps,
@@ -181,14 +182,27 @@ export function computeMemoryBoundComputeFlopsPerSecond({
     activeWeightSizeBillions,
     bytesPerParameter,
   );
-  const tokensPerSecond = bandwidthBytesPerSecond / activeWeightBytesPerToken;
+
+  return sanitizePositiveFiniteOutput(
+    bandwidthBytesPerSecond / activeWeightBytesPerToken,
+  );
+}
+
+export function computeComputeBoundDecodeTokensPerSecond({
+  activeWeightSizeBillions,
+  peakComputeFlopsPerSecond,
+}: Pick<RooflineScenarioInputValues, "activeWeightSizeBillions"> & {
+  peakComputeFlopsPerSecond: number;
+}): number {
   const flopsPerToken =
     ROOFLINE_FLOPS_PER_PARAMETER_PER_TOKEN * activeWeightSizeBillions * 1e9;
 
-  return sanitizePositiveFiniteOutput(tokensPerSecond * flopsPerToken);
+  return sanitizePositiveFiniteOutput(
+    peakComputeFlopsPerSecond / flopsPerToken,
+  );
 }
 
-export function computeMaximumComputeFlopsPerSecond(
+export function computeMaximumDecodeTokensPerSecond(
   inputs: RooflineScenarioInputValues,
 ): number {
   const peakCompute = resolvePeakComputeFlopsPerSecond(
@@ -198,8 +212,13 @@ export function computeMaximumComputeFlopsPerSecond(
     return 0;
   }
 
-  const memoryBound = computeMemoryBoundComputeFlopsPerSecond(inputs);
-  return sanitizePositiveFiniteOutput(Math.min(peakCompute, memoryBound));
+  const memoryBound = computeMemoryBoundDecodeTokensPerSecond(inputs);
+  const computeBound = computeComputeBoundDecodeTokensPerSecond({
+    activeWeightSizeBillions: inputs.activeWeightSizeBillions,
+    peakComputeFlopsPerSecond: peakCompute,
+  });
+
+  return sanitizePositiveFiniteOutput(Math.min(memoryBound, computeBound));
 }
 
 export function computeRooflineScenario(
@@ -262,10 +281,16 @@ export function computeRooflineScenario(
       activeWeightSizeBillions,
       bytesPerParameter,
     ),
-    memoryBoundComputeFlopsPerSecond:
-      computeMemoryBoundComputeFlopsPerSecond(scenarioInputs),
-    maximumComputeFlopsPerSecond:
-      computeMaximumComputeFlopsPerSecond(scenarioInputs),
+    computeBoundDecodeTokensPerSecond: computeComputeBoundDecodeTokensPerSecond(
+      {
+        activeWeightSizeBillions,
+        peakComputeFlopsPerSecond: peakCompute,
+      },
+    ),
+    memoryBoundDecodeTokensPerSecond:
+      computeMemoryBoundDecodeTokensPerSecond(scenarioInputs),
+    maximumDecodeTokensPerSecond:
+      computeMaximumDecodeTokensPerSecond(scenarioInputs),
   };
 }
 
@@ -333,7 +358,7 @@ export function sampleMaximumThroughputBoundarySeries({
 
     return {
       memoryBandwidthGbps,
-      maximumComputeFlopsPerSecond: computeMaximumComputeFlopsPerSecond({
+      maximumDecodeTokensPerSecond: computeMaximumDecodeTokensPerSecond({
         activeWeightSizeBillions,
         bytesPerParameter,
         memoryBandwidthGbps,

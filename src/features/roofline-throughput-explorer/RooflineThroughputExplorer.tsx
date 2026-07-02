@@ -14,7 +14,7 @@ import type { RooflineScenarioInputDraft } from "./roofline-throughput-calculati
 import {
   buildRooflineThroughputChartModel,
   formatRooflineBandwidthGbps,
-  formatRooflineComputeFlopsPerSecond,
+  formatRooflineDecodeTokensPerSecond,
   ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_COLOR,
   ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_LEGEND_LABEL,
   ROOFLINE_THROUGHPUT_BOUNDARY_COLOR,
@@ -491,7 +491,12 @@ export function RooflineThroughputExplorer({
           </p>
         </div>
       ) : (
-        <div data-roofline-throughput-explorer="chart">
+        <div
+          data-decode-tokens-per-second={String(
+            chartModel.activePoint.decodeTokensPerSecond,
+          )}
+          data-roofline-throughput-explorer="chart"
+        >
           <GraphFrame
             axisLabelX={ROOFLINE_THROUGHPUT_EXPLORER_AXIS_X}
             axisLabelY={ROOFLINE_THROUGHPUT_EXPLORER_AXIS_Y}
@@ -549,7 +554,7 @@ export function RooflineThroughputExplorer({
                     stroke={AXIS_STROKE}
                     tick={{ fill: AXIS_TICK_FILL, fontSize: 12 }}
                     tickFormatter={(value) =>
-                      formatRooflineComputeFlopsPerSecond(Number(value))
+                      formatRooflineDecodeTokensPerSecond(Number(value))
                     }
                   />
                   <ChartTooltip
@@ -566,7 +571,7 @@ export function RooflineThroughputExplorer({
                               : ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_LEGEND_LABEL;
 
                           return [
-                            `${formatRooflineComputeFlopsPerSecond(Number(value))} FLOP/s`,
+                            `${formatRooflineDecodeTokensPerSecond(Number(value))} tok/s`,
                             seriesLabel,
                           ];
                         }}
@@ -589,7 +594,7 @@ export function RooflineThroughputExplorer({
                   />
                   <Recharts.ReferenceDot
                     x={chartModel.activePoint.memoryBandwidthGbps}
-                    y={chartModel.activePoint.maximumComputeFlopsPerSecond}
+                    y={chartModel.activePoint.decodeTokensPerSecond}
                     className="roofline-throughput-explorer__active-scenario"
                     r={5.5}
                     fill={ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_COLOR}

@@ -167,6 +167,13 @@ describe("RooflineThroughputExplorer", () => {
     const activeWeightSummary = container.querySelector(
       "[data-active-weight-size-billions]",
     );
+    const chart = container.querySelector(
+      '[data-roofline-throughput-explorer="chart"]',
+    );
+    const initialDecodeTokens = chart?.getAttribute(
+      "data-decode-tokens-per-second",
+    );
+
     expect(
       activeWeightSummary?.getAttribute("data-active-weight-size-billions"),
     ).toBe("40");
@@ -174,6 +181,10 @@ describe("RooflineThroughputExplorer", () => {
     await user.selectOptions(
       screen.getByTestId("roofline-model-preset"),
       "model.qwen-3-6-27b",
+    );
+
+    const updatedDecodeTokens = chart?.getAttribute(
+      "data-decode-tokens-per-second",
     );
 
     expect(
@@ -184,6 +195,8 @@ describe("RooflineThroughputExplorer", () => {
         .querySelector("[data-selected-model-label]")
         ?.getAttribute("data-selected-model-label"),
     ).toBe("Qwen3.6-27B");
+    expect(updatedDecodeTokens).toBeTruthy();
+    expect(updatedDecodeTokens).not.toBe(initialDecodeTokens);
     expect(
       container.querySelector(".roofline-throughput-explorer__active-scenario"),
     ).toBeTruthy();
@@ -223,16 +236,31 @@ describe("RooflineThroughputExplorer", () => {
     const activeWeightOutput = container.querySelector(
       "[data-active-weight-size-billions]",
     );
+    const chart = container.querySelector(
+      '[data-roofline-throughput-explorer="chart"]',
+    );
+    const initialDecodeTokens = chart?.getAttribute(
+      "data-decode-tokens-per-second",
+    );
 
     expect(
       activeWeightOutput?.getAttribute("data-active-weight-size-billions"),
     ).toBe("40");
+    expect(initialDecodeTokens).toBeTruthy();
 
     fireEvent.change(slider, { target: { value: "55" } });
+
+    const updatedDecodeTokens = chart?.getAttribute(
+      "data-decode-tokens-per-second",
+    );
 
     expect(
       activeWeightOutput?.getAttribute("data-active-weight-size-billions"),
     ).toBe("55");
+    expect(updatedDecodeTokens).toBeTruthy();
+    expect(Number(updatedDecodeTokens)).toBeLessThan(
+      Number(initialDecodeTokens),
+    );
     expect(
       container.querySelector(".roofline-throughput-explorer__active-scenario"),
     ).toBeTruthy();

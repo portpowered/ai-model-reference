@@ -1,4 +1,5 @@
 import {
+  computeComputeBoundDecodeTokensPerSecond,
   computeRooflineScenario,
   DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS,
   DEFAULT_ROOFLINE_PEAK_COMPUTE_FLOPS_PER_SECOND,
@@ -10,7 +11,8 @@ import {
 export const ROOFLINE_THROUGHPUT_EXPLORER_CHART_LABEL =
   "Roofline Throughput Explorer";
 export const ROOFLINE_THROUGHPUT_EXPLORER_AXIS_X = "Memory bandwidth (GB/s)";
-export const ROOFLINE_THROUGHPUT_EXPLORER_AXIS_Y = "Compute FLOPs/s";
+export const ROOFLINE_THROUGHPUT_EXPLORER_AXIS_Y =
+  "Decode throughput (tokens/s)";
 export const ROOFLINE_THROUGHPUT_BOUNDARY_LEGEND_LABEL =
   "Maximum-throughput boundary";
 export const ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_LEGEND_LABEL =
@@ -26,8 +28,8 @@ export type RooflineThroughputChartDataPoint = {
 };
 
 export type RooflineThroughputActiveScenarioPoint = {
+  decodeTokensPerSecond: number;
   memoryBandwidthGbps: number;
-  maximumComputeFlopsPerSecond: number;
 };
 
 export type RooflineThroughputChartModel =
@@ -52,28 +54,24 @@ export function formatRooflineBandwidthGbps(value: number): string {
   return value.toFixed(0);
 }
 
-export function formatRooflineComputeFlopsPerSecond(value: number): string {
+export function formatRooflineDecodeTokensPerSecond(value: number): string {
   if (!Number.isFinite(value) || value <= 0) {
     return "0";
-  }
-
-  if (value >= 1e15) {
-    return `${(value / 1e15).toFixed(value % 1e15 === 0 ? 0 : 1)}P`;
-  }
-
-  if (value >= 1e12) {
-    return `${(value / 1e12).toFixed(value % 1e12 === 0 ? 0 : 1)}T`;
-  }
-
-  if (value >= 1e9) {
-    return `${(value / 1e9).toFixed(value % 1e9 === 0 ? 0 : 1)}G`;
   }
 
   if (value >= 1e6) {
     return `${(value / 1e6).toFixed(value % 1e6 === 0 ? 0 : 1)}M`;
   }
 
-  return value.toFixed(0);
+  if (value >= 1e3) {
+    return `${(value / 1e3).toFixed(value % 1e3 === 0 ? 0 : 1)}k`;
+  }
+
+  if (value >= 10) {
+    return value.toFixed(0);
+  }
+
+  return value.toFixed(1);
 }
 
 function resolvePeakComputeFlopsPerSecond(
@@ -112,7 +110,7 @@ export function buildRooflineThroughputChartModel(
 
   const data = boundary.points.map((point) => ({
     memoryBandwidthGbps: point.memoryBandwidthGbps,
-    maximumThroughputBoundary: point.maximumComputeFlopsPerSecond,
+    maximumThroughputBoundary: point.maximumDecodeTokensPerSecond,
   }));
 
   const peakCompute = resolvePeakComputeFlopsPerSecond(
@@ -122,17 +120,24 @@ export function buildRooflineThroughputChartModel(
     (max, point) => Math.max(max, point.maximumThroughputBoundary),
     0,
   );
+  const computeBoundDecodeTokensPerSecond =
+    inputs.activeWeightSizeBillions == null
+      ? 0
+      : computeComputeBoundDecodeTokensPerSecond({
+          activeWeightSizeBillions: inputs.activeWeightSizeBillions,
+          peakComputeFlopsPerSecond: peakCompute,
+        });
   const yMax = Math.max(
-    peakCompute,
+    computeBoundDecodeTokensPerSecond,
     boundaryMax,
-    scenario.maximumComputeFlopsPerSecond,
+    scenario.maximumDecodeTokensPerSecond,
   );
 
   return {
     kind: "valid",
     activePoint: {
+      decodeTokensPerSecond: scenario.maximumDecodeTokensPerSecond,
       memoryBandwidthGbps,
-      maximumComputeFlopsPerSecond: scenario.maximumComputeFlopsPerSecond,
     },
     data,
     xDomain: DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS,

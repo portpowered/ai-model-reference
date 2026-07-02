@@ -3,7 +3,7 @@ import { DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS } from "./roofline-throughput-ca
 import {
   buildRooflineThroughputChartModel,
   formatRooflineBandwidthGbps,
-  formatRooflineComputeFlopsPerSecond,
+  formatRooflineDecodeTokensPerSecond,
 } from "./roofline-throughput-chart";
 
 describe("buildRooflineThroughputChartModel", () => {
@@ -24,7 +24,7 @@ describe("buildRooflineThroughputChartModel", () => {
     expect(model.yDomain[0]).toBe(0);
     expect(model.yDomain[1]).toBeGreaterThan(0);
     expect(model.activePoint.memoryBandwidthGbps).toBe(1000);
-    expect(model.activePoint.maximumComputeFlopsPerSecond).toBeGreaterThan(0);
+    expect(model.activePoint.decodeTokensPerSecond).toBeGreaterThan(0);
 
     for (const point of model.data) {
       expect(Number.isFinite(point.memoryBandwidthGbps)).toBe(true);
@@ -33,7 +33,7 @@ describe("buildRooflineThroughputChartModel", () => {
     }
   });
 
-  test("updates active scenario and boundary slope when bytes per parameter changes", () => {
+  test("updates active scenario and boundary when bytes per parameter changes", () => {
     const lowPrecisionModel = buildRooflineThroughputChartModel({
       activeWeightSizeBillions: 27,
       bytesPerParameter: 2,
@@ -54,15 +54,39 @@ describe("buildRooflineThroughputChartModel", () => {
       return;
     }
 
-    expect(
-      lowPrecisionModel.activePoint.maximumComputeFlopsPerSecond,
-    ).toBeGreaterThan(
-      highPrecisionModel.activePoint.maximumComputeFlopsPerSecond,
+    expect(lowPrecisionModel.activePoint.decodeTokensPerSecond).toBeGreaterThan(
+      highPrecisionModel.activePoint.decodeTokensPerSecond,
     );
     expect(
       lowPrecisionModel.data.at(-1)?.maximumThroughputBoundary,
     ).toBeGreaterThan(
       highPrecisionModel.data.at(-1)?.maximumThroughputBoundary ?? 0,
+    );
+  });
+
+  test("updates active scenario when active weight size changes", () => {
+    const smallModel = buildRooflineThroughputChartModel({
+      activeWeightSizeBillions: 7,
+      bytesPerParameter: 2,
+      memoryBandwidthGbps: 1000,
+    });
+    const largeModel = buildRooflineThroughputChartModel({
+      activeWeightSizeBillions: 70,
+      bytesPerParameter: 2,
+      memoryBandwidthGbps: 1000,
+    });
+
+    expect(smallModel.kind).toBe("valid");
+    expect(largeModel.kind).toBe("valid");
+    if (smallModel.kind !== "valid" || largeModel.kind !== "valid") {
+      return;
+    }
+
+    expect(smallModel.activePoint.decodeTokensPerSecond).toBeGreaterThan(
+      largeModel.activePoint.decodeTokensPerSecond,
+    );
+    expect(smallModel.data.at(-1)?.maximumThroughputBoundary).toBeGreaterThan(
+      largeModel.data.at(-1)?.maximumThroughputBoundary ?? 0,
     );
   });
 
@@ -81,8 +105,9 @@ describe("buildRooflineThroughputChartModel", () => {
 });
 
 describe("roofline chart formatters", () => {
-  test("formats bandwidth and compute labels for chart ticks", () => {
+  test("formats bandwidth and decode throughput labels for chart ticks", () => {
     expect(formatRooflineBandwidthGbps(1500)).toBe("1.5k");
-    expect(formatRooflineComputeFlopsPerSecond(500e12)).toBe("500T");
+    expect(formatRooflineDecodeTokensPerSecond(2500)).toBe("2.5k");
+    expect(formatRooflineDecodeTokensPerSecond(42)).toBe("42");
   });
 });
