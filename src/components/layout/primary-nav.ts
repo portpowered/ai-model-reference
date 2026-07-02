@@ -3,6 +3,7 @@ import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   buildLocalizedRoute,
   defaultLocale,
+  type LocalizedRouteDestination,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
 import { modelAtlasSiteConfig } from "@/lib/site/model-atlas-site-config";
@@ -38,11 +39,13 @@ export function getPrimaryNavItems(
 ): PrimaryNavItem[] {
   const { siteConfig = modelAtlasSiteConfig } = options;
 
+  const routeSurfaces = siteConfig.routeSurfaces as Record<
+    string,
+    LocalizedRouteDestination
+  >;
+
   return siteConfig.primaryNav.map((entry) => ({
-    href: buildLocalizedRoute(
-      siteConfig.routeSurfaces[entry.routeSurface],
-      locale,
-    ),
-    label: messages.nav[entry.labelKey],
+    href: buildLocalizedRoute(routeSurfaces[entry.routeSurface], locale),
+    label: (messages.nav as Record<string, string>)[entry.labelKey],
   }));
 }

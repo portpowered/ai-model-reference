@@ -14,6 +14,7 @@ import {
   MODEL_ATLAS_REPOSITORY_URL,
   modelAtlasSiteConfig,
 } from "./model-atlas-site-config";
+import { isHomeFeaturedLinkMessageCopy } from "./site-config.contract";
 import {
   resolveSiteConfigHomeFeaturedLinkHrefs,
   resolveSiteConfigHomeFeaturedLinks,
@@ -52,10 +53,20 @@ describe("site config scaffold compatibility", () => {
   test("keeps the default home route surface aligned with layout nav title link", () => {
     for (const locale of supportedLocales) {
       expect(
-        buildLocalizedRoute(modelAtlasSiteConfig.routeSurfaces.home, locale),
+        buildLocalizedRoute(
+          modelAtlasSiteConfig.routeSurfaces[
+            modelAtlasSiteConfig.homeRouteSurface
+          ],
+          locale,
+        ),
       ).toBe(buildLocalizedRoute({ surface: "home" }, locale));
       expect(baseOptions(locale).nav?.url).toBe(
-        buildLocalizedRoute(modelAtlasSiteConfig.routeSurfaces.home, locale),
+        buildLocalizedRoute(
+          modelAtlasSiteConfig.routeSurfaces[
+            modelAtlasSiteConfig.homeRouteSurface
+          ],
+          locale,
+        ),
       );
     }
   });
@@ -86,7 +97,7 @@ describe("site config primary nav compatibility", () => {
     const messages = await loadUiMessages();
 
     const configLabels = modelAtlasSiteConfig.primaryNav.map(
-      (entry) => messages.nav[entry.labelKey],
+      (entry) => messages.nav[entry.labelKey as keyof typeof messages.nav],
     );
     const consumerLabels = getPrimaryNavItems(messages).map(
       (item) => item.label,
@@ -183,10 +194,19 @@ describe("site config home featured link compatibility", () => {
       modelAtlasSiteConfig,
       messages,
     );
-    const expectedCopy = modelAtlasSiteConfig.homeFeaturedLinks.map((link) => ({
-      title: messages.home[link.titleKey],
-      description: messages.home[link.descriptionKey],
-    }));
+    const expectedCopy = modelAtlasSiteConfig.homeFeaturedLinks.map((link) => {
+      if (!isHomeFeaturedLinkMessageCopy(link)) {
+        throw new Error(
+          "Expected Model Atlas featured links to use message copy",
+        );
+      }
+
+      return {
+        title: messages.home[link.titleKey as keyof typeof messages.home],
+        description:
+          messages.home[link.descriptionKey as keyof typeof messages.home],
+      };
+    });
 
     expect(
       configLinks.map(({ title, description }) => ({ title, description })),

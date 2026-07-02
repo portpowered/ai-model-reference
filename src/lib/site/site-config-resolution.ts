@@ -6,10 +6,12 @@ import {
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
 import type {
+  HomeFeaturedLinkCopy,
   HomeFeaturedLinkPlaceholder,
   SiteConfig,
   SitePrimaryNavEntry,
 } from "./site-config.contract";
+import { isHomeFeaturedLinkMessageCopy } from "./site-config.contract";
 
 export function resolveSiteConfigLayoutNav(
   config: SiteConfig,
@@ -17,7 +19,10 @@ export function resolveSiteConfigLayoutNav(
 ): { title: string; url: string } {
   return {
     title: config.brand.brandName,
-    url: buildLocalizedRoute(config.routeSurfaces.home, locale),
+    url: buildLocalizedRoute(
+      config.routeSurfaces[config.homeRouteSurface],
+      locale,
+    ),
   };
 }
 
@@ -76,6 +81,25 @@ export function resolveSiteConfigHomeFeaturedLinkHrefs(
   );
 }
 
+function resolveHomeFeaturedLinkCopy(
+  copy: HomeFeaturedLinkCopy,
+  messages: UiMessages,
+): Pick<ResolvedHomeFeaturedLink, "title" | "description"> {
+  if (isHomeFeaturedLinkMessageCopy(copy)) {
+    const homeMessages = messages.home as Record<string, string>;
+
+    return {
+      title: homeMessages[copy.titleKey],
+      description: homeMessages[copy.descriptionKey],
+    };
+  }
+
+  return {
+    title: copy.title,
+    description: copy.description,
+  };
+}
+
 export function resolveSiteConfigHomeFeaturedLinks(
   config: SiteConfig,
   messages: UiMessages,
@@ -83,7 +107,6 @@ export function resolveSiteConfigHomeFeaturedLinks(
 ): ResolvedHomeFeaturedLink[] {
   return config.homeFeaturedLinks.map((link) => ({
     href: resolveHomeFeaturedLinkHref(config, link, locale),
-    title: messages.home[link.titleKey],
-    description: messages.home[link.descriptionKey],
+    ...resolveHomeFeaturedLinkCopy(link, messages),
   }));
 }

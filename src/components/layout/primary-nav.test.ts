@@ -9,10 +9,7 @@ import {
 } from "@/components/layout/primary-nav";
 import type { TopologyNavigationOption } from "@/lib/content/topology-navigation";
 import { loadUiMessages } from "@/lib/content/ui-messages";
-import {
-  SITE_COLLECTION_FAMILIES,
-  type SiteConfig,
-} from "@/lib/site/site-config.contract";
+import type { SiteConfig } from "@/lib/site/site-config.contract";
 
 describe("getPrimaryNavItems", () => {
   it("lists Phase 1 discovery routes in order", async () => {
@@ -80,11 +77,12 @@ describe("getPrimaryNavItems", () => {
         timeline: { surface: "docs-page", slug: "timeline" },
         tagsIndex: { surface: "tags-index" },
       },
+      homeRouteSurface: "home",
       primaryNav: [
         { routeSurface: "tagsIndex", labelKey: "tags" },
         { routeSurface: "home", labelKey: "home" },
       ],
-      collections: SITE_COLLECTION_FAMILIES.map((family) => ({ family })),
+      collections: [{ id: "guides" }],
       homeFeaturedLinks: [],
     } satisfies SiteConfig;
 

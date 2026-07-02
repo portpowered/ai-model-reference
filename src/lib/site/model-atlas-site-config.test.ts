@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { SCAFFOLD_ID, SITE_BRAND_NAME, SITE_HEADING } from "@/lib/scaffold";
 import {
+  MODEL_ATLAS_COLLECTION_IDS,
   MODEL_ATLAS_REPOSITORY_URL,
   modelAtlasSiteConfig,
 } from "./model-atlas-site-config";
-import { SITE_COLLECTION_FAMILIES } from "./site-config.contract";
 
 describe("model atlas site config", () => {
   test("contains current scaffold brand values", () => {
@@ -36,10 +36,10 @@ describe("model atlas site config", () => {
     ).toEqual(["home", "topology", "timeline", "tags"]);
   });
 
-  test("includes all Model Atlas collection family placeholders", () => {
-    expect(
-      modelAtlasSiteConfig.collections.map((entry) => entry.family),
-    ).toEqual([...SITE_COLLECTION_FAMILIES]);
+  test("includes all Model Atlas collection placeholders", () => {
+    expect(modelAtlasSiteConfig.collections.map((entry) => entry.id)).toEqual([
+      ...MODEL_ATLAS_COLLECTION_IDS,
+    ]);
   });
 
   test("includes current home featured link placeholders", () => {
