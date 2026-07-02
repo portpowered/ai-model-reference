@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import { resolveEffectiveRooflineModelSize } from "@/lib/content/effective-roofline-model-size";
-import { registryDisplayTitle } from "@/lib/content/registry-linking";
 import { getModelById } from "@/lib/content/registry-runtime";
 import {
   getRooflineModelSizePresets,
@@ -49,11 +48,41 @@ describe("getRooflineModelSizePresets", () => {
   });
 
   test("uses registry aliases for labels when present", () => {
-    const model = requireModel("model.qwen3-0-6b");
     expect(
-      resolveRooflineModelSizePreset("model.qwen3-0-6b", model, "Qwen3-0.6B")
-        .label,
-    ).toBe(registryDisplayTitle(model));
+      resolveRooflineModelSizePreset(
+        "model.qwen3-0-6b",
+        {
+          id: "model.qwen3-0-6b",
+          slug: "qwen3-0-6b",
+          kind: "model",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: ["Qwen3-0.6B"],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-01-01T00:00:00.000Z",
+          updatedAt: "2026-01-01T00:00:00.000Z",
+          authors: ["Example"],
+          sourceId: "citation.example",
+          family: "qwen",
+          sourceType: "open-weights",
+          modalities: ["text"],
+          architectureIds: [],
+          moduleIds: [],
+          trainingRegimeIds: [],
+          datasetIds: [],
+          paperIds: [],
+          organizationId: "organization.example",
+          releaseDate: "2026-01-01",
+          parameterCount: "0.6 billion parameters",
+          contextLength: 8192,
+          precision: ["bf16"],
+        },
+        "Fallback Label",
+      ).label,
+    ).toBe("Qwen3-0.6B");
   });
 
   test("keeps stable ordering when a registry record is missing", () => {
