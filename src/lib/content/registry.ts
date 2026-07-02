@@ -280,6 +280,7 @@ const canonicalClassificationDomainKinds = new Map<
 const recordsRequiringOntologyPrimaryClassification = new Set<string>([
   "concept.activation",
   "training-regime.dpo",
+  "training-regime.grpo",
   "system.routing",
 ]);
 
@@ -314,6 +315,10 @@ const taxonomyExpectationPrefixes: Array<{
   {
     classificationIdPrefix: "classification.module.transformer-block",
     expectation: { field: "moduleType", expectedValue: "other" },
+  },
+  {
+    classificationIdPrefix: "classification.module.state-space",
+    expectation: { field: "moduleType", expectedValue: "state-space" },
   },
   {
     classificationIdPrefix: "classification.concept.architecture",

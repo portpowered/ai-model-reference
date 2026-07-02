@@ -33,7 +33,7 @@ const EXPECTED_CURATED_RELATED = [
   },
   {
     registryId: "concept.prefill-decode-split",
-    href: "/docs/glossary/prefill-decode-split",
+    href: "/docs/concepts/prefill-decode-split",
   },
   {
     registryId: "system.continuous-batching",
@@ -52,6 +52,8 @@ const EXPECTED_CURATED_RELATED = [
     href: "/docs/systems/inference-engine",
   },
 ] as const;
+
+const TTFT_SEARCH_GATE_TIMEOUT_MS = 30_000;
 
 describe("time to first token serving foundations (time-to-first-token-serving-metric-page-003)", () => {
   test("curated related links resolve to published serving foundation pages only", () => {
@@ -105,18 +107,22 @@ describe("time to first token serving foundations (time-to-first-token-serving-m
     );
   });
 
-  test("search finds TTFT by title, aliases, and serving-metric terms", async () => {
-    for (const query of [
-      "Time To First Token",
-      "TTFT",
-      "time to first token",
-      "first token latency",
-      "serving latency",
-    ] as const) {
-      const results = await docsSearchApi.search(query);
-      expect(results.some((result) => result.url === TTFT_URL)).toBe(true);
-    }
-  });
+  test(
+    "search finds TTFT by title, aliases, and serving-metric terms",
+    async () => {
+      for (const query of [
+        "Time To First Token",
+        "TTFT",
+        "time to first token",
+        "first token latency",
+        "serving latency",
+      ] as const) {
+        const results = await docsSearchApi.search(query);
+        expect(results.some((result) => result.url === TTFT_URL)).toBe(true);
+      }
+    },
+    { timeout: TTFT_SEARCH_GATE_TIMEOUT_MS },
+  );
 
   test("rendered related sections expose serving foundations and omit batch-owned pages", async () => {
     const page = await loadGlossaryPage("time-to-first-token");

@@ -143,10 +143,6 @@ describe("docs collection definitions config", () => {
     ]);
     expect(getDocsCollectionDefinition("glossary").starterSlugs).toEqual([
       "glossary/token",
-      "glossary/embedding",
-      "glossary/logit",
-      "glossary/softmax",
-      "glossary/kv-cache",
       "glossary/architecture",
     ]);
 

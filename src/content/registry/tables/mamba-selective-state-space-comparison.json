@@ -1,0 +1,49 @@
+{
+  "id": "table.mamba-selective-state-space-comparison",
+  "subjectId": "module.mamba-selective-state-space",
+  "columns": [
+    {
+      "moduleId": "module.mamba-selective-state-space",
+      "titleKey": "tables.comparison.columns.mamba.title"
+    },
+    {
+      "moduleId": "module.multi-head-attention",
+      "titleKey": "tables.comparison.columns.mha.title"
+    },
+    {
+      "moduleId": "module.linear-attention",
+      "titleKey": "tables.comparison.columns.linear.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "sequenceMixing",
+      "labelKey": "tables.comparison.dimensions.sequenceMixing"
+    },
+    {
+      "id": "pairwiseComparison",
+      "labelKey": "tables.comparison.dimensions.pairwiseComparison"
+    },
+    {
+      "id": "stateCarry",
+      "labelKey": "tables.comparison.dimensions.stateCarry"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.mamba-selective-state-space": {
+      "sequenceMixing": "tables.comparison.values.mamba.sequenceMixing",
+      "pairwiseComparison": "tables.comparison.values.mamba.pairwiseComparison",
+      "stateCarry": "tables.comparison.values.mamba.stateCarry"
+    },
+    "module.multi-head-attention": {
+      "sequenceMixing": "tables.comparison.values.mha.sequenceMixing",
+      "pairwiseComparison": "tables.comparison.values.mha.pairwiseComparison",
+      "stateCarry": "tables.comparison.values.mha.stateCarry"
+    },
+    "module.linear-attention": {
+      "sequenceMixing": "tables.comparison.values.linear.sequenceMixing",
+      "pairwiseComparison": "tables.comparison.values.linear.pairwiseComparison",
+      "stateCarry": "tables.comparison.values.linear.stateCarry"
+    }
+  }
+}

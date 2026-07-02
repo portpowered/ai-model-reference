@@ -73,13 +73,11 @@ describe("DerivedRelatedDocs", () => {
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain("Shared tag");
-    expect(html).toContain(
-      'data-related-group="compatibility-same-concept-type"',
-    );
+    expect(html).toContain('data-related-group="classification-siblings"');
+    expect(html).toContain('href="/docs/glossary/conditioning"');
     expect(html).not.toContain('data-related-group="direct-relationships"');
-    expect(html).not.toContain('data-related-group="classification-siblings"');
     expect(html).not.toContain(
-      'data-related-group="shared-parent-classification"',
+      'data-related-group="compatibility-same-concept-type"',
     );
     expect(html).toContain('href="/docs/glossary/transformer"');
   });

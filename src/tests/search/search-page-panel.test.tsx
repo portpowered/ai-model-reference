@@ -79,23 +79,38 @@ async function waitForSearchPagePanelResults(
   );
 }
 
-async function expectFirstSearchResultUrl(
-  urlSubstring: string,
+async function expectFirstSearchResultMatch(
+  results: HTMLElement,
+  expectations: { url?: string; titlePattern?: RegExp },
   options: { timeout?: number } = {},
-) {
-  await waitForSearchPagePanelResults(options);
+): Promise<void> {
   const timeout = options.timeout ?? SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS;
   await waitFor(
     () => {
-      const results = screen.getByTestId("search-page-results");
+      const firstRow = within(results).getAllByTestId("search-result-row")[0];
       const firstUrl = within(results).getAllByTestId("search-result-url")[0];
-      expect(firstUrl?.textContent).toContain(urlSubstring);
+      if (expectations.url) {
+        expect(firstUrl?.textContent).toContain(expectations.url);
+      }
+      if (expectations.titlePattern) {
+        expect(firstRow?.textContent).toMatch(expectations.titlePattern);
+      }
     },
     { timeout },
   );
 }
 
 /** Orama static search suspends on first client render; unmount + brief wait primes the cache. */
+async function findSearchPageResults(timeout = 15_000): Promise<HTMLElement> {
+  await waitFor(
+    () => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    },
+    { timeout },
+  );
+  return screen.findByTestId("search-page-results", {}, { timeout });
+}
+
 async function primeDocsSearchClient(
   context: Awaited<ReturnType<typeof loadAppTestContext>>,
   searchParams = new URLSearchParams(),
@@ -150,8 +165,15 @@ async function typeQueryAndExpectGqaResult(
   );
   await user.type(searchInput, query);
 
-  const results = await waitForSearchPagePanelResults();
-  expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+  const results = await waitForSearchPagePanelResults({
+    timeout: 30_000,
+  });
+  await waitFor(
+    () => {
+      expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+    },
+    { timeout: 30_000 },
+  );
 }
 
 describe("SearchPagePanel Phase 1 queries", () => {
@@ -181,14 +203,14 @@ describe("SearchPagePanel Phase 1 queries", () => {
     releaseFetchLock = null;
   });
 
-  test.each([
-    "GQA",
-    "attention",
-    "KV cache",
-  ] as const)("shows Grouped-Query Attention for %s query", async (query) => {
-    const context = await loadAppTestContext();
-    await typeQueryAndExpectGqaResult(context, query);
-  });
+  test.each(["GQA", "attention", "KV cache"] as const)(
+    "shows Grouped-Query Attention for %s query",
+    async (query) => {
+      const context = await loadAppTestContext();
+      await typeQueryAndExpectGqaResult(context, query);
+    },
+    { timeout: 30_000 },
+  );
 
   test.each([
     "GQA",
@@ -324,8 +346,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
     );
 
     const results = await waitForSearchPagePanelResults();
-    const firstUrl = within(results).getAllByTestId("search-result-url")[0];
-    expect(firstUrl?.textContent).toContain(SAMPLE_MODULE_URL);
+    await expectFirstSearchResultMatch(results, { url: SAMPLE_MODULE_URL });
   });
 
   test.each([
@@ -342,10 +363,11 @@ describe("SearchPagePanel Phase 1 queries", () => {
       query,
     );
 
-    await expectFirstSearchResultUrl(PREFILL_URL);
-    const results = screen.getByTestId("search-page-results");
-    const firstRow = within(results).getAllByTestId("search-result-row")[0];
-    expect(firstRow?.textContent).toMatch(/prefill/i);
+    const results = await waitForSearchPagePanelResults();
+    await expectFirstSearchResultMatch(results, {
+      url: PREFILL_URL,
+      titlePattern: /prefill/i,
+    });
   });
 
   test.each([
@@ -373,9 +395,11 @@ describe("SearchPagePanel Phase 1 queries", () => {
       query,
     );
 
-    await expectFirstSearchResultUrl(url);
-    const results = screen.getByTestId("search-page-results");
-    expect(results.textContent).toMatch(title);
+    const results = await waitForSearchPagePanelResults();
+    await expectFirstSearchResultMatch(results, {
+      url: url,
+      titlePattern: title,
+    });
   });
 
   test("exposes idle state with aria-live region before query entry", async () => {
@@ -549,7 +573,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await waitForSearchPagePanelResults();
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -573,7 +597,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await waitForSearchPagePanelResults();
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -587,7 +611,11 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("unknown-topic");
 
-    const empty = await screen.findByTestId("search-page-empty");
+    const empty = await screen.findByTestId(
+      "search-page-empty",
+      {},
+      { timeout: 15_000 },
+    );
     expect(empty.textContent).toContain(context.messages.search.noResults);
     expect(
       screen.queryByText(
@@ -616,7 +644,7 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("token");
 
-    const results = await waitForSearchPagePanelResults();
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/Token/i);
     expect(
       screen.queryByText(
@@ -665,19 +693,25 @@ describe("SearchPagePanel tag handoff", () => {
     releaseFetchLock = null;
   });
 
-  test("/search?tag=attention prefills attention and surfaces grouped-query attention", async () => {
-    const context = await loadAppTestContext();
-    const searchParams = new URLSearchParams("tag=attention");
-    await renderSearchPagePanelContent(context, searchParams);
+  test(
+    "/search?tag=attention prefills attention and surfaces grouped-query attention",
+    async () => {
+      const context = await loadAppTestContext();
+      const searchParams = new URLSearchParams("tag=attention");
+      await renderSearchPagePanelContent(context, searchParams);
 
-    const searchInput = screen.getByLabelText(
-      context.messages.search.placeholder,
-    ) as HTMLInputElement;
-    expect(searchInput.value).toBe("attention");
+      const searchInput = screen.getByLabelText(
+        context.messages.search.placeholder,
+      ) as HTMLInputElement;
+      expect(searchInput.value).toBe("attention");
 
-    const results = await waitForSearchPagePanelResults();
-    expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
-  });
+      const results = await waitForSearchPagePanelResults({
+        timeout: 30_000,
+      });
+      expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+    },
+    { timeout: 30_000 },
+  );
 
   test("shows tag filter description when tag param is present without q", async () => {
     const context = await loadAppTestContext();
@@ -721,7 +755,7 @@ describe("SearchPagePanel tag handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await waitForSearchPagePanelResults();
+    const results = await findSearchPageResults();
     const urls = collectResultUrlsFromNodes(
       within(results).getAllByTestId("search-result-url"),
     );

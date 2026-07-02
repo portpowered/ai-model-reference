@@ -168,7 +168,7 @@ describe("batching docs route render", () => {
     expect(html).toContain("Queue requests");
     expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/glossary/decode"');
-    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
+    expect(html).toContain('href="/docs/concepts/prefill-decode-split"');
     expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/systems/continuous-batching"');
     expect(html).toContain('href="/docs/systems/routing"');

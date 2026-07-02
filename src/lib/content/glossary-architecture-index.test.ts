@@ -5,6 +5,8 @@ import ArchitectureIndexPage from "@/app/(site)/docs/architecture/page";
 import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
+import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
+import { isGlossaryPageAssignedToDerivedSection } from "@/lib/docs/glossary-derived-browse-sections";
 import { buildGeneratedDocsPageTree } from "@/lib/navigation/generated-docs-page-tree";
 
 const GLOSSARY_SEPARATOR_TITLES = [
@@ -23,6 +25,7 @@ const ARCHITECTURE_CONCEPT_URLS = [
   "/docs/concepts/positional-encodings",
   "/docs/concepts/transformer-architecture",
   "/docs/concepts/why-long-context-is-hard",
+  "/docs/concepts/prefill-decode-split",
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {
@@ -40,21 +43,34 @@ function collectPageUrls(nodes: Node[]): string[] {
   return urls;
 }
 
-function getGlossaryFolder() {
+function getSidebarFolder(name: string) {
   const pageTree = buildGeneratedDocsPageTree({ name: "Docs", children: [] });
-  const glossaryFolder = pageTree.children.find(
-    (node) => node.type === "folder" && node.name === "Glossary",
+  const folder = pageTree.children.find(
+    (node) => node.type === "folder" && node.name === name,
   );
-  expect(glossaryFolder?.type).toBe("folder");
-  if (glossaryFolder?.type !== "folder") {
-    throw new Error("expected Glossary folder in docs sidebar");
+  expect(folder?.type).toBe("folder");
+  if (folder?.type !== "folder") {
+    throw new Error(`expected ${name} folder in docs sidebar`);
   }
-  return glossaryFolder;
+  return folder;
+}
+
+function getGlossaryFolder() {
+  return getSidebarFolder("Glossary");
+}
+
+async function loadRemainingGlossarySidebarEntries() {
+  const pages = await loadShippedLocalizedDocsPages("en");
+  return pages.filter(
+    (page) =>
+      page.frontmatter.kind === "glossary" &&
+      !isGlossaryPageAssignedToDerivedSection(page),
+  );
 }
 
 describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
-  test("generated glossary sidebar lists current glossary families and separators", async () => {
-    const entries = await loadPublishedGlossaryEntries("en");
+  test("generated glossary sidebar lists remaining glossary families and separators", async () => {
+    const remainingPages = await loadRemainingGlossarySidebarEntries();
     const glossaryFolder = getGlossaryFolder();
 
     const separatorTitles = glossaryFolder.children
@@ -64,21 +80,27 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       (node): node is Extract<Node, { type: "page" }> => node.type === "page",
     );
 
-    expect(linkNodes).toHaveLength(entries.length);
+    expect(linkNodes).toHaveLength(remainingPages.length);
     expect(separatorTitles).toEqual(
       expect.arrayContaining([...GLOSSARY_SEPARATOR_TITLES]),
     );
 
-    for (const entry of entries) {
-      expect(linkNodes.some((node) => node.url === entry.url)).toBe(true);
-      expect(linkNodes.some((node) => node.name === entry.title)).toBe(true);
+    for (const page of remainingPages) {
+      expect(linkNodes.some((node) => node.url === page.url)).toBe(true);
+      expect(linkNodes.some((node) => node.name === page.messages.title)).toBe(
+        true,
+      );
     }
   });
 
-  test("fumadocs glossary sidebar includes the shipped glossary surface", async () => {
+  test("fumadocs glossary sidebar includes every shipped glossary page across derived folders", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    const glossaryFolder = getGlossaryFolder();
-    const glossaryUrls = collectPageUrls(glossaryFolder.children);
+    const glossaryUrls = [
+      ...collectPageUrls(getGlossaryFolder().children),
+      ...collectPageUrls(getSidebarFolder("Model Types").children),
+      ...collectPageUrls(getSidebarFolder("Inference").children),
+      ...collectPageUrls(getSidebarFolder("Module Components").children),
+    ];
 
     for (const entry of entries) {
       expect(glossaryUrls).toContain(entry.url);
@@ -88,8 +110,12 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
 
   test("glossary index lists shipped published entries with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    const glossaryFolder = getGlossaryFolder();
-    const glossaryUrls = collectPageUrls(glossaryFolder.children).sort();
+    const glossaryUrls = [
+      ...collectPageUrls(getGlossaryFolder().children),
+      ...collectPageUrls(getSidebarFolder("Model Types").children),
+      ...collectPageUrls(getSidebarFolder("Inference").children),
+      ...collectPageUrls(getSidebarFolder("Module Components").children),
+    ].sort();
 
     expect(entries.map((entry) => entry.url).sort()).toEqual(glossaryUrls);
 

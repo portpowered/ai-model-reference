@@ -1,0 +1,71 @@
+{
+  "id": "graph.grpo-training-flow",
+  "slug": "grpo-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "GRPO training flow",
+    "group relative policy optimization flow",
+    "group relative preference optimization flow"
+  ],
+  "tags": ["alignment", "foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.deepseekmath-grpo"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "training-regime.grpo",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "samples",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "samples",
+      "labelKey": "graph.nodes.samples.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 230, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": ["relativeObjective"]
+    },
+    {
+      "id": "relativeObjective",
+      "labelKey": "graph.nodes.relativeObjective.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 118 },
+      "size": { "width": 210, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["updatedModel"]
+    },
+    {
+      "id": "updatedModel",
+      "labelKey": "graph.nodes.updatedModel.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 252 },
+      "size": { "width": 210, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "samples-relative",
+      "source": "samples",
+      "target": "relativeObjective",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "relative-updated",
+      "source": "relativeObjective",
+      "target": "updatedModel",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

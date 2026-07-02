@@ -59,7 +59,7 @@ import {
 } from "@/lib/content/topology-tree-entries";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
-import { buildBrowseCollectionSections } from "@/lib/docs/browse-collection-sections";
+import { buildDocsBrowseSections } from "@/lib/docs/browse-collection-sections";
 import type { ShellCollectionDefinition } from "@/lib/docs/collection-definition-contract";
 import { toDocsIndexEntries } from "@/lib/docs/docs-index-entries";
 import {
@@ -131,7 +131,7 @@ export async function renderBrowseIndexPage(
     labels: topologyLabels,
   });
   const isStaticExport = process.env.NEXT_STATIC_EXPORT === "1";
-  const browseSections = buildBrowseCollectionSections({
+  const browseSections = buildDocsBrowseSections({
     pages,
     locale,
     messages,

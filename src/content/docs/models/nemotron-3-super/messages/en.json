@@ -17,7 +17,7 @@
     },
     "importantModules": {
       "title": "Important Modules",
-      "body": "The modules below anchor how to read the architecture graph and related registry pages. The Mixture-of-Experts routing story is the main efficiency lever; sequence blocks explain how the model processes long prompts before expert routing runs."
+      "body": "The modules below anchor how to read the architecture graph and related registry pages. The selective state-space module explains the Mamba-style sequence blocks, the Mixture-of-Experts routing story is the main efficiency lever, and attention modules cover the alternating attention path in the hybrid stack."
     },
     "training": {
       "title": "Training",

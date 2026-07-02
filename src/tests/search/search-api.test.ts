@@ -30,6 +30,8 @@ import {
 
 setDefaultTimeout(15_000);
 
+const LIVE_SEARCH_API_GATE_TIMEOUT_MS = 15_000;
+
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
 const ACTIVATION_GLOSSARY_URL = "/docs/glossary/activation";
@@ -194,16 +196,20 @@ describe("live /api/search HTTP contract", () => {
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
-  test("GET accepts classification=activation without a query and returns activation-family results", async () => {
-    const response = await GET(
-      new Request("http://localhost/api/search?classification=activation"),
-    );
-    expect(response.ok).toBe(true);
+  test(
+    "GET accepts classification=activation without a query and returns activation-family results",
+    async () => {
+      const response = await GET(
+        new Request("http://localhost/api/search?classification=activation"),
+      );
+      expect(response.ok).toBe(true);
 
-    const results = (await response.json()) as Array<{ url: string }>;
-    const urls = results.map((result) => result.url);
-    expect(urls).toEqual(expect.arrayContaining([RELU_URL, LEAKY_RELU_URL]));
-  });
+      const results = (await response.json()) as Array<{ url: string }>;
+      const urls = results.map((result) => result.url);
+      expect(urls).toEqual(expect.arrayContaining([RELU_URL, LEAKY_RELU_URL]));
+    },
+    { timeout: LIVE_SEARCH_API_GATE_TIMEOUT_MS },
+  );
 
   test("GET accepts canonical classification IDs and combines query text with the classification scope", async () => {
     const response = await GET(

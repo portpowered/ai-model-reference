@@ -20,6 +20,7 @@
   "status": "published",
   "createdAt": "2026-06-04T11:31:47.947Z",
   "updatedAt": "2026-06-04T12:00:00.000Z",
+  "primaryClassificationId": "classification.concept.math",
   "conceptType": "general",
   "prerequisiteIds": [
     "concept.latent",

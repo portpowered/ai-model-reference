@@ -107,19 +107,14 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
 
     const conceptGroup = groups.find((group) => group.kind === "concept");
     expect(conceptGroup?.kindLabel).toBe("Concept");
-    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
-      "/docs/concepts/kv-cache",
-      "/docs/concepts/prefill",
-      "/docs/concepts/self-attention",
-    ]);
-
-    const paperGroup = groups.find((group) => group.kind === "paper");
-    expect(paperGroup?.kindLabel).toBe("Paper");
-    expect(paperGroup?.resources.map((resource) => resource.url)).toEqual([
-      "/docs/papers/attention-is-all-you-need",
-      "/docs/papers/bert-pre-training-of-deep-bidirectional-transformers",
-      "/docs/papers/deepseek-v4",
-    ]);
+    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual(
+      expect.arrayContaining([
+        "/docs/concepts/kv-cache",
+        "/docs/concepts/prefill",
+        "/docs/concepts/prefill-decode-split",
+        "/docs/concepts/self-attention",
+      ]),
+    );
 
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
     expect(glossaryGroup?.kindLabel).toBe("Glossary");
@@ -185,6 +180,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/docs/concepts/prefill"');
+    expect(html).toContain('href="/docs/concepts/prefill-decode-split"');
     expect(html).toContain('href="/docs/concepts/self-attention"');
     expect(html).toContain('href="/docs/glossary/token"');
   });

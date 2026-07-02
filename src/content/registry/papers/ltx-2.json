@@ -1,0 +1,57 @@
+{
+  "id": "paper.ltx-2",
+  "slug": "ltx-2",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "LTX-2 paper",
+    "LTX-Video paper",
+    "joint audio-visual foundation model paper",
+    "LTX diffusion transformer paper"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "concept.diffusion-model",
+    "concept.denoising-generation",
+    "concept.latent-space",
+    "concept.multimodal-model",
+    "concept.conditioning",
+    "concept.modality",
+    "concept.transformer-architecture",
+    "citation.ltx-2-efficient-joint-audio-visual-foundation-model"
+  ],
+  "citationIds": [
+    "citation.ltx-2-efficient-joint-audio-visual-foundation-model"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "authors": ["Lightricks LTX Team"],
+  "publishedAt": "2026-01-06",
+  "url": "https://arxiv.org/abs/2601.03233",
+  "arxivId": "2601.03233",
+  "introducesIds": [],
+  "supportsIds": [
+    "concept.diffusion-model",
+    "concept.denoising-generation",
+    "concept.latent-space",
+    "concept.multimodal-model",
+    "concept.conditioning",
+    "concept.modality",
+    "concept.transformer-architecture"
+  ],
+  "arguesAgainstIds": [],
+  "modelIds": ["model.ltx-23"],
+  "moduleIds": ["module.cross-attention"],
+  "conceptIds": [
+    "concept.diffusion-model",
+    "concept.denoising-generation",
+    "concept.latent-space",
+    "concept.multimodal-model",
+    "concept.conditioning",
+    "concept.modality",
+    "concept.transformer-architecture"
+  ],
+  "venue": "arXiv preprint"
+}

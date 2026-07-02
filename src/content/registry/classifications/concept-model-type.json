@@ -1,0 +1,22 @@
+{
+  "id": "classification.concept.model-type",
+  "slug": "concept-model-type",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "model type",
+    "model family",
+    "model taxonomy",
+    "model-type concept"
+  ],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": ["concept.model", "concept.generative-model"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["concept"],
+  "parentClassificationId": "classification.concept"
+}

@@ -1,0 +1,50 @@
+{
+  "id": "module.mamba-selective-state-space",
+  "slug": "mamba-selective-state-space",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Mamba",
+    "Mamba block",
+    "Mamba module",
+    "selective state space model",
+    "selective state space",
+    "selective SSM",
+    "state-space module",
+    "SSM"
+  ],
+  "tags": ["state-space", "context-window"],
+  "relatedIds": [
+    "module.attention",
+    "module.linear-attention",
+    "concept.context-window",
+    "concept.transformer-architecture",
+    "concept.why-long-context-is-hard",
+    "model.nemotron-3-super"
+  ],
+  "citationIds": ["citation.mamba-selective-state-space-paper"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "releaseDate": "2023-12-01",
+  "authors": ["Albert Gu", "Tri Dao"],
+  "sourceId": "citation.mamba-selective-state-space-paper",
+  "primaryClassificationId": "classification.module.state-space",
+  "secondaryClassificationIds": [],
+  "moduleType": "state-space",
+  "moduleFamily": "state-space",
+  "conceptType": "state-space-variant",
+  "variantGroup": "selective-state-space",
+  "optimizes": [
+    "sequence-scaling",
+    "long-context-inference",
+    "memory-bandwidth"
+  ],
+  "exampleModelIds": ["model.nemotron-3-super"],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": ["model.nemotron-3-super"],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}

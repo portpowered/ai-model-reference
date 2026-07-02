@@ -1,0 +1,84 @@
+{
+  "id": "graph.dropout-training-flow",
+  "slug": "dropout-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["dropout training flow", "dropout train versus inference flow"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.dropout-prevent-overfitting"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "subjectId": "training-regime.dropout",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "training-network",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "training-network",
+      "labelKey": "graph.nodes.trainingNetwork.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 200, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["dropout-mask"]
+    },
+    {
+      "id": "dropout-mask",
+      "labelKey": "graph.nodes.dropoutMask.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 112 },
+      "size": { "width": 240, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["weight-update"]
+    },
+    {
+      "id": "weight-update",
+      "labelKey": "graph.nodes.weightUpdate.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 244 },
+      "size": { "width": 200, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["inference-network"]
+    },
+    {
+      "id": "inference-network",
+      "labelKey": "graph.nodes.inferenceNetwork.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 376 },
+      "size": { "width": 220, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "training-dropout",
+      "source": "training-network",
+      "target": "dropout-mask",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "dropout-update",
+      "source": "dropout-mask",
+      "target": "weight-update",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "update-inference",
+      "source": "weight-update",
+      "target": "inference-network",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}
