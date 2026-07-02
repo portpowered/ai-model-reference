@@ -174,7 +174,11 @@ describe("Phase 2 taxonomy concept records (US-003)", () => {
       expect(concept.id).toBe(id);
       expect(concept.kind).toBe("concept");
       expect(concept.status).toBe("published");
-      expect(concept.conceptType).toBe("general");
+      if (concept.primaryClassificationId === "classification.concept.architecture") {
+        expect(concept.conceptType).toBe("architecture");
+      } else {
+        expect(concept.conceptType).toBe("general");
+      }
       expect(concept.tags).toContain("taxonomy");
       expect(concept.tags).toContain("foundations");
     }

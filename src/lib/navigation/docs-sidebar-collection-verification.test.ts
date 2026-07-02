@@ -17,6 +17,7 @@ import { source } from "@/lib/source";
 const EXPECTED_TOP_LEVEL_FOLDER_NAMES = [
   "Model Types",
   "Inference",
+  "Module Components",
   "Glossary",
   "Concepts",
   "Modules",

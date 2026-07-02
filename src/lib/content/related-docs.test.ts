@@ -844,11 +844,11 @@ describe("related-docs", () => {
       SHARED_PARENT_CLASSIFICATION,
       COMPATIBILITY_SAME_CONCEPT_TYPE,
     ]);
-    expect(groups[2]?.items.map((item) => item.registryId)).toEqual(
+    expect(groups[2]?.items.map((item) => item.registryId)).toEqual([
+      "module.manifold-constrained-hyper-connections",
+    ]);
+    expect(groups[1]?.items.map((item) => item.registryId)).toEqual(
       expect.arrayContaining(["concept.embedding"]),
-    );
-    expect(groups[2]?.items.map((item) => item.registryId)).not.toContain(
-      "concept.activation",
     );
   });
 

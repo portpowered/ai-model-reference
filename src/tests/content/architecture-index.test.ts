@@ -28,17 +28,14 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/concepts/prefill",
         "/docs/concepts/transformer-architecture",
         "/docs/concepts/why-long-context-is-hard",
-        "/docs/glossary/activation",
         "/docs/glossary/architecture",
-        "/docs/glossary/autoregressive-generation",
-        "/docs/glossary/decode",
-        "/docs/glossary/foundation-model",
-        "/docs/glossary/kv-cache",
-        "/docs/glossary/prefill-decode-split",
-        "/docs/glossary/skip-connection",
+        "/docs/glossary/conditioning",
+        "/docs/glossary/denoising-generation",
         "/docs/glossary/token",
+        "/docs/glossary/transformer",
       ]),
     );
+    expect(urls).not.toContain("/docs/glossary/activation");
   });
 
   it("excludes module pages that are not architecture concepts", async () => {
