@@ -1,0 +1,9 @@
+ M docs/internal/processes/derived-page-validation-relevant-files.md
+ M docs/internal/processes/factory-linkage-relevant-files.md
+ M package.json
+ M scripts/report-planner-root-checkout-reconciliation.ts
+ M src/lib/factory/planner-root-checkout-reconciliation.test.ts
+ M src/lib/factory/planner-root-checkout-reconciliation.ts
+ M src/tests/ci/content-pr-doctor.test.ts
+ M src/tests/discovery/planner-root-checkout-reconciliation.test.ts
+ M src/tests/fixtures/planner-root-checkout-reconciliation/mixed-dirty-status.txt
