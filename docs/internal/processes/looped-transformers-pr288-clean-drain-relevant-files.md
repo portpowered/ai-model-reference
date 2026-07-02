@@ -316,3 +316,113 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T17:43Z UTC).
+
+## Story 003 review handoff (2026-07-02T17:47Z UTC)
+
+Planner outcome for PR #288: **leave a concrete review handoff**. Merge was
+deferred in story 002 because review is incomplete; this section records the
+exact handoff for the next operator.
+
+### Why this is a review handoff (not merge, not a generic blocker-only report)
+
+| Condition | Status | Notes |
+| --- | --- | --- |
+| Required CI on PR head | PASS | 11/11 SUCCESS on `fc575f9e` |
+| Page content/render quality | PASS | BLOCKING review confirms page renders and stories pass behavioral checks |
+| Review complete | **FAIL** | Unresolved BLOCKING PR conversation comment (2026-07-02T17:10:15Z) |
+| GitHub mergeability | **FAIL** | `CONFLICTING` / `DIRTY` vs `origin/main` `d22d1e0` (secondary to review) |
+
+This is **review-incomplete**, not failing checks, missing metadata, or queue
+read failure. A merge-conflict blocker also exists (see story 004), but the
+primary drain gate is the unresolved BLOCKING review on PR #288.
+
+### Active review lane state
+
+| Signal | Value |
+| --- | --- |
+| Factory review work token | **none** — no `review:*` token on session `930b51a6-07ce-44e6-a639-7a6217f6e864` |
+| Content task token | `work-task-64` at `init` / PROCESSING |
+| Authoritative review channel | PR #288 conversation comment by `AndreasAbdi` (2026-07-02T17:10:15Z) |
+| Review verdict | `REJECTED / BLOCKING` for `work-task-64` |
+| Clearing reply | **none** — no later PR conversation comment supersedes the BLOCKING item |
+
+The PRD snapshot claimed `task:in-review` and `review:init`; live queue shows
+`work-task-64` at `init` with no review token. Treat the BLOCKING conversation
+comment as the active review signal.
+
+### PR #288 clean/check status (live, 2026-07-02T17:47Z UTC)
+
+| Field | Value |
+| --- | --- |
+| State | OPEN |
+| Head SHA | `fc575f9e5a6dd8ad4c8fd3478ef5000e320b8b78` |
+| Mergeability | CONFLICTING |
+| Merge state status | DIRTY |
+| Required checks | 11/11 SUCCESS |
+| Formal GitHub review rollup | empty |
+
+Checks pass and page quality is acceptable, but merge is blocked by unresolved
+review plus merge conflict with current `origin/main`.
+
+### Exact next reviewer / content-lane actions
+
+Complete these on the **`looped-transformers` content worktree**
+(`/Users/abdifamily/work/learn-agent-factories/.claude/worktrees/looped-transformers`),
+not on this drain lane:
+
+1. **Address BLOCKING item 1 — canonical-page surface budget**
+   - Finish dirty WIP on local HEAD `440f077f` (deletes page-specific meta tests,
+     touches `canonical-page-surface-audit` surfaces).
+   - Keep the PR page-local or move shared-helper/test/runtime churn to the
+     throughput lane the audit recommends.
+   - Run `bun run audit:canonical-page-surface` and confirm **in-budget**.
+
+2. **Address BLOCKING item 2 — meta/marker tests**
+   - Remove or replace page-specific meta tests in shared verification paths
+     (`looped-transformers-module-page.test.ts`, `looped-transformers-module-convergence.ts`,
+     `looped-transformers-page-contract.test.ts`, etc.).
+   - Prefer `make validate-data` plus behavioral coverage over shared test churn.
+
+3. **Reconcile with `origin/main`**
+   - Rebase or merge from `origin/main` (`d22d1e0`) so GitHub reports CLEAN/MERGEABLE.
+   - Push to `looped-transformers` so PR #288 head advances past `fc575f9e`.
+
+4. **Clear the review**
+   - Post a PR #288 conversation reply mapping each BLOCKING item to the concrete
+     fix and validation (audit output, removed tests, mergeability).
+   - Obtain reviewer acknowledgment or a clearing comment before retrying drain
+     story 002 (merge).
+
+### Scope boundary
+
+This drain lane and the content lane must **not** edit unrelated model pages,
+registry families, or shared runtime surfaces beyond what the BLOCKING review
+requires for PR #288. Do not start broad cleanup or throughput-lane work inside
+this drain PRD.
+
+### Distinction from other blocker classes
+
+| Blocker class | Applies here? | Evidence |
+| --- | --- | --- |
+| Review incomplete | **yes (primary)** | BLOCKING comment 17:10:15Z, no clearing reply |
+| Merge conflict / branch drift | yes (secondary) | CONFLICTING/DIRTY; content branch ahead=12 behind=6 vs `origin/main` |
+| Failing or pending CI | no | 11/11 SUCCESS |
+| Missing lane metadata | no | `.claude/lane-metadata.json` present and current |
+| Missing queue state | no | `work-task-64` and drain tokens readable on model-atlas session |
+| Inaccessible PR | no | `gh pr view 288` succeeds |
+
+### Content worktree WIP snapshot (2026-07-02T17:47Z UTC)
+
+Local HEAD `440f077f` has uncommitted edits addressing review items (deleted
+meta tests, audit surface changes) but **not pushed** to PR head `fc575f9e`.
+Remote `origin/looped-transformers` still points at `fc575f9e`.
+
+## Quality gate (story 003)
+
+Review handoff only; no PR merge or content mutation on this drain lane.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T17:47Z UTC).
