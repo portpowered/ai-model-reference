@@ -182,11 +182,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
     releaseFetchLock = null;
   });
 
-  test.each([
-    "GQA",
-    "attention",
-    "KV cache",
-  ] as const)(
+  test.each(["GQA", "attention", "KV cache"] as const)(
     "shows Grouped-Query Attention for %s query",
     async (query) => {
       const context = await loadAppTestContext();
