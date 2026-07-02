@@ -44,7 +44,8 @@ type RepresentativeDiscoveryContract = {
   representativeQueries: readonly string[];
 };
 
-const REPRESENTATIVE_DISCOVERY_CONTRACTS = [
+/** Representative routes that must stay aligned across source, tag landing, and search. */
+export const REPRESENTATIVE_DISCOVERY_CONTRACTS = [
   {
     pageUrl: "/docs/modules/grouped-query-attention",
     expectedKind: "module",
