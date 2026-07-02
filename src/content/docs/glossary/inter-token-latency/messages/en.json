@@ -27,6 +27,10 @@
       "title": "What Affects Token Cadence",
       "body": "Each inter-token interval is shaped by the decode work for one new token, the KV cache reads that step requires, and how quickly memory bandwidth can supply that state. Scheduler contention matters when many active requests compete for the same accelerators. Batching decisions—fixed batch sizes, continuous batching, or dynamic regrouping—change how often a request waits its turn. The active request mix also shifts cadence: prompt-heavy bursts, long decode chains, and cache-heavy conversations do not share the same per-token cost."
     },
+    "servingPath": {
+      "title": "Go Deeper Into Serving",
+      "body": "The sections above name the factors that move token cadence. Follow the links below to the serving pages that explain each stage, system choice, or deployment tradeoff in more detail."
+    },
     "related": {
       "title": "Related Concepts And Modules"
     },
@@ -35,6 +39,58 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "links": {
+    "timeToFirstToken": "Time to first token",
+    "prefill": "Prefill",
+    "decode": "Decode",
+    "kvCache": "KV cache",
+    "prefillDecodeSplit": "Prefill/decode split",
+    "batching": "Batching",
+    "continuousBatching": "Continuous batching",
+    "dynamicBatching": "Dynamic batching",
+    "requestScheduling": "Request scheduling",
+    "memory": "Memory",
+    "deployment": "Deployment",
+    "inferenceEngine": "Inference engine"
+  },
+  "relatedDocs": {
+    "concept.time-to-first-token": {
+      "reason": "Time to first token ends where inter-token latency begins, so compare both metrics when a reply feels slow to start versus choppy mid-stream."
+    },
+    "concept.prefill": {
+      "reason": "Prefill finishes before streaming cadence matters, but heavy prompt work can still shape queue pressure that decode inherits."
+    },
+    "concept.decode": {
+      "reason": "Each inter-token gap is one decode step, so decode cost and cache reads set the baseline rhythm."
+    },
+    "concept.kv-cache": {
+      "reason": "Every decode step reads growing KV cache state, so cache size and memory movement often dominate per-token pauses."
+    },
+    "concept.prefill-decode-split": {
+      "reason": "Split deployments hand cache state between workers, which can add transfer delays that show up between tokens."
+    },
+    "system.batching": {
+      "reason": "Fixed batch sizes decide how many requests share each accelerator step, which changes how long a stream waits between tokens."
+    },
+    "system.continuous-batching": {
+      "reason": "Continuous batching keeps slots open as sequences finish, which can smooth or shift inter-token gaps under load."
+    },
+    "system.dynamic-batching": {
+      "reason": "Dynamic regrouping changes which requests decode together, so cadence can wobble when the scheduler reshuffles work."
+    },
+    "system.request-scheduling": {
+      "reason": "Scheduler contention decides whose decode turn runs next when many streams compete for the same devices."
+    },
+    "system.memory": {
+      "reason": "Memory bandwidth limits how quickly KV cache state can be read each step, which directly caps token cadence."
+    },
+    "system.deployment": {
+      "reason": "Deployment layout—which pools handle decode and how replicas scale—sets the operating context for steady streaming."
+    },
+    "system.inference-engine": {
+      "reason": "The inference engine implements the decode loop, batching hooks, and streaming path that produce each visible token gap."
     }
   },
   "assets": {

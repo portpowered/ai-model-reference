@@ -21,6 +21,7 @@ updatedAt: "2026-07-01"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { PageAsset } from "@/features/docs/components/PageAsset";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
@@ -50,6 +51,44 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="what-affects-cadence" titleKey="sections.whatAffectsCadence.title">
   <T k="sections.whatAffectsCadence.body" />
+</Section>
+
+<Section id="serving-path" titleKey="sections.servingPath.title">
+  <T k="sections.servingPath.body" />
+  <LocalizedLinkList
+    items={[
+      {
+        href: "/docs/glossary/time-to-first-token",
+        labelKey: "links.timeToFirstToken",
+      },
+      { href: "/docs/concepts/prefill", labelKey: "links.prefill" },
+      { href: "/docs/glossary/decode", labelKey: "links.decode" },
+      { href: "/docs/concepts/kv-cache", labelKey: "links.kvCache" },
+      {
+        href: "/docs/glossary/prefill-decode-split",
+        labelKey: "links.prefillDecodeSplit",
+      },
+      { href: "/docs/systems/batching", labelKey: "links.batching" },
+      {
+        href: "/docs/systems/continuous-batching",
+        labelKey: "links.continuousBatching",
+      },
+      {
+        href: "/docs/systems/dynamic-batching",
+        labelKey: "links.dynamicBatching",
+      },
+      {
+        href: "/docs/systems/request-scheduling",
+        labelKey: "links.requestScheduling",
+      },
+      { href: "/docs/systems/memory", labelKey: "links.memory" },
+      { href: "/docs/systems/deployment", labelKey: "links.deployment" },
+      {
+        href: "/docs/systems/inference-engine",
+        labelKey: "links.inferenceEngine",
+      },
+    ]}
+  />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
