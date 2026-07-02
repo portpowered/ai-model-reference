@@ -72,7 +72,7 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
     const relativeBias = items.find(
       (item) => item.registryId === "concept.relative-position-bias",
     );
-    expect(relativeBias?.href).toBe("/docs/modules/relative-position-bias");
+    expect(relativeBias?.href).toBe("/docs/concepts/relative-position-bias");
     expect(relativeBias?.isPlanned).toBe(false);
 
     const rope = items.find((item) => item.registryId === "concept.rope");

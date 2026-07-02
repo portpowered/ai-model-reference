@@ -80,7 +80,7 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
     const relativeBias = items.find(
       (item) => item.registryId === "concept.relative-position-bias",
     );
-    expect(relativeBias?.href).toBe("/docs/modules/relative-position-bias");
+    expect(relativeBias?.href).toBe("/docs/concepts/relative-position-bias");
     expect(relativeBias?.isPlanned).toBe(false);
 
     const contextExtension = items.find(
