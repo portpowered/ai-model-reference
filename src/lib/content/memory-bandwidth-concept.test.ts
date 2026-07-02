@@ -245,3 +245,72 @@ describe("memory-bandwidth concept page (memory-bandwidth-concept-page-002)", ()
     expect(html).not.toContain("missing-message");
   });
 });
+
+describe("memory-bandwidth byte movement teaching (memory-bandwidth-concept-page-003)", () => {
+  test("messages teach weights, activations, KV cache movement and throughput ceiling", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.sections?.whichBytesMove.body?.toLowerCase()).toContain(
+      "model weights",
+    );
+    expect(messages.sections?.whichBytesMove.body?.toLowerCase()).toContain(
+      "intermediate activations",
+    );
+    expect(messages.sections?.whichBytesMove.body?.toLowerCase()).toContain(
+      "kv cache",
+    );
+    expect(messages.sections?.whichBytesMove.body?.toLowerCase()).toContain(
+      "decode",
+    );
+    expect(messages.sections?.throughputCeiling.body?.toLowerCase()).toContain(
+      "tokens per second",
+    );
+    expect(messages.sections?.throughputCeiling.body).toContain(
+      "B_{\\mathrm{avail}}",
+    );
+    expect(messages.sections?.computeVsBandwidth.body?.toLowerCase()).toContain(
+      "compute-bound",
+    );
+    expect(messages.sections?.computeVsBandwidth.body?.toLowerCase()).toContain(
+      "bandwidth-bound",
+    );
+    expect(messages.sections?.servingPhases.body?.toLowerCase()).toContain(
+      "prefill",
+    );
+    expect(messages.sections?.servingPhases.body?.toLowerCase()).toContain(
+      "decode",
+    );
+    expect(messages.sections?.servingPhases.body?.toLowerCase()).toContain(
+      "batching",
+    );
+    expect(messages.sections?.servingPhases.body?.toLowerCase()).toContain(
+      "longer context",
+    );
+  });
+
+  test("rendered page exposes byte-movement sections with throughput ceiling math", async () => {
+    const page = await loadConceptPage(SLUG);
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('id="which-bytes-move"');
+    expect(html).toContain('id="throughput-ceiling"');
+    expect(html).toContain('id="compute-vs-bandwidth"');
+    expect(html).toContain('id="serving-phases"');
+    expect(html).toContain('href="/docs/concepts/activation"');
+    expect(html).toContain("compute-bound");
+    expect(html).toContain("bandwidth-bound");
+    expect(html).toContain('href="/docs/concepts/prefill"');
+    expect(html).toContain("katex");
+    expect(html).not.toContain("missing-message");
+  });
+});
