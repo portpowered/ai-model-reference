@@ -25,6 +25,7 @@ const ARCHITECTURE_CONCEPT_URLS = [
   "/docs/concepts/positional-encodings",
   "/docs/concepts/transformer-architecture",
   "/docs/concepts/why-long-context-is-hard",
+  "/docs/concepts/prefill-decode-split",
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {

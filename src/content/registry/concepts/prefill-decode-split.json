@@ -11,18 +11,12 @@
     "disaggregated serving",
     "disaggregated prefill decode"
   ],
-  "tags": ["foundations", "kv-cache"],
+  "tags": ["foundations", "attention", "kv-cache"],
   "relatedIds": [
     "concept.prefill",
     "concept.decode",
     "concept.kv-cache",
-    "system.batching",
-    "concept.autoregressive-generation",
-    "module.attention",
-    "module.multi-query-attention",
-    "module.grouped-query-attention",
-    "module.sliding-window-attention",
-    "concept.transformer"
+    "concept.autoregressive-generation"
   ],
   "citationIds": [
     "citation.brown-gpt-3",
@@ -31,7 +25,7 @@
   ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
-  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
   "primaryClassificationId": "classification.concept.inference",
   "conceptType": "inference",
   "sidebarGrouping": {

@@ -158,14 +158,14 @@ describe("docs slug renderer locale gating", () => {
 
   test("English docs metadata omits unshipped Vietnamese alternate for prefill-decode-split", async () => {
     const metadata = await buildDocsPageMetadata([
-      "glossary",
+      "concepts",
       "prefill-decode-split",
     ]);
 
     expect(metadata.alternates).toEqual({
-      canonical: "/docs/glossary/prefill-decode-split",
+      canonical: "/docs/concepts/prefill-decode-split",
       languages: {
-        en: "/docs/glossary/prefill-decode-split",
+        en: "/docs/concepts/prefill-decode-split",
       },
     });
   });
@@ -232,7 +232,7 @@ describe("docs slug renderer locale gating", () => {
 
   test("unshipped Vietnamese prefill-decode-split route fails instead of rendering English content", async () => {
     try {
-      await renderDocsSlugPage(["glossary", "prefill-decode-split"], "vi");
+      await renderDocsSlugPage(["concepts", "prefill-decode-split"], "vi");
       throw new Error("Expected Vietnamese prefill/decode split route to fail");
     } catch (error) {
       expect(error).toBeInstanceOf(Error);

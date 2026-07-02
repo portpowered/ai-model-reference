@@ -40,6 +40,7 @@ const REPRESENTATIVE_SECTION_URLS = {
     "/docs/concepts/alibi",
     "/docs/concepts/transformer-architecture",
     "/docs/concepts/page-spec-workflow-sample",
+    "/docs/concepts/prefill-decode-split",
   ],
   modules: [
     "/docs/modules/multi-head-attention",
