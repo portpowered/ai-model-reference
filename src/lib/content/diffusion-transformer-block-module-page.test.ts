@@ -54,6 +54,13 @@ describe("diffusion-transformer-block page messages", () => {
     );
     expect(messages.math?.genericBlockSchema?.formula).toContain("FFN");
     expect(messages.math?.ditBlockSchema?.formula).toContain("c_t");
+    expect(messages.math?.ditBlockSchema?.formula).toContain("Attn");
+    expect(messages.assets?.computeFlow?.title).toBe(
+      "Diffusion Transformer block compute flow",
+    );
+    expect(messages.assets?.computeFlow?.legend?.conditioning?.label).toBe(
+      "Timestep and conditioning steering",
+    );
   });
 });
 
@@ -106,6 +113,26 @@ describe("loadModulePage diffusion-transformer-block", () => {
       expect(html).toContain("quadratically with patch count");
       expect(html).toContain("diffusion training objective");
       expectModuleComputeFlowGraphOnlyInHowItWorks(html, defaultGraphId);
+      expect(html).toContain(
+        'data-graph-id="graph.diffusion-transformer-block-compute-flow"',
+      );
+      expect(html).toContain(
+        'data-graph-legend="graph.diffusion-transformer-block-compute-flow"',
+      );
+      expect(html).toContain(
+        'data-graph-title="graph.diffusion-transformer-block-compute-flow"',
+      );
+      expect(html).toContain("Diffusion Transformer block compute flow");
+      expect(html).toContain("Timestep and conditioning steering");
+      expect(html).toContain("Patch token computation path");
+      expect(html).toContain("Timestep embedding c_t");
+      expect(html).toContain("Optional class or text conditioning c");
+      expect(html).toContain(
+        "Timestep and conditioning steer the block; they are not ordinary image tokens",
+      );
+      expect(html).toContain('data-math-variable-definition="ct"');
+      expect(html).toContain('data-math-variable-definition="attn"');
+      expect(html).toContain('data-math-variable-definition="mod"');
       expect(html).toContain("--xy-background-color:#ffffff");
       expect(html).toContain("--xy-node-color:#111827");
     },
@@ -114,7 +141,7 @@ describe("loadModulePage diffusion-transformer-block", () => {
 });
 
 describe("diffusion-transformer-block page assets", () => {
-  test("resolves graph and table assets with message-backed alt text", () => {
+  test("resolves graph and table assets with message-backed alt text, title, and legend", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
@@ -127,6 +154,10 @@ describe("diffusion-transformer-block page assets", () => {
       expect(assets.computeFlow.graphId).toBe(defaultGraphId);
     }
     expect(assets.comparisonTable.type).toBe("table");
+    expect(messages.assets?.computeFlow?.caption?.length).toBeGreaterThan(0);
+    expect(messages.assets?.computeFlow?.legend?.["data-flow"]?.label).toBe(
+      "Patch token computation path",
+    );
     expect(validatePageAssetReferences(assets, messages)).toEqual([]);
   });
 });

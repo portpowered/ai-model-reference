@@ -47,7 +47,26 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Diffusion Transformer block graph showing noisy patch tokens, timestep and optional conditioning modulation, self-attention, feed-forward refinement, and updated patch states for denoising"
+      "title": "Diffusion Transformer block compute flow",
+      "alt": "Diffusion Transformer block graph showing noisy patch tokens, timestep and optional conditioning modulation, self-attention, feed-forward refinement, and updated patch states for denoising",
+      "caption": "Noisy patch tokens move down the main path through modulated normalization, self-attention, and feed-forward refinement, while timestep and optional conditioning inputs steer the block through separate modulation edges rather than as ordinary image tokens.",
+      "legend": {
+        "data-flow": {
+          "label": "Patch token computation path"
+        },
+        "conditioning": {
+          "label": "Timestep and conditioning steering"
+        },
+        "residual": {
+          "label": "Residual connection"
+        },
+        "architecture-io": {
+          "label": "Conditioning input"
+        },
+        "annotation": {
+          "label": "Conditioning role note"
+        }
+      }
     },
     "comparisonTable": {}
   },
@@ -117,15 +136,11 @@
     },
     "ditBlockSchema": {
       "label": "Diffusion Transformer block update with modulation",
-      "formula": "x' = x + \\mathrm{FFN}(\\mathrm{Mod}(\\mathrm{Norm}(x), c_t, c)) \\odot \\gamma_t)",
+      "formula": "x \\leftarrow x + \\mathrm{Attn}\\big(\\mathrm{Mod}(\\mathrm{Norm}(x), c_t, c)\\big);\\quad x \\leftarrow x + \\mathrm{FFN}\\big(\\mathrm{Mod}(\\mathrm{Norm}(x), c_t, c)\\big)",
       "variableDefinitions": {
         "x": {
           "term": "x",
           "definition": "Noisy patch or latent token states at the current diffusion step."
-        },
-        "xprime": {
-          "term": "x'",
-          "definition": "Updated patch states passed to the next sublayer or denoising head."
         },
         "ct": {
           "term": "c_t",
@@ -135,13 +150,17 @@
           "term": "c",
           "definition": "Optional class, text, or other conditioning embedding."
         },
-        "gamma": {
-          "term": "\\gamma_t",
-          "definition": "Scale or gate produced from timestep and conditioning signals."
+        "norm": {
+          "term": "\\mathrm{Norm}",
+          "definition": "Normalization applied before each sublayer."
         },
         "mod": {
           "term": "\\mathrm{Mod}",
-          "definition": "Modulation path that combines normalization with conditioning."
+          "definition": "Modulation path that combines normalization with timestep and conditioning."
+        },
+        "attn": {
+          "term": "\\mathrm{Attn}",
+          "definition": "Self-attention sublayer over patch tokens."
         },
         "ffn": {
           "term": "\\mathrm{FFN}",

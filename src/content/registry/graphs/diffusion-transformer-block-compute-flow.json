@@ -119,6 +119,18 @@
       "source": "feed-forward",
       "target": "residual-output",
       "edgeKind": "data-flow"
+    },
+    {
+      "id": "tokens-residual-attn",
+      "source": "noisy-patch-tokens",
+      "target": "self-attention",
+      "edgeKind": "residual"
+    },
+    {
+      "id": "attn-residual-output",
+      "source": "self-attention",
+      "target": "residual-output",
+      "edgeKind": "residual"
     }
   ]
 }
