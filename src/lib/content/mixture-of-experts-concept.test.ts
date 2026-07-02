@@ -64,6 +64,7 @@ describe("Mixture of experts concept page", () => {
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("benchmark");
+    expect(html).not.toContain("missing message");
   });
 
   test("keeps the route, English messages, registry record, search document, and curated related links aligned", async () => {
