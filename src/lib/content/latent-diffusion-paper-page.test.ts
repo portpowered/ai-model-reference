@@ -112,3 +112,42 @@ describe("latent-diffusion paper page (latent-diffusion-paper-page-003)", () => 
     );
   });
 });
+
+describe("latent-diffusion paper page (latent-diffusion-paper-page-004)", () => {
+  test("explainer prose covers autoencoder, latent denoising, conditioning, and pixel contrast", () => {
+    const messagesPath = join(
+      PAPERS_DOCS_ROOT,
+      LATENT_DIFFUSION_SLUG,
+      "messages/en.json",
+    );
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const method = messages.sections?.methodOrArchitecture.body ?? "";
+    const why = messages.sections?.whyItMatters.body ?? "";
+    const evidence = messages.sections?.evidence.body ?? "";
+
+    expect(messages.openingSummary).toMatch(/Latent Diffusion Models \(LDM\)/);
+    expect(method).toMatch(/autoencoder/i);
+    expect(method).toMatch(/learned latent/i);
+    expect(method).toMatch(/decode/i);
+    expect(method).toMatch(/iterative denoising/i);
+    expect(method).toMatch(/main generation loop/i);
+    expect(method).toMatch(/Conditioning/i);
+    expect(why).toMatch(/pixel-space diffusion/i);
+    expect(why).toMatch(/compute/i);
+    expect(why).toMatch(/memory/i);
+    expect(evidence).toMatch(/architectural/i);
+    expect(evidence).not.toMatch(/F1|BLEU|ImageNet score/i);
+  });
+
+  test("rendered explainer auto-links conditioning and latent-space concepts in body prose", async () => {
+    const html = await renderPaperHtml();
+
+    expect(html).toContain('data-prose-auto-link="true"');
+    expect(html).toContain('href="/docs/glossary/conditioning"');
+    expect(html).toContain('href="/docs/glossary/latent-space"');
+    expect(html).not.toMatch(/on this page|reader shortcut/i);
+  });
+});

@@ -1,23 +1,23 @@
 {
   "title": "Latent Diffusion Models",
   "description": "The research paper behind Stable Diffusion-style image generation: compress images into a latent space, denoise there instead of in pixel space, then decode the result.",
-  "openingSummary": "Latent Diffusion Models (LDM) is the paper that popularized latent-space denoising for practical image synthesis. Instead of running a diffusion model directly on full-resolution pixels, the method learns a compressed latent representation, performs iterative denoising in that smaller space, and decodes the final latent back into an image. Systems such as Stable Diffusion follow this recipe.",
+  "openingSummary": "Latent Diffusion Models (LDM) is the research paper behind Stable Diffusion-style image generation. The method learns a compressed latent representation space, runs iterative denoising inside that smaller space instead of on full-resolution pixels, and decodes the finished latent back into a visible image. Consumer-scale systems such as Stable Diffusion follow this recipe.",
   "sections": {
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Pixel-space diffusion models can produce strong images, but each denoising step operates on every pixel at full resolution. That cost grows quickly as image size increases. Latent Diffusion Models showed that most of the perceptual work can happen in a learned latent space that is far smaller than the pixel grid, which made high-resolution image generation practical on consumer hardware. The paper is the canonical reference for understanding why Stable Diffusion-style pipelines compress first, denoise in latent space, and decode at the end."
+      "body": "Pixel-space diffusion models treat every denoising step as a full-resolution image update. Each step must read and rewrite every pixel, so compute and memory grow sharply as width and height increase. Latent Diffusion Models showed that most perceptual structure can form inside a learned latent representation space that holds far fewer values than the pixel grid. Denoising there lowers compute and memory pressure while still delivering strong image quality at resolutions that would be impractical for pure pixel-space diffusion on typical hardware. That tradeoff is why Stable Diffusion-style pipelines compress first, denoise in latent space, and decode only at the end."
     },
     "methodOrArchitecture": {
       "title": "Method Or Architecture",
-      "body": "The pipeline has four connected stages. An autoencoder compresses an image into a latent tensor and can later decode a finished latent back into pixels. A diffusion model runs its iterative denoising loop in that latent space rather than on raw pixels. Conditioning inputs—such as text embeddings—steer what the denoising steps should produce. After denoising completes, the decoder maps the final latent into a visible image."
+      "body": "The pipeline chains four stages. First, an autoencoder compresses an image into a learned latent tensor—a compact code in latent representation space rather than a pixel array. A diffusion model then runs its main generation loop as iterative denoising over that latent tensor: each step removes a little noise until a clean latent remains. Conditioning inputs such as text embeddings steer what the denoising steps should produce; Conditioning is the control signal that tells the generator which content or style to favor. After denoising completes, the autoencoder decoder maps the final latent back into pixels. The encoder and decoder are trained once; generation repeats only the latent denoising loop at inference time."
     },
     "evidence": {
       "title": "Evidence",
-      "body": "The paper demonstrates that latent-space denoising retains image quality while reducing compute and memory pressure compared with pixel-space diffusion at similar resolutions. For this reference, the important evidence is architectural: the authors show that autoencoder compression, latent denoising, and conditioning can be trained and deployed as one coherent system rather than as isolated tricks."
+      "body": "The paper demonstrates that latent-space denoising retains image quality while reducing compute and memory compared with pixel-space diffusion at similar output resolutions. The important evidence here is architectural: the authors train autoencoder compression, iterative denoising, and Conditioning as one coherent system and show the combination remains deployable where full pixel diffusion is not."
     },
     "limitations": {
       "title": "Limitations",
-      "body": "Compression through an autoencoder can discard fine detail that pixel-space models might preserve, and reconstruction quality depends on how well the encoder and decoder were trained. Conditioning quality also limits controllability: weak or mismatched conditioning signals still produce weak guidance even when latent denoising is efficient."
+      "body": "Compression through an autoencoder can discard fine detail that pixel-space models might preserve, and reconstruction quality depends on encoder-decoder training. Weak Conditioning signals still produce weak guidance even when latent denoising is efficient. Readers comparing paradigms should weigh reconstruction fidelity against per-step cost rather than assuming latent denoising is strictly superior on every axis."
     },
     "related": {
       "title": "Related To"
