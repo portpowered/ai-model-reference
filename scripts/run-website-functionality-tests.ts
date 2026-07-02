@@ -11,6 +11,8 @@ const repoRoot = join(import.meta.dir, "..");
  * fans them back out across multiple shards by default.
  */
 const defaultParallelWorkers = 1;
+/** Match bunfig.toml [test] / [test.ci]; explicit CLI flag survives spawned shards. */
+const websiteTestTimeoutMs = 900_000;
 
 const excludedPrefixes = [
   "src/lib/verify/",
@@ -82,7 +84,14 @@ function runBunTestShard(args: string[]): Promise<number> {
   return new Promise((resolve, reject) => {
     const child = spawn(
       "bun",
-      ["test", "--preload", "./src/tests/a11y/mock-navigation.ts", ...args],
+      [
+        "test",
+        "--timeout",
+        String(websiteTestTimeoutMs),
+        "--preload",
+        "./src/tests/a11y/mock-navigation.ts",
+        ...args,
+      ],
       {
         cwd: repoRoot,
         stdio: "inherit",
