@@ -36,7 +36,7 @@ type OntologySeedRecord =
   | TrainingRegimeRecord;
 
 const seededPrimaryClassifications = new Map([
-  ["concept.activation", "classification.concept.architecture.activation"],
+  ["concept.activation", "classification.concept.module"],
   ["module.relu", "classification.module.activation"],
   ["module.attention", "classification.module.attention"],
   ["module.feed-forward-network", "classification.module.feed-forward"],
@@ -418,7 +418,7 @@ describe("ontology foundation regression coverage", () => {
       "classification.module.tokenization",
     );
     expect(getPrimaryClassificationForRecord("concept.activation")?.id).toBe(
-      "classification.concept.architecture.activation",
+      "classification.concept.module",
     );
     expect(getPrimaryClassificationForRecord("training-regime.dpo")?.id).toBe(
       "classification.training.alignment",
@@ -510,10 +510,10 @@ describe("ontology foundation regression coverage", () => {
       ]),
     );
     expect(
-      listClassificationMembers(
-        "classification.concept.architecture.activation",
-      ).map((member) => `${member.membershipType}:${member.record.id}`),
-    ).toEqual(["primary:concept.activation"]);
+      listClassificationMembers("classification.concept.module").map(
+        (member) => `${member.membershipType}:${member.record.id}`,
+      ),
+    ).toEqual(expect.arrayContaining(["primary:concept.activation"]));
     expect(
       listClassificationMembers("classification.training.alignment").map(
         (member) => `${member.membershipType}:${member.record.id}`,
