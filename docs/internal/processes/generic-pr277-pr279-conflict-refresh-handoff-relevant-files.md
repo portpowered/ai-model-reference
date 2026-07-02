@@ -207,11 +207,93 @@ route, or site-config surfaces:
 - `generic-pr277-pr279-conflict-refresh-handoff` (this lane; evidence only in
   story 001)
 
-Story 002 runs formal collision preflight before any branch refresh.
+Story 002 completed formal collision preflight below; no branch refresh was
+attempted in this lane.
 
-## Evidence gathering constraints (story 001)
+## Branch drift and collision classification (story 002)
 
-- No git branch mutation, queue movement, staging, committing, or content
-  editing occurred while gathering this evidence.
-- Only `git fetch` (read-only remote refresh) and non-mutating `git merge-tree`
-  / drift queries were used.
+Captured 2026-07-02T18:10Z UTC. Read-only `git fetch` plus `git merge-tree` and
+`git rev-list` only; no branch mutation, queue movement, or content edits outside
+this evidence document.
+
+### Drift summary vs `origin/main` (`d22d1e0`)
+
+| Branch | Ahead | Behind | Merge base |
+| --- | ---: | ---: | --- |
+| `origin/generic-search-ai-enrichment-plugin` | 8 | 58 | `798a0c7bd709d2a38037eecd6a01323507810e1b` |
+| `origin/generic-site-config-neutral-surfaces` | 6 | 70 | `9136cb1ef90e1eb5942cf811b7310191c8a5ea93` |
+
+Both branches remain far behind `origin/main` with open PRs reporting
+`mergeable: CONFLICTING` and `mergeStateStatus: DIRTY` while all 11 required CI
+checks report SUCCESS.
+
+### Conflict paths (`git merge-tree`, changed in both)
+
+**PR #277 — `generic-search-ai-enrichment-plugin`**
+
+| Path | In lane-owned delta? | Notes |
+| --- | --- | --- |
+| `src/lib/content/time-to-first-token-discovery.test.tsx` | yes | content discovery test; main and lane both touched |
+| `src/tests/search/search-api.test.ts` | yes | search API contract test aligned with enrichment adapter |
+| `src/tests/search/search-page-panel.test.tsx` | yes | **shared** with PR #279 conflict set |
+
+**PR #279 — `generic-site-config-neutral-surfaces`**
+
+| Path | In lane-owned delta? | Notes |
+| --- | --- | --- |
+| `src/tests/search/search-page-panel.test.tsx` | yes | **only** conflict path; core site-config contract files merge cleanly |
+
+Lane-owned deltas outside the conflict set remain intact (PR #277:
+`enrich-search-document.ts`, `model-atlas-ai-search-enrichment-adapter.ts`, and
+related search tests; PR #279: `site-config.contract.ts`,
+`model-atlas-site-config.ts`, header/nav tests).
+
+### Active generic worktree collision preflight
+
+| Worktree | Queue state (session `930b51a6…`) | Overlap risk |
+| --- | --- | --- |
+| `generic-search-ai-enrichment-plugin` | `idea:to-complete` + `task:failed` on trace `trace-generic-shell-hardening-batch-002` | PR #277 owner — not a third-party collision |
+| `generic-site-config-neutral-surfaces` | `idea:to-complete` + `task:failed` on trace `trace-generic-shell-hardening-batch-002` | PR #279 owner — not a third-party collision |
+| `generic-sidebar-ai-adapter-extraction` | `idea:complete` / TERMINAL on trace `trace-generic-shell-hardening-batch-002` | sidebar surface; no active in-flight work |
+| `generic-search-domain-enrichment-boundary` | no queue token in session | worktree present; no scheduled overlap |
+| `generic-sidebar-collection-builder` | no queue token in session | worktree present; no scheduled overlap |
+| `generic-browse-sections-from-collections` | no queue token in session | worktree present; no scheduled overlap |
+| `generic-message-boundary-adapter` | no queue token in session | worktree present; no scheduled overlap |
+| `generic-pr277-pr279-conflict-refresh-handoff` | `idea:to-complete` / `task:init` on trace `trace-fresh-pr-drain-and-conflict-refresh-batch-073` | evidence/handoff lane only |
+
+No third-party generic lane is actively mutating search, sidebar, route, or
+site-config surfaces in parallel. The collision risk is **cross-PR shared
+surface** (`search-page-panel.test.tsx`) plus **batch 066 drain ownership**, not
+an unrelated active lane.
+
+### Batch 066 drain duplication check
+
+| Drain idea | State | Trace |
+| --- | --- | --- |
+| `generic-search-ai-enrichment-pr277-drain` | `idea:init` / INITIAL | `trace-green-pr-drain-and-conflict-triage-batch-066` |
+| `generic-site-config-pr279-drain` | `idea:init` / INITIAL | `trace-green-pr-drain-and-conflict-triage-batch-066` |
+
+Refreshing either PR branch from this batch 073 handoff lane would duplicate the
+existing batch 066 drain items that already own review/consume, merge, and
+branch-refresh completion for PR #277 and PR #279.
+
+### Selected outcome per PR (story 002)
+
+| PR | Classification | Rationale |
+| --- | --- | --- |
+| #277 | **handoff-to-batch-066** | Conflicts span shared search test surfaces including `search-page-panel.test.tsx` (also conflicted on #279). Batch 066 `generic-search-ai-enrichment-pr277-drain` already owns refresh/merge completion. Refresh here would duplicate drain work and require coordinated judgment on the shared test file. |
+| #279 | **handoff-to-batch-066** | Sole conflict is `search-page-panel.test.tsx`, outside core site-config contract files. Requires cross-surface judgment with PR #277 on the same test file. Batch 066 `generic-site-config-pr279-drain` owns completion. Latest PR conversation still has unresolved **BLOCKING** local `make test` a11y timeout on head `e5defbc8` (no later clearing comment). |
+
+Neither PR is **refresh-safe** under story 002 rules: batch 066 drain ownership
+prevents non-duplicative refresh from this lane, and the shared
+`search-page-panel.test.tsx` conflict requires owner judgment across PRs.
+
+Story 003 (in-lane refresh) does **not** run for either target. Story 004
+(handoff to batch 066) is the selected path for both PRs.
+
+## Evidence gathering constraints (stories 001–002)
+
+- No git branch mutation, queue movement, staging, committing of target PR
+  branches, or unrelated content editing occurred while gathering evidence.
+- Only `git fetch` (read-only remote refresh) and non-mutating `git merge-tree`,
+  drift queries, and `you work list` reads were used.
