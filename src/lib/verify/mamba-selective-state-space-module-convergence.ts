@@ -3,6 +3,18 @@ import { MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS } from "@/features/mo
 export const MAMBA_SELECTIVE_STATE_SPACE_MODULE_TITLE =
   "Mamba Selective State-Space Module" as const;
 
+export const MAMBA_SELECTIVE_STATE_SPACE_ROUTE =
+  "/docs/modules/mamba-selective-state-space" as const;
+
+export const MAMBA_SELECTIVE_STATE_SPACE_REGISTRY_ID =
+  "module.mamba-selective-state-space" as const;
+
+export const MAMBA_SELECTIVE_STATE_SPACE_CITATION_ID =
+  "citation.mamba-selective-state-space-paper" as const;
+
+export const MAMBA_SELECTIVE_STATE_SPACE_TABLE_ID =
+  "table.mamba-selective-state-space-comparison" as const;
+
 export const MAMBA_SELECTIVE_STATE_SPACE_GRAPH_ID =
   "graph.mamba-selective-state-space-state-flow" as const;
 
@@ -19,7 +31,7 @@ export const MAMBA_SELECTIVE_STATE_SPACE_SSM_MATH_VARIABLE_DEFINITION_IDS = [
 
 /** Stable markers for mamba selective state-space graph and math convergence. */
 export const MAMBA_SELECTIVE_STATE_SPACE_REQUIRED_MARKERS = [
-  'data-registry-id="module.mamba-selective-state-space"',
+  `data-registry-id="${MAMBA_SELECTIVE_STATE_SPACE_REGISTRY_ID}"`,
   "At a glance",
   'data-testid="tag-pill-list"',
   'data-attention-variant-comparison="true"',
