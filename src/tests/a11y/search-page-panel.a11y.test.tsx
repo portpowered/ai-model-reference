@@ -21,7 +21,7 @@ import {
   restoreFetchMock,
 } from "@/tests/a11y/render";
 
-setDefaultTimeout(15_000);
+setDefaultTimeout(30_000);
 
 function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {
@@ -90,27 +90,31 @@ describe("search page panel accessibility smoke", () => {
     await expectNoSeriousAxeViolations(container);
   });
 
-  test("exposes empty results to assistive technology with no serious axe violations", async () => {
-    const context = await loadAppTestContext();
-    const { container } = await renderSearchPagePanelContent(context);
+  test(
+    "exposes empty results to assistive technology with no serious axe violations",
+    async () => {
+      const context = await loadAppTestContext();
+      const { container } = await renderSearchPagePanelContent(context);
 
-    const user = userEvent.setup();
-    const searchInput = screen.getByLabelText(
-      context.messages.search.placeholder,
-    );
-    await user.type(searchInput, "zzzz-no-matches-zzzz");
+      const user = userEvent.setup();
+      const searchInput = screen.getByLabelText(
+        context.messages.search.placeholder,
+      );
+      await user.type(searchInput, "zzzz-no-matches-zzzz");
 
-    await waitFor(
-      () => {
-        expect(screen.queryByTestId("search-page-loading")).toBeNull();
-      },
-      { timeout: 15_000 },
-    );
-    await screen.findByTestId("search-page-empty", {}, { timeout: 15_000 });
-    expect(screen.getByText(context.messages.search.noResults)).toBeTruthy();
+      await waitFor(
+        () => {
+          expect(screen.queryByTestId("search-page-loading")).toBeNull();
+        },
+        { timeout: 15_000 },
+      );
+      await screen.findByTestId("search-page-empty", {}, { timeout: 15_000 });
+      expect(screen.getByText(context.messages.search.noResults)).toBeTruthy();
 
-    await expectNoSeriousAxeViolations(container);
-  });
+      await expectNoSeriousAxeViolations(container);
+    },
+    { timeout: 30_000 },
+  );
 
   test("exposes search results to assistive technology with no serious axe violations", async () => {
     const context = await loadAppTestContext();

@@ -85,6 +85,13 @@ describe("prefill concept page (prefill-concept-page-001)", () => {
     expect(
       items.some(
         (item) =>
+          item.registryId === "concept.prefill-decode-split" &&
+          item.href === "/docs/concepts/prefill-decode-split",
+      ),
+    ).toBe(true);
+    expect(
+      items.some(
+        (item) =>
           item.registryId === "concept.autoregressive-generation" &&
           item.href === "/docs/glossary/autoregressive-generation",
       ),
@@ -148,7 +155,7 @@ describe("prefill concept page (prefill-concept-page-001)", () => {
     expect(html).toContain("Serving Path");
     expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/glossary/decode"');
-    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
+    expect(html).toContain('href="/docs/concepts/prefill-decode-split"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');

@@ -1,0 +1,120 @@
+{
+  "id": "graph.regularization-fit-balance",
+  "slug": "regularization-fit-balance",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "subjectId": "concept.regularization",
+  "graphType": "concept-map",
+  "rootNodeId": "tuning",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "tuning",
+      "labelKey": "graph.nodes.tuning.label",
+      "moduleKind": "input",
+      "position": { "x": 290, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": [
+        "weak-regularization",
+        "balanced-regularization",
+        "strong-regularization"
+      ]
+    },
+    {
+      "id": "weak-regularization",
+      "labelKey": "graph.nodes.weakRegularization.label",
+      "moduleKind": "other",
+      "position": { "x": 20, "y": 120 },
+      "visualRole": "process-node",
+      "childNodeIds": ["weak-outcome"]
+    },
+    {
+      "id": "balanced-regularization",
+      "labelKey": "graph.nodes.balancedRegularization.label",
+      "moduleKind": "other",
+      "position": { "x": 270, "y": 120 },
+      "visualRole": "process-node",
+      "childNodeIds": ["balanced-outcome"]
+    },
+    {
+      "id": "strong-regularization",
+      "labelKey": "graph.nodes.strongRegularization.label",
+      "moduleKind": "other",
+      "position": { "x": 520, "y": 120 },
+      "visualRole": "process-node",
+      "childNodeIds": ["strong-outcome"]
+    },
+    {
+      "id": "weak-outcome",
+      "labelKey": "graph.nodes.weakOutcome.label",
+      "moduleKind": "other",
+      "position": { "x": 0, "y": 240 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "balanced-outcome",
+      "labelKey": "graph.nodes.balancedOutcome.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 240 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "strong-outcome",
+      "labelKey": "graph.nodes.strongOutcome.label",
+      "moduleKind": "other",
+      "position": { "x": 500, "y": 240 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "tuning-to-weak",
+      "source": "tuning",
+      "target": "weak-regularization",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "tuning-to-balanced",
+      "source": "tuning",
+      "target": "balanced-regularization",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "tuning-to-strong",
+      "source": "tuning",
+      "target": "strong-regularization",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "weak-to-outcome",
+      "source": "weak-regularization",
+      "target": "weak-outcome",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "balanced-to-outcome",
+      "source": "balanced-regularization",
+      "target": "balanced-outcome",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "strong-to-outcome",
+      "source": "strong-regularization",
+      "target": "strong-outcome",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

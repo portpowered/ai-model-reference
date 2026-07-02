@@ -109,27 +109,27 @@ describe("time to first token slice verification (time-to-first-token-serving-me
       expect(results.some((result) => result.url === PAGE_URL)).toBe(true);
     }
 
-    const glossaryFolder = source.pageTree.children.find(
-      (node) => node.type === "folder" && node.name === "Glossary",
+    const inferenceFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Inference",
     );
-    expect(glossaryFolder?.type).toBe("folder");
-    if (glossaryFolder?.type !== "folder") {
-      throw new Error("expected Glossary folder in docs sidebar");
+    expect(inferenceFolder?.type).toBe("folder");
+    if (inferenceFolder?.type !== "folder") {
+      throw new Error("expected Inference folder in docs sidebar");
     }
 
-    const glossaryUrls = glossaryFolder.children
+    const inferenceUrls = inferenceFolder.children
       .filter(
         (
           node,
         ): node is Extract<
-          (typeof glossaryFolder.children)[number],
+          (typeof inferenceFolder.children)[number],
           { type: "page" }
         > => node.type === "page",
       )
       .map((node) => node.url);
-    expect(glossaryUrls).toContain(PAGE_URL);
+    expect(inferenceUrls).toContain(PAGE_URL);
     expect(
-      glossaryFolder.children.some(
+      inferenceFolder.children.some(
         (node) => node.type === "page" && node.name === "Time To First Token",
       ),
     ).toBe(true);

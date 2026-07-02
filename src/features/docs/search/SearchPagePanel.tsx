@@ -83,14 +83,17 @@ export function SearchPagePanelContent({
   );
   const classificationSlug = classificationScope?.slug;
   const queryParam = effectiveHandoff.q;
+  const activeClassification = classificationScope
+    ? effectiveHandoff.classification
+    : null;
   const { search, setSearch, query } = useModelAtlasDocsSearch(
     {
       metaByUrl,
       locale,
       client: searchClient,
-      classification: effectiveHandoff.classification,
+      classification: activeClassification,
     },
-    [effectiveHandoff.classification],
+    [activeClassification],
   );
 
   useEffect(() => {

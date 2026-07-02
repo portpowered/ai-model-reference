@@ -1,0 +1,30 @@
+{
+  "id": "citation.dropout-prevent-overfitting",
+  "slug": "dropout-prevent-overfitting",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Dropout paper",
+    "Srivastava dropout paper",
+    "dropout regularization paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Nitish Srivastava",
+    "Geoffrey Hinton",
+    "Alex Krizhevsky",
+    "Ilya Sutskever",
+    "Ruslan Salakhutdinov"
+  ],
+  "title": "Dropout: A Simple Way to Prevent Neural Networks from Overfitting",
+  "year": 2014,
+  "url": "https://jmlr.org/papers/v15/srivastava14a.html",
+  "mla": "Srivastava, Nitish, et al. \"Dropout: A Simple Way to Prevent Neural Networks from Overfitting.\" Journal of Machine Learning Research, vol. 15, no. 56, 2014, pp. 1929-1958, https://jmlr.org/papers/v15/srivastava14a.html."
+}

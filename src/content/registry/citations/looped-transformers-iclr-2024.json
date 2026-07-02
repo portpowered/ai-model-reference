@@ -1,0 +1,31 @@
+{
+  "id": "citation.looped-transformers-iclr-2024",
+  "slug": "looped-transformers-iclr-2024",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Looped Transformers are Better at Learning Learning Algorithms",
+    "looped transformers ICLR 2024",
+    "learning learning algorithms paper",
+    "2311.12424",
+    "arxiv:2311.12424"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Liu Yang",
+    "Kangwook Lee",
+    "Robert D. Nowak",
+    "Dimitris Papailiopoulos"
+  ],
+  "title": "Looped Transformers are Better at Learning Learning Algorithms",
+  "year": 2024,
+  "url": "https://arxiv.org/abs/2311.12424",
+  "mla": "Yang, Liu, et al. \"Looped Transformers are Better at Learning Learning Algorithms.\" ICLR, 2024, https://arxiv.org/abs/2311.12424."
+}

@@ -844,11 +844,26 @@ describe("related-docs", () => {
       SHARED_PARENT_CLASSIFICATION,
       COMPATIBILITY_SAME_CONCEPT_TYPE,
     ]);
-    expect(groups[2]?.items.map((item) => item.registryId)).toEqual(
-      expect.arrayContaining(["concept.embedding"]),
+    const compatibilityPeerIds =
+      groups[2]?.items.map((item) => item.registryId) ?? [];
+    expect(compatibilityPeerIds).toEqual(
+      expect.arrayContaining(["module.manifold-constrained-hyper-connections"]),
     );
-    expect(groups[2]?.items.map((item) => item.registryId)).not.toContain(
-      "concept.activation",
+    if (getRegistryRecordById("module.diffusion-transformer-block")) {
+      expect(compatibilityPeerIds).toContain(
+        "module.diffusion-transformer-block",
+      );
+    }
+    expect(
+      compatibilityPeerIds.every((registryId) =>
+        [
+          "module.manifold-constrained-hyper-connections",
+          "module.diffusion-transformer-block",
+        ].includes(registryId),
+      ),
+    ).toBe(true);
+    expect(groups[1]?.items.map((item) => item.registryId)).toEqual(
+      expect.arrayContaining(["concept.embedding"]),
     );
   });
 

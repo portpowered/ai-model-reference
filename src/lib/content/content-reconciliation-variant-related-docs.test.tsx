@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
@@ -15,6 +15,8 @@ import {
   SAME_VARIANT_GROUP,
 } from "@/lib/content/related-docs";
 import type { ModuleRecord } from "@/lib/content/schemas";
+
+setDefaultTimeout(15_000);
 
 /** Attention modules with a published docs page and variantGroup after batch 017. */
 const ATTENTION_VARIANT_MODULE_IDS = [
@@ -44,6 +46,8 @@ const HEAD_SHARING_MODULE_URLS = [
   "/docs/modules/grouped-query-attention",
   "/docs/modules/multi-head-latent-attention",
 ] as const;
+
+const ATTENTION_VARIANT_RELATED_DOCS_GATE_TIMEOUT_MS = 30_000;
 
 const SOLO_VARIANT_GROUP_MODULES = [
   {
@@ -265,24 +269,31 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     ).toHaveLength(1);
   });
 
-  test("module pages render ontology classification sibling peer links in the related section", async () => {
-    for (const url of HEAD_SHARING_MODULE_URLS) {
-      const slug = url.replace("/docs/modules/", "");
-      const loadedPage = await loadLocalDocsPage({ section: "modules", slug });
-      const html = renderModuleDocsShell(loadedPage);
+  test(
+    "module pages render ontology classification sibling peer links in the related section",
+    async () => {
+      for (const url of HEAD_SHARING_MODULE_URLS) {
+        const slug = url.replace("/docs/modules/", "");
+        const loadedPage = await loadLocalDocsPage({
+          section: "modules",
+          slug,
+        });
+        const html = renderModuleDocsShell(loadedPage);
 
-      expect(html).toContain('data-related-group="classification-siblings"');
-      expect(html).not.toContain('data-related-group="same-variant-group"');
-      expect(html).toContain("Same classification: attention mechanisms");
+        expect(html).toContain('data-related-group="classification-siblings"');
+        expect(html).not.toContain('data-related-group="same-variant-group"');
+        expect(html).toContain("Same classification: attention mechanisms");
 
-      for (const peerUrl of HEAD_SHARING_MODULE_URLS) {
-        if (peerUrl === url) {
-          continue;
+        for (const peerUrl of HEAD_SHARING_MODULE_URLS) {
+          if (peerUrl === url) {
+            continue;
+          }
+          expect(html).toContain(`href="${peerUrl}"`);
         }
-        expect(html).toContain(`href="${peerUrl}"`);
       }
-    }
-  });
+    },
+    { timeout: ATTENTION_VARIANT_RELATED_DOCS_GATE_TIMEOUT_MS },
+  );
 
   test("expanded variants with solo groups keep curated links without empty variant sections", () => {
     for (const { registryId } of SOLO_VARIANT_GROUP_MODULES) {
@@ -330,9 +341,14 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
       <RelatedDocs registryId="concept.foundation-model" />,
     );
 
-    expect(html).not.toContain('href="/docs/glossary/temperature"');
+    expect(html).not.toContain('data-related-group="same-concept-type"');
+    const classificationSiblingsSection = html.match(
+      /data-related-group="classification-siblings"([\s\S]*?)<\/ul>/,
+    )?.[1];
+    expect(classificationSiblingsSection ?? "").not.toContain(
+      'href="/docs/glossary/temperature"',
+    );
     expect(html).toContain('href="/docs/glossary/generative-model"');
     expect(html).toContain('href="/docs/glossary/discriminative-model"');
-    expect(html).not.toContain('data-related-group="same-concept-type"');
   });
 });

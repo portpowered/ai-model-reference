@@ -1,0 +1,10 @@
+{
+  "fitBalanceMap": {
+    "type": "graph",
+    "graphId": "graph.regularization-fit-balance",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.fitBalanceMap.alt",
+    "captionKey": "assets.fitBalanceMap.caption"
+  }
+}

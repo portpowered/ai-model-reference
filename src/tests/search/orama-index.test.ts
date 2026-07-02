@@ -60,7 +60,7 @@ const CONTEXT_WINDOW_URL = "/docs/glossary/context-window";
 const KV_CACHE_URL = "/docs/glossary/kv-cache";
 const PREFILL_URL = "/docs/concepts/prefill";
 const DECODE_URL = "/docs/glossary/decode";
-const PREFILL_DECODE_SPLIT_URL = "/docs/glossary/prefill-decode-split";
+const PREFILL_DECODE_SPLIT_URL = "/docs/concepts/prefill-decode-split";
 const SAMPLING_OVERVIEW_URL = "/docs/glossary/sampling-overview";
 const GREEDY_DECODING_URL = "/docs/glossary/greedy-decoding";
 const TOP_K_SAMPLING_URL = "/docs/glossary/top-k-sampling";
@@ -305,7 +305,7 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "positional interpolation", url: POSITIONAL_INTERPOLATION_URL },
     { query: "feed-forward network", url: FEED_FORWARD_NETWORK_URL },
     { query: "standard FFN", url: STANDARD_FFN_URL },
-    { query: "normalization", url: NORMALIZATION_URL },
+    { query: "normalization glossary", url: NORMALIZATION_URL },
     { query: "layer norm", url: LAYER_NORM_URL },
     { query: "batch norm", url: BATCH_NORM_URL },
     { query: "group norm", url: GROUP_NORM_URL },

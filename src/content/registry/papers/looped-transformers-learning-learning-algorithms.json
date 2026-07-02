@@ -1,0 +1,41 @@
+{
+  "id": "paper.looped-transformers-learning-learning-algorithms",
+  "slug": "looped-transformers-learning-learning-algorithms",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Looped Transformers are Better at Learning Learning Algorithms",
+    "looped transformers paper",
+    "learning learning algorithms",
+    "iterative in-context learning paper",
+    "looped transformer ICLR 2024"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "module.looped-transformers",
+    "concept.transformer-architecture",
+    "module.attention",
+    "citation.looped-transformers-iclr-2024"
+  ],
+  "citationIds": ["citation.looped-transformers-iclr-2024"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "authors": [
+    "Liu Yang",
+    "Kangwook Lee",
+    "Robert D. Nowak",
+    "Dimitris Papailiopoulos"
+  ],
+  "publishedAt": "2024-05-07",
+  "url": "https://arxiv.org/abs/2311.12424",
+  "arxivId": "2311.12424",
+  "introducesIds": ["module.looped-transformers"],
+  "supportsIds": ["concept.transformer-architecture"],
+  "arguesAgainstIds": [],
+  "modelIds": [],
+  "moduleIds": ["module.looped-transformers"],
+  "conceptIds": ["concept.transformer-architecture"],
+  "venue": "ICLR 2024"
+}
