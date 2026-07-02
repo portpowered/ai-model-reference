@@ -51,7 +51,7 @@ describe("Phase 3 layer norm module page (US-005)", () => {
     const normalization = items.find(
       (item) => item.registryId === "concept.normalization",
     );
-    expect(normalization?.href).toBe("/docs/glossary/normalization");
+    expect(normalization?.href).toBe("/docs/concepts/normalization");
     expect(normalization?.isPlanned).toBe(false);
 
     const architecture = items.find(
@@ -126,7 +126,7 @@ describe("Phase 3 layer norm module page (US-005)", () => {
         html,
         "Layer norm subtracts the feature mean before scaling, while RMSNorm keeps only the scale correction.",
       );
-      expect(html).toContain('href="/docs/glossary/normalization"');
+      expect(html).toContain('href="/docs/concepts/normalization"');
       expect(html).toContain('href="/docs/concepts/transformer-architecture"');
       expect(html).toContain('href="/tags/foundations"');
       expect(html).toContain('data-testid="tag-pill-list"');

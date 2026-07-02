@@ -106,7 +106,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     for (const url of [
       "/docs/glossary/architecture",
       "/docs/glossary/kv-cache",
-      "/docs/glossary/normalization",
+      "/docs/concepts/normalization",
       "/docs/glossary/residual-connection",
       "/docs/glossary/special-tokens",
       "/docs/glossary/token",
