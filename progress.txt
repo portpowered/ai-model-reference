@@ -7,6 +7,7 @@
 - Migrating a glossary page to concepts removes it from glossary index counts/tests and surfaces it under the attention tag `concept` kind group instead of `glossary`.
 - Story 004 slice verification: add `*-slice-verification.test.tsx` with registry/message alignment, `renderDocsSlugPage` route proof, and rendered HTML/search assertions; routine bundle invariants stay in `make validate-data`; run `audit:canonical-page-surface` from the root repo with `--repo-root` pointing at the worktree when the script is absent locally.
 - After merging `main`, regenerate published-docs manifests with `bun run generate:published-docs-registry` (or `make validate-data` / `prepare:content-runtime`) instead of hand-editing `published-docs-registry-ids.ts`.
+- Prose auto-linking splits phrases like "intermediate activations" into linked segments; render tests should assert section ids, href targets, or lowercase visible text instead of uninterrupted title-case phrases.
 - When a new serving concept owns an alias previously on `system.memory`, remove the alias from the system record and page frontmatter, add `concept.<slug>` to `system.memory` `relatedIds`/`relatedConceptIds`, and assert `PUBLISHED_DOCS_REGISTRY_IDS.has` stays false until story 002 publishes the concept bundle.
 - Publishing a concept tagged `quantization` outside the quantization chapter updates `quantization-chapter-discovery.test.tsx` to use `arrayContaining` plus `toBeGreaterThanOrEqual` instead of exact `toHaveLength` on the tag concept group.
 
@@ -86,4 +87,14 @@
   - Run `bun run fumadocs-mdx` before concept-page render tests after adding MDX bundles.
   - `published-docs-registry.generated.ts` is gitignored; page discovery updates flow through `generate:published-docs-registry` during `prepare:content-runtime`.
   - Stories 003–004 should deepen byte-movement teaching and neighbor compression links without restructuring the published bundle shell.
+---
+
+## 2026-07-02T22:45:00Z - memory-bandwidth-concept-page-003
+- Added four teaching sections to the memory bandwidth concept page: which bytes move (weights, activations, KV cache), throughput ceiling with inline KaTeX formula, compute-bound vs bandwidth-bound distinction, and how prefill/decode/batching/longer context change byte movement.
+- Extended `memory-bandwidth-concept.test.ts` with message-alignment and rendered HTML assertions for story 003 acceptance criteria.
+- Browser-verified built route on port 3744 at desktop and mobile user agents; new sections render with KaTeX math and no missing-content placeholders.
+- **Learnings for future iterations:**
+  - Inline `$...$` math in localized messages renders through `ProseAutoLinkText` and `InlineMath`; static render tests can assert `katex` markup and section ids.
+  - Story 004 should connect quantization and KV cache compression neighbors in prose without duplicating the byte-movement sections added here.
+  - Discard unrelated `table-registry.generated.ts` churn from local `prepare:content-runtime` when it only adds tables outside the story diff.
 ---
