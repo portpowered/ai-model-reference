@@ -155,4 +155,5 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   session `930b51a6-07ce-44e6-a639-7a6217f6e864`, missing lane PR linkage,
   CLEAN/MERGEABLE GitHub state after `85dfc333` merge-main, tokenizer-lane
   collision preflight with `active-lane-overlap=none`, drain outcome
-  `refresh-safe` (story 002), and `handoff-required=false` (story 004).
+  `refresh-safe` (story 002), `handoff-required=false` (story 004), and
+  `stale-or-duplicate=false` with remote-main diff proof (story 005).

@@ -270,6 +270,68 @@ this conflict-refresh lane.
 #289 DIRTY again, re-run story 003 refresh-safe verification before considering
 handoff.
 
+## Stale/duplicate assessment (story 005, 2026-07-02T19:15Z UTC)
+
+**Outcome summary:** `stale-or-duplicate=false`
+
+The drain outcome selected in story 002 is `refresh-safe`, not
+`stale-or-duplicate`. Story 005 therefore records that PR #289 is not stale or
+duplicate and that closure must not rely on queue drift or missing lane metadata
+alone.
+
+### Remote-main proof PR #289 intent is not already landed
+
+Re-fetched `origin/main` at `d22d1e0dd88f94341fc6a8590eff26aaac29ce51`
+(2026-07-02T19:15Z UTC). Main ships the baseline byte-level tokenization page
+bundle (`src/content/docs/modules/byte-level-tokenization/page.mdx`,
+`module.byte-level-tokenization` registry binding), but the PR #289 head
+(`f010c06496df7e7b3b91e2a86aede0f56a9ca9d5`) still carries incremental lane
+intent absent on main:
+
+| Path / signal | On `origin/main` | On PR #289 head only |
+| --- | --- | --- |
+| `src/lib/content/byte-level-tokenization-page-contract.test.ts` | absent (`git cat-file -e` fails) | present (+75 lines) |
+| `src/content/docs/modules/byte-level-tokenization/messages/en.json` | baseline copy | expanded comparison-table and section deltas |
+| `src/content/registry/tables/byte-level-tokenization-comparison.json` | baseline table | expanded comparison rows |
+| Focused test suite (`byte-level-tokenization-*.test.ts`, glossary convergence) | partial coverage | `+421 / -43` vs `origin/main` across nine paths |
+
+No newer active lane duplicates this intent: collision preflight reports
+`active-lane-overlap=none`; nearby tokenizer worktrees (`bpe-page` PR #286
+MERGED, `wordpiece-page`, `tokenizer-mismatch-root-drift-reconciliation` PR
+#265) do not own the byte-level tokenization PR diff surfaces.
+
+### Why PR #289 still needs conflict refresh (not stale closure)
+
+Story 003 already refreshed PR #289 against `origin/main` at `f010c064` with
+no conflicts. PR #289 remains MERGEABLE/CLEAN with all required checks SUCCESS.
+The conflict-refresh lane goal was to drain the prior DIRTY state and restore
+mergeability — that work is complete. Stale/duplicate closure would be wrong
+because the PR still carries reviewable incremental page and test intent that
+has not landed on `origin/main`.
+
+### Signals that do not prove stale/duplicate (explicit rejection)
+
+| Signal | Why insufficient alone |
+| --- | --- |
+| Queue `idea:to-complete` + `task:init` | page PRD marks all stories `passes: true`; queue lags completed work |
+| Lane metadata `pullRequest: null` | linkage gap only; GitHub resolves PR #289 as OPEN with passing checks |
+| `origin/main` baseline page exists | baseline bundle landed earlier; PR diff is incremental, not duplicate |
+| Local dirty state on conflict-refresh lane | this lane is docs-only; no content mutation occurred |
+
+### Reproducibility snapshot (re-fetched 2026-07-02T19:15Z UTC)
+
+| Field | Value |
+| --- | --- |
+| `origin/main` SHA | `d22d1e0dd88f94341fc6a8590eff26aaac29ce51` |
+| PR #289 head SHA | `f010c06496df7e7b3b91e2a86aede0f56a9ca9d5` |
+| PR #289 mergeability | MERGEABLE |
+| PR #289 merge state | CLEAN |
+| Page lane drift vs `origin/main` | ahead=12, behind=8 |
+| Required checks on PR #289 head | all SUCCESS |
+
+**Next operator action:** none for stale/duplicate closure. PR #289 should
+proceed to review/merge for its incremental lane intent.
+
 ## Evidence commands (read-only)
 
 ```bash
