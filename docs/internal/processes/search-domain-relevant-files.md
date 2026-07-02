@@ -12,7 +12,10 @@ Orama indexing, or `/api/search` behavior.
 * `src/lib/search/enrich-search-document.ts`
   Generic enrichment step that resolves published classification lineage, topology
   relationship terms, and legacy taxonomy compatibility onto base documents.
-  AI model/module facets are added by a separate Model Atlas adapter (see story 002).
+* `src/lib/search/model-atlas-ai-search-enrichment-adapter.ts`
+  Model Atlas AI enrichment adapter that appends model/module facets
+  (`modelFamily`, `sourceType`, `modalities`, `trainingRegimeIds`, `optimizes`)
+  onto generic search documents. Registered by the search builder in story 003.
 * `src/lib/search/build-documents.ts`
   Composes base documents with `enrichSearchDocument` before returning catalog
   `SearchDocument` records consumed by `search-server.ts`.
@@ -44,6 +47,9 @@ Orama indexing, or `/api/search` behavior.
 * `src/lib/search/enrich-search-document.test.ts`
   Generic enrichment topology/facet contract, searchable topology terms, and draft or
   missing-target stability coverage.
+* `src/lib/search/model-atlas-ai-search-enrichment-adapter.test.ts`
+  Model Atlas AI facet adapter contract for model/module records, generic facet
+  preservation, and non-model/module no-op behavior.
 * `src/tests/search/build-documents.test.ts`
   Document construction and topology normalization coverage.
 * `src/tests/search/search-api.test.ts`
