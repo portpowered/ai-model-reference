@@ -1087,16 +1087,24 @@ export function serializeMergedPrDrainRowsClassificationReport(
 
 export function formatMergedPrDrainRowsReconciliationReport(
   evidenceReport: MergedPrDrainRowsEvidenceReport,
-  consumeReport?: MergedPrDrainRowsConsumeReport,
+  options?: {
+    completeReport?: MergedPrDrainRowsCompleteReport;
+    consumeReport?: MergedPrDrainRowsConsumeReport;
+  },
 ): string {
   const classificationReport =
     buildMergedPrDrainRowsClassificationReport(evidenceReport);
   const resolvedConsumeReport =
-    consumeReport ??
+    options?.consumeReport ??
     buildMergedPrDrainRowsConsumeReport(classificationReport, {
       sessionId: evidenceReport.sourceSession,
     });
-  return `${formatMergedPrDrainRowsEvidenceReport(evidenceReport).trimEnd()}\n\n${formatMergedPrDrainRowsClassificationReport(classificationReport).trimEnd()}\n\n${formatMergedPrDrainRowsConsumeReport(resolvedConsumeReport).trimEnd()}\n`;
+  const resolvedCompleteReport =
+    options?.completeReport ??
+    buildMergedPrDrainRowsCompleteReport(classificationReport, {
+      sessionId: evidenceReport.sourceSession,
+    });
+  return `${formatMergedPrDrainRowsEvidenceReport(evidenceReport).trimEnd()}\n\n${formatMergedPrDrainRowsClassificationReport(classificationReport).trimEnd()}\n\n${formatMergedPrDrainRowsConsumeReport(resolvedConsumeReport).trimEnd()}\n\n${formatMergedPrDrainRowsCompleteReport(resolvedCompleteReport).trimEnd()}\n`;
 }
 
 export const MERGED_PR_DRAIN_ROW_CONSUME_OPERATION_NAME =
@@ -1383,4 +1391,423 @@ export function serializeMergedPrDrainRowsConsumeReport(
   report: MergedPrDrainRowsConsumeReport,
 ): string {
   return `${JSON.stringify(report, null, 2)}\n`;
+}
+
+export const MERGED_PR_DRAIN_ROW_COMPLETE_OPERATION_NAME =
+  "manual-drain-row-terminal-completion";
+
+export const MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE = "complete/terminal";
+
+export type MergedPrDrainRowCompleteExecutionStatus =
+  | "not-attempted"
+  | "executed"
+  | "already-complete"
+  | "failed"
+  | "manual-handoff-required"
+  | "reclassified-no-op";
+
+export interface MergedPrDrainRowCompleteReclassification {
+  evidenceSentence: string;
+  noOpReason: MergedPrDrainRowNoOpReason;
+}
+
+export interface MergedPrDrainRowCompleteHandoff {
+  classification: MergedPrDrainRowClassification;
+  completeCommand: string;
+  completeOperation: string;
+  drainRowStateAfter?: string;
+  drainRowStateBefore: string;
+  drainWorkId?: string;
+  drainWorkItemName: string;
+  evidenceSentence: string;
+  executionFailureReason?: string;
+  executionStatus: MergedPrDrainRowCompleteExecutionStatus;
+  implementationAndReviewFinished: boolean;
+  mergedIntoOriginMain: boolean;
+  reclassifiedAsNoOp?: MergedPrDrainRowCompleteReclassification;
+  sourceState: string;
+  targetTerminalState: string;
+  transitionValidityReason: string;
+  workItemName: string;
+}
+
+export interface MergedPrDrainRowsCompleteReport {
+  classificationReport: MergedPrDrainRowsClassificationReport;
+  rows: MergedPrDrainRowCompleteHandoff[];
+}
+
+export interface ExecuteMergedPrDrainRowCompleteHandoffOptions {
+  runCommand?: RunCommand;
+  sessionId?: string;
+}
+
+export interface MergedPrDrainRowsReconciliationOutput {
+  classificationReport: MergedPrDrainRowsClassificationReport;
+  completeReport: MergedPrDrainRowsCompleteReport;
+  consumeReport: MergedPrDrainRowsConsumeReport;
+  evidenceReport: MergedPrDrainRowsEvidenceReport;
+}
+
+function buildDrainRowCompleteCommand(options: {
+  drainWorkId: string;
+  sessionId: string;
+}): string {
+  return `you work move ${options.drainWorkId} complete --session ${options.sessionId}`;
+}
+
+function detectCompleteHandoffBlocker(
+  row: MergedPrDrainRowEvidence,
+): MergedPrDrainRowCompleteReclassification | null {
+  if (hasUnfinishedImplementation(row.contentLaneTokens)) {
+    return {
+      noOpReason: "unfinished-implementation",
+      evidenceSentence:
+        "Content-lane task tokens are still non-terminal, so completion cannot proceed.",
+    };
+  }
+
+  if (hasUnfinishedReview(row.contentLaneTokens)) {
+    return {
+      noOpReason: "unfinished-review",
+      evidenceSentence:
+        "Content-lane review tokens are still non-terminal, so completion cannot proceed.",
+    };
+  }
+
+  if (
+    row.worktreeMetadata.availability === "present" &&
+    row.worktreeMetadata.pullRequestNumber !== undefined &&
+    row.worktreeMetadata.pullRequestNumber !== row.definition.pullRequestNumber
+  ) {
+    return {
+      noOpReason: "row-pr-mismatch",
+      evidenceSentence: `Worktree metadata stamps PR #${row.worktreeMetadata.pullRequestNumber}, which does not match expected PR #${row.definition.pullRequestNumber}.`,
+    };
+  }
+
+  if (row.worktreeMetadata.availability === "unavailable") {
+    return {
+      noOpReason: "missing-metadata",
+      evidenceSentence:
+        "Worktree metadata is unavailable, so terminal completion cannot be verified safely.",
+    };
+  }
+
+  if (row.pullRequestTruth.availability === "unavailable") {
+    return {
+      noOpReason: "inaccessible-pr-truth",
+      evidenceSentence:
+        "GitHub PR truth is unavailable, so terminal completion cannot proceed.",
+    };
+  }
+
+  if (row.mergedVsQueueTruth.mergedPullRequestTruth !== "merged-into-origin-main") {
+    return {
+      noOpReason: "pr-not-merged",
+      evidenceSentence:
+        "PR is not merged into current origin/main lineage, so terminal completion is unsafe.",
+    };
+  }
+
+  return null;
+}
+
+export function buildMergedPrDrainRowCompleteHandoff(
+  classification: MergedPrDrainRowClassification,
+  options?: { sessionId?: string },
+): MergedPrDrainRowCompleteHandoff | null {
+  if (classification.outcome !== "complete") {
+    return null;
+  }
+
+  const row = classification.row;
+  const blocker = detectCompleteHandoffBlocker(row);
+  if (blocker) {
+    return {
+      classification,
+      completeCommand: "",
+      completeOperation: MERGED_PR_DRAIN_ROW_COMPLETE_OPERATION_NAME,
+      drainRowStateBefore: summarizeDrainRowState(row),
+      drainWorkItemName:
+        row.definition.drainWorkItemName ?? `${row.definition.workItemName}-drain`,
+      evidenceSentence: blocker.evidenceSentence,
+      executionStatus: "reclassified-no-op",
+      implementationAndReviewFinished: false,
+      mergedIntoOriginMain:
+        row.mergedVsQueueTruth.mergedPullRequestTruth === "merged-into-origin-main",
+      reclassifiedAsNoOp: blocker,
+      sourceState: summarizeDrainRowState(row),
+      targetTerminalState: MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE,
+      transitionValidityReason:
+        "Completion blocked by active implementation, review, metadata, or PR mismatch.",
+      workItemName: row.definition.workItemName,
+    };
+  }
+
+  const drainWorkItemName =
+    row.definition.drainWorkItemName ?? `${row.definition.workItemName}-drain`;
+  const drainToken = row.drainRowTokens.find(
+    (token) => token.availability === "present",
+  );
+  const drainWorkId = drainToken?.workId;
+  const sessionId =
+    options?.sessionId ?? MERGED_PR_DRAIN_ROWS_TARGET_SESSION_ID;
+  const sourceState = summarizeDrainRowState(row);
+  const mergedIntoOriginMain =
+    row.mergedVsQueueTruth.mergedPullRequestTruth === "merged-into-origin-main";
+  const implementationAndReviewFinished =
+    !hasUnfinishedImplementation(row.contentLaneTokens) &&
+    !hasUnfinishedReview(row.contentLaneTokens);
+
+  const completeCommand = drainWorkId
+    ? buildDrainRowCompleteCommand({ drainWorkId, sessionId })
+    : `you work move <drain-work-id> complete --session ${sessionId}`;
+
+  const alreadyTerminal = isDrainRowTerminalComplete(row);
+  const executionStatus: MergedPrDrainRowCompleteExecutionStatus = alreadyTerminal
+    ? "already-complete"
+    : drainWorkId
+      ? "not-attempted"
+      : "manual-handoff-required";
+
+  const transitionValidityReason = [
+    `PR #${row.definition.pullRequestNumber} is merged into current origin/main.`,
+    "Content lane implementation and review tokens are terminal-complete.",
+    `Drain row ${drainWorkItemName} remains ${sourceState} and requires terminal completion.`,
+  ].join(" ");
+
+  const evidenceSentence = [
+    transitionValidityReason,
+    `Valid transition: ${sourceState} -> ${MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE}.`,
+  ].join(" ");
+
+  return {
+    classification,
+    completeCommand,
+    completeOperation: MERGED_PR_DRAIN_ROW_COMPLETE_OPERATION_NAME,
+    drainRowStateBefore: sourceState,
+    drainRowStateAfter: alreadyTerminal
+      ? MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE
+      : undefined,
+    drainWorkId,
+    drainWorkItemName,
+    evidenceSentence,
+    executionStatus,
+    implementationAndReviewFinished,
+    mergedIntoOriginMain,
+    sourceState,
+    targetTerminalState: MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE,
+    transitionValidityReason,
+    workItemName: row.definition.workItemName,
+  };
+}
+
+export function buildMergedPrDrainRowsCompleteReport(
+  classificationReport: MergedPrDrainRowsClassificationReport,
+  options?: { sessionId?: string },
+): MergedPrDrainRowsCompleteReport {
+  const rows = classificationReport.rows
+    .map((classification) =>
+      buildMergedPrDrainRowCompleteHandoff(classification, options),
+    )
+    .filter((handoff): handoff is MergedPrDrainRowCompleteHandoff =>
+      Boolean(handoff),
+    );
+
+  return {
+    classificationReport,
+    rows,
+  };
+}
+
+export function executeMergedPrDrainRowCompleteHandoff(
+  handoff: MergedPrDrainRowCompleteHandoff,
+  options: ExecuteMergedPrDrainRowCompleteHandoffOptions = {},
+): MergedPrDrainRowCompleteHandoff {
+  if (
+    handoff.executionStatus === "already-complete" ||
+    handoff.executionStatus === "executed" ||
+    handoff.executionStatus === "reclassified-no-op"
+  ) {
+    return handoff;
+  }
+
+  if (!handoff.drainWorkId) {
+    return {
+      ...handoff,
+      executionStatus: "manual-handoff-required",
+      executionFailureReason:
+        "Drain-row work-id is unavailable; operator must resolve the queue token before moving.",
+    };
+  }
+
+  if (handoff.sourceState === MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE) {
+    return {
+      ...handoff,
+      executionStatus: "already-complete",
+      drainRowStateAfter: MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE,
+    };
+  }
+
+  const runCommand = options.runCommand ?? defaultRunCommand;
+  const sessionId =
+    options.sessionId ?? MERGED_PR_DRAIN_ROWS_TARGET_SESSION_ID;
+  const completeCommand = buildDrainRowCompleteCommand({
+    drainWorkId: handoff.drainWorkId,
+    sessionId,
+  });
+  const commandParts = completeCommand.split(" ");
+  const binary = commandParts[0] ?? "you";
+  const args = commandParts.slice(1);
+  const result = runCommand(binary, args);
+
+  if (!result.ok) {
+    return {
+      ...handoff,
+      completeCommand,
+      executionStatus: "failed",
+      executionFailureReason:
+        result.stderr.trim() || `complete move failed with exit ${result.exitCode}`,
+    };
+  }
+
+  const moveResult = parseWorkMoveResult(result.stdout);
+  if (!moveResult.ok || moveResult.newState !== "complete") {
+    return {
+      ...handoff,
+      completeCommand,
+      executionStatus: "failed",
+      executionFailureReason:
+        result.stdout.trim() || "complete move returned an unexpected response",
+    };
+  }
+
+  return {
+    ...handoff,
+    completeCommand,
+    drainRowStateAfter: MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE,
+    executionStatus:
+      moveResult.previousState === "complete" ? "already-complete" : "executed",
+  };
+}
+
+export function executeMergedPrDrainRowsCompleteReport(
+  report: MergedPrDrainRowsCompleteReport,
+  options: ExecuteMergedPrDrainRowCompleteHandoffOptions = {},
+): MergedPrDrainRowsCompleteReport {
+  return {
+    classificationReport: report.classificationReport,
+    rows: report.rows.map((handoff) =>
+      executeMergedPrDrainRowCompleteHandoff(handoff, options),
+    ),
+  };
+}
+
+function formatCompleteHandoffRow(handoff: MergedPrDrainRowCompleteHandoff): string[] {
+  const lines = [
+    `- work-item=${handoff.workItemName} drain-row=${handoff.drainWorkItemName} pr=#${handoff.classification.pullRequestNumber}`,
+    `  complete-operation=${handoff.completeOperation}`,
+    `  source-state=${handoff.sourceState}`,
+    `  target-terminal-state=${handoff.targetTerminalState}`,
+    `  transition-validity=${handoff.transitionValidityReason}`,
+    `  execution-status=${handoff.executionStatus}`,
+    `  merged-into-origin-main=${handoff.mergedIntoOriginMain}`,
+    `  implementation-and-review-finished=${handoff.implementationAndReviewFinished}`,
+    `  evidence=${handoff.evidenceSentence}`,
+  ];
+
+  if (handoff.completeCommand) {
+    lines.push(`  complete-command=${handoff.completeCommand}`);
+  }
+  if (handoff.drainRowStateAfter) {
+    lines.push(`  drain-row-state-after=${handoff.drainRowStateAfter}`);
+  }
+  if (handoff.reclassifiedAsNoOp) {
+    lines.push(`  reclassified-no-op-reason=${handoff.reclassifiedAsNoOp.noOpReason}`);
+    lines.push(`  reclassified-evidence=${handoff.reclassifiedAsNoOp.evidenceSentence}`);
+  }
+  if (handoff.executionFailureReason) {
+    lines.push(`  execution-failure=${handoff.executionFailureReason}`);
+  }
+
+  return lines;
+}
+
+export function formatMergedPrDrainRowsCompleteReport(
+  report: MergedPrDrainRowsCompleteReport,
+): string {
+  const lines = [
+    `${MERGED_PR_DRAIN_ROWS_RECONCILIATION_HEADER} — Complete Handoff`,
+    `generated-at=${report.classificationReport.evidenceReport.generatedAtUtc} session=${report.classificationReport.evidenceReport.sourceSession}`,
+    `complete-operation=${MERGED_PR_DRAIN_ROW_COMPLETE_OPERATION_NAME}`,
+  ];
+
+  if (report.rows.length === 0) {
+    lines.push("", "Complete rows", "- none");
+  } else {
+    lines.push("", "Complete rows");
+    for (const handoff of report.rows) {
+      lines.push(...formatCompleteHandoffRow(handoff));
+    }
+  }
+
+  return `${lines.join("\n").trimEnd()}\n`;
+}
+
+export function serializeMergedPrDrainRowsCompleteReport(
+  report: MergedPrDrainRowsCompleteReport,
+): string {
+  return `${JSON.stringify(report, null, 2)}\n`;
+}
+
+export function buildMergedPrDrainRowsReconciliationOutput(
+  evidenceReport: MergedPrDrainRowsEvidenceReport,
+  options?: {
+    executeComplete?: boolean;
+    executeConsume?: boolean;
+    sessionId?: string;
+    runCommand?: RunCommand;
+  },
+): MergedPrDrainRowsReconciliationOutput {
+  const sessionId = options?.sessionId ?? evidenceReport.sourceSession;
+  const classificationReport =
+    buildMergedPrDrainRowsClassificationReport(evidenceReport);
+  let consumeReport = buildMergedPrDrainRowsConsumeReport(classificationReport, {
+    sessionId,
+  });
+  let completeReport = buildMergedPrDrainRowsCompleteReport(classificationReport, {
+    sessionId,
+  });
+
+  const executionOptions = {
+    runCommand: options?.runCommand,
+    sessionId,
+  };
+
+  if (options?.executeConsume) {
+    consumeReport = executeMergedPrDrainRowsConsumeReport(
+      consumeReport,
+      executionOptions,
+    );
+  }
+
+  if (options?.executeComplete) {
+    completeReport = executeMergedPrDrainRowsCompleteReport(
+      completeReport,
+      executionOptions,
+    );
+  }
+
+  return {
+    evidenceReport,
+    classificationReport,
+    consumeReport,
+    completeReport,
+  };
+}
+
+export function serializeMergedPrDrainRowsReconciliationOutput(
+  output: MergedPrDrainRowsReconciliationOutput,
+): string {
+  return `${JSON.stringify(output, null, 2)}\n`;
 }

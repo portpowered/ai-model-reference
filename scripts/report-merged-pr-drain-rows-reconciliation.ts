@@ -2,14 +2,12 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { readCompleteLiveWorkListSnapshotJson } from "../src/lib/factory/live-queue-snapshot";
 import {
-  buildMergedPrDrainRowsClassificationReport,
+  buildMergedPrDrainRowsReconciliationOutput,
   collectMergedPrDrainRowsEvidence,
-  executeMergedPrDrainRowsConsumeReport,
-  buildMergedPrDrainRowsConsumeReport,
   formatMergedPrDrainRowsReconciliationReport,
   MERGED_PR_DRAIN_ROWS_TARGET_SESSION_ID,
   resolveDefaultWorktreesDir,
-  serializeMergedPrDrainRowsConsumeReport,
+  serializeMergedPrDrainRowsReconciliationOutput,
 } from "../src/lib/factory/merged-pr-drain-rows-reconciliation";
 
 const defaultRepoRoot = resolve(import.meta.dir, "..");
@@ -41,6 +39,10 @@ function isExecuteConsumeRequested(argv: string[]): boolean {
   return argv.includes("--execute-consume");
 }
 
+function isExecuteCompleteRequested(argv: string[]): boolean {
+  return argv.includes("--execute-complete");
+}
+
 const repoRoot = readFlagValue("--repo-root")
   ? resolve(readFlagValue("--repo-root") as string)
   : defaultRepoRoot;
@@ -68,19 +70,17 @@ const report = collectMergedPrDrainRowsEvidence({
   worktreesDir,
 });
 
-const classificationReport = buildMergedPrDrainRowsClassificationReport(report);
-let consumeReport = buildMergedPrDrainRowsConsumeReport(classificationReport, {
+const reconciliationOutput = buildMergedPrDrainRowsReconciliationOutput(report, {
+  executeConsume: isExecuteConsumeRequested(process.argv),
+  executeComplete: isExecuteCompleteRequested(process.argv),
   sessionId: sourceSession,
 });
 
-if (isExecuteConsumeRequested(process.argv)) {
-  consumeReport = executeMergedPrDrainRowsConsumeReport(consumeReport, {
-    sessionId: sourceSession,
-  });
-}
-
 const output = isJsonOutputRequested(process.argv)
-  ? serializeMergedPrDrainRowsConsumeReport(consumeReport)
-  : formatMergedPrDrainRowsReconciliationReport(report, consumeReport);
+  ? serializeMergedPrDrainRowsReconciliationOutput(reconciliationOutput)
+  : formatMergedPrDrainRowsReconciliationReport(report, {
+      consumeReport: reconciliationOutput.consumeReport,
+      completeReport: reconciliationOutput.completeReport,
+    });
 
 process.stdout.write(output);

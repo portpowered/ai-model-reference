@@ -23,10 +23,13 @@ bun run report:merged-pr-drain-rows-reconciliation
 ```
 
 Text output includes evidence plus per-row `consume` / `complete` / `no-op`
-classification and consume handoff commands. JSON output (`--json` or
-`--format json`) serializes the consume handoff report. Pass
-`--execute-consume` to run accepted manual drain-row consume moves through
-`you work move <drain-work-id> complete --session <session>`.
+classification, consume handoff commands, and complete handoff details. JSON output
+(`--json` or `--format json`) serializes the full reconciliation output including
+evidence, classification, consume, and complete reports. Pass `--execute-consume`
+to run accepted manual drain-row consume moves through
+`you work move <drain-work-id> complete --session <session>`. Pass
+`--execute-complete` to run accepted terminal-completion moves for rows classified
+as `complete`.
 
 Fixture-backed unit tests:
 
@@ -60,6 +63,22 @@ with the same name) does not apply to standalone drain idea rows.
 
 Classification is derived from queue + PR evidence. Worktree metadata augments
 evidence but is not required when queue tokens and PR truth are sufficient.
+
+## Complete handoffs (2026-07-02 UTC)
+
+Accepted complete operation for non-terminal drain rows that still need a valid
+terminal transition: `manual-drain-row-terminal-completion` via
+`you work move <drain-work-id> complete --session 930b51a6-07ce-44e6-a639-7a6217f6e864`.
+
+| Work item | PR | Outcome | Complete handoff |
+| --- | --- | --- | --- |
+| `ltx-23` | #281 | `no-op` (`already-terminal`) | none — drain row already `complete/TERMINAL` after consume |
+| `MAMBA` | #282 | `no-op` (`already-terminal`) | none — drain row already `complete/TERMINAL` after consume |
+| `glossary-decomposition` | #284 | `no-op` (`already-terminal`) | none — drain row already `complete/TERMINAL` after consume |
+| `bpe-page` | #286 | `no-op` (`already-settled`) | none — no dedicated drain row |
+
+Live queue state has zero rows classified as `complete`; all three drain rows were
+consumed in story 003 and now classify as `already-terminal`.
 
 ## Observed report (2026-07-02T19:17:41Z UTC)
 
@@ -130,8 +149,9 @@ recorded separately in the report `merged-vs-queue-truth` field per row.
   capture for the four named rows: queue tokens, GitHub PR truth via
   `gh pr view`, worktree lane metadata, `origin/main` identity, main-repo root
   checkout dirty-path count, explicit merged-vs-queue truth distinction,
-  per-row `consume` / `complete` / `no-op` classification, and consume handoff
-  builders/executors for `manual-drain-row-move-to-complete`.
+  per-row `consume` / `complete` / `no-op` classification, consume handoff
+  builders/executors for `manual-drain-row-move-to-complete`, and complete handoff
+  builders/executors for `manual-drain-row-terminal-completion`.
 * `scripts/report-merged-pr-drain-rows-reconciliation.ts` — planner-facing CLI.
   Resolves main-repo worktrees via `git rev-parse --git-common-dir` so reports
   work from nested git worktrees.
@@ -144,6 +164,7 @@ recorded separately in the report `merged-vs-queue-truth` field per row.
 * `--remote-base-ref`
 * `--repo-root`
 * `--execute-consume`
+* `--execute-complete`
 * `--json` / `--format json`
 
 ## Scope guardrails
@@ -176,4 +197,13 @@ content, registry content, queue rows, worktree files, or root checkout state.
 | Typecheck | `bun run typecheck` — pass |
 | Consume handoff unit tests | `buildMergedPrDrainRowConsumeHandoff` / execute cases — pass |
 | Live consume execution | all three drain rows moved to `complete/TERMINAL` via `you work move` |
+| Content/page payload | not modified |
+
+## Verification for story 004
+
+| Gate | Result |
+| --- | --- |
+| Typecheck | `bun run typecheck` — pass |
+| Complete handoff unit tests | `buildMergedPrDrainRowCompleteHandoff` / execute / reclassify cases — pass |
+| Live complete report | zero rows classified as `complete`; all drain rows already terminal |
 | Content/page payload | not modified |

@@ -1,17 +1,24 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildMergedPrDrainRowCompleteHandoff,
   buildMergedPrDrainRowConsumeHandoff,
   buildMergedPrDrainRowsClassificationReport,
+  buildMergedPrDrainRowsCompleteReport,
   buildMergedPrDrainRowsConsumeReport,
   classifyMergedPrDrainRowOutcome,
   collectMergedPrDrainRowsEvidence,
+  executeMergedPrDrainRowCompleteHandoff,
   executeMergedPrDrainRowConsumeHandoff,
   formatMergedPrDrainRowsClassificationReport,
+  formatMergedPrDrainRowsCompleteReport,
   formatMergedPrDrainRowsConsumeReport,
   formatMergedPrDrainRowsEvidenceReport,
+  MERGED_PR_DRAIN_ROW_COMPLETE_OPERATION_NAME,
+  MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE,
   MERGED_PR_DRAIN_ROW_CONSUME_OPERATION_NAME,
   MERGED_PR_DRAIN_ROWS_TARGET_SESSION_ID,
   serializeMergedPrDrainRowsClassificationReport,
+  serializeMergedPrDrainRowsCompleteReport,
   serializeMergedPrDrainRowsConsumeReport,
   serializeMergedPrDrainRowsEvidenceReport,
 } from "@/lib/factory/merged-pr-drain-rows-reconciliation";
@@ -459,5 +466,207 @@ describe("buildMergedPrDrainRowConsumeHandoff", () => {
       "mamba-pr282-drain",
       "glossary-decomposition-pr284-conflict-refresh",
     ]);
+  });
+});
+
+describe("buildMergedPrDrainRowCompleteHandoff", () => {
+  test("builds complete handoffs with source state, target state, and transition validity", () => {
+    const evidenceReport = buildClassificationFixtureReport();
+    const ltxRow = evidenceReport.rows.find(
+      (row) => row.definition.workItemName === "ltx-23",
+    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+
+    ltxRow.mergedVsQueueTruth.drainRowQueueTruth = "non-terminal";
+    ltxRow.drainRowTokens = [
+      {
+        availability: "present",
+        workItemName: "ltx-23-pr281-drain",
+        workTypeName: "idea",
+        stateName: "in-review",
+        stateType: "PROCESSING",
+        workId: "batch-pr281-ltx-drain",
+      },
+    ];
+    ltxRow.worktreeMetadata = {
+      availability: "present",
+      branchName: "ltx-23",
+      pullRequestNumber: 281,
+      worktreePath: "/tmp/ltx-23",
+    };
+
+    const classification = classifyMergedPrDrainRowOutcome(ltxRow);
+    expect(classification.outcome).toBe("complete");
+
+    const completeReport = buildMergedPrDrainRowsCompleteReport(
+      buildMergedPrDrainRowsClassificationReport(evidenceReport),
+    );
+    expect(completeReport.rows).toHaveLength(1);
+
+    const handoff = completeReport.rows[0];
+    expect(handoff.completeOperation).toBe(
+      MERGED_PR_DRAIN_ROW_COMPLETE_OPERATION_NAME,
+    );
+    expect(handoff.sourceState).toBe("in-review/processing");
+    expect(handoff.targetTerminalState).toBe(MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE);
+    expect(handoff.completeCommand).toBe(
+      `you work move batch-pr281-ltx-drain complete --session ${SESSION_ID}`,
+    );
+    expect(handoff.mergedIntoOriginMain).toBe(true);
+    expect(handoff.implementationAndReviewFinished).toBe(true);
+    expect(handoff.transitionValidityReason).toContain("merged into current origin/main");
+    expect(handoff.evidenceSentence).toContain("in-review/processing -> complete/terminal");
+    expect(handoff.executionStatus).toBe("not-attempted");
+  });
+
+  test("reclassifies complete rows with unfinished implementation as no-op", () => {
+    const evidenceReport = buildClassificationFixtureReport();
+    const ltxRow = evidenceReport.rows.find(
+      (row) => row.definition.workItemName === "ltx-23",
+    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+
+    ltxRow.mergedVsQueueTruth.drainRowQueueTruth = "non-terminal";
+    ltxRow.drainRowTokens = [
+      {
+        availability: "present",
+        workItemName: "ltx-23-pr281-drain",
+        workTypeName: "idea",
+        stateName: "in-review",
+        stateType: "PROCESSING",
+        workId: "batch-pr281-ltx-drain",
+      },
+    ];
+    ltxRow.contentLaneTokens.push({
+      availability: "present",
+      workItemName: "ltx-23",
+      workTypeName: "task",
+      stateName: "in-progress",
+      stateType: "PROCESSING",
+    });
+
+    const classification = classifyMergedPrDrainRowOutcome(ltxRow);
+    expect(classification.outcome).toBe("no-op");
+    expect(classification.noOpReason).toBe("unfinished-implementation");
+
+    const handoff = buildMergedPrDrainRowCompleteHandoff(classification);
+    expect(handoff).toBeNull();
+  });
+
+  test("reclassifies complete handoff when blockers appear after classification", () => {
+    const evidenceReport = buildClassificationFixtureReport();
+    const ltxRow = evidenceReport.rows.find(
+      (row) => row.definition.workItemName === "ltx-23",
+    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+
+    ltxRow.mergedVsQueueTruth.drainRowQueueTruth = "non-terminal";
+    ltxRow.drainRowTokens = [
+      {
+        availability: "present",
+        workItemName: "ltx-23-pr281-drain",
+        workTypeName: "idea",
+        stateName: "in-review",
+        stateType: "PROCESSING",
+        workId: "batch-pr281-ltx-drain",
+      },
+    ];
+    ltxRow.worktreeMetadata = {
+      availability: "present",
+      branchName: "ltx-23",
+      pullRequestNumber: 281,
+      worktreePath: "/tmp/ltx-23",
+    };
+
+    const classification = classifyMergedPrDrainRowOutcome(ltxRow);
+    classification.row.contentLaneTokens.push({
+      availability: "present",
+      workItemName: "ltx-23",
+      workTypeName: "review",
+      stateName: "in-progress",
+      stateType: "PROCESSING",
+    });
+
+    const handoff = buildMergedPrDrainRowCompleteHandoff(classification);
+    expect(handoff).not.toBeNull();
+    expect(handoff?.executionStatus).toBe("reclassified-no-op");
+    expect(handoff?.reclassifiedAsNoOp?.noOpReason).toBe("unfinished-review");
+  });
+
+  test("executes complete moves and records post-action terminal state", () => {
+    const evidenceReport = buildClassificationFixtureReport();
+    const ltxRow = evidenceReport.rows.find(
+      (row) => row.definition.workItemName === "ltx-23",
+    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+
+    ltxRow.mergedVsQueueTruth.drainRowQueueTruth = "non-terminal";
+    ltxRow.drainRowTokens = [
+      {
+        availability: "present",
+        workItemName: "ltx-23-pr281-drain",
+        workTypeName: "idea",
+        stateName: "in-review",
+        stateType: "PROCESSING",
+        workId: "batch-pr281-ltx-drain",
+      },
+    ];
+    ltxRow.worktreeMetadata = {
+      availability: "present",
+      branchName: "ltx-23",
+      pullRequestNumber: 281,
+      worktreePath: "/tmp/ltx-23",
+    };
+
+    const classification = classifyMergedPrDrainRowOutcome(ltxRow);
+    const handoff = buildMergedPrDrainRowCompleteHandoff(classification);
+    expect(handoff).not.toBeNull();
+
+    const executed = executeMergedPrDrainRowCompleteHandoff(handoff as NonNullable<typeof handoff>, {
+      runCommand: (binary, args) => {
+        expect(binary).toBe("you");
+        expect(args).toEqual([
+          "work",
+          "move",
+          "batch-pr281-ltx-drain",
+          "complete",
+          "--session",
+          SESSION_ID,
+        ]);
+        return {
+          ok: true,
+          stdout: JSON.stringify({
+            workId: "batch-pr281-ltx-drain",
+            previousState: "in-review",
+            newState: "complete",
+          }),
+          stderr: "",
+          exitCode: 0,
+        };
+      },
+    });
+
+    expect(executed.executionStatus).toBe("executed");
+    expect(executed.drainRowStateAfter).toBe(MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE);
+  });
+
+  test("formats and serializes complete handoff reports with empty live rows", () => {
+    const evidenceReport = buildClassificationFixtureReport();
+    const completeReport = buildMergedPrDrainRowsCompleteReport(
+      buildMergedPrDrainRowsClassificationReport(evidenceReport),
+    );
+
+    expect(completeReport.rows).toHaveLength(0);
+
+    const formatted = formatMergedPrDrainRowsCompleteReport(completeReport);
+    expect(formatted).toContain("Merged PR Drain Rows Reconciliation — Complete Handoff");
+    expect(formatted).toContain(
+      `complete-operation=${MERGED_PR_DRAIN_ROW_COMPLETE_OPERATION_NAME}`,
+    );
+    expect(formatted).toContain("Complete rows");
+    expect(formatted).toContain("- none");
+
+    const serialized = JSON.parse(
+      serializeMergedPrDrainRowsCompleteReport(completeReport),
+    ) as {
+      rows: unknown[];
+    };
+    expect(serialized.rows).toHaveLength(0);
   });
 });
