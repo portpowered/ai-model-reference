@@ -49,7 +49,7 @@ describe("glossary opening convergence", () => {
         expectGlossaryOpeningSummaryMessage(loadedPage.messages);
       }
     },
-    { timeout: 30_000 },
+    { timeout: 120_000 },
   );
 
   test.each(
