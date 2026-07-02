@@ -250,3 +250,69 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T17:28Z UTC).
+
+## Story 002 merge re-evaluation (2026-07-02T17:43Z UTC)
+
+Second planner merge-path pass. Merge was **not** performed.
+
+### Fresh delta since prior evaluation (17:27Z UTC)
+
+| Signal | Prior (17:23Z UTC) | Current (17:43Z UTC) |
+| --- | --- | --- |
+| `origin/main` SHA | `d9ef966b7ecaa46cc19699033ec7d8bfdca16e24` | `d22d1e0dd88f94341fc6a8590eff26aaac29ce51` |
+| PR #288 mergeability | MERGEABLE / CLEAN | **CONFLICTING / DIRTY** |
+| PR #288 head SHA | `fc575f9e` | unchanged `fc575f9e` |
+| BLOCKING review | unresolved (17:10:15Z) | still unresolved; no clearing comment |
+| Content worktree | dirty WIP on `440f077f` | still dirty WIP; not pushed to PR head |
+| Content branch drift vs `origin/main` | ahead=5, behind=31 | ahead=12, behind=6 (local merge commit on WIP branch) |
+
+`origin/main` advanced since the prior drain pass (new merge landed on main). GitHub
+now reports PR #288 as **CONFLICTING** with base `main`, adding a merge-conflict
+blocker on top of the unresolved BLOCKING review.
+
+### Preconditions checked
+
+| Precondition | Status | Evidence |
+| --- | --- | --- |
+| GitHub mergeability | **FAIL** | `mergeable=CONFLICTING`, `mergeStateStatus=DIRTY` (2026-07-02T17:43Z UTC) |
+| Required CI checks | PASS | 11/11 SUCCESS on head `fc575f9e` (unchanged) |
+| Review complete enough to proceed | **FAIL** | Unresolved BLOCKING PR conversation comment (2026-07-02T17:10:15Z) |
+| Queue/worktree metadata allows action | PASS | Lane metadata present; `work-task-64` at `init` |
+| Scope boundary | PASS | No unrelated edits in this drain lane |
+
+### Merge decision
+
+**Outcome:** do not merge PR #288 in this drain pass.
+
+**Reasons (both must clear before merge):**
+
+1. **Review incomplete:** BLOCKING conversation comment remains unresolved. Content
+   worktree WIP (`440f077f`, dirty) begins addressing audit/meta-test findings but
+   is not on PR head `fc575f9e`.
+2. **Merge conflict:** GitHub now reports CONFLICTING/DIRTY because `origin/main`
+   advanced to `d22d1e0` while PR head stayed at `fc575f9e`.
+
+**Next safe planner action:** route to story 003 (review handoff) and/or story 004
+(blocker report). The `looped-transformers` content lane must push review fixes,
+rebase/merge from current `origin/main`, clear the BLOCKING comment, and rerun
+`bun run audit:canonical-page-surface` before retrying merge.
+
+### Post-evaluation queue snapshot
+
+| Work id | Type | State |
+| --- | --- | --- |
+| `work-task-64` (`looped-transformers`) | task | `init` / PROCESSING |
+| `work-task-88` (`looped-transformers-pr288-clean-drain`) | task | `init` / PROCESSING |
+
+No `review` work token is active. The BLOCKING PR conversation comment is the live
+review signal.
+
+## Quality gate (story 002, iteration 2)
+
+Merge evaluation only; no PR merge or content mutation.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T17:43Z UTC).
