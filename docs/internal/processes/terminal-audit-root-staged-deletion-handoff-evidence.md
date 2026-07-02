@@ -1,6 +1,6 @@
 # Terminal Audit Root Staged Deletion Handoff Evidence
 
-Generated at (UTC): 2026-07-02T04:13:23.784Z
+Generated at (UTC): 2026-07-02T04:18:15.407Z
 
 ## Git Status (`git status --short --branch`)
 
@@ -100,6 +100,19 @@ Path: `docs/internal/processes/factory-linkage-relevant-files.md`
 - Lane name: `tokens-per-second-stale-pr-follow-up`
 - Merge evidence: `PR`
 - Ownership reason: Root drift matches already-merged lane tokens-per-second-stale-pr-follow-up (PR #251, merge abc123d, complete/terminal, session 0fdc5077-95ed-4396-a183-06e5b16555ca).
+
+## Dirty Root Path Classifications
+
+Ownerless root dirty paths remain preserved and must not be overwritten by page refill work.
+
+| Path | Status | Owner State | Lane | Next Safe Action |
+| --- | --- | --- | --- | --- |
+| `docs/internal/processes/factory-linkage-relevant-files.md` | `M` | `already-merged-owned` | `tokens-per-second-stale-pr-follow-up` | Investigate and preserve already-merged root drift; do not revert, stage, or overwrite from page refill or repair lanes outside explicit operator cleanup. |
+| `package.json` | `M` | `ownerless` | `(none)` | Human operator inspect and assign explicit ownership; dispatch narrow repair outside dirty paths if needed; do not revert, stage, or overwrite from this handoff lane. |
+| `scripts/report-terminal-lane-main-branch-landing-audit.ts` | `D` | `operator-hold` | `(none)` | Human operator inspect and assign explicit ownership outside this handoff lane; do not restore, stage, unstage, checkout, or delete these paths from this implementation. |
+| `src/lib/factory/planner-merged-lane-evidence.ts` | `M` | `ownerless` | `(none)` | Human operator inspect and assign explicit ownership; dispatch narrow repair outside dirty paths if needed; do not revert, stage, or overwrite from this handoff lane. |
+| `src/lib/factory/terminal-lane-main-branch-landing-audit.test.ts` | `D` | `operator-hold` | `(none)` | Human operator inspect and assign explicit ownership outside this handoff lane; do not restore, stage, unstage, checkout, or delete these paths from this implementation. |
+| `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` | `D` | `operator-hold` | `(none)` | Human operator inspect and assign explicit ownership outside this handoff lane; do not restore, stage, unstage, checkout, or delete these paths from this implementation. |
 
 ## Read-Only Evidence Commands
 

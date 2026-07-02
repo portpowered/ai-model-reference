@@ -37,6 +37,32 @@ export const PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS = [
   "src/lib/factory/terminal-lane-main-branch-landing-audit.ts",
 ] as const;
 
+export const PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS = [
+  PLANNER_TERMINAL_AUDIT_FACTORY_LINKAGE_PATH,
+  "package.json",
+  "scripts/report-terminal-lane-main-branch-landing-audit.ts",
+  "src/lib/factory/planner-merged-lane-evidence.ts",
+  "src/lib/factory/terminal-lane-main-branch-landing-audit.test.ts",
+  "src/lib/factory/terminal-lane-main-branch-landing-audit.ts",
+] as const;
+
+export type PlannerTerminalAuditDirtyRootPath =
+  (typeof PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS)[number];
+
+export type TerminalAuditDirtyPathOwnerState =
+  | "already-merged-owned"
+  | "ownerless"
+  | "operator-hold";
+
+export const PLANNER_TERMINAL_AUDIT_OWNERLESS_DIRTY_PATH_PRESERVATION_STATEMENT =
+  "Ownerless root dirty paths remain preserved and must not be overwritten by page refill work.";
+
+export const PLANNER_TERMINAL_AUDIT_ALREADY_MERGED_NEXT_SAFE_ACTION =
+  "Investigate and preserve already-merged root drift; do not revert, stage, or overwrite from page refill or repair lanes outside explicit operator cleanup.";
+
+export const PLANNER_TERMINAL_AUDIT_OWNERLESS_MODIFIED_NEXT_SAFE_ACTION =
+  "Human operator inspect and assign explicit ownership; dispatch narrow repair outside dirty paths if needed; do not revert, stage, or overwrite from this handoff lane.";
+
 export type PlannerTerminalAuditRemotePresentDeletedPath =
   (typeof PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS)[number];
 
@@ -48,6 +74,9 @@ export const PLANNER_TERMINAL_AUDIT_EXPLICITLY_OWNED_DELETION_GROUP_CLASSIFICATI
 
 export const PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_NEXT_SAFE_ACTION =
   "Human operator inspect and assign explicit ownership outside this handoff lane; do not restore, stage, unstage, checkout, or delete these paths from this implementation.";
+
+export const PLANNER_TERMINAL_AUDIT_OPERATOR_HOLD_DELETION_NEXT_SAFE_ACTION =
+  PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_NEXT_SAFE_ACTION;
 
 export type TerminalAuditRemotePresentDeletionGroupClassification =
   | typeof PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_GROUP_CLASSIFICATION
@@ -84,12 +113,22 @@ export interface TerminalAuditWatchdogPathEvidence {
   path: string;
 }
 
+export interface TerminalAuditDirtyPathClassification {
+  laneName?: string;
+  nextSafeAction: string;
+  ownerState: TerminalAuditDirtyPathOwnerState;
+  path: PlannerTerminalAuditDirtyRootPath;
+  statusCode: string;
+}
+
 export interface PlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport {
+  dirtyRootPathClassifications: TerminalAuditDirtyPathClassification[];
   evidenceCommands: readonly string[];
   factoryLinkageWatchdogEvidence?: TerminalAuditWatchdogPathEvidence;
   generatedAtUtc: string;
   gitDiffCachedStat: string;
   gitStatusShortBranch: string;
+  ownerlessDirtyPathPreservationStatement: string;
   preservationStatement: string;
   reconciliation: TerminalAuditReconciliationEvidenceSummary;
   reconciliationReportFormatted: string;
@@ -104,6 +143,7 @@ export interface DiscoverPlannerTerminalAuditRootStagedDeletionHandoffOptions {
   evidenceCommands?: readonly string[];
   generatedAtUtc?: string;
   gitDiffCachedStat?: string;
+  ownerlessDirtyPathPreservationStatement?: string;
   preservationStatement?: string;
   reconciliationReport?: PlannerRootCheckoutReconciliationReport;
   remoteBaseRef?: string;
@@ -243,6 +283,144 @@ export function isPlannerTerminalAuditRemotePresentDeletedPath(
   return PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS.includes(
     path as PlannerTerminalAuditRemotePresentDeletedPath,
   );
+}
+
+export function isPlannerTerminalAuditDirtyRootPath(
+  path: string,
+): path is PlannerTerminalAuditDirtyRootPath {
+  return PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS.includes(
+    path as PlannerTerminalAuditDirtyRootPath,
+  );
+}
+
+function extractStatusCodeForPath(
+  statusShortBranchOutput: string,
+  path: string,
+): string {
+  const porcelainStatus = extractPorcelainStatusOutput(statusShortBranchOutput);
+  const matchingLine = porcelainStatus
+    .split("\n")
+    .find((line) => line.slice(3).trim() === path);
+  return matchingLine?.slice(0, 3) ?? "?? ";
+}
+
+function buildWatchdogEvidenceByPath(input: {
+  factoryLinkageWatchdogEvidence?: TerminalAuditWatchdogPathEvidence;
+  watchdogPathEvidence: TerminalAuditWatchdogPathEvidence[];
+}): Map<string, TerminalAuditWatchdogPathEvidence> {
+  const evidenceByPath = new Map(
+    input.watchdogPathEvidence.map((pathEvidence) => [
+      pathEvidence.path,
+      pathEvidence,
+    ]),
+  );
+
+  if (input.factoryLinkageWatchdogEvidence) {
+    evidenceByPath.set(
+      input.factoryLinkageWatchdogEvidence.path,
+      input.factoryLinkageWatchdogEvidence,
+    );
+  }
+
+  return evidenceByPath;
+}
+
+function resolveTerminalAuditDirtyPathOwnerState(
+  path: PlannerTerminalAuditDirtyRootPath,
+  watchdogPathEvidence: TerminalAuditWatchdogPathEvidence | undefined,
+): TerminalAuditDirtyPathOwnerState {
+  if (
+    watchdogPathEvidence?.ownershipKind === "already-merged-owned" &&
+    watchdogPathEvidence.laneName
+  ) {
+    return "already-merged-owned";
+  }
+
+  if (isPlannerTerminalAuditRemotePresentDeletedPath(path)) {
+    return "operator-hold";
+  }
+
+  if (
+    watchdogPathEvidence &&
+    watchdogPathEvidence.ownershipKind !== "unowned" &&
+    watchdogPathEvidence.laneName
+  ) {
+    return "already-merged-owned";
+  }
+
+  return "ownerless";
+}
+
+function resolveTerminalAuditDirtyPathNextSafeAction(
+  path: PlannerTerminalAuditDirtyRootPath,
+  ownerState: TerminalAuditDirtyPathOwnerState,
+): string {
+  if (ownerState === "already-merged-owned") {
+    return PLANNER_TERMINAL_AUDIT_ALREADY_MERGED_NEXT_SAFE_ACTION;
+  }
+
+  if (isPlannerTerminalAuditRemotePresentDeletedPath(path)) {
+    return PLANNER_TERMINAL_AUDIT_OPERATOR_HOLD_DELETION_NEXT_SAFE_ACTION;
+  }
+
+  return PLANNER_TERMINAL_AUDIT_OWNERLESS_MODIFIED_NEXT_SAFE_ACTION;
+}
+
+export function buildTerminalAuditDirtyPathClassifications(input: {
+  factoryLinkageWatchdogEvidence?: TerminalAuditWatchdogPathEvidence;
+  gitStatusShortBranch: string;
+  ownerlessDirtyPathPreservationStatement?: string;
+  watchdogPathEvidence: TerminalAuditWatchdogPathEvidence[];
+}): {
+  classifications: TerminalAuditDirtyPathClassification[];
+  ownerlessDirtyPathPreservationStatement: string;
+} {
+  const watchdogEvidenceByPath = buildWatchdogEvidenceByPath({
+    factoryLinkageWatchdogEvidence: input.factoryLinkageWatchdogEvidence,
+    watchdogPathEvidence: input.watchdogPathEvidence,
+  });
+
+  const classifications = PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS.map(
+    (path) => {
+      const watchdogPathEvidence = watchdogEvidenceByPath.get(path);
+      const ownerState = resolveTerminalAuditDirtyPathOwnerState(
+        path,
+        watchdogPathEvidence,
+      );
+
+      return {
+        laneName: watchdogPathEvidence?.laneName,
+        nextSafeAction: resolveTerminalAuditDirtyPathNextSafeAction(
+          path,
+          ownerState,
+        ),
+        ownerState,
+        path,
+        statusCode: extractStatusCodeForPath(input.gitStatusShortBranch, path),
+      };
+    },
+  );
+
+  return {
+    classifications,
+    ownerlessDirtyPathPreservationStatement:
+      input.ownerlessDirtyPathPreservationStatement ??
+      PLANNER_TERMINAL_AUDIT_OWNERLESS_DIRTY_PATH_PRESERVATION_STATEMENT,
+  };
+}
+
+function formatTerminalAuditDirtyPathClassificationLine(
+  classification: TerminalAuditDirtyPathClassification,
+): string {
+  const fields = [
+    `path=${classification.path}`,
+    `status=${classification.statusCode}`,
+    `owner-state=${classification.ownerState}`,
+    classification.laneName ? `lane=${classification.laneName}` : "lane=(none)",
+    `next-safe-action=${classification.nextSafeAction}`,
+  ];
+
+  return fields.join(" ");
 }
 
 function formatOriginMainPresenceCommand(
@@ -391,8 +569,17 @@ export function buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport
       remoteBaseRef,
       watchdogPathEvidence,
     });
+  const dirtyPathClassificationResult =
+    buildTerminalAuditDirtyPathClassifications({
+      factoryLinkageWatchdogEvidence,
+      gitStatusShortBranch,
+      ownerlessDirtyPathPreservationStatement:
+        options.ownerlessDirtyPathPreservationStatement,
+      watchdogPathEvidence,
+    });
 
   return {
+    dirtyRootPathClassifications: dirtyPathClassificationResult.classifications,
     evidenceCommands:
       options.evidenceCommands ?? PLANNER_TERMINAL_AUDIT_EVIDENCE_COMMANDS,
     factoryLinkageWatchdogEvidence,
@@ -400,6 +587,8 @@ export function buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport
     gitDiffCachedStat:
       options.gitDiffCachedStat ?? runGitDiffCachedStat(repoRoot),
     gitStatusShortBranch,
+    ownerlessDirtyPathPreservationStatement:
+      dirtyPathClassificationResult.ownerlessDirtyPathPreservationStatement,
     preservationStatement:
       options.preservationStatement ??
       PLANNER_TERMINAL_AUDIT_NO_MUTATION_STATEMENT,
@@ -487,6 +676,15 @@ export function formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceRepor
   }
 
   lines.push(
+    "- dirty-root-path-classifications",
+    `  ownerless-preservation=${report.ownerlessDirtyPathPreservationStatement}`,
+    ...report.dirtyRootPathClassifications.map(
+      (classification) =>
+        `  - ${formatTerminalAuditDirtyPathClassificationLine(classification)}`,
+    ),
+  );
+
+  lines.push(
     "- evidence-commands",
     ...report.evidenceCommands.map((command) => `  ${command}`),
     `- preservation-statement=${report.preservationStatement}`,
@@ -567,6 +765,20 @@ export function formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceMarkd
       "",
     );
   }
+
+  lines.push(
+    "## Dirty Root Path Classifications",
+    "",
+    report.ownerlessDirtyPathPreservationStatement,
+    "",
+    "| Path | Status | Owner State | Lane | Next Safe Action |",
+    "| --- | --- | --- | --- | --- |",
+    ...report.dirtyRootPathClassifications.map(
+      (classification) =>
+        `| \`${classification.path}\` | \`${classification.statusCode.trim()}\` | \`${classification.ownerState}\` | \`${classification.laneName ?? "(none)"}\` | ${classification.nextSafeAction} |`,
+    ),
+    "",
+  );
 
   if (report.watchdogPathEvidence.length > 0) {
     lines.push(

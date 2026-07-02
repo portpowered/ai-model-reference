@@ -4,8 +4,13 @@ import { resolve } from "node:path";
 import {
   buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport,
   formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport,
+  PLANNER_TERMINAL_AUDIT_ALREADY_MERGED_NEXT_SAFE_ACTION,
+  PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS,
   PLANNER_TERMINAL_AUDIT_FACTORY_LINKAGE_PATH,
   PLANNER_TERMINAL_AUDIT_NO_MUTATION_STATEMENT,
+  PLANNER_TERMINAL_AUDIT_OPERATOR_HOLD_DELETION_NEXT_SAFE_ACTION,
+  PLANNER_TERMINAL_AUDIT_OWNERLESS_DIRTY_PATH_PRESERVATION_STATEMENT,
+  PLANNER_TERMINAL_AUDIT_OWNERLESS_MODIFIED_NEXT_SAFE_ACTION,
   PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS,
   PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_GROUP_CLASSIFICATION,
   PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_NEXT_SAFE_ACTION,
@@ -239,7 +244,9 @@ describe("planner terminal audit root staged deletion handoff evidence", () => {
       formatted.indexOf("- terminal-audit-remote-present-deletions"),
       formatted.indexOf("- evidence-commands"),
     );
-    expect(terminalAuditSection).toContain("- terminal-audit-remote-present-deletions");
+    expect(terminalAuditSection).toContain(
+      "- terminal-audit-remote-present-deletions",
+    );
     expect(terminalAuditSection).toContain(
       `classification=${PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_GROUP_CLASSIFICATION}`,
     );
@@ -252,6 +259,110 @@ describe("planner terminal audit root staged deletion handoff evidence", () => {
     );
     expect(terminalAuditSection).toContain(
       `next-safe-action=${PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_NEXT_SAFE_ACTION}`,
+    );
+  });
+
+  test("assigns owner state and next safe action for every dirty root path", () => {
+    const report =
+      buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport(
+        buildSixPathFixtureReportOptions({
+          statusOutput: sixPathStatusFixture,
+          watchdogSnapshot: buildFactoryLinkageAlreadyMergedWatchdogSnapshot(),
+        }),
+      );
+
+    expect(report.ownerlessDirtyPathPreservationStatement).toBe(
+      PLANNER_TERMINAL_AUDIT_OWNERLESS_DIRTY_PATH_PRESERVATION_STATEMENT,
+    );
+    expect(
+      report.dirtyRootPathClassifications.map((entry) => entry.path),
+    ).toEqual([...PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS]);
+    expect(
+      new Set(report.dirtyRootPathClassifications.map((entry) => entry.path))
+        .size,
+    ).toBe(6);
+
+    const factoryLinkage = report.dirtyRootPathClassifications.find(
+      (entry) => entry.path === PLANNER_TERMINAL_AUDIT_FACTORY_LINKAGE_PATH,
+    );
+    expect(factoryLinkage).toEqual({
+      laneName: "tokens-per-second-stale-pr-follow-up",
+      nextSafeAction: PLANNER_TERMINAL_AUDIT_ALREADY_MERGED_NEXT_SAFE_ACTION,
+      ownerState: "already-merged-owned",
+      path: PLANNER_TERMINAL_AUDIT_FACTORY_LINKAGE_PATH,
+      statusCode: "M  ",
+    });
+
+    const ownerlessOrHoldPaths = new Set([
+      "package.json",
+      "src/lib/factory/planner-merged-lane-evidence.ts",
+      ...PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS,
+    ]);
+    for (const classification of report.dirtyRootPathClassifications) {
+      expect(classification.nextSafeAction.length).toBeGreaterThan(0);
+      if (ownerlessOrHoldPaths.has(classification.path)) {
+        expect(["ownerless", "operator-hold"]).toContain(
+          classification.ownerState,
+        );
+      }
+    }
+
+    const packageJson = report.dirtyRootPathClassifications.find(
+      (entry) => entry.path === "package.json",
+    );
+    expect(packageJson).toEqual({
+      laneName: undefined,
+      nextSafeAction:
+        PLANNER_TERMINAL_AUDIT_OWNERLESS_MODIFIED_NEXT_SAFE_ACTION,
+      ownerState: "ownerless",
+      path: "package.json",
+      statusCode: "M  ",
+    });
+
+    const plannerMergedLaneEvidence = report.dirtyRootPathClassifications.find(
+      (entry) =>
+        entry.path === "src/lib/factory/planner-merged-lane-evidence.ts",
+    );
+    expect(plannerMergedLaneEvidence).toEqual({
+      laneName: undefined,
+      nextSafeAction:
+        PLANNER_TERMINAL_AUDIT_OWNERLESS_MODIFIED_NEXT_SAFE_ACTION,
+      ownerState: "ownerless",
+      path: "src/lib/factory/planner-merged-lane-evidence.ts",
+      statusCode: "M  ",
+    });
+
+    for (const deletedPath of PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS) {
+      const deletion = report.dirtyRootPathClassifications.find(
+        (entry) => entry.path === deletedPath,
+      );
+      expect(deletion).toEqual({
+        laneName: undefined,
+        nextSafeAction:
+          PLANNER_TERMINAL_AUDIT_OPERATOR_HOLD_DELETION_NEXT_SAFE_ACTION,
+        ownerState: "operator-hold",
+        path: deletedPath,
+        statusCode: "D  ",
+      });
+    }
+
+    const formatted =
+      formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport(report);
+    expect(formatted).toContain("- dirty-root-path-classifications");
+    expect(formatted).toContain(
+      `ownerless-preservation=${PLANNER_TERMINAL_AUDIT_OWNERLESS_DIRTY_PATH_PRESERVATION_STATEMENT}`,
+    );
+    expect(formatted).toContain(
+      `path=${PLANNER_TERMINAL_AUDIT_FACTORY_LINKAGE_PATH} status=M   owner-state=already-merged-owned lane=tokens-per-second-stale-pr-follow-up`,
+    );
+    expect(formatted).toContain(
+      "path=package.json status=M   owner-state=ownerless",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/factory/planner-merged-lane-evidence.ts status=M   owner-state=ownerless",
+    );
+    expect(formatted).toContain(
+      "path=scripts/report-terminal-lane-main-branch-landing-audit.ts status=D   owner-state=operator-hold",
     );
   });
 });
