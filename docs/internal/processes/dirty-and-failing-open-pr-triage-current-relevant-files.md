@@ -167,17 +167,29 @@ Preliminary lane outcome for story 005: **merge-ready handoff** or **active-revi
 | Field | Value |
 | --- | --- |
 | Branch | `generic-site-config-neutral-surfaces` |
-| Head SHA (remote) | `e5defbc8babefd3da5a1a9f4304e9763f3545e40` |
+| Head SHA (remote) | `49454b53` (after story 006 conflict refresh) |
 | PR state | OPEN |
-| Mergeability (GitHub) | **`CONFLICTING` / `DIRTY`** |
-| Mergeability (`merge-tree` vs `origin/main`) | **CONFLICT** in `src/tests/search/search-page-panel.test.tsx` |
-| Behind/ahead `origin/main` | 156 behind / 6 ahead |
-| CI status | **stale passing** — last full CI 11/11 SUCCESS at 2026-07-02T12:41Z UTC (run 28590483500); no CI on current `origin/main` divergence |
+| Mergeability (GitHub) | **`MERGEABLE` / `CLEAN`** on head `49454b53` |
+| Mergeability (`merge-tree` vs `origin/main` @ `9fa3fa8b`) | **no conflict markers** after merge commit `49454b53` |
+| Behind/ahead `origin/main` | 0 behind / 7 ahead (after merge) |
+| CI status | **passing** — 11/11 SUCCESS on head `49454b53` (run 28624672849, completed ~2026-07-02T22:14Z UTC) |
 | Worktree path | `.claude/worktrees/generic-site-config-neutral-surfaces` |
-| Worktree dirty paths | `?? progress.txt` (untracked local only) |
-| PR conversation | **REJECTED/BLOCKING** — local `make test` failed (a11y test) despite remote CI green; conflict drift now also blocks merge |
+| Worktree dirty paths | clean except untracked `progress.txt.bak` (factory local) |
+| PR conversation | Prior **BLOCKING** local `make test` a11y timeout on `e5defbc8`; merge with main adopts 30s a11y timeout from `origin/main` |
 
-Preliminary lane outcome for story 006: **conflict refresh** plus **focused test fix** — merge conflicts and local test gate failure both block.
+Preliminary lane outcome for story 006: **conflict refresh** complete; **focused test fix** inherited from main for a11y timeout.
+
+#### Story 006 lane outcome (2026-07-02T22:10:00Z UTC)
+
+| Field | Value |
+| --- | --- |
+| Head SHA (after fix) | `49454b53` |
+| Stale evidence superseded | Story 001 `CONFLICTING`/`DIRTY` and stale CI on `e5defbc8`; prior merge-conflict fix on `e5defbc8` superseded by main advance to `9fa3fa8b` |
+| Conflict refresh | Merged `origin/main` into `generic-site-config-neutral-surfaces`; resolved single conflict in `src/tests/search/search-page-panel.test.tsx` — kept classification handoff priming plus main's locale-aware `primeDocsSearchClient` and `findSearchPageResults` |
+| Prior blocking feedback | **BLOCKING** local `make test` — `search-page-panel.a11y.test.tsx` empty-results test timed out at 15s on head `e5defbc8` |
+| Fix applied | Main merge brings 30s default timeout and per-test 30s timeout for empty-results a11y smoke; classification handoff tests retain priming/wait helpers |
+| Local validation | `bun test` classification handoff (4 pass) + a11y empty-results (1 pass); `bun run typecheck` + `bun run lint` pass; CI 11/11 SUCCESS on `49454b53` |
+| **Final lane outcome** | **active-review handoff** — conflict refresh complete, blocking a11y timeout addressed, CI green on `49454b53`; awaiting reviewer re-check |
 
 ### PR #277 — `generic-search-ai-enrichment-plugin`
 
