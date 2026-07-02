@@ -4,6 +4,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+const MIXED_DIRTY_STATUS_FIXTURE = join(
+  import.meta.dir,
+  "../fixtures/planner-root-checkout-reconciliation/mixed-dirty-status.txt",
+);
+
 function runGit(repoRoot: string, args: string[]): void {
   const result = spawnSync("git", args, {
     cwd: repoRoot,
@@ -206,6 +211,68 @@ describe("planner-root-checkout-reconciliation script", () => {
     expect(result.stdout).toContain("comparison-target=origin/main");
     expect(result.stdout).toContain("evidence=absent-on-origin-main");
     expect(result.stdout).toContain("classification=manual-inspection");
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("reads fixture status output without mutating git state", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "planner-root-checkout-reconciliation-fixture-"),
+    );
+    const repoRoot = join(dir, "repo");
+
+    mkdirSync(repoRoot, { recursive: true });
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+
+    mkdirSync(join(repoRoot, "src", "content", "docs", "models", "clip"), {
+      recursive: true,
+    });
+    writeFileSync(
+      join(repoRoot, "src", "content", "docs", "models", "clip", "page.mdx"),
+      "# clip\n",
+    );
+    runGit(repoRoot, ["add", "."]);
+    runGit(repoRoot, ["commit", "-m", "initial"]);
+    runGit(repoRoot, ["branch", "origin-main"]);
+    runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "origin-main"]);
+
+    const statusBefore = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-root-checkout-reconciliation.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+        "--status-output",
+        MIXED_DIRTY_STATUS_FIXTURE,
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      "path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift",
+    );
+    expect(result.stdout).toContain(
+      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection",
+    );
+    expect(result.stdout).toContain(
+      "remote-present-deletions=1 manual-inspection=1",
+    );
+
+    const statusAfter = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+    expect(statusAfter).toBe(statusBefore);
 
     rmSync(dir, { recursive: true, force: true });
   });

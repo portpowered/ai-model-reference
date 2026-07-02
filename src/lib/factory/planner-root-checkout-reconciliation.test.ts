@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   buildPlannerRootCheckoutOperatorNextActions,
   buildPlannerRootCheckoutReconciliationReport,
@@ -15,6 +17,50 @@ import {
   PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
   summarizeManualInspectionChangeKinds,
 } from "@/lib/factory/planner-root-checkout-reconciliation";
+
+const MIXED_DIRTY_STATUS_FIXTURE = readFileSync(
+  join(
+    import.meta.dir,
+    "../../tests/fixtures/planner-root-checkout-reconciliation/mixed-dirty-status.txt",
+  ),
+  "utf8",
+);
+
+const MUTATING_GIT_COMMANDS = new Set([
+  "add",
+  "checkout",
+  "clean",
+  "commit",
+  "merge",
+  "pull",
+  "push",
+  "rebase",
+  "reset",
+  "restore",
+  "revert",
+  "rm",
+  "stash",
+  "update-index",
+  "update-ref",
+  "write-tree",
+]);
+
+function createFixtureRunGit(remotePresentPaths: ReadonlySet<string>) {
+  return (_repoRoot: string, args: readonly string[]) => {
+    const objectSpec = args[2];
+    if (args[0] === "cat-file" && typeof objectSpec === "string") {
+      const [ref, path] = objectSpec.split(":");
+      if (ref === "origin/main" && path && remotePresentPaths.has(path)) {
+        return { status: 0, stdout: "", stderr: "" };
+      }
+      if (ref === "HEAD" && path && remotePresentPaths.has(path)) {
+        return { status: 0, stdout: "", stderr: "" };
+      }
+      return { status: 1, stdout: "", stderr: "missing" };
+    }
+    return { status: 0, stdout: "", stderr: "" };
+  };
+}
 
 describe("classifyRootCheckoutDirtyPaths", () => {
   test("classifies local deletions present on origin/main as ownerless root checkout drift", () => {
@@ -445,6 +491,88 @@ describe("buildPlannerRootCheckoutReconciliationReport", () => {
     );
     expect(formatted).toContain(
       `guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE}`,
+    );
+  });
+});
+
+describe("planner root checkout reconciliation fixture evidence", () => {
+  test("fixture snapshot covers remote-present deletion classification and evidence", () => {
+    const report = buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-02T04:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: MIXED_DIRTY_STATUS_FIXTURE,
+      runGit: createFixtureRunGit(
+        new Set(["src/content/docs/models/clip/page.mdx"]),
+      ),
+    });
+
+    expect(formatPlannerRootCheckoutReconciliationReport(report)).toBe(
+      [
+        PLANNER_ROOT_CHECKOUT_RECONCILIATION_HEADER,
+        "remote-base-ref=origin/main root-dirty-paths=2 remote-present-deletions=1 manual-inspection=1",
+        "- location=root repo=/repo",
+        "- remote-present-ownerless-deletions count=1 comparison-target=origin/main",
+        "  - path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift",
+        "- manual-inspection count=1",
+        `  - guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE}`,
+        "  - change-kind-counts=modified=1",
+        "  - path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection",
+        "- operator-next-actions",
+        `  - page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD} target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
+        `  - remote-present-deletions count=1 guidance=${PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE}`,
+        `  - manual-inspection count=1 guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE}`,
+      ].join("\n"),
+    );
+  });
+
+  test("fixture snapshot keeps real local modification in manual inspection", () => {
+    const report = buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-02T04:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: " M src/lib/factory/root.ts",
+      runGit: createFixtureRunGit(new Set()),
+    });
+
+    const formatted = formatPlannerRootCheckoutReconciliationReport(report);
+    expect(report.remotePresentDeletions).toEqual([]);
+    expect(report.manualInspectionPaths).toHaveLength(1);
+    expect(formatted).toContain("- manual-inspection count=1");
+    expect(formatted).toContain("remote-present-deletions=0");
+    expect(formatted).toContain(
+      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection",
+    );
+    expect(formatted).not.toContain(
+      "classification=ownerless-root-checkout-drift",
+    );
+  });
+});
+
+describe("planner root checkout reconciliation non-destructive git usage", () => {
+  test("does not invoke mutating git commands when building report from fixture status", () => {
+    const invokedGitCommands: string[][] = [];
+
+    buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-02T04:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: MIXED_DIRTY_STATUS_FIXTURE,
+      runGit: (repoRoot, args) => {
+        invokedGitCommands.push([...args]);
+        return createFixtureRunGit(
+          new Set(["src/content/docs/models/clip/page.mdx"]),
+        )(repoRoot, args);
+      },
+      runGitStatus: () => MIXED_DIRTY_STATUS_FIXTURE,
+    });
+
+    expect(invokedGitCommands.length).toBeGreaterThan(0);
+    for (const args of invokedGitCommands) {
+      expect(MUTATING_GIT_COMMANDS.has(args[0] ?? "")).toBe(false);
+    }
+    expect(invokedGitCommands.some((args) => args[0] === "cat-file")).toBe(
+      true,
     );
   });
 });
