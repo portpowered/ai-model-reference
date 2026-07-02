@@ -128,6 +128,19 @@ describe("planner-root-checkout-reconciliation script", () => {
       "guidance=Review each manual-inspection path for ownership; do not revert, stage, or auto-clean these paths.",
     );
     expect(result.stdout).toContain("change-kind-counts=modified=1");
+    expect(result.stdout).toContain("- operator-next-actions");
+    expect(result.stdout).toContain(
+      "page-refill-hold=Hold new page refills until the root checkout is clean or dirty-path ownership is explicit.",
+    );
+    expect(result.stdout).toContain(
+      "target-session=0fdc5077-95ed-4396-a183-06e5b16555ca",
+    );
+    expect(result.stdout).toContain(
+      "remote-present-deletions count=3 guidance=Operator-reviewed root cleanup outside this doctor command; do not auto-revert, checkout, restore, stage, or overwrite.",
+    );
+    expect(result.stdout).toContain(
+      "manual-inspection count=1 guidance=Inspect each path for explicit ownership before cleanup; do not revert, stage, or overwrite user or planner work.",
+    );
 
     const statusAfter = spawnSync("git", ["status", "--porcelain"], {
       cwd: repoRoot,

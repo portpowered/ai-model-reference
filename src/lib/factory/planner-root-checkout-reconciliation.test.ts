@@ -1,12 +1,18 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildPlannerRootCheckoutOperatorNextActions,
   buildPlannerRootCheckoutReconciliationReport,
   classifyRootCheckoutDirtyPaths,
+  formatPlannerRootCheckoutOperatorNextActions,
   formatPlannerRootCheckoutReconciliationReport,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD,
   PLANNER_ROOT_CHECKOUT_RECONCILIATION_HEADER,
   PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_ABSENT,
   PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
+  PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
   summarizeManualInspectionChangeKinds,
 } from "@/lib/factory/planner-root-checkout-reconciliation";
 
@@ -193,6 +199,145 @@ describe("summarizeManualInspectionChangeKinds", () => {
       { changeKind: "added", count: 1 },
       { changeKind: "modified", count: 2 },
     ]);
+  });
+});
+
+describe("buildPlannerRootCheckoutOperatorNextActions", () => {
+  test("returns null when the root checkout has no dirty paths", () => {
+    expect(
+      buildPlannerRootCheckoutOperatorNextActions({
+        manualInspectionPaths: [],
+        remotePresentDeletions: [],
+        totalDirtyPathCount: 0,
+      }),
+    ).toBeNull();
+  });
+
+  test("holds page refills and names the planner session when dirty paths remain", () => {
+    const nextActions = buildPlannerRootCheckoutOperatorNextActions({
+      manualInspectionPaths: [
+        {
+          changeKind: "modified",
+          classification: "manual-inspection",
+          comparisonTarget: "HEAD",
+          evidence: "non-deletion-dirty-path",
+          headPresent: true,
+          path: "src/lib/factory/root.ts",
+          remoteMainPresent: false,
+          statusCode: " M",
+        },
+      ],
+      remotePresentDeletions: [
+        {
+          changeKind: "deleted",
+          classification: "ownerless-root-checkout-drift",
+          comparisonTarget: "origin/main",
+          evidence: PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
+          headPresent: true,
+          path: "src/content/docs/models/clip/page.mdx",
+          remoteMainPresent: true,
+          statusCode: " D",
+        },
+      ],
+      totalDirtyPathCount: 2,
+    });
+
+    expect(nextActions).toEqual({
+      manualInspectionCount: 1,
+      manualInspectionOwnershipGuidance:
+        PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
+      pageRefillHold: true,
+      remotePresentDeletionCleanupGuidance:
+        PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE,
+      remotePresentDeletionCount: 1,
+      targetSessionId: PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
+    });
+  });
+});
+
+describe("formatPlannerRootCheckoutOperatorNextActions", () => {
+  test("prints non-destructive operator guidance for mixed dirty paths", () => {
+    const formatted = formatPlannerRootCheckoutOperatorNextActions({
+      manualInspectionCount: 1,
+      manualInspectionOwnershipGuidance:
+        PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
+      pageRefillHold: true,
+      remotePresentDeletionCleanupGuidance:
+        PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE,
+      remotePresentDeletionCount: 2,
+      targetSessionId: PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
+    });
+
+    expect(formatted).toEqual([
+      "- operator-next-actions",
+      `  - page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD} target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
+      `  - remote-present-deletions count=2 guidance=${PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE}`,
+      `  - manual-inspection count=1 guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE}`,
+    ]);
+  });
+});
+
+describe("buildPlannerRootCheckoutReconciliationReport operator next actions", () => {
+  test("includes operator next actions when dirty paths remain", () => {
+    const report = buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-01T12:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: [
+        " D src/content/docs/models/clip/page.mdx",
+        " M src/lib/factory/root.ts",
+      ].join("\n"),
+      runGit: (_repoRoot, args) => {
+        const objectSpec = args[2];
+        if (args[0] === "cat-file" && typeof objectSpec === "string") {
+          const [ref, path] = objectSpec.split(":");
+          if (
+            ref === "origin/main" &&
+            path === "src/content/docs/models/clip/page.mdx"
+          ) {
+            return { status: 0, stdout: "", stderr: "" };
+          }
+          if (
+            ref === "HEAD" &&
+            path === "src/content/docs/models/clip/page.mdx"
+          ) {
+            return { status: 0, stdout: "", stderr: "" };
+          }
+          return { status: 1, stdout: "", stderr: "missing" };
+        }
+        return { status: 0, stdout: "", stderr: "" };
+      },
+    });
+
+    const formatted = formatPlannerRootCheckoutReconciliationReport(report);
+    expect(formatted).toContain("- operator-next-actions");
+    expect(formatted).toContain(
+      `page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD}`,
+    );
+    expect(formatted).toContain(
+      `target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
+    );
+    expect(formatted).toContain(
+      `remote-present-deletions count=1 guidance=${PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE}`,
+    );
+    expect(formatted).toContain(
+      `manual-inspection count=1 guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE}`,
+    );
+  });
+
+  test("omits operator next actions when the root checkout is clean", () => {
+    const report = buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-01T12:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: "",
+      runGit: () => ({ status: 0, stdout: "", stderr: "" }),
+    });
+
+    expect(report.operatorNextActions).toBeNull();
+    expect(formatPlannerRootCheckoutReconciliationReport(report)).not.toContain(
+      "- operator-next-actions",
+    );
   });
 });
 

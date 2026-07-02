@@ -17,6 +17,18 @@ export const PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_ABSENT =
 export const PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE =
   "Review each manual-inspection path for ownership; do not revert, stage, or auto-clean these paths.";
 
+export const PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID =
+  "0fdc5077-95ed-4396-a183-06e5b16555ca";
+
+export const PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD =
+  "Hold new page refills until the root checkout is clean or dirty-path ownership is explicit.";
+
+export const PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE =
+  "Operator-reviewed root cleanup outside this doctor command; do not auto-revert, checkout, restore, stage, or overwrite.";
+
+export const PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE =
+  "Inspect each path for explicit ownership before cleanup; do not revert, stage, or overwrite user or planner work.";
+
 export type RootCheckoutComparisonTarget = "HEAD" | "origin/main";
 
 export type RootCheckoutDriftClassification =
@@ -34,9 +46,19 @@ export interface RootCheckoutDirtyPathReport {
   statusCode: string;
 }
 
+export interface PlannerRootCheckoutOperatorNextActions {
+  manualInspectionCount: number;
+  manualInspectionOwnershipGuidance?: string;
+  pageRefillHold: boolean;
+  remotePresentDeletionCleanupGuidance?: string;
+  remotePresentDeletionCount: number;
+  targetSessionId: string;
+}
+
 export interface PlannerRootCheckoutReconciliationReport {
   generatedAtUtc: string;
   manualInspectionPaths: RootCheckoutDirtyPathReport[];
+  operatorNextActions: PlannerRootCheckoutOperatorNextActions | null;
   remoteBaseRef: string;
   remotePresentDeletions: RootCheckoutDirtyPathReport[];
   repoRoot: string;
@@ -247,6 +269,35 @@ export function classifyRootCheckoutDirtyPaths(
   };
 }
 
+export function buildPlannerRootCheckoutOperatorNextActions(
+  report: Pick<
+    PlannerRootCheckoutReconciliationReport,
+    "manualInspectionPaths" | "remotePresentDeletions" | "totalDirtyPathCount"
+  >,
+): PlannerRootCheckoutOperatorNextActions | null {
+  if (report.totalDirtyPathCount === 0) {
+    return null;
+  }
+
+  const remotePresentDeletionCount = report.remotePresentDeletions.length;
+  const manualInspectionCount = report.manualInspectionPaths.length;
+
+  return {
+    manualInspectionCount,
+    manualInspectionOwnershipGuidance:
+      manualInspectionCount > 0
+        ? PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE
+        : undefined,
+    pageRefillHold: true,
+    remotePresentDeletionCleanupGuidance:
+      remotePresentDeletionCount > 0
+        ? PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE
+        : undefined,
+    remotePresentDeletionCount,
+    targetSessionId: PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
+  };
+}
+
 export function buildPlannerRootCheckoutReconciliationReport(
   options: DiscoverPlannerRootCheckoutReconciliationOptions,
 ): PlannerRootCheckoutReconciliationReport {
@@ -263,13 +314,20 @@ export function buildPlannerRootCheckoutReconciliationReport(
     runGit,
   });
 
-  return {
+  const reportWithoutNextActions = {
     generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
     manualInspectionPaths: classified.manualInspectionPaths,
     remoteBaseRef,
     remotePresentDeletions: classified.remotePresentDeletions,
     repoRoot,
     totalDirtyPathCount: dirtyPaths.length,
+  };
+
+  return {
+    ...reportWithoutNextActions,
+    operatorNextActions: buildPlannerRootCheckoutOperatorNextActions(
+      reportWithoutNextActions,
+    ),
   };
 }
 
@@ -294,6 +352,29 @@ export function summarizeManualInspectionChangeKinds(
   return [...counts.entries()]
     .map(([changeKind, count]) => ({ changeKind, count }))
     .sort((left, right) => left.changeKind.localeCompare(right.changeKind));
+}
+
+export function formatPlannerRootCheckoutOperatorNextActions(
+  nextActions: PlannerRootCheckoutOperatorNextActions,
+): string[] {
+  const lines = [
+    "- operator-next-actions",
+    `  - page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD} target-session=${nextActions.targetSessionId}`,
+  ];
+
+  if (nextActions.remotePresentDeletionCount > 0) {
+    lines.push(
+      `  - remote-present-deletions count=${nextActions.remotePresentDeletionCount} guidance=${nextActions.remotePresentDeletionCleanupGuidance}`,
+    );
+  }
+
+  if (nextActions.manualInspectionCount > 0) {
+    lines.push(
+      `  - manual-inspection count=${nextActions.manualInspectionCount} guidance=${nextActions.manualInspectionOwnershipGuidance}`,
+    );
+  }
+
+  return lines;
 }
 
 function formatDirtyPathReport(
@@ -349,6 +430,14 @@ export function formatPlannerRootCheckoutReconciliationReport(
     for (const pathReport of report.manualInspectionPaths) {
       lines.push(`  - ${formatDirtyPathReport(pathReport)}`);
     }
+  }
+
+  if (report.operatorNextActions) {
+    lines.push(
+      ...formatPlannerRootCheckoutOperatorNextActions(
+        report.operatorNextActions,
+      ),
+    );
   }
 
   return lines.join("\n");
