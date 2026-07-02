@@ -1,0 +1,31 @@
+{
+  "title": "FLOPs",
+  "description": "Floating-point operations counted to estimate model inference compute, including the gap between peak hardware rates and achieved serving throughput.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A floating-point operation is one arithmetic step on floating-point values. FLOPs counts those operations so teams can estimate how much compute a model needs during inference."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Serving cost, throughput planning, and hardware comparisons often cite FLOPs, but peak hardware FLOPs and achieved inference compute can differ sharply once memory movement, batching, and runtime scheduling enter the picture."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A matrix multiply between two large tensors performs many floating-point operations in one kernel launch, so inference estimates often count attention and feed-forward matrix work in FLOPs."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "FLOPs are not the same as parameter count, memory footprint, tokens per second, or peak hardware headline rates. A chip can advertise high peak FLOPs while a concrete model still achieves lower compute during real serving."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

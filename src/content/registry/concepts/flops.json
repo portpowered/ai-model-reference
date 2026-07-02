@@ -1,0 +1,35 @@
+{
+  "id": "concept.flops",
+  "slug": "flops",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "FLOPs",
+    "floating point operations",
+    "floating-point operations",
+    "compute",
+    "inference compute",
+    "peak FLOPs",
+    "achieved FLOPs"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.transformer-architecture",
+    "concept.mixture-of-experts",
+    "concept.quantization",
+    "system.inference-engine"
+  ],
+  "citationIds": [
+    "citation.brown-gpt-3",
+    "citation.kaplan-scaling-laws",
+    "citation.attention-is-all-you-need"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.inference",
+  "conceptType": "inference",
+  "prerequisiteIds": [],
+  "explainsIds": []
+}
