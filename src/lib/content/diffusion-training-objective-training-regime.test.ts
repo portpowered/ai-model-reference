@@ -178,7 +178,12 @@ describe("diffusion training objective training-regime identity contracts", () =
     );
 
     expect(html).toContain("partial corrections during training");
-    expect(html).toContain("A schedule picks how much noise");
+    expect(html).toContain("noise schedule picks how much corruption");
+    expect(html).toContain("nearly clean states through highly noisy ones");
+    expect(html).toContain("repeatedly in reverse along the schedule");
+    expect(html).toContain("pretraining trains a model to predict the next discrete");
+    expect(html).toContain("in sequence order");
+    expect(html).toContain("denoising direction for a noisy state");
     expect(html).toContain('href="/docs/training/pretraining"');
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/glossary/denoising-generation"');
