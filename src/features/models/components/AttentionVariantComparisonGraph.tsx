@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import type { z } from "zod";
 import { MissingMessageKey } from "@/features/docs/components/MissingMessageKey";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
+import { buildModuleComputeFlowLegend } from "@/features/models/components/module-compute-flow-legend";
 import { RegistryGraphFlowCanvas } from "@/features/models/components/RegistryGraphFlow";
 import { lookupMessage } from "@/lib/content/messages";
 import type {
@@ -34,6 +35,8 @@ export function AttentionVariantComparisonGraph({
   defaultVariantId,
   alt,
   caption,
+  title,
+  legendMessages,
   isDev = false,
 }: {
   assetId: string;
@@ -41,6 +44,8 @@ export function AttentionVariantComparisonGraph({
   defaultVariantId: string;
   alt?: string;
   caption?: string;
+  title?: string;
+  legendMessages?: Record<string, { label: string }>;
   isDev?: boolean;
 }) {
   const { messages } = usePageMessages();
@@ -73,6 +78,10 @@ export function AttentionVariantComparisonGraph({
   }
 
   const accessibleLabel = alt ?? "Variant comparison graph";
+  const legend = buildModuleComputeFlowLegend(
+    activeVariant.graphId,
+    legendMessages,
+  );
 
   return (
     <figure
@@ -83,6 +92,14 @@ export function AttentionVariantComparisonGraph({
         .map((variant) => variant.variantId)
         .join(",")}
     >
+      {title ? (
+        <div
+          className="mb-3 text-center text-sm font-semibold tracking-[0.16em] text-muted-foreground uppercase"
+          data-graph-title={activeVariant.graphId}
+        >
+          {title}
+        </div>
+      ) : null}
       <div
         className="attention-variant-comparison__controls order-2 mt-3 flex flex-wrap gap-2 md:order-1 md:mb-3 md:mt-0"
         role="tablist"
@@ -115,6 +132,23 @@ export function AttentionVariantComparisonGraph({
           />
         </ReactFlowProvider>
       </div>
+      {legend.length > 0 ? (
+        <div
+          className="order-3 mt-3 flex flex-wrap items-center justify-center gap-4 rounded-xl border border-border/60 bg-card/35 px-4 py-3 text-sm"
+          data-graph-legend={activeVariant.graphId}
+        >
+          {legend.map((item) => (
+            <div key={item.label} className="flex items-center gap-2">
+              <span
+                aria-hidden="true"
+                className="inline-block h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: item.color }}
+              />
+              <span>{item.label}</span>
+            </div>
+          ))}
+        </div>
+      ) : null}
       {caption ? <figcaption>{caption}</figcaption> : null}
     </figure>
   );

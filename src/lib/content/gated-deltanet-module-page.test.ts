@@ -11,6 +11,7 @@ import {
 import { getDocsPageDir } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
+import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import {
   expectModuleComputeFlowGraphOnlyInHowItWorks,
   expectModuleTagPillListOnlyInTagsSection,
@@ -21,6 +22,15 @@ const pageDir = getDocsPageDir("modules", "gated-deltanet");
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
 const defaultGraphId = "graph.gated-deltanet-gdn-comparison";
+const gdnMathVariableDefinitionIds = [
+  "qt",
+  "kt",
+  "vt",
+  "g",
+  "gi",
+  "s",
+  "o",
+] as const;
 
 describe("gated-deltanet page messages", () => {
   test("includes required localized fields for the module template", () => {
@@ -36,12 +46,32 @@ describe("gated-deltanet page messages", () => {
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.whyItExists.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.howItWorks.body).toContain(
+      "gate α_t is a separate control path",
+    );
+    expect(messages.sections?.howItWorks.body).toContain(
+      "delta-rule path is different",
+    );
+    expect(messages.sections?.mathOrComputeSchema.body).toContain(
+      "α_t controls memory decay",
+    );
+    expect(messages.sections?.mathOrComputeSchema.body).toContain(
+      "targeted delta-rule write",
+    );
     expect(messages.math?.mhaSchema?.variableDefinitions?.q?.term).toBe("Q");
-    expect(messages.math?.gqaSchema?.variableDefinitions?.g?.term).toBe(
+    expect(messages.math?.gdnSchema?.variableDefinitions?.g?.term).toBe(
       "\\alpha_t",
     );
-    expect(messages.math?.gqaSchema?.variableDefinitions?.gi?.term).toBe(
+    expect(messages.math?.gdnSchema?.variableDefinitions?.gi?.term).toBe(
       "\\beta_t",
+    );
+    expect(messages.math?.gdnSchema?.variableDefinitions?.s?.term).toBe("S_t");
+    expect(messages.math?.gdnSchema?.variableDefinitions?.o?.term).toBe("o_t");
+    expect(messages.assets?.computeFlow?.title).toBe(
+      "Gated DeltaNet compute path",
+    );
+    expect(messages.assets?.computeFlow?.legend?.["control-flow"]?.label).toBe(
+      "Gate decay control",
     );
     expect(
       messages.math?.mhaSchema?.variableDefinitions?.queryProjection,
@@ -90,12 +120,50 @@ describe("loadModulePage gated-deltanet", () => {
     expect(html).toContain('href="https://arxiv.org/abs/2412.06464"');
     expect(html).toContain('data-registry-comparison-table="true"');
     expect(html).toContain('data-table-id="table.gated-deltanet-comparison"');
-    expect(html).toContain('data-message-block-math="math.gqaSchema.formula"');
+    expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
+    expect(html).toContain('data-message-block-math="math.gdnSchema.formula"');
+    expect(html).toContain('data-math-schema="gdn"');
+    expect(html).not.toContain('data-math-schema="gqa"');
     expect(html).toContain("\\alpha_t");
+    expect(html).toContain("gate α_t is a separate control path");
+    expect(html).toContain("delta-rule path is different");
     expect(html).toContain("Gated decay plus targeted delta-rule memory edits");
+    expect(html).toContain(
+      'data-graph-legend="graph.gated-deltanet-gdn-comparison"',
+    );
+    expect(html).toContain("Gate decay control");
+    expect(html).toContain("Gated DeltaNet compute path");
+    expect(html).toContain('data-attention-variant-comparison="true"');
+    expect(html).toContain('data-attention-variant-active="gdn"');
+    expect(html).toContain('data-attention-variant-option="gdn"');
+    expect(html).toContain("--xy-background-color:#ffffff");
+    expect(html).toContain("--xy-node-color:#111827");
+    for (const id of gdnMathVariableDefinitionIds) {
+      expect(html).toContain(`data-math-variable-definition="${id}"`);
+    }
     expectModuleComputeFlowGraphOnlyInHowItWorks(html, defaultGraphId);
     expect(html).toContain('data-graph-node-id="gdn-delta"');
     expect(html).toContain('data-graph-node-id="gdn-gate"');
+    expect(html).toContain('data-graph-node-id="gdn-memory-prev"');
+    expect(html).toContain('data-graph-node-id="gdn-memory-next"');
+    expect(html).toContain('data-graph-node-id="gdn-output"');
+    expect(html).toContain('data-graph-node-id="gdn-legend"');
+  });
+
+  test("renders the shared docs shell with gated delta teaching markers", async () => {
+    const page = await loadModulePage("gated-deltanet");
+    const html = renderModuleDocsShell(page);
+
+    expect(html).toContain('id="how-it-works"');
+    expect(html).toContain('id="math-or-compute-schema"');
+    expect(html).toContain(
+      'data-graph-id="graph.gated-deltanet-gdn-comparison"',
+    );
+    expect(html).toContain(
+      'data-graph-legend="graph.gated-deltanet-gdn-comparison"',
+    );
+    expect(html).toContain("α_t controls memory decay");
+    expect(html).toContain('data-math-schema="gdn"');
   });
 });
 

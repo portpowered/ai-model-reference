@@ -61,7 +61,7 @@
       "position": { "x": 630, "y": 200 },
       "size": { "width": 170, "height": 72 },
       "visualRole": "summary-node",
-      "childNodeIds": ["gdn-memory-next", "gdn-output"]
+      "childNodeIds": ["gdn-memory-next"]
     },
     {
       "id": "gdn-memory-next",
@@ -79,7 +79,7 @@
       "position": { "x": 850, "y": 280 },
       "size": { "width": 140, "height": 64 },
       "visualRole": "process-node",
-      "childNodeIds": []
+      "childNodeIds": ["gdn-output"]
     },
     {
       "id": "gdn-legend",
@@ -117,6 +117,14 @@
       "targetHandleSide": "left"
     },
     {
+      "id": "gdn-projections-delta",
+      "source": "gdn-projections",
+      "target": "gdn-delta",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
       "id": "gdn-gate-delta",
       "source": "gdn-gate",
       "target": "gdn-delta",
@@ -141,12 +149,20 @@
       "targetHandleSide": "left"
     },
     {
-      "id": "gdn-delta-output",
-      "source": "gdn-delta",
+      "id": "gdn-memory-next-output",
+      "source": "gdn-memory-next",
+      "target": "gdn-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "gdn-projections-output",
+      "source": "gdn-projections",
       "target": "gdn-output",
       "edgeKind": "data-flow",
       "sourceHandleSide": "right",
-      "targetHandleSide": "bottom"
+      "targetHandleSide": "left"
     }
   ]
 }

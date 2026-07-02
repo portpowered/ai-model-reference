@@ -13,11 +13,11 @@
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "Each step starts from the current hidden state and projects it into query, key, and value vectors. A gate signal decides how much of the previous memory state should decay before the new write arrives. The delta-rule path then performs a targeted update to the running memory matrix rather than treating every new token as another undifferentiated accumulation. The query reads from the updated state to form the layer output, and the new memory matrix is passed to the next position. That loop replaces a full attention matrix with one compact state that is updated token by token."
+      "body": "Each step starts from the current hidden state and projects it into query, key, and value vectors. The gate α_t is a separate control path: it scales how much of the previous memory matrix S_{t-1} survives before any new content is written. The delta-rule path is different: it uses the current key and value to perform a targeted edit, replacing the memory content associated with k_t instead of only adding another outer-product term. After that gated write completes, the updated state S_t is stored for the next position and the current query q_t reads the result to form the layer output o_t. The diagram below keeps the gate decay step and the delta-rule write as distinct stages rather than one generic memory box."
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "Dense multi-head attention materializes softmax weights over all earlier keys. Gated Delta Networks instead keep a matrix-valued memory state S_t that is decayed by a gate and edited by a delta-rule write before the query reads the result. The formulas below contrast the dense attention path with the gated delta recurrence used by Gated DeltaNet."
+      "body": "Dense multi-head attention materializes softmax weights over all earlier keys. Gated Delta Networks instead keep a matrix-valued memory state S_t. The gate α_t controls memory decay on the previous state, β_t scales a targeted delta-rule write built from v_t and the residual (v_t - S_{t-1} k_t), and the output o_t = S_t q_t reads the updated memory with the current query. The formulas below contrast the dense attention path with that gated delta recurrence."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
@@ -48,7 +48,25 @@
   "assets": {
     "computeFlow": {
       "alt": "Dense multi-head attention versus Gated DeltaNet with gated decay, delta-rule memory update, and recurrent state readout",
-      "caption": "Gated DeltaNet keeps one compact memory matrix, uses gate α_t to control decay, applies a delta-rule write, and reads the result with the current query instead of building a full attention matrix.",
+      "caption": "Gated DeltaNet keeps one compact memory matrix. Gate α_t controls decay on S_{t-1}, the delta-rule path performs the targeted write into S_t, and the query reads o_t = S_t q_t instead of building a full attention matrix.",
+      "title": "Gated DeltaNet compute path",
+      "legend": {
+        "data-flow": {
+          "label": "Projections, memory, and readout"
+        },
+        "control-flow": {
+          "label": "Gate decay control"
+        },
+        "summary-node": {
+          "label": "Gating or memory stage"
+        },
+        "process-node": {
+          "label": "Input or output step"
+        },
+        "annotation": {
+          "label": "Mechanism note"
+        }
+      },
       "variants": {
         "mha": {
           "label": "Multi-head"
@@ -136,37 +154,25 @@
         }
       }
     },
-    "gqaSchema": {
+    "gdnSchema": {
       "label": "Gated DeltaNet",
       "formula": "S_t = \\alpha_t S_{t-1} + \\beta_t\\,(v_t - S_{t-1} k_t)\\,k_t^{\\top},\\quad o_t = S_t q_t",
       "variableDefinitions": {
-        "q": {
-          "term": "Q",
-          "definition": "Query vectors for head i."
+        "qt": {
+          "term": "q_t",
+          "definition": "Current-step query vector."
         },
-        "k": {
-          "term": "K",
-          "definition": "Key vectors for head i."
+        "kt": {
+          "term": "k_t",
+          "definition": "Current-step key vector."
         },
-        "v": {
-          "term": "V",
-          "definition": "Value vectors for head i."
-        },
-        "h": {
-          "term": "H",
-          "definition": "Number of query heads."
+        "vt": {
+          "term": "v_t",
+          "definition": "Current-step value vector."
         },
         "g": {
           "term": "\\alpha_t",
-          "definition": "Input-dependent gate that decays the previous memory state."
-        },
-        "dk": {
-          "term": "d_k",
-          "definition": "Key dimension per head."
-        },
-        "i": {
-          "term": "i",
-          "definition": "Query head index."
+          "definition": "Input-dependent gate that decays S_{t-1}."
         },
         "gi": {
           "term": "\\beta_t",
@@ -174,11 +180,11 @@
         },
         "s": {
           "term": "S_t",
-          "definition": "Matrix-valued recurrent memory state after the gated delta update."
+          "definition": "Matrix-valued memory state after gated decay and the delta write."
         },
         "o": {
           "term": "o_t",
-          "definition": "Layer output read from the updated memory with the current query."
+          "definition": "Layer output read from S_t with q_t."
         }
       }
     }
