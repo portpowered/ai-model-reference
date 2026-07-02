@@ -9,7 +9,10 @@
     "diffusion architecture",
     "denoising diffusion"
   ],
-  "tags": ["taxonomy", "model-family"],
+  "tags": [
+    "taxonomy",
+    "model-family"
+  ],
   "relatedIds": [
     "concept.architecture",
     "concept.denoising-generation",
@@ -24,6 +27,7 @@
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-08T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.model-type",
   "conceptType": "architecture",
   "sidebarGrouping": {
     "glossary": "generation-and-diffusion"

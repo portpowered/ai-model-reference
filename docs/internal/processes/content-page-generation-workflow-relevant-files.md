@@ -105,6 +105,10 @@ routes:
   in search even when they are absent from glossary-derived browse sections.
 - Update `browseIndex.*Section*` copy in `src/content/messages/*/common.json`
   and extend `DOCS_BROWSE_SECTION_ORDER` when introducing another derived area.
+- Classify every remaining published glossary concept with `primaryClassificationId`;
+  align `conceptType` with `classification.concept.architecture`, and rely on ontology
+  sidebar resolution for math/training/evaluation before editorial `sidebarGrouping`
+  fallbacks for generation-and-diffusion or sequence-and-attention subgroups.
 
 ## PR-head mergeability for page branches (process executors)
 

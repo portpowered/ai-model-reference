@@ -10,7 +10,7 @@
     "model component",
     "neural network component"
   ],
-  "tags": ["foundations", "components"],
+  "tags": ["foundations", "taxonomy"],
   "relatedIds": [
     "classification.module",
     "concept.transformer-architecture",

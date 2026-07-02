@@ -4,19 +4,30 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["context length", "sequence length limit", "max context"],
-  "tags": ["context-window", "foundations"],
+  "aliases": [
+    "context length",
+    "sequence length limit",
+    "max context"
+  ],
+  "tags": [
+    "context-window",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.context-extension",
     "concept.why-long-context-is-hard",
     "concept.alibi",
     "model.nemotron-3-super"
   ],
-  "citationIds": ["citation.brown-gpt-3", "citation.deepseek-v4-paper"],
+  "citationIds": [
+    "citation.brown-gpt-3",
+    "citation.deepseek-v4-paper"
+  ],
   "status": "published",
   "createdAt": "2026-06-09T00:00:00.000Z",
   "updatedAt": "2026-07-01T18:00:00.000Z",
-  "conceptType": "general",
+  "primaryClassificationId": "classification.concept.architecture",
+  "conceptType": "architecture",
   "sidebarGrouping": {
     "glossary": "sequence-and-attention"
   },

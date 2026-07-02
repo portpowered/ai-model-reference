@@ -4,14 +4,28 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["optimizer state", "Adam state", "momentum buffers"],
-  "tags": ["token-to-probability-chain", "foundations"],
-  "relatedIds": ["concept.parameter"],
-  "citationIds": ["citation.kingma-adam"],
+  "aliases": [
+    "optimizer state",
+    "Adam state",
+    "momentum buffers"
+  ],
+  "tags": [
+    "token-to-probability-chain",
+    "foundations"
+  ],
+  "relatedIds": [
+    "concept.parameter"
+  ],
+  "citationIds": [
+    "citation.kingma-adam"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-05T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.training",
   "conceptType": "general",
-  "prerequisiteIds": ["concept.loss-function"],
+  "prerequisiteIds": [
+    "concept.loss-function"
+  ],
   "explainsIds": []
 }

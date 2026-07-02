@@ -98,6 +98,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ...collectPageUrls(getGlossaryFolder().children),
       ...collectPageUrls(getSidebarFolder("Model Types").children),
       ...collectPageUrls(getSidebarFolder("Inference").children),
+      ...collectPageUrls(getSidebarFolder("Module Components").children),
     ];
 
     for (const entry of entries) {
@@ -112,6 +113,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ...collectPageUrls(getGlossaryFolder().children),
       ...collectPageUrls(getSidebarFolder("Model Types").children),
       ...collectPageUrls(getSidebarFolder("Inference").children),
+      ...collectPageUrls(getSidebarFolder("Module Components").children),
     ].sort();
 
     expect(entries.map((entry) => entry.url).sort()).toEqual(glossaryUrls);

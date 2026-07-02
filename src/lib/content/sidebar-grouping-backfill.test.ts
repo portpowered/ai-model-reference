@@ -18,7 +18,6 @@ const GLOSSARY_SIDEBAR_BACKFILLS = [
   ["concept.normalization", "sequence-and-attention"],
   ["concept.prefill", "sequence-and-attention"],
   ["concept.prefill-decode-split", "sequence-and-attention"],
-  ["concept.perplexity", "sequence-and-attention"],
   ["concept.residual-connection", "sequence-and-attention"],
   ["concept.skip-connection", "sequence-and-attention"],
   ["concept.token", "sequence-and-attention"],

@@ -9,8 +9,15 @@
     "feature representation",
     "latent representation"
   ],
-  "tags": ["taxonomy", "foundations"],
-  "relatedIds": ["concept.modality", "concept.patch", "concept.latent"],
+  "tags": [
+    "taxonomy",
+    "foundations"
+  ],
+  "relatedIds": [
+    "concept.modality",
+    "concept.patch",
+    "concept.latent"
+  ],
   "citationIds": [
     "citation.goodfellow-deep-learning",
     "citation.learning-transferable-visual-models-from-natural-language-supervision"
@@ -18,7 +25,10 @@
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T00:00:00.000Z",
-  "conceptType": "general",
-  "prerequisiteIds": ["concept.model"],
+  "primaryClassificationId": "classification.concept.architecture",
+  "conceptType": "architecture",
+  "prerequisiteIds": [
+    "concept.model"
+  ],
   "explainsIds": []
 }
