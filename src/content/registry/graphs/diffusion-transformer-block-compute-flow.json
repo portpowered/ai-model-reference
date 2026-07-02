@@ -1,0 +1,136 @@
+{
+  "id": "graph.diffusion-transformer-block-compute-flow",
+  "slug": "diffusion-transformer-block-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["module.diffusion-transformer-block"],
+  "citationIds": ["citation.scalable-diffusion-models-with-transformers"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "subjectId": "module.diffusion-transformer-block",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "noisy-patch-tokens",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "noisy-patch-tokens",
+      "labelKey": "graph.nodes.noisyPatchTokens.label",
+      "moduleKind": "input",
+      "position": { "x": 200, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["modulated-norm"]
+    },
+    {
+      "id": "timestep-signal",
+      "labelKey": "graph.nodes.timestepSignal.label",
+      "moduleKind": "diffusion-step",
+      "position": { "x": 20, "y": 90 },
+      "visualRole": "architecture-io",
+      "childNodeIds": ["modulated-norm"]
+    },
+    {
+      "id": "optional-conditioning",
+      "labelKey": "graph.nodes.optionalConditioning.label",
+      "moduleKind": "embedding",
+      "position": { "x": 380, "y": 90 },
+      "visualRole": "architecture-io",
+      "childNodeIds": ["modulated-norm"]
+    },
+    {
+      "id": "modulated-norm",
+      "labelKey": "graph.nodes.modulatedNorm.label",
+      "moduleKind": "normalization",
+      "position": { "x": 175, "y": 180 },
+      "visualRole": "process-node",
+      "childNodeIds": ["self-attention"]
+    },
+    {
+      "id": "self-attention",
+      "labelKey": "graph.nodes.selfAttention.label",
+      "moduleKind": "attention",
+      "position": { "x": 185, "y": 290 },
+      "visualRole": "process-node",
+      "childNodeIds": ["feed-forward"]
+    },
+    {
+      "id": "feed-forward",
+      "labelKey": "graph.nodes.feedForward.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 185, "y": 400 },
+      "visualRole": "process-node",
+      "childNodeIds": ["residual-output"]
+    },
+    {
+      "id": "residual-output",
+      "labelKey": "graph.nodes.residualOutput.label",
+      "moduleKind": "output",
+      "position": { "x": 170, "y": 510 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "conditioning-note",
+      "labelKey": "graph.nodes.conditioningNote.label",
+      "moduleKind": "other",
+      "position": { "x": 430, "y": 200 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "tokens-to-norm",
+      "source": "noisy-patch-tokens",
+      "target": "modulated-norm",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "timestep-to-norm",
+      "source": "timestep-signal",
+      "target": "modulated-norm",
+      "edgeKind": "conditioning"
+    },
+    {
+      "id": "conditioning-to-norm",
+      "source": "optional-conditioning",
+      "target": "modulated-norm",
+      "edgeKind": "conditioning"
+    },
+    {
+      "id": "norm-to-attention",
+      "source": "modulated-norm",
+      "target": "self-attention",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "attention-to-ffn",
+      "source": "self-attention",
+      "target": "feed-forward",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "ffn-to-output",
+      "source": "feed-forward",
+      "target": "residual-output",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "tokens-residual-attn",
+      "source": "noisy-patch-tokens",
+      "target": "self-attention",
+      "edgeKind": "residual"
+    },
+    {
+      "id": "attn-residual-output",
+      "source": "self-attention",
+      "target": "residual-output",
+      "edgeKind": "residual"
+    }
+  ]
+}
