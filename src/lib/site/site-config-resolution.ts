@@ -10,6 +10,7 @@ import type {
   HomeFeaturedLinkPlaceholder,
   SiteConfig,
   SitePrimaryNavEntry,
+  SiteRouteSurfaceId,
 } from "./site-config.contract";
 import { isHomeFeaturedLinkMessageCopy } from "./site-config.contract";
 
@@ -53,12 +54,24 @@ export function resolveSiteConfigPrimaryNavHrefs(
   );
 }
 
+function assertHomeFeaturedRouteSurfaceConfigured(
+  config: SiteConfig,
+  routeSurface: SiteRouteSurfaceId,
+): void {
+  if (!(routeSurface in config.routeSurfaces)) {
+    throw new Error(
+      `Home featured link references unknown route surface "${routeSurface}".`,
+    );
+  }
+}
+
 function resolveHomeFeaturedLinkHref(
   config: SiteConfig,
   link: HomeFeaturedLinkPlaceholder,
   locale: SiteLocale,
 ): string {
   if (link.kind === "route") {
+    assertHomeFeaturedRouteSurfaceConfigured(config, link.routeSurface);
     return buildLocalizedRoute(config.routeSurfaces[link.routeSurface], locale);
   }
 
@@ -87,11 +100,32 @@ function resolveHomeFeaturedLinkCopy(
 ): Pick<ResolvedHomeFeaturedLink, "title" | "description"> {
   if (isHomeFeaturedLinkMessageCopy(copy)) {
     const homeMessages = messages.home as Record<string, string>;
+    const title = homeMessages[copy.titleKey];
+    const description = homeMessages[copy.descriptionKey];
 
-    return {
-      title: homeMessages[copy.titleKey],
-      description: homeMessages[copy.descriptionKey],
-    };
+    if (typeof title !== "string" || title.length === 0) {
+      throw new Error(
+        `Home featured link copy is missing message title for key "${copy.titleKey}".`,
+      );
+    }
+
+    if (typeof description !== "string" || description.length === 0) {
+      throw new Error(
+        `Home featured link copy is missing message description for key "${copy.descriptionKey}".`,
+      );
+    }
+
+    return { title, description };
+  }
+
+  if (typeof copy.title !== "string" || copy.title.length === 0) {
+    throw new Error("Home featured link copy is missing resolved title label.");
+  }
+
+  if (typeof copy.description !== "string" || copy.description.length === 0) {
+    throw new Error(
+      "Home featured link copy is missing resolved description label.",
+    );
   }
 
   return {
