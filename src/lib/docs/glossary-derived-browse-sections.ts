@@ -39,6 +39,7 @@ const GLOSSARY_DERIVED_SECTION_CONFIG = {
       "glossary/world-model",
       "glossary/generative-model",
       "glossary/multimodal-model",
+      "glossary/autoregressive-generation",
       "glossary/encoder",
       "glossary/decoder",
       "glossary/encoder-decoder",
@@ -175,7 +176,12 @@ export function buildGlossaryDerivedBrowseSection({
       config.browseMessagePrefix,
       "SectionDescription",
     ),
-    entries: toDocsIndexEntries(sectionPages, locale, [...config.starterSlugs]),
+    entries: toDocsIndexEntries(
+      sectionPages,
+      locale,
+      [...config.starterSlugs],
+      config.starterSlugs.length,
+    ),
     linkLabel: resolveDerivedBrowseMessagePath(
       messages,
       config.browseMessagePrefix,

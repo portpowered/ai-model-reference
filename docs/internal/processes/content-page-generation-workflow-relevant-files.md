@@ -93,6 +93,12 @@ routes:
   than new docs collection route slugs.
 - Split sidebar folders through `src/lib/navigation/docs-sidebar-sections.ts`
   and keep the remaining glossary pages in the `Glossary` folder.
+- Pass `config.starterSlugs.length` into `toDocsIndexEntries` for derived browse
+  sections when starter slugs exceed the default six-entry preview cap.
+- Sidebar reconciliation tests that previously compared every glossary page to the
+  `Glossary` folder must union `Model Types`, `Inference`, and remaining
+  `Glossary` URLs, or filter out `isGlossaryPageAssignedToDerivedSection`
+  pages when asserting the residual glossary folder.
 - Update `browseIndex.*Section*` copy in `src/content/messages/*/common.json`
   and extend `DOCS_BROWSE_SECTION_ORDER` when introducing another derived area.
 

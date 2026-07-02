@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import type { Node, Root } from "fumadocs-core/page-tree";
-import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
 import {
   collectSidebarPageLinks,
   DEEPSEEK_V4_PAPER_URL,
@@ -16,6 +15,8 @@ import { buildGeneratedDocsPageTree } from "@/lib/navigation/generated-docs-page
 import { source } from "@/lib/source";
 
 const EXPECTED_TOP_LEVEL_FOLDER_NAMES = [
+  "Model Types",
+  "Inference",
   "Glossary",
   "Concepts",
   "Modules",
@@ -117,14 +118,13 @@ function getSeparatorLabels(nodes: Node[]): string[] {
 describe("collection-driven docs sidebar verification", () => {
   test("buildGeneratedDocsPageTree exposes configured folder names and order", () => {
     const pageTree = buildVerificationPageTree();
-    const collectionDefinitions = listDocsCollectionDefinitions();
 
     expect(getTopLevelFolderNames(pageTree)).toEqual([
       ...EXPECTED_TOP_LEVEL_FOLDER_NAMES,
     ]);
     expect(
       pageTree.children.filter((node) => node.type === "folder"),
-    ).toHaveLength(collectionDefinitions.length);
+    ).toHaveLength(EXPECTED_TOP_LEVEL_FOLDER_NAMES.length);
   });
 
   test("buildGeneratedDocsPageTree matches source page-tree folder contract", () => {

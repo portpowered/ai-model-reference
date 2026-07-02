@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { Node } from "fumadocs-core/page-tree";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { isGlossaryPageAssignedToDerivedSection } from "@/lib/docs/glossary-derived-browse-sections";
 import { source } from "@/lib/source";
 
 function collectPageUrls(nodes: Node[]): string[] {
@@ -30,6 +31,8 @@ describe("Phase 2/3 reconciliation docs sidebar meta (US-004)", () => {
       .filter((node) => node.type === "folder")
       .map((node) => node.name);
 
+    expect(folderNames).toContain("Model Types");
+    expect(folderNames).toContain("Inference");
     expect(folderNames).toContain("Glossary");
     expect(folderNames).toContain("Concepts");
     expect(folderNames).toContain("Modules");
@@ -51,7 +54,18 @@ describe("Phase 2/3 reconciliation docs sidebar meta (US-004)", () => {
     test(`generated ${section} sidebar lists every published page exactly once with localized titles`, async () => {
       const pages = await loadPublishedDocsPages("en");
       const sectionPages = pages
-        .filter((page) => page.docsSlug.startsWith(`${section}/`))
+        .filter((page) => {
+          if (!page.docsSlug.startsWith(`${section}/`)) {
+            return false;
+          }
+          if (
+            section === "glossary" &&
+            isGlossaryPageAssignedToDerivedSection(page)
+          ) {
+            return false;
+          }
+          return true;
+        })
         .sort((left, right) => left.url.localeCompare(right.url));
 
       expect(sectionPages.length).toBeGreaterThan(0);
