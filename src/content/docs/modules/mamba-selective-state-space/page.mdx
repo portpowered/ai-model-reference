@@ -1,0 +1,87 @@
+---
+title: Mamba Selective State-Space Module
+description: How a selective state-space module processes tokens in order while carrying a compact recurrent state, using input-dependent parameters to control what the state stores, forgets, and emits.
+kind: "module"
+registryId: "module.mamba-selective-state-space"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - state-space
+  - context-window
+aliases:
+  - "Mamba"
+  - "Mamba block"
+  - "selective state space model"
+  - "selective SSM"
+  - "state-space module"
+  - "SSM"
+updatedAt: "2026-07-02"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
+import { ModuleGraph } from "@/features/models/components/ModuleGraph";
+import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
+import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
+import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
+
+
+<ModuleAtAGlance registryId="module.mamba-selective-state-space" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
+</Section>
+
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+
+  <ModuleGraph registryId="module.mamba-selective-state-space" assetId="computeFlow" />
+</Section>
+
+<Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
+  <T k="sections.mathOrComputeSchema.body" />
+  <ModuleAttentionSchemaComparison />
+</Section>
+
+<Section id="compared-to-nearby-modules" titleKey="sections.comparedToNearbyModules.title">
+  <T k="sections.comparedToNearbyModules.body" />
+
+  <ModuleComparisonTable
+    registryId="module.mamba-selective-state-space"
+    assetId="comparisonTable"
+  />
+</Section>
+
+<Section id="example-architectures" titleKey="sections.exampleArchitectures.title">
+  <T k="sections.exampleArchitectures.body" />
+  <ModelsUsingModule registryId="module.mamba-selective-state-space" />
+</Section>
+
+<Section id="limitations-and-tradeoffs" titleKey="sections.limitationsAndTradeoffs.title">
+  <T k="sections.limitationsAndTradeoffs.body" />
+</Section>
+
+<Section id="why-it-still-matters" titleKey="sections.whyItStillMatters.title">
+  <T k="sections.whyItStillMatters.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="module.mamba-selective-state-space" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="module.mamba-selective-state-space" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="module.mamba-selective-state-space" />
+</Section>

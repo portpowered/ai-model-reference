@@ -1,0 +1,203 @@
+{
+  "title": "Mamba Selective State-Space Module",
+  "description": "A sequence-mixing module that updates a compact recurrent state as each token arrives, using input-dependent parameters to decide what the state stores, forgets, and emits.",
+  "openingSummary": "A selective state-space module (SSM) processes tokens in order while carrying a small hidden state forward through time. Mamba makes that state input-dependent so each step can selectively store, forget, and emit information instead of using fixed recurrence rules.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A state-space module is a sequence-mixing block that reads tokens one at a time and keeps a compact hidden state that summarizes what came before. At each position, the module combines the current token with that carried state to produce an output and an updated state for the next step. A selective state-space model (SSM) changes the update rules based on the current input rather than applying the same fixed transition at every position."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Long sequences strain attention because dense attention compares every token to every other token. State-space modules offer a different path: they propagate information through a fixed-size state as the sequence unfolds, which can scale more gently with length when the recurrence is implemented efficiently."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The module walks the sequence in order. For each token, it projects the input into input-dependent parameters that control the state transition and output. The previous hidden state is updated into a new state, and the module emits an output vector for that position. In Mamba, those transition parameters depend on the current token, so the block can decide what to remember, what to discard, and what to expose at each step. That selective behavior is the main change from earlier fixed-coefficient state-space designs."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "Dense attention forms outputs from pairwise token scores. A selective state-space step instead updates a hidden state and projects an output from that state. The formulas below contrast multi-head attention against a selective state update and output projection at one time step."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Multi-head attention mixes tokens by scoring every query against every key position. Linear attention keeps a running summary but still routes through attention-style feature maps. A Mamba-style state-space module does not build an explicit all-pairs score map; it compresses history into a recurrent state and lets input-dependent gates shape each update."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Hybrid stacks such as Nemotron 3 Super combine Mamba-style state-space layers with attention layers so the model can use efficient recurrence for much of the depth while keeping attention where direct token-to-token comparison is still useful."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "State-space mixing is inherently sequential: each step waits on the previous state, which affects parallel training patterns and can complicate implementation compared with batched attention kernels. The compact state also means less direct all-pairs token comparison than dense attention provides in a single layer, which is one reason hybrid Mamba-attention models still include attention blocks. None of this replaces benchmark evaluation; it describes architectural tradeoffs readers should expect when comparing sequence modules."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Selective state-space modules remain a practical reference for long-context and hybrid designs because they show how recurrent state updates can carry sequence information with different cost and inductive bias than attention-only stacks."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Dense multi-head attention versus Mamba selective state update over time",
+      "variants": {
+        "mha": {
+          "label": "Multi-head"
+        },
+        "mamba": {
+          "label": "Mamba"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "mamba": {
+          "title": "Mamba Selective State-Space"
+        },
+        "mha": {
+          "title": "Multi-Head Attention"
+        },
+        "linear": {
+          "title": "Linear Attention"
+        }
+      },
+      "dimensions": {
+        "sequenceMixing": "Sequence mixing mechanism",
+        "pairwiseComparison": "Direct all-pairs token comparison",
+        "stateCarry": "History representation"
+      },
+      "values": {
+        "mamba": {
+          "sequenceMixing": "Ordered recurrent state updates with input-dependent transition parameters",
+          "pairwiseComparison": "No explicit n-by-n attention map; history flows through a compact state",
+          "stateCarry": "Fixed-size hidden state carried across positions"
+        },
+        "mha": {
+          "sequenceMixing": "Softmax-weighted combination of value vectors from all key positions",
+          "pairwiseComparison": "Every query token scores against every key token",
+          "stateCarry": "Past tokens remain addressable through keys and values at each step"
+        },
+        "linear": {
+          "sequenceMixing": "Feature-map accumulation over keys without materializing full score matrix",
+          "pairwiseComparison": "Approximates dense attention through kernel-style summaries",
+          "stateCarry": "Running key-value summaries rather than a single recurrent state vector"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Selective state-space step",
+      "formula": "h_t = \\bar{A}_t h_{t-1} + \\bar{B}_t x_t, \\quad y_t = C_t h_t",
+      "variableDefinitions": {
+        "q": {
+          "term": "h_t",
+          "definition": "Hidden state after processing token at position t."
+        },
+        "k": {
+          "term": "h_{t-1}",
+          "definition": "Hidden state carried from the previous position."
+        },
+        "v": {
+          "term": "x_t",
+          "definition": "Input vector for the token at position t."
+        },
+        "h": {
+          "term": "y_t",
+          "definition": "Output vector emitted at position t."
+        },
+        "g": {
+          "term": "\\bar{A}_t",
+          "definition": "Input-dependent state transition applied at step t."
+        },
+        "dk": {
+          "term": "\\bar{B}_t",
+          "definition": "Input-dependent input injection at step t."
+        },
+        "i": {
+          "term": "C_t",
+          "definition": "Input-dependent output projection at step t."
+        },
+        "gi": {
+          "term": "t",
+          "definition": "Sequence position index."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "timeCurrentInput": {
+        "label": "x_t"
+      },
+      "timeStatePrev": {
+        "label": "h_{t-1}"
+      },
+      "timeSelectiveGate": {
+        "label": "Selective Δ, B, C"
+      },
+      "timeStateNext": {
+        "label": "h_t"
+      },
+      "timeOutput": {
+        "label": "y_t"
+      },
+      "timeKv0": {
+        "label": "x_0"
+      },
+      "timeKv1": {
+        "label": "x_1"
+      },
+      "timeKvEllipsis": {
+        "label": "…"
+      },
+      "timeKvT2": {
+        "label": "x_{t-2}"
+      },
+      "timeKvT1": {
+        "label": "x_{t-1}"
+      }
+    }
+  }
+}

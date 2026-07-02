@@ -37,7 +37,9 @@ describe("mamba selective state-space registry slice (MAMBA-001)", () => {
     ]);
 
     if (record?.kind !== "module") {
-      throw new Error("expected module.mamba-selective-state-space module record");
+      throw new Error(
+        "expected module.mamba-selective-state-space module record",
+      );
     }
 
     expect(record.moduleType).toBe("state-space");
@@ -78,7 +80,9 @@ describe("mamba selective state-space registry slice (MAMBA-001)", () => {
     const source = registry.byId.get("module.mamba-selective-state-space");
 
     if (source?.kind !== "module") {
-      throw new Error("expected module.mamba-selective-state-space module record");
+      throw new Error(
+        "expected module.mamba-selective-state-space module record",
+      );
     }
 
     const items = deriveCuratedRelatedItems(
