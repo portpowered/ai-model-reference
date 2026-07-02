@@ -50,6 +50,8 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/linear-attention/page.mdx":
     "Legacy module page predates the variants-and-nearby-modules section.",
+  "modules/looped-transformers/page.mdx":
+    "Looped transformers add a standalone prediction schema below the stack comparison grid when the math section needs a third formula without a second graph.",
   "modules/longrope/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/multi-head-attention/page.mdx":

@@ -48,7 +48,26 @@ describe("looped-transformers page messages", () => {
       "standard transformer stack",
     );
     expect(messages.sections?.comparedToNearbyModules.body).toContain(
-      "weight sharing",
+      "parameter sharing",
+    );
+    expect(messages.sections?.comparedToNearbyModules.body).toContain(
+      "compute reuse",
+    );
+    expect(messages.sections?.comparedToNearbyModules.body).toContain(
+      "fixed-point",
+    );
+    expect(messages.sections?.exampleArchitectures.body).toContain("ICLR 2024");
+    expect(messages.sections?.exampleArchitectures.body).toContain(
+      "in-context data-fitting",
+    );
+    expect(messages.sections?.exampleArchitectures.body).toContain(
+      "one twelfth",
+    );
+    expect(messages.sections?.limitationsAndTradeoffs.body).toContain(
+      "truncated loss",
+    );
+    expect(messages.sections?.limitationsAndTradeoffs.body).toContain(
+      "production",
     );
     expect(messages.math?.standardStackSchema?.formula).toContain("Block");
     expect(messages.math?.loopedBlockSchema?.formula).toContain("Block");
@@ -85,7 +104,13 @@ describe("loadModulePage looped-transformers", () => {
       expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
       expect(html).toContain("shared block");
       expect(html).toContain("transformer stack");
-      expect(html).toContain("weight sharing");
+      expect(html).toContain("parameter sharing");
+      expect(html).toContain("compute reuse");
+      expect(html).toContain("in-context data-fitting");
+      expect(html).toContain("out-of-distribution loop-count");
+      expect(html).toContain("production language-model stacks");
+      expect(html).toContain("How loop or layer depth is chosen");
+      expect(html).toContain("Iterative refinement or fixed-point role");
       expect(html).not.toContain("Reader Shortcut");
       expect(html).toContain("At a glance");
       expectModuleTagPillListOnlyInTagsSection(html);

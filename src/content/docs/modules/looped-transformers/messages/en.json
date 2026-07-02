@@ -21,19 +21,19 @@
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "A standard transformer stack assigns fresh weights to every layer, so depth and parameter count grow together. A looped transformer keeps one block and creates depth by running it repeatedly, which changes how compute and parameters trade off. The shared block still contains ordinary attention and feed-forward submodules; the architectural difference is weight sharing and iteration, not a replacement for those building blocks."
+      "body": "A standard transformer stack assigns fresh weights to every layer, so depth and parameter count grow together and each layer runs once per forward pass. A looped transformer keeps one shared block and sets depth through a loop count L, so stored parameters stay tied to that block while compute depth comes from repeated passes. The same attention and feed-forward weights are reused on every iteration, which trades duplicated parameters for extra forward compute. Where a standard stack hands states to a new layer map at each step, a looped design can keep refining the same states with one shared map, which is the intuition behind fixed-point or convergence-style behavior when more loops are unrolled at test time. The shared block still contains ordinary attention and feed-forward submodules; the architectural difference is parameter sharing, iteration count, compute reuse, and iterative refinement rather than a replacement for those building blocks."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
-      "body": "Looped transformers are primarily studied as a research architecture for in-context learning experiments rather than as a widely deployed production stack. Reported work focuses on controlled data-fitting tasks where loop count and parameter sharing can be compared directly against standard depth-matched transformers."
+      "body": "In the ICLR 2024 study by Liu Yang et al., looped transformers trained from scratch matched or outperformed standard depth-matched transformers on several in-context data-fitting tasks, including linear regression, sparse linear functions, decision trees, and two-layer neural networks. On the reported linear-regression setup, a one-block looped model reached error close to a twelve-layer standard transformer and to a least-squares solver while using roughly one twelfth of the transformer's parameters. Those experiments use controlled prompts and synthetic function classes rather than large production language-model stacks, so they show where looped depth helps in research benchmarks rather than claiming a universal deployment pattern."
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "Each loop iteration adds another full pass through attention and feed-forward compute, so inference can cost more wall-clock time than a shallow parameter-matched model even when total weights are smaller. Quality also depends on how many loops are used and how training schedules the loop count. Looped transformers are not a drop-in substitute for every standard transformer design; they target settings where iterative refinement and parameter sharing are the main research question."
+      "body": "Each loop iteration adds another full pass through attention and feed-forward compute, so inference can cost more wall-clock time than a shallow parameter-matched model even when total weights are smaller. The ICLR 2024 training recipe depends on loop count, a truncated loss over recent loop outputs, and schedule choices that can make quality sensitive to how many iterations are used at train time versus test time. Their out-of-distribution loop-count tests on linear regression suggest some robustness when unrolling beyond the training budget, but that evidence stays within the studied tasks and does not extend every looped design to broad out-of-distribution behavior. The paper's benchmarks are controlled in-context learning setups, not general production transformers, so looped transformers remain a research architecture for iterative refinement and parameter sharing rather than a drop-in substitute for every standard depth-stacked design."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
-      "body": "Looped transformers matter because they separate depth from parameter count in a concrete, testable way. Once the looped pattern is clear, readers can compare it with standard depth-stacked transformers, weight-sharing schemes, and iterative inference ideas without re-deriving the whole architecture from a paper abstract."
+      "body": "Looped transformers matter because they separate depth from parameter count in a concrete, testable way and give readers a named pattern for iterative in-context learning. The ICLR 2024 results provide a direct comparison point against standard depth-stacked transformers on data-fitting tasks that already appear in in-context learning literature, so the looped idea can be evaluated on mechanism and tradeoffs instead of only through a paper abstract."
     },
     "related": {
       "title": "Related"
@@ -86,23 +86,31 @@
       "dimensions": {
         "depthPattern": "How depth is created",
         "parameterPattern": "How parameters scale with depth",
-        "computationRole": "What repeated passes do"
+        "computationRole": "What repeated passes do",
+        "iterationControl": "How loop or layer depth is chosen",
+        "convergenceBehavior": "Iterative refinement or fixed-point role"
       },
       "values": {
         "standardStack": {
           "depthPattern": "L distinct layers stacked in sequence, each with its own weights",
           "parameterPattern": "Parameter count grows with layer count because every layer stores separate matrices",
-          "computationRole": "Each layer transforms states once on the forward pass"
+          "computationRole": "Each layer transforms states once on the forward pass",
+          "iterationControl": "Depth equals layer count; every layer runs once per forward pass",
+          "convergenceBehavior": "States pass through distinct layer maps without revisiting earlier weights"
         },
         "loopedBlock": {
           "depthPattern": "One shared block applied L times in a loop over the same states",
           "parameterPattern": "Parameter count stays tied to one block while loop count adds compute depth",
-          "computationRole": "Each loop iteration refines the same hidden states with reused weights"
+          "computationRole": "Each loop iteration refines the same hidden states with reused weights",
+          "iterationControl": "Loop count L sets how many times the shared block runs; the studied setup can train and test with different counts",
+          "convergenceBehavior": "Repeated application of one block can refine states toward a stable fixed point when unrolled further at test time in the reported linear-regression experiments"
         },
         "sharedBlockParts": {
           "depthPattern": "Single attention and feed-forward block used as the repeated unit",
           "parameterPattern": "Weights are shared across loop iterations rather than duplicated per layer",
-          "computationRole": "Self-attention and feed-forward run inside every loop pass"
+          "computationRole": "Self-attention and feed-forward run inside every loop pass",
+          "iterationControl": "Not applicable; describes the reusable unit inside each loop pass",
+          "convergenceBehavior": "Self-attention and feed-forward execute inside every loop iteration"
         }
       }
     }
