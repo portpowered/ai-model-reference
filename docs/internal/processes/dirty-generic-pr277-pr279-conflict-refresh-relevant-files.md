@@ -331,3 +331,117 @@ Batch 066 drain items remain the owners for any future branch refresh:
 - `generic-site-config-pr279-drain` → PR #279 (`idea:init` / INITIAL, re-verified)
 
 Story 004 records the exact handoff payload for batch 066 drain lanes.
+
+## Story 004 — Active review handoff to batch 066 drain lanes
+
+Captured 2026-07-03T00:30Z UTC. Story 004 runs only when story 002 selects
+**active-review-handoff** for a target PR. Both PR #277 and PR #279 were
+classified that way; this section is the exact handoff payload for the receiving
+batch 066 drain owners. No target-PR branch mutation, queue movement, or
+unrelated source edits occurred in this story.
+
+### Handoff summary
+
+| PR | Receiving owner | Work id | Worktree | Recommended next action |
+| --- | --- | --- | --- | --- |
+| #277 | batch 066 drain lane `generic-search-ai-enrichment-pr277-drain` | `batch-green-pr-drain-and-conflict-triage-batch-066-generic-search-ai-enrichment-pr277-drain` | `.claude/worktrees/generic-search-ai-enrichment-plugin` | **Refresh the branch** — merge or rebase `origin/main` (`209d1bd8`), resolve four in-scope conflict paths, push, rerun checks, then complete review/merge. Do not wait for another lane; no in-flight refresh exists. |
+| #279 | batch 066 drain lane `generic-site-config-pr279-drain` | `batch-green-pr-drain-and-conflict-triage-batch-066-generic-site-config-pr279-drain` | `.claude/worktrees/generic-site-config-neutral-surfaces` | **Refresh the branch after PR #277** — fix unresolved local `make test` a11y timeout on head `e5defbc8`, then merge/rebase `origin/main`, resolve shared `search-page-panel.test.tsx` using #277 resolution as precedent, push, rerun full local `make test` and CI, then complete review/merge. |
+
+Recommended drain order: **PR #277 first**, then **PR #279** against updated
+`origin/main` and the resolved shared test surface.
+
+### PR #277 handoff packet
+
+| Field | Value |
+| --- | --- |
+| PR | https://github.com/portpowered/ai-model-reference/pull/277 |
+| Branch | `generic-search-ai-enrichment-plugin` |
+| Head SHA | `6a1530a0ce11a9633760a7595b14e17038e4df39` |
+| `origin/main` SHA | `209d1bd8ced0cced5fd99992fe50f23296d126e8` |
+| Drift | 95 behind / 8 ahead (`merge-base` `798a0c7bd709d2a38037eecd6a01323507810e1b`) |
+| Mergeable | `false` |
+| Merge state | `dirty` |
+| Required CI | **11/11 SUCCESS** (`gh pr checks 277`) |
+| Stamped lane metadata | present; `linkage.pullRequest.status=current` |
+| Owner worktree | `/Users/abdifamily/work/learn-agent-factories/.claude/worktrees/generic-search-ai-enrichment-plugin` |
+
+**Conflict paths** (`git merge-tree`, changed in both):
+
+- `src/lib/content/time-to-first-token-discovery.test.tsx`
+- `src/tests/search/orama-index.test.ts`
+- `src/tests/search/search-api.test.ts`
+- `src/tests/search/search-page-panel.test.tsx` (**shared with PR #279**)
+
+**Latest blocking PR conversation** (unresolved):
+
+- **BLOCKING MERGE** (2026-07-02T14:59:47Z): review clear, local `make test` passed on `6a1530a0`, CI green, but `gh pr merge 277 --merge` failed — GitHub cannot create a clean merge commit. Suggested repair: `git fetch origin main && git merge origin/main`, resolve conflicts, push, rerun checks.
+- Prior **REVIEW CLEAR** (2026-07-02T14:56:54Z) cleared earlier `make test` and merge-state blockers; it does **not** clear the latest BLOCKING MERGE comment.
+
+**Receiving owner should:**
+
+1. Work in the stamped owner worktree on branch `generic-search-ai-enrichment-plugin`.
+2. Merge or rebase `origin/main` (`209d1bd8`), resolving only in-scope search/test conflicts listed above.
+3. Preserve PR intent: AI facet enrichment stays in Model Atlas adapter; generic enrichment remains domain-neutral.
+4. Push refreshed head, wait for terminal green CI, rerun local `make test`.
+5. Post a PR conversation reply mapping the BLOCKING MERGE items to the concrete refresh/validation before merge.
+6. Complete review/consume and merge when mergeable and conversation blockers are cleared.
+
+**Receiving owner should not:** wait for batch 074 refresh (story 002 selected handoff, not in-lane refresh), create a duplicate drain lane, or broaden generic shell scope.
+
+### PR #279 handoff packet
+
+| Field | Value |
+| --- | --- |
+| PR | https://github.com/portpowered/ai-model-reference/pull/279 |
+| Branch | `generic-site-config-neutral-surfaces` |
+| Head SHA | `e5defbc8babefd3da5a1a9f4304e9763f3545e40` |
+| `origin/main` SHA | `209d1bd8ced0cced5fd99992fe50f23296d126e8` |
+| Drift | 107 behind / 6 ahead (`merge-base` `9136cb1ef90e1eb5942cf811b7310191c8a5ea93`) |
+| Mergeable | `false` |
+| Merge state | `dirty` |
+| Required CI | **11/11 SUCCESS** (`gh pr checks 279`) |
+| Stamped lane metadata | present; `linkage.pullRequest.status=current` |
+| Owner worktree | `/Users/abdifamily/work/learn-agent-factories/.claude/worktrees/generic-site-config-neutral-surfaces` |
+
+**Conflict paths** (`git merge-tree`, changed in both):
+
+- `src/tests/search/search-page-panel.test.tsx` (**shared with PR #277**)
+
+**Latest blocking PR conversation** (unresolved):
+
+- **BLOCKING** (2026-07-02T13:12:04Z): local `make test` failed — `src/tests/a11y/search-page-panel.a11y.test.tsx` smoke timed out at 15s on head `e5defbc8`. GitHub CI is green; no later PR conversation comment clears this blocker.
+- Earlier merge-conflict feedback was addressed in `95dd6861` / `e5defbc8` per follow-up comments; the a11y timeout blocker supersedes cleared merge-conflict feedback and predates the latest main drift.
+
+**Receiving owner should:**
+
+1. Work in the stamped owner worktree on branch `generic-site-config-neutral-surfaces`.
+2. **First** stabilize or deflake `search-page-panel.a11y.test.tsx` so local `make test` passes on the current head (or after minimal in-scope test fix).
+3. **After PR #277 drain** resolves the shared `search-page-panel.test.tsx` conflict, merge or rebase `origin/main` (`209d1bd8`), aligning shared test resolution with #277's outcome.
+4. Preserve PR intent: domain-neutral `SiteConfig` contract; `modelAtlasSiteConfig` and header/home behavior unchanged.
+5. Push refreshed head, wait for terminal green CI, rerun full local `make test` with evidence.
+6. Post a PR conversation reply mapping the BLOCKING a11y timeout and DIRTY drift items to concrete fixes before merge.
+7. Complete review/consume and merge when mergeable and conversation blockers are cleared.
+
+**Receiving owner should not:** merge before local `make test` passes, refresh before coordinating shared test file with #277 drain, or add site-config/route/sidebar features beyond conflict resolution.
+
+### Batch 073 handoff lane (context only)
+
+The completed batch 073 handoff lane (`generic-pr277-pr279-conflict-refresh-handoff`,
+trace `trace-fresh-pr-drain-and-conflict-refresh-batch-073`, TERMINAL) previously
+classified both PRs as **handoff-to-batch-066**. This batch 074 lane reaffirms that
+outcome with fresher drift evidence (`209d1bd8` main, 95/107 behind) and does not
+re-open batch 073 for branch refresh.
+
+### What this lane did not change
+
+- No edits to target PR branches `generic-search-ai-enrichment-plugin` or
+  `generic-site-config-neutral-surfaces`.
+- No queue record movement, manual drain-lane creation, or root dirty cleanup.
+- No new generic shell features, routes, search UI, or site-config behavior.
+
+### Story 004 verification
+
+- Handoff cites story 001/002 evidence plus fresh read-only `git fetch`,
+  `gh pr checks`, `gh api` mergeability, `gh pr view --comments`, `you work list`,
+  and non-mutating `git merge-tree` (2026-07-03T00:30Z UTC).
+- Local quality gate: `bun run typecheck` passed on this lane worktree.
