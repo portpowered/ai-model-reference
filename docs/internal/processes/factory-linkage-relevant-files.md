@@ -163,5 +163,7 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   classification, story 003 consume execution for `rlvr-pr275-drain`
   (`you work move` to `complete` on session `930b51a6-07ce-44e6-a639-7a6217f6e864`),
   story 004 zero-target complete handoff (no completion transitions required),
-  and story 005 no-op handoffs for five already-terminal primary lanes plus
-  `ownerless-rlvr-navigation-root-dirty-handoff` (unfinished root-dirty classification).
+  story 005 no-op handoffs for five already-terminal primary lanes plus
+  `ownerless-rlvr-navigation-root-dirty-handoff` (unfinished root-dirty classification),
+  and story 006 final verification (root clean, docs-only branch diff, one queue
+  consume before/after recorded, content worktree drift untouched).

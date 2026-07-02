@@ -461,9 +461,6 @@ Re-verified with `you work list --session 930b51a6-07ce-44e6-a639-7a6217f6e864
 | **inaccessible PR truth** | 0 | — |
 | **unsafe root/worktree** | 0 | — |
 
-Story 006 performs final verification that reconciliation changed only allowed
-queue state (story 003 consume) or handoff notes (stories 004–005).
-
 ## Quality gate (story 005)
 
 Handoff-only no-op documentation; no page content, registry content, root work,
@@ -474,3 +471,103 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T19:22Z UTC).
+
+## Story 006 — final root and content safety verification
+
+Captured 2026-07-02T19:26Z UTC. This story verifies that reconciliation changed
+only allowed queue state (story 003 consume) or handoff notes (stories 001–002,
+004–005). No page content, registry content, generated content, root user work,
+or unrelated worktree files were edited, reverted, staged, or cleaned.
+
+### Root checkout after reconciliation
+
+| Field | Value |
+| --- | --- |
+| Root repo path | `/Users/abdifamily/work/learn-agent-factories` |
+| Root branch | `main` |
+| Root HEAD | `209d1bd8ced0cced5fd99992fe50f23296d126e8` (matches `origin/main`) |
+| Root dirty paths | 0 |
+| Pre-existing dirty state | none — root remained clean throughout reconciliation |
+
+Root checkout status is unchanged from story 001 pre-mutation evidence.
+
+### Content and worktree safety
+
+Branch diff vs `origin/main` is limited to handoff documentation only:
+
+```bash
+git diff origin/main...HEAD --name-only
+```
+
+Observed (2026-07-02T19:26Z UTC):
+
+- `docs/internal/processes/factory-linkage-relevant-files.md`
+- `docs/internal/processes/merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files.md`
+
+No page content (`src/content/**`), registry content, generated runtime
+artifacts committed to the branch, or unrelated worktree files were modified.
+
+Content worktree pre-existing drift (read-only, untouched):
+
+| Work item | Working tree notes |
+| --- | --- |
+| `rlhf-page` | dirty: `next-env.d.ts`; untracked `progress.txt` |
+| `rlvr` | untracked `progress.txt` |
+| `diffusion-transformer-block-module` | untracked `progress.txt` |
+| `generic-sidebar-ai-adapter-extraction` | untracked `progress.txt` |
+| `grpo-page` | untracked `progress.txt` |
+
+These paths were present before reconciliation and were not reverted, staged,
+deleted, or cleaned during stories 001–006.
+
+### Queue transition record
+
+One queue transition occurred during reconciliation (story 003):
+
+| Work id | Work item | Before | After | Story |
+| --- | --- | --- | --- | --- |
+| `batch-green-pr-drain-and-wordpiece-refill-batch-067-rlvr-pr275-drain` | `rlvr-pr275-drain` | `init` / INITIAL | `complete` / TERMINAL | 003 |
+
+Post-reconciliation verification (2026-07-02T19:26Z UTC):
+
+```bash
+you work show batch-green-pr-drain-and-wordpiece-refill-batch-067-rlvr-pr275-drain \
+  --session 930b51a6-07ce-44e6-a639-7a6217f6e864 --json
+```
+
+Observed: `state.name` = `complete`, `state.type` = `TERMINAL`.
+
+### Rows left untouched
+
+All other named drain rows received handoff-only outcomes with no queue move:
+
+| Target | Outcome | Reason |
+| --- | --- | --- |
+| Five primary content lanes (`rlhf-page`, `rlvr` primary, `diffusion-transformer-block-module`, `generic-sidebar-ai-adapter-extraction`, `grpo-page`) | no-op | already-terminal |
+| `ownerless-rlvr-navigation-root-dirty-handoff` | no-op | unfinished-implementation (root-dirty classification) |
+
+### Planner verification commands
+
+```bash
+bun run report:planner-queue-health
+```
+
+Result: PASS (2026-07-02T19:26:06Z UTC). Default-session summary reports
+`active=4 blocked=0 repairable=0 noise=6`; none of the five merged PR drain
+rows appear as active blocked lanes because primary content traces are
+terminal-complete and the `rlvr-pr275-drain` consume closed the subsidiary drain
+idea.
+
+## Quality gate (story 006)
+
+Final verification; branch history contains only handoff documentation plus the
+single allowed queue consume from story 003.
+
+```bash
+bun run typecheck
+bun run test
+```
+
+Typecheck: PASS (2026-07-02T19:26Z UTC).
+
+Tests: PASS — 3596 pass, 0 fail across 532 files (2026-07-02T19:47Z UTC).
