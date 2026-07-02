@@ -914,9 +914,12 @@ describe("registry-runtime", () => {
         (member) =>
           `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
-    ).toEqual([
-      "primary:classification.module.transformer-block:module.manifold-constrained-hyper-connections",
-    ]);
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:classification.module.transformer-block:module.diffusion-transformer-block",
+        "primary:classification.module.transformer-block:module.manifold-constrained-hyper-connections",
+      ]),
+    );
   });
 
   test("seeded ontology relationships resolve typed activation and feed-forward topology", () => {

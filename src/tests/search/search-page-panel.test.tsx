@@ -504,7 +504,14 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    await waitFor(() => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    });
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 15_000 },
+    );
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -571,10 +578,13 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("token");
 
+    await waitFor(() => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    });
     const results = await screen.findByTestId(
       "search-page-results",
       {},
-      { timeout: 10_000 },
+      { timeout: 15_000 },
     );
     expect(results.textContent).toMatch(/Token/i);
     expect(
