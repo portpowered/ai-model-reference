@@ -28,10 +28,7 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
 import { ModuleGraph } from "@/features/models/components/ModuleGraph";
 import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
-import {
-  ModuleAttentionSchema,
-  ModuleAttentionSchemaComparison,
-} from "@/features/models/components/ModuleAttentionSchemaComparison";
+import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
 import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
 
 <ModuleAtAGlance registryId="module.looped-transformers" />
@@ -53,7 +50,6 @@ import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModul
 <Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
   <T k="sections.mathOrComputeSchema.body" />
   <ModuleAttentionSchemaComparison schemaIds={["standardStack", "loopedBlock"]} />
-  <ModuleAttentionSchema schemaId="loopedPrediction" />
 </Section>
 
 <Section id="compared-to-nearby-modules" titleKey="sections.comparedToNearbyModules.title">

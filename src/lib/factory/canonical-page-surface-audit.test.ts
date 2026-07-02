@@ -147,6 +147,83 @@ describe("canonical page surface audit", () => {
     }
   });
 
+  test("classifies page-specific citation and paper records linked from the module registry as page-owned", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "canonical-page-surface-"));
+
+    try {
+      mkdirSync(
+        join(repoRoot, "src/content/docs/modules/example-page/messages"),
+        {
+          recursive: true,
+        },
+      );
+      mkdirSync(join(repoRoot, "src/content/registry/modules"), {
+        recursive: true,
+      });
+      mkdirSync(join(repoRoot, "src/content/registry/citations"), {
+        recursive: true,
+      });
+      mkdirSync(join(repoRoot, "src/content/registry/papers"), {
+        recursive: true,
+      });
+
+      writeFileSync(
+        join(repoRoot, "src/content/docs/modules/example-page/page.mdx"),
+        `---\nkind: "module"\nregistryId: "module.example-page"\nmessageNamespace: "local"\nassetNamespace: "local"\nstatus: "published"\ntags:\n  - "attention"\nupdatedAt: "2026-06-20"\n---\n`,
+      );
+      writeJson(
+        join(repoRoot, "src/content/registry/modules/example-page.json"),
+        {
+          id: "module.example-page",
+          citationIds: ["citation.example-page-paper"],
+          sourceId: "paper.example-page-study",
+          introducedByPaperIds: ["paper.example-page-study"],
+        },
+      );
+      writeJson(
+        join(repoRoot, "src/content/registry/citations/example-page-paper.json"),
+        {
+          id: "citation.example-page-paper",
+        },
+      );
+      writeJson(
+        join(repoRoot, "src/content/registry/papers/example-page-study.json"),
+        {
+          id: "paper.example-page-study",
+        },
+      );
+
+      const snapshot: ConflictHotspotSnapshot = {
+        generatedAtUtc: "2026-06-20T12:00:00.000Z",
+        rankedSurfaces: [],
+        recentCommitLimit: 40,
+        repoRoot,
+        topPaths: [],
+        worktrees: [],
+      };
+
+      const audit = collectCanonicalPageSurfaceAudit(repoRoot, {
+        changedPaths: [
+          "src/content/docs/modules/example-page/page.mdx",
+          "src/content/registry/modules/example-page.json",
+          "src/content/registry/citations/example-page-paper.json",
+          "src/content/registry/papers/example-page-study.json",
+        ],
+        pageDirectory: "src/content/docs/modules/example-page",
+        snapshot,
+      });
+
+      expect(audit.pageScope.supportRecordPaths).toEqual([
+        "src/content/registry/citations/example-page-paper.json",
+        "src/content/registry/papers/example-page-study.json",
+      ]);
+      expect(audit.budgetStatus).toBe("within-budget");
+      expect(audit.guidance.recommendedAction).toBe("keep-routine");
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
+
   test("keeps a single shared helper touch in the visible exception lane", () => {
     const repoRoot = mkdtempSync(join(tmpdir(), "canonical-page-surface-"));
 

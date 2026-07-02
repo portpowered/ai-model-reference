@@ -139,8 +139,8 @@
       }
     },
     "loopedBlockSchema": {
-      "label": "Looped transformer with shared block",
-      "formula": "h^{(\\ell)} = \\mathrm{Block}\\big(h^{(\\ell-1)}\\big),\\quad \\ell = 1,\\ldots,L",
+      "label": "Looped transformer with shared block and prediction head",
+      "formula": "h^{(\\ell)} = \\mathrm{Block}\\big(h^{(\\ell-1)}\\big),\\quad \\ell = 1,\\ldots,L;\\quad \\hat{y} = \\mathrm{Head}\\big(h^{(L)}\\big)",
       "variableDefinitions": {
         "h": {
           "term": "h^{(\\ell)}",
@@ -157,13 +157,7 @@
         "block": {
           "term": "\\mathrm{Block}",
           "definition": "Shared transformer block reused on every iteration."
-        }
-      }
-    },
-    "loopedPredictionSchema": {
-      "label": "Final prediction after looped refinement",
-      "formula": "\\hat{y} = \\mathrm{Head}\\big(h^{(L)}\\big)",
-      "variableDefinitions": {
+        },
         "yhat": {
           "term": "\\hat{y}",
           "definition": "Model prediction after the last loop iteration."
