@@ -378,6 +378,90 @@ describe("planner-root-checkout-reconciliation script", () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
+  test("groups generated table-registry drift separately from live git fixture", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "planner-root-checkout-reconciliation-table-registry-"),
+    );
+    const repoRoot = join(dir, "repo");
+
+    mkdirSync(repoRoot, { recursive: true });
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+
+    const tableRegistryPaths = [
+      "src/lib/content/generated/table-registry.generated.ts",
+      "src/lib/content/table-registry-runtime.ts",
+      "src/lib/content/validate-registry.ts",
+    ];
+
+    for (const relativePath of tableRegistryPaths) {
+      const absolutePath = join(repoRoot, relativePath);
+      mkdirSync(join(absolutePath, ".."), { recursive: true });
+      writeFileSync(absolutePath, "export const initial = 1;\n");
+    }
+
+    runGit(repoRoot, ["add", "."]);
+    runGit(repoRoot, ["commit", "-m", "initial"]);
+    runGit(repoRoot, ["branch", "origin-main"]);
+    runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "origin-main"]);
+
+    for (const relativePath of tableRegistryPaths) {
+      writeFileSync(
+        join(repoRoot, relativePath),
+        "export const initial = 2;\n",
+      );
+    }
+
+    const statusBefore = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-root-checkout-reconciliation.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("generated-table-registry-drift count=3");
+    expect(result.stdout).toContain(
+      "guidance=Run table-registry validation or regeneration proof before any cleanup decision; do not auto-revert, restore, or overwrite generated or runtime registry paths.",
+    );
+    expect(result.stdout).toContain("  - generated-artifact count=1");
+    expect(result.stdout).toContain(
+      "path=src/lib/content/generated/table-registry.generated.ts",
+    );
+    expect(result.stdout).toContain("registry-drift-family=generated-artifact");
+    expect(result.stdout).toContain(
+      "  - table-registry-associated-runtime count=2",
+    );
+    expect(result.stdout).toContain(
+      "path=src/lib/content/table-registry-runtime.ts",
+    );
+    expect(result.stdout).toContain(
+      "registry-drift-family=table-registry-associated-runtime",
+    );
+    expect(result.stdout).toContain(
+      "inspection-family=manual-inspection-shared-edits",
+    );
+
+    const statusAfter = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+    expect(statusAfter).toBe(statusBefore);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   test("reads fixture status output without mutating git state", () => {
     const dir = mkdtempSync(
       join(tmpdir(), "planner-root-checkout-reconciliation-fixture-"),

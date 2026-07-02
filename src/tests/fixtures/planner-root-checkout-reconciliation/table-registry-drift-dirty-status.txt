@@ -1,0 +1,4 @@
+ M src/lib/content/generated/table-registry.generated.ts
+ M src/lib/content/table-registry-runtime.ts
+ M src/lib/content/validate-registry.ts
+ M src/lib/factory/root.ts

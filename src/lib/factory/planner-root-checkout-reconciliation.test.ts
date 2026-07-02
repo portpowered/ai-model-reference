@@ -4,13 +4,18 @@ import { join } from "node:path";
 import {
   annotateManualInspectionFamilies,
   annotateRemotePresentDeletionFamilies,
+  annotateTableRegistryDriftFamilies,
   buildPlannerRootCheckoutOperatorNextActions,
   buildPlannerRootCheckoutReconciliationReport,
   classifyRootCheckoutDirtyPaths,
   formatPlannerRootCheckoutOperatorNextActions,
   formatPlannerRootCheckoutReconciliationReport,
   isManualInspectionSharedEditPath,
+  isTableRegistryAssociatedRuntimePath,
+  isTableRegistryDriftPath,
+  isTableRegistryGeneratedArtifactPath,
   isTokenizerMismatchRemotePresentDeletionPath,
+  PLANNER_ROOT_CHECKOUT_GENERATED_TABLE_REGISTRY_DRIFT_SECTION,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY,
@@ -20,6 +25,7 @@ import {
   PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_ABSENT,
   PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
   PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_TABLE_REGISTRY_DRIFT_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
   PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY,
   PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_STALE_DRIFT_GUIDANCE,
@@ -46,6 +52,14 @@ const MANUAL_INSPECTION_SHARED_EDITS_DIRTY_STATUS_FIXTURE = readFileSync(
   join(
     import.meta.dir,
     "../../tests/fixtures/planner-root-checkout-reconciliation/manual-inspection-shared-edits-dirty-status.txt",
+  ),
+  "utf8",
+);
+
+const TABLE_REGISTRY_DRIFT_DIRTY_STATUS_FIXTURE = readFileSync(
+  join(
+    import.meta.dir,
+    "../../tests/fixtures/planner-root-checkout-reconciliation/table-registry-drift-dirty-status.txt",
   ),
   "utf8",
 );
@@ -113,6 +127,86 @@ describe("isManualInspectionSharedEditPath", () => {
         "src/content/docs/modules/tokenizer-mismatch/page.mdx",
       ),
     ).toBe(false);
+  });
+});
+
+describe("isTableRegistryDriftPath", () => {
+  test("matches generated artifact and associated runtime paths", () => {
+    expect(
+      isTableRegistryGeneratedArtifactPath(
+        "src/lib/content/generated/table-registry.generated.ts",
+      ),
+    ).toBe(true);
+    expect(
+      isTableRegistryAssociatedRuntimePath(
+        "src/lib/content/table-registry-runtime.ts",
+      ),
+    ).toBe(true);
+    expect(
+      isTableRegistryAssociatedRuntimePath(
+        "src/lib/content/validate-registry.ts",
+      ),
+    ).toBe(true);
+
+    for (const path of [
+      "src/lib/content/generated/table-registry.generated.ts",
+      "src/lib/content/table-registry-runtime.ts",
+      "src/lib/content/validate-registry.ts",
+    ]) {
+      expect(isTableRegistryDriftPath(path)).toBe(true);
+    }
+  });
+
+  test("does not match unrelated manual-inspection paths", () => {
+    expect(
+      isTableRegistryDriftPath(
+        "src/lib/content/table-registry-runtime.test.ts",
+      ),
+    ).toBe(false);
+    expect(isTableRegistryDriftPath("src/lib/factory/root.ts")).toBe(false);
+  });
+});
+
+describe("annotateTableRegistryDriftFamilies", () => {
+  test("labels generated artifact and associated runtime paths separately", () => {
+    const annotated = annotateTableRegistryDriftFamilies([
+      {
+        changeKind: "modified",
+        classification: "manual-inspection",
+        comparisonTarget: "HEAD",
+        evidence: "non-deletion-dirty-path",
+        headPresent: true,
+        path: "src/lib/content/generated/table-registry.generated.ts",
+        remoteMainPresent: false,
+        statusCode: " M",
+      },
+      {
+        changeKind: "modified",
+        classification: "manual-inspection",
+        comparisonTarget: "HEAD",
+        evidence: "non-deletion-dirty-path",
+        headPresent: true,
+        path: "src/lib/content/table-registry-runtime.ts",
+        remoteMainPresent: false,
+        statusCode: " M",
+      },
+      {
+        changeKind: "modified",
+        classification: "manual-inspection",
+        comparisonTarget: "HEAD",
+        evidence: "non-deletion-dirty-path",
+        headPresent: true,
+        path: "src/lib/factory/root.ts",
+        remoteMainPresent: false,
+        statusCode: " M",
+      },
+    ]);
+
+    expect(annotated[0]?.tableRegistryDriftFamily).toBe("generated-artifact");
+    expect(annotated[1]?.tableRegistryDriftFamily).toBe(
+      "table-registry-associated-runtime",
+    );
+    expect(annotated[2]?.tableRegistryDriftFamily).toBeUndefined();
   });
 });
 
@@ -683,6 +777,8 @@ describe("planner root checkout reconciliation fixture evidence", () => {
         "    - none",
         "  - other-manual-inspection count=1",
         "    - path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
+        `- ${PLANNER_ROOT_CHECKOUT_GENERATED_TABLE_REGISTRY_DRIFT_SECTION} count=0`,
+        "  - none",
         "- operator-next-actions",
         `  - page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD} target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
         `  - remote-present-deletions count=1 guidance=${PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE}`,
@@ -818,6 +914,54 @@ describe("planner root checkout reconciliation fixture evidence", () => {
     );
     expect(formatted).not.toContain(
       "manual-inspection-shared-edits count=8\n    - guidance=Operator-reviewed root cleanup",
+    );
+  });
+
+  test("groups generated table-registry drift separately while preserving manual-inspection shared edits", () => {
+    const report = buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-02T04:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: TABLE_REGISTRY_DRIFT_DIRTY_STATUS_FIXTURE,
+      runGit: createFixtureRunGit(new Set()),
+    });
+
+    expect(report.tableRegistryDriftPaths).toHaveLength(3);
+    expect(report.tableRegistryGeneratedArtifacts).toHaveLength(1);
+    expect(report.tableRegistryAssociatedRuntimePaths).toHaveLength(2);
+    expect(report.manualInspectionSharedEdits).toHaveLength(2);
+    expect(report.otherManualInspectionPaths).toHaveLength(2);
+
+    const formatted = formatPlannerRootCheckoutReconciliationReport(report);
+    expect(formatted).toContain(
+      `- ${PLANNER_ROOT_CHECKOUT_GENERATED_TABLE_REGISTRY_DRIFT_SECTION} count=3`,
+    );
+    expect(formatted).toContain(
+      `  - guidance=${PLANNER_ROOT_CHECKOUT_TABLE_REGISTRY_DRIFT_GUIDANCE}`,
+    );
+    expect(formatted).toContain("  - generated-artifact count=1");
+    expect(formatted).toContain(
+      "path=src/lib/content/generated/table-registry.generated.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection registry-drift-family=generated-artifact",
+    );
+    expect(formatted).toContain(
+      "  - table-registry-associated-runtime count=2",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/content/table-registry-runtime.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=manual-inspection-shared-edits registry-drift-family=table-registry-associated-runtime",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/content/validate-registry.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=manual-inspection-shared-edits registry-drift-family=table-registry-associated-runtime",
+    );
+    expect(formatted).toContain(
+      `  - ${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY} count=2`,
+    );
+    expect(formatted).toContain("  - other-manual-inspection count=2");
+    expect(formatted).toContain(
+      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
+    );
+    expect(formatted).toContain("validation or regeneration proof");
+    expect(formatted).toContain(
+      "do not auto-revert, restore, or overwrite generated or runtime registry paths",
     );
   });
 });

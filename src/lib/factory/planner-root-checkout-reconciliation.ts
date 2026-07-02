@@ -41,6 +41,12 @@ export const PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY =
 export const PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_GUIDANCE =
   "Modified shared paths require explicit ownership before cleanup; do not revert, stage, or overwrite user or planner work.";
 
+export const PLANNER_ROOT_CHECKOUT_GENERATED_TABLE_REGISTRY_DRIFT_SECTION =
+  "generated-table-registry-drift";
+
+export const PLANNER_ROOT_CHECKOUT_TABLE_REGISTRY_DRIFT_GUIDANCE =
+  "Run table-registry validation or regeneration proof before any cleanup decision; do not auto-revert, restore, or overwrite generated or runtime registry paths.";
+
 export type RootCheckoutComparisonTarget = "HEAD" | "origin/main";
 
 export type RootCheckoutDriftClassification =
@@ -55,6 +61,10 @@ export type RootCheckoutManualInspectionFamily =
   | typeof PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY
   | "other-manual-inspection";
 
+export type RootCheckoutTableRegistryDriftFamily =
+  | "generated-artifact"
+  | "table-registry-associated-runtime";
+
 export interface RootCheckoutDirtyPathReport {
   changeKind: PlannerWorktreeDriftChangeKind;
   classification: RootCheckoutDriftClassification;
@@ -65,6 +75,7 @@ export interface RootCheckoutDirtyPathReport {
   remoteMainPresent: boolean;
   manualInspectionFamily?: RootCheckoutManualInspectionFamily;
   remotePresentDeletionFamily?: RootCheckoutRemotePresentDeletionFamily;
+  tableRegistryDriftFamily?: RootCheckoutTableRegistryDriftFamily;
   statusCode: string;
 }
 
@@ -86,6 +97,9 @@ export interface PlannerRootCheckoutReconciliationReport {
   remoteBaseRef: string;
   remotePresentDeletions: RootCheckoutDirtyPathReport[];
   repoRoot: string;
+  tableRegistryAssociatedRuntimePaths: RootCheckoutDirtyPathReport[];
+  tableRegistryDriftPaths: RootCheckoutDirtyPathReport[];
+  tableRegistryGeneratedArtifacts: RootCheckoutDirtyPathReport[];
   tokenizerMismatchRemotePresentDeletions: RootCheckoutDirtyPathReport[];
   totalDirtyPathCount: number;
 }
@@ -280,6 +294,76 @@ export function annotateManualInspectionFamilies(
   }));
 }
 
+const TABLE_REGISTRY_GENERATED_ARTIFACT_PATH =
+  "src/lib/content/generated/table-registry.generated.ts";
+
+const TABLE_REGISTRY_ASSOCIATED_RUNTIME_PATHS = new Set([
+  "src/lib/content/table-registry-runtime.ts",
+  "src/lib/content/validate-registry.ts",
+]);
+
+export function isTableRegistryGeneratedArtifactPath(path: string): boolean {
+  return path === TABLE_REGISTRY_GENERATED_ARTIFACT_PATH;
+}
+
+export function isTableRegistryAssociatedRuntimePath(path: string): boolean {
+  return TABLE_REGISTRY_ASSOCIATED_RUNTIME_PATHS.has(path);
+}
+
+export function isTableRegistryDriftPath(path: string): boolean {
+  return (
+    isTableRegistryGeneratedArtifactPath(path) ||
+    isTableRegistryAssociatedRuntimePath(path)
+  );
+}
+
+export function annotateTableRegistryDriftFamilies(
+  dirtyPaths: RootCheckoutDirtyPathReport[],
+): RootCheckoutDirtyPathReport[] {
+  return dirtyPaths.map((pathReport) => {
+    if (!isTableRegistryDriftPath(pathReport.path)) {
+      return pathReport;
+    }
+
+    return {
+      ...pathReport,
+      tableRegistryDriftFamily: isTableRegistryGeneratedArtifactPath(
+        pathReport.path,
+      )
+        ? "generated-artifact"
+        : "table-registry-associated-runtime",
+    };
+  });
+}
+
+export function partitionTableRegistryDriftPaths(
+  manualInspectionPaths: RootCheckoutDirtyPathReport[],
+): {
+  tableRegistryAssociatedRuntimePaths: RootCheckoutDirtyPathReport[];
+  tableRegistryDriftPaths: RootCheckoutDirtyPathReport[];
+  tableRegistryGeneratedArtifacts: RootCheckoutDirtyPathReport[];
+} {
+  const annotated = annotateTableRegistryDriftFamilies(manualInspectionPaths);
+  const tableRegistryDriftPaths = annotated.filter((pathReport) =>
+    isTableRegistryDriftPath(pathReport.path),
+  );
+  const tableRegistryGeneratedArtifacts = tableRegistryDriftPaths.filter(
+    (pathReport) =>
+      pathReport.tableRegistryDriftFamily === "generated-artifact",
+  );
+  const tableRegistryAssociatedRuntimePaths = tableRegistryDriftPaths.filter(
+    (pathReport) =>
+      pathReport.tableRegistryDriftFamily ===
+      "table-registry-associated-runtime",
+  );
+
+  return {
+    tableRegistryAssociatedRuntimePaths,
+    tableRegistryDriftPaths,
+    tableRegistryGeneratedArtifacts,
+  };
+}
+
 export function partitionManualInspectionPaths(
   manualInspectionPaths: RootCheckoutDirtyPathReport[],
 ): {
@@ -470,17 +554,27 @@ export function buildPlannerRootCheckoutReconciliationReport(
   const manualInspectionPaths = annotateManualInspectionFamilies(
     classified.manualInspectionPaths,
   );
+  const {
+    tableRegistryAssociatedRuntimePaths,
+    tableRegistryDriftPaths,
+    tableRegistryGeneratedArtifacts,
+  } = partitionTableRegistryDriftPaths(manualInspectionPaths);
+  const manualInspectionPathsWithRegistryDrift =
+    annotateTableRegistryDriftFamilies(manualInspectionPaths);
   const { manualInspectionSharedEdits, otherManualInspectionPaths } =
-    partitionManualInspectionPaths(manualInspectionPaths);
+    partitionManualInspectionPaths(manualInspectionPathsWithRegistryDrift);
 
   const reportWithoutNextActions = {
     generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
-    manualInspectionPaths,
+    manualInspectionPaths: manualInspectionPathsWithRegistryDrift,
     manualInspectionSharedEdits,
     otherManualInspectionPaths,
     remoteBaseRef,
     remotePresentDeletions,
     repoRoot,
+    tableRegistryAssociatedRuntimePaths,
+    tableRegistryDriftPaths,
+    tableRegistryGeneratedArtifacts,
     tokenizerMismatchRemotePresentDeletions,
     totalDirtyPathCount: dirtyPaths.length,
   };
@@ -559,6 +653,10 @@ function formatDirtyPathReport(
     fields.push(`inspection-family=${pathReport.manualInspectionFamily}`);
   }
 
+  if (pathReport.tableRegistryDriftFamily) {
+    fields.push(`registry-drift-family=${pathReport.tableRegistryDriftFamily}`);
+  }
+
   return fields.join(" ");
 }
 
@@ -577,6 +675,23 @@ function formatRemotePresentDeletionFamilySection(
   if (options.guidance) {
     lines.push(`    - guidance=${options.guidance}`);
   }
+
+  if (pathReports.length === 0) {
+    lines.push("    - none");
+  } else {
+    for (const pathReport of pathReports) {
+      lines.push(`    - ${formatDirtyPathReport(pathReport)}`);
+    }
+  }
+
+  return lines;
+}
+
+function formatTableRegistryDriftFamilySection(
+  family: RootCheckoutTableRegistryDriftFamily,
+  pathReports: RootCheckoutDirtyPathReport[],
+): string[] {
+  const lines = [`  - ${family} count=${pathReports.length}`];
 
   if (pathReports.length === 0) {
     lines.push("    - none");
@@ -686,6 +801,29 @@ export function formatPlannerRootCheckoutReconciliationReport(
         "other-manual-inspection",
         report.otherManualInspectionPaths,
         {},
+      ),
+    );
+  }
+
+  lines.push(
+    `- ${PLANNER_ROOT_CHECKOUT_GENERATED_TABLE_REGISTRY_DRIFT_SECTION} count=${report.tableRegistryDriftPaths.length}`,
+  );
+  if (report.tableRegistryDriftPaths.length === 0) {
+    lines.push("  - none");
+  } else {
+    lines.push(
+      `  - guidance=${PLANNER_ROOT_CHECKOUT_TABLE_REGISTRY_DRIFT_GUIDANCE}`,
+    );
+    lines.push(
+      ...formatTableRegistryDriftFamilySection(
+        "generated-artifact",
+        report.tableRegistryGeneratedArtifacts,
+      ),
+    );
+    lines.push(
+      ...formatTableRegistryDriftFamilySection(
+        "table-registry-associated-runtime",
+        report.tableRegistryAssociatedRuntimePaths,
       ),
     );
   }
