@@ -16,6 +16,7 @@ import {
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { getTableById } from "@/lib/content/table-registry-runtime";
 
 const pageDir = BYTE_LEVEL_TOKENIZATION_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
@@ -129,6 +130,54 @@ describe("byte-level-tokenization page coverage and tradeoffs (byte-level-tokeni
     const gptReferenceIndex = html.toLowerCase().indexOf("gpt-style");
     expect(definitionIndex).toBeGreaterThanOrEqual(0);
     expect(gptReferenceIndex).toBeGreaterThan(definitionIndex);
+  });
+});
+
+describe("byte-level-tokenization BPE relationship (byte-level-tokenization-page-003)", () => {
+  test("comparison table contrasts byte fallback with BPE and nearby subword tokenizers", () => {
+    const table = getTableById("table.byte-level-tokenization-comparison");
+    expect(table?.columns.map((column) => column.moduleId)).toEqual([
+      "module.byte-level-tokenization",
+      "module.bpe",
+      "module.wordpiece",
+    ]);
+    expect(table?.dimensions.map((dimension) => dimension.id)).toEqual([
+      "primaryRole",
+      "startingUnit",
+      "pairsWithByteFallback",
+      "mainTradeoff",
+    ]);
+  });
+
+  test("rendered page explains byte fallback as the alphabet and BPE as the merge layer", async () => {
+    const page = await loadModulePage("byte-level-tokenization");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expectHtmlToContainProse(
+      html,
+      "Byte-level handling provides the fallback alphabet",
+    );
+    expect(html).toContain("BPE-style merge stage");
+    expect(html).toContain("often appears together with");
+    expect(html).toContain("rather than replacing");
+    expect(html).toContain("Bytes provide guaranteed coverage");
+    expect(html).toContain("provides compression into more reusable chunks");
+    expect(html).toContain(
+      'data-table-id="table.byte-level-tokenization-comparison"',
+    );
+    expect(html).toContain("BPE");
+    expect(html).toContain("WordPiece");
+    expect(html).toContain("Learned merge pass");
+    expect(html).toContain('data-math-schema="byteCoverage"');
+    expect(html).toContain('data-math-schema="bytePairMerge"');
+    expect(html).toContain('href="/docs/modules/bpe"');
   });
 });
 
