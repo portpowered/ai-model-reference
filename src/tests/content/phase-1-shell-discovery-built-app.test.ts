@@ -7,7 +7,10 @@ import {
 import {
   loadPhase1AttentionModuleUrls,
   PHASE_1_GROUPED_QUERY_ATTENTION_MODULE_URL,
+  publishedResourceMatchesTag,
 } from "@/lib/content/phase-1-published-resources";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { loadRegistry } from "@/lib/content/registry";
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
 import { docsSearchApi } from "@/lib/search/search-server";
 import {
@@ -21,6 +24,21 @@ import {
 } from "@/lib/verify/server-lifecycle";
 
 const repoRoot = join(import.meta.dir, "../../..");
+
+const REPRESENTATIVE_ATTENTION_SEARCH_CONTRACTS = [
+  {
+    query: "GQA",
+    url: PHASE_1_GROUPED_QUERY_ATTENTION_MODULE_URL,
+  },
+  {
+    query: "attention",
+    url: "/docs/modules/attention",
+  },
+  {
+    query: "sliding window attention",
+    url: "/docs/modules/sliding-window-attention",
+  },
+] as const;
 
 /** Shell-linked Phase 1 discovery routes checked against PHASE_1_ROUTE_ASSERTIONS. */
 const PHASE_1_SHELL_DISCOVERY_ROUTES = [
@@ -53,17 +71,35 @@ describe("Phase 1 shell discovery built-app HTML", () => {
 });
 
 describe("Phase 1 shell and search discovery alignment", () => {
-  test("attention search API includes every canonical attention module URL from published-resource discovery", async () => {
-    const moduleUrls = await loadPhase1AttentionModuleUrls("en");
-    const results = await docsSearchApi.search("attention");
+  test("representative attention search queries surface published module routes from discovery helpers", async () => {
+    const indexes = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const pageByUrl = new Map(pages.map((page) => [page.url, page]));
+    const moduleUrls = new Set(await loadPhase1AttentionModuleUrls("en"));
 
-    expect(moduleUrls).toContain(PHASE_1_GROUPED_QUERY_ATTENTION_MODULE_URL);
-    for (const moduleUrl of moduleUrls) {
+    for (const contract of REPRESENTATIVE_ATTENTION_SEARCH_CONTRACTS) {
+      const page = pageByUrl.get(contract.url);
+      expect(
+        page,
+        `missing published page for representative route ${contract.url}`,
+      ).toBeDefined();
+      expect(
+        moduleUrls.has(contract.url),
+        `${contract.url} should resolve as a published attention module`,
+      ).toBe(true);
+      expect(
+        publishedResourceMatchesTag(page!, "attention", indexes),
+        `${contract.url} should match the attention discovery tag`,
+      ).toBe(true);
+
+      const results = await docsSearchApi.search(contract.query);
       expect(
         results.some(
           (result) =>
-            result.url === moduleUrl || result.url.startsWith(`${moduleUrl}#`),
+            result.url === contract.url ||
+            result.url.startsWith(`${contract.url}#`),
         ),
+        `query "${contract.query}" should surface ${contract.url}`,
       ).toBe(true);
     }
   });
