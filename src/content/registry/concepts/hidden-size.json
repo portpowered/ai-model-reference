@@ -11,6 +11,7 @@
   "status": "published",
   "createdAt": "2026-06-07T00:00:00.000Z",
   "updatedAt": "2026-06-07T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.math",
   "conceptType": "math",
   "sidebarGrouping": {
     "glossary": "sequence-and-attention"

@@ -750,7 +750,7 @@ describe("registry-runtime", () => {
 
   test("seeded activation records resolve through ontology classification helpers", () => {
     expect(getPrimaryClassificationForRecord("concept.activation")?.id).toBe(
-      "classification.concept.architecture.activation",
+      "classification.concept.module",
     );
     expect(getPrimaryClassificationForRecord("module.sigmoid")?.id).toBe(
       "classification.module.activation",

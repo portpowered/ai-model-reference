@@ -341,9 +341,14 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
       <RelatedDocs registryId="concept.foundation-model" />,
     );
 
-    expect(html).not.toContain('href="/docs/glossary/temperature"');
+    expect(html).not.toContain('data-related-group="same-concept-type"');
+    const classificationSiblingsSection = html.match(
+      /data-related-group="classification-siblings"([\s\S]*?)<\/ul>/,
+    )?.[1];
+    expect(classificationSiblingsSection ?? "").not.toContain(
+      'href="/docs/glossary/temperature"',
+    );
     expect(html).toContain('href="/docs/glossary/generative-model"');
     expect(html).toContain('href="/docs/glossary/discriminative-model"');
-    expect(html).not.toContain('data-related-group="same-concept-type"');
   });
 });

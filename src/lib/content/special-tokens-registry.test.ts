@@ -32,7 +32,10 @@ describe("special tokens registry record", () => {
     expect(record.id).toBe("concept.special-tokens");
     expect(record.kind).toBe("concept");
     expect(record.status).toBe("published");
-    expect(record.conceptType).toBe("general");
+    expect(record.conceptType).toBe("architecture");
+    expect(record.primaryClassificationId).toBe(
+      "classification.concept.architecture",
+    );
     expect(record.aliases).toEqual(
       expect.arrayContaining([
         "special token",

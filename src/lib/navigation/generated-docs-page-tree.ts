@@ -1,17 +1,18 @@
 import type { Root } from "fumadocs-core/page-tree";
 import { loadPublishedDocsPagesSync } from "@/lib/content/pages";
 import { getAiDocsShellPageTreeSettings } from "@/lib/navigation/ai-docs-sidebar-adapter";
-import { buildShellCollectionPageTree } from "@/lib/navigation/shell-collection-page-tree";
+import { buildDocsSidebarSectionNodes } from "@/lib/navigation/docs-sidebar-sections";
 
 export function buildGeneratedDocsPageTree(baseTree: Root): Root {
   const pages = loadPublishedDocsPagesSync("en");
-  const { definitions, collectionIds, groupingResolvers } =
-    getAiDocsShellPageTreeSettings();
+  const { definitions, groupingResolvers } = getAiDocsShellPageTreeSettings();
 
-  return buildShellCollectionPageTree(baseTree, {
-    pages,
-    definitions,
-    collectionIds,
-    groupingResolvers,
-  });
+  return {
+    ...baseTree,
+    children: buildDocsSidebarSectionNodes({
+      pages,
+      definitions,
+      groupingResolvers,
+    }),
+  };
 }

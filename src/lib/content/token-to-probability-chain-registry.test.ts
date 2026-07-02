@@ -46,6 +46,11 @@ const ALLOWED_CHAIN_CONCEPT_TYPES = new Set([
 
 const ALLOWED_CHAIN_PRIMARY_CLASSIFICATIONS = new Set([
   "classification.concept.architecture.activation",
+  "classification.concept.module",
+  "classification.concept.inference",
+  "classification.concept.model-type",
+  "classification.concept.math",
+  "classification.concept.training",
 ]);
 
 async function readRegistryJson<T>(

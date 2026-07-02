@@ -21,10 +21,8 @@
   "status": "published",
   "createdAt": "2026-06-04T12:00:40.319Z",
   "updatedAt": "2026-06-04T15:00:00.000Z",
+  "primaryClassificationId": "classification.concept.evaluation",
   "conceptType": "evaluation",
-  "sidebarGrouping": {
-    "glossary": "sequence-and-attention"
-  },
   "prerequisiteIds": ["concept.token", "concept.softmax", "concept.entropy"],
   "explainsIds": ["concept.generalization"]
 }

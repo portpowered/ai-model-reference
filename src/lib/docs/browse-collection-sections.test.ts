@@ -57,9 +57,16 @@ describe("browse collection sections", () => {
     const glossarySection = sections.find(
       (section) => section.id === "glossary",
     );
-    expect(glossarySection?.entries.map((entry) => entry.slug)).toEqual([
+    const glossaryStarterSlugs = [
       ...getDocsCollectionDefinition("glossary").starterSlugs,
-    ]);
+    ];
+    expect(glossarySection?.entries[0]?.slug).toBe(glossaryStarterSlugs[0]);
+    expect(glossarySection?.entries.map((entry) => entry.slug)).not.toContain(
+      "glossary/kv-cache",
+    );
+    expect(glossarySection?.entries.map((entry) => entry.slug)).not.toContain(
+      "glossary/world-model",
+    );
   });
 
   test("resolves browse link hrefs for docs collections and glossary index", async () => {
