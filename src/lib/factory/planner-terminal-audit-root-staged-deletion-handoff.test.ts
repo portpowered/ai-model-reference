@@ -6,6 +6,9 @@ import {
   formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport,
   PLANNER_TERMINAL_AUDIT_FACTORY_LINKAGE_PATH,
   PLANNER_TERMINAL_AUDIT_NO_MUTATION_STATEMENT,
+  PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS,
+  PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_GROUP_CLASSIFICATION,
+  PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_NEXT_SAFE_ACTION,
 } from "@/lib/factory/planner-terminal-audit-root-staged-deletion-handoff";
 import type { PlannerWorktreeDriftSnapshot } from "@/lib/factory/planner-worktree-drift-watchdog";
 
@@ -194,6 +197,61 @@ describe("planner terminal audit root staged deletion handoff evidence", () => {
     expect(formatted).toContain("ownership-kind=already-merged-owned");
     expect(formatted).toContain(
       "lane-name=tokens-per-second-stale-pr-follow-up",
+    );
+  });
+
+  test("classifies terminal-audit remote-present deletions with origin/main evidence", () => {
+    const report =
+      buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport(
+        buildSixPathFixtureReportOptions({
+          statusOutput: sixPathStatusFixture,
+        }),
+      );
+
+    expect(report.terminalAuditRemotePresentDeletions.classification).toBe(
+      PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_GROUP_CLASSIFICATION,
+    );
+    expect(report.terminalAuditRemotePresentDeletions.comparisonTarget).toBe(
+      "origin/main",
+    );
+    expect(report.terminalAuditRemotePresentDeletions.nextSafeAction).toBe(
+      PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_NEXT_SAFE_ACTION,
+    );
+    expect(
+      report.terminalAuditRemotePresentDeletions.deletions.map(
+        (deletion) => deletion.path,
+      ),
+    ).toEqual([...PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS]);
+
+    for (const deletion of report.terminalAuditRemotePresentDeletions
+      .deletions) {
+      expect(deletion.evidence).toBe("present-on-origin-main");
+      expect(deletion.remoteMainPresent).toBe(true);
+      expect(deletion.originMainPresenceCommand).toBe(
+        `git cat-file -e origin/main:${deletion.path}`,
+      );
+      expect(deletion.explicitOwnerLaneName).toBeUndefined();
+    }
+
+    const formatted =
+      formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport(report);
+    const terminalAuditSection = formatted.slice(
+      formatted.indexOf("- terminal-audit-remote-present-deletions"),
+      formatted.indexOf("- evidence-commands"),
+    );
+    expect(terminalAuditSection).toContain("- terminal-audit-remote-present-deletions");
+    expect(terminalAuditSection).toContain(
+      `classification=${PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_GROUP_CLASSIFICATION}`,
+    );
+    expect(terminalAuditSection).toContain(
+      "path=scripts/report-terminal-lane-main-branch-landing-audit.ts",
+    );
+    expect(terminalAuditSection).toContain("evidence=present-on-origin-main");
+    expect(terminalAuditSection).toContain(
+      "origin-main-presence-command=git cat-file -e origin/main:scripts/report-terminal-lane-main-branch-landing-audit.ts",
+    );
+    expect(terminalAuditSection).toContain(
+      `next-safe-action=${PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_NEXT_SAFE_ACTION}`,
     );
   });
 });

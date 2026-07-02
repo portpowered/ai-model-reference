@@ -4,7 +4,9 @@ import { formatMergedLaneEvidenceSummary } from "./planner-merged-lane-evidence"
 import {
   buildPlannerRootCheckoutReconciliationReport,
   formatPlannerRootCheckoutReconciliationReport,
+  PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
   type PlannerRootCheckoutReconciliationReport,
+  type RootCheckoutDirtyPathReport,
 } from "./planner-root-checkout-reconciliation";
 import {
   formatPlannerWorktreeDriftReport,
@@ -29,6 +31,45 @@ export const PLANNER_TERMINAL_AUDIT_EVIDENCE_COMMANDS = [
 export const PLANNER_TERMINAL_AUDIT_NO_MUTATION_STATEMENT =
   "No dirty root paths were modified, reverted, staged, overwritten, or regenerated as part of this handoff.";
 
+export const PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS = [
+  "scripts/report-terminal-lane-main-branch-landing-audit.ts",
+  "src/lib/factory/terminal-lane-main-branch-landing-audit.test.ts",
+  "src/lib/factory/terminal-lane-main-branch-landing-audit.ts",
+] as const;
+
+export type PlannerTerminalAuditRemotePresentDeletedPath =
+  (typeof PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS)[number];
+
+export const PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_GROUP_CLASSIFICATION =
+  "remote-present-local-deletion-drift";
+
+export const PLANNER_TERMINAL_AUDIT_EXPLICITLY_OWNED_DELETION_GROUP_CLASSIFICATION =
+  "explicitly-owned";
+
+export const PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_NEXT_SAFE_ACTION =
+  "Human operator inspect and assign explicit ownership outside this handoff lane; do not restore, stage, unstage, checkout, or delete these paths from this implementation.";
+
+export type TerminalAuditRemotePresentDeletionGroupClassification =
+  | typeof PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_GROUP_CLASSIFICATION
+  | typeof PLANNER_TERMINAL_AUDIT_EXPLICITLY_OWNED_DELETION_GROUP_CLASSIFICATION;
+
+export interface TerminalAuditRemotePresentDeletionEvidence {
+  comparisonTarget: string;
+  evidence: string;
+  explicitOwnerLaneName?: string;
+  originMainPresenceCommand: string;
+  path: PlannerTerminalAuditRemotePresentDeletedPath;
+  remoteMainPresent: boolean;
+  statusCode: string;
+}
+
+export interface TerminalAuditRemotePresentDeletionGroup {
+  classification: TerminalAuditRemotePresentDeletionGroupClassification;
+  comparisonTarget: string;
+  deletions: TerminalAuditRemotePresentDeletionEvidence[];
+  nextSafeAction: string;
+}
+
 export interface TerminalAuditReconciliationEvidenceSummary {
   manualInspectionPathCount: number;
   remotePresentDeletionCount: number;
@@ -52,7 +93,9 @@ export interface PlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport {
   preservationStatement: string;
   reconciliation: TerminalAuditReconciliationEvidenceSummary;
   reconciliationReportFormatted: string;
+  remoteBaseRef: string;
   repoRoot: string;
+  terminalAuditRemotePresentDeletions: TerminalAuditRemotePresentDeletionGroup;
   watchdogPathEvidence: TerminalAuditWatchdogPathEvidence[];
   watchdogReportFormatted: string;
 }
@@ -194,6 +237,115 @@ function collectWatchdogPathEvidence(
     .sort((left, right) => left.path.localeCompare(right.path));
 }
 
+export function isPlannerTerminalAuditRemotePresentDeletedPath(
+  path: string,
+): path is PlannerTerminalAuditRemotePresentDeletedPath {
+  return PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS.includes(
+    path as PlannerTerminalAuditRemotePresentDeletedPath,
+  );
+}
+
+function formatOriginMainPresenceCommand(
+  remoteBaseRef: string,
+  path: string,
+): string {
+  return `git cat-file -e ${remoteBaseRef}:${path}`;
+}
+
+function hasExplicitDeletionOwnership(
+  pathEvidence: TerminalAuditWatchdogPathEvidence | undefined,
+): pathEvidence is TerminalAuditWatchdogPathEvidence & { laneName: string } {
+  return (
+    pathEvidence !== undefined &&
+    pathEvidence.ownershipKind !== "unowned" &&
+    Boolean(pathEvidence.laneName)
+  );
+}
+
+function buildTerminalAuditDeletionEvidenceFromReconciliation(
+  path: PlannerTerminalAuditRemotePresentDeletedPath,
+  remoteBaseRef: string,
+  pathReport: RootCheckoutDirtyPathReport | undefined,
+  watchdogPathEvidence: TerminalAuditWatchdogPathEvidence | undefined,
+): TerminalAuditRemotePresentDeletionEvidence {
+  const explicitOwner = hasExplicitDeletionOwnership(watchdogPathEvidence)
+    ? watchdogPathEvidence.laneName
+    : undefined;
+
+  return {
+    comparisonTarget: pathReport?.comparisonTarget ?? remoteBaseRef,
+    evidence:
+      pathReport?.evidence ?? PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
+    explicitOwnerLaneName: explicitOwner,
+    originMainPresenceCommand: formatOriginMainPresenceCommand(
+      remoteBaseRef,
+      path,
+    ),
+    path,
+    remoteMainPresent: pathReport?.remoteMainPresent ?? true,
+    statusCode: pathReport?.statusCode ?? "D ",
+  };
+}
+
+export function buildTerminalAuditRemotePresentDeletionGroup(input: {
+  reconciliationReport: PlannerRootCheckoutReconciliationReport;
+  remoteBaseRef: string;
+  watchdogPathEvidence?: TerminalAuditWatchdogPathEvidence[];
+}): TerminalAuditRemotePresentDeletionGroup {
+  const remotePresentDeletionsByPath = new Map(
+    input.reconciliationReport.remotePresentDeletions.map((pathReport) => [
+      pathReport.path,
+      pathReport,
+    ]),
+  );
+  const watchdogPathEvidenceByPath = new Map(
+    (input.watchdogPathEvidence ?? []).map((pathEvidence) => [
+      pathEvidence.path,
+      pathEvidence,
+    ]),
+  );
+  const deletions = PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS.map(
+    (path) =>
+      buildTerminalAuditDeletionEvidenceFromReconciliation(
+        path,
+        input.remoteBaseRef,
+        remotePresentDeletionsByPath.get(path),
+        watchdogPathEvidenceByPath.get(path),
+      ),
+  );
+  const allExplicitlyOwned = deletions.every((deletion) =>
+    Boolean(deletion.explicitOwnerLaneName),
+  );
+
+  return {
+    classification: allExplicitlyOwned
+      ? PLANNER_TERMINAL_AUDIT_EXPLICITLY_OWNED_DELETION_GROUP_CLASSIFICATION
+      : PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_GROUP_CLASSIFICATION,
+    comparisonTarget: input.remoteBaseRef,
+    deletions,
+    nextSafeAction:
+      PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_NEXT_SAFE_ACTION,
+  };
+}
+
+function formatTerminalAuditRemotePresentDeletionEvidenceLine(
+  deletion: TerminalAuditRemotePresentDeletionEvidence,
+): string {
+  const fields = [
+    `path=${deletion.path}`,
+    `status=${deletion.statusCode}`,
+    `comparison-target=${deletion.comparisonTarget}`,
+    `evidence=${deletion.evidence}`,
+    `origin-main-presence-command=${deletion.originMainPresenceCommand}`,
+  ];
+
+  if (deletion.explicitOwnerLaneName) {
+    fields.push(`explicit-owner=${deletion.explicitOwnerLaneName}`);
+  }
+
+  return fields.join(" ");
+}
+
 export function buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport(
   options: DiscoverPlannerTerminalAuditRootStagedDeletionHandoffOptions = {},
 ): PlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport {
@@ -231,6 +383,14 @@ export function buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport
     (watchdogReportFormatted
       ? extractFactoryLinkageEvidenceFromWatchdogReport(watchdogReportFormatted)
       : undefined);
+  const remoteBaseRef =
+    options.remoteBaseRef ?? reconciliationReport.remoteBaseRef;
+  const terminalAuditRemotePresentDeletions =
+    buildTerminalAuditRemotePresentDeletionGroup({
+      reconciliationReport,
+      remoteBaseRef,
+      watchdogPathEvidence,
+    });
 
   return {
     evidenceCommands:
@@ -246,7 +406,9 @@ export function buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport
     reconciliation: summarizeReconciliationEvidence(reconciliationReport),
     reconciliationReportFormatted:
       formatPlannerRootCheckoutReconciliationReport(reconciliationReport),
+    remoteBaseRef,
     repoRoot,
+    terminalAuditRemotePresentDeletions,
     watchdogPathEvidence,
     watchdogReportFormatted,
   };
@@ -295,6 +457,18 @@ export function formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceRepor
       ...report.watchdogReportFormatted.split("\n").map((line) => `  ${line}`),
     );
   }
+
+  const terminalAuditDeletions = report.terminalAuditRemotePresentDeletions;
+  lines.push(
+    "- terminal-audit-remote-present-deletions",
+    `  classification=${terminalAuditDeletions.classification}`,
+    `  comparison-target=${terminalAuditDeletions.comparisonTarget}`,
+    `  next-safe-action=${terminalAuditDeletions.nextSafeAction}`,
+    ...terminalAuditDeletions.deletions.map(
+      (deletion) =>
+        `  - ${formatTerminalAuditRemotePresentDeletionEvidenceLine(deletion)}`,
+    ),
+  );
 
   if (report.factoryLinkageWatchdogEvidence) {
     const factoryLinkage = report.factoryLinkageWatchdogEvidence;
@@ -352,6 +526,19 @@ export function formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceMarkd
     "```",
     report.reconciliationReportFormatted.trimEnd(),
     "```",
+    "",
+    "## Terminal Audit Remote-Present Deletions",
+    "",
+    `- Group classification: \`${report.terminalAuditRemotePresentDeletions.classification}\``,
+    `- Comparison target: \`${report.terminalAuditRemotePresentDeletions.comparisonTarget}\``,
+    `- Next safe action: ${report.terminalAuditRemotePresentDeletions.nextSafeAction}`,
+    "",
+    "| Path | Status | Origin/Main Evidence | Presence Command | Explicit Owner |",
+    "| --- | --- | --- | --- | --- |",
+    ...report.terminalAuditRemotePresentDeletions.deletions.map(
+      (deletion) =>
+        `| \`${deletion.path}\` | \`${deletion.statusCode.trim()}\` | \`${deletion.evidence}\` | \`${deletion.originMainPresenceCommand}\` | \`${deletion.explicitOwnerLaneName ?? "(none)"}\` |`,
+    ),
     "",
   ];
 

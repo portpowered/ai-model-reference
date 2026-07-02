@@ -20,6 +20,7 @@ Planner-facing handoff for terminal-audit root staged deletion drift evidence.
 
 - Pass `statusOutput` with a leading `## branch...` line or porcelain-only lines; porcelain is extracted automatically for reconciliation.
 - Inject `watchdogSnapshot` when tests need already-merged-owned evidence for `docs/internal/processes/factory-linkage-relevant-files.md` without live `you` queue discovery.
+- `terminalAuditRemotePresentDeletions` lists the three terminal-audit deleted paths with `present-on-origin-main` evidence and `git cat-file -e origin/main:<path>` reviewer commands; group classification defaults to `remote-present-local-deletion-drift`.
 - Use `--repo-root` against the root checkout for live evidence; default fixture fallback keeps review deterministic when the root checkout is unavailable.
 
 ## Commands

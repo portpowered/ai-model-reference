@@ -1,6 +1,6 @@
 # Terminal Audit Root Staged Deletion Handoff Evidence
 
-Generated at (UTC): 2026-07-02T04:10:17.905Z
+Generated at (UTC): 2026-07-02T04:13:23.784Z
 
 ## Git Status (`git status --short --branch`)
 
@@ -66,6 +66,18 @@ remote-base-ref=origin/main root-dirty-paths=6 remote-present-deletions=3 manual
   - remote-present-deletions count=3 guidance=Operator-reviewed root cleanup outside this doctor command; do not auto-revert, checkout, restore, stage, or overwrite.
   - manual-inspection count=3 guidance=Inspect each path for explicit ownership before cleanup; do not revert, stage, or overwrite user or planner work.
 ```
+
+## Terminal Audit Remote-Present Deletions
+
+- Group classification: `remote-present-local-deletion-drift`
+- Comparison target: `origin/main`
+- Next safe action: Human operator inspect and assign explicit ownership outside this handoff lane; do not restore, stage, unstage, checkout, or delete these paths from this implementation.
+
+| Path | Status | Origin/Main Evidence | Presence Command | Explicit Owner |
+| --- | --- | --- | --- | --- |
+| `scripts/report-terminal-lane-main-branch-landing-audit.ts` | `D` | `present-on-origin-main` | `git cat-file -e origin/main:scripts/report-terminal-lane-main-branch-landing-audit.ts` | `(none)` |
+| `src/lib/factory/terminal-lane-main-branch-landing-audit.test.ts` | `D` | `present-on-origin-main` | `git cat-file -e origin/main:src/lib/factory/terminal-lane-main-branch-landing-audit.test.ts` | `(none)` |
+| `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` | `D` | `present-on-origin-main` | `git cat-file -e origin/main:src/lib/factory/terminal-lane-main-branch-landing-audit.ts` | `(none)` |
 
 ## Worktree Drift Watchdog Report
 
