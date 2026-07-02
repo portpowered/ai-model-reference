@@ -1,16 +1,66 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   buildRootMainLagCurrentTruthHandoff,
   captureRootMainLagGitTruth,
+  classifyRootMainLagNoteAlignment,
   classifyRootRemoteRelationship,
+  compareQueueStateAndPlannerReportsAgainstGitTruth,
   formatRootMainLagCurrentTruthHandoff,
   mapBranchDriftToRootRemoteRelationship,
   ROOT_MAIN_LAG_CURRENT_TRUTH_RECONCILIATION_HEADER,
+  textClaimsCurrentRootMainLag,
+  textContainsRootMainLagStaleMarker,
 } from "@/lib/factory/planner-root-main-lag-current-truth-reconciliation";
+
+const FIXTURE_DIR = join(
+  import.meta.dir,
+  "../../tests/fixtures/planner-root-main-lag-current-truth-reconciliation",
+);
+
+function readFixture(name: string): string {
+  return readFileSync(join(FIXTURE_DIR, name), "utf8");
+}
+
+function alignedGitTruth(): ReturnType<typeof captureRootMainLagGitTruth> {
+  return captureRootMainLagGitTruth({
+    repoRoot: "/repo/root",
+    remoteBaseRef: "origin/main",
+    statusOutput: "",
+    runGit: (_repoRoot, args) => {
+      if (args[0] === "rev-parse" && args[1] === "HEAD") {
+        return {
+          status: 0,
+          stdout: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+          stderr: "",
+        };
+      }
+      if (args[0] === "rev-parse" && args[1] === "origin/main") {
+        return {
+          status: 0,
+          stdout: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+          stderr: "",
+        };
+      }
+      if (args[0] === "symbolic-ref") {
+        return { status: 0, stdout: "main\n", stderr: "" };
+      }
+      if (args[0] === "rev-list") {
+        return { status: 0, stdout: "0\t0\n", stderr: "" };
+      }
+      return { status: 0, stdout: "", stderr: "" };
+    },
+  });
+}
 
 const MUTATING_GIT_COMMANDS = new Set([
   "add",
@@ -273,6 +323,151 @@ describe("formatRootMainLagCurrentTruthHandoff", () => {
       "remote-base-ref=origin/main sha=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb short=bbbbbbb",
     );
     expect(formatted).toContain("relationship=behind(ahead=0,behind=2)");
+    expect(formatted).toContain("- queue-planner-comparison");
+    expect(formatted).toContain("queue-state=unavailable");
+  });
+});
+
+describe("compareQueueStateAndPlannerReportsAgainstGitTruth", () => {
+  test("flags queue records that still treat stale lag as current when git is aligned", () => {
+    const comparison = compareQueueStateAndPlannerReportsAgainstGitTruth(
+      alignedGitTruth(),
+      {
+        workListJsonText: readFixture("stale-current-lag-work-list.json"),
+      },
+    );
+
+    expect(comparison.queueStateAvailability).toBe("available");
+    expect(comparison.noteRecords).toHaveLength(1);
+    expect(comparison.noteRecords[0]?.alignment).toBe(
+      "stale-root-lag-reference",
+    );
+    expect(comparison.operationalSummary).toContain("still treat");
+  });
+
+  test("treats historical queue notes as already resolved against aligned git", () => {
+    const comparison = compareQueueStateAndPlannerReportsAgainstGitTruth(
+      alignedGitTruth(),
+      {
+        workListJsonText: readFixture("historical-lag-work-list.json"),
+      },
+    );
+
+    expect(comparison.noteRecords[0]?.alignment).toBe(
+      "already-resolved-condition",
+    );
+    expect(comparison.operationalSummary).not.toContain("still treat");
+  });
+
+  test("flags planner reports that claim current stale lag against aligned git", () => {
+    const comparison = compareQueueStateAndPlannerReportsAgainstGitTruth(
+      alignedGitTruth(),
+      {
+        plannerReports: [
+          {
+            path: "fixture/stale-current-lag-planner-report.md",
+            text: readFixture("stale-current-lag-planner-report.md"),
+          },
+        ],
+      },
+    );
+
+    expect(comparison.noteRecords[0]?.alignment).toBe(
+      "stale-root-lag-reference",
+    );
+    expect(comparison.operationalSummary).toContain(
+      "fixture/stale-current-lag-planner-report.md",
+    );
+  });
+
+  test("marks unavailable queue state without running the factory runtime", () => {
+    const comparison = compareQueueStateAndPlannerReportsAgainstGitTruth(
+      alignedGitTruth(),
+      {
+        plannerReports: [
+          {
+            path: "fixture/historical-lag-planner-report.md",
+            text: readFixture("historical-lag-planner-report.md"),
+          },
+        ],
+      },
+    );
+
+    expect(comparison.queueStateAvailability).toBe("unavailable");
+    expect(comparison.noteRecords[0]?.alignment).toBe(
+      "already-resolved-condition",
+    );
+  });
+
+  test("detects conflicting behind counts between notes and live git", () => {
+    const gitTruth = captureRootMainLagGitTruth({
+      repoRoot: "/repo/root",
+      remoteBaseRef: "origin/main",
+      statusOutput: "",
+      runGit: (_repoRoot, args) => {
+        if (args[0] === "rev-parse") {
+          return {
+            status: 0,
+            stdout: "cccccccccccccccccccccccccccccccccccccccc\n",
+            stderr: "",
+          };
+        }
+        if (args[0] === "symbolic-ref") {
+          return { status: 0, stdout: "main\n", stderr: "" };
+        }
+        if (args[0] === "rev-list") {
+          return { status: 0, stdout: "0\t5\n", stderr: "" };
+        }
+        return { status: 0, stdout: "", stderr: "" };
+      },
+    });
+
+    const comparison = compareQueueStateAndPlannerReportsAgainstGitTruth(
+      gitTruth,
+      {
+        workListJsonText: readFixture("stale-current-lag-work-list.json"),
+      },
+    );
+
+    expect(comparison.noteRecords[0]?.alignment).toBe(
+      "conflicting-current-condition",
+    );
+  });
+});
+
+describe("root main lag stale marker helpers", () => {
+  test("detects stale lag markers and current-state claims", () => {
+    expect(
+      textContainsRootMainLagStaleMarker(
+        "Root checkout is currently 17 commits behind origin/main.",
+      ),
+    ).toBe(true);
+    expect(
+      textClaimsCurrentRootMainLag(
+        "Root checkout is currently 17 commits behind origin/main.",
+      ),
+    ).toBe(true);
+    expect(
+      textClaimsCurrentRootMainLag(
+        "Root checkout was 17 commits behind origin/main at 2026-07-02T19:01Z.",
+      ),
+    ).toBe(false);
+  });
+
+  test("classifies note alignment against aligned git truth", () => {
+    const gitTruth = alignedGitTruth();
+    expect(
+      classifyRootMainLagNoteAlignment(
+        gitTruth,
+        "Root checkout is currently 17 commits behind origin/main.",
+      ),
+    ).toBe("stale-root-lag-reference");
+    expect(
+      classifyRootMainLagNoteAlignment(
+        gitTruth,
+        readFixture("historical-lag-planner-report.md"),
+      ),
+    ).toBe("already-resolved-condition");
   });
 });
 

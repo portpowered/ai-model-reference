@@ -3,6 +3,8 @@ import { resolve } from "node:path";
 import {
   buildRootMainLagCurrentTruthHandoff,
   formatRootMainLagCurrentTruthHandoff,
+  ROOT_MAIN_LAG_DEFAULT_PLANNER_REPORT_PATHS,
+  type RootMainLagPlannerReportInput,
   serializeRootMainLagCurrentTruthHandoff,
 } from "../src/lib/factory/planner-root-main-lag-current-truth-reconciliation";
 
@@ -31,6 +33,44 @@ function isJsonOutputRequested(argv: string[]): boolean {
   );
 }
 
+function readRepeatedFlagValues(flag: string): string[] {
+  const values: string[] = [];
+  for (let index = 0; index < process.argv.length; index += 1) {
+    if (process.argv[index] !== flag) {
+      continue;
+    }
+    const value = process.argv[index + 1];
+    if (!value || value.startsWith("--")) {
+      continue;
+    }
+    values.push(value);
+  }
+  return values;
+}
+function readPlannerReports(
+  repoRoot: string,
+  explicitPaths: string[],
+): RootMainLagPlannerReportInput[] {
+  const paths =
+    explicitPaths.length > 0
+      ? explicitPaths
+      : [...ROOT_MAIN_LAG_DEFAULT_PLANNER_REPORT_PATHS];
+  const reports: RootMainLagPlannerReportInput[] = [];
+
+  for (const relativePath of paths) {
+    const absolutePath = resolve(repoRoot, relativePath);
+    if (!existsSync(absolutePath)) {
+      continue;
+    }
+    reports.push({
+      path: relativePath,
+      text: readFileSync(absolutePath, "utf8"),
+    });
+  }
+
+  return reports;
+}
+
 const repoRoot = readFlagValue("--repo-root")
   ? resolve(readFlagValue("--repo-root") as string)
   : defaultRepoRoot;
@@ -40,12 +80,19 @@ const statusOutput = statusOutputPath
   ? readOptionalFile(statusOutputPath, "status output")
   : undefined;
 const generatedAtUtc = readFlagValue("--generated-at-utc");
+const workListPath = readFlagValue("--work-list-json");
+const workListJsonText = workListPath
+  ? readOptionalFile(workListPath, "work list")
+  : undefined;
+const explicitPlannerReportPaths = readRepeatedFlagValues("--planner-report");
 
 const handoff = buildRootMainLagCurrentTruthHandoff({
   generatedAtUtc,
+  plannerReports: readPlannerReports(repoRoot, explicitPlannerReportPaths),
   remoteBaseRef,
   repoRoot,
   statusOutput,
+  workListJsonText,
 });
 
 process.stdout.write(
