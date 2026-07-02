@@ -85,6 +85,13 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
           item.href === "/docs/modules/attention",
       ),
     ).toBe(true);
+    expect(
+      items.some(
+        (item) =>
+          item.registryId === "concept.prefill-decode-split" &&
+          item.href === "/docs/concepts/prefill-decode-split",
+      ),
+    ).toBe(true);
   });
 
   test("messages teach prompt processing, time to first token, and serving tradeoffs", () => {
@@ -135,7 +142,7 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
     expectHtmlToContainProse(html, "serving cost");
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/docs/glossary/decode"');
-    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
+    expect(html).toContain('href="/docs/concepts/prefill-decode-split"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');

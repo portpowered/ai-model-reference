@@ -93,6 +93,13 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
           item.href === "/docs/modules/grouped-query-attention",
       ),
     ).toBe(true);
+    expect(
+      items.some(
+        (item) =>
+          item.registryId === "concept.prefill-decode-split" &&
+          item.href === "/docs/concepts/prefill-decode-split",
+      ),
+    ).toBe(true);
   });
 
   test("messages teach cache reuse, prompt processing, and serving tradeoffs", () => {
@@ -150,6 +157,7 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
     expect(html).toContain('href="/docs/glossary/prefill"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/concepts/prefill-decode-split"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');

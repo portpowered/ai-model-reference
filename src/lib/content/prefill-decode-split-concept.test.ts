@@ -115,6 +115,54 @@ describe("prefill-decode-split concept discovery", () => {
       expect(results.some((result) => result.url === CONCEPT_URL)).toBe(true);
     }
   });
+
+  test("search and tag discovery distinguish split serving from nearby optimization techniques", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const splitDocument = documents.find((entry) => entry.url === CONCEPT_URL);
+
+    expect(splitDocument?.tags).toEqual(
+      expect.arrayContaining(["foundations", "attention", "kv-cache"]),
+    );
+    expect(splitDocument?.aliases).toEqual(
+      expect.arrayContaining(["split serving", "disaggregated serving"]),
+    );
+    expect(splitDocument?.aliases).not.toEqual(
+      expect.arrayContaining([
+        "chunked prefill",
+        "paged attention",
+        "quantization",
+        "tokens per second",
+      ]),
+    );
+
+    const splitServingResults = await docsSearchApi.search("split serving");
+    expect(splitServingResults[0]?.url).toBe(CONCEPT_URL);
+
+    const tokensPerSecondResults = await docsSearchApi.search("tokens per second");
+    expect(
+      tokensPerSecondResults.some((result) => result.url === CONCEPT_URL),
+    ).toBe(false);
+
+    const pagedAttentionResults = await docsSearchApi.search("paged attention");
+    expect(pagedAttentionResults[0]?.url).not.toBe(CONCEPT_URL);
+    expect(
+      pagedAttentionResults.findIndex((result) => result.url === CONCEPT_URL),
+    ).toBeGreaterThan(0);
+
+    const quantizationResults = await docsSearchApi.search("quantization");
+    expect(quantizationResults[0]?.url).toBe("/docs/concepts/quantization");
+    expect(
+      quantizationResults.findIndex((result) => result.url === CONCEPT_URL),
+    ).toBeGreaterThan(0);
+
+    const chunkedPrefillResults = await docsSearchApi.search("chunked prefill");
+    expect(chunkedPrefillResults[0]?.url).toBe("/docs/glossary/prefill");
+    expect(
+      chunkedPrefillResults.findIndex((result) => result.url === CONCEPT_URL),
+    ).toBeGreaterThan(0);
+  });
 });
 
 describe("prefill-decode-split concept page", () => {
