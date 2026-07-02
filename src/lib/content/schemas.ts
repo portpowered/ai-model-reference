@@ -393,6 +393,17 @@ export const pageKindSchema = z.enum([
   "glossary",
 ]);
 
+export const blogPostFrontmatterSchema = z.object({
+  messageNamespace: z.union([z.literal("local"), z.string().min(1)]),
+  assetNamespace: z.union([z.literal("local"), z.string().min(1)]),
+  publishedAt: z.string().min(1),
+  updatedAt: z.string().min(1),
+  authors: z.array(z.string().min(1)).min(1),
+  tags: z.array(z.string()),
+  relatedDocIds: z.array(z.string()),
+  status: registryStatusSchema,
+});
+
 export const pageFrontmatterSchema = z.object({
   kind: pageKindSchema,
   registryId: z.string().min(1),
@@ -606,6 +617,7 @@ export type ModuleGraphNode = z.infer<typeof moduleGraphNodeSchema>;
 export type ModuleGraphEdge = z.infer<typeof moduleGraphEdgeSchema>;
 export type SidebarGroupingMetadata = z.infer<typeof sidebarGroupingSchema>;
 export type PageKind = z.infer<typeof pageKindSchema>;
+export type BlogPostFrontmatter = z.infer<typeof blogPostFrontmatterSchema>;
 export type PageFrontmatter = z.infer<typeof pageFrontmatterSchema>;
 export type PageMessages = z.infer<typeof pageMessagesSchema>;
 export type PageTableMessages = z.infer<typeof pageTableMessagesSchema>;
