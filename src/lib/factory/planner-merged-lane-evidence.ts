@@ -145,7 +145,9 @@ function parseJsonText(text: string, label: string): unknown {
   }
 }
 
-function isTerminalCompleteState(record: Record<string, unknown>): boolean {
+export function isTerminalCompleteState(
+  record: Record<string, unknown>,
+): boolean {
   const stateRecord = isRecord(record.state) ? record.state : undefined;
   const stateName = readStringField(stateRecord ?? {}, [
     "name",

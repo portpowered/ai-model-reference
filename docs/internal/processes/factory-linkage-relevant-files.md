@@ -24,6 +24,23 @@ watchdog summaries, or planner-facing linkage reports.
   session `0fdc5077-95ed-4396-a183-06e5b16555ca`.
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
+* `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` — read-only
+  terminal or near-terminal lane candidate discovery for main-branch landing
+  audits; reuse `parseTerminalCompleteWorkItems` / queue TERMINAL evidence and
+  worktree metadata instead of duplicating lane parsing. Surface comparison uses
+  `git cat-file -e <main-ref>:<path>` for main evidence and
+  `parsePlannerRelevantDirtyPaths` for planner-root drift, keeping those signals
+  separate. Expected surfaces accept explicit per-lane fixtures or derive from
+  branch diff filtered to page-bundle, registry-record, and focused-test paths.
+  Landing-status classification consumes `TerminalLaneLandingSurfaceComparison`
+  plus optional candidate terminal-state evidence to emit
+  `landed` / `remote-only` / `partial` / `reconciliation-required` with cited
+  surface reasons. Full planner report output is assembled by
+  `collectTerminalLaneMainBranchLandingAuditReport` with grouped human-readable
+  and JSON serializers plus recommended planner actions. Mismatch regression
+  tests should exercise the full collect pipeline with fixture git status and
+  assert page-bundle, registry-record, and focused-test surface names in both
+  human-readable and JSON report output.
 
 ## Planner-facing commands
 
@@ -33,12 +50,15 @@ watchdog summaries, or planner-facing linkage reports.
 | Inspect queue/worktree/PR linkage ledger with optional metadata refresh | `bun run report:queue-worktree-pr-linkage-ledger` |
 | Planner batch dispatch: collision preflight before scheduling overlapping lanes | `bun run report:planner-batch-collision-preflight` |
 | Planner worktree drift against active lanes | `bun run report:planner-worktree-drift-watchdog` |
+| Terminal or near-terminal lane landing audit against main | `bun run report:terminal-lane-main-branch-landing-audit` |
 | Root checkout reconciliation against HEAD and origin/main | `bun run report:planner-root-checkout-reconciliation` |
 
 Direct script paths remain supported for fixture-driven tests:
 
 * `bun ./scripts/active-pr-mergeability-watchdog.ts`
 * `bun ./scripts/report-queue-worktree-pr-linkage-ledger.ts`
+* `bun ./scripts/report-terminal-lane-main-branch-landing-audit.ts`
+* `bun ./scripts/report-planner-root-checkout-reconciliation.ts`
 
 ## Classification contract
 
