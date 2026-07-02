@@ -13,6 +13,7 @@ const EDGE_KIND_COLORS: Partial<Record<ModuleGraphEdge["edgeKind"], string>> = {
   "cache-read": "#2563eb",
   "cache-write": "#2563eb",
   contains: "#334155",
+  conditioning: "#0369a1",
   "control-flow": "#111111",
   "data-flow": "#111111",
   "parameter-sharing": "#0f172a",
@@ -20,6 +21,7 @@ const EDGE_KIND_COLORS: Partial<Record<ModuleGraphEdge["edgeKind"], string>> = {
 } as const;
 
 const VISUAL_ROLE_COLORS = {
+  "architecture-io": "#0369a1",
   "summary-node": "#0369a1",
   "process-node": "#7c2d12",
   annotation: "#64748b",

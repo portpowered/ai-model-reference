@@ -504,6 +504,9 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
+    await waitFor(() => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    });
     const results = await screen.findByTestId(
       "search-page-results",
       {},
@@ -571,6 +574,11 @@ describe("SearchPagePanel classification handoff", () => {
     const searchParams = new URLSearchParams(
       "q=token&classification=unknown-topic",
     );
+    const prime = await renderSearchPagePanelContent(context, searchParams);
+    prime.unmount();
+    cleanup();
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
     await renderSearchPagePanelContent(context, searchParams);
 
     const searchInput = screen.getByLabelText(
@@ -578,6 +586,9 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("token");
 
+    await waitFor(() => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    });
     const results = await screen.findByTestId(
       "search-page-results",
       {},
