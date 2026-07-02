@@ -27,6 +27,11 @@
     "tags": { "title": "Tags" },
     "references": { "title": "References" }
   },
+  "links": {
+    "regularization": "Regularization",
+    "overfitting": "Overfitting",
+    "generalization": "Generalization"
+  },
   "assets": {
     "trainingFlow": {
       "title": "Dropout training flow",

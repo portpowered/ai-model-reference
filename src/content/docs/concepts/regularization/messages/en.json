@@ -46,6 +46,7 @@
     }
   },
   "links": {
+    "dropout": "Dropout",
     "overfitting": "Overfitting",
     "generalization": "Generalization",
     "modelCapacity": "Model capacity",
@@ -90,6 +91,9 @@
     }
   },
   "relatedDocs": {
+    "training-regime.dropout": {
+      "reason": "Dropout is a widely used training-time regularization method that randomly disables activations during learning."
+    },
     "concept.overfitting": {
       "reason": "Overfitting is the failure mode regularization often targets when a model memorizes training detail instead of learning transferable structure."
     },

@@ -6,12 +6,14 @@
   "defaultSummaryKey": "description",
   "aliases": [
     "Regularization",
+    "regularization",
     "regularizer",
     "model regularization",
     "training regularization"
   ],
   "tags": ["foundations", "taxonomy"],
   "relatedIds": [
+    "training-regime.dropout",
     "concept.overfitting",
     "concept.generalization",
     "concept.model-capacity",

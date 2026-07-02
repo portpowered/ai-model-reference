@@ -129,6 +129,8 @@ describe("dropout training-regime page contracts", () => {
 
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/concepts/regularization"');
+    expect(html).toContain('href="/docs/glossary/overfitting"');
+    expect(html).toContain('href="/docs/glossary/generalization"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain(
