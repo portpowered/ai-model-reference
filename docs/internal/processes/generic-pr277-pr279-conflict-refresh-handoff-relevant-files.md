@@ -291,6 +291,45 @@ prevents non-duplicative refresh from this lane, and the shared
 Story 003 (in-lane refresh) does **not** run for either target. Story 004
 (handoff to batch 066) is the selected path for both PRs.
 
+## Story 003 — in-lane refresh outcome (N/A)
+
+Captured 2026-07-02T19:05Z UTC. Story 003 runs only when story 002 selects
+**refresh-safe** for a target PR. Story 002 classified both PR #277 and PR
+#279 as **handoff-to-batch-066**, so no in-lane branch refresh was attempted in
+this batch 073 handoff lane.
+
+### Precondition check
+
+| PR | Story 002 classification | Story 003 runs? |
+| --- | --- | --- |
+| #277 | handoff-to-batch-066 | no |
+| #279 | handoff-to-batch-066 | no |
+
+### Actions not taken (by design)
+
+- No merge or rebase of `origin/main` into
+  `generic-search-ai-enrichment-plugin` or `generic-site-config-neutral-surfaces`.
+- No conflict resolution in
+  `.claude/worktrees/generic-search-ai-enrichment-plugin` or
+  `.claude/worktrees/generic-site-config-neutral-surfaces`.
+- No push to `origin/generic-search-ai-enrichment-plugin` or
+  `origin/generic-site-config-neutral-surfaces`.
+- No queue movement or manual drain-lane creation from this handoff lane.
+
+### Live PR state at story 003 close (unchanged heads)
+
+| PR | Head SHA | Mergeable | Merge state | CI | Latest blocking PR conversation |
+| --- | --- | --- | --- | --- | --- |
+| #277 | `6a1530a0` | CONFLICTING | DIRTY | 11/11 SUCCESS | **BLOCKING MERGE** (2026-07-02T14:59:47Z): review clear, CI green, but `gh pr merge 277 --merge` failed — needs main merge/rebase and conflict resolution in the owned drain lane. |
+| #279 | `e5defbc8` | CONFLICTING | DIRTY | 11/11 SUCCESS | **BLOCKING** (2026-07-02T13:12:04Z): local `make test` a11y timeout on `search-page-panel.a11y.test.tsx`; no later clearing comment. Also DIRTY/CONFLICTING on live GitHub. |
+
+Batch 066 drain items remain the owners for any future branch refresh:
+
+- `generic-search-ai-enrichment-pr277-drain` → PR #277
+- `generic-site-config-pr279-drain` → PR #279
+
+Story 004 will record the exact handoff payload for those drain lanes.
+
 ## Evidence gathering constraints (stories 001–002)
 
 - No git branch mutation, queue movement, staging, committing of target PR
