@@ -32,6 +32,13 @@ watchdog summaries, or planner-facing linkage reports.
   path for remote-present deletions, generated drift and conflict-drift counts,
   manual ownership inspection) with target session
   `0fdc5077-95ed-4396-a183-06e5b16555ca`.
+* `src/lib/factory/planner-latent-diffusion-root-deletion-reconciliation.ts` —
+  read-only landed-evidence verification for the latent diffusion paper page
+  repair lane: confirms PR #264 / merge `3ea842f` in `origin/main` lineage,
+  checks page bundle, registry, citation, graph, and focused-test surfaces on
+  `origin/main`, and records root-checkout dirty paths separately from shipped
+  main evidence. See
+  [latent-diffusion-root-deletion-reconciliation-relevant-files](./latent-diffusion-root-deletion-reconciliation-relevant-files.md).
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 * `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` — read-only
@@ -62,6 +69,7 @@ watchdog summaries, or planner-facing linkage reports.
 | Planner worktree drift against active lanes | `bun run report:planner-worktree-drift-watchdog` |
 | Terminal or near-terminal lane landing audit against main | `bun run report:terminal-lane-main-branch-landing-audit` |
 | Root checkout reconciliation against HEAD and origin/main | `bun run report:planner-root-checkout-reconciliation` |
+| Latent diffusion root deletion landed-evidence verification | `bun run report:planner-latent-diffusion-root-deletion-reconciliation` |
 
 Direct script paths remain supported for fixture-driven tests:
 
@@ -69,6 +77,7 @@ Direct script paths remain supported for fixture-driven tests:
 * `bun ./scripts/report-queue-worktree-pr-linkage-ledger.ts`
 * `bun ./scripts/report-terminal-lane-main-branch-landing-audit.ts`
 * `bun ./scripts/report-planner-root-checkout-reconciliation.ts`
+* `bun ./scripts/report-planner-latent-diffusion-root-deletion-reconciliation.ts`
 
 ## Classification contract
 
