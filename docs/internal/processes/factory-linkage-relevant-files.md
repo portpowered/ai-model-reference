@@ -14,6 +14,11 @@ watchdog summaries, or planner-facing linkage reports.
 * `src/lib/factory/planner-worktree-drift-watchdog.ts` — root vs active
   worktree drift classification, including already-merged root drift and
   ownerless root dirty path recovery guidance.
+* `src/lib/factory/planner-root-checkout-reconciliation.ts` — non-destructive
+  root checkout reconciliation that compares dirty paths against `HEAD` and
+  `origin/main`, classifies remote-present local deletions as ownerless root
+  checkout drift with `present-on-origin-main` evidence, and keeps other dirty
+  paths in manual-inspection groups.
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 
@@ -25,6 +30,7 @@ watchdog summaries, or planner-facing linkage reports.
 | Inspect queue/worktree/PR linkage ledger with optional metadata refresh | `bun run report:queue-worktree-pr-linkage-ledger` |
 | Planner batch dispatch: collision preflight before scheduling overlapping lanes | `bun run report:planner-batch-collision-preflight` |
 | Planner worktree drift against active lanes | `bun run report:planner-worktree-drift-watchdog` |
+| Root checkout reconciliation against HEAD and origin/main | `bun run report:planner-root-checkout-reconciliation` |
 
 Direct script paths remain supported for fixture-driven tests:
 

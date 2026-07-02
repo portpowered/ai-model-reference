@@ -45,6 +45,7 @@
     "watch:active-pr-mergeability": "bun ./scripts/active-pr-mergeability-watchdog.ts",
     "report:queue-worktree-pr-linkage-ledger": "bun ./scripts/report-queue-worktree-pr-linkage-ledger.ts",
     "report:planner-worktree-drift-watchdog": "bun ./scripts/report-planner-worktree-drift-watchdog.ts",
+    "report:planner-root-checkout-reconciliation": "bun ./scripts/report-planner-root-checkout-reconciliation.ts",
     "cleanup:merged-worktrees": "bash ./scripts/cleanup-merged-worktrees.sh",
     "report:planner-conflict-hotspots": "bun ./scripts/report-planner-conflict-hotspots.ts",
     "report:planner-batch-collision-preflight": "bun ./scripts/report-planner-batch-collision-preflight.ts",
