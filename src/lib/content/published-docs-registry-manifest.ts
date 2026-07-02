@@ -3,6 +3,14 @@
 
 export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
   {
+    registryId: "paper.latent-diffusion",
+    slug: "latent-diffusion",
+    docsSlug: "papers/latent-diffusion",
+    url: "/docs/papers/latent-diffusion",
+    pageKind: "paper",
+    section: "papers",
+  },
+  {
     registryId: "paper.deepseek-v4",
     slug: "deepseek-v4",
     docsSlug: "papers/deepseek-v4",
@@ -1156,6 +1164,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "module.t5-relative-position-bias",
   "module.yarn",
   "paper.deepseek-v4",
+  "paper.latent-diffusion",
   "system.expert-parallel-overlap",
   "system.on-disk-kv-cache",
   "system.routing",

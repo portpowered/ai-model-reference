@@ -1,0 +1,106 @@
+{
+  "id": "graph.latent-diffusion-contribution",
+  "slug": "latent-diffusion-contribution",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Latent Diffusion Models contribution graph"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": ["citation.latent-diffusion-models"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "paper.latent-diffusion",
+  "graphType": "paper-contribution",
+  "rootNodeId": "paper",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "paper",
+      "labelKey": "graph.nodes.paper.label",
+      "moduleKind": "other",
+      "position": { "x": 300, "y": 0 },
+      "size": { "width": 240, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": [
+        "autoencoder",
+        "latentDenoising",
+        "conditioning",
+        "decoder"
+      ]
+    },
+    {
+      "id": "autoencoder",
+      "labelKey": "graph.nodes.autoencoder.label",
+      "moduleKind": "block",
+      "position": { "x": 20, "y": 150 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "latentDenoising",
+      "labelKey": "graph.nodes.latentDenoising.label",
+      "moduleKind": "block",
+      "position": { "x": 220, "y": 150 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "conditioning",
+      "labelKey": "graph.nodes.conditioning.label",
+      "moduleKind": "block",
+      "position": { "x": 420, "y": 150 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "decoder",
+      "labelKey": "graph.nodes.decoder.label",
+      "moduleKind": "block",
+      "position": { "x": 620, "y": 150 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "paper-autoencoder",
+      "source": "paper",
+      "target": "autoencoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-latent-denoising",
+      "source": "paper",
+      "target": "latentDenoising",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-conditioning",
+      "source": "paper",
+      "target": "conditioning",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-decoder",
+      "source": "paper",
+      "target": "decoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}
