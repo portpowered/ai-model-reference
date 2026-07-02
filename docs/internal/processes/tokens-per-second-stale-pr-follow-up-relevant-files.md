@@ -275,3 +275,60 @@ on that lane from this follow-up worktree.
 | Root dirty paths | 8 paths on main repo preserved; no revert/checkout/reset |
 | Content page payload | not modified |
 | Focused command verification | `git diff main...HEAD --name-only`, root reconciliation report above |
+
+## Verification for story 005
+
+Focused fixture-backed report tests prove the stale lane is reconciled and not
+counted as active page implementation depth.
+
+### Chosen next action (from story 002)
+
+**Refresh PR #251** on branch `tokens-per-second-serving-metric-page` — see
+[Lane decision (story 002)](#lane-decision-story-002). Factory watchdog
+`next-action=open-follow-up-throughput-prd` opened this follow-up lane; the
+operator-facing content-lane action remains refresh, not merge.
+
+### Fixture-backed report verification
+
+```bash
+bun test src/tests/discovery/tokens-per-second-stale-pr-follow-up-compatibility.test.ts
+bun test src/lib/factory/active-pr-mergeability-watchdog.test.ts \
+  -t "labels clean passing PRs with failed queue tokens"
+bun test src/lib/factory/queue-worktree-pr-linkage-ledger.test.ts \
+  -t "partitions stale-clean-pr-mismatch lanes out of actionable depth"
+```
+
+Observed ledger row (fixture, representative):
+
+```txt
+Stale PR Mismatch Summary
+- lane=tokens-per-second-serving-metric-page queue=failed ... pr=#251 ...
+  mergeability=mergeable checks=passing risk=queue-stale
+  lane-kind=stale-clean-pr-mismatch
+  mismatch-reason=clean-passing-open-pr-with-queue-failed pr=#251 queue=failed(failed) ...
+  next-action=open-follow-up-throughput-prd
+```
+
+Observed watchdog summary (same fixture):
+
+```txt
+Active PR Mergeability Watchdog
+lanes=1 pr-backed=1 actionable-gaps=0 queue-only-noise=0
+
+Action Queue
+1. action=open-follow-up work-item=tokens-per-second-serving-metric-page pr=#251 ...
+```
+
+The ledger places the lane under `Stale PR Mismatch Summary` with
+`actionable-gaps=0`; the watchdog action queue routes follow-up without listing
+the lane as `lane-kind=active-page-implementation`.
+
+### Quality gates (story 005)
+
+| Gate | Result |
+| --- | --- |
+| Typecheck | `bun run typecheck` — pass |
+| Lint | `bun run lint` — pass |
+| Focused tests | `tokens-per-second-stale-pr-follow-up-compatibility.test.ts` (2 cases), plus story-004 unit tests — pass |
+| Content page payload | not modified |
+| Prohibited dirty paths | unchanged from story-003 baseline |

@@ -154,8 +154,7 @@ function summarizeLinkageClassificationCounts(
   const staleCleanPrMismatchLanes = lanes.filter(isStaleCleanPrMismatchLane);
   const actionableLanes = lanes.filter(
     (lane) =>
-      !isQueueOnlyControlNoiseLane(lane) &&
-      !isStaleCleanPrMismatchLane(lane),
+      !isQueueOnlyControlNoiseLane(lane) && !isStaleCleanPrMismatchLane(lane),
   );
 
   return {

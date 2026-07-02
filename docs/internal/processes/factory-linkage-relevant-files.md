@@ -103,6 +103,9 @@ inventory checks. Supported fixture flags:
 
 Representative regression coverage lives in
 `src/tests/discovery/linkage-classifier-report-compatibility.test.ts`,
+`src/tests/discovery/tokens-per-second-stale-pr-follow-up-compatibility.test.ts`
+(PR #251 stale-clean mismatch fixture for watchdog action queue and ledger
+`Stale PR Mismatch Summary`),
 `src/tests/discovery/planner-root-drift-pr-metadata-repair-compatibility.test.ts`
 (already-merged root drift, ownerless recovery guidance, and PR-backed metadata
 refresh with passing checks), and

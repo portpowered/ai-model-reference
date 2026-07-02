@@ -1047,7 +1047,9 @@ describe("story 002 classification helpers", () => {
       "classification active-page-implementation=1 stale-clean-pr-mismatch=1 merge-conflict=0",
     );
     expect(reportText).toContain("lane-kind=stale-clean-pr-mismatch");
-    expect(reportText).toContain("mismatch-reason=clean-passing-open-pr-with-queue-failed pr=#251");
+    expect(reportText).toContain(
+      "mismatch-reason=clean-passing-open-pr-with-queue-failed pr=#251",
+    );
     expect(reportText).toContain("lane-kind=active-page-implementation");
     expect(reportText).not.toContain(
       "lane-kind=active-page-implementation work-item=tokens-per-second-serving-metric-page",

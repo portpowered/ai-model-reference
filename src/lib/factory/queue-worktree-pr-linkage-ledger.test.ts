@@ -359,7 +359,9 @@ describe("queue-worktree-pr-linkage-ledger", () => {
     expect(summary).toContain("Stale PR Mismatch Summary");
     expect(summary).toContain("lane=tokens-per-second-serving-metric-page");
     expect(summary).toContain("lane-kind=stale-clean-pr-mismatch");
-    expect(summary).toContain("mismatch-reason=clean-passing-open-pr-with-queue-failed pr=#251");
+    expect(summary).toContain(
+      "mismatch-reason=clean-passing-open-pr-with-queue-failed pr=#251",
+    );
     expect(summary).toContain("lane=alpha");
     expect(summary).toContain("lane=beta");
     expect(summary).toContain("lane-kind=merge-conflict");
