@@ -59,6 +59,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "models",
   },
   {
+    registryId: "model.stable-diffusion",
+    slug: "stable-diffusion",
+    docsSlug: "models/stable-diffusion",
+    url: "/docs/models/stable-diffusion",
+    pageKind: "model",
+    section: "models",
+  },
+  {
     registryId: "model.gpt-3",
     slug: "gpt-3",
     docsSlug: "models/gpt-3",
@@ -1114,6 +1122,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "model.deepseek-v4-flash",
   "model.deepseek-v4-pro",
   "model.gpt-3",
+  "model.stable-diffusion",
   "module.absolute-positional-embeddings",
   "module.alibi",
   "module.attention",

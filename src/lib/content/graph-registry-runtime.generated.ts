@@ -47,6 +47,7 @@ import siluActivationFlowGraphRecord from "@/content/registry/graphs/silu-activa
 import slidingWindowAttentionTimeWindowPatternGraphRecord from "@/content/registry/graphs/sliding-window-attention-time-window-pattern.json";
 import sparseAttentionTimePatternGraphRecord from "@/content/registry/graphs/sparse-attention-time-pattern.json";
 import specialistTrainingTrainingFlowGraphRecord from "@/content/registry/graphs/specialist-training-training-flow.json";
+import stableDiffusionArchitectureGraphRecord from "@/content/registry/graphs/stable-diffusion-architecture.json";
 import standardFfnComputeFlowGraphRecord from "@/content/registry/graphs/standard-ffn-compute-flow.json";
 import standardFfnParallelBaselineGraphRecord from "@/content/registry/graphs/standard-ffn-parallel-baseline.json";
 import swigluComputeFlowGraphRecord from "@/content/registry/graphs/swiglu-compute-flow.json";
@@ -99,6 +100,7 @@ export const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(slidingWindowAttentionTimeWindowPatternGraphRecord),
   graphRecordSchema.parse(sparseAttentionTimePatternGraphRecord),
   graphRecordSchema.parse(specialistTrainingTrainingFlowGraphRecord),
+  graphRecordSchema.parse(stableDiffusionArchitectureGraphRecord),
   graphRecordSchema.parse(standardFfnComputeFlowGraphRecord),
   graphRecordSchema.parse(standardFfnParallelBaselineGraphRecord),
   graphRecordSchema.parse(swigluComputeFlowGraphRecord),

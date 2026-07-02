@@ -1,0 +1,125 @@
+{
+  "id": "graph.stable-diffusion-architecture",
+  "slug": "stable-diffusion-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Stable Diffusion architecture graph",
+    "latent diffusion prompt to image flow"
+  ],
+  "tags": ["foundations", "model-family", "taxonomy"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.high-resolution-image-synthesis-with-latent-diffusion-models",
+    "citation.learning-transferable-visual-models-from-natural-language-supervision"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "model.stable-diffusion",
+  "graphType": "model-architecture",
+  "rootNodeId": "generated-image",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "generated-image",
+      "labelKey": "graph.nodes.generatedImage.label",
+      "summaryKey": "graph.nodes.generatedImage.summary",
+      "registryId": "concept.modality",
+      "moduleKind": "output",
+      "position": { "x": 285, "y": 0 },
+      "size": { "width": 170, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "vae-decoder",
+      "labelKey": "graph.nodes.vaeDecoder.label",
+      "summaryKey": "graph.nodes.vaeDecoder.summary",
+      "registryId": "concept.decoder",
+      "moduleKind": "output",
+      "position": { "x": 295, "y": 92 },
+      "size": { "width": 150, "height": 62 },
+      "visualRole": "architecture-feed-forward",
+      "childNodeIds": []
+    },
+    {
+      "id": "latent-denoiser",
+      "labelKey": "graph.nodes.latentDenoiser.label",
+      "summaryKey": "graph.nodes.latentDenoiser.summary",
+      "registryId": "concept.denoising-generation",
+      "moduleKind": "block",
+      "position": { "x": 260, "y": 184 },
+      "size": { "width": 220, "height": 82 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "text-encoder",
+      "labelKey": "graph.nodes.textEncoder.label",
+      "summaryKey": "graph.nodes.textEncoder.summary",
+      "registryId": "concept.conditioning",
+      "moduleKind": "embedding",
+      "position": { "x": 68, "y": 296 },
+      "size": { "width": 170, "height": 62 },
+      "visualRole": "architecture-embedding",
+      "childNodeIds": []
+    },
+    {
+      "id": "text-prompt",
+      "labelKey": "graph.nodes.textPrompt.label",
+      "summaryKey": "graph.nodes.textPrompt.summary",
+      "registryId": "concept.conditioning",
+      "moduleKind": "input",
+      "position": { "x": 285, "y": 388 },
+      "size": { "width": 170, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "vae-decoder-to-generated-image",
+      "source": "vae-decoder",
+      "target": "generated-image",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "latent-denoiser-to-vae-decoder",
+      "source": "latent-denoiser",
+      "target": "vae-decoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "text-encoder-to-latent-denoiser",
+      "source": "text-encoder",
+      "target": "latent-denoiser",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "text-prompt-to-text-encoder",
+      "source": "text-prompt",
+      "target": "text-encoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "text-prompt-to-latent-denoiser",
+      "source": "text-prompt",
+      "target": "latent-denoiser",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    }
+  ]
+}

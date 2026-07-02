@@ -1,0 +1,69 @@
+{
+  "title": "Stable Diffusion",
+  "description": "An open-weights latent diffusion model family that turns text prompts into images by denoising in a compressed latent space and decoding to pixels.",
+  "openingSummary": "Stable Diffusion made text-to-image generation practical on consumer hardware by moving diffusion out of full-resolution pixels and into a smaller latent grid, then using a text encoder to steer each denoising step before a decoder turns the final latent into an image.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Stable Diffusion is an open-weights image generation model family built on latent diffusion. A reader supplies a text prompt, the model encodes that text into a conditioning signal, runs many denoising updates on a noisy latent tensor, and decodes the cleaned latent into a finished image. The name refers to the family of checkpoints and tooling descended from the 2022 latent diffusion release rather than one frozen parameter file."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The primary input is a natural-language prompt. Optional controls such as negative prompts, guidance strength, seed, step count, and resolution settings shape sampling but the core contract is text in and image out. The output is a raster image in pixel space after the final variational autoencoder decode step."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Stable Diffusion follows a prompt-to-image pipeline. A frozen text encoder maps the prompt into embeddings that condition a U-Net denoiser operating in latent space rather than on raw pixels. Starting from Gaussian noise in that latent grid, the denoiser removes noise over many steps while cross-attention layers read the text embeddings. When denoising finishes, a variational autoencoder decoder upsamples the latent tensor into a full-resolution image."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "This model family is defined by diffusion concepts rather than a long module list. The text encoder supplies conditioning, the latent denoiser implements the iterative score update, and the variational autoencoder decoder maps latent structure back to pixels. Registry-backed related links below connect those roles to the glossary pages for diffusion models, denoising generation, latent space, and conditioning."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public descriptions center on latent diffusion training: an autoencoder learns a compressed image latent, then a denoising network trains to predict noise or score corrections on noised latents. Text conditioning comes from a pretrained contrastive language-image encoder so prompts steer generation without retraining the entire vision stack from scratch. Fine-tuned community checkpoints reuse the same architecture with different aesthetic or domain emphasis."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Latent diffusion mattered because pixel-space diffusion at useful resolutions was far too slow and memory-heavy for most GPUs. Working in a smaller latent grid cut compute sharply while preserving enough spatial structure for detailed images. Stable Diffusion also shipped as open weights, which made local inference, fine-tuning, and downstream tooling far more accessible than closed text-to-image APIs alone."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Stable Diffusion architecture diagram with a text prompt feeding a text encoder, conditioning a latent denoiser that refines noisy latents over repeated steps, then a variational autoencoder decoder that outputs a generated image."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "generatedImage": {
+        "label": "Generated\nImage",
+        "summary": "Final pixel image after latent decoding"
+      },
+      "vaeDecoder": {
+        "label": "VAE\nDecoder",
+        "summary": "Maps the denoised latent tensor into pixel space"
+      },
+      "latentDenoiser": {
+        "label": "Latent\nDenoiser",
+        "summary": "U-Net that removes noise from the latent grid across many steps"
+      },
+      "textEncoder": {
+        "label": "Text\nEncoder",
+        "summary": "Frozen encoder that turns the prompt into conditioning embeddings"
+      },
+      "textPrompt": {
+        "label": "Text\nPrompt",
+        "summary": "Natural-language description of the desired image"
+      }
+    }
+  }
+}
