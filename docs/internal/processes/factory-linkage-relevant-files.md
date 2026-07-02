@@ -25,7 +25,9 @@ watchdog summaries, or planner-facing linkage reports.
   `manual-inspection-shared-edits` with preserve guidance, names generated
   table-registry drift under `generated-table-registry-drift` with
   `generated-artifact` and `table-registry-associated-runtime` families plus
-  validation/regeneration guidance, and prints operator next actions
+  validation/regeneration guidance, names conflict-drift PRs under
+  `conflict-drift-prs` with branch-refresh guidance and optional metadata-refresh
+  guidance when linkage refresh is required, and prints operator next actions
   (page-refill hold, safe cleanup path for remote-present deletions, manual
   ownership inspection) with target session
   `0fdc5077-95ed-4396-a183-06e5b16555ca`.

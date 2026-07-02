@@ -1,5 +1,9 @@
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
+import type {
+  LaneDiscoveryRecord,
+  LaneDiscoveryReport,
+} from "./active-pr-mergeability-watchdog";
 import {
   type PlannerWorktreeDriftChangeKind,
   parsePlannerRelevantDirtyPaths,
@@ -47,6 +51,15 @@ export const PLANNER_ROOT_CHECKOUT_GENERATED_TABLE_REGISTRY_DRIFT_SECTION =
 export const PLANNER_ROOT_CHECKOUT_TABLE_REGISTRY_DRIFT_GUIDANCE =
   "Run table-registry validation or regeneration proof before any cleanup decision; do not auto-revert, restore, or overwrite generated or runtime registry paths.";
 
+export const PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_PR_SECTION =
+  "conflict-drift-prs";
+
+export const PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_BRANCH_REFRESH_GUIDANCE =
+  "Refresh or repair the PR branch before page refill; merge-conflict reduction takes priority over refill.";
+
+export const PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_METADATA_REFRESH_GUIDANCE =
+  "Run watch:active-pr-mergeability or report:queue-worktree-pr-linkage-ledger with metadata refresh before deciding all active lanes are queue-only noise.";
+
 export type RootCheckoutComparisonTarget = "HEAD" | "origin/main";
 
 export type RootCheckoutDriftClassification =
@@ -88,7 +101,18 @@ export interface PlannerRootCheckoutOperatorNextActions {
   targetSessionId: string;
 }
 
+export interface PlannerRootCheckoutConflictDriftPrEvidence {
+  branchName?: string;
+  mergeabilityClass?: LaneDiscoveryRecord["mergeabilityClass"];
+  nextAction: "refresh-branch";
+  prNumber?: number;
+  queueMismatchRisk: "conflict-drift";
+  workItemName: string;
+}
+
 export interface PlannerRootCheckoutReconciliationReport {
+  conflictDriftMetadataRefreshGuidance?: string;
+  conflictDriftPrs: PlannerRootCheckoutConflictDriftPrEvidence[];
   generatedAtUtc: string;
   manualInspectionPaths: RootCheckoutDirtyPathReport[];
   manualInspectionSharedEdits: RootCheckoutDirtyPathReport[];
@@ -106,6 +130,7 @@ export interface PlannerRootCheckoutReconciliationReport {
 
 export interface DiscoverPlannerRootCheckoutReconciliationOptions {
   generatedAtUtc?: string;
+  laneDiscoveryReport?: LaneDiscoveryReport;
   remoteBaseRef?: string;
   repoRoot?: string;
   runGit?: RunGit;
@@ -387,6 +412,67 @@ export function partitionManualInspectionPaths(
   };
 }
 
+export function isConflictDriftLane(lane: LaneDiscoveryRecord): boolean {
+  return (
+    lane.queueMismatchRisk === "conflict-drift" &&
+    lane.status === "pr-backed" &&
+    lane.prNumber !== undefined
+  );
+}
+
+export function collectConflictDriftPrEvidence(
+  laneReport: LaneDiscoveryReport | undefined,
+): PlannerRootCheckoutConflictDriftPrEvidence[] {
+  if (!laneReport) {
+    return [];
+  }
+
+  return laneReport.lanes
+    .filter(isConflictDriftLane)
+    .map((lane) => ({
+      branchName: lane.branchName,
+      mergeabilityClass: lane.mergeabilityClass,
+      nextAction: "refresh-branch" as const,
+      prNumber: lane.prNumber,
+      queueMismatchRisk: "conflict-drift" as const,
+      workItemName: lane.workItemName,
+    }))
+    .sort((left, right) => left.workItemName.localeCompare(right.workItemName));
+}
+
+export function determineConflictDriftMetadataRefreshGuidance(
+  laneReport: LaneDiscoveryReport | undefined,
+  conflictDriftPrs: PlannerRootCheckoutConflictDriftPrEvidence[],
+): string | undefined {
+  if (!laneReport || conflictDriftPrs.length > 0) {
+    return undefined;
+  }
+
+  const hasHiddenConflictSignals = laneReport.lanes.some(
+    (lane) =>
+      lane.queueState === "active" &&
+      (lane.metadataRefreshHints?.length ?? 0) > 0,
+  );
+
+  if (hasHiddenConflictSignals) {
+    return PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_METADATA_REFRESH_GUIDANCE;
+  }
+
+  const hasUnavailableMergeability = laneReport.lanes.some(
+    (lane) =>
+      lane.queueState === "active" &&
+      lane.status === "pr-backed" &&
+      (lane.queueMismatchRisk === "metadata-unavailable" ||
+        lane.mergeabilityClass === "unknown"),
+  );
+
+  if (hasUnavailableMergeability) {
+    return PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_METADATA_REFRESH_GUIDANCE;
+  }
+
+  return undefined;
+}
+
 function classifyDeletedDirtyPath(
   dirtyPath: {
     changeKind: PlannerWorktreeDriftChangeKind;
@@ -563,8 +649,18 @@ export function buildPlannerRootCheckoutReconciliationReport(
     annotateTableRegistryDriftFamilies(manualInspectionPaths);
   const { manualInspectionSharedEdits, otherManualInspectionPaths } =
     partitionManualInspectionPaths(manualInspectionPathsWithRegistryDrift);
+  const conflictDriftPrs = collectConflictDriftPrEvidence(
+    options.laneDiscoveryReport,
+  );
+  const conflictDriftMetadataRefreshGuidance =
+    determineConflictDriftMetadataRefreshGuidance(
+      options.laneDiscoveryReport,
+      conflictDriftPrs,
+    );
 
   const reportWithoutNextActions = {
+    conflictDriftMetadataRefreshGuidance,
+    conflictDriftPrs,
     generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
     manualInspectionPaths: manualInspectionPathsWithRegistryDrift,
     manualInspectionSharedEdits,
@@ -728,6 +824,52 @@ function formatManualInspectionFamilySection(
   return lines;
 }
 
+function formatConflictDriftPrEvidenceLine(
+  evidence: PlannerRootCheckoutConflictDriftPrEvidence,
+): string {
+  const fields = [
+    `work-item=${evidence.workItemName}`,
+    `pr=${evidence.prNumber !== undefined ? `#${evidence.prNumber}` : "?"}`,
+    `branch=${evidence.branchName ?? "?"}`,
+    `mergeability=${evidence.mergeabilityClass ?? "?"}`,
+    `risk=${evidence.queueMismatchRisk}`,
+    `next-action=${evidence.nextAction}`,
+  ];
+
+  return `    - ${fields.join(" ")}`;
+}
+
+function formatConflictDriftPrSection(
+  report: Pick<
+    PlannerRootCheckoutReconciliationReport,
+    "conflictDriftMetadataRefreshGuidance" | "conflictDriftPrs"
+  >,
+): string[] {
+  const lines = [
+    `- ${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_PR_SECTION} count=${report.conflictDriftPrs.length}`,
+  ];
+
+  if (report.conflictDriftMetadataRefreshGuidance) {
+    lines.push(
+      `  - metadata-refresh-guidance=${report.conflictDriftMetadataRefreshGuidance}`,
+    );
+  }
+
+  if (report.conflictDriftPrs.length === 0) {
+    lines.push("  - none");
+    return lines;
+  }
+
+  lines.push(
+    `  - guidance=${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_BRANCH_REFRESH_GUIDANCE}`,
+  );
+  for (const evidence of report.conflictDriftPrs) {
+    lines.push(formatConflictDriftPrEvidenceLine(evidence));
+  }
+
+  return lines;
+}
+
 export function formatPlannerRootCheckoutReconciliationReport(
   report: PlannerRootCheckoutReconciliationReport,
 ): string {
@@ -827,6 +969,8 @@ export function formatPlannerRootCheckoutReconciliationReport(
       ),
     );
   }
+
+  lines.push(...formatConflictDriftPrSection(report));
 
   if (report.operatorNextActions) {
     lines.push(

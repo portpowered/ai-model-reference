@@ -103,6 +103,7 @@ describe("planner-root-checkout-reconciliation script", () => {
         repoRoot,
         "--remote-base-ref",
         "origin/main",
+        "--skip-lane-discovery",
       ],
       { cwd: process.cwd(), encoding: "utf8" },
     );
@@ -196,6 +197,7 @@ describe("planner-root-checkout-reconciliation script", () => {
         repoRoot,
         "--remote-base-ref",
         "origin/main",
+        "--skip-lane-discovery",
       ],
       { cwd: process.cwd(), encoding: "utf8" },
     );
@@ -259,6 +261,7 @@ describe("planner-root-checkout-reconciliation script", () => {
         repoRoot,
         "--remote-base-ref",
         "origin/main",
+        "--skip-lane-discovery",
       ],
       { cwd: process.cwd(), encoding: "utf8" },
     );
@@ -346,6 +349,7 @@ describe("planner-root-checkout-reconciliation script", () => {
         repoRoot,
         "--remote-base-ref",
         "origin/main",
+        "--skip-lane-discovery",
       ],
       { cwd: process.cwd(), encoding: "utf8" },
     );
@@ -426,6 +430,7 @@ describe("planner-root-checkout-reconciliation script", () => {
         repoRoot,
         "--remote-base-ref",
         "origin/main",
+        "--skip-lane-discovery",
       ],
       { cwd: process.cwd(), encoding: "utf8" },
     );
@@ -498,6 +503,7 @@ describe("planner-root-checkout-reconciliation script", () => {
         repoRoot,
         "--remote-base-ref",
         "origin/main",
+        "--skip-lane-discovery",
         "--status-output",
         MIXED_DIRTY_STATUS_FIXTURE,
       ],
@@ -520,6 +526,110 @@ describe("planner-root-checkout-reconciliation script", () => {
       encoding: "utf8",
     }).stdout;
     expect(statusAfter).toBe(statusBefore);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("surfaces conflict-drift PRs with branch-refresh guidance from lane fixtures", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "planner-root-checkout-reconciliation-conflict-drift-"),
+    );
+    const repoRoot = join(dir, "repo");
+    const workListPath = join(dir, "work-list.json");
+    const sessionListPath = join(dir, "session-list.json");
+    const prMapPath = join(dir, "pr-map.json");
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+
+    mkdirSync(repoRoot, { recursive: true });
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+    runGit(repoRoot, ["commit", "--allow-empty", "-m", "initial"]);
+
+    mkdirSync(worktreesRoot, { recursive: true });
+    const alphaPath = join(worktreesRoot, "alpha");
+    mkdirSync(alphaPath, { recursive: true });
+    writeFileSync(
+      join(alphaPath, "prd.json"),
+      JSON.stringify({ branchName: "alpha" }, null, 2),
+    );
+    const metadataDir = join(alphaPath, ".claude");
+    mkdirSync(metadataDir, { recursive: true });
+    writeFileSync(
+      join(metadataDir, "lane-metadata.json"),
+      `${JSON.stringify(
+        {
+          schemaVersion: 1,
+          workItemName: "alpha",
+          branchName: "alpha",
+          branchMetadataSource: "setup",
+          worktreePath: alphaPath,
+          sessionId: "sess-1",
+          pullRequest: {
+            number: 42,
+            url: "https://example.com/pull/42",
+          },
+          createdAtUtc: "2026-06-20T21:08:34.000Z",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+        null,
+        2,
+      )}\n`,
+    );
+
+    writeFileSync(
+      workListPath,
+      JSON.stringify({
+        items: [{ name: "alpha", state: "active", sessionId: "sess-1" }],
+      }),
+    );
+    writeFileSync(
+      sessionListPath,
+      JSON.stringify({
+        sessions: [{ id: "sess-1", workItemName: "alpha", status: "running" }],
+      }),
+    );
+    writeFileSync(
+      prMapPath,
+      JSON.stringify({
+        alpha: {
+          number: 42,
+          headRefName: "alpha",
+          mergeStateStatus: "DIRTY",
+          statusCheckRollup: [{ conclusion: "SUCCESS" }],
+        },
+      }),
+    );
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-root-checkout-reconciliation.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+        "--work-list-json",
+        workListPath,
+        "--session-list-json",
+        sessionListPath,
+        "--worktrees-dir",
+        worktreesRoot,
+        "--pr-map-json",
+        prMapPath,
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("conflict-drift-prs count=1");
+    expect(result.stdout).toContain(
+      "guidance=Refresh or repair the PR branch before page refill; merge-conflict reduction takes priority over refill.",
+    );
+    expect(result.stdout).toContain(
+      "work-item=alpha pr=#42 branch=alpha mergeability=conflicting risk=conflict-drift next-action=refresh-branch",
+    );
+    expect(result.stdout).not.toContain("queue-only-missing-linkage");
 
     rmSync(dir, { recursive: true, force: true });
   });

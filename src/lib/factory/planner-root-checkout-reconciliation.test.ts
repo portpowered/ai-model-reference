@@ -8,13 +8,19 @@ import {
   buildPlannerRootCheckoutOperatorNextActions,
   buildPlannerRootCheckoutReconciliationReport,
   classifyRootCheckoutDirtyPaths,
+  collectConflictDriftPrEvidence,
+  determineConflictDriftMetadataRefreshGuidance,
   formatPlannerRootCheckoutOperatorNextActions,
   formatPlannerRootCheckoutReconciliationReport,
+  isConflictDriftLane,
   isManualInspectionSharedEditPath,
   isTableRegistryAssociatedRuntimePath,
   isTableRegistryDriftPath,
   isTableRegistryGeneratedArtifactPath,
   isTokenizerMismatchRemotePresentDeletionPath,
+  PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_BRANCH_REFRESH_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_METADATA_REFRESH_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_PR_SECTION,
   PLANNER_ROOT_CHECKOUT_GENERATED_TABLE_REGISTRY_DRIFT_SECTION,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
@@ -569,6 +575,179 @@ describe("formatPlannerRootCheckoutOperatorNextActions", () => {
   });
 });
 
+describe("conflict-drift PR evidence", () => {
+  test("collects PR-backed lanes with conflict-drift risk", () => {
+    const conflictDriftPrs = collectConflictDriftPrEvidence({
+      issues: [],
+      lanes: [
+        {
+          status: "pr-backed",
+          workItemName: "alpha",
+          queueState: "active",
+          rawQueueState: "active",
+          branchName: "alpha",
+          prNumber: 42,
+          mergeabilityClass: "conflicting",
+          queueMismatchRisk: "conflict-drift",
+          nextAction: "refresh-branch",
+          reasons: [],
+        },
+        {
+          status: "pr-backed",
+          workItemName: "beta",
+          queueState: "active",
+          rawQueueState: "active",
+          branchName: "beta",
+          prNumber: 43,
+          mergeabilityClass: "check-blocked",
+          queueMismatchRisk: "checks-blocked",
+          nextAction: "wait",
+          reasons: [],
+        },
+        {
+          status: "unclassified",
+          workItemName: "gamma",
+          queueState: "failed",
+          rawQueueState: "failed",
+          queueMismatchRisk: "conflict-drift",
+          reasons: [],
+        },
+      ],
+    });
+
+    expect(conflictDriftPrs).toEqual([
+      {
+        branchName: "alpha",
+        mergeabilityClass: "conflicting",
+        nextAction: "refresh-branch",
+        prNumber: 42,
+        queueMismatchRisk: "conflict-drift",
+        workItemName: "alpha",
+      },
+    ]);
+  });
+
+  test("isConflictDriftLane requires pr-backed status and PR number", () => {
+    expect(
+      isConflictDriftLane({
+        status: "pr-backed",
+        workItemName: "alpha",
+        queueState: "active",
+        rawQueueState: "active",
+        prNumber: 42,
+        queueMismatchRisk: "conflict-drift",
+        reasons: [],
+      }),
+    ).toBe(true);
+    expect(
+      isConflictDriftLane({
+        status: "unclassified",
+        workItemName: "alpha",
+        queueState: "active",
+        rawQueueState: "active",
+        queueMismatchRisk: "conflict-drift",
+        reasons: [],
+      }),
+    ).toBe(false);
+  });
+
+  test("surfaces metadata refresh guidance when conflict drift may be hidden", () => {
+    expect(
+      determineConflictDriftMetadataRefreshGuidance(
+        {
+          issues: [],
+          lanes: [
+            {
+              status: "pr-backed",
+              workItemName: "alpha",
+              queueState: "active",
+              rawQueueState: "active",
+              branchName: "alpha",
+              prNumber: 42,
+              mergeabilityClass: "unknown",
+              queueMismatchRisk: "metadata-unavailable",
+              metadataRefreshHints: [
+                "stamped pull request linkage is stale: lookup API returned 502",
+              ],
+              reasons: [],
+            },
+          ],
+        },
+        [],
+      ),
+    ).toBe(PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_METADATA_REFRESH_GUIDANCE);
+    expect(
+      determineConflictDriftMetadataRefreshGuidance(
+        {
+          issues: [],
+          lanes: [
+            {
+              status: "pr-backed",
+              workItemName: "alpha",
+              queueState: "active",
+              rawQueueState: "active",
+              branchName: "alpha",
+              prNumber: 42,
+              mergeabilityClass: "conflicting",
+              queueMismatchRisk: "conflict-drift",
+              reasons: [],
+            },
+          ],
+        },
+        [
+          {
+            branchName: "alpha",
+            mergeabilityClass: "conflicting",
+            nextAction: "refresh-branch",
+            prNumber: 42,
+            queueMismatchRisk: "conflict-drift",
+            workItemName: "alpha",
+          },
+        ],
+      ),
+    ).toBeUndefined();
+  });
+
+  test("formats conflict-drift PR section with branch-refresh guidance", () => {
+    const report = buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-01T12:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: "",
+      laneDiscoveryReport: {
+        issues: [],
+        lanes: [
+          {
+            status: "pr-backed",
+            workItemName: "tokenizer-mismatch",
+            queueState: "active",
+            rawQueueState: "active",
+            branchName: "tokenizer-mismatch",
+            prNumber: 260,
+            mergeabilityClass: "conflicting",
+            queueMismatchRisk: "conflict-drift",
+            nextAction: "refresh-branch",
+            reasons: [],
+          },
+        ],
+      },
+      runGit: () => ({ status: 0, stdout: "", stderr: "" }),
+    });
+
+    const formatted = formatPlannerRootCheckoutReconciliationReport(report);
+    expect(formatted).toContain(
+      `- ${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_PR_SECTION} count=1`,
+    );
+    expect(formatted).toContain(
+      `guidance=${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_BRANCH_REFRESH_GUIDANCE}`,
+    );
+    expect(formatted).toContain(
+      "work-item=tokenizer-mismatch pr=#260 branch=tokenizer-mismatch mergeability=conflicting risk=conflict-drift next-action=refresh-branch",
+    );
+    expect(formatted).not.toContain("queue-only-missing-linkage");
+  });
+});
+
 describe("buildPlannerRootCheckoutReconciliationReport operator next actions", () => {
   test("includes operator next actions when dirty paths remain", () => {
     const report = buildPlannerRootCheckoutReconciliationReport({
@@ -778,6 +957,8 @@ describe("planner root checkout reconciliation fixture evidence", () => {
         "  - other-manual-inspection count=1",
         "    - path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
         `- ${PLANNER_ROOT_CHECKOUT_GENERATED_TABLE_REGISTRY_DRIFT_SECTION} count=0`,
+        "  - none",
+        `- ${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_PR_SECTION} count=0`,
         "  - none",
         "- operator-next-actions",
         `  - page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD} target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
