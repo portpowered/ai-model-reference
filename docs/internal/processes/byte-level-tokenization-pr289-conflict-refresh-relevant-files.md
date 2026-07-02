@@ -227,8 +227,15 @@ touching byte-level tokenization surfaces.
 
 ### PR #289 post-refresh state
 
-Re-fetch after push of `f010c064` to `origin/byte-level-tokenization-page`.
-CI re-run expected on the updated head.
+Re-fetched after push of `f010c064` to `origin/byte-level-tokenization-page`
+(2026-07-02T18:15Z UTC):
+
+| Field | Value |
+| --- | --- |
+| Head SHA | `f010c06496df7e7b3b91e2a86aede0f56a9ca9d5` |
+| Mergeability | MERGEABLE |
+| Merge state status | CLEAN |
+| Required checks | all SUCCESS (lint, typecheck, test, test-verify-contract, coverage, test-build-contract, build-export, test-integration, validate-data, linkcheck, ci) |
 
 ## Evidence commands (read-only)
 
