@@ -3,6 +3,7 @@
 - When running planner reports from a nested git worktree, resolve main-repo paths via `resolveMainRepoRoot` / `resolveDefaultWorktreesDir` (`git rev-parse --git-common-dir`) so `.claude/worktrees` and root checkout evidence point at `/Users/abdifamily/work/learn-agent-factories`, not the nested worktree checkout.
 - Distinguish merged PR truth from queue completion truth explicitly; all four PRs can be MERGED while drain rows remain `init/INITIAL`.
 - Use `classifyMergedPrDrainRowOutcome` / `buildMergedPrDrainRowsClassificationReport` for per-row `consume` / `complete` / `no-op` outcomes; stale `init/INITIAL` drain rows with terminal-complete content lanes classify as `consume`, and rows without drain rows classify as `no-op` (`already-settled`).
+- Use `buildMergedPrDrainRowNoOpHandoff` / `buildMergedPrDrainRowsNoOpReport` for explicit no-op handoffs with `row-left-untouched=true`, `missing-evidence`, and `next-safe-owner-action` when blockers apply.
 - Accepted consume operation for standalone merged drain idea rows is `manual-drain-row-move-to-complete` via `you work move <drain-work-id> complete --session 930b51a6-07ce-44e6-a639-7a6217f6e864`; the standard factory `consume` workstation does not apply without a paired task token.
 - Accepted complete operation for non-terminal drain rows is `manual-drain-row-terminal-completion` via the same `you work move <drain-work-id> complete --session <session>` command; `buildMergedPrDrainRowCompleteHandoff` reclassifies to no-op when unfinished implementation/review, PR mismatch, or missing metadata block the transition.
 
@@ -41,4 +42,13 @@
   - `complete` differs from `consume`: it applies when drain rows are non-terminal but not `init/INITIAL`; both use `you work move <work-id> complete --session <session>`.
   - Complete handoff building is stricter than classification — missing worktree metadata reclassifies to no-op even when queue/PR evidence suffices for classification.
   - Live state (2026-07-02T19:31Z UTC): all four rows classify as `no-op`; three drain rows are `already-terminal` after story 003 consume; zero rows classified as `complete`.
+---
+
+## 2026-07-02T19:36:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-005
+- Implemented no-op handoff builders/reports with explicit `row-left-untouched`, `missing-evidence`, and `next-safe-owner-action` fields; extended unified reconciliation output and CLI text/JSON to include no-op handoff section.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Live no-op state (2026-07-02T19:35Z UTC): all four rows are `no-op` — three `already-terminal` post-consume drain rows plus `bpe-page` `already-settled`.
+  - No-op handoffs are read-only; they never mutate queue rows and surface owner actions only for unfinished implementation/review or PR/queue blockers.
+  - `buildMergedPrDrainRowsReconciliationOutput` now always includes `noOpReport` alongside consume and complete reports.
 ---
