@@ -98,6 +98,8 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Canonical post-training needs a message-backed reader-journey link list in the comparison section so discovery paths stay localized without nested auto-linked anchors.",
   "training/diffusion-training-objective/page.mdx":
     "Canonical diffusion training objective needs a message-backed custom reader-journey link list in the comparison section to preserve localized navigation labels without nested auto-linked anchors.",
+  "training/dropout/page.mdx":
+    "Canonical dropout needs a message-backed reader-journey link list in the comparison section so discovery paths to regularization and nearby concepts stay localized without nested auto-linked anchors.",
 };
 
 const templateStructureCache = new Map<
