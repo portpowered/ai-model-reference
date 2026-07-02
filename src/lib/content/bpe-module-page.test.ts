@@ -85,6 +85,11 @@ describe("loadModulePage bpe", () => {
     expect(html).toContain('href="https://arxiv.org/abs/1508.07909"');
     expect(html).not.toContain("later phase");
     expect(html).toContain('data-graph-id="graph.bpe-compute-flow"');
+    expect(html).toContain('data-page-asset="comparisonTable"');
+    expect(html).toContain('data-table-id="table.bpe-comparison"');
+    expect(html).toContain(
+      "How byte pair encoding compares with nearby subword tokenizers",
+    );
   });
 
   test("published route is discoverable through source and search documents", async () => {
