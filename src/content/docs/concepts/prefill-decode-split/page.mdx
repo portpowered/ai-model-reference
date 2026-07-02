@@ -1,24 +1,25 @@
 ---
 title: Prefill/decode split
 description: The serving setup that separates prompt processing from token-by-token generation because the two stages stress hardware, memory, and latency in different ways.
-kind: "glossary"
+kind: "concept"
 registryId: "concept.prefill-decode-split"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
   - foundations
+  - attention
   - kv-cache
 aliases:
   - "Prefill/decode split"
   - "prefill decode split"
   - "split serving"
   - "disaggregated serving"
-updatedAt: "2026-06-18"
+updatedAt: "2026-07-01"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
-import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -40,31 +41,16 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
   <T k="sections.commonConfusions.body" />
 </Section>
 
-<Section id="serving-path" titleKey="sections.servingPath.title">
-  <T k="sections.servingPath.body" />
-  <LocalizedLinkList
-    items={[
-      { href: "/docs/concepts/kv-cache", labelKey: "links.kvCache" },
-      { href: "/docs/concepts/prefill", labelKey: "links.prefill" },
-      { href: "/docs/glossary/decode", labelKey: "links.decode" },
-      {
-        href: "/search?q=paged%20attention",
-        labelKey: "links.pagedAttention",
-      },
-      {
-        href: "/search?q=chunked%20prefill",
-        labelKey: "links.chunkedPrefill",
-      },
-      {
-        href: "/search?q=speculative%20decoding",
-        labelKey: "links.speculativeDecoding",
-      },
-      { href: "/search?q=quantization", labelKey: "links.quantization" },
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.prefill-decode-split"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
     ]}
   />
-</Section>
 
-<Section id="related" titleKey="sections.related.title">
   <RelatedDocs registryId="concept.prefill-decode-split" />
 </Section>
 

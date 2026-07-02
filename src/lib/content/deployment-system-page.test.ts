@@ -92,7 +92,7 @@ describe("Deployment system page (deployment-system-page-001)", () => {
     expect(
       items.find((item) => item.registryId === "concept.prefill-decode-split")
         ?.href,
-    ).toBe("/docs/glossary/prefill-decode-split");
+    ).toBe("/docs/concepts/prefill-decode-split");
     expect(
       items.find((item) => item.registryId === "system.on-disk-kv-cache")?.href,
     ).toBe("/docs/systems/on-disk-kv-cache");
@@ -186,7 +186,7 @@ describe("Deployment system page (deployment-system-page-001)", () => {
     expect(html).toContain('href="/docs/systems/inference-engine"');
     expect(html).toContain('href="/docs/systems/batching"');
     expect(html).toContain('href="/docs/concepts/quantization"');
-    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
+    expect(html).toContain('href="/docs/concepts/prefill-decode-split"');
     expect(html).toContain('href="/docs/systems/expert-parallel-overlap"');
     expect(html).toContain('href="/docs/systems/on-disk-kv-cache"');
     expect(html).toContain('href="/docs/models/gpt-3"');

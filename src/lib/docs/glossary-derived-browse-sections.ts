@@ -61,7 +61,6 @@ const GLOSSARY_DERIVED_SECTION_CONFIG = {
       "glossary/greedy-decoding",
       "glossary/temperature",
       "glossary/decode",
-      "glossary/prefill-decode-split",
       "glossary/kv-cache",
       "glossary/time-to-first-token",
       "glossary/inter-token-latency",
