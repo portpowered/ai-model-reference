@@ -132,6 +132,8 @@ Representative regression coverage lives in
 `src/tests/discovery/tokens-per-second-stale-pr-follow-up-compatibility.test.ts`
 (PR #251 stale-clean mismatch fixture for watchdog action queue and ledger
 `Stale PR Mismatch Summary`),
+`src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility.test.ts`
+(same PR #251 stale mismatch fixture for merge-handoff evidence capture),
 `src/tests/discovery/planner-root-drift-pr-metadata-repair-compatibility.test.ts`
 (already-merged root drift, ownerless recovery guidance, and PR-backed metadata
 refresh with passing checks), and
@@ -150,3 +152,11 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   Story 003 drift proof: branch diff limited to `docs/internal/processes/*`;
   verify with `git diff main...HEAD --name-only` and
   `bun run report:planner-root-checkout-reconciliation` on the planner root.
+* [tokens-per-second-pr251-merge-handoff-relevant-files](./tokens-per-second-pr251-merge-handoff-relevant-files.md)
+  — PR #251 merge-handoff evidence snapshot: current GitHub/queue/watchdog state,
+  prior stale follow-up outcome, why `queue-stale` persists, story 002 recovery
+  decision (**safe branch refresh** on content branch), story 003 planner
+  classification separating PR #251 recovery from batch 061 useful active lanes,
+  and story 004 non-page scope preservation proof with allowlisted branch diff
+  and handoff completeness table. Fixture tests in
+  `src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility.test.ts`.
