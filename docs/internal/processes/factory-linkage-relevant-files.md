@@ -160,5 +160,6 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata,
   merge-commit ancestry on `origin/main`, explicit separation of merged PR
   truth from queue completion truth, story 002 per-row consume/complete/no-op
-  classification, and story 003 consume execution for `rlvr-pr275-drain`
-  (`you work move` to `complete` on session `930b51a6-07ce-44e6-a639-7a6217f6e864`).
+  classification, story 003 consume execution for `rlvr-pr275-drain`
+  (`you work move` to `complete` on session `930b51a6-07ce-44e6-a639-7a6217f6e864`),
+  and story 004 zero-target complete handoff (no completion transitions required).

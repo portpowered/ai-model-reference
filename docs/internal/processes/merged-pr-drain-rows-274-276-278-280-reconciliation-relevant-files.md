@@ -319,3 +319,72 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T19:19Z UTC).
+
+## Story 004 — complete handoff for rows needing terminal transition
+
+Captured 2026-07-02T19:21Z UTC. Story 002 classified **zero** rows as **complete**.
+This story re-verifies live queue state and documents that no valid terminal
+completion transition is required for any named drain row. No page content,
+registry content, root work, or unrelated worktree files were changed.
+
+### Complete targets from story 002
+
+| Work item | Work id | PR | Outcome in story 002 |
+| --- | --- | --- | --- |
+| — | — | — | **complete** count = 0 |
+
+Story 002 selected **complete** only when a row is finished but still requires an
+explicit terminal completion transition (`idea:to-complete` + `task:to-complete`
+pairing or equivalent valid move). None of the five primary content traces or
+subsidiary drain rows met that criterion.
+
+### Re-verification (2026-07-02T19:21Z UTC)
+
+Fresh `you work list --session 930b51a6-07ce-44e6-a639-7a6217f6e864 --name
+<work-item> --json` confirms:
+
+| Work item | PR | Observed queue state | Blocker for **complete**? |
+| --- | --- | --- | --- |
+| `rlhf-page` | #274 | All tokens `complete` / TERMINAL | Already terminal — no transition needed |
+| `rlvr` (primary) | #275 | Primary trace all `complete` / TERMINAL | Already terminal — no transition needed |
+| `diffusion-transformer-block-module` | #276 | All tokens `complete` / TERMINAL | Already terminal — no transition needed |
+| `generic-sidebar-ai-adapter-extraction` | #278 | All tokens `complete` / TERMINAL | Already terminal — no transition needed |
+| `grpo-page` | #280 | All tokens `complete` / TERMINAL | Already terminal — no transition needed |
+
+Subsidiary `rlvr` tokens (not primary content lanes):
+
+| Work id | Observed state | Story 002 outcome | Why not **complete** |
+| --- | --- | --- | --- |
+| `batch-green-pr-drain-and-wordpiece-refill-batch-067-rlvr-pr275-drain` | `complete` / TERMINAL (consumed in story 003) | **consume** | Standalone drain idea consumed via direct terminal move, not `to-complete` pairing |
+| `batch-conflict-drift-and-root-dirty-handoff-batch-071-ownerless-rlvr-navigation-root-dirty-handoff` | `init` / INITIAL | **no-op** | Unfinished implementation: root-dirty ownership classification still required; completing would skip active handoff scope |
+
+No row sits in a non-terminal `to-complete` / PROCESSING pairing awaiting a
+valid terminal completion transition. The reconciliation lane itself
+(`merged-pr-drain-rows-274-276-278-280-reconciliation`) remains in
+`to-complete` / PROCESSING until stories 005–006 finish; that lane is out of
+scope for the five named PR drain rows.
+
+### Completion operations executed
+
+None. Zero rows qualified for **complete**; no manual queue movement was
+performed in story 004.
+
+### Handoff for reviewers
+
+- **complete** count: 0
+- **Reason**: All five named PR rows either already reached terminal queue state
+  (primary lanes) or were classified and handled under **consume** / **no-op**
+  in stories 002–003.
+- **Next owner action**: Story 005 documents explicit **no-op** handoffs for
+  primary lanes and `ownerless-rlvr-navigation-root-dirty-handoff`.
+
+## Quality gate (story 004)
+
+Handoff-only verification; no page content, registry content, root work,
+worktree files, queue rows, staging area, or branch history were changed.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T19:21Z UTC).
