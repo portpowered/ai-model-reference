@@ -30,7 +30,7 @@ const REPRESENTATIVE_SECTION_URLS = {
     "/docs/modules/relu",
   ],
   models: ["/docs/models/deepseek-v4-flash", "/docs/models/gpt-3"],
-  papers: ["/docs/papers/deepseek-v4"],
+  papers: ["/docs/papers/deepseek-v4", "/docs/papers/latent-diffusion"],
   training: [
     "/docs/training/dpo",
     "/docs/training/on-policy-distillation",

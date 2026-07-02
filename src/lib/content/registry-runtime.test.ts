@@ -1277,6 +1277,38 @@ describe("registry-runtime", () => {
     expect(ids).toContain("module.multi-head-attention");
   });
 
+  test("getPaperById returns latent diffusion paper with resolved adjacent concept links", () => {
+    const record = getPaperById("paper.latent-diffusion");
+    expect(record?.slug).toBe("latent-diffusion");
+    expect(record?.status).toBe("published");
+    expect(record?.citationIds).toEqual(["citation.latent-diffusion-models"]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "Latent Diffusion Models",
+        "LDM",
+        "latent diffusion",
+      ]),
+    );
+    expect(record?.conceptIds).toEqual([
+      "concept.latent-space",
+      "concept.conditioning",
+      "concept.diffusion-model",
+      "concept.denoising-generation",
+    ]);
+    expect(record?.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.latent-space",
+        "concept.conditioning",
+        "citation.denoising-diffusion-probabilistic-models",
+      ]),
+    );
+    expect(record?.introducesIds).toEqual([]);
+    expect(record?.modelIds).toEqual([]);
+    expect(getCitationById("citation.latent-diffusion-models")?.slug).toBe(
+      "latent-diffusion-models",
+    );
+  });
+
   test("listSystemRecords includes batching and adjacent system peers", () => {
     const ids = listSystemRecords().map((record) => record.id);
 
