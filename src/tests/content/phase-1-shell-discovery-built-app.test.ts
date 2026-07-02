@@ -4,12 +4,12 @@ import {
   assertBuiltAppRouteHtml,
   readBuiltAppServerHtml,
 } from "@/lib/build/built-app-html-test-utils";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
 import {
   loadPhase1AttentionModuleUrls,
   PHASE_1_GROUPED_QUERY_ATTENTION_MODULE_URL,
   publishedResourceMatchesTag,
 } from "@/lib/content/phase-1-published-resources";
-import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
 import { docsSearchApi } from "@/lib/search/search-server";

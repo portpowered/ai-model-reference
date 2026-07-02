@@ -201,9 +201,7 @@ describe("generated docs page tree", () => {
     for (const [folderName, requiredLabels] of Object.entries(
       REQUIRED_SUBGROUP_LABELS,
     )) {
-      const actualLabels = getSeparatorLabels(
-        getFolderChildren(folderName),
-      );
+      const actualLabels = getSeparatorLabels(getFolderChildren(folderName));
 
       for (const requiredLabel of requiredLabels) {
         expect(
