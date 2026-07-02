@@ -1,0 +1,53 @@
+{
+  "id": "paper.latent-diffusion",
+  "slug": "latent-diffusion",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Latent Diffusion Models",
+    "LDM",
+    "latent diffusion",
+    "Stable Diffusion paper",
+    "latent-space denoising"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "concept.latent-space",
+    "concept.conditioning",
+    "concept.diffusion-model",
+    "concept.denoising-generation",
+    "citation.denoising-diffusion-probabilistic-models"
+  ],
+  "citationIds": ["citation.latent-diffusion-models"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "authors": [
+    "Robin Rombach",
+    "Andreas Blattmann",
+    "Dominik Lorenz",
+    "Patrick Esser",
+    "Björn Ommer"
+  ],
+  "publishedAt": "2022-04-13",
+  "url": "https://arxiv.org/abs/2112.10752",
+  "arxivId": "2112.10752",
+  "introducesIds": [],
+  "supportsIds": [
+    "concept.latent-space",
+    "concept.conditioning",
+    "concept.diffusion-model",
+    "concept.denoising-generation"
+  ],
+  "arguesAgainstIds": [],
+  "modelIds": [],
+  "moduleIds": [],
+  "conceptIds": [
+    "concept.latent-space",
+    "concept.conditioning",
+    "concept.diffusion-model",
+    "concept.denoising-generation"
+  ],
+  "venue": "CVPR 2022"
+}
