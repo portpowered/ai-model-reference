@@ -326,6 +326,14 @@ function assertPr251StaleMismatchLedgerEvidence(stdout: string): void {
 }
 
 function resolveMergeHandoffBaseRef(): string | null {
+  const envBaseSha = process.env.GITHUB_BASE_SHA?.trim();
+  if (
+    envBaseSha &&
+    runGit(["rev-parse", "--verify", envBaseSha]).status === 0
+  ) {
+    return envBaseSha;
+  }
+
   for (const candidate of ["origin/main", "main"]) {
     const probe = runGit(["rev-parse", "--verify", candidate]);
     if (probe.status === 0) {
@@ -342,6 +350,9 @@ function readBranchDiffPaths(): string[] {
 
   let result = runGit(["diff", `${baseRef}...HEAD`, "--name-only"]);
   if (result.status !== 0) {
+    result = runGit(["diff", `${baseRef}..HEAD`, "--name-only"]);
+  }
+  if (result.status !== 0) {
     result = runGit([
       "log",
       `${baseRef}..HEAD`,
@@ -351,12 +362,14 @@ function readBranchDiffPaths(): string[] {
   }
 
   expect(result.status).toBe(0);
-  return [...new Set(
-    readStdoutText(result)
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0),
-  )].sort();
+  return [
+    ...new Set(
+      readStdoutText(result)
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0),
+    ),
+  ].sort();
 }
 
 function assertMergeHandoffScopePreservation(diffPaths: string[]): void {
