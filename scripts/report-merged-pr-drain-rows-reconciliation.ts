@@ -4,10 +4,12 @@ import { readCompleteLiveWorkListSnapshotJson } from "../src/lib/factory/live-qu
 import {
   buildMergedPrDrainRowsClassificationReport,
   collectMergedPrDrainRowsEvidence,
+  executeMergedPrDrainRowsConsumeReport,
+  buildMergedPrDrainRowsConsumeReport,
   formatMergedPrDrainRowsReconciliationReport,
   MERGED_PR_DRAIN_ROWS_TARGET_SESSION_ID,
   resolveDefaultWorktreesDir,
-  serializeMergedPrDrainRowsClassificationReport,
+  serializeMergedPrDrainRowsConsumeReport,
 } from "../src/lib/factory/merged-pr-drain-rows-reconciliation";
 
 const defaultRepoRoot = resolve(import.meta.dir, "..");
@@ -33,6 +35,10 @@ function isJsonOutputRequested(argv: string[]): boolean {
     (argv.includes("--format") &&
       argv[argv.indexOf("--format") + 1]?.trim().toLowerCase() === "json")
   );
+}
+
+function isExecuteConsumeRequested(argv: string[]): boolean {
+  return argv.includes("--execute-consume");
 }
 
 const repoRoot = readFlagValue("--repo-root")
@@ -63,9 +69,18 @@ const report = collectMergedPrDrainRowsEvidence({
 });
 
 const classificationReport = buildMergedPrDrainRowsClassificationReport(report);
+let consumeReport = buildMergedPrDrainRowsConsumeReport(classificationReport, {
+  sessionId: sourceSession,
+});
+
+if (isExecuteConsumeRequested(process.argv)) {
+  consumeReport = executeMergedPrDrainRowsConsumeReport(consumeReport, {
+    sessionId: sourceSession,
+  });
+}
 
 const output = isJsonOutputRequested(process.argv)
-  ? serializeMergedPrDrainRowsClassificationReport(classificationReport)
-  : formatMergedPrDrainRowsReconciliationReport(report);
+  ? serializeMergedPrDrainRowsConsumeReport(consumeReport)
+  : formatMergedPrDrainRowsReconciliationReport(report, consumeReport);
 
 process.stdout.write(output);

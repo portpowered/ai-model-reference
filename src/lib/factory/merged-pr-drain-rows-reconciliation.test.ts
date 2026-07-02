@@ -1,12 +1,18 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildMergedPrDrainRowConsumeHandoff,
   buildMergedPrDrainRowsClassificationReport,
+  buildMergedPrDrainRowsConsumeReport,
   classifyMergedPrDrainRowOutcome,
   collectMergedPrDrainRowsEvidence,
+  executeMergedPrDrainRowConsumeHandoff,
   formatMergedPrDrainRowsClassificationReport,
+  formatMergedPrDrainRowsConsumeReport,
   formatMergedPrDrainRowsEvidenceReport,
+  MERGED_PR_DRAIN_ROW_CONSUME_OPERATION_NAME,
   MERGED_PR_DRAIN_ROWS_TARGET_SESSION_ID,
   serializeMergedPrDrainRowsClassificationReport,
+  serializeMergedPrDrainRowsConsumeReport,
   serializeMergedPrDrainRowsEvidenceReport,
 } from "@/lib/factory/merged-pr-drain-rows-reconciliation";
 
@@ -341,6 +347,117 @@ describe("classifyMergedPrDrainRowOutcome", () => {
       "consume",
       "consume",
       "no-op",
+    ]);
+  });
+});
+
+describe("buildMergedPrDrainRowConsumeHandoff", () => {
+  test("builds consume handoffs for merged drain rows with manual move commands", () => {
+    const evidenceReport = buildClassificationFixtureReport();
+    const classificationReport =
+      buildMergedPrDrainRowsClassificationReport(evidenceReport);
+    const consumeReport = buildMergedPrDrainRowsConsumeReport(classificationReport);
+
+    expect(consumeReport.rows).toHaveLength(3);
+    expect(consumeReport.rows.map((row) => row.drainWorkItemName)).toEqual([
+      "ltx-23-pr281-drain",
+      "mamba-pr282-drain",
+      "glossary-decomposition-pr284-conflict-refresh",
+    ]);
+
+    const ltxHandoff = consumeReport.rows[0];
+    expect(ltxHandoff.consumeOperation).toBe(
+      MERGED_PR_DRAIN_ROW_CONSUME_OPERATION_NAME,
+    );
+    expect(ltxHandoff.consumeCommand).toBe(
+      `you work move batch-pr281-ltx-drain complete --session ${SESSION_ID}`,
+    );
+    expect(ltxHandoff.mergedIntoOriginMain).toBe(true);
+    expect(ltxHandoff.noUnfinishedImplementationOrReview).toBe(true);
+    expect(ltxHandoff.executionStatus).toBe("not-attempted");
+    expect(ltxHandoff.evidenceSentence).toContain("merged into current origin/main");
+  });
+
+  test("marks already-terminal drain rows as already-complete without a pending move", () => {
+    const evidenceReport = buildClassificationFixtureReport();
+    const ltxRow = evidenceReport.rows.find(
+      (row) => row.definition.workItemName === "ltx-23",
+    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+    ltxRow.mergedVsQueueTruth.drainRowQueueTruth = "content-lane-terminal-complete";
+    ltxRow.drainRowTokens = [
+      {
+        availability: "present",
+        workItemName: "ltx-23-pr281-drain",
+        workTypeName: "idea",
+        stateName: "complete",
+        stateType: "TERMINAL",
+        workId: "batch-pr281-ltx-drain",
+      },
+    ];
+
+    const classification = classifyMergedPrDrainRowOutcome(ltxRow);
+    expect(classification.outcome).toBe("no-op");
+
+    const consumeHandoff = buildMergedPrDrainRowConsumeHandoff(classification);
+    expect(consumeHandoff).toBeNull();
+  });
+
+  test("executes consume moves and records post-action terminal state", () => {
+    const evidenceReport = buildClassificationFixtureReport();
+    const classificationReport =
+      buildMergedPrDrainRowsClassificationReport(evidenceReport);
+    const consumeReport = buildMergedPrDrainRowsConsumeReport(classificationReport);
+    const ltxHandoff = consumeReport.rows[0];
+
+    const executed = executeMergedPrDrainRowConsumeHandoff(ltxHandoff, {
+      runCommand: (binary, args) => {
+        expect(binary).toBe("you");
+        expect(args).toEqual([
+          "work",
+          "move",
+          "batch-pr281-ltx-drain",
+          "complete",
+          "--session",
+          SESSION_ID,
+        ]);
+        return {
+          ok: true,
+          stdout: JSON.stringify({
+            workId: "batch-pr281-ltx-drain",
+            previousState: "init",
+            newState: "complete",
+          }),
+          stderr: "",
+          exitCode: 0,
+        };
+      },
+    });
+
+    expect(executed.executionStatus).toBe("executed");
+    expect(executed.drainRowStateAfter).toBe("complete/terminal");
+  });
+
+  test("formats and serializes consume handoff reports", () => {
+    const evidenceReport = buildClassificationFixtureReport();
+    const classificationReport =
+      buildMergedPrDrainRowsClassificationReport(evidenceReport);
+    const consumeReport = buildMergedPrDrainRowsConsumeReport(classificationReport);
+
+    const formatted = formatMergedPrDrainRowsConsumeReport(consumeReport);
+    expect(formatted).toContain("Merged PR Drain Rows Reconciliation — Consume Handoff");
+    expect(formatted).toContain("consume-operation=manual-drain-row-move-to-complete");
+    expect(formatted).toContain("drain-row=ltx-23-pr281-drain");
+    expect(formatted).toContain("execution-status=not-attempted");
+
+    const serialized = JSON.parse(
+      serializeMergedPrDrainRowsConsumeReport(consumeReport),
+    ) as {
+      rows: Array<{ drainWorkItemName: string }>;
+    };
+    expect(serialized.rows.map((row) => row.drainWorkItemName)).toEqual([
+      "ltx-23-pr281-drain",
+      "mamba-pr282-drain",
+      "glossary-decomposition-pr284-conflict-refresh",
     ]);
   });
 });

@@ -23,8 +23,10 @@ bun run report:merged-pr-drain-rows-reconciliation
 ```
 
 Text output includes evidence plus per-row `consume` / `complete` / `no-op`
-classification. JSON output (`--json` or `--format json`) serializes the
-classification report.
+classification and consume handoff commands. JSON output (`--json` or
+`--format json`) serializes the consume handoff report. Pass
+`--execute-consume` to run accepted manual drain-row consume moves through
+`you work move <drain-work-id> complete --session <session>`.
 
 Fixture-backed unit tests:
 
@@ -40,6 +42,21 @@ bun test src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts
 | `MAMBA` | #282 | `consume` | PR merged into `origin/main`; content lane terminal-complete; drain row `mamba-pr282-drain` remains `init/INITIAL`. |
 | `glossary-decomposition` | #284 | `consume` | PR merged into `origin/main`; content lane terminal-complete; drain row `glossary-decomposition-pr284-conflict-refresh` remains `init/INITIAL`. |
 | `bpe-page` | #286 | `no-op` | No dedicated drain row; content lane already terminal-complete (`already-settled`). |
+
+## Consume handoffs (2026-07-02 UTC)
+
+Accepted consume operation for stale merged drain rows:
+`manual-drain-row-move-to-complete` via
+`you work move <drain-work-id> complete --session 930b51a6-07ce-44e6-a639-7a6217f6e864`.
+
+The standard factory `consume` workstation (`idea:to-complete` + `task:to-complete`
+with the same name) does not apply to standalone drain idea rows.
+
+| Work item | Drain row | Work ID | Pre-consume state | Post-consume state |
+| --- | --- | --- | --- | --- |
+| `ltx-23` | `ltx-23-pr281-drain` | `batch-pr281-and-remote-truth-reconciliation-batch-068-ltx-23-pr281-drain` | `init/INITIAL` | `complete/TERMINAL` |
+| `MAMBA` | `mamba-pr282-drain` | `batch-clean-pr-drain-and-idea-backlog-batch-070-mamba-pr282-drain` | `init/INITIAL` | `complete/TERMINAL` |
+| `glossary-decomposition` | `glossary-decomposition-pr284-conflict-refresh` | `batch-conflict-drift-and-root-dirty-handoff-batch-071-glossary-decomposition-pr284-conflict-refresh` | `init/INITIAL` | `complete/TERMINAL` |
 
 Classification is derived from queue + PR evidence. Worktree metadata augments
 evidence but is not required when queue tokens and PR truth are sufficient.
@@ -112,8 +129,9 @@ recorded separately in the report `merged-vs-queue-truth` field per row.
 * `src/lib/factory/merged-pr-drain-rows-reconciliation.ts` — read-only evidence
   capture for the four named rows: queue tokens, GitHub PR truth via
   `gh pr view`, worktree lane metadata, `origin/main` identity, main-repo root
-  checkout dirty-path count, explicit merged-vs-queue truth distinction, and
-  per-row `consume` / `complete` / `no-op` classification.
+  checkout dirty-path count, explicit merged-vs-queue truth distinction,
+  per-row `consume` / `complete` / `no-op` classification, and consume handoff
+  builders/executors for `manual-drain-row-move-to-complete`.
 * `scripts/report-merged-pr-drain-rows-reconciliation.ts` — planner-facing CLI.
   Resolves main-repo worktrees via `git rev-parse --git-common-dir` so reports
   work from nested git worktrees.
@@ -125,6 +143,7 @@ recorded separately in the report `merged-vs-queue-truth` field per row.
 * `--session`
 * `--remote-base-ref`
 * `--repo-root`
+* `--execute-consume`
 * `--json` / `--format json`
 
 ## Scope guardrails
@@ -148,4 +167,13 @@ content, registry content, queue rows, worktree files, or root checkout state.
 | Typecheck | `bun run typecheck` — pass |
 | Classification unit tests | `classifyMergedPrDrainRowOutcome` cases — pass |
 | Live classification report | `bun run report:merged-pr-drain-rows-reconciliation` — pass |
+| Content/page payload | not modified |
+
+## Verification for story 003
+
+| Gate | Result |
+| --- | --- |
+| Typecheck | `bun run typecheck` — pass |
+| Consume handoff unit tests | `buildMergedPrDrainRowConsumeHandoff` / execute cases — pass |
+| Live consume execution | all three drain rows moved to `complete/TERMINAL` via `you work move` |
 | Content/page payload | not modified |
