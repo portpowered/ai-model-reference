@@ -1,0 +1,65 @@
+{
+  "id": "paper.learning-transferable-visual-models-from-natural-language-supervision",
+  "slug": "learning-transferable-visual-models-from-natural-language-supervision",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "CLIP",
+    "CLIP paper",
+    "Learning Transferable Visual Models From Natural Language Supervision",
+    "contrastive language-image pretraining"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.multimodal-model",
+    "concept.modality",
+    "concept.representation",
+    "module.clip-image-tokenization",
+    "concept.embedding",
+    "concept.conditioning",
+    "concept.diffusion-model"
+  ],
+  "citationIds": [
+    "citation.learning-transferable-visual-models-from-natural-language-supervision"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "authors": [
+    "Alec Radford",
+    "Jong Wook Kim",
+    "Chris Hallacy",
+    "Aditya Ramesh",
+    "Gabriel Goh",
+    "Sandhini Agarwal",
+    "Girish Sastry",
+    "Amanda Askell",
+    "Pamela Mishkin",
+    "Jack Clark",
+    "Gretchen Krueger",
+    "Ilya Sutskever"
+  ],
+  "publishedAt": "2021-02-26",
+  "url": "https://arxiv.org/abs/2103.00020",
+  "arxivId": "2103.00020",
+  "introducesIds": ["module.clip-image-tokenization"],
+  "supportsIds": [
+    "concept.multimodal-model",
+    "concept.modality",
+    "concept.representation",
+    "concept.embedding"
+  ],
+  "arguesAgainstIds": [],
+  "modelIds": [],
+  "moduleIds": ["module.clip-image-tokenization"],
+  "conceptIds": [
+    "concept.multimodal-model",
+    "concept.modality",
+    "concept.representation",
+    "concept.embedding",
+    "concept.conditioning",
+    "concept.diffusion-model"
+  ],
+  "venue": "arXiv"
+}
