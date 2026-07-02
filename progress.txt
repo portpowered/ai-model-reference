@@ -3,6 +3,7 @@
 - When running planner reports from a nested git worktree, resolve main-repo paths via `resolveMainRepoRoot` / `resolveDefaultWorktreesDir` (`git rev-parse --git-common-dir`) so `.claude/worktrees` and root checkout evidence point at `/Users/abdifamily/work/learn-agent-factories`, not the nested worktree checkout.
 - Distinguish merged PR truth from queue completion truth explicitly; all four PRs can be MERGED while drain rows remain `init/INITIAL`.
 - Use `classifyMergedPrDrainRowOutcome` / `buildMergedPrDrainRowsClassificationReport` for per-row `consume` / `complete` / `no-op` outcomes; stale `init/INITIAL` drain rows with terminal-complete content lanes classify as `consume`, and rows without drain rows classify as `no-op` (`already-settled`).
+- Accepted consume operation for standalone merged drain idea rows is `manual-drain-row-move-to-complete` via `you work move <drain-work-id> complete --session 930b51a6-07ce-44e6-a639-7a6217f6e864`; the standard factory `consume` workstation does not apply without a paired task token.
 
 ## 2026-07-02T19:18:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-001
 - Implemented read-only merged PR drain row evidence capture module, planner report script, unit tests, and process documentation for PRs #281, #282, #284, and #286.
@@ -21,4 +22,13 @@
   - Live classification (2026-07-02T19:21:11Z UTC): `ltx-23`/#281, `MAMBA`/#282, and `glossary-decomposition`/#284 → `consume`; `bpe-page`/#286 → `no-op` (`already-settled`, no drain row).
   - Unavailable worktree metadata does not block classification when queue tokens and PR truth are sufficient; only stamped PR mismatch blocks via `row-pr-mismatch`.
   - `complete` applies when content lane is terminal-complete but the drain row is non-terminal (not `init/INITIAL`).
+---
+
+## 2026-07-02T19:25:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-003
+- Implemented consume handoff builders/executors for merged drain rows, extended the planner CLI with `--execute-consume`, executed live consume moves for all three drain rows, and documented post-action queue state.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Standalone drain idea rows at `init/INITIAL` with merged PRs and terminal content lanes consume via `you work move <work-id> complete --session <session>`, not the paired `idea:to-complete` + `task:to-complete` factory consume workstation.
+  - Live consume execution (2026-07-02T19:24Z UTC): `ltx-23-pr281-drain`, `mamba-pr282-drain`, and `glossary-decomposition-pr284-conflict-refresh` all moved from `init/INITIAL` to `complete/TERMINAL`.
+  - After consume, classification correctly reclassifies those rows as `no-op` (`already-terminal`) with empty consume handoff sections.
 ---
