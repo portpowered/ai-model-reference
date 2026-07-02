@@ -2,15 +2,19 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  annotateManualInspectionFamilies,
   annotateRemotePresentDeletionFamilies,
   buildPlannerRootCheckoutOperatorNextActions,
   buildPlannerRootCheckoutReconciliationReport,
   classifyRootCheckoutDirtyPaths,
   formatPlannerRootCheckoutOperatorNextActions,
   formatPlannerRootCheckoutReconciliationReport,
+  isManualInspectionSharedEditPath,
   isTokenizerMismatchRemotePresentDeletionPath,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY,
+  PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD,
   PLANNER_ROOT_CHECKOUT_RECONCILIATION_HEADER,
   PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_ABSENT,
@@ -34,6 +38,14 @@ const TOKENIZER_MISMATCH_DIRTY_STATUS_FIXTURE = readFileSync(
   join(
     import.meta.dir,
     "../../tests/fixtures/planner-root-checkout-reconciliation/tokenizer-mismatch-dirty-status.txt",
+  ),
+  "utf8",
+);
+
+const MANUAL_INSPECTION_SHARED_EDITS_DIRTY_STATUS_FIXTURE = readFileSync(
+  join(
+    import.meta.dir,
+    "../../tests/fixtures/planner-root-checkout-reconciliation/manual-inspection-shared-edits-dirty-status.txt",
   ),
   "utf8",
 );
@@ -73,6 +85,70 @@ function createFixtureRunGit(remotePresentPaths: ReadonlySet<string>) {
     return { status: 0, stdout: "", stderr: "" };
   };
 }
+
+describe("isManualInspectionSharedEditPath", () => {
+  test("matches tokenizer-mismatch shared manual-inspection paths", () => {
+    const matchingPaths = [
+      "src/features/models/components/ModuleGraph.tsx",
+      "src/lib/content/table-registry-runtime.ts",
+      "src/lib/content/validate-registry.ts",
+      "src/lib/content/baseline-records.test.ts",
+      "src/lib/content/citations.test.ts",
+      "src/lib/content/graph-registry-runtime.test.ts",
+      "src/lib/content/table-registry-runtime.test.ts",
+      "src/lib/source.test.ts",
+    ];
+
+    for (const path of matchingPaths) {
+      expect(isManualInspectionSharedEditPath(path)).toBe(true);
+    }
+  });
+
+  test("does not match unrelated manual-inspection paths", () => {
+    expect(isManualInspectionSharedEditPath("src/lib/factory/root.ts")).toBe(
+      false,
+    );
+    expect(
+      isManualInspectionSharedEditPath(
+        "src/content/docs/modules/tokenizer-mismatch/page.mdx",
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("annotateManualInspectionFamilies", () => {
+  test("labels shared manual-inspection edits separately from other manual paths", () => {
+    const annotated = annotateManualInspectionFamilies([
+      {
+        changeKind: "modified",
+        classification: "manual-inspection",
+        comparisonTarget: "HEAD",
+        evidence: "non-deletion-dirty-path",
+        headPresent: true,
+        path: "src/lib/content/table-registry-runtime.ts",
+        remoteMainPresent: false,
+        statusCode: " M",
+      },
+      {
+        changeKind: "modified",
+        classification: "manual-inspection",
+        comparisonTarget: "HEAD",
+        evidence: "non-deletion-dirty-path",
+        headPresent: true,
+        path: "src/lib/factory/root.ts",
+        remoteMainPresent: false,
+        statusCode: " M",
+      },
+    ]);
+
+    expect(annotated[0]?.manualInspectionFamily).toBe(
+      PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY,
+    );
+    expect(annotated[1]?.manualInspectionFamily).toBe(
+      "other-manual-inspection",
+    );
+  });
+});
 
 describe("isTokenizerMismatchRemotePresentDeletionPath", () => {
   test("matches tokenizer-mismatch docs, registry, graph, citation, and focused test paths", () => {
@@ -504,7 +580,11 @@ describe("buildPlannerRootCheckoutReconciliationReport", () => {
       "path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=other-remote-present-deletions",
     );
     expect(formatted).toContain(
-      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection",
+      `  - ${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY} count=0`,
+    );
+    expect(formatted).toContain("  - other-manual-inspection count=1");
+    expect(formatted).toContain(
+      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
     );
     expect(formatted).toContain(
       `guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE}`,
@@ -555,6 +635,7 @@ describe("buildPlannerRootCheckoutReconciliationReport", () => {
     );
     expect(formatted).toContain("path=src/content/docs/models/clip/page.mdx");
     expect(formatted).toContain("classification=ownerless-root-checkout-drift");
+    expect(formatted).toContain("  - other-manual-inspection count=7");
     expect(formatted).toContain("path=src/lib/factory/root.ts");
     expect(formatted).toContain("path=src/lib/factory/new.ts");
     expect(formatted).toContain("path=src/lib/factory/untracked.ts");
@@ -597,7 +678,11 @@ describe("planner root checkout reconciliation fixture evidence", () => {
         "- manual-inspection count=1",
         `  - guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE}`,
         "  - change-kind-counts=modified=1",
-        "  - path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection",
+        `  - ${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY} count=0`,
+        `    - guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_GUIDANCE}`,
+        "    - none",
+        "  - other-manual-inspection count=1",
+        "    - path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
         "- operator-next-actions",
         `  - page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD} target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
         `  - remote-present-deletions count=1 guidance=${PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE}`,
@@ -676,11 +761,63 @@ describe("planner root checkout reconciliation fixture evidence", () => {
     expect(report.manualInspectionPaths).toHaveLength(1);
     expect(formatted).toContain("- manual-inspection count=1");
     expect(formatted).toContain("remote-present-deletions=0");
+    expect(formatted).toContain("  - other-manual-inspection count=1");
     expect(formatted).toContain(
-      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection",
+      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
     );
     expect(formatted).not.toContain(
       "classification=ownerless-root-checkout-drift",
+    );
+  });
+
+  test("groups modified shared paths in manual-inspection-shared-edits separately from remote-present deletions", () => {
+    const remotePresentPaths = new Set([
+      "src/content/docs/modules/tokenizer-mismatch/page.mdx",
+    ]);
+
+    const report = buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-02T04:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: MANUAL_INSPECTION_SHARED_EDITS_DIRTY_STATUS_FIXTURE,
+      runGit: createFixtureRunGit(remotePresentPaths),
+    });
+
+    expect(report.manualInspectionSharedEdits).toHaveLength(8);
+    expect(report.otherManualInspectionPaths).toHaveLength(1);
+    expect(report.remotePresentDeletions).toHaveLength(1);
+
+    const formatted = formatPlannerRootCheckoutReconciliationReport(report);
+    expect(formatted).toContain(
+      `  - ${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY} count=8`,
+    );
+    expect(formatted).toContain(
+      `    - guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_GUIDANCE}`,
+    );
+    expect(formatted).toContain(
+      "path=src/features/models/components/ModuleGraph.tsx status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=manual-inspection-shared-edits",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/content/table-registry-runtime.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=manual-inspection-shared-edits",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/content/validate-registry.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=manual-inspection-shared-edits",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/source.test.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=manual-inspection-shared-edits",
+    );
+    expect(formatted).toContain("  - other-manual-inspection count=1");
+    expect(formatted).toContain(
+      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
+    );
+    expect(formatted).toContain(
+      "path=src/content/docs/modules/tokenizer-mismatch/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+    expect(formatted).toContain(
+      `    - guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_GUIDANCE}`,
+    );
+    expect(formatted).not.toContain(
+      "manual-inspection-shared-edits count=8\n    - guidance=Operator-reviewed root cleanup",
     );
   });
 });

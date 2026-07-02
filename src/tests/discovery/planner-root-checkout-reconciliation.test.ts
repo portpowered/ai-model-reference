@@ -288,6 +288,96 @@ describe("planner-root-checkout-reconciliation script", () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
+  test("groups modified shared paths in manual-inspection-shared-edits from live git fixture", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "planner-root-checkout-reconciliation-shared-edits-"),
+    );
+    const repoRoot = join(dir, "repo");
+
+    mkdirSync(repoRoot, { recursive: true });
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+
+    const sharedEditPaths = [
+      "src/features/models/components/ModuleGraph.tsx",
+      "src/lib/content/table-registry-runtime.ts",
+      "src/lib/content/validate-registry.ts",
+      "src/lib/source.test.ts",
+    ];
+
+    for (const relativePath of sharedEditPaths) {
+      const absolutePath = join(repoRoot, relativePath);
+      mkdirSync(join(absolutePath, ".."), { recursive: true });
+      writeFileSync(absolutePath, "export const initial = 1;\n");
+    }
+    mkdirSync(join(repoRoot, "src", "lib", "factory"), { recursive: true });
+    writeFileSync(
+      join(repoRoot, "src", "lib", "factory", "root.ts"),
+      "export const rootValue = 1;\n",
+    );
+
+    runGit(repoRoot, ["add", "."]);
+    runGit(repoRoot, ["commit", "-m", "initial"]);
+    runGit(repoRoot, ["branch", "origin-main"]);
+    runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "origin-main"]);
+
+    for (const relativePath of sharedEditPaths) {
+      writeFileSync(
+        join(repoRoot, relativePath),
+        "export const initial = 2;\n",
+      );
+    }
+    writeFileSync(
+      join(repoRoot, "src", "lib", "factory", "root.ts"),
+      "export const rootValue = 2;\n",
+    );
+
+    const statusBefore = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-root-checkout-reconciliation.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      "  - manual-inspection-shared-edits count=4",
+    );
+    expect(result.stdout).toContain(
+      "path=src/features/models/components/ModuleGraph.tsx",
+    );
+    expect(result.stdout).toContain(
+      "path=src/lib/content/table-registry-runtime.ts",
+    );
+    expect(result.stdout).toContain(
+      "inspection-family=manual-inspection-shared-edits",
+    );
+    expect(result.stdout).toContain("  - other-manual-inspection count=1");
+    expect(result.stdout).toContain("path=src/lib/factory/root.ts");
+    expect(result.stdout).toContain(
+      "guidance=Modified shared paths require explicit ownership before cleanup; do not revert, stage, or overwrite user or planner work.",
+    );
+
+    const statusAfter = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+    expect(statusAfter).toBe(statusBefore);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   test("reads fixture status output without mutating git state", () => {
     const dir = mkdtempSync(
       join(tmpdir(), "planner-root-checkout-reconciliation-fixture-"),
@@ -335,7 +425,7 @@ describe("planner-root-checkout-reconciliation script", () => {
       "path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=other-remote-present-deletions",
     );
     expect(result.stdout).toContain(
-      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection",
+      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
     );
     expect(result.stdout).toContain(
       "remote-present-deletions=1 manual-inspection=1",

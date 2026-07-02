@@ -35,6 +35,12 @@ export const PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY =
 export const PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_STALE_DRIFT_GUIDANCE =
   "Stale root checkout drift: content exists on origin/main; do not treat as missing content or request a page refill.";
 
+export const PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY =
+  "manual-inspection-shared-edits";
+
+export const PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_GUIDANCE =
+  "Modified shared paths require explicit ownership before cleanup; do not revert, stage, or overwrite user or planner work.";
+
 export type RootCheckoutComparisonTarget = "HEAD" | "origin/main";
 
 export type RootCheckoutDriftClassification =
@@ -45,6 +51,10 @@ export type RootCheckoutRemotePresentDeletionFamily =
   | typeof PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY
   | "other-remote-present-deletions";
 
+export type RootCheckoutManualInspectionFamily =
+  | typeof PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY
+  | "other-manual-inspection";
+
 export interface RootCheckoutDirtyPathReport {
   changeKind: PlannerWorktreeDriftChangeKind;
   classification: RootCheckoutDriftClassification;
@@ -53,6 +63,7 @@ export interface RootCheckoutDirtyPathReport {
   headPresent: boolean;
   path: string;
   remoteMainPresent: boolean;
+  manualInspectionFamily?: RootCheckoutManualInspectionFamily;
   remotePresentDeletionFamily?: RootCheckoutRemotePresentDeletionFamily;
   statusCode: string;
 }
@@ -69,7 +80,9 @@ export interface PlannerRootCheckoutOperatorNextActions {
 export interface PlannerRootCheckoutReconciliationReport {
   generatedAtUtc: string;
   manualInspectionPaths: RootCheckoutDirtyPathReport[];
+  manualInspectionSharedEdits: RootCheckoutDirtyPathReport[];
   operatorNextActions: PlannerRootCheckoutOperatorNextActions | null;
+  otherManualInspectionPaths: RootCheckoutDirtyPathReport[];
   remoteBaseRef: string;
   remotePresentDeletions: RootCheckoutDirtyPathReport[];
   repoRoot: string;
@@ -241,6 +254,55 @@ export function partitionTokenizerMismatchRemotePresentDeletions(
   };
 }
 
+const MANUAL_INSPECTION_SHARED_EDIT_PATHS = new Set([
+  "src/features/models/components/ModuleGraph.tsx",
+  "src/lib/content/baseline-records.test.ts",
+  "src/lib/content/citations.test.ts",
+  "src/lib/content/graph-registry-runtime.test.ts",
+  "src/lib/content/table-registry-runtime.test.ts",
+  "src/lib/content/table-registry-runtime.ts",
+  "src/lib/content/validate-registry.ts",
+  "src/lib/source.test.ts",
+]);
+
+export function isManualInspectionSharedEditPath(path: string): boolean {
+  return MANUAL_INSPECTION_SHARED_EDIT_PATHS.has(path);
+}
+
+export function annotateManualInspectionFamilies(
+  manualInspectionPaths: RootCheckoutDirtyPathReport[],
+): RootCheckoutDirtyPathReport[] {
+  return manualInspectionPaths.map((pathReport) => ({
+    ...pathReport,
+    manualInspectionFamily: isManualInspectionSharedEditPath(pathReport.path)
+      ? PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY
+      : "other-manual-inspection",
+  }));
+}
+
+export function partitionManualInspectionPaths(
+  manualInspectionPaths: RootCheckoutDirtyPathReport[],
+): {
+  manualInspectionSharedEdits: RootCheckoutDirtyPathReport[];
+  otherManualInspectionPaths: RootCheckoutDirtyPathReport[];
+} {
+  const annotated = annotateManualInspectionFamilies(manualInspectionPaths);
+  const manualInspectionSharedEdits = annotated.filter(
+    (pathReport) =>
+      pathReport.manualInspectionFamily ===
+      PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY,
+  );
+  const otherManualInspectionPaths = annotated.filter(
+    (pathReport) =>
+      pathReport.manualInspectionFamily === "other-manual-inspection",
+  );
+
+  return {
+    manualInspectionSharedEdits,
+    otherManualInspectionPaths,
+  };
+}
+
 function classifyDeletedDirtyPath(
   dirtyPath: {
     changeKind: PlannerWorktreeDriftChangeKind;
@@ -405,10 +467,17 @@ export function buildPlannerRootCheckoutReconciliationReport(
   );
   const { tokenizerMismatchRemotePresentDeletions } =
     partitionTokenizerMismatchRemotePresentDeletions(remotePresentDeletions);
+  const manualInspectionPaths = annotateManualInspectionFamilies(
+    classified.manualInspectionPaths,
+  );
+  const { manualInspectionSharedEdits, otherManualInspectionPaths } =
+    partitionManualInspectionPaths(manualInspectionPaths);
 
   const reportWithoutNextActions = {
     generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
-    manualInspectionPaths: classified.manualInspectionPaths,
+    manualInspectionPaths,
+    manualInspectionSharedEdits,
+    otherManualInspectionPaths,
     remoteBaseRef,
     remotePresentDeletions,
     repoRoot,
@@ -486,6 +555,10 @@ function formatDirtyPathReport(
     fields.push(`drift-family=${pathReport.remotePresentDeletionFamily}`);
   }
 
+  if (pathReport.manualInspectionFamily) {
+    fields.push(`inspection-family=${pathReport.manualInspectionFamily}`);
+  }
+
   return fields.join(" ");
 }
 
@@ -500,6 +573,30 @@ function formatRemotePresentDeletionFamilySection(
   const lines = [
     `  - ${family} count=${pathReports.length} comparison-target=${options.comparisonTarget}`,
   ];
+
+  if (options.guidance) {
+    lines.push(`    - guidance=${options.guidance}`);
+  }
+
+  if (pathReports.length === 0) {
+    lines.push("    - none");
+  } else {
+    for (const pathReport of pathReports) {
+      lines.push(`    - ${formatDirtyPathReport(pathReport)}`);
+    }
+  }
+
+  return lines;
+}
+
+function formatManualInspectionFamilySection(
+  family: RootCheckoutManualInspectionFamily,
+  pathReports: RootCheckoutDirtyPathReport[],
+  options: {
+    guidance?: string;
+  },
+): string[] {
+  const lines = [`  - ${family} count=${pathReports.length}`];
 
   if (options.guidance) {
     lines.push(`    - guidance=${options.guidance}`);
@@ -574,9 +671,23 @@ export function formatPlannerRootCheckoutReconciliationReport(
         .map(({ changeKind, count }) => `${changeKind}=${count}`)
         .join(" ")}`,
     );
-    for (const pathReport of report.manualInspectionPaths) {
-      lines.push(`  - ${formatDirtyPathReport(pathReport)}`);
-    }
+    lines.push(
+      ...formatManualInspectionFamilySection(
+        PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY,
+        report.manualInspectionSharedEdits,
+        {
+          guidance:
+            PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_GUIDANCE,
+        },
+      ),
+    );
+    lines.push(
+      ...formatManualInspectionFamilySection(
+        "other-manual-inspection",
+        report.otherManualInspectionPaths,
+        {},
+      ),
+    );
   }
 
   if (report.operatorNextActions) {
