@@ -75,6 +75,23 @@ re-land duplicate content.
 | Focused CLIP tests | `bun test src/lib/content/clip-model-record.test.ts src/lib/content/clip-model-page.test.tsx src/lib/content/clip-model-discovery.test.tsx` |
 | Route smoke (local) | `PORT=<unique> bun run start -- -p $PORT` then `curl --max-time 10 http://127.0.0.1:$PORT/docs/models/clip` |
 
+## Story 002 runtime verification (2026-07-02 UTC)
+
+Canonical CLIP landing slice already present on branch head (`5a224ab0` atop
+`f6a092a3`). No duplicate content re-port required.
+
+| Check | Result |
+| --- | --- |
+| `make typecheck` | pass |
+| `make validate-data` | pass |
+| Focused CLIP tests (12 cases) | pass |
+| `bun run build` | pass; `/docs/models/clip` in static output |
+| Route smoke (`PORT=3471`) | HTTP 200; body includes `Contrastive Language-Image Pre-training`, `graph.clip-architecture`, `important-modules` |
+
+Page bundle uses current-main model-page contracts: `kind: model`,
+`registryId: model.clip`, `ModelArchitectureGraph`, `ModelModuleList`,
+`DerivedRelatedDocs`, and `CitationList` components.
+
 ## Slice scope (do not broaden)
 
 Limit changes to the CLIP model page bundle, `model.clip` registry record,
