@@ -9,8 +9,8 @@ import type {
 } from "@/lib/docs/collection-definition-contract";
 import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
 import { buildGroupedSidebarNodes } from "@/lib/navigation/docs-sidebar-grouping-adapter";
+import { buildDocsSidebarSectionNodes } from "@/lib/navigation/docs-sidebar-sections";
 import {
-  buildShellCollectionPageTree,
   type ShellCollectionSidebarDefinition,
   type ShellSidebarGroupingResolver,
 } from "@/lib/navigation/shell-collection-page-tree";
@@ -56,11 +56,14 @@ const AI_SIDEBAR_GROUPING_RESOLVERS: Record<
 export function buildGeneratedDocsPageTree(baseTree: Root): Root {
   const collectionDefinitions = listDocsCollectionDefinitions();
   const pages = loadPublishedDocsPagesSync("en");
+  const definitions = collectionDefinitions.map(toShellSidebarDefinition);
 
-  return buildShellCollectionPageTree(baseTree, {
-    pages,
-    definitions: collectionDefinitions.map(toShellSidebarDefinition),
-    collectionIds: collectionDefinitions.map((definition) => definition.id),
-    groupingResolvers: AI_SIDEBAR_GROUPING_RESOLVERS,
-  });
+  return {
+    ...baseTree,
+    children: buildDocsSidebarSectionNodes({
+      pages,
+      definitions,
+      groupingResolvers: AI_SIDEBAR_GROUPING_RESOLVERS,
+    }),
+  };
 }

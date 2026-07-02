@@ -106,6 +106,12 @@ export type BrowseIndexMessages = {
   systemsSectionTitle: string;
   systemsSectionDescription: string;
   systemsSectionLinkLabel: string;
+  modelTypesSectionTitle: string;
+  modelTypesSectionDescription: string;
+  modelTypesSectionLinkLabel: string;
+  inferenceSectionTitle: string;
+  inferenceSectionDescription: string;
+  inferenceSectionLinkLabel: string;
   glossarySectionTitle: string;
   glossarySectionDescription: string;
   glossarySectionLinkLabel: string;

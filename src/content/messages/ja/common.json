@@ -109,6 +109,12 @@
     "systemsSectionTitle": "システム",
     "systemsSectionDescription": "システムページでは、KV キャッシュ管理、分散オーバーラップ、配備向けのデータフローなど、モデルを支える実行時と serving の仕組みを説明します。",
     "systemsSectionLinkLabel": "システムページをすべて見る",
+    "modelTypesSectionTitle": "モデルタイプ",
+    "modelTypesSectionDescription": "モデルタイプの用語集ページでは、エンコーダーやデコーダー、生成型・マルチモーダル構成など、モデルファミリーと構造上の役割を説明します。",
+    "modelTypesSectionLinkLabel": "モデルタイプの用語集を見る",
+    "inferenceSectionTitle": "推論",
+    "inferenceSectionDescription": "推論の用語集ページでは、デコード、サンプリング制御、実行時レイテンシ、KV キャッシュや量子化など推論時の最適化を扱います。",
+    "inferenceSectionLinkLabel": "推論の用語集を見る",
     "glossarySectionTitle": "用語集",
     "glossarySectionDescription": "用語集ページでは、モデルアーキテクチャ、学習、推論、評価まわりの語彙を定義し、アトラス全体を読みやすくします。",
     "glossarySectionLinkLabel": "用語集をすべて見る"

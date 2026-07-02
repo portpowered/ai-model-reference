@@ -109,6 +109,12 @@
     "systemsSectionTitle": "Hệ thống",
     "systemsSectionDescription": "Trang hệ thống giải thích phần hạ tầng chạy quanh mô hình, như quản lý KV cache, chồng lấp song song phân tán, và luồng phục vụ triển khai.",
     "systemsSectionLinkLabel": "Duyệt tất cả trang hệ thống",
+    "modelTypesSectionTitle": "Loại mô hình",
+    "modelTypesSectionDescription": "Trang thuật ngữ loại mô hình giải thích các họ mô hình và vai trò cấu trúc như encoder, decoder, và thiết lập sinh hoặc đa phương thức.",
+    "modelTypesSectionLinkLabel": "Duyệt thuật ngữ loại mô hình",
+    "inferenceSectionTitle": "Suy luận",
+    "inferenceSectionDescription": "Trang thuật ngữ suy luận bao gồm giải mã, điều khiển lấy mẫu, độ trễ runtime, và tối ưu suy luận như KV cache và lượng tử hóa.",
+    "inferenceSectionLinkLabel": "Duyệt thuật ngữ suy luận",
     "glossarySectionTitle": "Thuật ngữ",
     "glossarySectionDescription": "Trang thuật ngữ định nghĩa từ vựng về kiến trúc mô hình, huấn luyện, suy luận, và đánh giá để phần còn lại của atlas dễ đọc hơn.",
     "glossarySectionLinkLabel": "Duyệt toàn bộ thuật ngữ"

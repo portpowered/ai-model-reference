@@ -4,6 +4,11 @@ import type { UiMessages } from "@/lib/content/ui-messages.types";
 import type { ShellCollectionDefinition } from "@/lib/docs/collection-definition-contract";
 import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
 import { toDocsIndexEntries } from "@/lib/docs/docs-index-entries";
+import {
+  buildGlossaryDerivedBrowseSection,
+  type GlossaryDerivedBrowseSectionId,
+  isGlossaryPageAssignedToDerivedSection,
+} from "@/lib/docs/glossary-derived-browse-sections";
 import { resolveUiMessagePath } from "@/lib/docs/section-collection-index";
 import {
   buildLocalizedRoute,
@@ -20,6 +25,25 @@ export const DOCS_BROWSE_COLLECTION_IDS = [
   "systems",
   "glossary",
 ] as const;
+
+type DocsBrowseCollectionId = (typeof DOCS_BROWSE_COLLECTION_IDS)[number];
+
+type DocsBrowseSectionRef =
+  | { kind: "collection"; id: DocsBrowseCollectionId }
+  | { kind: "glossary-derived"; id: GlossaryDerivedBrowseSectionId };
+
+/** Full browse hub order, including ontology-derived glossary groupings. */
+export const DOCS_BROWSE_SECTION_ORDER = [
+  { kind: "collection", id: "models" },
+  { kind: "glossary-derived", id: "model-types" },
+  { kind: "collection", id: "modules" },
+  { kind: "collection", id: "concepts" },
+  { kind: "glossary-derived", id: "inference" },
+  { kind: "collection", id: "papers" },
+  { kind: "collection", id: "training" },
+  { kind: "collection", id: "systems" },
+  { kind: "collection", id: "glossary" },
+] as const satisfies readonly DocsBrowseSectionRef[];
 
 export type BrowseCollectionSection = {
   id: string;
@@ -66,9 +90,17 @@ function buildBrowseCollectionSection(
     locale: SiteLocale,
   ) => string,
 ): BrowseCollectionSection {
-  const collectionPages = pages.filter(
-    (page) => page.frontmatter.kind === definition.frontmatterKind,
-  );
+  const collectionPages = pages.filter((page) => {
+    if (page.frontmatter.kind !== definition.frontmatterKind) {
+      return false;
+    }
+
+    if (definition.id === "glossary") {
+      return !isGlossaryPageAssignedToDerivedSection(page as DocsPageSource);
+    }
+
+    return true;
+  });
 
   return {
     id: definition.id,
@@ -117,6 +149,56 @@ export function buildBrowseCollectionSections({
     const definition = definitionsById.get(id);
     if (!definition) {
       throw new Error(`Missing collection definition for browse id: ${id}`);
+    }
+
+    return buildBrowseCollectionSection(
+      definition,
+      pages,
+      locale,
+      messages,
+      resolveSectionLinkHref,
+    );
+  });
+}
+
+export function buildDocsBrowseSections({
+  pages,
+  locale,
+  messages,
+  definitions = listDocsCollectionDefinitions(),
+  sectionOrder = DOCS_BROWSE_SECTION_ORDER,
+  resolveSectionLinkHref = defaultResolveBrowseSectionLinkHref,
+}: {
+  pages: readonly ShellCollectionPageSource[] | readonly DocsPageSource[];
+  locale: SiteLocale;
+  messages: UiMessages | Record<string, unknown>;
+  definitions?: readonly ShellCollectionBrowseDefinition[];
+  sectionOrder?: readonly DocsBrowseSectionRef[];
+  resolveSectionLinkHref?: (
+    definition: ShellCollectionBrowseDefinition,
+    locale: SiteLocale,
+  ) => string;
+}): BrowseCollectionSection[] {
+  const definitionsById = new Map(
+    definitions.map((definition) => [definition.id, definition]),
+  );
+  const docsPages = pages as readonly DocsPageSource[];
+
+  return sectionOrder.map((sectionRef) => {
+    if (sectionRef.kind === "glossary-derived") {
+      return buildGlossaryDerivedBrowseSection({
+        sectionId: sectionRef.id,
+        pages: docsPages,
+        locale,
+        messages,
+      });
+    }
+
+    const definition = definitionsById.get(sectionRef.id);
+    if (!definition) {
+      throw new Error(
+        `Missing collection definition for browse id: ${sectionRef.id}`,
+      );
     }
 
     return buildBrowseCollectionSection(

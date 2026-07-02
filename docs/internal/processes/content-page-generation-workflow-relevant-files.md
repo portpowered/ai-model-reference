@@ -79,6 +79,23 @@ page-local but CI will require narrowly-scoped shared updates:
 Document the exception explicitly in the work-item PRD when this collision is
 inherent to the slice.
 
+## Glossary-derived browse and sidebar sections
+
+When glossary decomposition needs new reader-facing top-level areas such as
+Model Types or Inference without changing canonical `/docs/glossary/<slug>`
+routes:
+
+- Add or extend ontology classifications under `classification.concept.*` (for
+  example `classification.concept.model-type`).
+- Derive browse cards through `buildDocsBrowseSections` and
+  `src/lib/docs/glossary-derived-browse-sections.ts`, using
+  `primaryClassificationId` / `secondaryClassificationIds` membership rather
+  than new docs collection route slugs.
+- Split sidebar folders through `src/lib/navigation/docs-sidebar-sections.ts`
+  and keep the remaining glossary pages in the `Glossary` folder.
+- Update `browseIndex.*Section*` copy in `src/content/messages/*/common.json`
+  and extend `DOCS_BROWSE_SECTION_ORDER` when introducing another derived area.
+
 ## PR-head mergeability for page branches (process executors)
 
 When a routine canonical page branch has finished its page PRD stories but the
