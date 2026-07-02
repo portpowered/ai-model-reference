@@ -1,0 +1,30 @@
+## Codebase Patterns
+- Run `bun run pretest` (or `bun run prepare:content-runtime && fumadocs-mdx`) before `bun test src/lib/source.test.ts`; the Fumadocs `.source/server` module is generated and missing without it.
+- Prefer structural source navigation tests: required section folders (`SECTION_FOLDER_NAMES`), section-prefix/uniqueness/resolution contracts, curated `REPRESENTATIVE_SECTION_URLS`, and runtime-derived first/last published anchors instead of hardcoded full-section URL arrays.
+- Prefer structural page-tree tests: required subgroup labels per folder (`REQUIRED_SUBGROUP_LABELS`), configured-order subset checks via `getSidebarGroupIdsForSection`, curated `REPRESENTATIVE_SUBGROUP_PLACEMENTS`, and relative ordering anchors instead of `collectExpectedGroups` full-label `.toEqual` inventories.
+- PR conversation comments on GitHub are the feedback channel; PR #158 blocking feedback on full-section `.toEqual` inventories was cleared on head `88dca5a9`.
+- `origin/main` can regress merged churn-reduction work (e.g. `GLOSSARY_INDEX_URLS` reappeared after PR #158); this branch preserves the structural-invariant version until re-merged.
+
+## 2026-07-01T18:45:00Z - broad-inventory-test-churn-reduction-001
+- Verified story 001 implementation already present on branch head `88dca5a9`: replaced broad exact page inventories in `src/lib/source.test.ts` with required docs section folders, section-local routing contracts, representative anchors, and fixed discovery routes across glossary/concepts/modules/models/papers/training/systems.
+- Removed contributor-guide meta-test string scan in the same commit (`src/tests/ci/contributor-guide-alignment.test.ts`) per prior BLOCKING review.
+- Validation: `bun run pretest && bun test src/lib/source.test.ts` (5 pass), `bun run typecheck` (pass).
+- Marked PRD story 001 `passes: true`; no new code commit required (work already pushed).
+- **Learnings for future iterations:**
+  - Story work may land in prior commits while `prd.json` stays stale; always verify branch head against acceptance criteria before re-implementing.
+  - The blocking review targeted `.toEqual(publishedSectionUrls)` full-section equality; the replacement uses subset contracts plus separate representative-anchor tests.
+  - Main advanced past PR #158 merge and currently carries older inventory-style `source.test.ts`; expect merge conflicts when rebasing this branch onto `origin/main`.
+  - Disk space was near capacity (~899Mi free) during validation; watch for `no space left on device` when running full `make test`.
+---
+
+## 2026-07-01T19:30:00Z - broad-inventory-test-churn-reduction-002
+- Replaced runtime-derived full subgroup label inventories in `src/lib/navigation/generated-docs-page-tree.test.ts` with required subgroup label containment, configured-order subset checks, curated representative placement anchors, and relative ordering contracts between key separators.
+- Removed `collectExpectedGroups` and per-section `.toEqual(expectedGroups.map(...))` assertions that grew whenever a new subgroup gained its first page.
+- Validation: `bun run pretest && bun test src/lib/navigation/generated-docs-page-tree.test.ts src/lib/source.test.ts` (8 pass), `bunx tsc --noEmit --incremental false` (pass; default typecheck failed with ENOSPC writing `tsconfig.tsbuildinfo` at ~125Mi free disk).
+- Pushed code commit `d53ddf16`; marked PRD story 002 `passes: true`.
+- **Learnings for future iterations:**
+  - Page-tree churn pattern mirrors source tests: `.toEqual` on runtime-derived full label lists is still an inventory even when labels come from helpers rather than hand-maintained arrays.
+  - `REPRESENTATIVE_SUBGROUP_PLACEMENTS` can reuse the same stable URLs as `REPRESENTATIVE_SECTION_URLS` in `source.test.ts`; resolve expected separators once with a short script when authoring anchors.
+  - PR #158 is already MERGED; remaining stories 003–004 still need work before opening a new PR.
+  - Disk at ~125Mi blocks incremental `tsc` tsbuildinfo writes; use `--incremental false` or free space before `bun run typecheck`.
+---
