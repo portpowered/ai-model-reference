@@ -29,6 +29,7 @@ const ATTENTION_VARIANT_MODULE_IDS = [
   "module.block-sparse-attention",
   "module.sliding-window-attention",
   "module.linear-attention",
+  "module.gated-deltanet",
 ] as const;
 
 const HEAD_SHARING_REGISTRY_IDS = [
@@ -45,11 +46,9 @@ const HEAD_SHARING_MODULE_URLS = [
   "/docs/modules/multi-head-latent-attention",
 ] as const;
 
-const SOLO_VARIANT_GROUP_MODULES = [
-  {
-    registryId: "module.linear-attention",
-    variantGroup: "subquadratic-attention",
-  },
+const SUBQUADRATIC_ATTENTION_REGISTRY_IDS = [
+  "module.linear-attention",
+  "module.gated-deltanet",
 ] as const;
 
 const SPARSE_PATTERN_REGISTRY_IDS = [
@@ -147,17 +146,30 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     }
   });
 
-  test("solo variant groups omit same-variant-group peers until siblings publish", () => {
+  test("subquadratic-attention variants cross-link linear attention and Gated DeltaNet once both publish", () => {
     const modules = listPublishedModuleRecords();
 
-    for (const { registryId } of SOLO_VARIANT_GROUP_MODULES) {
-      const source = expectModuleRecord(registryId);
+    for (const sourceId of SUBQUADRATIC_ATTENTION_REGISTRY_IDS) {
+      const source = expectModuleRecord(sourceId);
       const peers = deriveSameVariantGroupPeers(
         source,
         modules,
         PUBLISHED_DOCS_REGISTRY_IDS,
       );
-      expect(peers).toEqual([]);
+
+      const expectedPeerIds = SUBQUADRATIC_ATTENTION_REGISTRY_IDS.filter(
+        (id) => id !== sourceId,
+      );
+      expect(peers.map((peer) => peer.registryId)).toEqual(expectedPeerIds);
+      expect(
+        peers.every(
+          (peer) => peer.reasonLabel === "Compatibility: same variant group",
+        ),
+      ).toBe(true);
+      expect(
+        peers.every((peer) => peer.href?.startsWith("/docs/modules/")),
+      ).toBe(true);
+      expect(peers.every((peer) => !peer.isPlanned)).toBe(true);
     }
   });
 
@@ -284,16 +296,16 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     }
   });
 
-  test("expanded variants with solo groups keep curated links without empty variant sections", () => {
-    for (const { registryId } of SOLO_VARIANT_GROUP_MODULES) {
-      const html = renderToStaticMarkup(
-        <RelatedDocs registryId={registryId} />,
-      );
+  test("linear attention related docs render subquadratic peers alongside curated links", () => {
+    const html = renderToStaticMarkup(
+      <RelatedDocs registryId="module.linear-attention" />,
+    );
 
-      expect(html).not.toContain('data-related-group="same-variant-group"');
-      expect(html).toContain('data-testid="curated-related-docs"');
-      expect(html).toContain("curated");
-    }
+    expect(html).not.toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('data-related-group="classification-siblings"');
+    expect(html).toContain('href="/docs/modules/gated-deltanet"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain("curated");
   });
 
   test("sparse attention related docs render ontology classification siblings alongside curated links", () => {
