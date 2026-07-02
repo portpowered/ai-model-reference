@@ -1,3 +1,5 @@
+export type { RooflineThroughputExplorerProps } from "./RooflineThroughputExplorer";
+export { RooflineThroughputExplorer } from "./RooflineThroughputExplorer";
 export {
   computeActiveWeightBytesPerToken,
   computeMaximumComputeFlopsPerSecond,
@@ -16,3 +18,18 @@ export {
   type RooflineScenarioResult,
   sampleMaximumThroughputBoundarySeries,
 } from "./roofline-throughput-calculation";
+export {
+  buildRooflineThroughputChartModel,
+  formatRooflineBandwidthGbps,
+  formatRooflineComputeFlopsPerSecond,
+  ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_COLOR,
+  ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_LEGEND_LABEL,
+  ROOFLINE_THROUGHPUT_BOUNDARY_COLOR,
+  ROOFLINE_THROUGHPUT_BOUNDARY_LEGEND_LABEL,
+  ROOFLINE_THROUGHPUT_EXPLORER_AXIS_X,
+  ROOFLINE_THROUGHPUT_EXPLORER_AXIS_Y,
+  ROOFLINE_THROUGHPUT_EXPLORER_CHART_LABEL,
+  type RooflineThroughputActiveScenarioPoint,
+  type RooflineThroughputChartDataPoint,
+  type RooflineThroughputChartModel,
+} from "./roofline-throughput-chart";
