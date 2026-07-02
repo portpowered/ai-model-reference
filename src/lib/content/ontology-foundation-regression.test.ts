@@ -507,9 +507,7 @@ describe("ontology foundation regression coverage", () => {
       listClassificationMembers("classification.concept.module").map(
         (member) => `${member.membershipType}:${member.record.id}`,
       ),
-    ).toEqual(
-      expect.arrayContaining(["primary:concept.activation"]),
-    );
+    ).toEqual(expect.arrayContaining(["primary:concept.activation"]));
     expect(
       listClassificationMembers("classification.training.alignment").map(
         (member) => `${member.membershipType}:${member.record.id}`,

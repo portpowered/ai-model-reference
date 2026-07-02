@@ -442,7 +442,13 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
           (item) => item.slug === sample.expectedPeerSlug && item.href,
         );
         expect(peer).toBeDefined();
-        expect(peer?.reasonLabel).toContain("Same classification");
+        if (sample.expectedGroupId === CLASSIFICATION_SIBLINGS) {
+          expect(peer?.reasonLabel).toContain("Same classification");
+        } else {
+          expect(peer?.reasonLabel).toBe(
+            DERIVED_RELATED_DOC_GROUP_LABELS[sample.expectedGroupId],
+          );
+        }
       });
     }
   });

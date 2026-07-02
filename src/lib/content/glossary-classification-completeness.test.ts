@@ -7,12 +7,12 @@ import {
   resolveGlossarySidebarGroupWithSource,
   type SidebarGroupingSource,
 } from "@/lib/content/sidebar-grouping";
+import { loadUiMessages } from "@/lib/content/ui-messages";
 import {
   buildDocsBrowseSections,
   DOCS_BROWSE_SECTION_ORDER,
 } from "@/lib/docs/browse-collection-sections";
 import { isGlossaryPageAssignedToDerivedSection } from "@/lib/docs/glossary-derived-browse-sections";
-import { loadUiMessages } from "@/lib/content/ui-messages";
 import { defaultLocale } from "@/lib/i18n/locale-routing";
 
 const REMAINING_GLOSSARY_CLASSIFICATIONS = {
@@ -57,9 +57,9 @@ describe("glossary classification completeness (glossary-decomposition-005)", ()
 
     const missing = glossaryPages
       .map((page) => {
-        const record = registry.byId.get(
-          page.frontmatter.registryId,
-        ) as ConceptRecord | undefined;
+        const record = registry.byId.get(page.frontmatter.registryId) as
+          | ConceptRecord
+          | undefined;
         return {
           slug: page.docsSlug,
           primaryClassificationId: record?.primaryClassificationId,
@@ -84,9 +84,10 @@ describe("glossary classification completeness (glossary-decomposition-005)", ()
 
       const resolution = resolveGlossarySidebarGroupWithSource(record ?? {});
       expect(resolution?.groupId).toBeDefined();
-      expect(
-        ["derived-taxonomy", "editorial-sidebar-grouping"] as const,
-      ).toContain(resolution?.source as SidebarGroupingSource);
+      expect([
+        "derived-taxonomy",
+        "editorial-sidebar-grouping",
+      ] as const).toContain(resolution?.source as SidebarGroupingSource);
     }
   });
 
