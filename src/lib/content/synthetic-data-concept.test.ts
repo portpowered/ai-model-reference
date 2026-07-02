@@ -13,7 +13,11 @@ import {
   PUBLISHED_DOCS_REGISTRY_IDS,
 } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
-import { getConceptById } from "@/lib/content/registry-runtime";
+import {
+  getConceptById,
+  listRelatedRegistryRecords,
+} from "@/lib/content/registry-runtime";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -21,6 +25,21 @@ import { docsSearchApi } from "@/lib/search/search-server";
 const REGISTRY_ID = "concept.synthetic-data";
 const SLUG = "synthetic-data";
 const CONCEPT_URL = "/docs/concepts/synthetic-data";
+const TRAINING_WORKFLOW_HREFS = [
+  "/docs/training/distillation",
+  "/docs/training/on-policy-distillation",
+  "/docs/training/post-training",
+  "/docs/training/rlhf",
+  "/docs/training/rlvr",
+] as const;
+const DISCOVERY_ALIAS_QUERIES = [
+  "Synthetic data",
+  "generated data",
+  "model-generated data",
+  "synthetic labels",
+  "synthetic traces",
+  "preference data",
+] as const;
 const pageDir = getDocsPageDir("concepts", SLUG);
 const messagesPath = join(pageDir, "messages/en.json");
 
@@ -31,10 +50,22 @@ describe("synthetic-data concept discovery", () => {
     expect(record?.aliases).toEqual([
       "Synthetic data",
       "synthetic data",
+      "generated data",
       "model-generated data",
       "generated training data",
+      "synthetic labels",
+      "synthetic traces",
+      "preference data",
     ]);
     expect(record?.tags).toEqual(["foundations", "alignment"]);
+    expect(record?.relatedIds).toEqual([
+      "training-regime.distillation",
+      "training-regime.on-policy-distillation",
+      "training-regime.post-training",
+      "training-regime.rlhf",
+      "training-regime.rlvr",
+      "concept.alignment",
+    ]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has(REGISTRY_ID)).toBe(true);
     expect(PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has(REGISTRY_ID)).toBe(true);
   });
@@ -80,8 +111,11 @@ describe("synthetic-data concept discovery", () => {
     expect(document?.aliases).toEqual(
       expect.arrayContaining([
         "Synthetic data",
+        "generated data",
         "model-generated data",
-        "generated training data",
+        "synthetic labels",
+        "synthetic traces",
+        "preference data",
       ]),
     );
     expect(document?.tags).toEqual(
@@ -91,14 +125,31 @@ describe("synthetic-data concept discovery", () => {
 
   test("search finds synthetic data by title, aliases, and body terms", async () => {
     for (const query of [
-      "Synthetic data",
-      "model-generated data",
-      "generated training data",
+      ...DISCOVERY_ALIAS_QUERIES,
       "teacher model",
     ] as const) {
       const results = await docsSearchApi.search(query);
       expect(results.some((result) => result.url === CONCEPT_URL)).toBe(true);
     }
+  });
+
+  test("curated related items connect synthetic data to nearby training workflows", () => {
+    const record = getConceptById(REGISTRY_ID);
+    if (!record) {
+      throw new Error("expected concept.synthetic-data in registry");
+    }
+
+    const relatedItems = deriveCuratedRelatedItems(
+      record,
+      listRelatedRegistryRecords(),
+      PUBLISHED_DOCS_REGISTRY_IDS,
+    );
+    const hrefs = relatedItems.map((item) => item.href);
+
+    for (const href of TRAINING_WORKFLOW_HREFS) {
+      expect(hrefs).toContain(href);
+    }
+    expect(hrefs).toContain("/docs/concepts/alignment");
   });
 });
 
@@ -189,7 +240,7 @@ describe("synthetic-data concept page", () => {
     expect(html).toContain("Compared To Other Data Sources");
     expect(html).toContain("produced or transformed by a model");
     expect(html.toLowerCase()).toContain("model-generated examples");
-    expect(html.toLowerCase()).toContain("generated preference data");
+    expect(html.toLowerCase()).toContain("preference data");
     expect(html.toLowerCase()).toContain("web pretraining data");
     expect(html.toLowerCase()).toContain("human-authored instruction data");
     expect(html).toContain("not a synonym for all training data");
@@ -197,6 +248,10 @@ describe("synthetic-data concept page", () => {
     expect(html).toContain('href="/tags/alignment"');
     expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-related-group="curated-related"');
+    for (const href of TRAINING_WORKFLOW_HREFS) {
+      expect(html).toContain(`href="${href}"`);
+    }
+    expect(html).toContain('data-testid="citation-list"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("on this page");
   });
