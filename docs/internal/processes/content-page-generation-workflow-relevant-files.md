@@ -106,6 +106,12 @@ the original page slice when they are the concrete reason the reviewed head is
 blocked. Document mergeability-only follow-ups in `progress.txt` and PR
 conversation comments.
 
+**Worktree dev-server prerequisite:** `.claude/worktrees/<lane>` checkouts
+created by `setup-workspace.py` may not include local `node_modules`. Run
+`bun install` in the worktree root before `bun run dev` or Playwright browser
+QA; without it Turbopack cannot resolve `next/package.json` and dev-server
+verification fails even when `turbopack.root` is configured.
+
 **Do not add** page-specific directory exports for ordinary page work. A focused
 guard in `content-paths.test.ts` fails when new `export const *_PAGE_DIR`
 constants appear outside the grandfathered allowlist.
