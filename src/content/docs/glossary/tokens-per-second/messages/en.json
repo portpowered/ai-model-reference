@@ -27,6 +27,10 @@
       "title": "What Moves Tokens Per Second",
       "body": "Batch size can raise aggregate throughput by letting one accelerator step finish more generated tokens at once. That efficiency gain does not guarantee a smoother experience for one reader: a larger batch may improve tok/s while lengthening queue wait before streaming starts or changing how evenly tokens arrive mid-stream.\n\nThe prefill/decode mix changes throughput because prompt processing and repeated output-token generation stress different parts of the system. A window dominated by long prompts may report lower generation throughput even when decode itself is fast, while a decode-heavy burst can push tok/s up until memory movement or scheduler limits appear.\n\nKV cache reads and writes plus memory bandwidth often cap decode-heavy serving. Each new token reuses growing cache state, so bandwidth and cache traffic can become the bottleneck even when raw compute headroom remains. That is why throughput can flatten as sequences lengthen or concurrency rises.\n\nActive model size shifts tokens per second through compute cost per step, how much state must move each decode, and whether the deployed hardware can keep weights and cache resident without spilling or oversubscribing memory. A smaller model on the same devices may report higher tok/s; a larger one may need more replicas, narrower batches, or different precision just to stay within memory limits."
     },
+    "servingPath": {
+      "title": "Go Deeper Into Serving",
+      "body": "The sections above name the factors that move throughput. Follow the links below to the serving pages that explain execution policy, batching tradeoffs, scheduler contention, and the mechanics behind each throughput limit."
+    },
     "related": {
       "title": "Related Concepts And Modules"
     },
@@ -35,6 +39,54 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "links": {
+    "timeToFirstToken": "Time to first token",
+    "interTokenLatency": "Inter-token latency",
+    "prefill": "Prefill",
+    "decode": "Decode",
+    "kvCache": "KV cache",
+    "prefillDecodeSplit": "Prefill/decode split",
+    "batching": "Batching",
+    "continuousBatching": "Continuous batching",
+    "requestScheduling": "Request scheduling",
+    "memory": "Memory",
+    "inferenceEngine": "Inference engine"
+  },
+  "relatedDocs": {
+    "concept.time-to-first-token": {
+      "reason": "Time to first token measures wait before streaming starts, so compare it with throughput when a deployment looks fast on paper but slow to begin answering."
+    },
+    "concept.inter-token-latency": {
+      "reason": "Inter-token latency tracks per-token streaming rhythm, which can feel uneven even when aggregate tokens per second looks healthy."
+    },
+    "concept.prefill": {
+      "reason": "Prefill dominates prompt work, so a prefill-heavy request mix can lower reported generation throughput even when decode itself is efficient."
+    },
+    "concept.decode": {
+      "reason": "Decode is where generated tokens are produced repeatedly, so decode cost and cache traffic set the baseline for sustained tok/s."
+    },
+    "concept.kv-cache": {
+      "reason": "KV cache growth raises memory movement each decode step, which often caps throughput before raw compute does."
+    },
+    "concept.prefill-decode-split": {
+      "reason": "Split deployments move cache state between workers, which can change how much generation work each pool sustains per second."
+    },
+    "system.batching": {
+      "reason": "Batching decides how many requests share each accelerator step, which is one of the main levers for raising aggregate throughput."
+    },
+    "system.continuous-batching": {
+      "reason": "Continuous batching keeps decode slots filled as sequences finish, which can lift tok/s under steady streaming load."
+    },
+    "system.request-scheduling": {
+      "reason": "Request scheduling decides which work runs next under contention, so queueing and fairness policies shape realized throughput."
+    },
+    "system.memory": {
+      "reason": "Memory bandwidth and residency limits how quickly weights and KV cache state can move during decode-heavy bursts."
+    },
+    "system.inference-engine": {
+      "reason": "The inference engine implements batching, scheduling, and the decode loop that turn hardware capacity into reported tokens per second."
     }
   }
 }
