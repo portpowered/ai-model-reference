@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Layer normalization rescales one token's hidden vector by subtracting its feature mean, dividing by a stabilized feature standard deviation, then applying learned scale and shift. The statistics come from that one vector, not from the rest of the batch."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "Layer norm targets training stability in deep sequence models where batch statistics are either noisy or structurally inconvenient. It keeps residual-stream magnitudes from drifting too far before attention or feed-forward sublayers run."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Because each token is normalized independently, layer norm works with variable batch sizes, variable sequence lengths, and autoregressive decoding. That is why it became one of the standard normalization choices in transformer architecture."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Normalization comparison showing LayerNorm and RMSNorm as two per-token normalization paths in the same transformer slot",
-      "caption": "Switch between LayerNorm and RMSNorm to compare full mean-and-variance normalization against lighter scale-only normalization",
       "variants": {
         "layer": {
           "label": "LayerNorm"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How layer norm compares with nearby normalization modules"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

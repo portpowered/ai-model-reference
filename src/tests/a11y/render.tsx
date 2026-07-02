@@ -5,6 +5,7 @@ import type { ComponentType, ReactElement, ReactNode } from "react";
 import { ModelAtlasSearchDialog } from "@/features/docs/search/SearchDialog";
 import { DOCS_SEARCH_API_PATH } from "@/features/docs/search/search-client";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
@@ -15,21 +16,25 @@ export type AppTestContext = {
   metaByUrl: ReturnType<typeof searchResultMetaMapToRecord>;
 };
 
-let cachedContext: AppTestContext | null = null;
+const cachedContextByLocale = new Map<SiteLocale, AppTestContext>();
 
-export async function loadAppTestContext(): Promise<AppTestContext> {
+export async function loadAppTestContext(
+  locale: SiteLocale = defaultLocale,
+): Promise<AppTestContext> {
+  const cachedContext = cachedContextByLocale.get(locale);
   if (cachedContext) {
     return cachedContext;
   }
   const [messages, metaMap] = await Promise.all([
-    loadUiMessages(),
-    loadSearchResultMetaMap(),
+    loadUiMessages(locale),
+    loadSearchResultMetaMap(locale),
   ]);
-  cachedContext = {
+  const context = {
     messages,
     metaByUrl: searchResultMetaMapToRecord(metaMap),
   };
-  return cachedContext;
+  cachedContextByLocale.set(locale, context);
+  return context;
 }
 
 export async function installDocsSearchFetchMock(): Promise<void> {

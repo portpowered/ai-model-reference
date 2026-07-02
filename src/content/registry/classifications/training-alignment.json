@@ -1,0 +1,17 @@
+{
+  "id": "classification.training.alignment",
+  "slug": "training-alignment",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["alignment training", "preference alignment"],
+  "tags": ["alignment", "foundations"],
+  "relatedIds": ["training-regime.dpo"],
+  "citationIds": ["citation.direct-preference-optimization"],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["training-regime"],
+  "parentClassificationId": "classification.training"
+}

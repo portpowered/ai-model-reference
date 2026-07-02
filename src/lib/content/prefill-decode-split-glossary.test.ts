@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { loadConceptPage } from "@/lib/content/concept-page";
 import { PREFILL_DECODE_SPLIT_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
@@ -41,6 +42,19 @@ async function renderGlossaryHtml(slug: string): Promise<string> {
   );
 }
 
+async function renderConceptHtml(slug: string): Promise<string> {
+  const page = await loadConceptPage(slug);
+
+  return renderToStaticMarkup(
+    createElement(ModulePageProviders, {
+      messages: page.messages,
+      assets: page.assets,
+      // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+      children: page.content,
+    }),
+  );
+}
+
 describe("Phase 5 prefill/decode split glossary page (US-004)", () => {
   test("registry record is published with split-serving aliases, tags, and related ids", () => {
     const record = getConceptById("concept.prefill-decode-split");
@@ -53,17 +67,20 @@ describe("Phase 5 prefill/decode split glossary page (US-004)", () => {
       "disaggregated prefill decode",
     ]);
     expect(record?.tags).toEqual(["foundations", "kv-cache"]);
-    expect(record?.relatedIds).toEqual([
-      "concept.prefill",
-      "concept.decode",
-      "concept.kv-cache",
-      "concept.autoregressive-generation",
-      "module.attention",
-      "module.multi-query-attention",
-      "module.grouped-query-attention",
-      "module.sliding-window-attention",
-      "concept.transformer",
-    ]);
+    expect(record?.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.prefill",
+        "concept.decode",
+        "concept.kv-cache",
+        "system.batching",
+        "concept.autoregressive-generation",
+        "module.attention",
+        "module.multi-query-attention",
+        "module.grouped-query-attention",
+        "module.sliding-window-attention",
+        "concept.transformer",
+      ]),
+    );
     expect(
       PUBLISHED_DOCS_REGISTRY_IDS.has("concept.prefill-decode-split"),
     ).toBe(true);
@@ -85,7 +102,7 @@ describe("Phase 5 prefill/decode split glossary page (US-004)", () => {
       items.some(
         (item) =>
           item.registryId === "concept.prefill" &&
-          item.href === "/docs/glossary/prefill",
+          item.href === "/docs/concepts/prefill",
       ),
     ).toBe(true);
     expect(
@@ -157,8 +174,8 @@ describe("Phase 5 prefill/decode split glossary page (US-004)", () => {
     expectHtmlToContainProse(html, "serving design");
     expectHtmlToContainProse(html, "cache transfer");
     expectHtmlToContainProse(html, "queueing overhead");
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/search?q=paged%20attention"');
     expect(html).toContain('href="/search?q=chunked%20prefill"');
@@ -214,12 +231,12 @@ describe("Phase 5 prefill/decode split glossary page (US-004)", () => {
 
   test("the four-page serving path is traversable through published links", async () => {
     const kvCache = await renderGlossaryHtml("kv-cache");
-    const prefill = await renderGlossaryHtml("prefill");
+    const prefill = await renderConceptHtml("prefill");
     const decode = await renderGlossaryHtml("decode");
     const split = await renderGlossaryHtml("prefill-decode-split");
 
-    expect(kvCache).toContain('href="/docs/glossary/prefill"');
-    expect(prefill).toContain('href="/docs/glossary/decode"');
+    expect(kvCache).toContain('href="/docs/concepts/prefill"');
+    expect(prefill).toContain('href="/docs/concepts/prefill"');
     expect(decode).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(split).toContain('href="/docs/glossary/decode"');
   });

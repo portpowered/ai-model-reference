@@ -1,10 +1,27 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, setDefaultTimeout, test } from "bun:test";
+import { cleanup, screen } from "@testing-library/react";
+import { act } from "react";
 import {
   buildDocsPageMetadata,
   renderDocsSlugPage,
 } from "@/app/docs/docs-slug-renderer";
+import { CanonicalDocsLayout } from "@/components/layout/canonical-docs-layout";
+import {
+  captureOriginalFetch,
+  installDocsSearchFetchMock,
+  loadAppTestContext,
+  renderWithAppProviders,
+  restoreFetchMock,
+} from "@/tests/a11y/render";
+
+setDefaultTimeout(15_000);
 
 describe("docs slug renderer locale gating", () => {
+  afterEach(() => {
+    cleanup();
+    restoreFetchMock();
+  });
+
   test.each([
     ["glossary", "sampling-overview"],
     ["glossary", "greedy-decoding"],
@@ -44,12 +61,13 @@ describe("docs slug renderer locale gating", () => {
       canonical: "/docs/modules/grouped-query-attention",
       languages: {
         en: "/docs/modules/grouped-query-attention",
+        ja: "/ja/docs/modules/grouped-query-attention",
         vi: "/vi/docs/modules/grouped-query-attention",
       },
     });
   });
 
-  test("English docs metadata advertises shipped Vietnamese alternates for newly localized head-sharing modules", async () => {
+  test("English docs metadata advertises shipped Japanese and Vietnamese alternates for newly localized head-sharing modules", async () => {
     const multiHeadMetadata = await buildDocsPageMetadata([
       "modules",
       "multi-head-attention",
@@ -63,6 +81,7 @@ describe("docs slug renderer locale gating", () => {
       canonical: "/docs/modules/multi-head-attention",
       languages: {
         en: "/docs/modules/multi-head-attention",
+        ja: "/ja/docs/modules/multi-head-attention",
         vi: "/vi/docs/modules/multi-head-attention",
       },
     });
@@ -70,12 +89,13 @@ describe("docs slug renderer locale gating", () => {
       canonical: "/docs/modules/multi-query-attention",
       languages: {
         en: "/docs/modules/multi-query-attention",
+        ja: "/ja/docs/modules/multi-query-attention",
         vi: "/vi/docs/modules/multi-query-attention",
       },
     });
   });
 
-  test("English docs metadata advertises shipped Vietnamese alternates for newly localized long-context modules", async () => {
+  test("English docs metadata advertises shipped Japanese and Vietnamese alternates for newly localized long-context modules", async () => {
     const slidingWindowMetadata = await buildDocsPageMetadata([
       "modules",
       "sliding-window-attention",
@@ -89,6 +109,7 @@ describe("docs slug renderer locale gating", () => {
       canonical: "/docs/modules/sliding-window-attention",
       languages: {
         en: "/docs/modules/sliding-window-attention",
+        ja: "/ja/docs/modules/sliding-window-attention",
         vi: "/vi/docs/modules/sliding-window-attention",
       },
     });
@@ -96,6 +117,7 @@ describe("docs slug renderer locale gating", () => {
       canonical: "/docs/modules/linear-attention",
       languages: {
         en: "/docs/modules/linear-attention",
+        ja: "/ja/docs/modules/linear-attention",
         vi: "/vi/docs/modules/linear-attention",
       },
     });
@@ -113,12 +135,12 @@ describe("docs slug renderer locale gating", () => {
   });
 
   test("English docs metadata omits unshipped Vietnamese alternate for prefill", async () => {
-    const metadata = await buildDocsPageMetadata(["glossary", "prefill"]);
+    const metadata = await buildDocsPageMetadata(["concepts", "prefill"]);
 
     expect(metadata.alternates).toEqual({
-      canonical: "/docs/glossary/prefill",
+      canonical: "/docs/concepts/prefill",
       languages: {
-        en: "/docs/glossary/prefill",
+        en: "/docs/concepts/prefill",
       },
     });
   });
@@ -152,6 +174,18 @@ describe("docs slug renderer locale gating", () => {
     try {
       await renderDocsSlugPage(["getting-started"], "vi");
       throw new Error("Expected Vietnamese unshipped route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
+  });
+
+  test("unshipped Japanese docs routes fail clearly instead of rendering English content", async () => {
+    try {
+      await renderDocsSlugPage(["getting-started"], "ja");
+      throw new Error("Expected Japanese unshipped route to fail");
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
       expect((error as Error).message).toMatch(
@@ -225,5 +259,52 @@ describe("docs slug renderer locale gating", () => {
         /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
       );
     }
+  });
+
+  test("local docs routes render the folded opening summary for canonical pages", async () => {
+    const page = await renderDocsSlugPage(["concepts", "prefill"]);
+    captureOriginalFetch();
+    await installDocsSearchFetchMock();
+    const context = await loadAppTestContext();
+
+    await act(async () => {
+      await renderWithAppProviders(
+        <CanonicalDocsLayout messages={context.messages}>
+          {page}
+        </CanonicalDocsLayout>,
+        { context },
+      );
+    });
+
+    const summary = screen.getByTestId("folded-summary");
+    expect(
+      summary.closest("section")?.getAttribute("data-opening-summary"),
+    ).toBe("folded");
+    expect(screen.getByLabelText("Opening summary")).toBeTruthy();
+    expect(summary.textContent).toContain(
+      "The first generated token often feels slow because the model must process the whole prompt before it can begin replying",
+    );
+  });
+
+  test("glossary routes omit the folded opening summary in the shared docs shell", async () => {
+    const page = await renderDocsSlugPage(["glossary", "token"]);
+    captureOriginalFetch();
+    await installDocsSearchFetchMock();
+    const context = await loadAppTestContext();
+
+    await act(async () => {
+      await renderWithAppProviders(
+        <CanonicalDocsLayout messages={context.messages}>
+          {page}
+        </CanonicalDocsLayout>,
+        { context },
+      );
+    });
+
+    expect(screen.queryByTestId("folded-summary")).toBeNull();
+    expect(screen.queryByLabelText("Opening summary")).toBeNull();
+    expect(
+      document.querySelector('[data-opening-summary="folded"]'),
+    ).toBeNull();
   });
 });

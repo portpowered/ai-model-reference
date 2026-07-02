@@ -1,0 +1,25 @@
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "bidirectional",
+    "variants": [
+      {
+        "variantId": "causal",
+        "graphId": "graph.multi-head-attention-time-pattern",
+        "labelKey": "assets.computeFlow.variants.causal.label"
+      },
+      {
+        "variantId": "bidirectional",
+        "graphId": "graph.bidirectional-attention-time-pattern",
+        "labelKey": "assets.computeFlow.variants.bidirectional.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.bidirectional-attention-comparison"
+  }
+}

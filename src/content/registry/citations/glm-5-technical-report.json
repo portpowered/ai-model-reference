@@ -1,0 +1,20 @@
+{
+  "id": "citation.glm-5-technical-report",
+  "slug": "glm-5-technical-report",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GLM-5 technical report", "GLM-5 paper"],
+  "tags": ["foundations", "model-family", "context-window", "attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["GLM-5 Team"],
+  "title": "GLM-5: from Vibe Coding to Agentic Engineering",
+  "url": "https://arxiv.org/abs/2602.15763",
+  "mla": "GLM-5 Team. \"GLM-5: from Vibe Coding to Agentic Engineering.\" arXiv, 2026.",
+  "year": 2026
+}

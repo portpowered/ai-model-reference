@@ -91,18 +91,31 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(modelGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/models/deepseek-v4-flash",
       "/docs/models/deepseek-v4-pro",
+      "/docs/models/glm-5",
+      "/docs/models/glm-5-2",
       "/docs/models/gpt-3",
+      "/docs/models/llama-3",
+      "/docs/models/mixtral-8x22b",
+      "/docs/models/mixtral-8x7b",
+      "/docs/models/qwen3-0-6b",
+      "/docs/models/qwen3-5-0-8b",
+      "/docs/models/qwen-3-6-27b",
+      "/docs/models/qwen-3-6-35b-a3b",
     ]);
 
     const conceptGroup = groups.find((group) => group.kind === "concept");
     expect(conceptGroup?.kindLabel).toBe("Concept");
     expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/concepts/kv-cache",
+      "/docs/concepts/prefill",
       "/docs/concepts/self-attention",
     ]);
 
     const paperGroup = groups.find((group) => group.kind === "paper");
     expect(paperGroup?.kindLabel).toBe("Paper");
     expect(paperGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/papers/attention-is-all-you-need",
+      "/docs/papers/bert-pre-training-of-deep-bidirectional-transformers",
       "/docs/papers/deepseek-v4",
     ]);
 
@@ -112,7 +125,6 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
       "/docs/glossary/autoregressive-generation",
       "/docs/glossary/decode",
       "/docs/glossary/kv-cache",
-      "/docs/glossary/prefill",
       "/docs/glossary/token",
     ]);
   });
@@ -162,11 +174,12 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
     }
 
     expect(html).toContain("Linear Attention");
-    expect(html).toContain('href="/docs/concepts/self-attention"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/kv-cache"');
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
+    expect(html).toContain('href="/docs/concepts/self-attention"');
     expect(html).toContain('href="/docs/glossary/token"');
   });
 });

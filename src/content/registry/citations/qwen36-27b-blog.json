@@ -1,0 +1,23 @@
+{
+  "id": "citation.qwen36-27b-blog",
+  "slug": "qwen36-27b-blog",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Qwen3.6-27B release blog",
+    "Qwen3.6-27B: Flagship-Level Coding in a 27B Dense Model"
+  ],
+  "tags": ["model-family", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["Qwen Team"],
+  "title": "Qwen3.6-27B: Flagship-Level Coding in a 27B Dense Model",
+  "url": "https://qwen.ai/blog?id=qwen3.6-27b",
+  "mla": "Qwen Team. \"Qwen3.6-27B: Flagship-Level Coding in a 27B Dense Model.\" Qwen, April 2026.",
+  "year": 2026
+}

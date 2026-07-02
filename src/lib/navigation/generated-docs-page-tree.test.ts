@@ -1,0 +1,704 @@
+import { describe, expect, test } from "bun:test";
+import type { Node } from "fumadocs-core/page-tree";
+import {
+  type DocsPageSource,
+  loadPublishedDocsPagesSync,
+} from "@/lib/content/pages";
+import {
+  getConceptById,
+  getModuleById,
+  getSystemById,
+  getTrainingRegimeById,
+} from "@/lib/content/registry-runtime";
+import {
+  getSidebarGroupIdsForSection,
+  getSidebarGroupLabel,
+  resolveConceptsSidebarGroup,
+  resolveConceptsSidebarGroupWithSource,
+  resolveGlossarySidebarGroup,
+  resolveGlossarySidebarGroupWithSource,
+  resolveModulesSidebarGroup,
+  resolveModulesSidebarGroupWithSource,
+  resolveSystemsSidebarGroup,
+  resolveSystemsSidebarGroupWithSource,
+  resolveTrainingSidebarGroup,
+  resolveTrainingSidebarGroupWithSource,
+  type SidebarGroupIdBySection,
+  type SidebarGroupingSection,
+} from "@/lib/content/sidebar-grouping";
+import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
+import {
+  collectSidebarPageLinks,
+  DEEPSEEK_V4_PAPER_URL,
+  findSidebarPageLink,
+  GPT_3_MODEL_URL,
+} from "@/lib/navigation/docs-sidebar-contract";
+import { source } from "@/lib/source";
+
+function getFolderChildren(folderName: string): Node[] {
+  const folder = source.pageTree.children.find(
+    (node) => node.type === "folder" && node.name === folderName,
+  );
+  expect(folder?.type).toBe("folder");
+  if (folder?.type !== "folder") {
+    throw new Error(`expected ${folderName} folder in docs sidebar`);
+  }
+
+  return folder.children;
+}
+
+function findNodeIndex(
+  nodes: Node[],
+  target: { name?: string; url?: string },
+): number {
+  return nodes.findIndex((node) => {
+    if (target.name) {
+      return node.name === target.name;
+    }
+
+    return node.type === "page" && "url" in node && node.url === target.url;
+  });
+}
+
+function requireRecord<T>(record: T | undefined, label: string): T {
+  if (!record) {
+    throw new Error(`expected ${label} record`);
+  }
+
+  return record;
+}
+
+function sortPagesByTitle(pages: DocsPageSource[]): DocsPageSource[] {
+  return [...pages].sort((left, right) =>
+    left.messages.title.localeCompare(right.messages.title, "en", {
+      sensitivity: "base",
+    }),
+  );
+}
+
+function requireFirstPage(
+  pages: DocsPageSource[],
+  groupLabel: string,
+): DocsPageSource {
+  const representativePage = sortPagesByTitle(pages)[0];
+  if (!representativePage) {
+    throw new Error(`expected representative page for ${groupLabel}`);
+  }
+
+  return representativePage;
+}
+
+function requireLastPage(
+  pages: DocsPageSource[],
+  groupLabel: string,
+): DocsPageSource {
+  const representativePage = sortPagesByTitle(pages).at(-1);
+  if (!representativePage) {
+    throw new Error(`expected representative page for ${groupLabel}`);
+  }
+
+  return representativePage;
+}
+
+type GroupedSection<Section extends SidebarGroupingSection> = {
+  folderName: string;
+  section: Section;
+  resolveGroupId: (
+    page: DocsPageSource,
+  ) => SidebarGroupIdBySection[Section] | undefined;
+};
+
+const GROUPED_SECTIONS = [
+  {
+    folderName: "Glossary",
+    section: "glossary",
+    resolveGroupId: (page) =>
+      resolveGlossarySidebarGroup(
+        requireRecord(
+          getConceptById(page.frontmatter.registryId),
+          `${page.frontmatter.registryId} glossary concept`,
+        ),
+      ),
+  },
+  {
+    folderName: "Concepts",
+    section: "concepts",
+    resolveGroupId: (page) =>
+      resolveConceptsSidebarGroup(
+        requireRecord(
+          getConceptById(page.frontmatter.registryId),
+          `${page.frontmatter.registryId} concept`,
+        ),
+      ),
+  },
+  {
+    folderName: "Modules",
+    section: "modules",
+    resolveGroupId: (page) =>
+      resolveModulesSidebarGroup(
+        requireRecord(
+          getModuleById(page.frontmatter.registryId),
+          `${page.frontmatter.registryId} module`,
+        ),
+      ),
+  },
+  {
+    folderName: "Training",
+    section: "training",
+    resolveGroupId: (page) =>
+      resolveTrainingSidebarGroup(
+        requireRecord(
+          getTrainingRegimeById(page.frontmatter.registryId),
+          `${page.frontmatter.registryId} training regime`,
+        ),
+      ),
+  },
+  {
+    folderName: "Systems",
+    section: "systems",
+    resolveGroupId: (page) =>
+      resolveSystemsSidebarGroup(
+        requireRecord(
+          getSystemById(page.frontmatter.registryId),
+          `${page.frontmatter.registryId} system`,
+        ),
+      ),
+  },
+] as const satisfies readonly GroupedSection<SidebarGroupingSection>[];
+
+function collectExpectedGroups<Section extends SidebarGroupingSection>({
+  section,
+  resolveGroupId,
+}: GroupedSection<Section>): Array<{
+  groupId: SidebarGroupIdBySection[Section];
+  label: string;
+  representativePages: {
+    first: DocsPageSource;
+    last: DocsPageSource;
+  };
+  pageUrls: string[];
+}> {
+  const pages = loadPublishedDocsPagesSync("en").filter((page) =>
+    page.docsSlug.startsWith(`${section}/`),
+  );
+  const pagesByGroup = new Map<
+    SidebarGroupIdBySection[Section],
+    DocsPageSource[]
+  >();
+
+  for (const page of pages) {
+    const groupId = resolveGroupId(page);
+    if (!groupId) {
+      continue;
+    }
+
+    const groupedPages = pagesByGroup.get(groupId) ?? [];
+    groupedPages.push(page);
+    pagesByGroup.set(groupId, groupedPages);
+  }
+
+  return getSidebarGroupIdsForSection(section)
+    .filter((groupId) => (pagesByGroup.get(groupId)?.length ?? 0) > 0)
+    .map((groupId) => ({
+      groupId,
+      label: getSidebarGroupLabel(section, groupId),
+      representativePages: {
+        first: requireFirstPage(
+          pagesByGroup.get(groupId) ?? [],
+          getSidebarGroupLabel(section, groupId),
+        ),
+        last: requireLastPage(
+          pagesByGroup.get(groupId) ?? [],
+          getSidebarGroupLabel(section, groupId),
+        ),
+      },
+      pageUrls: sortPagesByTitle(pagesByGroup.get(groupId) ?? []).map(
+        (page) => page.url,
+      ),
+    }));
+}
+
+function expectIndex(targetLabel: string, index: number): number {
+  if (index < 0) {
+    throw new Error(`expected page tree entry for ${targetLabel}`);
+  }
+
+  return index;
+}
+
+function findNextSeparatorIndex(nodes: Node[], currentIndex: number): number {
+  return nodes.findIndex(
+    (node, index) => index > currentIndex && node.type === "separator",
+  );
+}
+
+function getSeparatorLabels(nodes: Node[]): string[] {
+  return nodes
+    .filter((node) => node.type === "separator")
+    .map((node) => String(node.name));
+}
+
+function getPageNodeEntries(
+  nodes: Node[],
+): Array<{ name: string; url: string }> {
+  return nodes.flatMap((node) => {
+    if (
+      node.type === "page" &&
+      "url" in node &&
+      typeof node.url === "string" &&
+      typeof node.name === "string"
+    ) {
+      return [{ name: node.name, url: node.url }];
+    }
+
+    return [];
+  });
+}
+
+function expectTitleSortedPageNames(names: string[], label: string): void {
+  const sortedNames = [...names].sort((left, right) =>
+    left.localeCompare(right, "en", { sensitivity: "base" }),
+  );
+  expect(names, label).toEqual(sortedNames);
+}
+
+function collectUngroupedPages<Section extends SidebarGroupingSection>(
+  sectionConfig: GroupedSection<Section>,
+): DocsPageSource[] {
+  return loadPublishedDocsPagesSync("en")
+    .filter((page) => page.docsSlug.startsWith(`${sectionConfig.section}/`))
+    .filter((page) => !sectionConfig.resolveGroupId(page));
+}
+
+const UNGROUPED_COLLECTIONS = [
+  { folderName: "Models", collectionId: "models", routeSlug: "models" },
+  { folderName: "Papers", collectionId: "papers", routeSlug: "papers" },
+] as const;
+
+describe("generated docs page tree", () => {
+  test("builds top-level folders from collection definitions in configured order", () => {
+    const collectionDefinitions = listDocsCollectionDefinitions();
+    const topLevelFolders = source.pageTree.children.filter(
+      (node) => node.type === "folder",
+    );
+
+    expect(topLevelFolders.map((folder) => folder.name)).toEqual([
+      "Glossary",
+      "Concepts",
+      "Modules",
+      "Models",
+      "Papers",
+      "Training",
+      "Systems",
+    ]);
+    expect(topLevelFolders).toHaveLength(collectionDefinitions.length);
+  });
+
+  test("assigns every published collection page exactly once by route slug", () => {
+    const collectionDefinitions = listDocsCollectionDefinitions();
+    const sidebarLinks = collectSidebarPageLinks(source.pageTree);
+    const sidebarUrls = new Set(sidebarLinks.map((link) => link.url));
+
+    for (const definition of collectionDefinitions) {
+      const collectionPages = loadPublishedDocsPagesSync("en").filter((page) =>
+        page.docsSlug.startsWith(`${definition.routeSlug}/`),
+      );
+
+      for (const page of collectionPages) {
+        expect(
+          sidebarUrls.has(page.url),
+          `expected ${page.url} in ${definition.id} sidebar folder`,
+        ).toBe(true);
+      }
+    }
+
+    const collectionPageUrls = loadPublishedDocsPagesSync("en")
+      .filter((page) => {
+        const [routeSlug] = page.docsSlug.split("/", 1);
+        return collectionDefinitions.some(
+          (definition) => definition.routeSlug === routeSlug,
+        );
+      })
+      .map((page) => page.url);
+
+    expect(sidebarLinks).toHaveLength(collectionPageUrls.length);
+    expect(new Set(sidebarLinks.map((link) => link.url))).toEqual(
+      new Set(collectionPageUrls),
+    );
+  });
+
+  test("ungrouped collections render title-sorted pages without separators", () => {
+    for (const collection of UNGROUPED_COLLECTIONS) {
+      const definition = listDocsCollectionDefinitions().find(
+        (entry) => entry.id === collection.collectionId,
+      );
+      expect(
+        definition?.sidebarGroupingResolverId,
+        collection.folderName,
+      ).toBeUndefined();
+
+      const children = getFolderChildren(collection.folderName);
+      expect(getSeparatorLabels(children), collection.folderName).toEqual([]);
+      expect(
+        children.every((node) => node.type === "page"),
+        collection.folderName,
+      ).toBe(true);
+
+      const expectedPages = sortPagesByTitle(
+        loadPublishedDocsPagesSync("en").filter((page) =>
+          page.docsSlug.startsWith(`${collection.routeSlug}/`),
+        ),
+      );
+
+      expect(getPageNodeEntries(children), collection.folderName).toEqual(
+        expectedPages.map((page) => ({
+          name: page.messages.title,
+          url: page.url,
+        })),
+      );
+    }
+  });
+
+  test("representative ungrouped model and paper links keep localized names and URLs", () => {
+    const links = collectSidebarPageLinks(source.pageTree);
+
+    expect(findSidebarPageLink(links, GPT_3_MODEL_URL)).toEqual({
+      name: "GPT-3",
+      url: GPT_3_MODEL_URL,
+    });
+    expect(findSidebarPageLink(links, DEEPSEEK_V4_PAPER_URL)).toEqual({
+      name: "DeepSeek-V4",
+      url: DEEPSEEK_V4_PAPER_URL,
+    });
+  });
+
+  test("does not keep the legacy Getting Started page as a top-level sidebar entry", () => {
+    expect(
+      source.pageTree.children.some(
+        (node) =>
+          node.type === "page" &&
+          "url" in node &&
+          node.url === "/docs/getting-started",
+      ),
+    ).toBe(false);
+  });
+
+  test("grouped docs folders expose runtime-derived subgroup labels in configured order", () => {
+    for (const sectionConfig of GROUPED_SECTIONS) {
+      const expectedGroups = collectExpectedGroups(sectionConfig);
+      const actualLabels = getFolderChildren(sectionConfig.folderName)
+        .filter((node) => node.type === "separator")
+        .map((node) => node.name);
+
+      expect(actualLabels, sectionConfig.folderName).toEqual(
+        expectedGroups.map((group) => group.label),
+      );
+    }
+  });
+
+  test("grouped pages within each separator stay title-sorted by localized page name", () => {
+    for (const sectionConfig of GROUPED_SECTIONS) {
+      const children = getFolderChildren(sectionConfig.folderName);
+
+      for (const group of collectExpectedGroups(sectionConfig)) {
+        const separatorIndex = expectIndex(
+          `${sectionConfig.folderName} separator ${group.label}`,
+          findNodeIndex(children, { name: group.label }),
+        );
+        const nextSeparatorIndex = findNextSeparatorIndex(
+          children,
+          separatorIndex,
+        );
+        const groupEndIndex =
+          nextSeparatorIndex >= 0 ? nextSeparatorIndex : children.length;
+        const groupUrlSet = new Set(group.pageUrls);
+        const groupedPageUrls = children
+          .slice(separatorIndex + 1, groupEndIndex)
+          .flatMap((node) =>
+            node.type === "page" &&
+            "url" in node &&
+            typeof node.url === "string" &&
+            groupUrlSet.has(node.url)
+              ? [node.url]
+              : [],
+          );
+        const groupedPageNames = children
+          .slice(separatorIndex + 1, groupEndIndex)
+          .flatMap((node) =>
+            node.type === "page" &&
+            typeof node.name === "string" &&
+            "url" in node &&
+            typeof node.url === "string" &&
+            groupUrlSet.has(node.url)
+              ? [node.name]
+              : [],
+          );
+
+        expect(
+          groupedPageUrls,
+          `${sectionConfig.folderName} ${group.label} page URLs`,
+        ).toEqual(group.pageUrls);
+        expectTitleSortedPageNames(
+          groupedPageNames,
+          `${sectionConfig.folderName} ${group.label}`,
+        );
+      }
+    }
+  });
+
+  test("pages without a resolved group render after grouped pages in title order", () => {
+    for (const sectionConfig of GROUPED_SECTIONS) {
+      const ungroupedPages = collectUngroupedPages(sectionConfig);
+      if (ungroupedPages.length === 0) {
+        continue;
+      }
+
+      const children = getFolderChildren(sectionConfig.folderName);
+      const ungroupedUrls = new Set(ungroupedPages.map((page) => page.url));
+      const groupedPageIndexes = children.flatMap((node, index) =>
+        node.type === "page" &&
+        "url" in node &&
+        typeof node.url === "string" &&
+        !ungroupedUrls.has(node.url)
+          ? [index]
+          : [],
+      );
+      const lastGroupedPageIndex = Math.max(...groupedPageIndexes);
+      const trailingUngroupedNodes = children
+        .slice(lastGroupedPageIndex + 1)
+        .flatMap((node) =>
+          node.type === "page" &&
+          "url" in node &&
+          typeof node.url === "string" &&
+          typeof node.name === "string" &&
+          ungroupedUrls.has(node.url)
+            ? [{ name: node.name, url: node.url }]
+            : [],
+        );
+      const expectedTrailingPages = sortPagesByTitle(ungroupedPages).map(
+        (page) => ({
+          name: page.messages.title,
+          url: page.url,
+        }),
+      );
+
+      expect(
+        trailingUngroupedNodes,
+        `${sectionConfig.folderName} trailing ungrouped pages`,
+      ).toEqual(expectedTrailingPages);
+      expectTitleSortedPageNames(
+        trailingUngroupedNodes.map((node) => node.name),
+        `${sectionConfig.folderName} trailing ungrouped pages`,
+      );
+    }
+  });
+
+  test("runtime-derived subgroup pages stay contiguous after the correct separator", () => {
+    for (const sectionConfig of GROUPED_SECTIONS) {
+      const children = getFolderChildren(sectionConfig.folderName);
+
+      for (const group of collectExpectedGroups(sectionConfig)) {
+        const separatorIndex = expectIndex(
+          `${sectionConfig.folderName} separator ${group.label}`,
+          findNodeIndex(children, { name: group.label }),
+        );
+        const nextSeparatorIndex = findNextSeparatorIndex(
+          children,
+          separatorIndex,
+        );
+        const pageIndexes = group.pageUrls
+          .map((url) =>
+            expectIndex(
+              `${sectionConfig.folderName} grouped page ${url}`,
+              findNodeIndex(children, { url }),
+            ),
+          )
+          .sort((left, right) => left - right);
+        const firstPageIndex = pageIndexes[0];
+        const lastPageIndex = pageIndexes.at(-1);
+        if (firstPageIndex === undefined || lastPageIndex === undefined) {
+          throw new Error(
+            `expected runtime-derived subgroup pages for ${sectionConfig.folderName} ${group.label}`,
+          );
+        }
+        const separatorBound =
+          nextSeparatorIndex >= 0 ? nextSeparatorIndex : children.length;
+
+        expect(
+          firstPageIndex,
+          `${sectionConfig.folderName} ${group.label}`,
+        ).toBeGreaterThan(separatorIndex);
+        expect(
+          lastPageIndex,
+          `${sectionConfig.folderName} ${group.label}`,
+        ).toBeLessThan(separatorBound);
+        expect(
+          lastPageIndex - firstPageIndex + 1,
+          `${sectionConfig.folderName} ${group.label} should stay contiguous`,
+        ).toBe(pageIndexes.length);
+
+        expect(
+          children[firstPageIndex],
+          `${sectionConfig.folderName} ${group.label} should start with the runtime-derived first anchor`,
+        ).toMatchObject({
+          type: "page",
+          url: group.representativePages.first.url,
+        });
+        expect(
+          children[lastPageIndex],
+          `${sectionConfig.folderName} ${group.label} should end with the runtime-derived last anchor`,
+        ).toMatchObject({
+          type: "page",
+          url: group.representativePages.last.url,
+        });
+      }
+    }
+  });
+
+  test("representative covered records prove ontology-derived versus fallback subgroup sources", () => {
+    expect(
+      resolveGlossarySidebarGroupWithSource(
+        requireRecord(
+          getConceptById("concept.backpropagation"),
+          "concept.backpropagation glossary concept",
+        ),
+      ),
+    ).toEqual({
+      groupId: "math-and-training",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveGlossarySidebarGroupWithSource(
+        requireRecord(
+          getConceptById("concept.transformer"),
+          "concept.transformer glossary concept",
+        ),
+      ),
+    ).toEqual({
+      groupId: "sequence-and-attention",
+      source: "editorial-sidebar-grouping",
+    });
+
+    expect(
+      resolveConceptsSidebarGroupWithSource(
+        requireRecord(
+          getConceptById("concept.quantization"),
+          "concept.quantization concept",
+        ),
+      ),
+    ).toEqual({
+      groupId: "inference",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveConceptsSidebarGroupWithSource(
+        requireRecord(
+          getConceptById("concept.page-spec-workflow-sample"),
+          "concept.page-spec-workflow-sample concept",
+        ),
+      ),
+    ).toEqual({
+      groupId: "reference-samples",
+      source: "editorial-sidebar-grouping",
+    });
+    expect(
+      resolveConceptsSidebarGroupWithSource(
+        requireRecord(
+          getConceptById("concept.transformer-architecture"),
+          "concept.transformer-architecture concept",
+        ),
+      ),
+    ).toEqual({
+      groupId: "architecture",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveConceptsSidebarGroupWithSource(
+        requireRecord(
+          getConceptById("concept.why-long-context-is-hard"),
+          "concept.why-long-context-is-hard concept",
+        ),
+      ),
+    ).toEqual({
+      groupId: "long-context",
+      source: "editorial-sidebar-grouping",
+    });
+
+    expect(
+      resolveModulesSidebarGroupWithSource(
+        requireRecord(
+          getModuleById("module.grouped-query-attention"),
+          "module.grouped-query-attention module",
+        ),
+      ),
+    ).toEqual({
+      groupId: "attention-variants",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveModulesSidebarGroupWithSource(
+        requireRecord(
+          getModuleById("module.multi-head-attention"),
+          "module.multi-head-attention module",
+        ),
+      ),
+    ).toEqual({
+      groupId: "attention-variants",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveModulesSidebarGroupWithSource(
+        requireRecord(
+          getModuleById("module.attention"),
+          "module.attention module",
+        ),
+      ),
+    ).toEqual({
+      groupId: "attention-foundations",
+      source: "editorial-sidebar-grouping",
+    });
+
+    expect(
+      resolveTrainingSidebarGroupWithSource(
+        requireRecord(
+          getTrainingRegimeById("training-regime.dpo"),
+          "training-regime.dpo training regime",
+        ),
+      ),
+    ).toEqual({
+      groupId: "alignment",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveTrainingSidebarGroupWithSource(
+        requireRecord(
+          getTrainingRegimeById("training-regime.on-policy-distillation"),
+          "training-regime.on-policy-distillation training regime",
+        ),
+      ),
+    ).toEqual({
+      groupId: "distillation",
+      source: "editorial-sidebar-grouping",
+    });
+
+    expect(
+      resolveSystemsSidebarGroupWithSource(
+        requireRecord(getSystemById("system.routing"), "system.routing system"),
+      ),
+    ).toEqual({
+      groupId: "routing",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveSystemsSidebarGroupWithSource(
+        requireRecord(
+          getSystemById("system.on-disk-kv-cache"),
+          "system.on-disk-kv-cache system",
+        ),
+      ),
+    ).toEqual({
+      groupId: "memory",
+      source: "derived-taxonomy",
+    });
+  });
+});

@@ -1,0 +1,23 @@
+{
+  "id": "citation.nemotron-3-super-technical-report",
+  "slug": "nemotron-3-super-technical-report",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Nemotron 3 Super Technical Report",
+    "NVIDIA Nemotron 3 Super Technical Report"
+  ],
+  "tags": ["foundations", "model-family", "context-window", "quantization"],
+  "relatedIds": ["paper.nemotron-3-super"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["NVIDIA"],
+  "title": "Nemotron 3 Super: Open, Efficient Mixture-of-Experts Hybrid Mamba-Transformer Model for Agentic Reasoning",
+  "url": "https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Super-Technical-Report.pdf",
+  "mla": "NVIDIA. \"Nemotron 3 Super: Open, Efficient Mixture-of-Experts Hybrid Mamba-Transformer Model for Agentic Reasoning.\" 2026.",
+  "year": 2026
+}

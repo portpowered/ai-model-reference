@@ -50,6 +50,7 @@ describe("groupTagIndexEntriesByCategory", () => {
     expect(groups.map((group) => group.category)).toEqual([
       "architecture",
       "module-type",
+      "training",
       "inference",
       "model-family",
     ]);
@@ -64,13 +65,15 @@ describe("groupTagIndexEntriesByCategory", () => {
       "feed-forward",
       "normalization",
       "position-encoding",
+      "tokenization",
     ]);
-    expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual([
+    expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual(["alignment"]);
+    expect(groups[3]?.tags.map((tag) => tag.slug)).toEqual([
       "context-window",
       "kv-cache",
       "quantization",
     ]);
-    expect(groups[3]?.tags.map((tag) => tag.slug)).toEqual(["model-family"]);
+    expect(groups[4]?.tags.map((tag) => tag.slug)).toEqual(["model-family"]);
   });
 
   it("sorts tags alphabetically by title inside each category group", () => {
@@ -159,8 +162,12 @@ describe("tags index page render", () => {
     expect(html).toContain('href="/tags/feed-forward"');
     expect(html).toContain("Normalization");
     expect(html).toContain('href="/tags/normalization"');
+    expect(html).toContain("Tokenization");
+    expect(html).toContain('href="/tags/tokenization"');
     expect(html).toContain("Position Encoding");
     expect(html).toContain('href="/tags/position-encoding"');
+    expect(html).toContain("Tokenization");
+    expect(html).toContain('href="/tags/tokenization"');
     expect(html).toContain("Module type");
     expect(html).toContain("KV Cache");
     expect(html).toContain('href="/tags/kv-cache"');
@@ -185,6 +192,7 @@ describe("tags index page render", () => {
     expect(html).toContain('href="/vi/tags/feed-forward"');
     expect(html).toContain('href="/vi/tags/normalization"');
     expect(html).toContain('href="/vi/tags/position-encoding"');
+    expect(html).toContain('href="/vi/tags/tokenization"');
     expect(html).toContain("Loại module");
     expect(html).toContain("Cửa sổ ngữ cảnh");
     expect(html).toContain('href="/vi/tags/context-window"');

@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Group normalization splits channels into groups, computes a mean and variance within each group for one example, normalizes those channels, then applies learned scale and shift. It avoids using minibatch-wide statistics while still sharing information across related channels."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "Group norm targets stable normalization when minibatch statistics are unreliable. It is especially helpful in models where memory limits force small batches or where example shapes vary too much for batch-wide estimates to stay steady."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Teams often reach for group norm in vision systems that want more predictable behavior than batch norm at small batch sizes. It keeps normalization local to each example without forcing the whole vector into one shared statistic."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -51,12 +47,9 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Group norm flow from channel groups to group statistics, normalized groups, and scaled output",
-      "caption": "Group norm normalizes each example by channel group rather than by full minibatch statistics"
+      "alt": "Group norm flow from channel groups to group statistics, normalized groups, and scaled output"
     },
-    "comparisonTable": {
-      "caption": "How group norm compares with nearby normalization modules"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

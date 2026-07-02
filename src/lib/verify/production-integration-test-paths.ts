@@ -27,10 +27,12 @@ export const PRODUCTION_INTEGRATION_TEST_PATHS = [
   "src/tests/layout/grouped-query-attention-built-route-convergence.test.tsx",
   "src/tests/layout/linear-attention-built-route-convergence.test.tsx",
   "src/tests/layout/multi-head-latent-attention-built-route-convergence.test.tsx",
+  "src/tests/layout/multi-token-prediction-built-route-convergence.test.tsx",
   "src/tests/layout/docs-shell-contract.test.tsx",
   "src/tests/layout/sliding-window-attention-built-route-convergence.test.tsx",
   "src/tests/layout/sparse-attention-built-route-convergence.test.tsx",
   "src/tests/layout/site-routes-shell.test.tsx",
   "src/tests/content/phase-1-attention-tag-landing-built-app.test.ts",
   "src/tests/content/phase-1-shell-discovery-built-app.test.ts",
+  "src/tests/content/phase-4-japanese-attention-proof-set-built-app.test.ts",
 ] as const;

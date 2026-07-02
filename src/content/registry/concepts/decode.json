@@ -16,6 +16,7 @@
     "concept.prefill",
     "concept.kv-cache",
     "concept.prefill-decode-split",
+    "system.batching",
     "concept.autoregressive-generation",
     "module.attention",
     "module.multi-query-attention",
@@ -23,11 +24,17 @@
     "module.sliding-window-attention",
     "concept.transformer"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.brown-gpt-3",
+    "citation.curious-case-neural-text-degeneration"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "inference",
+  "sidebarGrouping": {
+    "glossary": "sequence-and-attention"
+  },
   "prerequisiteIds": ["concept.prefill", "concept.kv-cache", "concept.decoder"],
   "explainsIds": []
 }

@@ -1,0 +1,102 @@
+{
+  "id": "graph.bpe-compute-flow",
+  "slug": "bpe-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "module.bpe",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "rawText",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "rawText",
+      "labelKey": "graph.nodes.rawText.label",
+      "moduleKind": "input",
+      "childNodeIds": ["startSymbols"]
+    },
+    {
+      "id": "startSymbols",
+      "labelKey": "graph.nodes.startSymbols.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["countPairs"]
+    },
+    {
+      "id": "countPairs",
+      "labelKey": "graph.nodes.countPairs.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["pickPair"]
+    },
+    {
+      "id": "pickPair",
+      "labelKey": "graph.nodes.pickPair.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["mergePair"]
+    },
+    {
+      "id": "mergePair",
+      "labelKey": "graph.nodes.mergePair.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["reusePieces"]
+    },
+    {
+      "id": "reusePieces",
+      "labelKey": "graph.nodes.reusePieces.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["tokenOutput"]
+    },
+    {
+      "id": "tokenOutput",
+      "labelKey": "graph.nodes.tokenOutput.label",
+      "moduleKind": "output",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "raw-to-start",
+      "source": "rawText",
+      "target": "startSymbols",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "start-to-count",
+      "source": "startSymbols",
+      "target": "countPairs",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "count-to-pick",
+      "source": "countPairs",
+      "target": "pickPair",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "pick-to-merge",
+      "source": "pickPair",
+      "target": "mergePair",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "merge-to-reuse",
+      "source": "mergePair",
+      "target": "reusePieces",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "reuse-to-output",
+      "source": "reusePieces",
+      "target": "tokenOutput",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

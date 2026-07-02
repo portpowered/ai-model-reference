@@ -59,26 +59,41 @@ describe("search result meta", () => {
   test("resolveSearchResultMeta returns kind, description, and tags for grouped-query attention", async () => {
     const record = searchResultMetaMapToRecord(await loadSearchResultMetaMap());
     const meta = resolveSearchResultMeta(SAMPLE_URL, record);
-    expect(meta).toEqual({
-      title: "Grouped-Query Attention",
-      kind: "module",
-      description: expect.any(String),
-      tags: expect.arrayContaining(["attention", "kv-cache"]),
-      aliases: expect.any(Array),
-    });
+    expect(meta).toEqual(
+      expect.objectContaining({
+        title: "Grouped-Query Attention",
+        kind: "module",
+        description: expect.any(String),
+        tags: expect.arrayContaining(["attention", "kv-cache"]),
+        directAliases: expect.any(Array),
+        aliases: expect.any(Array),
+        topology: expect.any(Object),
+      }),
+    );
     expect(meta?.description.length).toBeGreaterThan(0);
+    expect(meta?.topology.primaryClassificationId).toBe(
+      "classification.module.attention.grouped-query",
+    );
+    expect(meta?.topology.ancestorClassificationIds).toEqual([
+      "classification.module.attention",
+      "classification.module",
+    ]);
   });
 
   test("resolveSearchResultMeta returns kind, description, and tags for token glossary", async () => {
     const record = searchResultMetaMapToRecord(await loadSearchResultMetaMap());
     const meta = resolveSearchResultMeta(TOKEN_URL, record);
-    expect(meta).toEqual({
-      title: "Token",
-      kind: "glossary",
-      description: expect.any(String),
-      tags: expect.arrayContaining(["attention"]),
-      aliases: expect.any(Array),
-    });
+    expect(meta).toEqual(
+      expect.objectContaining({
+        title: "Token",
+        kind: "glossary",
+        description: expect.any(String),
+        tags: expect.arrayContaining(["attention"]),
+        directAliases: expect.any(Array),
+        aliases: expect.any(Array),
+        topology: expect.any(Object),
+      }),
+    );
     expect(meta?.description).toContain("smallest unit");
   });
 
@@ -91,9 +106,30 @@ describe("search result meta", () => {
     expect(meta?.aliases.length).toBeGreaterThan(0);
   });
 
-  test("loadSearchResultMetaMap returns no japanese docs entries when no japanese docs pages are shipped", async () => {
+  test("loadSearchResultMetaMap returns the shipped japanese attention proof set", async () => {
     const map = await loadSearchResultMetaMap("ja");
-    expect(map.size).toBe(0);
+    expect(map.size).toBe(8);
+    expect(map.get("/ja/docs/modules/attention")?.title).toBe("Attention");
+    expect(map.get("/ja/docs/modules/grouped-query-attention")?.title).toBe(
+      "Grouped-query attention",
+    );
+    expect(map.get("/ja/docs/modules/multi-head-attention")?.title).toBe(
+      "マルチヘッド attention",
+    );
+    expect(map.get("/ja/docs/modules/multi-query-attention")?.title).toBe(
+      "マルチクエリ attention",
+    );
+    expect(map.get("/ja/docs/modules/sliding-window-attention")?.title).toBe(
+      "スライディングウィンドウ attention",
+    );
+    expect(map.get("/ja/docs/modules/linear-attention")?.title).toBe(
+      "線形 attention",
+    );
+    expect(map.get("/ja/docs/glossary/token")?.title).toBe("Token");
+    expect(map.get("/ja/docs/concepts/transformer-architecture")?.title).toBe(
+      "Transformer アーキテクチャ",
+    );
+    expect(map.has("/ja/docs/modules/swiglu")).toBe(false);
   });
 
   test("buildSearchResultMetaMap keys by url", () => {

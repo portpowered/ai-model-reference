@@ -13,11 +13,14 @@
     "concept.normalization",
     "module.attention"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.attention-is-all-you-need"],
   "status": "published",
   "createdAt": "2026-06-08T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
+  "sidebarGrouping": {
+    "glossary": "sequence-and-attention"
+  },
   "prerequisiteIds": [],
   "explainsIds": []
 }

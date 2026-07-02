@@ -4,7 +4,6 @@
     "graphId": "graph.manifold-constrained-hyper-connections-flow",
     "webRenderer": "react-flow",
     "printRenderer": "vertical-svg",
-    "altKey": "assets.computeFlow.alt",
-    "captionKey": "assets.computeFlow.caption"
+    "altKey": "assets.computeFlow.alt"
   }
 }

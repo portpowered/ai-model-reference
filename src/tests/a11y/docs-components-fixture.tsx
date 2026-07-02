@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { type RenderOptions, render } from "@testing-library/react";
 import {
   SearchDialog as FumaSearchDialog,
@@ -9,11 +11,8 @@ import type { ReactElement, ReactNode } from "react";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { SearchResultListItem } from "@/features/docs/search/SearchResults";
 import type { SearchResultMetaRecord } from "@/features/docs/search/search-result-meta-client";
-import messageFixture from "@/lib/content/__fixtures__/page-messages.json";
-import {
-  groupedQueryAttentionPageDir,
-  loadPageMessages,
-} from "@/lib/content/page-messages-load";
+import { getDocsPageDir } from "@/lib/content/content-paths";
+import { loadPageMessages } from "@/lib/content/page-messages-load";
 import { type PageMessages, pageMessagesSchema } from "@/lib/content/schemas";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import type { SiteLocale } from "@/lib/i18n/locale-routing";
@@ -23,8 +22,19 @@ import {
   renderWithAppProviders,
 } from "@/tests/a11y/render";
 
+const messageFixture = JSON.parse(
+  readFileSync(
+    join(import.meta.dir, "../../lib/content/__fixtures__/page-messages.json"),
+    "utf8",
+  ),
+);
+
 let cachedGqaMessages: PageMessages | null = null;
 let cachedCalloutExampleMessages: PageMessages | null = null;
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
 
 export function loadCalloutExamplePageMessages(): PageMessages {
   if (cachedCalloutExampleMessages) {

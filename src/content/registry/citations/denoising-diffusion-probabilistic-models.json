@@ -1,0 +1,20 @@
+{
+  "id": "citation.denoising-diffusion-probabilistic-models",
+  "slug": "denoising-diffusion-probabilistic-models",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["DDPM paper", "diffusion model paper"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Jonathan Ho", "Ajay Jain", "Pieter Abbeel"],
+  "title": "Denoising Diffusion Probabilistic Models",
+  "year": 2020,
+  "url": "https://arxiv.org/abs/2006.11239",
+  "mla": "Ho, Jonathan, Ajay Jain, and Pieter Abbeel. \"Denoising Diffusion Probabilistic Models.\" arXiv, 2020, https://arxiv.org/abs/2006.11239."
+}

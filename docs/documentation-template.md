@@ -31,13 +31,22 @@ docs/templates/<kind>.assets.json      # starter page asset config
 
 When creating a canonical docs page, use the `.mdx` file as the page structure, copy the starter message file to `messages/en.json`, copy the starter asset config to `assets.json`, and use the `.content.md` guide to fill in the values. Do not paste `.content.md` prose into `page.mdx`.
 
+For modules, concepts, glossary entries, training regimes, and systems, starter
+authoring guidance should describe `primaryClassificationId`,
+`secondaryClassificationIds`, and `relationships` as the canonical taxonomy
+shape. Legacy fields such as `moduleType`, `conceptType`, `regimeType`,
+`systemType`, `variantGroup`, `moduleFamily`, and `sidebarGrouping` are on the
+staged deprecation path described in
+[ontology-classification-topology-convergence-plan](./temp/ontology-classification-topology-convergence-plan.md)
+and should not be presented as the preferred path for new starter content.
+
 ## Required Pattern
 
 Canonical docs pages should include:
 
 * frontmatter with `kind`, `registryId`, `messageNamespace`, `assetNamespace`, `status`, `tags`, `aliases`, and `updatedAt`
 * `messageNamespace` and `assetNamespace` references, usually `local`
-* a localized folded `openingSummary` rendered from messages (merge legacy `problemStatement` + `coreIdea` into one key; glossary pages keep `openingSummary` in messages but omit it from MDX—see [writing standards](../factory/docs/standards/docs-writing-standards.md))
+* optional lead copy in messages when the page benefits from it; if used, prefer one concise `openingSummary` key instead of split `problemStatement` / `coreIdea` keys (see [writing standards](../factory/docs/standards/docs-writing-standards.md))
 * no in-body `# <T k="title" />` heading; the docs shell renders the page title once
 * registry-backed metadata or at-a-glance component where relevant
 * clickable tags through `TagPillList`
@@ -45,11 +54,12 @@ Canonical docs pages should include:
 * derived related documents through `DerivedRelatedDocs` where useful
 * references through `CitationList`
 
-The page structure should support a reader who lands on the page directly from search.
+The page structure should support a reader who lands on the page directly from search and should teach the topic without depending on adjacent pages.
 
 * Introductory sections should define the topic in isolation before narrowing into one implementation context.
 * Section order should move from definition -> value -> mechanism -> comparison -> tradeoffs.
 * Avoid templates that force authors to restate the same idea in multiple adjacent sections.
+* Narrative sections should stay focused on the concept itself, not on the page, nearby pages, or the documentation structure.
 
 Production docs pages should render sections through localized section components, for example:
 

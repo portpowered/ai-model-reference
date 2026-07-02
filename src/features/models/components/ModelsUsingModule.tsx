@@ -1,11 +1,11 @@
-export function ModelsUsingModule({
-  registryId: _registryId,
-}: {
-  registryId: string;
-}) {
-  return (
-    <p className="text-sm text-muted-foreground">
-      Example model links will render from registry usage in a later story.
-    </p>
-  );
+import { RegistryLinkList } from "@/features/docs/components/RegistryLinkList";
+import { getModuleById } from "@/lib/content/registry-runtime";
+
+export function ModelsUsingModule({ registryId }: { registryId: string }) {
+  const record = getModuleById(registryId);
+  if (!record || record.usedByModelIds.length === 0) {
+    return null;
+  }
+
+  return <RegistryLinkList emptyLabel="" registryIds={record.usedByModelIds} />;
 }

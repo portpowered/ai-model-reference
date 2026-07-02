@@ -24,6 +24,7 @@
     "training-regime.on-policy-distillation",
     "training-regime.specialist-training",
     "training-regime.fp4-quantization-aware-training",
+    "system.routing",
     "system.on-disk-kv-cache",
     "system.expert-parallel-overlap"
   ],

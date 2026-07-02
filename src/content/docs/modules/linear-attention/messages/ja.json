@@ -1,0 +1,231 @@
+{
+  "title": "線形 attention",
+  "description": "明示的な softmax dot-product attention を、系列長に対してほぼ線形に伸びる kernel または feature-map 形式へ置き換える attention 変種。",
+  "openingSummary": "標準的な attention は softmax の前に全 pair の score 行列を作るため、コストが系列長の二乗で増えます。Linear attention は query と key を feature map に通し、注意計算を結合的な集約や再帰形式で表すことで、正確な dense attention と引き換えに長い入力でより良いスケーリングを得ます。",
+  "sections": {
+    "whatItIs": {
+      "title": "これは何か",
+      "body": "Linear attention は、完全な softmax score 行列を作らずに attention を再定式化する attention 変種です。Query と key に feature map を適用することで、モデルはすべての query-key pair を明示的に採点する代わりに、key-value の統計を線形時間で蓄積できます。"
+    },
+    "whyItExists": {
+      "title": "何を最適化するか",
+      "body": "Linear attention は、密な二乗 attention が長文脈で実行時間を支配してしまうときの、系列長スケーリング、attention 計算コスト、メモリ帯域を対象に最適化します。"
+    },
+    "howItWorks": {
+      "title": "どう動くか",
+      "body": "Query と key は feature map φ を通り、その積が結合的に扱える形になります。モデルは各位置で φ(K)^T V を蓄積し、その結果を φ(Q) と組み合わせることで、完全な n×n attention 行列を明示的に作らずに出力を計算します。"
+    },
+    "mathOrComputeSchema": {
+      "title": "数式または計算図式",
+      "body": "Query と key に feature map φ を適用すると、linear attention は全 pair に対する softmax ではなく、結合的な積を通じて出力を計算します。下の式は、密な multi-head attention と、φ および正規化項を通る linear attention を対比しています。"
+    },
+    "comparedToNearbyModules": {
+      "title": "近い module との違い",
+      "body": "Multi-head attention と比べると、linear attention は key-value head の共有方法ではなく、計算メカニズムそのものを変えます。Multi-query attention や grouped-query attention は許可された位置に対しては依然として dense attention を行い、key-value head 数だけを減らします。Linear attention はその代わりに、kernel や再帰形式で二乗未満の系列スケーリングを目指します。"
+    },
+    "exampleArchitectures": {
+      "title": "例となるアーキテクチャ",
+      "body": "Linear attention は、長文脈モデルや、効率と表現力の両立のために二乗未満の attention layer と標準の dense block を組み合わせる研究アーキテクチャに現れます。"
+    },
+    "limitationsAndTradeoffs": {
+      "title": "限界とトレードオフ",
+      "body": "Feature-map 型の linear attention は、softmax dot-product attention と完全には同じではありません。近似の質は選ぶ kernel に依存し、定式化によっては dense attention が持つ正確な pairwise scoring を手放します。"
+    },
+    "whyItStillMatters": {
+      "title": "今でも重要な理由",
+      "body": "文脈長が伸びるほど、二乗未満の attention は現実的な設計軸であり続けます。特に、全 layer で二乗 attention のコストを支払わずに長い系列を扱いたいモデルにとって重要です。"
+    },
+    "related": {
+      "title": "関連"
+    },
+    "tags": {
+      "title": "タグ"
+    },
+    "references": {
+      "title": "参考文献"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Dense multi-head attention と feature-map 型 linear attention の計算フロー比較",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "linear": {
+          "label": "Linear"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "linear": {
+          "title": "Linear attention"
+        },
+        "mha": {
+          "title": "Multi-head attention"
+        },
+        "mqa": {
+          "title": "Multi-query attention"
+        },
+        "gqa": {
+          "title": "Grouped-query attention"
+        }
+      },
+      "dimensions": {
+        "sequenceScaling": "系列長に対するスケーリング",
+        "computeMechanism": "計算メカニズム",
+        "expressiveness": "表現力"
+      },
+      "values": {
+        "linear": {
+          "sequenceScaling": "Feature-map 次元が固定なら head ごとにほぼ線形 O(n)",
+          "computeMechanism": "Query と key に feature map φ を適用し、key-value を結合的に蓄積する",
+          "expressiveness": "選んだ kernel を通して softmax dot-product attention を近似する"
+        },
+        "mha": {
+          "sequenceScaling": "Head ごとに二乗 O(n²)",
+          "computeMechanism": "すべての query-key 内積に対する明示的な softmax",
+          "expressiveness": "完全な pairwise softmax attention"
+        },
+        "mqa": {
+          "sequenceScaling": "Key-value 射影を減らした二乗 O(n²)",
+          "computeMechanism": "共有 key-value head を持つ dense softmax",
+          "expressiveness": "共有 key-value head を持つ完全な pairwise softmax attention"
+        },
+        "gqa": {
+          "sequenceScaling": "Key-value head 数を減らした二乗 O(n²)",
+          "computeMechanism": "group 化された key-value head を持つ dense softmax",
+          "expressiveness": "group 化された key-value head を持つ完全な pairwise softmax attention"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Head i の query vector。"
+        },
+        "k": {
+          "term": "K",
+          "definition": "Head i の key vector。"
+        },
+        "v": {
+          "term": "V",
+          "definition": "Head i の value vector。"
+        },
+        "h": {
+          "term": "H",
+          "definition": "Query head の数。"
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Head ごとの key 次元。"
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head の index。"
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Linear attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\frac{\\phi(Q_i)\\big(\\phi(K_i)^{\\top} V_i\\big)}{\\phi(Q_i)\\big(\\sum_j \\phi(K_{i,j})\\big)}",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Head i の query vector。"
+        },
+        "k": {
+          "term": "K",
+          "definition": "Head i の key vector。"
+        },
+        "v": {
+          "term": "V",
+          "definition": "Head i の value vector。"
+        },
+        "h": {
+          "term": "H",
+          "definition": "Query head の数。"
+        },
+        "g": {
+          "term": "φ",
+          "definition": "Query と key に適用され、結合的な蓄積を可能にする feature map。"
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Head ごとの key 次元。"
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head の index。"
+        },
+        "gi": {
+          "term": "Z",
+          "definition": "Feature map 済み key の総和から作られる正規化の分母。"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "valueHead": {
+        "label": "V"
+      },
+      "mhaQueryHeads": {
+        "label": "H query heads"
+      },
+      "mhaKvHeads": {
+        "label": "H 個の key-value head pair（query と 1:1）"
+      },
+      "mhaOneToOne": {
+        "label": "各 query はすべての key 位置を採点する"
+      },
+      "linearQueryHeads": {
+        "label": "H query heads"
+      },
+      "linearFeatureMap": {
+        "label": "Query と key に対する feature map φ"
+      },
+      "linearAssociativeUpdate": {
+        "label": "完全な score 行列を作らずに key-value を結合的に蓄積する"
+      },
+      "linearSummaryLabel": {
+        "label": "走行中の要約"
+      },
+      "linearSummaryNode": {
+        "label": "\\phi(K)^{\\top} V"
+      },
+      "linearAssociativeNote": {
+        "label": "Query はすべての key を採点する代わりに、蓄積済みの要約を読む"
+      }
+    }
+  },
+  "relatedDocs": {
+    "module.attention": {
+      "reason": "Dense attention は、linear attention が完全な score 行列を避けるために書き換える基準設計です。"
+    },
+    "module.multi-head-attention": {
+      "reason": "MHA は pairwise softmax をそのまま保つため、linear attention が変える計算部分を比べる直接の対象になります。"
+    },
+    "module.sliding-window-attention": {
+      "reason": "Sliding-window attention も長文脈を狙いますが、attention の式ではなく、query が見られる範囲を制限します。"
+    }
+  }
+}

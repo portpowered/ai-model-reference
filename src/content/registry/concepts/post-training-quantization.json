@@ -21,7 +21,7 @@
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
-  "conceptType": "inference",
+  "primaryClassificationId": "classification.concept.inference",
   "prerequisiteIds": ["concept.quantization"],
   "explainsIds": ["concept.calibration", "concept.quantization-aware-training"]
 }

@@ -1,0 +1,17 @@
+{
+  "id": "classification.system.routing",
+  "slug": "system-routing",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["routing system", "serving router"],
+  "tags": ["foundations"],
+  "relatedIds": ["system.routing"],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["system"],
+  "parentClassificationId": "classification.system"
+}

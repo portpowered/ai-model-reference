@@ -17,9 +17,19 @@ describe("prose auto-link", () => {
     const index = buildProseAutoLinkPhraseIndex([
       { phrase: "attention", href: "/tags/attention" },
       { phrase: "attention", href: "/docs/glossary/attention" },
+      { phrase: "attention", href: "/docs/modules/attention" },
     ]);
 
     expect(index.has("attention")).toBe(false);
+  });
+
+  test("buildProseAutoLinkPhraseIndex prefers canonical docs routes over tag routes when the tag is the only collision", () => {
+    const index = buildProseAutoLinkPhraseIndex([
+      { phrase: "FFN", href: "/docs/modules/feed-forward-network" },
+      { phrase: "ffn", href: "/tags/feed-forward" },
+    ]);
+
+    expect(index.get("ffn")).toBe("/docs/modules/feed-forward-network");
   });
 
   test("buildProseAutoLinkPhraseIndex keeps unambiguous phrases", () => {

@@ -1,3 +1,4 @@
+import { topologySearchText } from "./topology-search-terms";
 import type {
   FumadocsSearchIndexEntry,
   FumadocsStructuredData,
@@ -12,22 +13,36 @@ export function toStructuredData(
     content: heading,
   }));
 
-  const contents = [
+  const contents: FumadocsStructuredData["contents"] = [
     {
       heading: document.title,
       content: [document.description, document.bodyText]
         .filter(Boolean)
         .join("\n\n"),
     },
-    ...document.aliases.map((alias) => ({
-      heading: undefined,
-      content: alias,
-    })),
-    ...document.tags.map((tag) => ({
-      heading: undefined,
-      content: tag,
-    })),
   ];
+
+  if (document.aliases.length > 0) {
+    contents.push({
+      heading: undefined,
+      content: document.aliases.join("\n"),
+    });
+  }
+
+  if (document.tags.length > 0) {
+    contents.push({
+      heading: undefined,
+      content: document.tags.join("\n"),
+    });
+  }
+
+  const topologyTerms = topologySearchText(document);
+  if (topologyTerms) {
+    contents.push({
+      heading: undefined,
+      content: topologyTerms,
+    });
+  }
 
   return { headings, contents };
 }

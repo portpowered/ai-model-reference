@@ -88,15 +88,14 @@ export function ModuleAtAGlance({ registryId }: { registryId: string }) {
         <AtAGlanceListSection title="Optimizes">
           <BulletList items={record.optimizes} formatItem={formatToken} />
         </AtAGlanceListSection>
-        <AtAGlanceListSection title="Practical benefits">
-          <BulletList items={record.practicalBenefits} />
-        </AtAGlanceListSection>
-        <AtAGlanceListSection title="Example models">
-          <RegistryLinkList
-            registryIds={record.exampleModelIds}
-            emptyLabel="No example models listed yet."
-          />
-        </AtAGlanceListSection>
+        {record.exampleModelIds.length > 0 ? (
+          <AtAGlanceListSection title="Example models">
+            <RegistryLinkList
+              registryIds={record.exampleModelIds}
+              emptyLabel="No example models listed yet."
+            />
+          </AtAGlanceListSection>
+        ) : null}
       </div>
     </AtAGlanceCard>
   );

@@ -38,7 +38,7 @@ describe("multi-head-latent-attention page messages", () => {
     expect(messages.problemStatement).toBeUndefined();
     expect(messages.coreIdea).toBeUndefined();
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
-    expect(messages.sections?.whatItOptimizes.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.whyItExists.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
     expect(messages.math?.mhaSchema?.variableDefinitions?.q?.term).toBe("Q");
     expect(messages.math?.gqaSchema?.variableDefinitions?.gi?.term).toBe("c");
@@ -73,8 +73,13 @@ describe("loadModulePage multi-head-latent-attention", () => {
       html,
       "Multi-head latent attention (MLA) is an attention variant derived from multi-head attention.",
     );
-    expect(html).toContain("compressed latent KV representation");
-    expect(html).toContain("Keys and values are down-projected into a latent");
+    expectHtmlToContainProse(
+      html,
+      "MLA caches compact latent vectors and reconstructs per-head keys and values through low-rank projections.",
+    );
+    expect(html).toContain(
+      "Keys and values are down-projected into a latent cache with rank r.",
+    );
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain('aria-label="Module metadata"');
     expect(html).toContain("At a glance");
@@ -82,12 +87,12 @@ describe("loadModulePage multi-head-latent-attention", () => {
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
-    expect(html).toContain("Same variant group");
+    expect(html).toContain("Same classification: attention mechanisms");
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("DeepSeek-AI");
     expect(html).toContain('href="https://arxiv.org/abs/2405.04434"');
     expect(html).toContain('rel="noopener noreferrer"');
-    expect(html).toContain("r-dimensional latent");
+    expectHtmlToContainProse(html, "Low-rank latent key-value vectors");
     expect(assertMultiHeadLatentAttentionModuleConvergence(html)).toBeNull();
   });
 });

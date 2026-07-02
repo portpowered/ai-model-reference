@@ -6,6 +6,7 @@ import { ModulePageProviders } from "@/features/docs/components/ModulePageProvid
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import { modelAtlasSiteConfig } from "@/lib/site/model-atlas-site-config";
 import {
   RENDERED_QUALITY_PROCESS_LANGUAGE_PATTERNS,
   RENDERED_QUALITY_READER_SHORTCUT_MARKERS,
@@ -26,6 +27,7 @@ const CANONICAL_GLOSSARY_SLUGS = [
 const CANONICAL_MODULE_SLUGS = [
   "grouped-query-attention",
   "attention",
+  "unigram-tokenizer",
 ] as const;
 
 function assertNoProcessLanguage(text: string): void {
@@ -47,7 +49,9 @@ describe("canonical content standards", () => {
     const serialized = JSON.stringify(messages.home);
     assertNoProcessLanguage(serialized);
 
-    const html = renderToStaticMarkup(<HomeArticle messages={messages} />);
+    const html = renderToStaticMarkup(
+      <HomeArticle messages={messages} siteConfig={modelAtlasSiteConfig} />,
+    );
     assertNoProcessLanguage(html);
   });
 

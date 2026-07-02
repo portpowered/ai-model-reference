@@ -311,9 +311,6 @@ function hasRelatedDocs(
 export async function buildFoundationPathInventory(): Promise<FoundationPathInventory> {
   const indexes = await loadRegistry();
   const pages = await loadPublishedDocsPages("en");
-  const pageByRegistryId = new Map(
-    pages.map((page) => [page.frontmatter.registryId, page]),
-  );
   const searchDocuments = buildSearchDocuments(pages, indexes);
   const searchByUrl = new Map(
     searchDocuments.map((document) => [document.url, document]),
@@ -326,7 +323,11 @@ export async function buildFoundationPathInventory(): Promise<FoundationPathInve
     const registryId = registryIdForSlug(slug);
     const canonicalRoute = glossaryPageHref(slug);
     const concept = indexes.byId.get(registryId) as ConceptRecord | undefined;
-    const publishedPage = pageByRegistryId.get(registryId);
+    const publishedPage = pages.find(
+      (entry) =>
+        entry.url === canonicalRoute &&
+        entry.frontmatter.registryId === registryId,
+    );
     const searchDocument = searchByUrl.get(canonicalRoute);
     const fumadocsPage = source.getPage(["glossary", slug]);
 

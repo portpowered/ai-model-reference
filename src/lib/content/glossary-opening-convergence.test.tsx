@@ -10,6 +10,8 @@ import {
 } from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 
+const GLOSSARY_RENDER_GROUP_SIZE = 12;
+
 describe("glossary opening convergence", () => {
   test("canonical glossary template omits GlossaryOpening and legacy blocks", () => {
     const template = readFileSync(
@@ -34,22 +36,39 @@ describe("glossary opening convergence", () => {
     }
   });
 
-  test(
-    "published glossary pages keep openingSummary in messages but omit it in shell render",
-    async () => {
-      const pages = await listPublishedGlossaryPages();
+  test("published glossary pages keep openingSummary in messages", async () => {
+    const pages = await listPublishedGlossaryPages();
 
-      for (const page of pages) {
+    for (const page of pages) {
+      const loadedPage = await loadLocalDocsPage({
+        section: "glossary",
+        slug: page.slug,
+      });
+      expectGlossaryOpeningSummaryMessage(loadedPage.messages);
+    }
+  });
+
+  test.each(
+    Array.from(
+      { length: Math.ceil(57 / GLOSSARY_RENDER_GROUP_SIZE) },
+      (_, i) => i,
+    ),
+  )(
+    "published glossary shell render omits openingSummary group %i",
+    async (groupIndex) => {
+      const pages = await listPublishedGlossaryPages();
+      const start = groupIndex * GLOSSARY_RENDER_GROUP_SIZE;
+      const group = pages.slice(start, start + GLOSSARY_RENDER_GROUP_SIZE);
+
+      for (const page of group) {
         const loadedPage = await loadLocalDocsPage({
           section: "glossary",
           slug: page.slug,
         });
-        expectGlossaryOpeningSummaryMessage(loadedPage.messages);
-
         const html = renderGlossaryDocsShell(loadedPage);
         expectGlossaryOmitsOpeningSummary(html);
       }
     },
-    { timeout: 30_000 },
+    { timeout: 20_000 },
   );
 });

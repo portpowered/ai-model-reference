@@ -2,12 +2,10 @@
   "computeFlow": {
     "type": "chart",
     "chartId": "chart.activation-family.relu-silu-comparison",
-    "altKey": "assets.computeFlow.alt",
-    "captionKey": "assets.computeFlow.caption"
+    "altKey": "assets.computeFlow.alt"
   },
   "comparisonTable": {
     "type": "table",
-    "tableId": "table.silu-comparison",
-    "captionKey": "assets.comparisonTable.caption"
+    "tableId": "table.silu-comparison"
   }
 }

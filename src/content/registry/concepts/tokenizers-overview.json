@@ -1,0 +1,47 @@
+{
+  "id": "concept.tokenizers-overview",
+  "slug": "tokenizers-overview",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Tokenizer overview",
+    "tokenizer overview",
+    "tokenizers",
+    "tokenizers overview",
+    "text tokenization",
+    "tokenization overview",
+    "subword tokenizers overview"
+  ],
+  "tags": ["tokenization", "foundations", "token-to-probability-chain"],
+  "relatedIds": [
+    "concept.token",
+    "concept.transformer-architecture",
+    "module.sentencepiece",
+    "module.bpe",
+    "module.byte-level-tokenization",
+    "module.clip-image-tokenization",
+    "module.unigram-tokenizer",
+    "module.wordpiece",
+    "model.gpt-3"
+  ],
+  "citationIds": [
+    "citation.sennrich-bpe",
+    "citation.gnmt-wordpiece",
+    "citation.kudo-sentencepiece"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-18T20:45:43Z",
+  "updatedAt": "2026-06-21T00:00:00Z",
+  "primaryClassificationId": "classification.concept.architecture",
+  "conceptType": "architecture",
+  "prerequisiteIds": ["concept.token"],
+  "explainsIds": [
+    "module.bpe",
+    "module.byte-level-tokenization",
+    "module.clip-image-tokenization",
+    "module.wordpiece",
+    "module.sentencepiece",
+    "module.unigram-tokenizer"
+  ]
+}

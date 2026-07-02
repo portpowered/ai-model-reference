@@ -1,0 +1,178 @@
+{
+  "id": "graph.request-scheduling-decision-factors",
+  "slug": "request-scheduling-decision-factors",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "request scheduling decision factors",
+    "scheduler decision graph"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.orca-serving-system"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "subjectId": "system.request-scheduling",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "queuedRequests",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "queuedRequests",
+      "labelKey": "graph.nodes.queuedRequests.label",
+      "moduleKind": "input",
+      "position": { "x": 300, "y": 0 },
+      "size": { "width": 200, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["scheduler"]
+    },
+    {
+      "id": "scheduler",
+      "labelKey": "graph.nodes.scheduler.label",
+      "moduleKind": "block",
+      "position": { "x": 280, "y": 100 },
+      "size": { "width": 240, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": [
+        "fairness",
+        "deadlines",
+        "batchingWindow",
+        "memoryPressure",
+        "pickStep"
+      ]
+    },
+    {
+      "id": "fairness",
+      "labelKey": "graph.nodes.fairness.label",
+      "moduleKind": "other",
+      "position": { "x": 20, "y": 230 },
+      "size": { "width": 150, "height": 70 },
+      "visualRole": "default",
+      "childNodeIds": []
+    },
+    {
+      "id": "deadlines",
+      "labelKey": "graph.nodes.deadlines.label",
+      "moduleKind": "other",
+      "position": { "x": 190, "y": 230 },
+      "size": { "width": 150, "height": 70 },
+      "visualRole": "default",
+      "childNodeIds": []
+    },
+    {
+      "id": "batchingWindow",
+      "labelKey": "graph.nodes.batchingWindow.label",
+      "moduleKind": "other",
+      "position": { "x": 360, "y": 230 },
+      "size": { "width": 150, "height": 70 },
+      "visualRole": "default",
+      "childNodeIds": []
+    },
+    {
+      "id": "memoryPressure",
+      "labelKey": "graph.nodes.memoryPressure.label",
+      "moduleKind": "cache",
+      "position": { "x": 530, "y": 230 },
+      "size": { "width": 160, "height": 70 },
+      "visualRole": "summary-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "pickStep",
+      "labelKey": "graph.nodes.pickStep.label",
+      "moduleKind": "operation",
+      "position": { "x": 300, "y": 350 },
+      "size": { "width": 200, "height": 70 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["prefillStep", "decodeStep"]
+    },
+    {
+      "id": "prefillStep",
+      "labelKey": "graph.nodes.prefillStep.label",
+      "moduleKind": "operation",
+      "position": { "x": 150, "y": 470 },
+      "size": { "width": 170, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "decodeStep",
+      "labelKey": "graph.nodes.decodeStep.label",
+      "moduleKind": "operation",
+      "position": { "x": 400, "y": 470 },
+      "size": { "width": 170, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "queued-scheduler",
+      "source": "queuedRequests",
+      "target": "scheduler",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "fairness-scheduler",
+      "source": "fairness",
+      "target": "scheduler",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "deadlines-scheduler",
+      "source": "deadlines",
+      "target": "scheduler",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "batching-scheduler",
+      "source": "batchingWindow",
+      "target": "scheduler",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "memory-scheduler",
+      "source": "memoryPressure",
+      "target": "scheduler",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "right"
+    },
+    {
+      "id": "scheduler-pick",
+      "source": "scheduler",
+      "target": "pickStep",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "pick-prefill",
+      "source": "pickStep",
+      "target": "prefillStep",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "pick-decode",
+      "source": "pickStep",
+      "target": "decodeStep",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

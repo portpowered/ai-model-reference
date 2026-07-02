@@ -1,0 +1,82 @@
+---
+title: "Mixtral 8x7B"
+description: "The first open-weights Mixtral sparse mixture-of-experts model with 46.7 billion total parameters, about 12.9 billion active per token, and a 32,768-token context window under Apache 2.0."
+kind: "model"
+registryId: "model.mixtral-8x7b"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - model-family
+  - feed-forward
+  - attention
+  - context-window
+aliases:
+  - "Mixtral 8x7B"
+  - "open-mixtral-8x7b"
+updatedAt: "2026-07-01"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModelArchitectureGraph } from "@/features/models/components/ModelArchitectureGraph";
+import { ModelAtAGlance } from "@/features/models/components/ModelAtAGlance";
+import { ModelModuleList } from "@/features/models/components/ModelModuleList";
+import { ModelTrainingSummary } from "@/features/models/components/ModelTrainingSummary";
+
+
+<ModelAtAGlance registryId="model.mixtral-8x7b" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="inputs-and-outputs" titleKey="sections.inputsAndOutputs.title">
+  <T k="sections.inputsAndOutputs.body" />
+</Section>
+
+<Section id="architecture" titleKey="sections.architecture.title">
+  <T k="sections.architecture.body" />
+  <ModelArchitectureGraph registryId="model.mixtral-8x7b" assetId="architectureGraph" />
+</Section>
+
+<Section id="important-modules" titleKey="sections.importantModules.title">
+  <T k="sections.importantModules.body" />
+  <ModelModuleList registryId="model.mixtral-8x7b" />
+</Section>
+
+<Section id="training" titleKey="sections.training.title">
+  <T k="sections.training.body" />
+  <ModelTrainingSummary registryId="model.mixtral-8x7b" />
+</Section>
+
+<Section id="practical-notes" titleKey="sections.practicalNotes.title">
+  <T k="sections.practicalNotes.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="model.mixtral-8x7b"
+    groups={[
+      "same-model-family",
+      "shared-modules",
+      "shared-training-regimes",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+  <RelatedDocs registryId="model.mixtral-8x7b" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="model.mixtral-8x7b" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="model.mixtral-8x7b" />
+</Section>

@@ -5,6 +5,7 @@ import {
   beforeEach,
   describe,
   expect,
+  setDefaultTimeout,
   test,
 } from "bun:test";
 import { cleanup, screen, waitFor, within } from "@testing-library/react";
@@ -26,15 +27,20 @@ import {
   expectUniqueCanonicalPageUrls,
   MULTI_HEAD_ATTENTION_URL,
   MULTI_QUERY_ATTENTION_URL,
+  PREFILL_URL,
   resultsIncludeSampleModule,
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
 import { createDocsSearchRouteFetch } from "@/tests/search/route-fetch";
+import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
+
+setDefaultTimeout(15_000);
 
 function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {
     q: searchParams.get("q"),
     tag: searchParams.get("tag"),
+    classification: searchParams.get("classification"),
   };
 }
 
@@ -66,6 +72,17 @@ function installDocsSearchRouteFetch(): void {
   globalThis.fetch = createDocsSearchRouteFetch();
 }
 
+const JAPANESE_ATTENTION_PROOF_SET_URLS = [
+  "/ja/docs/modules/attention",
+  "/ja/docs/modules/linear-attention",
+  "/ja/docs/modules/multi-head-attention",
+  "/ja/docs/modules/grouped-query-attention",
+  "/ja/docs/modules/multi-query-attention",
+  "/ja/docs/modules/sliding-window-attention",
+  "/ja/docs/glossary/token",
+  "/ja/docs/concepts/transformer-architecture",
+] as const;
+
 async function typeQueryAndExpectGqaResult(
   context: Awaited<ReturnType<typeof loadAppTestContext>>,
   query: string,
@@ -87,19 +104,30 @@ async function typeQueryAndExpectGqaResult(
 }
 
 describe("SearchPagePanel Phase 1 queries", () => {
+  let releaseFetchLock: (() => void) | null = null;
+
   beforeAll(async () => {
     captureOriginalFetch();
-    installDocsSearchRouteFetch();
-    await primeDocsSearchClient(await loadAppTestContext());
+    await lockGlobalFetch().then(async (release) => {
+      releaseFetchLock = release;
+      installDocsSearchRouteFetch();
+      await primeDocsSearchClient(await loadAppTestContext());
+      restoreFetchMock();
+      releaseFetchLock?.();
+      releaseFetchLock = null;
+    });
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    releaseFetchLock = await lockGlobalFetch();
     installDocsSearchRouteFetch();
   });
 
   afterEach(() => {
     cleanup();
     restoreFetchMock();
+    releaseFetchLock?.();
+    releaseFetchLock = null;
   });
 
   test.each([
@@ -125,7 +153,11 @@ describe("SearchPagePanel Phase 1 queries", () => {
       query,
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 15_000 },
+    );
     expectCustomerAskSearchPagePanel(within(results), query);
   });
 
@@ -143,7 +175,11 @@ describe("SearchPagePanel Phase 1 queries", () => {
     );
     await user.type(searchInput, query);
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 15_000 },
+    );
     const resultUrls = within(results).getAllByTestId("search-result-url");
     expect(resultUrls.length).toBeGreaterThan(0);
     const urls = collectResultUrlsFromNodes(resultUrls);
@@ -242,6 +278,28 @@ describe("SearchPagePanel Phase 1 queries", () => {
   });
 
   test.each([
+    "prefill",
+    "prompt processing",
+    "prompt pass",
+  ] as const)("%s query ranks the canonical prefill concept page first on /search", async (query) => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      query,
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    const firstRow = within(results).getAllByTestId("search-result-row")[0];
+    const firstUrl = within(results).getAllByTestId("search-result-url")[0];
+
+    expect(firstUrl?.textContent).toContain(PREFILL_URL);
+    expect(firstRow?.textContent).toMatch(/prefill/i);
+  });
+
+  test.each([
     {
       query: "MHA",
       url: MULTI_HEAD_ATTENTION_URL,
@@ -305,19 +363,30 @@ describe("SearchPagePanel Phase 1 queries", () => {
 });
 
 describe("SearchPagePanel query handoff", () => {
+  let releaseFetchLock: (() => void) | null = null;
+
   beforeAll(async () => {
     captureOriginalFetch();
-    installDocsSearchRouteFetch();
-    await primeDocsSearchClient(await loadAppTestContext());
+    await lockGlobalFetch().then(async (release) => {
+      releaseFetchLock = release;
+      installDocsSearchRouteFetch();
+      await primeDocsSearchClient(await loadAppTestContext());
+      restoreFetchMock();
+      releaseFetchLock?.();
+      releaseFetchLock = null;
+    });
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    releaseFetchLock = await lockGlobalFetch();
     installDocsSearchRouteFetch();
   });
 
   afterEach(() => {
     cleanup();
     restoreFetchMock();
+    releaseFetchLock?.();
+    releaseFetchLock = null;
   });
 
   test("/search?q=GQA prefills GQA and surfaces grouped-query attention", async () => {
@@ -371,7 +440,7 @@ describe("SearchPagePanel query handoff", () => {
       <SearchPagePanelContent
         messages={context.messages}
         metaByUrl={context.metaByUrl}
-        handoff={{ q: "GQA", tag: null }}
+        handoff={{ q: "GQA", tag: null, classification: null }}
       />,
     );
 
@@ -390,20 +459,151 @@ describe("SearchPagePanel query handoff", () => {
   });
 });
 
-describe("SearchPagePanel tag handoff", () => {
+describe("SearchPagePanel classification handoff", () => {
+  let releaseFetchLock: (() => void) | null = null;
+
   beforeAll(async () => {
     captureOriginalFetch();
-    installDocsSearchRouteFetch();
-    await primeDocsSearchClient(await loadAppTestContext());
+    await lockGlobalFetch().then(async (release) => {
+      releaseFetchLock = release;
+      installDocsSearchRouteFetch();
+      await primeDocsSearchClient(await loadAppTestContext());
+      restoreFetchMock();
+      releaseFetchLock?.();
+      releaseFetchLock = null;
+    });
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    releaseFetchLock = await lockGlobalFetch();
     installDocsSearchRouteFetch();
   });
 
   afterEach(() => {
     cleanup();
     restoreFetchMock();
+    releaseFetchLock?.();
+    releaseFetchLock = null;
+  });
+
+  test("/search?classification=activation prefills activation and surfaces activation-family results", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams("classification=activation");
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("activation");
+    expect(
+      screen.getByText(
+        context.messages.searchEntry.classificationScopeDescription.replace(
+          "{classification}",
+          "activation-functions",
+        ),
+      ),
+    ).toBeTruthy();
+
+    const results = await screen.findByTestId("search-page-results");
+    expect(results.textContent).toMatch(/ReLU/i);
+  });
+
+  test("/search?q=relu&classification=activation preserves q and shows the classification scope", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams(
+      "q=relu&classification=activation",
+    );
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("relu");
+    expect(
+      screen.getByText(
+        context.messages.searchEntry.classificationScopeDescription.replace(
+          "{classification}",
+          "activation-functions",
+        ),
+      ),
+    ).toBeTruthy();
+
+    const results = await screen.findByTestId("search-page-results");
+    expect(results.textContent).toMatch(/ReLU/i);
+  });
+
+  test("/search?classification=unknown-topic falls back to the existing empty state", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams("classification=unknown-topic");
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("unknown-topic");
+
+    const empty = await screen.findByTestId("search-page-empty");
+    expect(empty.textContent).toContain(context.messages.search.noResults);
+    expect(
+      screen.queryByText(
+        context.messages.searchEntry.classificationScopeDescription.replace(
+          "{classification}",
+          "unknown-topic",
+        ),
+      ),
+    ).toBeNull();
+  });
+
+  test("/search?q=token&classification=unknown-topic falls back to unscoped results without a scope banner", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams(
+      "q=token&classification=unknown-topic",
+    );
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("token");
+
+    const results = await screen.findByTestId("search-page-results");
+    expect(results.textContent).toMatch(/Token/i);
+    expect(
+      screen.queryByText(
+        context.messages.searchEntry.classificationScopeDescription.replace(
+          "{classification}",
+          "unknown-topic",
+        ),
+      ),
+    ).toBeNull();
+  });
+});
+
+describe("SearchPagePanel tag handoff", () => {
+  let releaseFetchLock: (() => void) | null = null;
+
+  beforeAll(async () => {
+    captureOriginalFetch();
+    await lockGlobalFetch().then(async (release) => {
+      releaseFetchLock = release;
+      installDocsSearchRouteFetch();
+      await primeDocsSearchClient(await loadAppTestContext());
+      restoreFetchMock();
+      releaseFetchLock?.();
+      releaseFetchLock = null;
+    });
+  });
+
+  beforeEach(async () => {
+    releaseFetchLock = await lockGlobalFetch();
+    installDocsSearchRouteFetch();
+  });
+
+  afterEach(() => {
+    cleanup();
+    restoreFetchMock();
+    releaseFetchLock?.();
+    releaseFetchLock = null;
   });
 
   test("/search?tag=attention prefills attention and surfaces grouped-query attention", async () => {
@@ -433,5 +633,48 @@ describe("SearchPagePanel tag handoff", () => {
         ),
       ),
     ).toBeTruthy();
+  });
+
+  test("renders the japanese shipped attention proof set with locale-aware copy and urls", async () => {
+    const context = await loadAppTestContext("ja");
+    const searchParams = new URLSearchParams("tag=attention");
+    await renderWithAppProviders(
+      <SearchPagePanelContent
+        messages={context.messages}
+        metaByUrl={context.metaByUrl}
+        handoff={toSearchPageHandoff(searchParams)}
+        locale="ja"
+      />,
+      { context },
+    );
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("attention");
+    expect(searchInput.placeholder).toBe(context.messages.search.placeholder);
+    expect(
+      screen.getByText(
+        context.messages.searchEntry.tagFilterDescription.replace(
+          "{tag}",
+          "attention",
+        ),
+      ),
+    ).toBeTruthy();
+
+    const results = await screen.findByTestId("search-page-results");
+    const urls = collectResultUrlsFromNodes(
+      within(results).getAllByTestId("search-result-url"),
+    );
+
+    expect(urls).toHaveLength(JAPANESE_ATTENTION_PROOF_SET_URLS.length);
+    expect([...urls].sort()).toEqual(
+      [...JAPANESE_ATTENTION_PROOF_SET_URLS].sort(),
+    );
+    expect(results.textContent).toContain("最小の文字単位");
+    expect(results.textContent).toContain("Transformer アーキテクチャ");
+    expect(results.textContent).not.toContain(
+      "/ja/docs/modules/sparse-attention",
+    );
   });
 });

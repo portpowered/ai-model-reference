@@ -1,0 +1,36 @@
+{
+  "title": "Transformer アーキテクチャ",
+  "description": "注意機構、feed-forward 層、正規化、residual、位置情報が decoder 型 transformer block の中でどう繰り返されるか。",
+  "openingSummary": "Transformer block は繰り返しのループです。各 token ベクトルは attention、密な feed-forward 変換、normalization、residual 加算を順に通り、層を重ねながら文脈を混ぜて特徴を洗練します。",
+  "sections": {
+    "whatItIs": {
+      "title": "これは何か",
+      "body": "Transformer アーキテクチャは、token embedding の上に同じ block を何段も積み重ねます。各 block は通常、まず attention を実行して各位置がほかの位置を参照できるようにし、その後で各 token に同じ小さな MLP を適用する位置ごとの feed-forward network を通します。Normalization と residual connection はそれらの sublayer を包み込み、活性を安定させ、勾配が深い層まで流れやすくします。位置情報は attention の前または内部に加えられるため、attention 自体が順列不変でも語順は意味を持ちます。"
+    },
+    "whyItMatters": {
+      "title": "なぜ重要か",
+      "body": "現代の言語モデルの多くは、幅、深さ、attention の変種が違っていてもこの block パターンを共有しています。このループを理解すると、見慣れない model card を正しい module に結び付けやすくなります。attention は文脈を混ぜ、feed-forward は token ごとの表現を洗練し、normalization は学習を安定させ、residual は深さを支え、位置表現は順序をどこまで覚えられるかを決めます。"
+    },
+    "simpleExample": {
+      "title": "簡単な例",
+      "body": "テキスト生成用の decoder-only stack を思い浮かべてください。Token embedding が最初の block に入り、self-attention によって各単語は前の単語を参照し、feed-forward 層が各ベクトルを広げて絞り込み、layer normalization がスケールを安定させ、residual 加算が更新を流れに書き戻します。2 番目の block は更新済みベクトルに同じ手順を繰り返し、最後に最終 normalization と language-model head が次の token を予測します。"
+    },
+    "whereItAppears": {
+      "title": "どこで使われるか",
+      "body": "Chat や completion 用の decoder-only transformer、embedding model の encoder stack、翻訳システムの encoder-decoder stack は、どれもこのループの変形を使います。幅、深さ、attention の種類、feed-forward のサイズ、normalization の選択はモデル群ごとに変わりますが、繰り返し block という骨格は共通です。"
+    },
+    "commonConfusions": {
+      "title": "よくある混同",
+      "body": "Transformer block は attention module と同じものではありません。attention は block の中の 1 つの sublayer にすぎません。また、このアーキテクチャは単一の学習済み checkpoint でもありません。同じ構成を異なるパラメータ規模の複数モデルが共有できます。最後に、positional encoding は順序を表す方法の一部であり、attention や feed-forward の代わりではありません。"
+    },
+    "related": {
+      "title": "関連する概念と module"
+    },
+    "tags": {
+      "title": "タグ"
+    },
+    "references": {
+      "title": "参考文献"
+    }
+  }
+}

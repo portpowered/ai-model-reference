@@ -60,7 +60,7 @@ describe("Phase 3 standard FFN module page (US-001)", () => {
     const moe = items.find(
       (item) => item.registryId === "concept.mixture-of-experts",
     );
-    expect(moe?.href).toBe("/docs/modules/mixture-of-experts");
+    expect(moe?.href).toBe("/docs/concepts/mixture-of-experts");
     expect(moe?.isPlanned).toBe(false);
 
     const activation = items.find(
@@ -112,7 +112,7 @@ describe("Phase 3 standard FFN module page (US-001)", () => {
 
     expect(html).not.toContain(`<h1>${page.messages.title}</h1>`);
     expect(html).toContain("What It Is");
-    expect(html).toContain("What It Optimizes");
+    expect(html).toContain("Why It Exists");
     expect(html).toContain("Compared To Nearby Modules");
     expect(html).toContain("Why It Still Matters");
     expectHtmlToContainProse(html, "expands into a wider hidden width");

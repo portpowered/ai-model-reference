@@ -4,11 +4,11 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { ATTENTION_MODULE_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const pageDir = ATTENTION_MODULE_PAGE_DIR;
+const pageDir = getDocsPageDir("modules", "attention");
 const messagesPath = join(pageDir, "messages/en.json");
 const pageMdxPath = join(pageDir, "page.mdx");
 
@@ -74,19 +74,19 @@ describe("attention module variant hub page", () => {
     expect(html).not.toContain('data-testid="folded-summary"');
     expect(html).not.toContain('data-folded-summary="true"');
     expect(html).toContain(
-      "routes information between positions in a sequence",
+      "moves information across positions in the first place",
     );
     expect(html).toContain("What It Is");
     expect(html).toContain("Compared To Nearby Modules");
     expect(html).not.toContain("Phase 1 bridge page");
     expect(html).not.toContain("roadmap");
     expect(html).toContain('data-registry-id="module.attention"');
-    expect(html).toContain('href="/docs/concepts/self-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
-    expect(html).toContain("Show ");
+    expect(html).toContain('href="/docs/concepts/self-attention"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
+    expect(html).toContain("Show 3 more");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('data-testid="tag-pill-list"');

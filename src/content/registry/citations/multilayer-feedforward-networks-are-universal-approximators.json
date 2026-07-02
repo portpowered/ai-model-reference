@@ -1,0 +1,24 @@
+{
+  "id": "citation.multilayer-feedforward-networks-are-universal-approximators",
+  "slug": "multilayer-feedforward-networks-are-universal-approximators",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Hornik feedforward paper",
+    "universal approximators paper",
+    "multilayer feedforward networks paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Kurt Hornik", "Maxwell Stinchcombe", "Halbert White"],
+  "title": "Multilayer Feedforward Networks are Universal Approximators",
+  "year": 1989,
+  "url": "https://doi.org/10.1016/0893-6080(89)90020-8",
+  "mla": "Hornik, Kurt, Maxwell Stinchcombe, and Halbert White. \"Multilayer Feedforward Networks are Universal Approximators.\" Neural Networks, vol. 2, no. 5, 1989, pp. 359-366. https://doi.org/10.1016/0893-6080(89)90020-8."
+}

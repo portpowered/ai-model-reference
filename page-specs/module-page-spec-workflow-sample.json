@@ -1,0 +1,58 @@
+{
+  "kind": "module",
+  "slug": "module-page-spec-workflow-sample",
+  "title": "Module Page Spec Workflow Sample",
+  "summary": "A generated module page spec that exercises the canonical bundle workflow for modules.",
+  "status": "draft",
+  "primaryClassificationId": "classification.module.attention",
+  "relationships": [
+    {
+      "relationshipType": "variant",
+      "targetId": "module.multi-head-attention"
+    }
+  ],
+  "tags": ["attention"],
+  "aliases": ["module workflow sample"],
+  "optimizes": ["kv-cache"],
+  "assets": {
+    "comparisonTable": {
+      "type": "table",
+      "tableId": "table.module-page-spec-workflow-sample-comparison"
+    }
+  },
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "This sample proves a module page can be generated from one reviewable page spec instead of hand-copying the template bundle."
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "generated": {
+          "title": "Generated sample"
+        },
+        "mha": {
+          "title": "MHA"
+        },
+        "mqa": {
+          "title": "MQA"
+        }
+      },
+      "dimensions": {
+        "cacheFootprint": "Cache footprint"
+      },
+      "values": {
+        "generated": {
+          "cacheFootprint": "The generated sample shares keys and values across query groups."
+        },
+        "mha": {
+          "cacheFootprint": "MHA stores a separate key and value pair for each attention head."
+        },
+        "mqa": {
+          "cacheFootprint": "MQA shares one key and value head across all query heads."
+        }
+      }
+    }
+  }
+}

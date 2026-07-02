@@ -1,6 +1,10 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { getContentRoot, getRegistryRoot } from "./content-paths";
+import {
+  getContentRoot,
+  getRegistryCollectionRoot,
+  getRegistryRoot,
+} from "./content-paths";
 import {
   type PageSpec,
   type PageSpecKind,
@@ -87,8 +91,10 @@ export async function buildGraphRegistryArtifacts(input: {
     input;
   const templateJson = await readGraphTemplateFile(projectRoot, spec.kind);
   const substitutedTemplate = applyTemplateSubstitutions(templateJson, spec);
-  const contentRoot = getContentRoot(projectRoot);
-  const graphsRoot = join(getRegistryRoot(contentRoot), "graphs");
+  const graphsRoot = getRegistryCollectionRoot(
+    "graphs",
+    getRegistryRoot(getContentRoot(projectRoot)),
+  );
   const registryId = registryIdForPageSpec(spec);
   const artifacts: GraphRegistryArtifact[] = [];
 

@@ -1,0 +1,40 @@
+{
+  "id": "model.glm-5-2",
+  "slug": "glm-5-2",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GLM-5.2", "glm-5-2"],
+  "tags": ["foundations", "attention", "context-window", "model-family"],
+  "relatedIds": ["model.glm-5", "paper.glm-5"],
+  "citationIds": ["citation.glm-5-technical-report", "citation.glm-5-2-blog"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "authors": ["Z.ai"],
+  "sourceId": "citation.glm-5-2-blog",
+  "family": "glm",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer-architecture",
+    "concept.context-extension",
+    "concept.context-window"
+  ],
+  "moduleIds": [
+    "module.sparse-attention",
+    "module.mixture-of-experts",
+    "module.multi-head-latent-attention",
+    "module.rmsnorm",
+    "module.rope"
+  ],
+  "trainingRegimeIds": ["training-regime.pretraining"],
+  "datasetIds": [],
+  "paperIds": ["paper.glm-5"],
+  "organizationId": "organization.zai",
+  "releaseDate": "2026-06-17",
+  "parameterCount": "744 billion total parameters",
+  "activeParameterCount": "40 billion active parameters",
+  "contextLength": 1048576,
+  "precision": ["bf16"]
+}

@@ -1,0 +1,56 @@
+---
+title: "Generated Page"
+description: "Reader-facing summary for cards and search."
+kind: "paper"
+registryId: "paper.generated-paper-term"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "draft"
+tags:
+updatedAt: "2026-06-19"
+---
+
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { PaperContributionGraph } from "@/features/models/components/PaperContributionGraph";
+import { PaperAtAGlance } from "@/features/models/components/PaperAtAGlance";
+
+
+<PaperAtAGlance registryId="paper.generated-paper-term" />
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="method-or-architecture" titleKey="sections.methodOrArchitecture.title">
+  <T k="sections.methodOrArchitecture.body" />
+
+  <PaperContributionGraph
+    registryId="paper.generated-paper-term"
+    assetId="contributionGraph"
+  />
+</Section>
+
+<Section id="evidence" titleKey="sections.evidence.title">
+  <T k="sections.evidence.body" />
+</Section>
+
+<Section id="limitations" titleKey="sections.limitations.title">
+  <T k="sections.limitations.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="paper.generated-paper-term" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="paper.generated-paper-term" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="paper.generated-paper-term" />
+</Section>

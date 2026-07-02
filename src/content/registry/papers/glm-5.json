@@ -1,0 +1,43 @@
+{
+  "id": "paper.glm-5",
+  "slug": "glm-5",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "GLM-5",
+    "GLM-5 technical report",
+    "GLM-5: from Vibe Coding to Agentic Engineering"
+  ],
+  "tags": ["foundations", "model-family", "context-window", "attention"],
+  "relatedIds": ["model.glm-5", "model.glm-5-2"],
+  "citationIds": ["citation.glm-5-technical-report"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "authors": ["GLM-5 Team"],
+  "publishedAt": "2026-02-17",
+  "url": "https://arxiv.org/abs/2602.15763",
+  "arxivId": "2602.15763",
+  "introducesIds": [
+    "model.glm-5",
+    "model.glm-5-2",
+    "module.sparse-attention",
+    "module.mixture-of-experts"
+  ],
+  "supportsIds": [
+    "concept.transformer-architecture",
+    "concept.context-extension",
+    "concept.context-window",
+    "system.speculative-decoding"
+  ],
+  "arguesAgainstIds": [],
+  "modelIds": ["model.glm-5", "model.glm-5-2"],
+  "moduleIds": ["module.sparse-attention", "module.mixture-of-experts"],
+  "conceptIds": [
+    "concept.transformer-architecture",
+    "concept.context-extension",
+    "concept.context-window"
+  ],
+  "venue": "arXiv preprint"
+}

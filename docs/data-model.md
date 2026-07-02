@@ -108,6 +108,63 @@ Rules:
 * `relatedIds` is an optional curated override for high-value links that cannot be derived from taxonomy, shared tags, or typed fields.
 * `citationIds` points to citation records that support factual claims.
 
+## Classification Contract
+
+Classification records are now ontology-first and use canonical dotted ids under
+the `classification.*` namespace.
+
+Examples:
+
+* `classification.module`
+* `classification.module.attention`
+* `classification.module.attention.grouped-query`
+* `classification.concept.architecture.activation`
+* `classification.training.alignment`
+* `classification.system.routing`
+
+Rules:
+
+* `parentClassificationId` is the explicit hierarchy edge. Tree shape must not
+  be inferred from string prefixes alone.
+* Content records should prefer canonical `primaryClassificationId` and
+  `secondaryClassificationIds` values over legacy typed taxonomy fields when a
+  slice has migrated.
+* Temporary compatibility for legacy flat ids must be expressed explicitly on
+  the classification record through `legacyIds`; do not treat legacy ids as the
+  canonical contract.
+
+Temporary bridge rules:
+
+* A legacy flat id is supported only when a canonical classification record
+  declares it in `legacyIds`.
+* Runtime consumers should canonicalize legacy ids through
+  `resolveClassificationId(...)` and may inspect the current bridge inventory
+  through `listLegacyClassificationBridges(...)`.
+* New content must not introduce fresh legacy flat ids. The bridge exists only
+  to keep pre-migration records searchable and resolvable while the remaining
+  registry files are migrated.
+* The measurable migration target is to drive `listLegacyClassificationBridges()`
+  to an empty result over time rather than expanding it.
+
+Runtime tree and subtree rules:
+
+* Reusable classification traversal should canonicalize incoming ids through
+  `resolveClassificationId(...)` before following parent-child edges.
+* Classification ordering is deterministic: sort by `sortOrder` ascending when
+  present, then `slug` ascending, then `id` ascending.
+* Classification-member ordering is deterministic: sort by the attached
+  record's `sortOrder`, then record kind, then record slug, then record id;
+  if those tie, sort by membership type and then by the owning classification's
+  classification-order rule.
+* Tree node `children` arrays are stable and always list classification
+  children before record children.
+* Empty-branch behavior is explicit, not consumer-defined. The default subtree
+  and tree behavior is to prune empty leaves; callers may opt into
+  `include-empty-leaves` through `includeEmptyClassifications: true`.
+* Subtree member placement for this migration slice is
+  `owning-classification`: descendant records stay attached to their own
+  classification branch instead of rolling up into parent `recordChildren`.
+
 ## Page Model
 
 MDX pages define structure and references. Canonical docs pages should not contain raw user-visible prose. They should reference localized text through message keys and reference media, graphs, charts, code schemas, and tables through asset IDs or registry-backed components. Blog posts may contain raw MDX prose because they are narrative content. Published docs pages should include:
@@ -202,15 +259,14 @@ Example message file:
 {
   "title": "Grouped-Query Attention",
   "description": "An attention variant that reduces KV cache memory.",
-  "problemStatement": "KV caches get expensive as context length grows.",
-  "coreIdea": "GQA lets several query heads share fewer key-value heads.",
+  "openingSummary": "Grouped-query attention lowers KV-cache cost by letting several query heads share fewer key-value heads.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
       "body": "Grouped-query attention is an attention variant derived from multi-head attention."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "GQA reduces KV-cache size, memory bandwidth, and long-context inference cost."
     }
   }
@@ -231,6 +287,7 @@ Message files should satisfy this general shape:
 type PageMessages = {
   title: string;
   description: string;
+  openingSummary?: string;
   problemStatement?: string;
   coreIdea?: string;
   sections?: Record<
@@ -366,16 +423,37 @@ Tag rules:
 
 ## Derived Related Documents
 
-Related-document sections should be derived from taxonomy, tags, and typed fields before using manual overrides.
+Related-document sections should derive peers from the shared ontology runtime before consulting legacy taxonomy strings or curated overrides.
 
-For example, Multi-Head Attention, Grouped Query Attention, Multi-Query Attention, and Multi-Head Latent Attention can be grouped because they share `moduleType: "attention"` and a `variantGroup`, not because every page manually lists every other page.
+The shared peer policy lives in `src/lib/content/ontology-peer-policy.ts` and applies to related docs, search grouping, and topology-backed browse surfaces.
 
-Derived related-document inputs:
+Primary peer sources, in order:
 
-* `moduleType`
-* `moduleFamily`
-* `conceptType`
-* `variantGroup`
+* direct ontology relationships
+* sibling records in the same classification branch
+* records that only share the same parent classification
+
+Relationship precedence over generic classification siblings:
+
+* `variant`
+* `part-of`
+* `explains`
+
+Policy rules:
+
+* Legacy taxonomy fields such as `variantGroup`, `moduleFamily`, and `conceptType` remain compatibility metadata and should not be the primary peer-discovery source when ontology ancestry exists.
+* Shared-parent classification peers are a fallback only after direct relationships and same-classification siblings have been considered.
+* Shared tags remain a broad discovery signal and should rank below ontology relationships and classification membership.
+* `relatedIds` remains a curated escape hatch for exceptions taxonomy and ontology still cannot express cleanly.
+* Related UI should label why records appear using ontology-explainable reasons rather than relying on legacy bucket names as the main explanation.
+* Default related-doc sections should surface reasons such as `Same classification: attention mechanisms` or `Shares parent classification: neural network components` so readers can see the ontology path instead of a legacy `variantGroup` label.
+
+Deliberate improvement case:
+
+* Broad legacy `conceptType` buckets such as `general` can group semantically unrelated glossary pages together. Under the ontology-first policy, records such as `concept.foundation-model` and `concept.temperature` do not become nearby peers just because they share that old taxonomy string; they need direct relationships or classification adjacency.
+
+Compatibility inputs that may still support fallback behavior on older surfaces:
+
 * `tags`
 * `usedByModelIds`
 * `introducedByPaperIds`
@@ -383,16 +461,46 @@ Derived related-document inputs:
 * `paperIds`
 * `relatedIds`
 
-Derived related-document rules:
+## Sidebar Grouping Metadata
 
-* `variantGroup` is the strongest module-to-module grouping signal.
-* `conceptType` groups records that explain the same underlying idea across modules, training regimes, and systems pages.
-* `moduleFamily` groups broader families such as attention, normalization, feed-forward, tokenization, quantization, and inference optimization.
-* Shared tags are broad discovery signals and should be ranked lower than exact typed fields.
-* `relatedIds` is kept only for curated exceptions that taxonomy cannot express, such as a paper that argues against a method or a prerequisite concept that does not share tags.
-* Related UI should label why records appear, such as same variant group, same concept type, shared tag, used by same model, introduced by same paper, or curated related link.
-* A module page should show nearby variants by deriving records with the same `variantGroup`.
-* A tag page should show all resources for a tag, grouped by kind.
+Generated docs sidebar subgroup placement should be derived from canonical
+ontology classification membership before using editorial overrides.
+
+Precedence:
+
+* First derive sidebar grouping from canonical `primaryClassificationId` and
+  `secondaryClassificationIds` membership.
+* Use `sidebarGrouping` only when the ontology model is still too coarse to
+  place a page in the intended reader-facing subgroup.
+* `sidebarGrouping` is editorial navigation metadata. It does not replace
+  canonical classification membership, and validation should reject redundant
+  overrides once ontology already resolves the subgroup.
+* The generated `/browse` module-topology surface now derives its primary branch
+  shape from published classification parent-child edges plus
+  `primaryClassificationId` membership. Existing `moduleType` and
+  `sidebarGrouping` metadata may still support other discovery surfaces, but
+  they no longer define that topology browse tree.
+
+Supported `sidebarGrouping` sections and values:
+
+* Concept records may define `glossary` with `model-taxonomy`,
+  `sequence-and-attention`, `math-and-training`, or
+  `generation-and-diffusion`.
+* Concept records may define `concepts` with `long-context`, `inference`,
+  `architecture`, or `reference-samples`.
+* Module records may define `modules` with `attention-foundations`,
+  `attention-variants`, `feed-forward-and-activation`, `normalization`, or
+  `positional-and-sequence-encoding`.
+* Training-regime records may define `training` with `post-training`,
+  `distillation`, or `optimization`.
+* System records may define `systems` with `memory` or `routing`.
+
+Validation must fail before build output when:
+
+* a record uses a sidebar section that does not apply to its kind
+* a sidebar subgroup value is not one of the supported ids
+* malformed sidebar metadata would otherwise drift from the generated
+  navigation labels
 
 ## Model Record
 
@@ -438,7 +546,6 @@ type ModuleRecord = BaseRecord & {
   conceptType?: string;
   variantGroup?: string;
   optimizes: string[];
-  practicalBenefits: string[];
   exampleModelIds: string[];
   variantOf?: string;
   improvesOnIds: string[];
@@ -572,6 +679,8 @@ type ModuleGraphNode = {
   labelKey: string;
   summaryKey?: string;
   registryId?: string;
+  relatedRegistryId?: string;
+  relatedHref?: string;
   moduleKind:
     | "model"
     | "block"
@@ -604,6 +713,7 @@ type ModuleGraphEdge = {
   edgeKind:
     | "data-flow"
     | "control-flow"
+    | "depends-on"
     | "residual"
     | "conditioning"
     | "cache-read"
@@ -619,8 +729,20 @@ Graph renderer rules:
 
 * Graph records should live close to the page or registry record they support when practical. Page-local graph asset references live in `assets.json`; reusable graph records live in `src/content/registry/graphs`.
 * Node and edge labels use message keys. The renderer resolves labels from the same locale messages as the page.
+* Runtime node rendering should resolve an explicit semantic node family before choosing a React Flow component. V1 families are canonical registry references, structural scaffolding, annotations, operators, architecture blocks, and a default fallback family for older or less specific nodes.
+* Canonical interactive nodes should derive popup titles from the graph label when it is meaningful, but fall back to the canonical record title when the visual graph label is intentionally blank for container-style nodes.
+* A node without a published canonical docs page may still open a graph-local popup when `summaryKey` resolves. That popup must clearly identify itself as graph-local rather than canonical.
+* Graph authors may attach an optional outbound destination for graph-local popups through `relatedRegistryId` when the destination is another published canonical docs page, or `relatedHref` for an explicit docs destination when no registry-backed route is appropriate.
+* Registry validation should fail when a node `registryId` points at a missing record, when `relatedRegistryId` does not resolve to a published docs page, or when a graph-local outbound destination is configured without a local `summaryKey`.
+* The fallback node must preserve label-first rendering for older graphs that only provide the minimum current schema fields. When graph-local summary content exists, the fallback may surface a summary affordance and, in the interactive runtime, open the same graph-local popup without requiring a schema rewrite.
+* Runtime edge rendering should resolve an explicit semantic edge family before choosing React Flow path behavior. V1 families are `data-flow`, `contains`, `residual`, `cache-read`, `cache-write`, `parameter-sharing`, `depends-on`, and a default fallback family for older but still supported relationship kinds such as `control-flow`, `conditioning`, and `loss-signal`.
+* Interactive dependency-style edges should carry resolved relationship text and the source or target docs destinations in runtime edge metadata so the UI does not need client-only fetching to populate the popup.
+* The fallback edge must keep older graphs rendering by using the default path treatment for supported but not-yet-specialized edge kinds instead of failing closed.
+* Registry validation should also fail when `rootNodeId`, `childNodeIds`, or edge `source` and `target` values do not resolve to nodes inside the same graph record.
 * Web graph rendering uses React Flow as the interaction engine.
 * React Flow is not the visual design system. Visual consistency comes from semantic `moduleKind` node styles, semantic `edgeKind` edge styles, and the vertical expandable layout.
+* When a React Flow node becomes directly clickable, its hidden handles and the clickable node wrapper must not capture or lose pointer events in a way that blocks popup activation.
+* Interactive edges should keep a larger invisible button or hit target than the visible path so keyboard and touch activation stay practical without adding visible inline labels to the edge itself.
 * Users can expand and collapse nodes recursively.
 * Every expandable node should expose icon buttons for expand and collapse. Use accessible icon buttons with labels such as "Expand module" and "Collapse module".
 * Layout is always vertical-first. Expanded modules flow top-to-bottom on mobile and desktop.
@@ -693,13 +815,31 @@ type SearchDocument = {
     tags: string[];
     modelFamily?: string;
     moduleType?: string;
-    moduleFamily?: string;
-    conceptType?: string;
-    variantGroup?: string;
     optimizes?: string[];
     trainingRegimeIds?: string[];
     modalities?: string[];
     sourceType?: string;
+    primaryClassificationId?: string;
+    primaryClassificationSlug?: string;
+    classificationIds?: string[];
+    classificationSlugs?: string[];
+    ancestorClassificationIds?: string[];
+    ancestorClassificationSlugs?: string[];
+    rootClassificationIds?: string[];
+    rootClassificationSlugs?: string[];
+    relatedTopologyIds?: string[];
+    relationshipTypes?: string[];
+    legacyModuleFamily?: string;
+    legacyConceptType?: string;
+    legacyVariantGroup?: string;
+  };
+  topology: {
+    primaryClassificationId?: string;
+    secondaryClassificationIds: string[];
+    classificationIds?: string[];
+    ancestorClassificationIds?: string[];
+    rootClassificationIds?: string[];
+    relatedTopologyIds?: string[];
   };
 };
 ```
@@ -708,7 +848,15 @@ Search rules:
 
 * Full-text search indexes title, description, headings, body text, aliases, and tag aliases.
 * Facets come from registry fields and tag records, not from prose scraping.
+* Ontology-backed pages should publish classification ancestry and related topology ids as the primary facet contract for grouping, filtering, and reranking.
+* Search scope should resolve from the same topology payload rather than a
+  separate taxonomy table, including ancestor and root classifications when no
+  page uses the requested scope as its immediate primary classification.
+* Search ranking should treat ontology relationships such as `variant`,
+  `part-of`, and `explains` as stronger than generic sibling proximity whenever
+  the shared peer policy marks them as outranking classification siblings.
 * Tags are always indexed as both searchable text and filterable facets.
+* Legacy taxonomy strings such as `moduleFamily`, `conceptType`, and `variantGroup` should only survive as explicit `legacy*` compatibility fields when ontology ancestry already exists.
 * Relationship fields such as `relatedIds`, `moduleIds`, and `paperIds` are indexed for result enrichment and optional filtering, but the registry remains the source of truth.
 * Orama handles retrieval. The registry handles canonical relationships, graph traversal, and related-link generation.
 
