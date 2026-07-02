@@ -10,9 +10,9 @@ Orama indexing, or `/api/search` behavior.
   registry fields. Produces page-derived fields with empty topology and
   kind/tag facets only.
 * `src/lib/search/enrich-search-document.ts`
-  AI enrichment step that resolves published classification lineage, topology
-  relationship terms, legacy taxonomy compatibility, and model/module facets
-  onto base documents.
+  Generic enrichment step that resolves published classification lineage, topology
+  relationship terms, and legacy taxonomy compatibility onto base documents.
+  AI model/module facets are added by a separate Model Atlas adapter (see story 002).
 * `src/lib/search/build-documents.ts`
   Composes base documents with `enrichSearchDocument` before returning catalog
   `SearchDocument` records consumed by `search-server.ts`.
@@ -42,7 +42,7 @@ Orama indexing, or `/api/search` behavior.
   Non-AI fixture base search document fields and Orama query behavior without
   AI registry enrichment; uses `buildNonAiShellFixtureBaseSearchDocuments()`.
 * `src/lib/search/enrich-search-document.test.ts`
-  AI enrichment topology/facet contract, searchable topology terms, and draft or
+  Generic enrichment topology/facet contract, searchable topology terms, and draft or
   missing-target stability coverage.
 * `src/tests/search/build-documents.test.ts`
   Document construction and topology normalization coverage.
