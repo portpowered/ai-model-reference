@@ -43,8 +43,13 @@ Orama indexing, or `/api/search` behavior.
 * `src/lib/search/build-base-document.test.ts`
   Generic base document field contract and empty topology/facet guarantees.
 * `src/tests/fixtures/non-ai-shell/search.test.ts`
-  Non-AI fixture base search document fields and Orama query behavior without
-  AI registry enrichment; uses `buildNonAiShellFixtureBaseSearchDocuments()`.
+  Non-AI fixture base and generic-enrichment search document fields and Orama
+  query behavior without AI registry enrichment; uses
+  `buildNonAiShellFixtureBaseSearchDocuments()` and
+  `buildNonAiShellFixtureSearchDocuments()` (shared enrichment only, no AI adapter).
+* `src/tests/fixtures/non-ai-shell/fixture.ts`
+  Non-AI shell fixture pages and search builders; `buildNonAiShellFixtureSearchDocuments`
+  composes base documents with `enrichSearchDocuments` for the generic search proof.
 * `src/lib/search/enrich-search-document.test.ts`
   Generic enrichment topology/facet contract, searchable topology terms, and draft or
   missing-target stability coverage.
