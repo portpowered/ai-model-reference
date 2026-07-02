@@ -38,6 +38,12 @@ describe("looped-transformers page messages", () => {
     expect(messages.sections?.whyItExists.body).toContain("parameter");
     expect(messages.sections?.howItWorks.body).toContain("self-attention");
     expect(messages.sections?.howItWorks.body).toContain("feed-forward");
+    expect(messages.sections?.howItWorks.body).toContain("feed back");
+    expect(messages.sections?.howItWorks.body).toContain("inference");
+    expect(messages.sections?.howItWorks.body).toContain("fixed-point");
+    expect(messages.sections?.mathOrComputeSchema.body).toContain(
+      "prediction head",
+    );
     expect(messages.sections?.comparedToNearbyModules.body).toContain(
       "standard transformer stack",
     );
@@ -46,6 +52,7 @@ describe("looped-transformers page messages", () => {
     );
     expect(messages.math?.standardStackSchema?.formula).toContain("Block");
     expect(messages.math?.loopedBlockSchema?.formula).toContain("Block");
+    expect(messages.math?.loopedPredictionSchema?.formula).toContain("Head");
     expect(messages.assets?.computeFlow?.title).toBe(
       "Looped transformer compute flow",
     );
@@ -99,6 +106,14 @@ describe("loadModulePage looped-transformers", () => {
       expect(html).toContain(
         'data-message-block-math="math.loopedBlockSchema.formula"',
       );
+      expect(html).toContain(
+        'data-message-block-math="math.loopedPredictionSchema.formula"',
+      );
+      expect(html).toContain('data-graph-edge-id="hidden-loop-back"');
+      expect(html).toContain("fixed-point solution");
+      expect(html).toContain('data-math-schema="loopedPrediction"');
+      expect(html).toContain('data-math-variable-definition="yhat"');
+      expect(html).toContain('data-math-variable-definition="head"');
       expectModuleComputeFlowGraphOnlyInHowItWorks(html, defaultGraphId);
       expect(html).toContain(
         'data-graph-id="graph.looped-transformers-compute-flow"',
@@ -147,6 +162,9 @@ describe("looped-transformers page template", () => {
     expect(raw).toContain('<Section id="math-or-compute-schema"');
     expect(raw).toContain(
       '<ModuleAttentionSchemaComparison schemaIds={["standardStack", "loopedBlock"]} />',
+    );
+    expect(raw).toContain(
+      '<ModuleAttentionSchema schemaId="loopedPrediction" />',
     );
     expect(raw).not.toMatch(
       /<Section id="math-or-compute-schema"[\s\S]*<ModuleGraph/,

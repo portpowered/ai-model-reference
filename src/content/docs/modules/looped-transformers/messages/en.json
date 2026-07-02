@@ -13,11 +13,11 @@
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "Input context tokens are embedded into hidden states that carry information across positions. A loop counter sets how many times the shared block runs. On each iteration, the block applies self-attention so tokens can exchange information, then applies a feed-forward network to refine each position. Residual connections carry the previous state forward so each loop updates rather than replaces the representation. When the loop count is exhausted, the final hidden states feed a prediction head. The same block weights are used on every iteration; only the hidden states change from pass to pass."
+      "body": "Input context tokens are embedded into hidden states that carry information across positions. A loop counter sets how many times the shared block runs. On each iteration, the block applies self-attention so tokens can exchange information, then applies a feed-forward network to refine each position. Residual connections carry the previous state forward so each loop updates rather than replaces the representation. After each pass, the updated hidden states feed back into the same shared block until the loop counter reaches its limit. When the loop count is exhausted, the final hidden states feed a prediction head. The same block weights are used on every iteration; only the hidden states change from pass to pass. In the ICLR 2024 study, training sets a maximum loop count and a truncated loss window over recent loop outputs, while inference can use a different loop count; their linear-regression experiments report that a model trained for one loop budget can still reach a stable fixed-point solution when unrolled for more loops at test time."
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "A standard depth-L transformer uses L distinct blocks with separate parameters. A looped transformer applies one shared block L times to the evolving hidden state."
+      "body": "A standard depth-L transformer uses L distinct blocks with separate parameters. A looped transformer applies one shared block L times to the evolving hidden state, then reads the final state with a prediction head. The formulas below contrast layer-specific depth against shared-block iteration and show how the final prediction is produced."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
@@ -49,7 +49,7 @@
     "computeFlow": {
       "title": "Looped transformer compute flow",
       "alt": "Looped transformer graph showing input context embeddings, loop count, a shared transformer block applied repeatedly, updated hidden states, and a final prediction head",
-      "caption": "Hidden states move through the same shared block on each loop iteration. The loop counter sets how many refinement passes run before the prediction head reads the final states.",
+      "caption": "Hidden states move through the same shared block on each loop iteration. The loop-back control path sends updated states into the next pass until the loop counter reaches L, and only then does the prediction head read the final states.",
       "legend": {
         "data-flow": {
           "label": "Hidden state computation path"
@@ -136,7 +136,7 @@
       "variableDefinitions": {
         "h": {
           "term": "h^{(\\ell)}",
-          "definition": "Hidden states after loop iteration ell."
+          "definition": "Hidden states after loop iteration ℓ."
         },
         "ell": {
           "term": "\\ell",
@@ -144,11 +144,29 @@
         },
         "L": {
           "term": "L",
-          "definition": "Fixed loop count for repeated block application."
+          "definition": "Loop count for repeated block application."
         },
         "block": {
           "term": "\\mathrm{Block}",
           "definition": "Shared transformer block reused on every iteration."
+        }
+      }
+    },
+    "loopedPredictionSchema": {
+      "label": "Final prediction after looped refinement",
+      "formula": "\\hat{y} = \\mathrm{Head}\\big(h^{(L)}\\big)",
+      "variableDefinitions": {
+        "yhat": {
+          "term": "\\hat{y}",
+          "definition": "Model prediction after the last loop iteration."
+        },
+        "head": {
+          "term": "\\mathrm{Head}",
+          "definition": "Output projection that maps final hidden states to predictions."
+        },
+        "hL": {
+          "term": "h^{(L)}",
+          "definition": "Hidden states after the final loop iteration."
         }
       }
     }
