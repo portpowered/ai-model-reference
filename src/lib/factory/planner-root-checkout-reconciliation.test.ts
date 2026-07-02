@@ -2,19 +2,42 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  annotateManualInspectionFamilies,
+  annotateRemotePresentDeletionFamilies,
+  annotateTableRegistryDriftFamilies,
   buildPlannerRootCheckoutOperatorNextActions,
   buildPlannerRootCheckoutReconciliationReport,
   classifyRootCheckoutDirtyPaths,
+  collectConflictDriftPrEvidence,
+  determineConflictDriftMetadataRefreshGuidance,
+  determinePageRefillHold,
   formatPlannerRootCheckoutOperatorNextActions,
   formatPlannerRootCheckoutReconciliationReport,
+  isConflictDriftLane,
+  isManualInspectionSharedEditPath,
+  isTableRegistryAssociatedRuntimePath,
+  isTableRegistryDriftPath,
+  isTableRegistryGeneratedArtifactPath,
+  isTokenizerMismatchRemotePresentDeletionPath,
+  PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_BRANCH_REFRESH_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_METADATA_REFRESH_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_PR_SECTION,
+  PLANNER_ROOT_CHECKOUT_GENERATED_TABLE_REGISTRY_DRIFT_SECTION,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY,
+  PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD,
+  PLANNER_ROOT_CHECKOUT_PAGE_REFILL_RESUME,
   PLANNER_ROOT_CHECKOUT_RECONCILIATION_HEADER,
   PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_ABSENT,
   PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
   PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE,
+  PLANNER_ROOT_CHECKOUT_TABLE_REGISTRY_DRIFT_GUIDANCE,
   PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
+  PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY,
+  PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_STALE_DRIFT_GUIDANCE,
   summarizeManualInspectionChangeKinds,
 } from "@/lib/factory/planner-root-checkout-reconciliation";
 
@@ -22,6 +45,30 @@ const MIXED_DIRTY_STATUS_FIXTURE = readFileSync(
   join(
     import.meta.dir,
     "../../tests/fixtures/planner-root-checkout-reconciliation/mixed-dirty-status.txt",
+  ),
+  "utf8",
+);
+
+const TOKENIZER_MISMATCH_DIRTY_STATUS_FIXTURE = readFileSync(
+  join(
+    import.meta.dir,
+    "../../tests/fixtures/planner-root-checkout-reconciliation/tokenizer-mismatch-dirty-status.txt",
+  ),
+  "utf8",
+);
+
+const MANUAL_INSPECTION_SHARED_EDITS_DIRTY_STATUS_FIXTURE = readFileSync(
+  join(
+    import.meta.dir,
+    "../../tests/fixtures/planner-root-checkout-reconciliation/manual-inspection-shared-edits-dirty-status.txt",
+  ),
+  "utf8",
+);
+
+const TABLE_REGISTRY_DRIFT_DIRTY_STATUS_FIXTURE = readFileSync(
+  join(
+    import.meta.dir,
+    "../../tests/fixtures/planner-root-checkout-reconciliation/table-registry-drift-dirty-status.txt",
   ),
   "utf8",
 );
@@ -61,6 +108,214 @@ function createFixtureRunGit(remotePresentPaths: ReadonlySet<string>) {
     return { status: 0, stdout: "", stderr: "" };
   };
 }
+
+describe("isManualInspectionSharedEditPath", () => {
+  test("matches tokenizer-mismatch shared manual-inspection paths", () => {
+    const matchingPaths = [
+      "src/features/models/components/ModuleGraph.tsx",
+      "src/lib/content/table-registry-runtime.ts",
+      "src/lib/content/validate-registry.ts",
+      "src/lib/content/baseline-records.test.ts",
+      "src/lib/content/citations.test.ts",
+      "src/lib/content/graph-registry-runtime.test.ts",
+      "src/lib/content/table-registry-runtime.test.ts",
+      "src/lib/source.test.ts",
+    ];
+
+    for (const path of matchingPaths) {
+      expect(isManualInspectionSharedEditPath(path)).toBe(true);
+    }
+  });
+
+  test("does not match unrelated manual-inspection paths", () => {
+    expect(isManualInspectionSharedEditPath("src/lib/factory/root.ts")).toBe(
+      false,
+    );
+    expect(
+      isManualInspectionSharedEditPath(
+        "src/content/docs/modules/tokenizer-mismatch/page.mdx",
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("isTableRegistryDriftPath", () => {
+  test("matches generated artifact and associated runtime paths", () => {
+    expect(
+      isTableRegistryGeneratedArtifactPath(
+        "src/lib/content/generated/table-registry.generated.ts",
+      ),
+    ).toBe(true);
+    expect(
+      isTableRegistryAssociatedRuntimePath(
+        "src/lib/content/table-registry-runtime.ts",
+      ),
+    ).toBe(true);
+    expect(
+      isTableRegistryAssociatedRuntimePath(
+        "src/lib/content/validate-registry.ts",
+      ),
+    ).toBe(true);
+
+    for (const path of [
+      "src/lib/content/generated/table-registry.generated.ts",
+      "src/lib/content/table-registry-runtime.ts",
+      "src/lib/content/validate-registry.ts",
+    ]) {
+      expect(isTableRegistryDriftPath(path)).toBe(true);
+    }
+  });
+
+  test("does not match unrelated manual-inspection paths", () => {
+    expect(
+      isTableRegistryDriftPath(
+        "src/lib/content/table-registry-runtime.test.ts",
+      ),
+    ).toBe(false);
+    expect(isTableRegistryDriftPath("src/lib/factory/root.ts")).toBe(false);
+  });
+});
+
+describe("annotateTableRegistryDriftFamilies", () => {
+  test("labels generated artifact and associated runtime paths separately", () => {
+    const annotated = annotateTableRegistryDriftFamilies([
+      {
+        changeKind: "modified",
+        classification: "manual-inspection",
+        comparisonTarget: "HEAD",
+        evidence: "non-deletion-dirty-path",
+        headPresent: true,
+        path: "src/lib/content/generated/table-registry.generated.ts",
+        remoteMainPresent: false,
+        statusCode: " M",
+      },
+      {
+        changeKind: "modified",
+        classification: "manual-inspection",
+        comparisonTarget: "HEAD",
+        evidence: "non-deletion-dirty-path",
+        headPresent: true,
+        path: "src/lib/content/table-registry-runtime.ts",
+        remoteMainPresent: false,
+        statusCode: " M",
+      },
+      {
+        changeKind: "modified",
+        classification: "manual-inspection",
+        comparisonTarget: "HEAD",
+        evidence: "non-deletion-dirty-path",
+        headPresent: true,
+        path: "src/lib/factory/root.ts",
+        remoteMainPresent: false,
+        statusCode: " M",
+      },
+    ]);
+
+    expect(annotated[0]?.tableRegistryDriftFamily).toBe("generated-artifact");
+    expect(annotated[1]?.tableRegistryDriftFamily).toBe(
+      "table-registry-associated-runtime",
+    );
+    expect(annotated[2]?.tableRegistryDriftFamily).toBeUndefined();
+  });
+});
+
+describe("annotateManualInspectionFamilies", () => {
+  test("labels shared manual-inspection edits separately from other manual paths", () => {
+    const annotated = annotateManualInspectionFamilies([
+      {
+        changeKind: "modified",
+        classification: "manual-inspection",
+        comparisonTarget: "HEAD",
+        evidence: "non-deletion-dirty-path",
+        headPresent: true,
+        path: "src/lib/content/table-registry-runtime.ts",
+        remoteMainPresent: false,
+        statusCode: " M",
+      },
+      {
+        changeKind: "modified",
+        classification: "manual-inspection",
+        comparisonTarget: "HEAD",
+        evidence: "non-deletion-dirty-path",
+        headPresent: true,
+        path: "src/lib/factory/root.ts",
+        remoteMainPresent: false,
+        statusCode: " M",
+      },
+    ]);
+
+    expect(annotated[0]?.manualInspectionFamily).toBe(
+      PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY,
+    );
+    expect(annotated[1]?.manualInspectionFamily).toBe(
+      "other-manual-inspection",
+    );
+  });
+});
+
+describe("isTokenizerMismatchRemotePresentDeletionPath", () => {
+  test("matches tokenizer-mismatch docs, registry, graph, citation, and focused test paths", () => {
+    const matchingPaths = [
+      "src/content/docs/modules/tokenizer-mismatch/page.mdx",
+      "src/content/docs/modules/tokenizer-mismatch/messages/en.json",
+      "src/content/registry/modules/tokenizer-mismatch.json",
+      "src/content/registry/tables/tokenizer-mismatch-comparison.json",
+      "src/content/registry/graphs/tokenizer-mismatch-compute-flow.json",
+      "src/content/registry/citations/zero-shot-tokenizer-transfer.json",
+      "src/lib/content/tokenizer-mismatch-module-page.test.ts",
+      "src/lib/content/tokenizer-mismatch-registry.test.ts",
+    ];
+
+    for (const path of matchingPaths) {
+      expect(isTokenizerMismatchRemotePresentDeletionPath(path)).toBe(true);
+    }
+  });
+
+  test("does not match unrelated remote-present deletion paths", () => {
+    expect(
+      isTokenizerMismatchRemotePresentDeletionPath(
+        "src/content/docs/models/clip/page.mdx",
+      ),
+    ).toBe(false);
+    expect(
+      isTokenizerMismatchRemotePresentDeletionPath("src/lib/factory/root.ts"),
+    ).toBe(false);
+  });
+});
+
+describe("annotateRemotePresentDeletionFamilies", () => {
+  test("labels tokenizer-mismatch remote-present deletions separately from other deletions", () => {
+    const annotated = annotateRemotePresentDeletionFamilies([
+      {
+        changeKind: "deleted",
+        classification: "ownerless-root-checkout-drift",
+        comparisonTarget: "origin/main",
+        evidence: PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
+        headPresent: true,
+        path: "src/content/docs/modules/tokenizer-mismatch/page.mdx",
+        remoteMainPresent: true,
+        statusCode: " D",
+      },
+      {
+        changeKind: "deleted",
+        classification: "ownerless-root-checkout-drift",
+        comparisonTarget: "origin/main",
+        evidence: PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
+        headPresent: true,
+        path: "src/content/docs/models/clip/page.mdx",
+        remoteMainPresent: true,
+        statusCode: " D",
+      },
+    ]);
+
+    expect(annotated[0]?.remotePresentDeletionFamily).toBe(
+      PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY,
+    );
+    expect(annotated[1]?.remotePresentDeletionFamily).toBe(
+      "other-remote-present-deletions",
+    );
+  });
+});
 
 describe("classifyRootCheckoutDirtyPaths", () => {
   test("classifies local deletions present on origin/main as ownerless root checkout drift", () => {
@@ -248,19 +503,144 @@ describe("summarizeManualInspectionChangeKinds", () => {
   });
 });
 
-describe("buildPlannerRootCheckoutOperatorNextActions", () => {
-  test("returns null when the root checkout has no dirty paths", () => {
+describe("determinePageRefillHold", () => {
+  test("holds refills when ownerless remote-present deletions remain", () => {
     expect(
-      buildPlannerRootCheckoutOperatorNextActions({
+      determinePageRefillHold({
+        conflictDriftMetadataRefreshGuidance: undefined,
+        conflictDriftPrs: [],
+        manualInspectionPaths: [],
+        remotePresentDeletions: [
+          {
+            changeKind: "deleted",
+            classification: "ownerless-root-checkout-drift",
+            comparisonTarget: "origin/main",
+            evidence: PLANNER_ROOT_CHECKOUT_REMOTE_EVIDENCE_PRESENT,
+            headPresent: true,
+            path: "src/content/docs/models/clip/page.mdx",
+            remoteMainPresent: true,
+            statusCode: " D",
+          },
+        ],
+        tableRegistryDriftPaths: [],
+      }),
+    ).toBe(true);
+  });
+
+  test("holds refills when manual-inspection or generated drift remains", () => {
+    expect(
+      determinePageRefillHold({
+        conflictDriftMetadataRefreshGuidance: undefined,
+        conflictDriftPrs: [],
+        manualInspectionPaths: [
+          {
+            changeKind: "modified",
+            classification: "manual-inspection",
+            comparisonTarget: "HEAD",
+            evidence: "non-deletion-dirty-path",
+            headPresent: true,
+            path: "src/lib/factory/root.ts",
+            remoteMainPresent: false,
+            statusCode: " M",
+          },
+        ],
+        remotePresentDeletions: [],
+        tableRegistryDriftPaths: [],
+      }),
+    ).toBe(true);
+    expect(
+      determinePageRefillHold({
+        conflictDriftMetadataRefreshGuidance: undefined,
+        conflictDriftPrs: [],
         manualInspectionPaths: [],
         remotePresentDeletions: [],
-        totalDirtyPathCount: 0,
+        tableRegistryDriftPaths: [
+          {
+            changeKind: "modified",
+            classification: "manual-inspection",
+            comparisonTarget: "HEAD",
+            evidence: "non-deletion-dirty-path",
+            headPresent: true,
+            path: "src/lib/content/generated/table-registry.generated.ts",
+            remoteMainPresent: false,
+            statusCode: " M",
+            tableRegistryDriftFamily: "generated-artifact",
+          },
+        ],
       }),
-    ).toBeNull();
+    ).toBe(true);
+  });
+
+  test("holds refills when conflict-drift PRs or metadata refresh guidance remain", () => {
+    expect(
+      determinePageRefillHold({
+        conflictDriftMetadataRefreshGuidance: undefined,
+        conflictDriftPrs: [
+          {
+            branchName: "alpha",
+            mergeabilityClass: "conflicting",
+            nextAction: "refresh-branch",
+            prNumber: 42,
+            queueMismatchRisk: "conflict-drift",
+            workItemName: "alpha",
+          },
+        ],
+        manualInspectionPaths: [],
+        remotePresentDeletions: [],
+        tableRegistryDriftPaths: [],
+      }),
+    ).toBe(true);
+    expect(
+      determinePageRefillHold({
+        conflictDriftMetadataRefreshGuidance:
+          PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_METADATA_REFRESH_GUIDANCE,
+        conflictDriftPrs: [],
+        manualInspectionPaths: [],
+        remotePresentDeletions: [],
+        tableRegistryDriftPaths: [],
+      }),
+    ).toBe(true);
+  });
+
+  test("allows resume when the root checkout is clean and no conflict drift remains", () => {
+    expect(
+      determinePageRefillHold({
+        conflictDriftMetadataRefreshGuidance: undefined,
+        conflictDriftPrs: [],
+        manualInspectionPaths: [],
+        remotePresentDeletions: [],
+        tableRegistryDriftPaths: [],
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("buildPlannerRootCheckoutOperatorNextActions", () => {
+  test("resumes page refills when the root checkout is clean", () => {
+    expect(
+      buildPlannerRootCheckoutOperatorNextActions({
+        conflictDriftMetadataRefreshGuidance: undefined,
+        conflictDriftPrs: [],
+        manualInspectionPaths: [],
+        remotePresentDeletions: [],
+        tableRegistryDriftPaths: [],
+      }),
+    ).toEqual({
+      conflictDriftPrCount: 0,
+      manualInspectionCount: 0,
+      mergeConflictPriorityGuidance:
+        PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE,
+      pageRefillHold: false,
+      remotePresentDeletionCount: 0,
+      tableRegistryDriftCount: 0,
+      targetSessionId: PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
+    });
   });
 
   test("holds page refills and names the planner session when dirty paths remain", () => {
     const nextActions = buildPlannerRootCheckoutOperatorNextActions({
+      conflictDriftMetadataRefreshGuidance: undefined,
+      conflictDriftPrs: [],
       manualInspectionPaths: [
         {
           changeKind: "modified",
@@ -285,41 +665,271 @@ describe("buildPlannerRootCheckoutOperatorNextActions", () => {
           statusCode: " D",
         },
       ],
-      totalDirtyPathCount: 2,
+      tableRegistryDriftPaths: [],
     });
 
     expect(nextActions).toEqual({
+      conflictDriftPrCount: 0,
       manualInspectionCount: 1,
       manualInspectionOwnershipGuidance:
         PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
+      mergeConflictPriorityGuidance:
+        PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE,
       pageRefillHold: true,
       remotePresentDeletionCleanupGuidance:
         PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE,
       remotePresentDeletionCount: 1,
+      tableRegistryDriftCount: 0,
       targetSessionId: PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
     });
+  });
+
+  test("holds page refills when only conflict-drift PR evidence remains", () => {
+    const nextActions = buildPlannerRootCheckoutOperatorNextActions({
+      conflictDriftMetadataRefreshGuidance: undefined,
+      conflictDriftPrs: [
+        {
+          branchName: "alpha",
+          mergeabilityClass: "conflicting",
+          nextAction: "refresh-branch",
+          prNumber: 42,
+          queueMismatchRisk: "conflict-drift",
+          workItemName: "alpha",
+        },
+      ],
+      manualInspectionPaths: [],
+      remotePresentDeletions: [],
+      tableRegistryDriftPaths: [],
+    });
+
+    expect(nextActions.pageRefillHold).toBe(true);
+    expect(nextActions.conflictDriftPrCount).toBe(1);
   });
 });
 
 describe("formatPlannerRootCheckoutOperatorNextActions", () => {
   test("prints non-destructive operator guidance for mixed dirty paths", () => {
     const formatted = formatPlannerRootCheckoutOperatorNextActions({
+      conflictDriftPrCount: 0,
       manualInspectionCount: 1,
       manualInspectionOwnershipGuidance:
         PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE,
+      mergeConflictPriorityGuidance:
+        PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE,
       pageRefillHold: true,
       remotePresentDeletionCleanupGuidance:
         PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE,
       remotePresentDeletionCount: 2,
+      tableRegistryDriftCount: 0,
       targetSessionId: PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
     });
 
     expect(formatted).toEqual([
       "- operator-next-actions",
       `  - page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD} target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
+      `  - merge-conflict-priority=${PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE}`,
       `  - remote-present-deletions count=2 guidance=${PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE}`,
       `  - manual-inspection count=1 guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE}`,
     ]);
+  });
+
+  test("prints resume guidance when the checkout is clean", () => {
+    const formatted = formatPlannerRootCheckoutOperatorNextActions({
+      conflictDriftPrCount: 0,
+      manualInspectionCount: 0,
+      mergeConflictPriorityGuidance:
+        PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE,
+      pageRefillHold: false,
+      remotePresentDeletionCount: 0,
+      tableRegistryDriftCount: 0,
+      targetSessionId: PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID,
+    });
+
+    expect(formatted).toEqual([
+      "- operator-next-actions",
+      `  - page-refill-resume=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_RESUME} target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
+      `  - merge-conflict-priority=${PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE}`,
+    ]);
+  });
+});
+
+describe("conflict-drift PR evidence", () => {
+  test("collects PR-backed lanes with conflict-drift risk", () => {
+    const conflictDriftPrs = collectConflictDriftPrEvidence({
+      issues: [],
+      lanes: [
+        {
+          status: "pr-backed",
+          workItemName: "alpha",
+          queueState: "active",
+          rawQueueState: "active",
+          branchName: "alpha",
+          prNumber: 42,
+          mergeabilityClass: "conflicting",
+          queueMismatchRisk: "conflict-drift",
+          nextAction: "refresh-branch",
+          reasons: [],
+        },
+        {
+          status: "pr-backed",
+          workItemName: "beta",
+          queueState: "active",
+          rawQueueState: "active",
+          branchName: "beta",
+          prNumber: 43,
+          mergeabilityClass: "check-blocked",
+          queueMismatchRisk: "checks-blocked",
+          nextAction: "wait",
+          reasons: [],
+        },
+        {
+          status: "unclassified",
+          workItemName: "gamma",
+          queueState: "failed",
+          rawQueueState: "failed",
+          queueMismatchRisk: "conflict-drift",
+          reasons: [],
+        },
+      ],
+    });
+
+    expect(conflictDriftPrs).toEqual([
+      {
+        branchName: "alpha",
+        mergeabilityClass: "conflicting",
+        nextAction: "refresh-branch",
+        prNumber: 42,
+        queueMismatchRisk: "conflict-drift",
+        workItemName: "alpha",
+      },
+    ]);
+  });
+
+  test("isConflictDriftLane requires pr-backed status and PR number", () => {
+    expect(
+      isConflictDriftLane({
+        status: "pr-backed",
+        workItemName: "alpha",
+        queueState: "active",
+        rawQueueState: "active",
+        prNumber: 42,
+        queueMismatchRisk: "conflict-drift",
+        reasons: [],
+      }),
+    ).toBe(true);
+    expect(
+      isConflictDriftLane({
+        status: "unclassified",
+        workItemName: "alpha",
+        queueState: "active",
+        rawQueueState: "active",
+        queueMismatchRisk: "conflict-drift",
+        reasons: [],
+      }),
+    ).toBe(false);
+  });
+
+  test("surfaces metadata refresh guidance when conflict drift may be hidden", () => {
+    expect(
+      determineConflictDriftMetadataRefreshGuidance(
+        {
+          issues: [],
+          lanes: [
+            {
+              status: "pr-backed",
+              workItemName: "alpha",
+              queueState: "active",
+              rawQueueState: "active",
+              branchName: "alpha",
+              prNumber: 42,
+              mergeabilityClass: "unknown",
+              queueMismatchRisk: "metadata-unavailable",
+              metadataRefreshHints: [
+                "stamped pull request linkage is stale: lookup API returned 502",
+              ],
+              reasons: [],
+            },
+          ],
+        },
+        [],
+      ),
+    ).toBe(PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_METADATA_REFRESH_GUIDANCE);
+    expect(
+      determineConflictDriftMetadataRefreshGuidance(
+        {
+          issues: [],
+          lanes: [
+            {
+              status: "pr-backed",
+              workItemName: "alpha",
+              queueState: "active",
+              rawQueueState: "active",
+              branchName: "alpha",
+              prNumber: 42,
+              mergeabilityClass: "conflicting",
+              queueMismatchRisk: "conflict-drift",
+              reasons: [],
+            },
+          ],
+        },
+        [
+          {
+            branchName: "alpha",
+            mergeabilityClass: "conflicting",
+            nextAction: "refresh-branch",
+            prNumber: 42,
+            queueMismatchRisk: "conflict-drift",
+            workItemName: "alpha",
+          },
+        ],
+      ),
+    ).toBeUndefined();
+  });
+
+  test("formats conflict-drift PR section with branch-refresh guidance", () => {
+    const report = buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-01T12:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: "",
+      laneDiscoveryReport: {
+        issues: [],
+        lanes: [
+          {
+            status: "pr-backed",
+            workItemName: "tokenizer-mismatch",
+            queueState: "active",
+            rawQueueState: "active",
+            branchName: "tokenizer-mismatch",
+            prNumber: 260,
+            mergeabilityClass: "conflicting",
+            queueMismatchRisk: "conflict-drift",
+            nextAction: "refresh-branch",
+            reasons: [],
+          },
+        ],
+      },
+      runGit: () => ({ status: 0, stdout: "", stderr: "" }),
+    });
+
+    const formatted = formatPlannerRootCheckoutReconciliationReport(report);
+    expect(formatted).toContain(
+      `- ${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_PR_SECTION} count=1`,
+    );
+    expect(formatted).toContain(
+      `guidance=${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_BRANCH_REFRESH_GUIDANCE}`,
+    );
+    expect(formatted).toContain(
+      "work-item=tokenizer-mismatch pr=#260 branch=tokenizer-mismatch mergeability=conflicting risk=conflict-drift next-action=refresh-branch",
+    );
+    expect(formatted).not.toContain("queue-only-missing-linkage");
+    expect(formatted).toContain("- operator-next-actions");
+    expect(formatted).toContain(
+      `page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD}`,
+    );
+    expect(formatted).toContain(
+      `  - ${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_PR_SECTION} count=1 guidance=${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_BRANCH_REFRESH_GUIDANCE}`,
+    );
   });
 });
 
@@ -361,6 +971,9 @@ describe("buildPlannerRootCheckoutReconciliationReport operator next actions", (
       `page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD}`,
     );
     expect(formatted).toContain(
+      `merge-conflict-priority=${PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE}`,
+    );
+    expect(formatted).toContain(
       `target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
     );
     expect(formatted).toContain(
@@ -371,7 +984,7 @@ describe("buildPlannerRootCheckoutReconciliationReport operator next actions", (
     );
   });
 
-  test("omits operator next actions when the root checkout is clean", () => {
+  test("emits resume operator next actions when the root checkout is clean", () => {
     const report = buildPlannerRootCheckoutReconciliationReport({
       generatedAtUtc: "2026-07-01T12:00:00.000Z",
       remoteBaseRef: "origin/main",
@@ -380,10 +993,16 @@ describe("buildPlannerRootCheckoutReconciliationReport operator next actions", (
       runGit: () => ({ status: 0, stdout: "", stderr: "" }),
     });
 
-    expect(report.operatorNextActions).toBeNull();
-    expect(formatPlannerRootCheckoutReconciliationReport(report)).not.toContain(
-      "- operator-next-actions",
+    expect(report.operatorNextActions.pageRefillHold).toBe(false);
+    const formatted = formatPlannerRootCheckoutReconciliationReport(report);
+    expect(formatted).toContain("- operator-next-actions");
+    expect(formatted).toContain(
+      `page-refill-resume=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_RESUME}`,
     );
+    expect(formatted).toContain(
+      `merge-conflict-priority=${PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE}`,
+    );
+    expect(formatted).not.toContain("page-refill-hold=");
   });
 });
 
@@ -425,10 +1044,14 @@ describe("buildPlannerRootCheckoutReconciliationReport", () => {
       "remote-base-ref=origin/main root-dirty-paths=2 remote-present-deletions=1 manual-inspection=1",
     );
     expect(formatted).toContain(
-      "path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift",
+      "path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=other-remote-present-deletions",
     );
     expect(formatted).toContain(
-      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection",
+      `  - ${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY} count=0`,
+    );
+    expect(formatted).toContain("  - other-manual-inspection count=1");
+    expect(formatted).toContain(
+      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
     );
     expect(formatted).toContain(
       `guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE}`,
@@ -479,6 +1102,7 @@ describe("buildPlannerRootCheckoutReconciliationReport", () => {
     );
     expect(formatted).toContain("path=src/content/docs/models/clip/page.mdx");
     expect(formatted).toContain("classification=ownerless-root-checkout-drift");
+    expect(formatted).toContain("  - other-manual-inspection count=7");
     expect(formatted).toContain("path=src/lib/factory/root.ts");
     expect(formatted).toContain("path=src/lib/factory/new.ts");
     expect(formatted).toContain("path=src/lib/factory/untracked.ts");
@@ -513,17 +1137,86 @@ describe("planner root checkout reconciliation fixture evidence", () => {
         "remote-base-ref=origin/main root-dirty-paths=2 remote-present-deletions=1 manual-inspection=1",
         "- location=root repo=/repo",
         "- remote-present-ownerless-deletions count=1 comparison-target=origin/main",
-        "  - path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift",
+        `  - ${PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY} count=0 comparison-target=origin/main`,
+        `    - guidance=${PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_STALE_DRIFT_GUIDANCE}`,
+        "    - none",
+        "  - other-remote-present-deletions count=1 comparison-target=origin/main",
+        "    - path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=other-remote-present-deletions",
         "- manual-inspection count=1",
         `  - guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_GUIDANCE}`,
         "  - change-kind-counts=modified=1",
-        "  - path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection",
+        `  - ${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY} count=0`,
+        `    - guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_GUIDANCE}`,
+        "    - none",
+        "  - other-manual-inspection count=1",
+        "    - path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
+        `- ${PLANNER_ROOT_CHECKOUT_GENERATED_TABLE_REGISTRY_DRIFT_SECTION} count=0`,
+        "  - none",
+        `- ${PLANNER_ROOT_CHECKOUT_CONFLICT_DRIFT_PR_SECTION} count=0`,
+        "  - none",
         "- operator-next-actions",
         `  - page-refill-hold=${PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD} target-session=${PLANNER_ROOT_CHECKOUT_TARGET_SESSION_ID}`,
+        `  - merge-conflict-priority=${PLANNER_ROOT_CHECKOUT_MERGE_CONFLICT_PRIORITY_GUIDANCE}`,
         `  - remote-present-deletions count=1 guidance=${PLANNER_ROOT_CHECKOUT_REMOTE_PRESENT_CLEANUP_GUIDANCE}`,
         `  - manual-inspection count=1 guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_OWNERSHIP_GUIDANCE}`,
       ].join("\n"),
     );
+  });
+
+  test("groups tokenizer-mismatch remote-present deletions as stale root checkout drift", () => {
+    const remotePresentPaths = new Set([
+      "src/content/docs/modules/tokenizer-mismatch/page.mdx",
+      "src/content/docs/modules/tokenizer-mismatch/assets.json",
+      "src/content/registry/modules/tokenizer-mismatch.json",
+      "src/content/registry/tables/tokenizer-mismatch-comparison.json",
+      "src/content/registry/graphs/tokenizer-mismatch-compute-flow.json",
+      "src/content/registry/citations/zero-shot-tokenizer-transfer.json",
+      "src/lib/content/tokenizer-mismatch-module-page.test.ts",
+      "src/lib/content/tokenizer-mismatch-registry.test.ts",
+      "src/content/docs/models/clip/page.mdx",
+    ]);
+
+    const report = buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-02T04:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: TOKENIZER_MISMATCH_DIRTY_STATUS_FIXTURE,
+      runGit: createFixtureRunGit(remotePresentPaths),
+    });
+
+    expect(report.tokenizerMismatchRemotePresentDeletions).toHaveLength(8);
+    expect(report.remotePresentDeletions).toHaveLength(9);
+
+    const formatted = formatPlannerRootCheckoutReconciliationReport(report);
+    expect(formatted).toContain(
+      `  - ${PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_REMOTE_PRESENT_FAMILY} count=8 comparison-target=origin/main`,
+    );
+    expect(formatted).toContain(
+      `    - guidance=${PLANNER_ROOT_CHECKOUT_TOKENIZER_MISMATCH_STALE_DRIFT_GUIDANCE}`,
+    );
+    expect(formatted).toContain(
+      "path=src/content/docs/modules/tokenizer-mismatch/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+    expect(formatted).toContain(
+      "path=src/content/registry/modules/tokenizer-mismatch.json status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+    expect(formatted).toContain(
+      "path=src/content/registry/tables/tokenizer-mismatch-comparison.json status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+    expect(formatted).toContain(
+      "path=src/content/registry/graphs/tokenizer-mismatch-compute-flow.json status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/content/tokenizer-mismatch-module-page.test.ts status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+    expect(formatted).toContain(
+      "  - other-remote-present-deletions count=1 comparison-target=origin/main",
+    );
+    expect(formatted).toContain(
+      "path=src/content/docs/models/clip/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=other-remote-present-deletions",
+    );
+    expect(formatted).not.toContain("page-refill request");
+    expect(formatted).toContain("do not treat as missing content");
   });
 
   test("fixture snapshot keeps real local modification in manual inspection", () => {
@@ -540,11 +1233,111 @@ describe("planner root checkout reconciliation fixture evidence", () => {
     expect(report.manualInspectionPaths).toHaveLength(1);
     expect(formatted).toContain("- manual-inspection count=1");
     expect(formatted).toContain("remote-present-deletions=0");
+    expect(formatted).toContain("  - other-manual-inspection count=1");
     expect(formatted).toContain(
-      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection",
+      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
     );
     expect(formatted).not.toContain(
       "classification=ownerless-root-checkout-drift",
+    );
+  });
+
+  test("groups modified shared paths in manual-inspection-shared-edits separately from remote-present deletions", () => {
+    const remotePresentPaths = new Set([
+      "src/content/docs/modules/tokenizer-mismatch/page.mdx",
+    ]);
+
+    const report = buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-02T04:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: MANUAL_INSPECTION_SHARED_EDITS_DIRTY_STATUS_FIXTURE,
+      runGit: createFixtureRunGit(remotePresentPaths),
+    });
+
+    expect(report.manualInspectionSharedEdits).toHaveLength(8);
+    expect(report.otherManualInspectionPaths).toHaveLength(1);
+    expect(report.remotePresentDeletions).toHaveLength(1);
+
+    const formatted = formatPlannerRootCheckoutReconciliationReport(report);
+    expect(formatted).toContain(
+      `  - ${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY} count=8`,
+    );
+    expect(formatted).toContain(
+      `    - guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_GUIDANCE}`,
+    );
+    expect(formatted).toContain(
+      "path=src/features/models/components/ModuleGraph.tsx status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=manual-inspection-shared-edits",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/content/table-registry-runtime.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=manual-inspection-shared-edits",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/content/validate-registry.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=manual-inspection-shared-edits",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/source.test.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=manual-inspection-shared-edits",
+    );
+    expect(formatted).toContain("  - other-manual-inspection count=1");
+    expect(formatted).toContain(
+      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
+    );
+    expect(formatted).toContain(
+      "path=src/content/docs/modules/tokenizer-mismatch/page.mdx status= D change=deleted comparison-target=origin/main evidence=present-on-origin-main classification=ownerless-root-checkout-drift drift-family=tokenizer-mismatch-remote-present-deletions",
+    );
+    expect(formatted).toContain(
+      `    - guidance=${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_GUIDANCE}`,
+    );
+    expect(formatted).not.toContain(
+      "manual-inspection-shared-edits count=8\n    - guidance=Operator-reviewed root cleanup",
+    );
+  });
+
+  test("groups generated table-registry drift separately while preserving manual-inspection shared edits", () => {
+    const report = buildPlannerRootCheckoutReconciliationReport({
+      generatedAtUtc: "2026-07-02T04:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      statusOutput: TABLE_REGISTRY_DRIFT_DIRTY_STATUS_FIXTURE,
+      runGit: createFixtureRunGit(new Set()),
+    });
+
+    expect(report.tableRegistryDriftPaths).toHaveLength(3);
+    expect(report.tableRegistryGeneratedArtifacts).toHaveLength(1);
+    expect(report.tableRegistryAssociatedRuntimePaths).toHaveLength(2);
+    expect(report.manualInspectionSharedEdits).toHaveLength(2);
+    expect(report.otherManualInspectionPaths).toHaveLength(2);
+
+    const formatted = formatPlannerRootCheckoutReconciliationReport(report);
+    expect(formatted).toContain(
+      `- ${PLANNER_ROOT_CHECKOUT_GENERATED_TABLE_REGISTRY_DRIFT_SECTION} count=3`,
+    );
+    expect(formatted).toContain(
+      `  - guidance=${PLANNER_ROOT_CHECKOUT_TABLE_REGISTRY_DRIFT_GUIDANCE}`,
+    );
+    expect(formatted).toContain("  - generated-artifact count=1");
+    expect(formatted).toContain(
+      "path=src/lib/content/generated/table-registry.generated.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection registry-drift-family=generated-artifact",
+    );
+    expect(formatted).toContain(
+      "  - table-registry-associated-runtime count=2",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/content/table-registry-runtime.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=manual-inspection-shared-edits registry-drift-family=table-registry-associated-runtime",
+    );
+    expect(formatted).toContain(
+      "path=src/lib/content/validate-registry.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=manual-inspection-shared-edits registry-drift-family=table-registry-associated-runtime",
+    );
+    expect(formatted).toContain(
+      `  - ${PLANNER_ROOT_CHECKOUT_MANUAL_INSPECTION_SHARED_EDITS_FAMILY} count=2`,
+    );
+    expect(formatted).toContain("  - other-manual-inspection count=2");
+    expect(formatted).toContain(
+      "path=src/lib/factory/root.ts status= M change=modified comparison-target=HEAD evidence=non-deletion-dirty-path classification=manual-inspection inspection-family=other-manual-inspection",
+    );
+    expect(formatted).toContain("validation or regeneration proof");
+    expect(formatted).toContain(
+      "do not auto-revert, restore, or overwrite generated or runtime registry paths",
     );
   });
 });

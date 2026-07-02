@@ -17,11 +17,21 @@ watchdog summaries, or planner-facing linkage reports.
 * `src/lib/factory/planner-root-checkout-reconciliation.ts` — non-destructive
   root checkout reconciliation that compares dirty paths against `HEAD` and
   `origin/main`, classifies remote-present local deletions as ownerless root
-  checkout drift with `present-on-origin-main` evidence, keeps other dirty
-  paths in manual-inspection groups with per-change-kind counts and preserve
-  guidance, and prints operator next actions (page-refill hold, safe cleanup
-  path for remote-present deletions, manual ownership inspection) with target
-  session `0fdc5077-95ed-4396-a183-06e5b16555ca`.
+  checkout drift with `present-on-origin-main` evidence, groups
+  tokenizer-mismatch remote-present deletions under
+  `tokenizer-mismatch-remote-present-deletions` with stale root checkout drift
+  guidance, keeps other dirty paths in manual-inspection groups with
+  per-change-kind counts, nests modified shared paths under
+  `manual-inspection-shared-edits` with preserve guidance, names generated
+  table-registry drift under `generated-table-registry-drift` with
+  `generated-artifact` and `table-registry-associated-runtime` families plus
+  validation/regeneration guidance, names conflict-drift PRs under
+  `conflict-drift-prs` with branch-refresh guidance and optional metadata-refresh
+  guidance when linkage refresh is required, and prints operator next actions
+  (page-refill hold or resume, merge-conflict priority guidance, safe cleanup
+  path for remote-present deletions, generated drift and conflict-drift counts,
+  manual ownership inspection) with target session
+  `0fdc5077-95ed-4396-a183-06e5b16555ca`.
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 * `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` — read-only
@@ -93,6 +103,9 @@ inventory checks. Supported fixture flags:
 * `--worktrees-dir`
 * `--pr-map-json`
 * `--status-output` for root checkout reconciliation fixture status porcelain
+  (`mixed-dirty-status.txt`, `tokenizer-mismatch-dirty-status.txt`,
+  `manual-inspection-shared-edits-dirty-status.txt`,
+  `table-registry-drift-dirty-status.txt`)
 * `--session` for live `you work list` discovery in integration-style tests
 
 Representative regression coverage lives in
