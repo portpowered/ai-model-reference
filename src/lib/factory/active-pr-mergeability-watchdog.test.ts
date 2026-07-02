@@ -898,6 +898,8 @@ describe("story 002 classification helpers", () => {
     expect(classifyMergeability("CLEAN", "passing")).toBe("mergeable");
     expect(classifyMergeability("DIRTY", "passing")).toBe("conflicting");
     expect(classifyMergeability("BLOCKED", "pending")).toBe("check-blocked");
+    expect(classifyMergeability("BLOCKED", "passing")).toBe("mergeable");
+    expect(classifyMergeability(undefined, "passing")).toBe("mergeable");
     expect(classifyMergeability(undefined, "unavailable")).toBe("unknown");
   });
 
@@ -946,6 +948,20 @@ describe("story 002 classification helpers", () => {
         checkHealth: "passing",
       }),
     ).toBe("queue-stale");
+    expect(
+      determineQueueMismatchRisk({
+        queueState: "active",
+        mergeabilityClass: "unknown",
+        checkHealth: "passing",
+      }),
+    ).toBe("none");
+    expect(
+      determineQueueMismatchRisk({
+        queueState: "active",
+        mergeabilityClass: "unknown",
+        checkHealth: "unavailable",
+      }),
+    ).toBe("metadata-unavailable");
     expect(
       recommendPlannerNextAction({
         queueMismatchRisk: "queue-stale",
@@ -1269,6 +1285,166 @@ describe("active-pr-watchdog-worktree-linkage-repair-002", () => {
         ],
       }),
     ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+});
+
+describe("planner-root-drift-and-pr-metadata-repair-003", () => {
+  test("reports passing PR-backed lanes as mergeable without metadata-unavailable risk when checks pass under BLOCKED merge state", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-blocked-passing-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const lanePath = createWorktree(
+      worktreesRoot,
+      "tokens-per-second-serving-metric-page",
+      "tokens-per-second-serving-metric-page",
+    );
+    writeLaneMetadata(lanePath, {
+      schemaVersion: 1,
+      workItemName: "tokens-per-second-serving-metric-page",
+      branchName: "tokens-per-second-serving-metric-page",
+      branchMetadataSource: "setup",
+      worktreePath: lanePath,
+      sessionId: "0fdc5077-95ed-4396-a183-06e5b16555ca",
+      pullRequest: {
+        number: 201,
+        url: "https://example.com/pull/201",
+      },
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+      linkage: {
+        branch: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+        pullRequest: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+      },
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [
+          {
+            name: "tokens-per-second-serving-metric-page",
+            state: "active",
+            sessionId: "0fdc5077-95ed-4396-a183-06e5b16555ca",
+          },
+        ],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(
+        new Map([[lanePath, "tokens-per-second-serving-metric-page"]]),
+        new Map([["tokens-per-second-serving-metric-page", "1\t0"]]),
+      ),
+      lookupPullRequest: () => ({
+        pullRequest: {
+          number: 201,
+          headRefName: "tokens-per-second-serving-metric-page",
+          mergeStateStatus: "BLOCKED",
+          statusCheckRollup: [{ conclusion: "SUCCESS" }],
+        },
+      }),
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        workItemName: "tokens-per-second-serving-metric-page",
+        mergeabilityClass: "mergeable",
+        checkHealth: "passing",
+        queueMismatchRisk: "none",
+        nextAction: undefined,
+        reasons: [],
+      }),
+    ]);
+
+    const reportText = formatActivePrLaneReport(report);
+    expect(reportText).toContain("mergeability=mergeable");
+    expect(reportText).toContain("checks=passing");
+    expect(reportText).not.toContain("risk=metadata-unavailable");
+    expect(reportText).not.toContain("next-action=repair-token");
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  test("separates stale stamped linkage refresh hints from primary PR-backed lane state", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-stale-resolved-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const lanePath = createWorktree(worktreesRoot, "alpha", "alpha");
+    writeLaneMetadata(lanePath, {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: lanePath,
+      sessionId: "sess-1",
+      pullRequest: {
+        number: 42,
+        url: "https://example.com/pull/42",
+      },
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-21T00:05:00.000Z",
+      linkage: {
+        branch: {
+          status: "stale",
+          issue: "git branch inspection failed during the last refresh",
+          refreshedAtUtc: "2026-06-21T00:05:00.000Z",
+        },
+        pullRequest: {
+          status: "stale",
+          issue: "pull request lookup API returned 502",
+          refreshedAtUtc: "2026-06-21T00:05:00.000Z",
+        },
+      },
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "alpha", state: "active", sessionId: "sess-1" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(new Map([[lanePath, "alpha"]])),
+      lookupPullRequest: () => ({
+        pullRequest: {
+          number: 42,
+          headRefName: "alpha",
+          mergeStateStatus: "CLEAN",
+          statusCheckRollup: [{ conclusion: "SUCCESS" }],
+        },
+      }),
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        mergeabilityClass: "mergeable",
+        checkHealth: "passing",
+        queueMismatchRisk: "none",
+        reasons: [],
+        metadataRefreshHints: [
+          "stamped branch linkage is stale: git branch inspection failed during the last refresh",
+          "stamped pull request linkage is stale: pull request lookup API returned 502",
+        ],
+      }),
+    ]);
+
+    const reportText = formatActivePrLaneReport(report);
+    expect(reportText).toContain("mergeability=mergeable checks=passing");
+    expect(reportText).toContain("metadata-refresh=");
+    expect(reportText).not.toContain("risk=metadata-unavailable");
 
     rmSync(repoRoot, { recursive: true, force: true });
   });

@@ -11,6 +11,11 @@ watchdog summaries, or planner-facing linkage reports.
   candidate resolution, drift/mergeability classification for active lanes.
 * `src/lib/factory/planner-batch-collision-preflight.ts` — consumes linkage
   ledger data and should scope actionable gap reporting through shared helpers.
+* `src/lib/factory/planner-worktree-drift-watchdog.ts` — root vs active
+  worktree drift classification, including already-merged root drift and
+  ownerless root dirty path recovery guidance.
+* `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
+  merged-branch evidence used to attribute stale root drift to merged page lanes.
 
 ## Planner-facing commands
 
@@ -28,8 +33,18 @@ Direct script paths remain supported for fixture-driven tests:
 
 ## Classification contract
 
+* `already-merged-owned` — root drift matches dirty paths or shared surfaces
+  from a terminal-complete or merged-into-main page lane; report includes PR and
+  merge-commit evidence when available.
+* `ownerless-root-dirty-paths` — root dirty paths with no active or merged lane
+  owner; report includes preserve-policy guidance, `investigate-and-preserve`
+  next action, and target session `0fdc5077-95ed-4396-a183-06e5b16555ca` in
+  recovery examples.
 * `pr-backed` — lane has resolved `pullRequest` evidence from live lookup,
-  branch candidates, or current stamped lane metadata.
+  branch candidates, or current stamped lane metadata. Passing checks report
+  `mergeability=mergeable` even when GitHub `mergeStateStatus` is `BLOCKED`.
+  Stale stamped linkage surfaces as `metadata-refresh=` hints, separate from
+  `risk=metadata-unavailable` (reserved for missing PR/check evidence).
 * `actionable-gaps` — active/failed task or review lanes missing repairable
   worktree, branch, or PR metadata.
 * `queue-only-noise` — expected queue-only missing worktree rows and stale
@@ -51,7 +66,10 @@ inventory checks. Supported fixture flags:
 * `--session` for live `you work list` discovery in integration-style tests
 
 Representative regression coverage lives in
-`src/tests/discovery/linkage-classifier-report-compatibility.test.ts`.
+`src/tests/discovery/linkage-classifier-report-compatibility.test.ts` and
+`src/tests/discovery/planner-root-drift-pr-metadata-repair-compatibility.test.ts`
+(already-merged root drift, ownerless recovery guidance, and PR-backed metadata
+refresh with passing checks).
 
 ## Related process docs
 

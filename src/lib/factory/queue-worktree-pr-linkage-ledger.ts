@@ -48,6 +48,7 @@ export interface QueueWorktreePrLinkageLane {
   mergeabilityClass?: MergeabilityClass;
   queueMismatchRisk?: QueueMismatchRisk;
   nextAction?: PlannerNextAction;
+  metadataRefreshHints?: string[];
 }
 
 export type LaneLinkageNoiseClass =
@@ -144,6 +145,7 @@ function summarizeLinkageClassificationCounts(
 
 function mapLaneRecord(lane: LaneDiscoveryRecord): QueueWorktreePrLinkageLane {
   const missingLinkageReasons = [...lane.reasons];
+  const metadataRefreshHints = [...(lane.metadataRefreshHints ?? [])];
 
   return {
     laneName: lane.workItemName,
@@ -184,6 +186,7 @@ function mapLaneRecord(lane: LaneDiscoveryRecord): QueueWorktreePrLinkageLane {
     mergeabilityClass: lane.mergeabilityClass,
     queueMismatchRisk: lane.queueMismatchRisk,
     nextAction: lane.nextAction,
+    metadataRefreshHints,
   };
 }
 
@@ -398,6 +401,9 @@ function formatLinkageLaneDetailRow(lane: QueueWorktreePrLinkageLane): string {
   }
   if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
     details.push(`risk=${lane.queueMismatchRisk}`);
+  }
+  if (lane.metadataRefreshHints && lane.metadataRefreshHints.length > 0) {
+    details.push(`metadata-refresh=${lane.metadataRefreshHints.join("; ")}`);
   }
   if (lane.nextAction) {
     details.push(`next-action=${lane.nextAction}`);
