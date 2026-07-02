@@ -18,6 +18,10 @@
       "title": "Common Confusions",
       "body": "Normalization is not the residual add: residuals preserve a skip path, while norm layers actively rescale activations. Layer norm and RMSNorm are the common transformer choices; batch norm is rare in decoder stacks because per-batch mean and variance are a poor fit for variable sequence batches. Finally, normalization does not mix tokens—each position is normalized on its own feature vector."
     },
+    "readNext": {
+      "title": "Read Next",
+      "body": "Open the broad normalization concept page when you want the family-level explanation of why normalization stabilizes model stacks. Jump straight to a module page when you already know the general idea and need one specific rule such as layer norm, RMSNorm, batch norm, group norm, or QK norm."
+    },
     "related": {
       "title": "Related Concepts And Modules"
     },

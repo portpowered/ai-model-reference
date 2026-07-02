@@ -70,6 +70,16 @@ export const REPRESENTATIVE_DISCOVERY_CONTRACTS = [
     requiredTagSlugs: ["foundations"],
     representativeQueries: ["skip connection"],
   },
+  {
+    pageUrl: "/docs/concepts/normalization",
+    expectedKind: "concept",
+    requiredTagSlugs: ["normalization", "foundations"],
+    representativeQueries: [
+      "normalization",
+      "normalization layer",
+      "norm layer",
+    ],
+  },
 ] as const satisfies readonly RepresentativeDiscoveryContract[];
 
 const MODEL_FAMILY_REGISTRY_IDS = [

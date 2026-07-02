@@ -68,6 +68,7 @@ describe("graph-registry-runtime", () => {
     expect(bundledIds).toContain("graph.gpt-2-report-contribution");
     expect(bundledIds).toContain("graph.cross-attention-memory-pattern");
     expect(bundledIds).toContain("graph.unigram-tokenizer-segmentation-flow");
+    expect(bundledIds).toContain("graph.tokenizer-mismatch-compute-flow");
 
     registerGraphRecords([overrideOnlyRecord]);
 

@@ -108,7 +108,7 @@ describe("Phase 5 quantization chapter discovery and locale stability (chapter-5
   test("nearby published pages expose reader-visible paths into the quantization chapter", async () => {
     const nearbyPages = await Promise.all([
       renderGlossaryOrConceptPage(loadGlossaryPage("parameter")),
-      renderGlossaryOrConceptPage(loadGlossaryPage("activation")),
+      renderGlossaryOrConceptPage(loadConceptPage("activation-quantization")),
       renderGlossaryOrConceptPage(
         loadGlossaryPage("autoregressive-generation"),
       ),

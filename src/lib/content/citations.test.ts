@@ -79,4 +79,24 @@ describe("citations", () => {
       );
     }
   });
+
+  test("tokenizer mismatch supporting citations resolve with stable metadata", () => {
+    const ids = listCitationRecords().map((record) => record.id);
+
+    expect(ids).toContain("citation.zero-shot-tokenizer-transfer");
+    expect(ids).toContain("citation.hugging-face-chat-templates");
+    expect(ids).toContain("citation.hugging-face-chat-templates-docs");
+
+    expect(
+      resolveCitations([
+        "citation.zero-shot-tokenizer-transfer",
+        "citation.hugging-face-chat-templates",
+        "citation.hugging-face-chat-templates-docs",
+      ]).map((citation) => citation.title),
+    ).toEqual([
+      "Zero-Shot Tokenizer Transfer",
+      "Chat Templates: An End to the Silent Performance Killer",
+      "Chat templates",
+    ]);
+  });
 });

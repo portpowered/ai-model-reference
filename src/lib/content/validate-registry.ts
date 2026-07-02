@@ -206,6 +206,8 @@ const releaseMetadataExceptionReasons: Partial<
     "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
   "module.t5-relative-position-bias":
     "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.tokenizer-mismatch":
+    "Failure-mode module documents tokenizer compatibility behavior rather than a discrete released component.",
   "module.yarn":
     "Legacy module is published before At a Glance release metadata backfill is complete.",
 };

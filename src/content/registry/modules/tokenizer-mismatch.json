@@ -1,0 +1,46 @@
+{
+  "id": "module.tokenizer-mismatch",
+  "slug": "tokenizer-mismatch",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "tokenizer mismatch",
+    "tokenization mismatch",
+    "wrong tokenizer",
+    "special token mismatch",
+    "prompt token mismatch",
+    "chat template mismatch"
+  ],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "module.bpe",
+    "module.wordpiece",
+    "module.sentencepiece",
+    "concept.special-tokens",
+    "concept.embedding",
+    "model.gpt-3"
+  ],
+  "citationIds": [
+    "citation.zero-shot-tokenizer-transfer",
+    "citation.sennrich-bpe",
+    "citation.hugging-face-chat-templates",
+    "citation.hugging-face-chat-templates-docs"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "primaryClassificationId": "classification.module.tokenization",
+  "moduleType": "tokenizer",
+  "moduleFamily": "tokenization",
+  "conceptType": "tokenizer-compatibility",
+  "variantGroup": "tokenizer-failure-modes",
+  "optimizes": ["input-compatibility", "prompt-format-correctness"],
+  "exampleModelIds": ["model.gpt-3"],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": ["model.gpt-3"],
+  "introducedByPaperIds": [],
+  "mathLevel": "none"
+}

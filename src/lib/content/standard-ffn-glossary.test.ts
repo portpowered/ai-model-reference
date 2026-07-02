@@ -66,7 +66,7 @@ describe("Phase 3 standard FFN module page (US-001)", () => {
     const activation = items.find(
       (item) => item.registryId === "concept.activation",
     );
-    expect(activation?.href).toBe("/docs/glossary/activation");
+    expect(activation?.href).toBe("/docs/concepts/activation");
     expect(activation?.isPlanned).toBe(false);
   });
 
@@ -126,7 +126,7 @@ describe("Phase 3 standard FFN module page (US-001)", () => {
     expect(html).toContain('data-table-id="table.standard-ffn-comparison"');
     expect(html).toContain('href="/docs/modules/feed-forward-network"');
     expect(html).toContain('href="/docs/modules/mixture-of-experts"');
-    expect(html).toContain('href="/docs/glossary/activation"');
+    expect(html).toContain('href="/docs/concepts/activation"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');

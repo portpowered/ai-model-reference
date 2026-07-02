@@ -1,0 +1,60 @@
+{
+  "title": "Activation",
+  "description": "The nonlinear step that reshapes a layer's output so stacked layers can model richer patterns than repeated linear transforms alone.",
+  "openingSummary": "An activation is the value a hidden layer passes forward after a learned linear transform and, commonly, an activation function. That nonlinear step lets the model keep, dampen, or reshape signals before the next layer. Without those steps, stacked linear layers collapse into another linear transform and cannot build the same kind of intermediate features people expect from deep networks.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "An activation is the value a layer passes forward after a learned linear transform and, commonly, an activation function such as rectified linear unit (ReLU) or sigmoid linear unit (SiLU). The linear transform scales and mixes the incoming features; the activation function then applies a simple nonlinear rule point by point across those hidden values. In plain language, the weights produce a draft signal and the activation decides how strongly each part should survive before the next layer reads it."
+    },
+    "whyNonlinearStepsMatter": {
+      "title": "Why Nonlinear Steps Matter",
+      "body": "Without nonlinearity, stacked linear layers collapse into another linear transform. Each layer can still scale and combine features, but the stack as a whole cannot bend the signal in the ways deep models rely on. Nonlinear activation functions break that collapse: they let later layers respond differently to different ranges of input, create thresholds and smooth gates, and build intermediate features that a single linear map could not express on its own."
+    },
+    "whereReadersMeetIt": {
+      "title": "Where Readers Meet It",
+      "body": "Readers most often meet activations inside feed-forward networks, where each token state is expanded, filtered through an activation, and projected back down. That is why pages like ReLU, Leaky ReLU, SiLU, and SwiGLU matter: they are different answers to the same question of how the hidden layer should shape its intermediate values. The broad activation idea also shows up in other architectures, but the feed-forward slot in transformers is the most common place to study it first."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Hidden activations are not the same as output softmax. Hidden activations are internal signals passed between layers after nonlinear shaping; softmax is a final step on the output head that converts logits into a probability distribution over vocabulary items or classes. People also use the word activation in two nearby ways: for the activation function itself and for the resulting hidden values. Both usages are common, but neither is the same as the softmax probabilities you read at the end of a classifier or language model."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "glossaryActivation": "Activation glossary entry",
+    "relu": "ReLU",
+    "leakyRelu": "Leaky ReLU",
+    "silu": "SiLU",
+    "swiglu": "SwiGLU",
+    "feedForwardNetwork": "Feed-forward network"
+  },
+  "relatedDocs": {
+    "module.feed-forward-network": {
+      "reason": "Feed-forward networks are the main transformer block where hidden activations are expanded, filtered, and projected back down."
+    },
+    "module.relu": {
+      "reason": "ReLU is a common activation function that keeps positive hidden values and zeros out negative evidence."
+    },
+    "module.leaky-relu": {
+      "reason": "Leaky ReLU is a ReLU variant that lets a small negative slope through instead of hard zeroing."
+    },
+    "module.silu": {
+      "reason": "SiLU applies a smooth sigmoid gate to each hidden value and often appears in modern feed-forward blocks."
+    },
+    "module.swiglu": {
+      "reason": "SwiGLU combines SiLU gating with a wider projection path inside feed-forward networks."
+    },
+    "concept.computational-graph": {
+      "reason": "The computational graph shows how activations flow through layers during forward and backward passes."
+    }
+  }
+}
