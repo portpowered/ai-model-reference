@@ -115,6 +115,43 @@ describe("GRPO training-regime page contracts", () => {
     expect(postTraining?.isPlanned).toBe(false);
   });
 
+  test("page renders isolation-first GRPO summary and opening training-regime sections", async () => {
+    const page = await loadTrainingRegimePage("grpo");
+
+    expect(page.messages.openingSummary).toContain(
+      "Group Relative Preference Optimization",
+    );
+    expect(page.messages.openingSummary).toContain("usually shortened to GRPO");
+    expect(page.messages.sections?.whatItIs.body).toContain(
+      "Group Relative Preference Optimization",
+    );
+    expect(page.messages.sections?.whatItIs.body?.toLowerCase()).toContain(
+      "post-training",
+    );
+    expect(page.messages.sections?.whyItExists.body?.toLowerCase()).toContain(
+      "post-training",
+    );
+    expect(page.messages.sections?.whyItExists.body).toContain(
+      "relative to one another",
+    );
+
+    const html = await renderHtml(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("What It Is");
+    expect(html).toContain("Why It Exists");
+    expect(html).toContain("candidate answers");
+    expect(html).toContain("grouped relative rankings");
+    expect(html).not.toContain("Reader Shortcut");
+    expect(html).not.toContain("on this page");
+  });
+
   test("page renders alignment and nearby-regime links without reader-shortcut copy", async () => {
     const page = await loadTrainingRegimePage("grpo");
 

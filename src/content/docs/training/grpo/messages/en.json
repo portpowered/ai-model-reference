@@ -5,11 +5,11 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Group Relative Preference Optimization is a reinforcement-style alignment regime for language models. Instead of learning from one fixed preferred-versus-rejected pair per prompt, it draws a small group of candidate answers from the current policy, compares them against one another, and uses that within-group ranking as the training signal."
+      "body": "Group Relative Preference Optimization is a post-training alignment regime for language models. For each prompt, the current model samples a small group of candidate answers, compares them against one another, and uses that within-group ranking as the training signal instead of learning from one fixed preferred-versus-rejected pair."
     },
     "whyItExists": {
       "title": "Why It Exists",
-      "body": "Many alignment pipelines need policy updates that react to freshly sampled model behavior, not only to comparisons frozen in a dataset. GRPO exists so teams can shape post-training from grouped relative rankings while avoiding some of the extra machinery that classic reinforcement learning from human feedback loops often carry, such as maintaining a separate value model alongside the policy."
+      "body": "During post-training, teams often need updates that react to freshly sampled model behavior instead of only to comparisons frozen in a dataset. A single prompt can produce several candidate answers with different strengths, and the useful signal is often how those answers rank relative to one another in the same group. Group Relative Preference Optimization exists so post-training can learn from those grouped relative rankings rather than from one static preference pair at a time."
     },
     "howItWorks": {
       "title": "How It Works",
