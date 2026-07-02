@@ -18,6 +18,7 @@ updatedAt: "2026-06-19"
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -33,6 +34,19 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="where-readers-meet-it" titleKey="sections.whereReadersMeetIt.title">
   <T k="sections.whereReadersMeetIt.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/glossary/activation", labelKey: "links.glossaryActivation" },
+      { href: "/docs/modules/relu", labelKey: "links.relu" },
+      { href: "/docs/modules/leaky-relu", labelKey: "links.leakyRelu" },
+      { href: "/docs/modules/silu", labelKey: "links.silu" },
+      { href: "/docs/modules/swiglu", labelKey: "links.swiglu" },
+      {
+        href: "/docs/modules/feed-forward-network",
+        labelKey: "links.feedForwardNetwork",
+      },
+    ]}
+  />
 </Section>
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">

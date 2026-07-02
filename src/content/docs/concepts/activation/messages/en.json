@@ -28,5 +28,33 @@
     "references": {
       "title": "References"
     }
+  },
+  "links": {
+    "glossaryActivation": "Activation glossary entry",
+    "relu": "ReLU",
+    "leakyRelu": "Leaky ReLU",
+    "silu": "SiLU",
+    "swiglu": "SwiGLU",
+    "feedForwardNetwork": "Feed-forward network"
+  },
+  "relatedDocs": {
+    "module.feed-forward-network": {
+      "reason": "Feed-forward networks are the main transformer block where hidden activations are expanded, filtered, and projected back down."
+    },
+    "module.relu": {
+      "reason": "ReLU is a common activation function that keeps positive hidden values and zeros out negative evidence."
+    },
+    "module.leaky-relu": {
+      "reason": "Leaky ReLU is a ReLU variant that lets a small negative slope through instead of hard zeroing."
+    },
+    "module.silu": {
+      "reason": "SiLU applies a smooth sigmoid gate to each hidden value and often appears in modern feed-forward blocks."
+    },
+    "module.swiglu": {
+      "reason": "SwiGLU combines SiLU gating with a wider projection path inside feed-forward networks."
+    },
+    "concept.computational-graph": {
+      "reason": "The computational graph shows how activations flow through layers during forward and backward passes."
+    }
   }
 }

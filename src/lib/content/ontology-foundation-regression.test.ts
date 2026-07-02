@@ -54,7 +54,7 @@ const seededPrimaryClassifications = new Map([
 ]);
 
 const seededPublishedRoutes = new Map([
-  ["concept.activation", "/docs/glossary/activation"],
+  ["concept.activation", "/docs/concepts/activation"],
   ["module.sigmoid", "/docs/modules/sigmoid"],
   ["module.tanh", "/docs/modules/tanh"],
   ["module.gelu", "/docs/modules/gelu"],
@@ -639,7 +639,7 @@ describe("ontology foundation regression coverage", () => {
       ).map((item) => item.href),
     ).toEqual(
       expect.arrayContaining([
-        "/docs/glossary/activation",
+        "/docs/concepts/activation",
         "/docs/modules/feed-forward-network",
         "/docs/modules/standard-ffn",
         "/docs/modules/relu",
@@ -654,7 +654,7 @@ describe("ontology foundation regression coverage", () => {
       ).map((item) => item.href),
     ).toEqual(
       expect.arrayContaining([
-        "/docs/glossary/activation",
+        "/docs/concepts/activation",
         "/docs/modules/feed-forward-network",
         "/docs/modules/standard-ffn",
         "/docs/modules/sigmoid",
@@ -669,7 +669,7 @@ describe("ontology foundation regression coverage", () => {
       ).map((item) => item.href),
     ).toEqual(
       expect.arrayContaining([
-        "/docs/glossary/activation",
+        "/docs/concepts/activation",
         "/docs/modules/feed-forward-network",
         "/docs/modules/standard-ffn",
         "/docs/modules/relu",
@@ -688,7 +688,7 @@ describe("ontology foundation regression coverage", () => {
         "/docs/modules/feed-forward-network",
         "/docs/modules/standard-ffn",
         "/docs/modules/silu",
-        "/docs/glossary/activation",
+        "/docs/concepts/activation",
       ]),
     );
   });

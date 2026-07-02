@@ -55,7 +55,7 @@ describe("DerivedRelatedDocs", () => {
     expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-related-group="direct-relationships"');
     expect(html).toContain('href="/docs/modules/feed-forward-network"');
-    expect(html).toContain('href="/docs/glossary/activation"');
+    expect(html).toContain('href="/docs/concepts/activation"');
     expect(html).toContain("Direct variant relationship");
     expect(html).toContain("Uses this topic");
   });
