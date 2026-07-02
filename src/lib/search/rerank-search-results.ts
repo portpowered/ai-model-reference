@@ -215,10 +215,13 @@ function titleMatchKindPriority(kind: string): number {
   if (kind === "glossary") {
     return 1;
   }
-  if (kind === "module") {
+  if (kind === "paper") {
     return 2;
   }
-  return 3;
+  if (kind === "module") {
+    return 3;
+  }
+  return 4;
 }
 
 function shouldReplaceBestTitleMatch(

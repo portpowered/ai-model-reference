@@ -29,6 +29,7 @@ describe("Phase 3 mixture of experts module page (US-003)", () => {
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual([
       "MoE",
+      "mixture of experts",
       "sparse MoE",
       "mixture-of-experts architecture",
       "expert routing",

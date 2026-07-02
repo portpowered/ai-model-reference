@@ -189,6 +189,52 @@ describe("rerankSearchResults", () => {
     expect(findBestTitleMatchPageUrl("ffn", documentsByUrl)).toBe(canonicalUrl);
   });
 
+  test("prefers paper pages over introducing modules when alias matches tie", () => {
+    const paperUrl = "/docs/papers/gpt-2-report";
+    const moduleUrl = "/docs/modules/byte-level-tokenization";
+    const documentsByUrl = new Map<string, SearchDocument>([
+      [
+        moduleUrl,
+        documentForUrl(moduleUrl, {
+          kind: "module",
+          title: "Byte-Level Tokenization",
+          directAliases: [
+            "byte-level tokenization",
+            "Language Models are Unsupervised Multitask Learners",
+          ],
+          aliases: [
+            "byte-level tokenization",
+            "Language Models are Unsupervised Multitask Learners",
+          ],
+          facets: { kind: "module", tags: ["tokenization"] },
+        }),
+      ],
+      [
+        paperUrl,
+        documentForUrl(paperUrl, {
+          kind: "paper",
+          title: "GPT-2 Report",
+          directAliases: [
+            "GPT-2 report",
+            "Language Models are Unsupervised Multitask Learners",
+          ],
+          aliases: [
+            "GPT-2 report",
+            "Language Models are Unsupervised Multitask Learners",
+          ],
+          facets: { kind: "paper", tags: ["foundations"] },
+        }),
+      ],
+    ]);
+
+    expect(
+      findBestTitleMatchPageUrl(
+        "Language Models are Unsupervised Multitask Learners",
+        documentsByUrl,
+      ),
+    ).toBe(paperUrl);
+  });
+
   test("ranks primary classification matches before secondary matches and non-priority relationships", () => {
     const relationshipUrl = "/docs/modules/relationship";
     const secondaryUrl = "/docs/modules/secondary";
