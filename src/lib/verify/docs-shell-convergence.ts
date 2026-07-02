@@ -1,12 +1,9 @@
 import {
-  collectSidebarPageLinks,
   extractNdSidebarHtml,
   hasLegacyPlaceholderSidebar,
   PLACEHOLDER_SIDEBAR_DESCRIPTION,
   stripHtmlScripts,
-  TOKEN_GLOSSARY_URL,
 } from "@/lib/navigation/docs-sidebar-contract";
-import { source } from "@/lib/source";
 
 /** Stable failure reasons for unified docs shell convergence checks. */
 export const DOCS_SHELL_CONVERGENCE_REASONS = {
@@ -16,7 +13,6 @@ export const DOCS_SHELL_CONVERGENCE_REASONS = {
   emptySidebar: "Fumadocs sidebar region is empty or not extractable",
   missingModulesLabel: "sidebar missing Modules navigation label",
   missingGlossaryLabel: "sidebar missing Glossary navigation label",
-  missingTokenGlossaryLink: `missing token glossary link (${TOKEN_GLOSSARY_URL})`,
   legacyPlaceholderSidebar: `legacy placeholder sidebar copy detected (${PLACEHOLDER_SIDEBAR_DESCRIPTION})`,
 } as const;
 
@@ -25,8 +21,8 @@ export type DocsShellConvergenceReason =
 
 /**
  * Returns the first shell convergence failure reason, or null when HTML satisfies
- * the unified Fumadocs docs shell contract (primary nav, nd-sidebar/page, populated
- * Modules/Glossary sidebar, token glossary link, no legacy placeholder sidebar).
+ * the unified Fumadocs docs shell contract (primary nav, nd-sidebar/page,
+ * populated Modules/Glossary sidebar, no legacy placeholder sidebar).
  */
 export function assertDocsShellConvergence(html: string): string | null {
   const visibleHtml = stripHtmlScripts(html);
@@ -54,11 +50,6 @@ export function assertDocsShellConvergence(html: string): string | null {
 
   if (!sidebar.includes(">Glossary<")) {
     return DOCS_SHELL_CONVERGENCE_REASONS.missingGlossaryLabel;
-  }
-
-  const pageTreeLinks = collectSidebarPageLinks(source.pageTree);
-  if (!pageTreeLinks.some((link) => link.url === TOKEN_GLOSSARY_URL)) {
-    return DOCS_SHELL_CONVERGENCE_REASONS.missingTokenGlossaryLink;
   }
 
   if (

@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Linear attention is an attention variant that reformulates attention without building the full softmax score matrix. Feature maps on queries and keys let the model accumulate key-value statistics in linear time rather than scoring every query-key pair explicitly."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "Linear attention targets sequence-length scaling, attention compute cost, and memory bandwidth when dense quadratic attention would dominate runtime on long contexts."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Teams adopt linear attention when they need to process long sequences but cannot afford quadratic attention cost. Kernel or recurrence views let each new token update running statistics instead of revisiting the full score matrix."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Dense multi-head attention versus linear attention feature-map flow",
-      "caption": "Toggle multi-head attention and linear attention to compare full softmax dot-product scoring against feature-map associative updates on one canvas.",
       "variants": {
         "mha": {
           "label": "Multi-head"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How linear attention compares with nearby attention variants"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

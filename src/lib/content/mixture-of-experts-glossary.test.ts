@@ -111,7 +111,7 @@ describe("Phase 3 mixture of experts module page (US-003)", () => {
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("router");
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("top-k");
-    expect(messages.sections?.whatItOptimizes.body?.toLowerCase()).toContain(
+    expect(messages.sections?.whyItExists.body?.toLowerCase()).toContain(
       "capacity",
     );
     expect(
@@ -122,6 +122,8 @@ describe("Phase 3 mixture of experts module page (US-003)", () => {
     ).toContain("load-balancing");
     expect(messages.math?.standardSchema?.formula).toContain("\\mathrm{FFN}");
     expect(messages.math?.moeSchema?.formula).toContain("\\mathrm{MoE}");
+    expect(messages.graph?.nodes?.expertEllipsis?.label).toBe("...");
+    expect(messages.graph?.nodes?.expertThree?.label).toContain("Expert 41");
   });
 
   test("page renders MoE module-template sections, switcher, and FFN-family related links", async () => {
@@ -142,7 +144,6 @@ describe("Phase 3 mixture of experts module page (US-003)", () => {
 
     expect(html).not.toContain(`<h1>${page.messages.title}</h1>`);
     expect(html).toContain("What It Is");
-    expect(html).toContain("Practical Benefit");
     expect(html).toContain("Compared To Nearby Modules");
     expect(html).toContain("Why It Still Matters");
     expectHtmlToContainProse(html, "router picks a small top-k expert set");
@@ -151,6 +152,9 @@ describe("Phase 3 mixture of experts module page (US-003)", () => {
     expect(html).toContain(
       'data-graph-id="graph.mixture-of-experts-routing-flow"',
     );
+    expect(html).toContain('data-graph-node-id="expert-ellipsis"');
+    expect(html).toContain('data-graph-node-id="expert-three"');
+    expectHtmlToContainProse(html, "Most of the expert pool stays inactive");
     expect(html).toContain('data-math-schema="standard"');
     expect(html).toContain('data-math-schema="moe"');
     expect(html).toContain('data-page-asset="comparisonTable"');

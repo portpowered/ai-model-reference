@@ -2,12 +2,16 @@
   "computeFlow": {
     "type": "chart",
     "chartId": "chart.activation-family.relu-intro",
-    "altKey": "assets.computeFlow.alt",
-    "captionKey": "assets.computeFlow.caption"
+    "altKey": "assets.computeFlow.alt"
+  },
+  "hiddenStateHeatmap": {
+    "type": "chart",
+    "chartId": "chart.activation-family.relu-hidden-state-heatmap",
+    "altKey": "assets.hiddenStateHeatmap.alt",
+    "captionKey": "assets.hiddenStateHeatmap.caption"
   },
   "comparisonTable": {
     "type": "table",
-    "tableId": "table.relu-comparison",
-    "captionKey": "assets.comparisonTable.caption"
+    "tableId": "table.relu-comparison"
   }
 }

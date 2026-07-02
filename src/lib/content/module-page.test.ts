@@ -8,7 +8,7 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import {
   expectGlossaryBodyOmitsTitleHeading,
   expectHtmlToContainProse,
@@ -23,7 +23,7 @@ import {
   assertGroupedQueryAttentionSingleGraphConvergence,
 } from "@/lib/verify/grouped-query-attention-module-convergence";
 
-const pageDir = GROUPED_QUERY_ATTENTION_PAGE_DIR;
+const pageDir = getDocsPageDir("modules", "grouped-query-attention");
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
 
@@ -38,7 +38,7 @@ describe("grouped-query-attention page messages", () => {
     expect(messages.problemStatement).toBeUndefined();
     expect(messages.coreIdea).toBeUndefined();
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
-    expect(messages.sections?.whatItOptimizes.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.whyItExists.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
     expect(messages.math?.mhaSchema?.variableDefinitions?.q?.term).toBe("Q");
     expect(messages.math?.gqaSchema?.variableDefinitions?.gi?.term).toBe(

@@ -20,6 +20,7 @@
   "status": "published",
   "createdAt": "2026-06-04T12:00:40.376Z",
   "updatedAt": "2026-06-04T15:00:00.000Z",
+  "primaryClassificationId": "classification.concept.evaluation",
   "conceptType": "evaluation",
   "prerequisiteIds": ["concept.scaling-law", "concept.generalization"],
   "explainsIds": []

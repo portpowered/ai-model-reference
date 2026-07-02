@@ -4,7 +4,7 @@ import ArchitectureIndexPage from "@/app/(site)/docs/architecture/page";
 import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
 
 describe("Phase 2/3 reconciliation browse indexes (US-004)", () => {
-  test("glossary and architecture index pages render current representative links without list bullets", async () => {
+  test("glossary and architecture index pages render representative browse links without list bullets", async () => {
     const glossaryHtml = renderToStaticMarkup(await GlossaryIndexPage());
     const architectureHtml = renderToStaticMarkup(
       await ArchitectureIndexPage(),
@@ -12,8 +12,6 @@ describe("Phase 2/3 reconciliation browse indexes (US-004)", () => {
 
     for (const url of [
       "/docs/glossary/normalization",
-      "/docs/glossary/residual-connection",
-      "/docs/glossary/skip-connection",
       "/docs/glossary/kv-cache",
       "/docs/glossary/token",
     ]) {
@@ -24,8 +22,7 @@ describe("Phase 2/3 reconciliation browse indexes (US-004)", () => {
       "/docs/concepts/transformer-architecture",
       "/docs/concepts/positional-encodings",
       "/docs/glossary/kv-cache",
-      "/docs/glossary/normalization",
-      "/docs/glossary/residual-connection",
+      "/docs/glossary/token",
     ]) {
       expect(architectureHtml).toContain(`href="${url}"`);
     }

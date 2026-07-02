@@ -142,7 +142,7 @@ describe("Phase 3 normalization-variant module pages (US-004)", () => {
 
       const combinedBody = [
         messages.sections?.whatItIs.body,
-        messages.sections?.whatItOptimizes.body,
+        messages.sections?.whyItExists.body,
         messages.sections?.comparedToNearbyModules.body,
       ]
         .join(" ")
@@ -172,7 +172,7 @@ describe("Phase 3 normalization-variant module pages (US-004)", () => {
       expect(html).not.toContain(`<h1>${testCase.title}</h1>`);
       expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
       expect(html).toContain("What It Is");
-      expect(html).toContain("What It Optimizes");
+      expect(html).toContain("Why It Exists");
       expect(html).toContain("Compared To Nearby Modules");
       expect(html).toContain(`data-registry-id="module.${testCase.slug}"`);
       expectHtmlToContainProse(html, testCase.renderNeedle);

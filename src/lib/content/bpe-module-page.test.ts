@@ -36,7 +36,7 @@ describe("bpe module page messages", () => {
     expect(messages.problemStatement).toBeUndefined();
     expect(messages.coreIdea).toBeUndefined();
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
-    expect(messages.sections?.whatItOptimizes.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.whyItExists.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
     expect(messages.math?.bpeSchema?.variableDefinitions?.tau?.term).toBe(
       "\\tau_t",
@@ -77,6 +77,7 @@ describe("loadModulePage bpe", () => {
     expect(html).toContain('href="/tags/tokenization"');
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/docs/glossary/special-tokens"');
+    expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
     expect(html).toContain('href="/docs/models/gpt-3"');
     expect(html).toContain("WordPiece");
     expect(html).toContain("SentencePiece");
@@ -117,6 +118,17 @@ describe("loadModulePage bpe", () => {
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url.split("#")[0]).toBe("/docs/modules/bpe");
   });
+
+  test("search surfaces BPE among tokenizer-family results for tokenizer", async () => {
+    const results = await docsSearchApi.search("tokenizer");
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(
+      results.some(
+        (result) => result.url.split("#")[0] === "/docs/modules/bpe",
+      ),
+    ).toBe(true);
+  });
 });
 
 describe("bpe module page assets and registry", () => {
@@ -143,6 +155,9 @@ describe("bpe module page assets and registry", () => {
     expect(record.status).toBe("published");
     expect(record.moduleType).toBe("tokenizer");
     expect(record.moduleFamily).toBe("tokenization");
+    expect(record.primaryClassificationId).toBe(
+      "classification.module.tokenization",
+    );
     expect(record.usedByModelIds).toContain("model.gpt-3");
   });
 });

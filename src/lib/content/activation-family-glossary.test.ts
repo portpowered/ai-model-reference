@@ -4,12 +4,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import {
-  LEAKY_RELU_GLOSSARY_PAGE_DIR,
-  RELU_GLOSSARY_PAGE_DIR,
-  SILU_GLOSSARY_PAGE_DIR,
-  SWIGLU_GLOSSARY_PAGE_DIR,
-} from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
@@ -22,13 +17,110 @@ import {
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
+
+const ACTIVATION_FAMILY_TIMEOUT_MS = 15_000;
 
 const PAGE_CASES = [
+  {
+    slug: "sigmoid",
+    registryId: "concept.sigmoid",
+    title: "Sigmoid Activation",
+    pageDir: getDocsPageDir("modules", "sigmoid"),
+    pageKind: "module",
+    usesModuleTemplate: true,
+    expectedTags: ["activation", "foundations"],
+    aliases: ["logistic activation", "logistic sigmoid", "sigmoid function"],
+    relatedIds: [
+      "concept.activation",
+      "concept.feed-forward-network",
+      "concept.standard-ffn",
+      "concept.relu",
+      "concept.silu",
+    ],
+    hrefs: [
+      "/docs/glossary/activation",
+      "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/relu",
+      "/docs/modules/silu",
+    ],
+    messageNeedles: ["smooth", "saturat", "0-to-1"],
+    renderNeedle: "maps each input value",
+    searchQuery: "sigmoid",
+    searchQueries: ["sigmoid", "logistic activation", "activation"],
+    searchUrl: "/docs/modules/sigmoid",
+  },
+  {
+    slug: "tanh",
+    registryId: "concept.tanh",
+    title: "Hyperbolic Tangent Activation",
+    pageDir: getDocsPageDir("modules", "tanh"),
+    pageKind: "module",
+    usesModuleTemplate: true,
+    expectedTags: ["activation", "foundations"],
+    aliases: ["tanh", "hyperbolic tangent", "tanh activation"],
+    relatedIds: [
+      "concept.activation",
+      "concept.feed-forward-network",
+      "concept.standard-ffn",
+      "concept.sigmoid",
+      "concept.relu",
+    ],
+    hrefs: [
+      "/docs/glossary/activation",
+      "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/sigmoid",
+      "/docs/modules/relu",
+    ],
+    messageNeedles: ["centered", "saturat", "-1 and 1"],
+    renderNeedle: "centered range lets a hidden value",
+    searchQuery: "tanh",
+    searchQueries: ["tanh", "hyperbolic tangent", "activation"],
+    searchUrl: "/docs/modules/tanh",
+  },
+  {
+    slug: "gelu",
+    registryId: "concept.gelu",
+    title: "Gaussian Error Linear Unit",
+    pageDir: getDocsPageDir("modules", "gelu"),
+    pageKind: "module",
+    usesModuleTemplate: true,
+    expectedTags: ["activation", "foundations"],
+    aliases: ["gelu", "Gaussian Error Linear Unit", "transformer activation"],
+    relatedIds: [
+      "concept.activation",
+      "concept.feed-forward-network",
+      "concept.standard-ffn",
+      "concept.relu",
+      "concept.silu",
+      "concept.swiglu",
+    ],
+    hrefs: [
+      "/docs/glossary/activation",
+      "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/relu",
+      "/docs/modules/silu",
+      "/docs/modules/swiglu",
+    ],
+    messageNeedles: ["smooth", "transformer", "negative values"],
+    renderNeedle: "Gaussian Error Linear Unit",
+    searchQuery: "GELU",
+    searchQueries: [
+      "gelu",
+      "Gaussian Error Linear Unit",
+      "transformer activation",
+      "activation",
+    ],
+    searchUrl: "/docs/modules/gelu",
+  },
   {
     slug: "relu",
     registryId: "concept.relu",
     title: "Rectified Linear Unit",
-    pageDir: RELU_GLOSSARY_PAGE_DIR,
+    pageDir: getDocsPageDir("modules", "relu"),
     pageKind: "module",
     usesModuleTemplate: true,
     expectedTags: ["activation", "foundations"],
@@ -56,7 +148,7 @@ const PAGE_CASES = [
     slug: "leaky-relu",
     registryId: "concept.leaky-relu",
     title: "Leaky Rectified Linear Unit",
-    pageDir: LEAKY_RELU_GLOSSARY_PAGE_DIR,
+    pageDir: getDocsPageDir("modules", "leaky-relu"),
     pageKind: "module",
     usesModuleTemplate: true,
     expectedTags: ["activation", "foundations"],
@@ -88,7 +180,7 @@ const PAGE_CASES = [
     slug: "silu",
     registryId: "concept.silu",
     title: "Sigmoid Linear Unit",
-    pageDir: SILU_GLOSSARY_PAGE_DIR,
+    pageDir: getDocsPageDir("modules", "silu"),
     pageKind: "module",
     usesModuleTemplate: true,
     expectedTags: ["activation", "foundations"],
@@ -116,7 +208,7 @@ const PAGE_CASES = [
     slug: "swiglu",
     registryId: "concept.swiglu",
     title: "Swish Gated Linear Unit",
-    pageDir: SWIGLU_GLOSSARY_PAGE_DIR,
+    pageDir: getDocsPageDir("modules", "swiglu"),
     pageKind: "module",
     usesModuleTemplate: true,
     expectedTags: ["feed-forward", "foundations"],
@@ -163,11 +255,12 @@ const PAGE_CASES = [
   messageNeedles: readonly string[];
   renderNeedle: string;
   searchQuery: string;
+  searchQueries?: readonly string[];
   searchUrl: string;
   expectedGraphId?: string;
 }>;
 
-describe("Phase 3 activation-family glossary pages (US-002)", () => {
+describe("Phase 3 activation-family glossary pages", () => {
   for (const testCase of PAGE_CASES) {
     test(`${testCase.title} registry record is published with aliases, tags, and curated related ids`, () => {
       const record = getConceptById(testCase.registryId);
@@ -211,7 +304,8 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
       expect(messages.openingSummary?.length).toBeGreaterThan(0);
       const combinedBody = [
         messages.sections?.whatItIs.body,
-        messages.sections?.practicalBenefit.body,
+        messages.sections?.whyItExists.body,
+        messages.sections?.comparedToNearbyModules.body,
         messages.sections?.limitationsAndTradeoffs.body,
       ].join(" ");
       const normalizedBody = combinedBody.toLowerCase();
@@ -221,69 +315,94 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
       }
     });
 
-    test(`${testCase.title} page renders glossary sections, tags, and FFN-family links`, async () => {
-      const page = await loadModulePage(testCase.slug);
+    test(
+      `${testCase.title} page renders glossary sections, tags, and FFN-family links`,
+      async () => {
+        const page = await loadModulePage(testCase.slug);
 
-      expect(page.frontmatter.kind).toBe(testCase.pageKind);
-      expect(page.frontmatter.status).toBe("published");
-      expect(page.frontmatter.registryId).toBe(`module.${testCase.slug}`);
+        expect(page.frontmatter.kind).toBe(testCase.pageKind);
+        expect(page.frontmatter.status).toBe("published");
+        expect(page.frontmatter.registryId).toBe(`module.${testCase.slug}`);
 
-      const html = renderToStaticMarkup(
-        createElement(ModulePageProviders, {
-          messages: page.messages,
-          assets: page.assets,
-          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-          children: page.content,
-        }),
+        const html = renderToStaticMarkup(
+          createElement(ModulePageProviders, {
+            messages: page.messages,
+            assets: page.assets,
+            // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+            children: page.content,
+          }),
+        );
+
+        expect(html).not.toContain(`<h1>${testCase.title}</h1>`);
+        expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(
+          1,
+        );
+        expect(html).toContain("What It Is");
+        expect(html).toContain("Why It Exists");
+        expect(html).toContain("Compared To Nearby Modules");
+        expect(html).toContain("Why It Still Matters");
+        expect(html).toContain(`data-registry-id="module.${testCase.slug}"`);
+        expect(html).toContain('data-page-asset="comparisonTable"');
+        expect(html).toContain('data-attention-schema-comparison="true"');
+        expectHtmlToContainProse(html, testCase.renderNeedle);
+        if ("expectedGraphId" in testCase) {
+          expect(html).toContain('data-react-flow-graph="true"');
+          expect(html).toContain('data-attention-variant-comparison="true"');
+          expect(html).toContain(`data-graph-id="${testCase.expectedGraphId}"`);
+        } else {
+          expect(
+            html.includes('data-activation-chart="true"') ||
+              html.includes('data-attention-variant-comparison="true"'),
+          ).toBe(true);
+        }
+        for (const href of testCase.hrefs) {
+          expect(html).toContain(`href="${href}"`);
+        }
+        expect(html).toContain('href="/tags/foundations"');
+        expect(html).toContain('data-testid="tag-pill-list"');
+        expect(html).toContain('data-testid="curated-related-docs"');
+        expect(html).not.toContain("Phase");
+        expect(html).not.toContain("Reader Shortcut");
+      },
+      { timeout: ACTIVATION_FAMILY_TIMEOUT_MS },
+    );
+
+    test(
+      `${testCase.title} search index records the glossary page and preserves aliases`,
+      async () => {
+        const registry = await loadRegistry();
+        const pages = await loadPublishedDocsPages("en");
+        const documents = buildSearchDocuments(pages, registry);
+
+        const document = documents.find(
+          (entry) => entry.url === testCase.searchUrl,
+        );
+        expect(document?.title).toBe(testCase.title);
+        expect(document?.kind).toBe(testCase.pageKind);
+        expect(document?.facets.kind).toBe(testCase.pageKind);
+        expect(document?.aliases).toEqual(
+          expect.arrayContaining(testCase.aliases),
+        );
+        expect(document?.bodyText.length ?? 0).toBeGreaterThan(50);
+        expect(document?.headings.length ?? 0).toBeGreaterThan(0);
+        expect(testCase.searchQuery.length).toBeGreaterThan(0);
+      },
+      { timeout: ACTIVATION_FAMILY_TIMEOUT_MS },
+    );
+
+    if ("searchQueries" in testCase) {
+      test(
+        `${testCase.title} search queries return the published module page`,
+        async () => {
+          for (const query of testCase.searchQueries) {
+            const results = await docsSearchApi.search(query);
+            expect(
+              results.some((result) => result.url === testCase.searchUrl),
+            ).toBe(true);
+          }
+        },
+        { timeout: ACTIVATION_FAMILY_TIMEOUT_MS },
       );
-
-      expect(html).not.toContain(`<h1>${testCase.title}</h1>`);
-      expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
-      expect(html).toContain("What It Is");
-      expect(html).toContain("What It Optimizes");
-      expect(html).toContain("Compared To Nearby Modules");
-      expect(html).toContain("Why It Still Matters");
-      expect(html).toContain(`data-registry-id="module.${testCase.slug}"`);
-      expect(html).toContain('data-page-asset="comparisonTable"');
-      expect(html).toContain('data-attention-schema-comparison="true"');
-      expectHtmlToContainProse(html, testCase.renderNeedle);
-      if ("expectedGraphId" in testCase) {
-        expect(html).toContain('data-react-flow-graph="true"');
-        expect(html).toContain('data-attention-variant-comparison="true"');
-        expect(html).toContain(`data-graph-id="${testCase.expectedGraphId}"`);
-      } else {
-        expect(
-          html.includes('data-activation-chart="true"') ||
-            html.includes('data-attention-variant-comparison="true"'),
-        ).toBe(true);
-      }
-      for (const href of testCase.hrefs) {
-        expect(html).toContain(`href="${href}"`);
-      }
-      expect(html).toContain('href="/tags/foundations"');
-      expect(html).toContain('data-testid="tag-pill-list"');
-      expect(html).toContain('data-testid="curated-related-docs"');
-      expect(html).not.toContain("Phase");
-      expect(html).not.toContain("Reader Shortcut");
-    });
-
-    test(`${testCase.title} search index records the glossary page and preserves aliases`, async () => {
-      const registry = await loadRegistry();
-      const pages = await loadPublishedDocsPages("en");
-      const documents = buildSearchDocuments(pages, registry);
-
-      const document = documents.find(
-        (entry) => entry.url === testCase.searchUrl,
-      );
-      expect(document?.title).toBe(testCase.title);
-      expect(document?.kind).toBe(testCase.pageKind);
-      expect(document?.facets.kind).toBe(testCase.pageKind);
-      expect(document?.aliases).toEqual(
-        expect.arrayContaining(testCase.aliases),
-      );
-      expect(document?.bodyText.length ?? 0).toBeGreaterThan(50);
-      expect(document?.headings.length ?? 0).toBeGreaterThan(0);
-      expect(testCase.searchQuery.length).toBeGreaterThan(0);
-    });
+    }
   }
 });

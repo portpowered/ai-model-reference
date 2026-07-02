@@ -1,0 +1,142 @@
+{
+  "id": "graph.attention-is-all-you-need-contribution",
+  "slug": "attention-is-all-you-need-contribution",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Attention Is All You Need contribution graph"],
+  "tags": ["foundations", "attention", "model-family"],
+  "relatedIds": [],
+  "citationIds": ["citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "paper.attention-is-all-you-need",
+  "graphType": "paper-contribution",
+  "rootNodeId": "paper",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "paper",
+      "labelKey": "graph.nodes.paper.label",
+      "moduleKind": "other",
+      "position": { "x": 325, "y": 0 },
+      "size": { "width": 240, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": [
+        "attentionArchitecture",
+        "multiHeadAttention",
+        "positionalEncoding",
+        "encoderDecoder",
+        "feedForward",
+        "residualSkip"
+      ]
+    },
+    {
+      "id": "attentionArchitecture",
+      "labelKey": "graph.nodes.attentionArchitecture.label",
+      "moduleKind": "block",
+      "position": { "x": 0, "y": 150 },
+      "size": { "width": 160, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "multiHeadAttention",
+      "labelKey": "graph.nodes.multiHeadAttention.label",
+      "moduleKind": "block",
+      "position": { "x": 145, "y": 150 },
+      "size": { "width": 160, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "positionalEncoding",
+      "labelKey": "graph.nodes.positionalEncoding.label",
+      "moduleKind": "block",
+      "position": { "x": 290, "y": 150 },
+      "size": { "width": 160, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "encoderDecoder",
+      "labelKey": "graph.nodes.encoderDecoder.label",
+      "moduleKind": "block",
+      "position": { "x": 435, "y": 150 },
+      "size": { "width": 160, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "feedForward",
+      "labelKey": "graph.nodes.feedForward.label",
+      "moduleKind": "block",
+      "position": { "x": 580, "y": 150 },
+      "size": { "width": 160, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "residualSkip",
+      "labelKey": "graph.nodes.residualSkip.label",
+      "moduleKind": "block",
+      "position": { "x": 725, "y": 150 },
+      "size": { "width": 160, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "paper-attention-architecture",
+      "source": "paper",
+      "target": "attentionArchitecture",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-multi-head-attention",
+      "source": "paper",
+      "target": "multiHeadAttention",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-positional-encoding",
+      "source": "paper",
+      "target": "positionalEncoding",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-encoder-decoder",
+      "source": "paper",
+      "target": "encoderDecoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-feed-forward",
+      "source": "paper",
+      "target": "feedForward",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-residual-skip",
+      "source": "paper",
+      "target": "residualSkip",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

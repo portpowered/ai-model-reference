@@ -73,7 +73,7 @@ const JAPANESE_MODULE_EXPECTATIONS: readonly JapaneseModuleExpectation[] = [
       "/ja/docs/modules/multi-head-attention",
     ],
     expectedCanonicalFallbackHrefs: [
-      "/docs/glossary/kv-cache",
+      "/docs/concepts/kv-cache",
       "/docs/glossary/decode",
       "/docs/glossary/prefill-decode-split",
       "/docs/concepts/quantization",
@@ -105,7 +105,7 @@ const JAPANESE_MODULE_EXPECTATIONS: readonly JapaneseModuleExpectation[] = [
       "/ja/docs/modules/grouped-query-attention",
     ],
     expectedCanonicalFallbackHrefs: [
-      "/docs/glossary/kv-cache",
+      "/docs/concepts/kv-cache",
       "/docs/glossary/decode",
       "/docs/glossary/prefill-decode-split",
     ],
@@ -186,16 +186,10 @@ describe("Phase 4 Japanese attention variant proof set", () => {
       expect(page.messages.title).not.toBe(expectation.englishTitle);
       expect(page.messages.description).toBe(expectation.japaneseDescription);
       expect(page.messages.description).not.toBe(expectation.englishFallback);
-      expect(page.messages.sections?.whatItOptimizes.body).toContain(
+      expect(page.messages.sections?.whyItExists.body).toContain(
         expectation.japaneseBody,
       );
-      expect(page.messages.assets?.computeFlow?.caption).toBe(
-        expectation.graphCaption,
-      );
       expect(page.messages.assets?.computeFlow?.alt).toBe(expectation.graphAlt);
-      expect(page.messages.assets?.comparisonTable?.caption).toBe(
-        expectation.tableCaption,
-      );
       expect(
         Object.values(page.messages.tables?.comparison?.dimensions ?? {}).some(
           (dimension) => dimension === expectation.tableDimension,
@@ -207,9 +201,7 @@ describe("Phase 4 Japanese attention variant proof set", () => {
         ),
       ).toBe(true);
       expect(html).not.toContain(expectation.englishFallback);
-      expect(html).toContain(expectation.graphCaption);
       expect(html).toContain(expectation.graphAlt);
-      expect(html).toContain(expectation.tableCaption);
       expect(html).toContain(expectation.tableDimension);
 
       for (const href of expectation.expectedHrefs) {

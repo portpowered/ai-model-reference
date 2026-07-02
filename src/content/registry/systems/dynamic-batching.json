@@ -1,0 +1,50 @@
+{
+  "id": "system.dynamic-batching",
+  "slug": "dynamic-batching",
+  "kind": "system",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "dynamic batching",
+    "Dynamic batching",
+    "batch window",
+    "request batching",
+    "queueing delay",
+    "utilization tradeoff"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "system.batching",
+    "system.continuous-batching",
+    "system.routing",
+    "concept.prefill",
+    "concept.decode",
+    "concept.kv-cache",
+    "system.memory"
+  ],
+  "citationIds": ["citation.orca-serving-system"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T22:30:00.000Z",
+  "releaseDate": "2022-07-01",
+  "authors": [
+    "Gyeong-In Yu",
+    "Joo Seong Jeong",
+    "Geon-Woo Kim",
+    "Soojeong Kim",
+    "Byung-Gon Chun"
+  ],
+  "sourceId": "citation.orca-serving-system",
+  "systemType": "serving",
+  "relatedModelIds": [],
+  "relatedModuleIds": [],
+  "relatedConceptIds": [
+    "concept.prefill",
+    "concept.decode",
+    "concept.kv-cache"
+  ],
+  "paperIds": [],
+  "datasetIds": [],
+  "conceptType": "inference",
+  "variantGroup": "serving-runtime-foundations"
+}

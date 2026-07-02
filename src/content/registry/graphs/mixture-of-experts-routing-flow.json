@@ -33,7 +33,7 @@
       "moduleKind": "feed-forward",
       "position": { "x": 250, "y": 110 },
       "size": { "width": 170, "height": 80 },
-      "visualRole": "process-node",
+      "visualRole": "moe-expert-node",
       "childNodeIds": ["topk-choice", "inactive-experts"]
     },
     {
@@ -43,24 +43,47 @@
       "position": { "x": 230, "y": 220 },
       "size": { "width": 210, "height": 96 },
       "visualRole": "summary-node",
-      "childNodeIds": ["expert-one", "expert-two"]
+      "childNodeIds": [
+        "expert-one",
+        "expert-two",
+        "expert-ellipsis",
+        "expert-three"
+      ]
     },
     {
       "id": "expert-one",
       "labelKey": "graph.nodes.expertOne.label",
       "moduleKind": "feed-forward",
-      "position": { "x": 60, "y": 360 },
+      "position": { "x": -20, "y": 360 },
       "size": { "width": 170, "height": 80 },
-      "visualRole": "process-node",
+      "visualRole": "moe-expert-node",
       "childNodeIds": ["weighted-merge"]
     },
     {
       "id": "expert-two",
       "labelKey": "graph.nodes.expertTwo.label",
       "moduleKind": "feed-forward",
-      "position": { "x": 440, "y": 360 },
+      "position": { "x": 200, "y": 360 },
       "size": { "width": 170, "height": 80 },
-      "visualRole": "process-node",
+      "visualRole": "moe-expert-node",
+      "childNodeIds": ["weighted-merge"]
+    },
+    {
+      "id": "expert-ellipsis",
+      "labelKey": "graph.nodes.expertEllipsis.label",
+      "moduleKind": "other",
+      "position": { "x": 420, "y": 360 },
+      "size": { "width": 90, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["weighted-merge"]
+    },
+    {
+      "id": "expert-three",
+      "labelKey": "graph.nodes.expertThree.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 560, "y": 360 },
+      "size": { "width": 170, "height": 80 },
+      "visualRole": "moe-expert-node",
       "childNodeIds": ["weighted-merge"]
     },
     {
@@ -78,7 +101,7 @@
       "moduleKind": "feed-forward",
       "position": { "x": 250, "y": 500 },
       "size": { "width": 170, "height": 80 },
-      "visualRole": "process-node",
+      "visualRole": "moe-merge-node",
       "childNodeIds": ["output-state"]
     },
     {
@@ -125,6 +148,22 @@
       "targetHandleSide": "top"
     },
     {
+      "id": "topk-to-expert-ellipsis",
+      "source": "topk-choice",
+      "target": "expert-ellipsis",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "topk-to-expert-three",
+      "source": "topk-choice",
+      "target": "expert-three",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
       "id": "expert-one-to-merge",
       "source": "expert-one",
       "target": "weighted-merge",
@@ -135,6 +174,22 @@
     {
       "id": "expert-two-to-merge",
       "source": "expert-two",
+      "target": "weighted-merge",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "expert-ellipsis-to-merge",
+      "source": "expert-ellipsis",
+      "target": "weighted-merge",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "expert-three-to-merge",
+      "source": "expert-three",
       "target": "weighted-merge",
       "edgeKind": "data-flow",
       "sourceHandleSide": "bottom",

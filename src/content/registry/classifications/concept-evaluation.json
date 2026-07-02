@@ -1,0 +1,17 @@
+{
+  "id": "classification.concept.evaluation",
+  "slug": "concept-evaluation",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["evaluation concept", "evaluation glossary concept"],
+  "tags": ["foundations"],
+  "relatedIds": ["concept.scaling-law", "concept.generalization"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["concept"],
+  "parentClassificationId": "classification.concept"
+}

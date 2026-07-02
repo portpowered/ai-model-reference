@@ -8,7 +8,7 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
-import { SPARSE_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
@@ -20,7 +20,7 @@ import {
   assertSparseAttentionSingleGraphConvergence,
 } from "@/lib/verify/sparse-attention-module-convergence";
 
-const pageDir = SPARSE_ATTENTION_PAGE_DIR;
+const pageDir = getDocsPageDir("modules", "sparse-attention");
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
 
@@ -35,7 +35,7 @@ describe("sparse-attention page messages", () => {
     expect(messages.problemStatement).toBeUndefined();
     expect(messages.coreIdea).toBeUndefined();
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
-    expect(messages.sections?.whatItOptimizes.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.whyItExists.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
     expect(messages.math?.mhaSchema?.variableDefinitions?.q?.term).toBe("Q");
     expect(messages.math?.gqaSchema?.variableDefinitions?.gi?.term).toBe("M");

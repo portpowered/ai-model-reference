@@ -1,0 +1,111 @@
+{
+  "title": "GLM-5",
+  "description": "A large open-weights GLM model that pairs sparse-attention and mixture-of-experts routing with an agentic-engineering training story.",
+  "openingSummary": "GLM-5 matters because it is the first public GLM checkpoint framed around agentic engineering rather than casual code completion. The technical report positions the model as a sparse-attention, mixture-of-experts transformer with open weights, a long context window, and training choices aimed at sustained tool use and multi-step work.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "GLM-5 is an open-weights text model from Z.ai, released on 2026-02-17 in the GLM-5 technical report. It is a large sparse mixture-of-experts transformer advertised with 744 billion total parameters and about 40 billion active parameters per token."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "GLM-5 is a text-in, text-out model. The public release emphasizes long prompts, coding, and agentic workflows where the model must keep working across many tool calls instead of stopping after one short answer."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "At a high level, GLM-5 keeps a decoder-only transformer skeleton but replaces dense attention and feed-forward paths with sparse attention and routed experts. The report highlights DSA-style sparse attention, mixture-of-experts blocks, multi-head latent attention for cache efficiency, RMSNorm, and RoPE as the named building blocks."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "These modules explain why GLM-5 is grouped with modern long-context MoE stacks rather than a plain dense transformer. Sparse attention and mixture-of-experts carry most of the scaling story, while latent attention, RMSNorm, and RoPE support stable training and long prompts."
+    },
+    "training": {
+      "title": "Training",
+      "body": "The GLM-5 report frames training around large-scale pretraining followed by post-training aimed at agentic engineering: sustained coding, tool use, and multi-step task completion rather than one-shot chat. The public materials describe open-weight release in bf16 rather than a closed API-only surface."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "GLM-5 advertises a 202,752-token context window in public model-card material. That is long enough for repository-scale context, but the later GLM-5.2 release pushes context and coding emphasis further. Read GLM-5 first for the original architecture and agentic-engineering story, then follow the paired model page for the newer line member."
+    },
+    "related": { "title": "Related Models, Modules, And Papers" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "links": {
+    "glm52ModelPage": "GLM-5.2 model page"
+  },
+  "relatedDocs": {
+    "model.glm-5-2": {
+      "reason": "GLM-5.2 is the later GLM line member that extends the same family with a longer advertised context window and refreshed coding emphasis."
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "GLM-5 architecture diagram with token embeddings, RoPE position encoding, a repeated decoder block containing sparse attention, RMSNorm, and mixture-of-experts routing, then an output projection and softmax."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "The model's probability distribution over the next token"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Output\nLinear",
+        "summary": "Projects the final hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated decoder block container for the main GLM-5 stack"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Attention sublayer container"
+      },
+      "moeSublayer": {
+        "label": " ",
+        "summary": "Sparse expert sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats through the full stack"
+      },
+      "rmsnormAttention": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before the sparse attention step"
+      },
+      "sparseAttention": {
+        "label": "Sparse\nAttention\n(DSA)",
+        "summary": "The attention path uses DSA-style sparsity to cut long-context cost while keeping useful global context"
+      },
+      "rmsnormMoe": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the stream before the sparse expert block"
+      },
+      "mixture-of-experts": {
+        "label": "Mixture\nOf Experts",
+        "summary": "Routes each token through a small active set of experts instead of one dense feed-forward path"
+      },
+      "ropeInject": {
+        "label": "+",
+        "summary": "Applies token states together with rotary position information before the stack"
+      },
+      "rope": {
+        "label": "RoPE",
+        "summary": "Rotary position encoding gives the attention stack token order information"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs into hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after tokenization"
+      }
+    }
+  }
+}

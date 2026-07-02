@@ -1,0 +1,112 @@
+{
+  "id": "graph.block-sparse-attention-time-block-pattern",
+  "slug": "block-sparse-attention-time-block-pattern",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention", "context-window"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "subjectId": "module.block-sparse-attention",
+  "graphType": "attention-pattern",
+  "rootNodeId": "block-sparse-time-current-query",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "block-sparse-time-current-query",
+      "labelKey": "graph.nodes.blockCurrentQuery.label",
+      "moduleKind": "attention",
+      "position": { "x": 360, "y": 0 },
+      "headCountRole": "query",
+      "visualRole": "summary-node",
+      "childNodeIds": [
+        "block-sparse-time-kv-0",
+        "block-sparse-time-kv-1",
+        "block-sparse-time-kv-2",
+        "block-sparse-time-kv-3",
+        "block-sparse-time-kv-4",
+        "block-sparse-time-kv-5"
+      ]
+    },
+    {
+      "id": "block-sparse-time-kv-0",
+      "labelKey": "graph.nodes.block0.label",
+      "moduleKind": "cache",
+      "position": { "x": 0, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "block-sparse-time-kv-1",
+      "labelKey": "graph.nodes.block1.label",
+      "moduleKind": "cache",
+      "position": { "x": 140, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node-muted",
+      "childNodeIds": []
+    },
+    {
+      "id": "block-sparse-time-kv-2",
+      "labelKey": "graph.nodes.block2.label",
+      "moduleKind": "cache",
+      "position": { "x": 280, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node-muted",
+      "childNodeIds": []
+    },
+    {
+      "id": "block-sparse-time-kv-3",
+      "labelKey": "graph.nodes.block3.label",
+      "moduleKind": "cache",
+      "position": { "x": 420, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "block-sparse-time-kv-4",
+      "labelKey": "graph.nodes.block4.label",
+      "moduleKind": "cache",
+      "position": { "x": 560, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node-muted",
+      "childNodeIds": []
+    },
+    {
+      "id": "block-sparse-time-kv-5",
+      "labelKey": "graph.nodes.block5.label",
+      "moduleKind": "cache",
+      "position": { "x": 700, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "block-sparse-time-query-to-kv-0",
+      "source": "block-sparse-time-current-query",
+      "target": "block-sparse-time-kv-0",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "block-sparse-time-query-to-kv-3",
+      "source": "block-sparse-time-current-query",
+      "target": "block-sparse-time-kv-3",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "block-sparse-time-query-to-kv-5",
+      "source": "block-sparse-time-current-query",
+      "target": "block-sparse-time-kv-5",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

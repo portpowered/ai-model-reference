@@ -99,7 +99,7 @@ describe("special tokens glossary page (special-tokens-page-002)", () => {
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/docs/modules/bpe"');
     expect(html).toContain('href="/docs/glossary/conditioning"');
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/models/gpt-3"');
     expect(html).toContain('href="/tags/tokenization"');
     expect(html).toContain('data-testid="curated-related-docs"');
@@ -177,7 +177,7 @@ describe("special tokens glossary page (special-tokens-page-002)", () => {
       items.some(
         (item) =>
           item.registryId === "concept.prefill" &&
-          item.href === "/docs/glossary/prefill",
+          item.href === "/docs/concepts/prefill",
       ),
     ).toBe(true);
   });

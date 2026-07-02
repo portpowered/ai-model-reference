@@ -40,7 +40,7 @@ function buildMoEBoxFitFixtureHtml(css: string): string {
       class="registry-graph-flow__annotation"
       style="width: 230px; height: 120px;"
     >
-      Other experts stay inactive for this token
+      Most of the expert pool stays inactive for this token
     </div>
   </body>
 </html>`;

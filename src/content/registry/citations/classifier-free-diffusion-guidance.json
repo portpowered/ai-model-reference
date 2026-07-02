@@ -1,0 +1,20 @@
+{
+  "id": "citation.classifier-free-diffusion-guidance",
+  "slug": "classifier-free-diffusion-guidance",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["CFG paper", "classifier-free guidance paper"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Jonathan Ho", "Tim Salimans"],
+  "title": "Classifier-Free Diffusion Guidance",
+  "year": 2022,
+  "url": "https://arxiv.org/abs/2207.12598",
+  "mla": "Ho, Jonathan, and Tim Salimans. \"Classifier-Free Diffusion Guidance.\" arXiv, 2022, https://arxiv.org/abs/2207.12598."
+}

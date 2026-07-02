@@ -1,13 +1,10 @@
 import { describe, expect, test } from "bun:test";
+import { getDocsPageDir } from "./content-paths";
 import {
   loadPageAssets,
   resolvePageAssetWithMessages,
 } from "./page-assets-load";
-import {
-  groupedQueryAttentionPageDir,
-  loadPageMessages,
-  tokenGlossaryPageDir,
-} from "./page-messages-load";
+import { loadPageMessages } from "./page-messages-load";
 
 const conceptTemplateSectionKeys = [
   "whatItIs",
@@ -19,10 +16,14 @@ const conceptTemplateSectionKeys = [
 
 const moduleTemplateSectionKeys = [
   "whatItIs",
-  "whatItOptimizes",
-  "practicalBenefit",
+  "whyItExists",
   "howItWorks",
 ] as const;
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
+const tokenGlossaryPageDir = getDocsPageDir("glossary", "token");
 
 describe("Phase 1 colocated page fixtures", () => {
   test("grouped-query-attention messages align with the module template", async () => {

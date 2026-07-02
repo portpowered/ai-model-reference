@@ -86,20 +86,30 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
 
     expect(messages.title).toBe("Feed-Forward Network");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
+    expect(messages.description?.toLowerCase()).toContain("input to output");
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "attention",
+      "one direction",
     );
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "position",
+      "learned weights",
     );
-    expect(messages.sections?.practicalBenefit.body?.toLowerCase()).toContain(
-      "swish gated linear unit",
+    expect(messages.sections?.howItWorks.body?.toLowerCase()).toContain(
+      "input vector enters the first learned projection",
+    );
+    expect(messages.sections?.howItWorks.body?.toLowerCase()).toContain(
+      "continues toward the output",
     );
     expect(
-      messages.sections?.comparedToNearbyModules.body?.toLowerCase(),
-    ).toContain("tradeoffs");
+      messages.sections?.exampleArchitectures.body?.toLowerCase(),
+    ).toContain("convolutional classifiers");
+    expect(messages.sections?.comparedToNearbyModules).toBeUndefined();
     expect(messages.math?.standardSchema?.formula).toContain("\\mathrm{FFN}");
-    expect(messages.math?.swigluSchema?.formula).toContain("\\mathrm{SwiGLU}");
+    expect(messages.math?.standardSchema?.formula).toContain("(x)");
+    expect(messages.math?.swigluSchema).toBeUndefined();
+    expect(messages.assets?.computeFlow?.caption?.toLowerCase()).toContain(
+      "learned hidden path",
+    );
+    expect(messages.tables).toBeUndefined();
   });
 
   test("page renders module-template sections, math comparison, and FFN-family links", async () => {
@@ -120,20 +130,18 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
 
     expect(html).not.toContain(`<h1>${page.messages.title}</h1>`);
     expect(html).toContain("What It Is");
-    expect(html).toContain("What It Optimizes");
-    expect(html).toContain("Compared To Nearby Modules");
-    expectHtmlToContainProse(html, "same post-attention slot");
+    expect(html).toContain("Why It Exists");
+    expectHtmlToContainProse(html, "flows from input to output");
     expect(html).toContain('data-registry-id="module.feed-forward-network"');
-    expect(html).toContain('data-attention-variant-comparison="true"');
     expect(html).toContain(
       'data-graph-id="graph.standard-ffn-parallel-baseline"',
     );
+    expect(html).toContain('data-graph-node-id="ffn-internals"');
+    expect(html).toContain('data-graph-node-id="ffn-internals-header"');
     expect(html).toContain('data-math-schema="standard"');
-    expect(html).toContain('data-math-schema="swiglu"');
-    expect(html).toContain('data-page-asset="comparisonTable"');
-    expect(html).toContain(
-      'data-table-id="table.feed-forward-network-comparison"',
-    );
+    expect(html).not.toContain('data-attention-variant-comparison="true"');
+    expect(html).not.toContain('data-math-schema="swiglu"');
+    expect(html).not.toContain('data-page-asset="comparisonTable"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');
     expect(html).toContain('href="/docs/modules/mixture-of-experts"');

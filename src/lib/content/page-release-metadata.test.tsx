@@ -18,6 +18,21 @@ describe("buildPageReleaseMetadata", () => {
     });
   });
 
+  test("uses explicit unigram tokenizer release metadata and SentencePiece source link", () => {
+    const record = getModuleById("module.unigram-tokenizer");
+    const metadata = buildPageReleaseMetadata(record);
+
+    expect(metadata).not.toBeNull();
+    expect(metadata?.dateLabel).toBe("Released");
+    expect(metadata?.releaseDate).toBe("2018-08-19");
+    expect(metadata?.authors).toEqual(["Taku Kudo", "John Richardson"]);
+    expect(metadata?.source).toEqual({
+      title:
+        "SentencePiece: A Simple and Language Independent Subword Tokenizer and Detokenizer for Neural Text Processing",
+      url: "https://aclanthology.org/D18-2012/",
+    });
+  });
+
   test("does not infer release metadata for records without explicit fields", () => {
     const record = getConceptById("concept.token");
     const metadata = buildPageReleaseMetadata(record);

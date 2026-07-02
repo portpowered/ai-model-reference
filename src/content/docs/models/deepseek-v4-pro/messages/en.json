@@ -33,8 +33,7 @@
   },
   "assets": {
     "architectureGraph": {
-      "alt": "DeepSeek-V4-Pro architecture diagram with token embeddings, RoPE position encoding, a repeated decoder block containing compressed attention, RMSNorm, and DeepSeekMoE, then an output projection and softmax.",
-      "caption": "DeepSeek-V4-Pro keeps the GPT-style decoder stack shape, but swaps in RoPE, compressed long-context attention, RMSNorm, and DeepSeekMoE inside each repeated block."
+      "alt": "DeepSeek-V4-Pro architecture diagram with token embeddings, RoPE position encoding, a repeated decoder block containing compressed attention, RMSNorm, and DeepSeekMoE, then an output projection and softmax."
     }
   },
   "graph": {

@@ -1,0 +1,40 @@
+{
+  "id": "table.unigram-tokenizer-comparison",
+  "subjectId": "module.unigram-tokenizer",
+  "columns": [
+    {
+      "moduleId": "module.unigram-tokenizer",
+      "titleKey": "tables.comparison.columns.unigram.title"
+    },
+    {
+      "moduleId": "module.bpe",
+      "titleKey": "tables.comparison.columns.bpe.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "trainingRule",
+      "labelKey": "tables.comparison.dimensions.trainingRule"
+    },
+    {
+      "id": "inferenceRule",
+      "labelKey": "tables.comparison.dimensions.inferenceRule"
+    },
+    {
+      "id": "readerMentalModel",
+      "labelKey": "tables.comparison.dimensions.readerMentalModel"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.unigram-tokenizer": {
+      "trainingRule": "tables.comparison.values.unigram.trainingRule",
+      "inferenceRule": "tables.comparison.values.unigram.inferenceRule",
+      "readerMentalModel": "tables.comparison.values.unigram.readerMentalModel"
+    },
+    "module.bpe": {
+      "trainingRule": "tables.comparison.values.bpe.trainingRule",
+      "inferenceRule": "tables.comparison.values.bpe.inferenceRule",
+      "readerMentalModel": "tables.comparison.values.bpe.readerMentalModel"
+    }
+  }
+}

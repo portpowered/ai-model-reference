@@ -1,0 +1,20 @@
+{
+  "id": "citation.mistral-changelog",
+  "slug": "mistral-changelog",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Mistral changelog", "Mistral Docs changelog"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["Mistral AI"],
+  "title": "Changelog",
+  "url": "https://docs.mistral.ai/resources/changelogs",
+  "mla": "Mistral AI. \"Changelog.\" Mistral Docs.",
+  "year": 2024
+}

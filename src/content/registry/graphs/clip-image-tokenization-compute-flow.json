@@ -1,0 +1,90 @@
+{
+  "id": "graph.clip-image-tokenization-compute-flow",
+  "slug": "clip-image-tokenization-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "module.clip-image-tokenization",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "input-image",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "input-image",
+      "labelKey": "graph.nodes.inputImage.label",
+      "moduleKind": "input",
+      "childNodeIds": ["patch-grid"]
+    },
+    {
+      "id": "patch-grid",
+      "labelKey": "graph.nodes.patchGrid.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["flatten-patches"]
+    },
+    {
+      "id": "flatten-patches",
+      "labelKey": "graph.nodes.flattenPatches.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["linear-projection"]
+    },
+    {
+      "id": "linear-projection",
+      "labelKey": "graph.nodes.linearProjection.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["patch-tokens"]
+    },
+    {
+      "id": "patch-tokens",
+      "labelKey": "graph.nodes.patchTokens.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["encoder-input"]
+    },
+    {
+      "id": "encoder-input",
+      "labelKey": "graph.nodes.encoderInput.label",
+      "moduleKind": "output",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "image-to-grid",
+      "source": "input-image",
+      "target": "patch-grid",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "grid-to-flatten",
+      "source": "patch-grid",
+      "target": "flatten-patches",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "flatten-to-projection",
+      "source": "flatten-patches",
+      "target": "linear-projection",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "projection-to-tokens",
+      "source": "linear-projection",
+      "target": "patch-tokens",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "tokens-to-encoder",
+      "source": "patch-tokens",
+      "target": "encoder-input",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

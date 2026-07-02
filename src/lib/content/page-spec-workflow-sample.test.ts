@@ -46,7 +46,6 @@ describe("page-spec workflow sample", () => {
       conceptsDocsRoot,
     );
     expect(loaded.messages.title).toBe("Page Spec Workflow Sample");
-    expect(loaded.messages.openingSummary).toContain("page-spec file");
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -56,8 +55,6 @@ describe("page-spec workflow sample", () => {
         children: loaded.content,
       }),
     );
-
-    expect(html).not.toContain("page-spec file");
     expect(html).toContain("Page spec input");
     expect(html).toContain("Generated bundle");
     expect(html).toContain(

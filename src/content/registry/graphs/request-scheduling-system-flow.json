@@ -1,0 +1,84 @@
+{
+  "id": "graph.request-scheduling-system-flow",
+  "slug": "request-scheduling-system-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["request scheduling system flow", "scheduler system flow"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.orca-serving-system"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "system.request-scheduling",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "queue",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "queue",
+      "labelKey": "graph.nodes.queue.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 220, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["schedule"]
+    },
+    {
+      "id": "schedule",
+      "labelKey": "graph.nodes.schedule.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 220, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["run"]
+    },
+    {
+      "id": "run",
+      "labelKey": "graph.nodes.run.label",
+      "moduleKind": "operation",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 220, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["continue"]
+    },
+    {
+      "id": "continue",
+      "labelKey": "graph.nodes.continue.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 370 },
+      "size": { "width": 220, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "queue-schedule",
+      "source": "queue",
+      "target": "schedule",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "schedule-run",
+      "source": "schedule",
+      "target": "run",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "run-continue",
+      "source": "run",
+      "target": "continue",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

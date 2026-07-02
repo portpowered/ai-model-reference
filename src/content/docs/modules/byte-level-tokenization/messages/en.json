@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Byte-level tokenization is a tokenizer design that treats text as byte data first. Instead of beginning with whole words or a fixed list of visible characters, it can fall back to the UTF-8 bytes that make up any string. That means text like \"cafe\", \"cafe with an accent\", emoji, punctuation-heavy code, or mixed-script text can still be represented even when the exact visible piece was not memorized as one vocabulary item."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "Byte-level tokenization optimizes for coverage. A tokenizer built on bytes does not need an unknown token just because an unusual character sequence appears in the input. It also keeps the base inventory small, because the fallback alphabet is the byte range rather than a huge list of pre-listed words."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "This matters when a model sees messy real-world text: source code, markup, usernames, accented words, symbols, or copied text from many languages in one prompt. The tokenizer can always break the string down into representable pieces, so serving systems avoid hard failures where text cannot be encoded at all."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -51,12 +47,9 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Byte-level tokenization graph showing raw text turning into UTF-8 bytes, then byte pieces, then merged subword tokens",
-      "caption": "Byte-level tokenization guarantees coverage by starting from UTF-8 bytes, then usually compresses common byte sequences into larger subword tokens."
+      "alt": "Byte-level tokenization graph showing raw text turning into UTF-8 bytes, then byte pieces, then merged subword tokens"
     },
-    "comparisonTable": {
-      "caption": "Reference table for the main moving parts and tradeoffs in byte-level tokenization"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

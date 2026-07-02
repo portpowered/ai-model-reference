@@ -1,0 +1,69 @@
+{
+  "id": "paper.attention-is-all-you-need",
+  "slug": "attention-is-all-you-need",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Attention Is All You Need",
+    "Transformer paper",
+    "Vaswani transformer paper"
+  ],
+  "tags": ["foundations", "attention", "model-family"],
+  "relatedIds": [
+    "concept.transformer",
+    "module.attention",
+    "module.multi-head-attention",
+    "concept.positional-encodings",
+    "module.feed-forward-network",
+    "concept.encoder",
+    "concept.decoder",
+    "concept.residual-connection",
+    "concept.skip-connection"
+  ],
+  "citationIds": ["citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "authors": [
+    "Ashish Vaswani",
+    "Noam Shazeer",
+    "Niki Parmar",
+    "Jakob Uszkoreit",
+    "Llion Jones",
+    "Aidan N. Gomez",
+    "Łukasz Kaiser",
+    "Illia Polosukhin"
+  ],
+  "publishedAt": "2017-06-12",
+  "url": "https://arxiv.org/abs/1706.03762",
+  "introducesIds": [
+    "concept.transformer",
+    "module.attention",
+    "module.multi-head-attention",
+    "concept.positional-encodings",
+    "module.feed-forward-network",
+    "concept.encoder",
+    "concept.decoder",
+    "concept.residual-connection",
+    "concept.skip-connection"
+  ],
+  "supportsIds": [],
+  "arguesAgainstIds": [],
+  "modelIds": [],
+  "moduleIds": [
+    "module.attention",
+    "module.multi-head-attention",
+    "module.feed-forward-network"
+  ],
+  "conceptIds": [
+    "concept.transformer",
+    "concept.positional-encodings",
+    "concept.encoder",
+    "concept.decoder",
+    "concept.residual-connection",
+    "concept.skip-connection"
+  ],
+  "venue": "NeurIPS 2017",
+  "arxivId": "1706.03762"
+}

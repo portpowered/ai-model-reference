@@ -12,6 +12,7 @@ export const SAMPLE_MODULE_URL = "/docs/modules/grouped-query-attention";
 export const MULTI_HEAD_ATTENTION_URL = "/docs/modules/multi-head-attention";
 export const MULTI_QUERY_ATTENTION_URL = "/docs/modules/multi-query-attention";
 export const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
+export const PREFILL_URL = "/docs/concepts/prefill";
 
 export const TAXONOMY_GLOSSARY_URLS = [
   "/docs/glossary/model",
@@ -164,6 +165,12 @@ export function createRetriedStaticClientSearch(
     });
     return client.search(query);
   };
+}
+
+export function resultsIncludeTokenizersOverview(
+  results: Array<{ url: string }>,
+): boolean {
+  return resultsIncludeUrl(results, "/docs/concepts/tokenizers-overview");
 }
 
 type ThinMetadataQueries = {

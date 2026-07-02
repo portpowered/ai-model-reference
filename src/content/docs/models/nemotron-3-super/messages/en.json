@@ -1,0 +1,109 @@
+{
+  "title": "Nemotron 3 Super",
+  "description": "Open-weights 120B-total / 12B-active hybrid Mamba-Attention Mixture-of-Experts text model from NVIDIA's Nemotron 3 family, with long-context support up to 1M tokens and NVFP4/BF16 deployment variants.",
+  "openingSummary": "Nemotron 3 Super is NVIDIA's open-weights large language model (LLM) release that separates total model capacity from per-token compute. It combines hybrid Mamba-attention sequence layers with a Mixture-of-Experts (MoE) feed-forward path so a 120-billion-parameter model activates about 12 billion parameters on each token.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Nemotron 3 Super is an open-weights text large language model (LLM) in NVIDIA's Nemotron 3 family. NVIDIA publishes it as a sparse hybrid design: roughly 120 billion total parameters with about 12 billion active parameters per token. The public release includes Brain floating point 16 (BF16) and NVIDIA FP4 (NVFP4) checkpoint variants for different deployment budgets."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The model takes text tokens and returns text tokens. It is not multimodal in the published release. Checkpoint names such as Nemotron-3-Super-120B-A12B-BF16 and the NVIDIA Inference Microservices (NIM) identifier nvidia/nemotron-3-super-120b-a12b refer to the same family member with different packaging for local weights versus managed serving."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "NVIDIA describes Nemotron 3 Super as a hybrid Mamba-Attention Mixture-of-Experts (MoE) stack rather than a plain dense transformer decoder. Sequence mixing alternates between Mamba-style state-space blocks and attention blocks, while the feed-forward path routes each token through a small active expert set inside a much larger expert pool (branded LatentMoE in NVIDIA materials). This pattern is meant to hold large total capacity without paying the full dense cost on every token."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The modules below anchor how to read the architecture graph and related registry pages. The Mixture-of-Experts routing story is the main efficiency lever; sequence blocks explain how the model processes long prompts before expert routing runs."
+    },
+    "training": {
+      "title": "Training",
+      "body": "NVIDIA's technical report frames post-training for agentic and reasoning workloads, but the public materials emphasize architecture and deployment formats over a step-by-step training recipe. Treat training details here as high-level context from the release sources rather than a reproducible lab checklist."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "The release advertises up to 1 million tokens of context and positions NVFP4 variants for inference-efficient serving alongside BF16 weights. Those choices matter because long-context models often trade memory and routing overhead for reach; Nemotron 3 Super is presented as a design that keeps active compute closer to a smaller dense model while retaining a larger total parameter budget."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Nemotron 3 Super architecture diagram showing input tokens flowing through hybrid Mamba-attention sequence blocks, sparse Mixture-of-Experts routing, and output generation."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "The model's probability distribution over the next token"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Output\nLinear",
+        "summary": "Projects the final hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated hybrid decoder block container for the Nemotron 3 Super stack"
+      },
+      "sequenceSublayer": {
+        "label": " ",
+        "summary": "Hybrid sequence sublayer container"
+      },
+      "moeSublayer": {
+        "label": " ",
+        "summary": "Sparse expert sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats through the full stack"
+      },
+      "rmsnormSequence": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before the hybrid sequence step"
+      },
+      "hybridSequence": {
+        "label": "Hybrid\nMamba +\nAttention",
+        "summary": "Sequence mixing alternates Mamba-style state-space blocks with attention blocks for long context"
+      },
+      "rmsnormMoe": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the stream before the sparse expert block"
+      },
+      "mixtureOfExperts": {
+        "label": "LatentMoE\nExperts",
+        "summary": "Routes each token through a small active expert set inside a much larger expert pool"
+      },
+      "ropeInject": {
+        "label": "+",
+        "summary": "Applies token states together with rotary position information before the stack"
+      },
+      "rope": {
+        "label": "RoPE",
+        "summary": "Rotary position encoding gives the attention path token order information across long context"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs into hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after tokenization"
+      }
+    }
+  }
+}

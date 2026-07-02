@@ -1,0 +1,23 @@
+{
+  "id": "citation.speculative-decoding-paper",
+  "slug": "speculative-decoding-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "speculative decoding paper",
+    "fast inference from transformers via speculative decoding"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-22T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Yaniv Leviathan", "Matan Kalman", "Yossi Matias"],
+  "title": "Fast Inference from Transformers via Speculative Decoding",
+  "year": 2023,
+  "url": "https://arxiv.org/abs/2211.17192",
+  "mla": "Leviathan, Yaniv, et al. \"Fast Inference from Transformers via Speculative Decoding.\" arXiv, 2023, https://arxiv.org/abs/2211.17192."
+}

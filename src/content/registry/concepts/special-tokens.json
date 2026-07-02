@@ -25,7 +25,7 @@
     "concept.prefill",
     "model.gpt-3"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.gpt-2-report"],
   "status": "published",
   "createdAt": "2026-06-19T00:00:00.000Z",
   "updatedAt": "2026-06-19T00:00:00.000Z",

@@ -1,8 +1,16 @@
 export {
+  buildBaseSearchDocument,
+  buildBaseSearchDocuments,
+} from "./build-base-document";
+export {
   buildSearchDocument,
   buildSearchDocuments,
   buildSearchDocumentsForLocale,
 } from "./build-documents";
+export {
+  enrichSearchDocument,
+  enrichSearchDocuments,
+} from "./enrich-search-document";
 export type { OramaSearchRecord, OramaSnapshotDocument } from "./orama-index";
 export {
   createOramaDatabase,
@@ -18,8 +26,11 @@ export {
 } from "./to-advanced-index";
 export { toFumadocsIndexEntry, toStructuredData } from "./to-structured-data";
 export type {
+  BaseSearchDocument,
   FumadocsSearchIndexEntry,
   FumadocsStructuredData,
+  GenericSearchDocumentFacets,
   SearchDocument,
   SearchDocumentFacets,
 } from "./types";
+export { EMPTY_SEARCH_DOCUMENT_TOPOLOGY } from "./types";
