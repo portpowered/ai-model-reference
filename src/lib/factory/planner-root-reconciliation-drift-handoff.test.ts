@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   buildDriftHandoffPageRefillGate,
   buildDriftHandoffScopeBoundaries,
@@ -15,6 +17,48 @@ import {
   PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_TARGET_PATHS,
   parseScopedGitStatusForTargetPaths,
 } from "./planner-root-reconciliation-drift-handoff";
+
+const EIGHT_PATH_DRIFT_SCOPED_GIT_STATUS_FIXTURE = readFileSync(
+  join(
+    import.meta.dir,
+    "../../tests/fixtures/planner-root-reconciliation-drift-handoff/eight-path-drift-scoped-git-status.txt",
+  ),
+  "utf8",
+);
+
+const EIGHT_PATH_DRIFT_RECONCILIATION_STATUS_FIXTURE = readFileSync(
+  join(
+    import.meta.dir,
+    "../../tests/fixtures/planner-root-reconciliation-drift-handoff/eight-path-drift-reconciliation-status.txt",
+  ),
+  "utf8",
+);
+
+function createEightPathDriftFixtureRunGit(
+  remotePresentPaths: ReadonlySet<string>,
+  scopedGitStatusOutput: string,
+) {
+  return (_repoRoot: string, args: readonly string[]) => {
+    if (args[0] === "status" && args.includes("--branch")) {
+      return { status: 0, stdout: scopedGitStatusOutput, stderr: "" };
+    }
+
+    const objectSpec = args[2];
+    if (args[0] === "cat-file" && typeof objectSpec === "string") {
+      const [ref, path] = objectSpec.split(":");
+      if (
+        (ref === "origin/main" || ref === "HEAD") &&
+        path &&
+        remotePresentPaths.has(path)
+      ) {
+        return { status: 0, stdout: "", stderr: "" };
+      }
+      return { status: 1, stdout: "", stderr: "missing" };
+    }
+
+    return { status: 0, stdout: "", stderr: "" };
+  };
+}
 
 describe("planner root reconciliation drift handoff", () => {
   test("parses scoped git status for all eight target paths", () => {
@@ -365,6 +409,117 @@ describe("planner root reconciliation drift handoff", () => {
     const gate = buildDriftHandoffPageRefillGate(classifications);
     expect(gate.pageRefillHold).toBe(false);
     expect(gate.blockingPaths).toEqual([]);
+  });
+
+  test("emits fixture-backed classification output for the eight-path drift shape", () => {
+    const remotePresentPaths = new Set([
+      "src/tests/fixtures/planner-root-checkout-reconciliation/tokenizer-mismatch-dirty-status.txt",
+    ]);
+    const runGit = createEightPathDriftFixtureRunGit(
+      remotePresentPaths,
+      EIGHT_PATH_DRIFT_SCOPED_GIT_STATUS_FIXTURE,
+    );
+
+    const report = buildPlannerRootReconciliationDriftHandoffReport({
+      evidenceCapturedAtUtc: "2026-07-02T05:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      repoRoot: "/repo",
+      runGit,
+      runGitStatus: () => EIGHT_PATH_DRIFT_RECONCILIATION_STATUS_FIXTURE,
+      skipActivePrLinkage: true,
+      skipMergedLaneMetadata: true,
+      skipWorktreeDrift: true,
+      statusOutput: EIGHT_PATH_DRIFT_RECONCILIATION_STATUS_FIXTURE,
+    });
+
+    expect(report.targetPathGitStatus).toHaveLength(8);
+    expect(
+      report.targetPathGitStatus.every(
+        (entry) => entry.observedStatus === "dirty",
+      ),
+    ).toBe(true);
+    expect(report.pathClassifications).toHaveLength(8);
+    expect(report.pathClassifications.map((record) => record.path)).toEqual([
+      ...PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_TARGET_PATHS,
+    ]);
+
+    const tokenizerClassification = report.pathClassifications.find(
+      (record) =>
+        record.path ===
+        "src/tests/fixtures/planner-root-checkout-reconciliation/tokenizer-mismatch-dirty-status.txt",
+    );
+    expect(tokenizerClassification?.classification).toBe(
+      "operator-cleanup-needed",
+    );
+    expect(tokenizerClassification?.nextSafeAction).toBe(
+      "request-operator-cleanup",
+    );
+    expect(
+      tokenizerClassification?.classificationEvidence.join("\n"),
+    ).toContain(
+      "root-checkout-reconciliation classification=ownerless-root-checkout-drift",
+    );
+
+    const unresolvedDirtyPaths = report.pathClassifications.filter(
+      (record) => record.classification === "unresolved",
+    );
+    expect(unresolvedDirtyPaths.length).toBe(7);
+    for (const record of unresolvedDirtyPaths) {
+      expect(record.nextSafeAction).toBe("keep-refill-blocked");
+    }
+
+    const evidenceKinds = report.evidenceSources.map((source) => source.kind);
+    expect(evidenceKinds).toEqual([
+      "git-status-scoped",
+      "root-checkout-reconciliation",
+      "worktree-drift",
+      "active-pr-linkage",
+      "merged-lane-metadata",
+    ]);
+    expect(
+      report.evidenceSources.find(
+        (source) => source.kind === "git-status-scoped",
+      )?.availability,
+    ).toBe("available");
+    expect(
+      report.evidenceSources.find(
+        (source) => source.kind === "root-checkout-reconciliation",
+      )?.availability,
+    ).toBe("available");
+    expect(
+      report.evidenceSources.find((source) => source.kind === "worktree-drift")
+        ?.availability,
+    ).toBe("unavailable");
+
+    expect(report.scopeBoundaries.preservePolicy).toBe(
+      PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PRESERVE_POLICY,
+    );
+    expect(report.pageRefillGate.pageRefillHold).toBe(true);
+    expect(report.pageRefillGate.blockingPaths).toHaveLength(8);
+
+    const formatted = formatPlannerRootReconciliationDriftHandoffReport(report);
+    expect(formatted).toContain("- path-classifications");
+    expect(formatted).toContain("- evidence-sources");
+    expect(formatted).toContain(
+      "source=git-status-scoped availability=available",
+    );
+    expect(formatted).toContain(
+      "source=root-checkout-reconciliation availability=available",
+    );
+    expect(formatted).toContain(
+      "source=worktree-drift availability=unavailable",
+    );
+    expect(formatted).toContain("- scope-boundaries");
+    expect(formatted).toContain(
+      `preserve-policy=${PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PRESERVE_POLICY}`,
+    );
+    expect(formatted).toContain("- page-refill-gate");
+    expect(formatted).toContain(
+      `page-refill-hold=${PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PAGE_REFILL_HOLD}`,
+    );
+    expect(formatted).toContain(
+      "path=src/tests/fixtures/planner-root-checkout-reconciliation/tokenizer-mismatch-dirty-status.txt classification=operator-cleanup-needed",
+    );
   });
 
   test("emits page-refill hold guidance for unresolved dirty paths", () => {

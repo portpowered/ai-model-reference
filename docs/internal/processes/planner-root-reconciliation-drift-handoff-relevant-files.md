@@ -46,6 +46,16 @@ Reuse existing reports instead of duplicating git or lane parsing:
 | --- | --- |
 | Capture read-only drift evidence and per-path ownership classification for the eight root reconciliation paths | `bun run report:planner-root-reconciliation-drift-handoff` |
 
+## Fixture-backed verification
+
+When report, parser, or classifier logic changes, add or extend fixture-backed
+tests under `src/lib/factory/planner-root-reconciliation-drift-handoff.test.ts`
+using fixtures in
+`src/tests/fixtures/planner-root-reconciliation-drift-handoff/`. Tests should
+assert observable emitted behavior (path-level classifications, evidence source
+labels, scope boundaries, page-refill gate) for the eight-path drift shape
+without meta inventories of routes, docs links, or command lists.
+
 Fixture flags mirror other planner reports:
 
 * `--status-output`
