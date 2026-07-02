@@ -1,7 +1,7 @@
 {
   "title": "Byte-Level Tokenization",
   "description": "A tokenizer design that starts from bytes so models can represent arbitrary text without unknown-character gaps.",
-  "openingSummary": "Byte-level tokenization starts from raw bytes instead of assuming text already fits a word or character inventory, which is why GPT-style tokenizers often use bytes instead of whole words when they need reliable UTF-8 coverage, even though the resulting token pieces are often longer and harder for humans to read.",
+  "openingSummary": "Byte-level tokenization is a tokenizer design that starts from raw UTF-8 bytes instead of assuming text already fits a word or character inventory, so unusual characters, punctuation-heavy text, code-like strings, emoji, and mixed-script input can still be represented without unknown-character gaps; the tradeoff is that token pieces are often less readable, sequences can grow longer for messy strings, and token counts may not line up with word counts.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -13,7 +13,7 @@
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "This matters when a model sees messy real-world text: source code, markup, usernames, accented words, symbols, or copied text from many languages in one prompt. The tokenizer can always break the string down into representable pieces, so serving systems avoid hard failures where text cannot be encoded at all."
+      "body": "This matters when a model sees messy real-world text: source code, markup, usernames, accented words, symbols, emoji, or copied text from many languages in one prompt. The byte fallback can represent arbitrary UTF-8 text, so serving systems avoid hard failures where text cannot be encoded at all."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -33,7 +33,7 @@
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "The tradeoff is that unusual strings can expand into many small pieces before merges help. That can raise token counts, which raises cost and uses context window budget faster. The pieces are also less readable to humans, so debugging tokenizer output can feel more opaque than with cleaner word-like splits."
+      "body": "The tradeoff is that unusual strings can expand into many small pieces before merges help. That can raise token counts beyond what a reader would guess from word count alone, which raises cost and uses context window budget faster. The pieces are also less readable to humans, so debugging tokenizer output can feel more opaque than with cleaner word-like splits."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",

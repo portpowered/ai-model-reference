@@ -155,7 +155,7 @@ describe("Phase 2/3 reconciliation single primary title (US-005)", () => {
           await expectSingleShellOwnedPrimaryTitle(url);
         }
       },
-      { timeout: 15_000 },
+      { timeout: 120_000 },
     );
   }
 

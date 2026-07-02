@@ -9,7 +9,10 @@ import {
   validatePageAssetReferences,
 } from "@/lib/content/assets";
 import { BYTE_LEVEL_TOKENIZATION_PAGE_DIR } from "@/lib/content/content-paths";
-import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
+import {
+  expectGlossaryBodyOmitsTitleHeading,
+  expectHtmlToContainProse,
+} from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { pageMessagesSchema } from "@/lib/content/schemas";
@@ -82,6 +85,50 @@ describe("loadModulePage byte-level-tokenization", () => {
     expect(html).toContain('data-math-schema="byteCoverage"');
     expect(html).toContain('data-math-schema="bytePairMerge"');
     expect(html).toContain('href="/docs/models/gpt-3"');
+  });
+});
+
+describe("byte-level-tokenization page coverage and tradeoffs (byte-level-tokenization-page-002)", () => {
+  test("opening summary defines byte-level tokenization before GPT-style references", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const summary = messages.openingSummary?.toLowerCase() ?? "";
+
+    expect(summary).toContain("byte-level tokenization");
+    expect(summary).toContain("utf-8");
+    expect(summary).toMatch(/emoji|code|mixed/);
+    expect(summary).toMatch(/word count|token count/);
+    expect(summary).not.toContain("gpt");
+  });
+
+  test("rendered page explains byte fallback coverage and tokenizer tradeoffs", async () => {
+    const page = await loadModulePage("byte-level-tokenization");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expectHtmlToContainProse(
+      html,
+      "Byte-level tokenization is a tokenizer design that treats text as byte data first.",
+    );
+    expect(html).toContain("emoji");
+    expect(html).toContain("mixed-script");
+    expect(html).toContain("word count");
+    expect(html).toContain("less readable");
+    expect(html).not.toContain("Reader Shortcut");
+
+    const definitionIndex = html
+      .toLowerCase()
+      .indexOf("treats text as byte data");
+    const gptReferenceIndex = html.toLowerCase().indexOf("gpt-style");
+    expect(definitionIndex).toBeGreaterThanOrEqual(0);
+    expect(gptReferenceIndex).toBeGreaterThan(definitionIndex);
   });
 });
 
