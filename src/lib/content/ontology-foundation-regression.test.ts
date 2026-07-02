@@ -522,7 +522,12 @@ describe("ontology foundation regression coverage", () => {
       listClassificationMembers("classification.training.pretraining").map(
         (member) => `${member.membershipType}:${member.record.id}`,
       ),
-    ).toEqual(["primary:training-regime.pretraining"]);
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:training-regime.pretraining",
+        "primary:training-regime.diffusion-training-objective",
+      ]),
+    );
     expect(
       listClassificationMembers("classification.system.routing").map(
         (member) => `${member.membershipType}:${member.record.id}`,
