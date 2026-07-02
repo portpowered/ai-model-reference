@@ -1205,3 +1205,64 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T18:57Z UTC).
+
+## Story 002 merge re-evaluation (2026-07-02T18:59Z UTC)
+
+Thirty-sixth planner merge-path pass. Merge was **not** performed.
+
+### Fresh delta since prior evaluation (18:57Z UTC)
+
+| Signal | Prior (18:57Z UTC) | Current (18:59Z UTC) |
+| --- | --- | --- |
+| `origin/main` SHA | `2d0b21c4` | advanced to `b5716eff` (PR branch behind=1, ahead=16 vs main) |
+| PR #288 head SHA | `5031736e` | unchanged `5031736e` |
+| PR #288 mergeability | MERGEABLE / UNSTABLE | unchanged MERGEABLE / UNSTABLE |
+| Required CI checks | `test` FAILURE (5m16s), `ci` FAILURE | unchanged terminal FAILURE on workflow `28612903832` (no in-progress reruns) |
+| BLOCKING review | two fix-mapping replies, no clearing reply | new author mergeability follow-up at 18:58:00Z; still no reviewer clearing/superseding comment on 17:10:15Z REJECTED review |
+| Content worktree local HEAD | `5031736e` (synced with remote) | unchanged `5031736e` (behind=1 vs main, dirty WIP on `table-registry.generated.ts`) |
+| Content vs `origin/looped-transformers` | 0 ahead / 0 behind | unchanged |
+
+`origin/main` advanced during this drain pass; PR head and CI status are unchanged since
+the 18:56Z test rerun failure. The 18:58:00Z author comment documents inherited full-suite
+timeout on `main` and does not clear the 17:10:15Z BLOCKING review.
+
+### Preconditions checked
+
+| Precondition | Status | Evidence |
+| --- | --- | --- |
+| GitHub mergeability | PARTIAL | `mergeable=MERGEABLE`, `mergeStateStatus=UNSTABLE` on head `5031736e` |
+| Required CI checks | **FAIL** | `test` FAILURE (5m16s timeout), `ci` FAILURE; workflow `28612903832` |
+| Review complete enough to proceed | **PARTIAL** | 18:33:05Z and 18:58:00Z fix-mapping replies map BLOCKING items to fixes, but no reviewer clearing/superseding comment on the 17:10:15Z REJECTED review |
+| Queue/worktree metadata allows action | PASS | Lane metadata present; `work-task-64` at `init` |
+| Scope boundary | PASS | No unrelated edits in this drain lane |
+
+### Merge decision
+
+**Outcome:** do not merge PR #288 in this drain pass.
+
+**Reasons (all must clear before merge):**
+
+1. **Required checks failing:** `test` timed out at 5m16s on head `5031736e`, failing the `ci` aggregate gate (workflow `28612903832`).
+2. **Review not explicitly cleared:** author fix-mapping replies (17:56:35Z, 18:33:05Z, 18:58:00Z) claim resolution, but the original BLOCKING/REJECTED review (17:10:15Z) has no later reviewer comment that clears or supersedes it.
+3. **Base drift:** `origin/main` advanced to `b5716eff`; content lane must merge/rebase before drain merge even after CI and review clear.
+
+**Next safe planner action:** content lane must fix or inherit-resolution for the CI `test` timeout on PR head `5031736e`, obtain a clearing PR conversation reply from the reviewer, and sync with `origin/main` (`b5716eff`) before drain story 002 can merge.
+
+### Post-evaluation queue snapshot (2026-07-02T18:59Z UTC)
+
+| Work id | Type | State |
+| --- | --- | --- |
+| `work-task-64` (`looped-transformers`) | task | `init` / PROCESSING |
+| `work-task-88` (`looped-transformers-pr288-clean-drain`) | task | `init` / PROCESSING |
+
+No `review` work token is active. PR conversation has BLOCKING review (17:10:15Z) plus three author fix-mapping replies (17:56:35Z, 18:33:05Z, 18:58:00Z); no clearing reviewer reply.
+
+## Quality gate (story 002, iteration 36)
+
+Merge evaluation only; no PR merge or content mutation.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T18:59Z UTC).
