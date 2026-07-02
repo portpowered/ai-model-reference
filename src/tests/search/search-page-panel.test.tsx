@@ -36,33 +36,7 @@ import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
 
 setDefaultTimeout(15_000);
 
-const SEARCH_PAGE_RESULTS_TIMEOUT_MS = 15_000;
-
-async function findSearchPageResults() {
-  await waitFor(
-    () => {
-      expect(screen.queryByTestId("search-page-loading")).toBeNull();
-    },
-    { timeout: SEARCH_PAGE_RESULTS_TIMEOUT_MS },
-  );
-  return screen.findByTestId(
-    "search-page-results",
-    {},
-    { timeout: SEARCH_PAGE_RESULTS_TIMEOUT_MS },
-  );
-}
-
-async function expectFirstSearchResultUrl(urlSubstring: string) {
-  await findSearchPageResults();
-  await waitFor(
-    () => {
-      const results = screen.getByTestId("search-page-results");
-      const firstUrl = within(results).getAllByTestId("search-result-url")[0];
-      expect(firstUrl?.textContent).toContain(urlSubstring);
-    },
-    { timeout: SEARCH_PAGE_RESULTS_TIMEOUT_MS },
-  );
-}
+const SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS = 15_000;
 
 function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {
@@ -86,11 +60,64 @@ function renderSearchPagePanelContent(
   );
 }
 
+async function waitForSearchPagePanelResults(
+  options: { timeout?: number } = {},
+): Promise<HTMLElement> {
+  const timeout = options.timeout ?? SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS;
+  await waitFor(
+    () => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    },
+    { timeout },
+  );
+  return screen.findByTestId(
+    "search-page-results",
+    {},
+    {
+      timeout,
+    },
+  );
+}
+
+async function expectFirstSearchResultUrl(
+  urlSubstring: string,
+  options: { timeout?: number } = {},
+) {
+  await waitForSearchPagePanelResults(options);
+  const timeout = options.timeout ?? SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS;
+  await waitFor(
+    () => {
+      const results = screen.getByTestId("search-page-results");
+      const firstUrl = within(results).getAllByTestId("search-result-url")[0];
+      expect(firstUrl?.textContent).toContain(urlSubstring);
+    },
+    { timeout },
+  );
+}
+
 /** Orama static search suspends on first client render; unmount + brief wait primes the cache. */
 async function primeDocsSearchClient(
   context: Awaited<ReturnType<typeof loadAppTestContext>>,
+  searchParams = new URLSearchParams(),
+  options: { locale?: "ja" } = {},
 ): Promise<void> {
-  const first = await renderSearchPagePanelContent(context);
+  const first =
+    options.locale === "ja"
+      ? await renderWithAppProviders(
+          <SearchPagePanelContent
+            messages={context.messages}
+            metaByUrl={context.metaByUrl}
+            handoff={toSearchPageHandoff(searchParams)}
+            locale="ja"
+          />,
+          { context },
+        )
+      : await renderSearchPagePanelContent(context, searchParams);
+
+  if ([...searchParams.keys()].length > 0) {
+    await waitForSearchPagePanelResults();
+  }
+
   first.unmount();
   cleanup();
   await new Promise((resolve) => setTimeout(resolve, 400));
@@ -123,11 +150,7 @@ async function typeQueryAndExpectGqaResult(
   );
   await user.type(searchInput, query);
 
-  const results = await screen.findByTestId(
-    "search-page-results",
-    {},
-    { timeout: 5000 },
-  );
+  const results = await waitForSearchPagePanelResults();
   expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
 }
 
@@ -225,7 +248,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await findSearchPageResults();
+    const results = await waitForSearchPagePanelResults();
     expect(results.className).toContain("list-none");
     expect(results.className).not.toContain("list-disc");
     expect(results.querySelectorAll("li").length).toBeGreaterThan(0);
@@ -241,7 +264,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await findSearchPageResults();
+    const results = await waitForSearchPagePanelResults();
     expectSharedSearchResultRowPanel(within(results));
   });
 
@@ -255,7 +278,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await findSearchPageResults();
+    const results = await waitForSearchPagePanelResults();
     expectThinSearchMetadataPanel(within(results), { expectSummary: true });
   });
 
@@ -269,7 +292,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await findSearchPageResults();
+    const results = await waitForSearchPagePanelResults();
     expectFullRowSearchResultHighlightPanel(within(results));
     const row = within(results).getAllByTestId("search-result-row")[0];
     expect(row?.className).toContain("hover:bg-accent");
@@ -286,7 +309,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "Grouped",
     );
 
-    const results = await findSearchPageResults();
+    const results = await waitForSearchPagePanelResults();
     expectReadableQueryMatchHighlightPanel(within(results));
   });
 
@@ -300,7 +323,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await findSearchPageResults();
+    const results = await waitForSearchPagePanelResults();
     const firstUrl = within(results).getAllByTestId("search-result-url")[0];
     expect(firstUrl?.textContent).toContain(SAMPLE_MODULE_URL);
   });
@@ -350,9 +373,8 @@ describe("SearchPagePanel Phase 1 queries", () => {
       query,
     );
 
-    const results = await findSearchPageResults();
-    const firstUrl = within(results).getAllByTestId("search-result-url")[0];
-    expect(firstUrl?.textContent).toContain(url);
+    await expectFirstSearchResultUrl(url);
+    const results = screen.getByTestId("search-page-results");
     expect(results.textContent).toMatch(title);
   });
 
@@ -425,7 +447,7 @@ describe("SearchPagePanel query handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("GQA");
 
-    const results = await findSearchPageResults();
+    const results = await waitForSearchPagePanelResults();
     expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
   });
 
@@ -474,13 +496,7 @@ describe("SearchPagePanel query handoff", () => {
       expect(searchInput.value).toBe("GQA");
     });
     expect(screen.queryByTestId("search-page-idle")).toBeNull();
-    const results = await screen.findByTestId(
-      "search-page-results",
-      {},
-      {
-        timeout: 5000,
-      },
-    );
+    const results = await waitForSearchPagePanelResults();
     expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
   });
 });
@@ -493,7 +509,10 @@ describe("SearchPagePanel classification handoff", () => {
     await lockGlobalFetch().then(async (release) => {
       releaseFetchLock = release;
       installDocsSearchRouteFetch();
-      await primeDocsSearchClient(await loadAppTestContext());
+      await primeDocsSearchClient(
+        await loadAppTestContext(),
+        new URLSearchParams("q=token&classification=unknown-topic"),
+      );
       restoreFetchMock();
       releaseFetchLock?.();
       releaseFetchLock = null;
@@ -530,7 +549,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await findSearchPageResults();
+    const results = await waitForSearchPagePanelResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -554,7 +573,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await findSearchPageResults();
+    const results = await waitForSearchPagePanelResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -597,7 +616,7 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("token");
 
-    const results = await findSearchPageResults();
+    const results = await waitForSearchPagePanelResults();
     expect(results.textContent).toMatch(/Token/i);
     expect(
       screen.queryByText(
@@ -618,7 +637,16 @@ describe("SearchPagePanel tag handoff", () => {
     await lockGlobalFetch().then(async (release) => {
       releaseFetchLock = release;
       installDocsSearchRouteFetch();
-      await primeDocsSearchClient(await loadAppTestContext());
+      const englishContext = await loadAppTestContext();
+      await primeDocsSearchClient(
+        englishContext,
+        new URLSearchParams("tag=attention"),
+      );
+      await primeDocsSearchClient(
+        await loadAppTestContext("ja"),
+        new URLSearchParams("tag=attention"),
+        { locale: "ja" },
+      );
       restoreFetchMock();
       releaseFetchLock?.();
       releaseFetchLock = null;
@@ -647,7 +675,7 @@ describe("SearchPagePanel tag handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("attention");
 
-    const results = await findSearchPageResults();
+    const results = await waitForSearchPagePanelResults();
     expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
   });
 
@@ -693,7 +721,7 @@ describe("SearchPagePanel tag handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await findSearchPageResults();
+    const results = await waitForSearchPagePanelResults();
     const urls = collectResultUrlsFromNodes(
       within(results).getAllByTestId("search-result-url"),
     );

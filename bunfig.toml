@@ -1,6 +1,8 @@
 [test]
 root = "."
 preload = ["./happydom.ts"]
+# Align local `make test` with CI: heavyweight registry/render rows exceed Bun's 5s default under suite load.
+timeout = 900000
 
 [test.ci]
 timeout = 900000
