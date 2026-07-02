@@ -1,0 +1,31 @@
+{
+  "title": "Roofline model",
+  "description": "A throughput-ceiling chart that shows when memory movement or arithmetic compute limits attainable performance, using arithmetic intensity to explain which bound is active.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "The roofline model is a simple ceiling chart for attainable throughput. It compares how fast data can move through memory with how fast arithmetic units can work, then uses arithmetic intensity to show which limit is currently in control."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Serving and training discussions often mention memory bandwidth, FLOPs, and tokens per second without explaining why one change helps in one workload but not another. The roofline model gives a general framework for those tradeoffs instead of ranking hardware or models."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A workload with low arithmetic intensity may sit on the memory-bandwidth-bound slope, where faster compute does little until more useful work is done per byte moved. A workload with higher intensity can reach the flat compute-bound ceiling where memory movement is no longer the bottleneck."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "The roofline model is a teaching ceiling, not a benchmark leaderboard. It explains memory-bound and compute-bound regions in plain language; it does not pick the best chip, model, or vendor."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
