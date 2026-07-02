@@ -2,9 +2,13 @@ import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import type { RunCommand } from "@/lib/factory/active-pr-mergeability-watchdog";
 import {
+  classifyTerminalLaneLandingSurfaceKind,
+  compareTerminalLaneLandingSurfaces,
   discoverTerminalLaneLandingCandidates,
   formatTerminalLaneLandingCandidateDiscovery,
+  formatTerminalLaneLandingSurfaceComparisonReport,
   TerminalLaneLandingAuditDiscoveryError,
   UNAVAILABLE_EVIDENCE,
   UNKNOWN_EVIDENCE,
@@ -232,6 +236,361 @@ describe("formatTerminalLaneLandingCandidateDiscovery", () => {
 
     expect(output).toContain(
       "lane=activation-concept-current-main-page source=queue-terminal-complete terminal-state=complete branch=activation-concept-current-main-page worktree=unavailable",
+    );
+  });
+});
+
+const activationLandingSurfaces = [
+  {
+    kind: "page-bundle" as const,
+    path: "src/content/docs/glossary/activation/page.mdx",
+  },
+  {
+    kind: "registry-record" as const,
+    path: "src/content/registry/concepts/activation.json",
+  },
+  {
+    kind: "focused-test" as const,
+    path: "src/lib/content/activation-concept-discovery.test.ts",
+  },
+];
+
+function createGitRunCommandStub(input: {
+  branchDiffPaths?: Record<string, string[]>;
+  mainPaths?: Set<string>;
+  mainRef?: string;
+}): RunCommand {
+  const mainRef = input.mainRef ?? "origin/main";
+  const mainPaths = input.mainPaths ?? new Set<string>();
+
+  return (binary, args) => {
+    if (binary !== "git") {
+      return {
+        ok: false,
+        stdout: "",
+        stderr: "unexpected binary",
+        exitCode: 1,
+      };
+    }
+
+    if (args[0] === "rev-parse" && args[1] === "--verify") {
+      const ref = args[2] ?? "";
+      if (ref === mainRef || ref === "activation-concept-current-main-page") {
+        return { ok: true, stdout: "", stderr: "", exitCode: 0 };
+      }
+      return { ok: false, stdout: "", stderr: "bad ref", exitCode: 1 };
+    }
+
+    if (args[0] === "symbolic-ref") {
+      return {
+        ok: true,
+        stdout: "refs/remotes/origin/main",
+        stderr: "",
+        exitCode: 0,
+      };
+    }
+
+    if (args[0] === "merge-base") {
+      return { ok: true, stdout: "merge-base-sha", stderr: "", exitCode: 0 };
+    }
+
+    if (args[0] === "diff" && args[1] === "--name-only") {
+      const range = args[2] ?? "";
+      const branchName = range.split("..")[1] ?? "";
+      const paths = input.branchDiffPaths?.[branchName] ?? [];
+      return {
+        ok: true,
+        stdout: paths.join("\n"),
+        stderr: "",
+        exitCode: 0,
+      };
+    }
+
+    if (args[0] === "cat-file" && args[1] === "-e") {
+      const spec = args[2] ?? "";
+      const path = spec.includes(":") ? spec.split(":").slice(1).join(":") : "";
+      const present = mainPaths.has(path);
+      return {
+        ok: present,
+        stdout: "",
+        stderr: present ? "" : "missing",
+        exitCode: present ? 0 : 1,
+      };
+    }
+
+    if (args[0] === "status") {
+      return { ok: true, stdout: "", stderr: "", exitCode: 0 };
+    }
+
+    return {
+      ok: false,
+      stdout: "",
+      stderr: "unhandled git command",
+      exitCode: 1,
+    };
+  };
+}
+
+describe("classifyTerminalLaneLandingSurfaceKind", () => {
+  test("classifies page bundle, registry record, and focused test paths", () => {
+    expect(
+      classifyTerminalLaneLandingSurfaceKind(
+        "src/content/docs/glossary/activation/page.mdx",
+      ),
+    ).toBe("page-bundle");
+    expect(
+      classifyTerminalLaneLandingSurfaceKind(
+        "src/content/registry/concepts/activation.json",
+      ),
+    ).toBe("registry-record");
+    expect(
+      classifyTerminalLaneLandingSurfaceKind(
+        "src/lib/content/activation-concept-discovery.test.ts",
+      ),
+    ).toBe("focused-test");
+    expect(
+      classifyTerminalLaneLandingSurfaceKind("src/lib/factory/foo.ts"),
+    ).toBe(undefined);
+  });
+});
+
+describe("compareTerminalLaneLandingSurfaces", () => {
+  test("reports main present while planner root paths are dirty or deleted separately", () => {
+    const report = compareTerminalLaneLandingSurfaces({
+      repoRoot: "/repo",
+      mainRef: "origin/main",
+      plannerRootGitStatusText: [
+        " M src/content/docs/glossary/activation/page.mdx",
+        " D src/content/registry/concepts/activation.json",
+        " M src/lib/content/activation-concept-discovery.test.ts",
+      ].join("\n"),
+      runCommand: createGitRunCommandStub({
+        mainPaths: new Set(
+          activationLandingSurfaces.map((surface) => surface.path),
+        ),
+      }),
+      candidates: [
+        {
+          laneName: "activation-concept-current-main-page",
+          source: "queue-terminal-complete",
+          terminalState: {
+            status: "present",
+            rawState: "complete",
+            stateType: "TERMINAL",
+          },
+          branchIdentity: {
+            status: "present",
+            branchName: "activation-concept-current-main-page",
+            source: "metadata",
+          },
+          worktreeIdentity: {
+            status: "present",
+            worktreePath:
+              "/repo/.claude/worktrees/activation-concept-current-main-page",
+          },
+        },
+      ],
+      expectedLandingSurfacesByLane: {
+        "activation-concept-current-main-page": activationLandingSurfaces,
+      },
+    });
+
+    expect(report.comparisonCount).toBe(1);
+    const comparison = report.comparisons[0];
+    expect(comparison?.surfaceSource).toBe("explicit");
+    expect(comparison?.surfaces).toEqual([
+      {
+        surface: activationLandingSurfaces[0],
+        main: {
+          status: "present",
+          mainRef: "origin/main",
+          reason: "path present on origin/main",
+        },
+        plannerRoot: {
+          status: "dirty",
+          changeKind: "modified",
+          reason: "planner root reports modified ( M)",
+        },
+      },
+      {
+        surface: activationLandingSurfaces[1],
+        main: {
+          status: "present",
+          mainRef: "origin/main",
+          reason: "path present on origin/main",
+        },
+        plannerRoot: {
+          status: "deleted",
+          changeKind: "deleted",
+          reason: "planner root reports deleted ( D)",
+        },
+      },
+      {
+        surface: activationLandingSurfaces[2],
+        main: {
+          status: "present",
+          mainRef: "origin/main",
+          reason: "path present on origin/main",
+        },
+        plannerRoot: {
+          status: "dirty",
+          changeKind: "modified",
+          reason: "planner root reports modified ( M)",
+        },
+      },
+    ]);
+  });
+
+  test("reports absent main evidence without conflating planner root drift", () => {
+    const report = compareTerminalLaneLandingSurfaces({
+      repoRoot: "/repo",
+      mainRef: "origin/main",
+      plannerRootGitStatusText:
+        " D src/content/docs/glossary/activation/page.mdx",
+      runCommand: createGitRunCommandStub({
+        mainPaths: new Set([
+          "src/content/registry/concepts/activation.json",
+          "src/lib/content/activation-concept-discovery.test.ts",
+        ]),
+      }),
+      candidates: [
+        {
+          laneName: "activation-concept-current-main-page",
+          source: "queue-terminal-complete",
+          terminalState: {
+            status: "present",
+            rawState: "complete",
+            stateType: "TERMINAL",
+          },
+          branchIdentity: {
+            status: "present",
+            branchName: "activation-concept-current-main-page",
+          },
+          worktreeIdentity: {
+            status: UNAVAILABLE_EVIDENCE,
+            reason: "no matching worktree under configured worktrees directory",
+          },
+        },
+      ],
+      expectedLandingSurfacesByLane: {
+        "activation-concept-current-main-page": activationLandingSurfaces,
+      },
+    });
+
+    const surfaces = report.comparisons[0]?.surfaces ?? [];
+    expect(surfaces[0]?.main.status).toBe("absent");
+    expect(surfaces[0]?.plannerRoot.status).toBe("deleted");
+    expect(surfaces[1]?.main.status).toBe("present");
+    expect(surfaces[1]?.plannerRoot.status).toBe("clean");
+  });
+
+  test("derives landing surfaces from branch diff when explicit surfaces are not provided", () => {
+    const report = compareTerminalLaneLandingSurfaces({
+      repoRoot: "/repo",
+      mainRef: "origin/main",
+      plannerRootGitStatusText: "",
+      runCommand: createGitRunCommandStub({
+        branchDiffPaths: {
+          "activation-concept-current-main-page": activationLandingSurfaces.map(
+            (surface) => surface.path,
+          ),
+        },
+        mainPaths: new Set(
+          activationLandingSurfaces.map((surface) => surface.path),
+        ),
+      }),
+      candidates: [
+        {
+          laneName: "activation-concept-current-main-page",
+          source: "queue-terminal-complete",
+          terminalState: {
+            status: "present",
+            rawState: "complete",
+          },
+          branchIdentity: {
+            status: "present",
+            branchName: "activation-concept-current-main-page",
+          },
+          worktreeIdentity: {
+            status: UNAVAILABLE_EVIDENCE,
+          },
+        },
+      ],
+    });
+
+    expect(report.comparisons[0]?.surfaceSource).toBe("branch-diff");
+    expect(report.comparisons[0]?.surfaces).toHaveLength(3);
+  });
+
+  test("returns unavailable surface source when branch identity is missing", () => {
+    const report = compareTerminalLaneLandingSurfaces({
+      repoRoot: "/repo",
+      mainRef: "origin/main",
+      runCommand: createGitRunCommandStub({}),
+      candidates: [
+        {
+          laneName: "activation-concept-current-main-page",
+          source: "explicit-lane",
+          terminalState: {
+            status: UNKNOWN_EVIDENCE,
+            reason: "no queue terminal-state evidence for lane",
+          },
+          branchIdentity: {
+            status: UNAVAILABLE_EVIDENCE,
+            reason:
+              "branch identity not available from worktree metadata or git",
+          },
+          worktreeIdentity: {
+            status: UNAVAILABLE_EVIDENCE,
+          },
+        },
+      ],
+    });
+
+    expect(report.comparisons[0]?.surfaceSource).toBe(UNAVAILABLE_EVIDENCE);
+    expect(report.comparisons[0]?.surfaces).toEqual([]);
+    expect(report.comparisons[0]?.issues[0]).toContain("branch identity");
+  });
+});
+
+describe("formatTerminalLaneLandingSurfaceComparisonReport", () => {
+  test("prints concise human-readable surface evidence lines", () => {
+    const pageBundleSurface = activationLandingSurfaces[0];
+    if (!pageBundleSurface) {
+      throw new Error("expected activation page bundle surface fixture");
+    }
+
+    const output = formatTerminalLaneLandingSurfaceComparisonReport({
+      generatedAtUtc: "2026-07-01T12:00:00.000Z",
+      repoRoot: "/repo",
+      mainRef: "origin/main",
+      comparisonCount: 1,
+      comparisons: [
+        {
+          laneName: "activation-concept-current-main-page",
+          mainRef: "origin/main",
+          surfaceSource: "explicit",
+          issues: [],
+          surfaces: [
+            {
+              surface: pageBundleSurface,
+              main: {
+                status: "present",
+                mainRef: "origin/main",
+              },
+              plannerRoot: {
+                status: "dirty",
+                changeKind: "modified",
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(output).toContain("surface comparison");
+    expect(output).toContain(
+      "page-bundle path=src/content/docs/glossary/activation/page.mdx main=present planner-root=dirty",
     );
   });
 });

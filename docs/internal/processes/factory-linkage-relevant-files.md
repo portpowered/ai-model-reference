@@ -19,7 +19,11 @@ watchdog summaries, or planner-facing linkage reports.
 * `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` — read-only
   terminal or near-terminal lane candidate discovery for main-branch landing
   audits; reuse `parseTerminalCompleteWorkItems` / queue TERMINAL evidence and
-  worktree metadata instead of duplicating lane parsing.
+  worktree metadata instead of duplicating lane parsing. Surface comparison uses
+  `git cat-file -e <main-ref>:<path>` for main evidence and
+  `parsePlannerRelevantDirtyPaths` for planner-root drift, keeping those signals
+  separate. Expected surfaces accept explicit per-lane fixtures or derive from
+  branch diff filtered to page-bundle, registry-record, and focused-test paths.
 
 ## Planner-facing commands
 
