@@ -24,6 +24,9 @@ export const PLANNER_ROOT_DRIFT_EVIDENCE_COMMANDS = [
 export const PLANNER_ROOT_DRIFT_NO_MUTATION_STATEMENT =
   "No dirty root paths were modified, reverted, staged, overwritten, or regenerated as part of this handoff.";
 
+export const PLANNER_ROOT_DRIFT_PAGE_REFILL_HOLD =
+  "Hold page refills until remaining ownerless root drift is cleared or explicitly owned.";
+
 export const PLANNER_ROOT_DRIFT_ACTIVE_DEPENDENCY =
   "tokenizer-mismatch-root-drift-reconciliation";
 
@@ -108,6 +111,7 @@ export interface PlannerRootDriftHandoffEvidenceReport {
   generatedAtUtc: string;
   headRelationship: RootDriftHeadRelationship;
   ownershipClassification: PlannerRootDriftOwnershipClassificationReport;
+  pageRefillHoldGuidance: string;
   preservationStatement: string;
   repoRoot: string;
 }
@@ -117,6 +121,7 @@ export interface DiscoverPlannerRootDriftHandoffEvidenceOptions {
   evidenceCommands?: readonly string[];
   generatedAtUtc?: string;
   headRelationship?: RootDriftHeadRelationship;
+  pageRefillHoldGuidance?: string;
   preservationStatement?: string;
   repoRoot?: string;
   runGit?: RunGit;
@@ -431,6 +436,8 @@ export function buildPlannerRootDriftHandoffEvidenceReport(
         watchdogSnapshot: options.watchdogSnapshot,
       },
     ),
+    pageRefillHoldGuidance:
+      options.pageRefillHoldGuidance ?? PLANNER_ROOT_DRIFT_PAGE_REFILL_HOLD,
     preservationStatement:
       options.preservationStatement ?? PLANNER_ROOT_DRIFT_NO_MUTATION_STATEMENT,
     repoRoot,
@@ -567,6 +574,7 @@ export function formatPlannerRootDriftHandoffEvidenceReport(
     "- evidence-commands",
     ...report.evidenceCommands.map((command) => `  ${command}`),
     `- preservation-statement=${report.preservationStatement}`,
+    `- page-refill-hold=${report.pageRefillHoldGuidance}`,
   );
 
   return lines.join("\n");
@@ -617,6 +625,10 @@ export function formatPlannerRootDriftHandoffEvidenceMarkdown(
     "## Preservation Statement",
     "",
     report.preservationStatement,
+    "",
+    "## Meta-Planner Page Refill Hold",
+    "",
+    report.pageRefillHoldGuidance,
     "",
   );
 

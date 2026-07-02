@@ -11,6 +11,10 @@ Planner-facing operator handoff for root checkout drift ownership classification
 
 - `src/tests/fixtures/planner-root-drift-operator-handoff/nine-dirty-paths-status.txt` — nine-path porcelain snapshot used when live root evidence is unavailable.
 
+## Tests
+
+- `src/lib/factory/planner-root-drift-operator-handoff.test.ts` — fixture-backed nine-path classification and operator-facing output assertions (preservation, active dependency, page-refill hold).
+
 ## Artifacts
 
 - `docs/internal/processes/ownerless-root-drift-operator-handoff-evidence.md` — committed handoff evidence artifact (not one of the nine dirty root paths).
