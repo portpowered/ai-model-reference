@@ -23,10 +23,11 @@ bun run report:merged-pr-drain-rows-reconciliation
 ```
 
 Text output includes evidence plus per-row `consume` / `complete` / `no-op`
-classification, consume handoff commands, complete handoff details, and no-op
-handoff evidence. JSON output (`--json` or `--format json`) serializes the full
-reconciliation output including evidence, classification, consume, complete, and
-no-op reports. Pass `--execute-consume`
+classification, consume handoff commands, complete handoff details, no-op
+handoff evidence, and final verification (root checkout before/after,
+baseline-aware content safety, queue transition summary). JSON output (`--json` or `--format json`) serializes the full
+reconciliation output including evidence, classification, consume, complete,
+no-op, and final verification reports. Pass `--execute-consume`
 to run accepted manual drain-row consume moves through
 `you work move <drain-work-id> complete --session <session>`. Pass
 `--execute-complete` to run accepted terminal-completion moves for rows classified
@@ -167,11 +168,12 @@ recorded separately in the report `merged-vs-queue-truth` field per row.
 * `src/lib/factory/merged-pr-drain-rows-reconciliation.ts` — read-only evidence
   capture for the four named rows: queue tokens, GitHub PR truth via
   `gh pr view`, worktree lane metadata, `origin/main` identity, main-repo root
-  checkout dirty-path count, explicit merged-vs-queue truth distinction,
+  checkout dirty-path count and baseline snapshots, explicit merged-vs-queue truth distinction,
   per-row `consume` / `complete` / `no-op` classification, consume handoff
   builders/executors for `manual-drain-row-move-to-complete`, complete handoff
-  builders/executors for `manual-drain-row-terminal-completion`, and no-op handoff
-  builders for unsafe or already-settled rows.
+  builders/executors for `manual-drain-row-terminal-completion`, no-op handoff
+  builders for unsafe or already-settled rows, and final verification for
+  root/content safety plus queue transition summaries.
 * `scripts/report-merged-pr-drain-rows-reconciliation.ts` — planner-facing CLI.
   Resolves main-repo worktrees via `git rev-parse --git-common-dir` so reports
   work from nested git worktrees.
@@ -236,3 +238,16 @@ content, registry content, queue rows, worktree files, or root checkout state.
 | No-op handoff unit tests | `buildMergedPrDrainRowNoOpHandoff` / report / unified output cases — pass |
 | Live no-op report | all four rows emit `row-left-untouched=true` with `already-terminal` or `already-settled` |
 | Content/page payload | not modified |
+
+## Verification for story 006
+
+| Gate | Result |
+| --- | --- |
+| Typecheck | `bun run typecheck` — pass |
+| Final verification unit tests | `buildMergedPrDrainRowsFinalVerificationReport` / content safety / queue transition cases — pass |
+| Live final verification | root checkout before/after recorded; all four rows `left-untouched`; baseline-aware content safety passes |
+| Content/page payload | not modified |
+
+Final verification records post-reconciliation root checkout, compares dirty-path
+baselines captured during evidence gathering, and emits queue transition summaries
+for executed consume/complete moves or explicit `left-untouched` no-op rows.

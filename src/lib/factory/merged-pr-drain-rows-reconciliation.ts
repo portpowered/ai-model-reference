@@ -91,6 +91,7 @@ export interface WorktreeMetadataEvidence {
   branchLinkageStatus?: string;
   branchName?: string;
   metadataPath?: string;
+  observedDirtyPaths?: string[];
   pullRequestLinkageStatus?: string;
   pullRequestNumber?: number;
   refreshedAtUtc?: string;
@@ -123,6 +124,7 @@ export interface MergedPrDrainRowEvidence {
 }
 
 export interface RootCheckoutEvidence {
+  observedDirtyPaths?: string[];
   originMainSha?: string;
   remoteBaseRef: string;
   rootCheckoutDirtyPathCount: number;
@@ -580,6 +582,22 @@ function collectPullRequestTruthEvidence(options: {
   };
 }
 
+function extractDirtyPathsFromGitStatus(statusOutput: string): string[] {
+  return statusOutput
+    .split("\n")
+    .filter((line) => line.trim().length > 0)
+    .map((line) => {
+      const rawPath = line.slice(3).trim();
+      const renameSplit = rawPath.split(" -> ");
+      return renameSplit[renameSplit.length - 1] ?? rawPath;
+    });
+}
+
+function findNewDirtyPaths(baseline: string[], current: string[]): string[] {
+  const baselineSet = new Set(baseline);
+  return current.filter((path) => !baselineSet.has(path));
+}
+
 function collectWorktreeMetadataEvidence(options: {
   definition: MergedPrDrainRowDefinition;
   runCommand: RunCommand;
@@ -611,6 +629,10 @@ function collectWorktreeMetadataEvidence(options: {
     undefined,
   );
   const branchHeadSha = headResult.ok ? headResult.stdout.trim() : undefined;
+  const observedDirtyPaths = collectDirtyPathsForLocation({
+    locationPath: worktreePath,
+    runCommand: options.runCommand,
+  }).filter((path) => !path.startsWith(".claude/"));
 
   return {
     availability: "present",
@@ -618,6 +640,7 @@ function collectWorktreeMetadataEvidence(options: {
     branchLinkageStatus: metadata.linkage.branch.status,
     branchName: metadata.branchName ?? options.definition.branchName,
     metadataPath,
+    observedDirtyPaths,
     pullRequestLinkageStatus: metadata.linkage.pullRequest.status,
     pullRequestNumber: metadata.pullRequest?.number,
     refreshedAtUtc: metadata.refreshedAtUtc,
@@ -648,6 +671,9 @@ function collectRootCheckoutEvidence(options: {
         .map((line) => line.trim())
         .filter((line) => line.length > 0).length
     : 0;
+  const observedDirtyPaths = statusResult.ok
+    ? extractDirtyPathsFromGitStatus(statusResult.stdout)
+    : [];
 
   if (!originResult.ok) {
     return {
@@ -655,6 +681,7 @@ function collectRootCheckoutEvidence(options: {
       remoteBaseRef: options.remoteBaseRef,
       rootCheckoutDirtyPathCount,
       rootRepoPath: options.repoRoot,
+      observedDirtyPaths,
       unavailableReason:
         originResult.stderr.trim() ||
         `unable to resolve ${options.remoteBaseRef}`,
@@ -666,6 +693,7 @@ function collectRootCheckoutEvidence(options: {
     remoteBaseRef: options.remoteBaseRef,
     rootCheckoutDirtyPathCount,
     rootRepoPath: options.repoRoot,
+    observedDirtyPaths,
   };
 }
 
@@ -1090,6 +1118,7 @@ export function formatMergedPrDrainRowsReconciliationReport(
   options?: {
     completeReport?: MergedPrDrainRowsCompleteReport;
     consumeReport?: MergedPrDrainRowsConsumeReport;
+    finalVerificationReport?: MergedPrDrainRowsFinalVerificationReport;
     noOpReport?: MergedPrDrainRowsNoOpReport;
   },
 ): string {
@@ -1108,7 +1137,22 @@ export function formatMergedPrDrainRowsReconciliationReport(
   const resolvedNoOpReport =
     options?.noOpReport ??
     buildMergedPrDrainRowsNoOpReport(classificationReport);
-  return `${formatMergedPrDrainRowsEvidenceReport(evidenceReport).trimEnd()}\n\n${formatMergedPrDrainRowsClassificationReport(classificationReport).trimEnd()}\n\n${formatMergedPrDrainRowsConsumeReport(resolvedConsumeReport).trimEnd()}\n\n${formatMergedPrDrainRowsCompleteReport(resolvedCompleteReport).trimEnd()}\n\n${formatMergedPrDrainRowsNoOpReport(resolvedNoOpReport).trimEnd()}\n`;
+  const reconciliationOutputForVerification: MergedPrDrainRowsReconciliationOutput = {
+    evidenceReport,
+    classificationReport,
+    consumeReport: resolvedConsumeReport,
+    completeReport: resolvedCompleteReport,
+    noOpReport: resolvedNoOpReport,
+    finalVerificationReport:
+      options?.finalVerificationReport ??
+      buildMergedPrDrainRowsFinalVerificationReport({
+        evidenceReport,
+        consumeReport: resolvedConsumeReport,
+        completeReport: resolvedCompleteReport,
+        noOpReport: resolvedNoOpReport,
+      }),
+  };
+  return `${formatMergedPrDrainRowsEvidenceReport(evidenceReport).trimEnd()}\n\n${formatMergedPrDrainRowsClassificationReport(classificationReport).trimEnd()}\n\n${formatMergedPrDrainRowsConsumeReport(resolvedConsumeReport).trimEnd()}\n\n${formatMergedPrDrainRowsCompleteReport(resolvedCompleteReport).trimEnd()}\n\n${formatMergedPrDrainRowsNoOpReport(resolvedNoOpReport).trimEnd()}\n\n${formatMergedPrDrainRowsFinalVerificationReport(reconciliationOutputForVerification.finalVerificationReport).trimEnd()}\n`;
 }
 
 export const MERGED_PR_DRAIN_ROW_CONSUME_OPERATION_NAME =
@@ -1468,7 +1512,61 @@ export interface MergedPrDrainRowsReconciliationOutput {
   completeReport: MergedPrDrainRowsCompleteReport;
   consumeReport: MergedPrDrainRowsConsumeReport;
   evidenceReport: MergedPrDrainRowsEvidenceReport;
+  finalVerificationReport: MergedPrDrainRowsFinalVerificationReport;
   noOpReport: MergedPrDrainRowsNoOpReport;
+}
+
+export const MERGED_PR_DRAIN_ROW_PROTECTED_CONTENT_PATH_PREFIXES = [
+  "src/content/",
+  "src/lib/content/",
+] as const;
+
+export type MergedPrDrainRowQueueTransitionKind =
+  | "consume-executed"
+  | "consume-already-complete"
+  | "complete-executed"
+  | "complete-already-complete"
+  | "left-untouched";
+
+export interface MergedPrDrainRowQueueTransitionEvidence {
+  pullRequestNumber: number;
+  rowStateAfter?: string;
+  rowStateBefore?: string;
+  transitionKind: MergedPrDrainRowQueueTransitionKind;
+  untouchedReason?: string;
+  workItemName: string;
+}
+
+export interface MergedPrDrainRowsContentSafetyEvidence {
+  adjacentPagesUntouched: boolean;
+  evidenceSentence: string;
+  generatedContentUntouched: boolean;
+  observedContentDirtyPaths: string[];
+  pageContentUntouched: boolean;
+  registryContentUntouched: boolean;
+  unrelatedWorktreeFilesUntouched: boolean;
+}
+
+export type MergedPrDrainRowsVerificationCommandAvailability =
+  | "available"
+  | "unavailable";
+
+export interface MergedPrDrainRowsVerificationCommandEvidence {
+  availability: MergedPrDrainRowsVerificationCommandAvailability;
+  command: string;
+  passed?: boolean;
+  unavailableReason?: string;
+}
+
+export interface MergedPrDrainRowsFinalVerificationReport {
+  contentSafety: MergedPrDrainRowsContentSafetyEvidence;
+  generatedAtUtc: string;
+  preExistingDirtyStateUntouched: boolean;
+  queueTransitionOccurred: boolean;
+  queueTransitions: MergedPrDrainRowQueueTransitionEvidence[];
+  rootCheckoutAfter: RootCheckoutEvidence;
+  rootCheckoutBefore: RootCheckoutEvidence;
+  verificationCommands: MergedPrDrainRowsVerificationCommandEvidence[];
 }
 
 function buildDrainRowCompleteCommand(options: {
@@ -1909,6 +2007,311 @@ export function serializeMergedPrDrainRowsNoOpReport(
   return `${JSON.stringify(report, null, 2)}\n`;
 }
 
+function isProtectedContentPath(path: string): boolean {
+  return MERGED_PR_DRAIN_ROW_PROTECTED_CONTENT_PATH_PREFIXES.some((prefix) =>
+    path.startsWith(prefix),
+  );
+}
+
+function isRegistryContentPath(path: string): boolean {
+  return path.startsWith("src/content/registry/");
+}
+
+function isPageContentPath(path: string): boolean {
+  return (
+    path.startsWith("src/content/") &&
+    !path.startsWith("src/content/registry/")
+  );
+}
+
+function isGeneratedContentPath(path: string): boolean {
+  return path.startsWith("src/lib/content/");
+}
+
+function collectDirtyPathsForLocation(options: {
+  locationPath: string;
+  runCommand: RunCommand;
+}): string[] {
+  const statusResult = options.runCommand(
+    "git",
+    ["status", "--porcelain=v1", "--untracked-files=all"],
+    options.locationPath,
+  );
+  if (!statusResult.ok) {
+    return [];
+  }
+  return extractDirtyPathsFromGitStatus(statusResult.stdout);
+}
+
+export function collectMergedPrDrainRowsContentSafetyEvidence(options: {
+  evidenceReport: MergedPrDrainRowsEvidenceReport;
+  repoRoot: string;
+  runCommand?: RunCommand;
+}): MergedPrDrainRowsContentSafetyEvidence {
+  const runCommand = options.runCommand ?? defaultRunCommand;
+  const mainRepoRoot = resolveMainRepoRoot(options.repoRoot, runCommand);
+  const rootDirtyPathsAfter = collectDirtyPathsForLocation({
+    locationPath: mainRepoRoot,
+    runCommand,
+  });
+  const rootDirtyPathsBefore =
+    options.evidenceReport.rootCheckout.observedDirtyPaths ?? [];
+  const newRootContentDirtyPaths = findNewDirtyPaths(
+    rootDirtyPathsBefore,
+    rootDirtyPathsAfter,
+  ).filter(isProtectedContentPath);
+
+  const newWorktreeDirtyPaths = options.evidenceReport.rows.flatMap((row) => {
+    if (
+      row.worktreeMetadata.availability !== "present" ||
+      !row.worktreeMetadata.worktreePath
+    ) {
+      return [];
+    }
+    const baseline = row.worktreeMetadata.observedDirtyPaths ?? [];
+    const current = collectDirtyPathsForLocation({
+      locationPath: row.worktreeMetadata.worktreePath,
+      runCommand,
+    }).filter((path) => !path.startsWith(".claude/"));
+    return findNewDirtyPaths(baseline, current);
+  });
+
+  const contentDirtyPaths = [
+    ...newRootContentDirtyPaths,
+    ...newWorktreeDirtyPaths.filter(isProtectedContentPath),
+  ];
+  const pageContentDirtyPaths = contentDirtyPaths.filter(isPageContentPath);
+  const registryContentDirtyPaths = contentDirtyPaths.filter(isRegistryContentPath);
+  const generatedContentDirtyPaths = contentDirtyPaths.filter(isGeneratedContentPath);
+
+  const pageContentUntouched = pageContentDirtyPaths.length === 0;
+  const registryContentUntouched = registryContentDirtyPaths.length === 0;
+  const generatedContentUntouched = generatedContentDirtyPaths.length === 0;
+  const adjacentPagesUntouched = pageContentUntouched;
+  const unrelatedWorktreeFilesUntouched = newWorktreeDirtyPaths.length === 0;
+
+  const evidenceSentence = [
+    pageContentUntouched ? "page content untouched" : "page content dirty paths observed",
+    registryContentUntouched
+      ? "registry content untouched"
+      : "registry content dirty paths observed",
+    generatedContentUntouched
+      ? "generated content untouched"
+      : "generated content dirty paths observed",
+    unrelatedWorktreeFilesUntouched
+      ? "unrelated worktree files untouched"
+      : "unrelated worktree dirty paths observed",
+  ].join("; ");
+
+  return {
+    adjacentPagesUntouched,
+    evidenceSentence,
+    generatedContentUntouched,
+    observedContentDirtyPaths: contentDirtyPaths.sort(),
+    pageContentUntouched,
+    registryContentUntouched,
+    unrelatedWorktreeFilesUntouched,
+  };
+}
+
+export function buildMergedPrDrainRowQueueTransitionEvidence(
+  output: Pick<
+    MergedPrDrainRowsReconciliationOutput,
+    "completeReport" | "consumeReport" | "noOpReport"
+  >,
+): MergedPrDrainRowQueueTransitionEvidence[] {
+  const transitions: MergedPrDrainRowQueueTransitionEvidence[] = [];
+  const transitionedWorkItems = new Set<string>();
+
+  for (const handoff of output.consumeReport.rows) {
+    const workItemName = handoff.classification.row.definition.workItemName;
+    if (
+      handoff.executionStatus !== "executed" &&
+      handoff.executionStatus !== "already-complete"
+    ) {
+      continue;
+    }
+
+    transitionedWorkItems.add(workItemName);
+    transitions.push({
+      workItemName,
+      pullRequestNumber: handoff.classification.pullRequestNumber,
+      transitionKind:
+        handoff.executionStatus === "executed"
+          ? "consume-executed"
+          : "consume-already-complete",
+      rowStateBefore: handoff.drainRowStateBefore,
+      rowStateAfter: handoff.drainRowStateAfter ?? handoff.drainRowStateBefore,
+    });
+  }
+
+  for (const handoff of output.completeReport.rows) {
+    const workItemName = handoff.workItemName;
+    if (
+      handoff.executionStatus !== "executed" &&
+      handoff.executionStatus !== "already-complete"
+    ) {
+      continue;
+    }
+
+    transitionedWorkItems.add(workItemName);
+    transitions.push({
+      workItemName,
+      pullRequestNumber: handoff.classification.pullRequestNumber,
+      transitionKind:
+        handoff.executionStatus === "executed"
+          ? "complete-executed"
+          : "complete-already-complete",
+      rowStateBefore: handoff.sourceState,
+      rowStateAfter: handoff.drainRowStateAfter ?? handoff.sourceState,
+    });
+  }
+
+  for (const handoff of output.noOpReport.rows) {
+    if (transitionedWorkItems.has(handoff.workItemName)) {
+      continue;
+    }
+
+    transitions.push({
+      workItemName: handoff.workItemName,
+      pullRequestNumber: handoff.pullRequestNumber,
+      transitionKind: "left-untouched",
+      untouchedReason: handoff.noOpReason,
+      rowStateBefore: handoff.observedQueueState,
+      rowStateAfter: handoff.observedQueueState,
+    });
+  }
+
+  return transitions;
+}
+
+export const MERGED_PR_DRAIN_ROWS_FINAL_VERIFICATION_COMMANDS = [
+  "bun run report:merged-pr-drain-rows-reconciliation",
+  "bun test src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts",
+  "bun run typecheck",
+] as const;
+
+function buildDefaultVerificationCommandEvidence(): MergedPrDrainRowsVerificationCommandEvidence[] {
+  return MERGED_PR_DRAIN_ROWS_FINAL_VERIFICATION_COMMANDS.map((command) => ({
+    command,
+    availability: "available" as const,
+  }));
+}
+
+export function buildMergedPrDrainRowsFinalVerificationReport(
+  output: Pick<
+    MergedPrDrainRowsReconciliationOutput,
+    | "completeReport"
+    | "consumeReport"
+    | "evidenceReport"
+    | "noOpReport"
+  >,
+  options?: {
+    generatedAtUtc?: string;
+    repoRoot?: string;
+    runCommand?: RunCommand;
+    verificationCommands?: MergedPrDrainRowsVerificationCommandEvidence[];
+  },
+): MergedPrDrainRowsFinalVerificationReport {
+  const runCommand = options?.runCommand ?? defaultRunCommand;
+  const repoRoot = options?.repoRoot ?? process.cwd();
+  const mainRepoRoot = resolveMainRepoRoot(repoRoot, runCommand);
+  const rootCheckoutAfter = collectRootCheckoutEvidence({
+    remoteBaseRef: output.evidenceReport.rootCheckout.remoteBaseRef,
+    repoRoot: mainRepoRoot,
+    runCommand,
+  });
+  const rootCheckoutBefore = output.evidenceReport.rootCheckout;
+  const preExistingDirtyStateUntouched =
+    rootCheckoutAfter.rootCheckoutDirtyPathCount >=
+      rootCheckoutBefore.rootCheckoutDirtyPathCount ||
+    rootCheckoutBefore.rootCheckoutDirtyPathCount === 0;
+  const contentSafety = collectMergedPrDrainRowsContentSafetyEvidence({
+    evidenceReport: output.evidenceReport,
+    repoRoot,
+    runCommand,
+  });
+  const queueTransitions = buildMergedPrDrainRowQueueTransitionEvidence(output);
+  const queueTransitionOccurred = queueTransitions.some(
+    (transition) =>
+      transition.transitionKind === "consume-executed" ||
+      transition.transitionKind === "complete-executed",
+  );
+
+  return {
+    generatedAtUtc: options?.generatedAtUtc ?? new Date().toISOString(),
+    rootCheckoutBefore,
+    rootCheckoutAfter,
+    preExistingDirtyStateUntouched,
+    contentSafety,
+    queueTransitions,
+    queueTransitionOccurred,
+    verificationCommands:
+      options?.verificationCommands ?? buildDefaultVerificationCommandEvidence(),
+  };
+}
+
+function formatQueueTransitionRow(
+  transition: MergedPrDrainRowQueueTransitionEvidence,
+): string[] {
+  const lines = [
+    `- work-item=${transition.workItemName} pr=#${transition.pullRequestNumber} transition=${transition.transitionKind}`,
+    `  row-state-before=${transition.rowStateBefore ?? "unknown"}`,
+    `  row-state-after=${transition.rowStateAfter ?? "unknown"}`,
+  ];
+  if (transition.untouchedReason) {
+    lines.push(`  untouched-reason=${transition.untouchedReason}`);
+  }
+  return lines;
+}
+
+export function formatMergedPrDrainRowsFinalVerificationReport(
+  report: MergedPrDrainRowsFinalVerificationReport,
+): string {
+  const lines = [
+    `${MERGED_PR_DRAIN_ROWS_RECONCILIATION_HEADER} — Final Verification`,
+    `generated-at=${report.generatedAtUtc}`,
+    `root-checkout-before origin-main-sha=${report.rootCheckoutBefore.originMainSha ?? "unavailable"} root-dirty-paths=${report.rootCheckoutBefore.rootCheckoutDirtyPathCount} root-repo=${report.rootCheckoutBefore.rootRepoPath}`,
+    `root-checkout-after origin-main-sha=${report.rootCheckoutAfter.originMainSha ?? "unavailable"} root-dirty-paths=${report.rootCheckoutAfter.rootCheckoutDirtyPathCount} root-repo=${report.rootCheckoutAfter.rootRepoPath}`,
+    `pre-existing-dirty-state-untouched=${report.preExistingDirtyStateUntouched}`,
+    `content-safety page-content-untouched=${report.contentSafety.pageContentUntouched} registry-content-untouched=${report.contentSafety.registryContentUntouched} generated-content-untouched=${report.contentSafety.generatedContentUntouched} adjacent-pages-untouched=${report.contentSafety.adjacentPagesUntouched} unrelated-worktree-files-untouched=${report.contentSafety.unrelatedWorktreeFilesUntouched}`,
+    `content-safety-evidence=${report.contentSafety.evidenceSentence}`,
+    `queue-transition-occurred=${report.queueTransitionOccurred}`,
+  ];
+
+  if (report.contentSafety.observedContentDirtyPaths.length > 0) {
+    lines.push(
+      `observed-content-dirty-paths=${report.contentSafety.observedContentDirtyPaths.join(",")}`,
+    );
+  }
+
+  lines.push("", "Queue transitions");
+  if (report.queueTransitions.length === 0) {
+    lines.push("- none");
+  } else {
+    for (const transition of report.queueTransitions) {
+      lines.push(...formatQueueTransitionRow(transition));
+    }
+  }
+
+  lines.push("", "Verification commands");
+  for (const command of report.verificationCommands) {
+    lines.push(
+      `- command=${command.command} availability=${command.availability}${
+        command.passed === undefined ? "" : ` passed=${command.passed}`
+      }${command.unavailableReason ? ` unavailable-reason=${command.unavailableReason}` : ""}`,
+    );
+  }
+
+  return `${lines.join("\n").trimEnd()}\n`;
+}
+
+export function serializeMergedPrDrainRowsFinalVerificationReport(
+  report: MergedPrDrainRowsFinalVerificationReport,
+): string {
+  return `${JSON.stringify(report, null, 2)}\n`;
+}
+
 export function buildMergedPrDrainRowsReconciliationOutput(
   evidenceReport: MergedPrDrainRowsEvidenceReport,
   options?: {
@@ -1949,12 +2352,24 @@ export function buildMergedPrDrainRowsReconciliationOutput(
 
   const noOpReport = buildMergedPrDrainRowsNoOpReport(classificationReport);
 
-  return {
+  const partialOutput = {
     evidenceReport,
     classificationReport,
     consumeReport,
     completeReport,
     noOpReport,
+  };
+
+  const finalVerificationReport = buildMergedPrDrainRowsFinalVerificationReport(
+    partialOutput,
+    {
+      runCommand: options?.runCommand,
+    },
+  );
+
+  return {
+    ...partialOutput,
+    finalVerificationReport,
   };
 }
 

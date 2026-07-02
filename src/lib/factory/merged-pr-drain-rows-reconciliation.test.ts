@@ -7,8 +7,11 @@ import {
   buildMergedPrDrainRowsCompleteReport,
   buildMergedPrDrainRowsConsumeReport,
   buildMergedPrDrainRowsNoOpReport,
+  buildMergedPrDrainRowQueueTransitionEvidence,
+  buildMergedPrDrainRowsFinalVerificationReport,
   buildMergedPrDrainRowsReconciliationOutput,
   classifyMergedPrDrainRowOutcome,
+  collectMergedPrDrainRowsContentSafetyEvidence,
   collectMergedPrDrainRowsEvidence,
   executeMergedPrDrainRowCompleteHandoff,
   executeMergedPrDrainRowConsumeHandoff,
@@ -16,6 +19,7 @@ import {
   formatMergedPrDrainRowsCompleteReport,
   formatMergedPrDrainRowsConsumeReport,
   formatMergedPrDrainRowsEvidenceReport,
+  formatMergedPrDrainRowsFinalVerificationReport,
   formatMergedPrDrainRowsNoOpReport,
   formatMergedPrDrainRowsReconciliationReport,
   MERGED_PR_DRAIN_ROW_COMPLETE_OPERATION_NAME,
@@ -26,6 +30,7 @@ import {
   serializeMergedPrDrainRowsCompleteReport,
   serializeMergedPrDrainRowsConsumeReport,
   serializeMergedPrDrainRowsEvidenceReport,
+  serializeMergedPrDrainRowsFinalVerificationReport,
   serializeMergedPrDrainRowsNoOpReport,
 } from "@/lib/factory/merged-pr-drain-rows-reconciliation";
 
@@ -896,5 +901,203 @@ describe("buildMergedPrDrainRowNoOpHandoff", () => {
     });
     expect(formatted).toContain("No-Op Handoff");
     expect(formatted).toContain("no-op-reason=already-terminal");
+  });
+});
+
+describe("buildMergedPrDrainRowsFinalVerificationReport", () => {
+  test("records post-consume untouched rows and content safety for live state", () => {
+    const evidenceReport = buildPostConsumeFixtureReport();
+    const output = buildMergedPrDrainRowsReconciliationOutput(evidenceReport, {
+      runCommand: (binary, args) => {
+        if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+          return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
+        }
+        if (binary === "git" && args[0] === "rev-parse") {
+          return {
+            ok: true,
+            stdout: "209d1bd8ced0cced5fd99992fe50f23296d126e8\n",
+            stderr: "",
+            exitCode: 0,
+          };
+        }
+        if (binary === "git" && args[0] === "status") {
+          return { ok: true, stdout: "", stderr: "", exitCode: 0 };
+        }
+        return { ok: false, stdout: "", stderr: "unsupported", exitCode: 1 };
+      },
+    });
+
+    const report = output.finalVerificationReport;
+    expect(report.preExistingDirtyStateUntouched).toBe(true);
+    expect(report.queueTransitionOccurred).toBe(false);
+    expect(report.queueTransitions).toHaveLength(4);
+    expect(
+      report.queueTransitions.every(
+        (transition) => transition.transitionKind === "left-untouched",
+      ),
+    ).toBe(true);
+    expect(report.contentSafety.pageContentUntouched).toBe(true);
+    expect(report.contentSafety.registryContentUntouched).toBe(true);
+    expect(report.contentSafety.generatedContentUntouched).toBe(true);
+    expect(report.contentSafety.unrelatedWorktreeFilesUntouched).toBe(true);
+    expect(report.verificationCommands.length).toBeGreaterThan(0);
+
+    const formatted = formatMergedPrDrainRowsFinalVerificationReport(report);
+    expect(formatted).toContain("Merged PR Drain Rows Reconciliation — Final Verification");
+    expect(formatted).toContain("pre-existing-dirty-state-untouched=true");
+    expect(formatted).toContain("queue-transition-occurred=false");
+    expect(formatted).toContain("transition=left-untouched");
+    expect(formatted).toContain("untouched-reason=already-terminal");
+
+    const serialized = JSON.parse(
+      serializeMergedPrDrainRowsFinalVerificationReport(report),
+    ) as { queueTransitions: Array<{ transitionKind: string }> };
+    expect(serialized.queueTransitions.map((row) => row.transitionKind)).toEqual([
+      "left-untouched",
+      "left-untouched",
+      "left-untouched",
+      "left-untouched",
+    ]);
+  });
+
+  test("records executed consume transitions with before and after row state", () => {
+    const evidenceReport = buildClassificationFixtureReport();
+    const classificationReport =
+      buildMergedPrDrainRowsClassificationReport(evidenceReport);
+    const consumeReport = buildMergedPrDrainRowsConsumeReport(classificationReport);
+    const executedConsumeReport = {
+      classificationReport,
+      rows: consumeReport.rows.map((handoff, index) =>
+        index === 0
+          ? {
+              ...handoff,
+              drainRowStateAfter: "complete/terminal",
+              executionStatus: "executed" as const,
+            }
+          : handoff,
+      ),
+    };
+    const output = {
+      evidenceReport,
+      classificationReport,
+      consumeReport: executedConsumeReport,
+      completeReport: buildMergedPrDrainRowsCompleteReport(classificationReport),
+      noOpReport: buildMergedPrDrainRowsNoOpReport(classificationReport),
+    };
+
+    const transitions = buildMergedPrDrainRowQueueTransitionEvidence(output);
+    expect(transitions).toHaveLength(2);
+    expect(transitions[0]).toMatchObject({
+      workItemName: "ltx-23",
+      transitionKind: "consume-executed",
+      rowStateBefore: "init/initial",
+      rowStateAfter: "complete/terminal",
+    });
+    expect(transitions[1]).toMatchObject({
+      workItemName: "bpe-page",
+      transitionKind: "left-untouched",
+      untouchedReason: "already-settled",
+    });
+
+    const report = buildMergedPrDrainRowsFinalVerificationReport(output, {
+      generatedAtUtc: "2026-07-02T19:40:00.000Z",
+      runCommand: (binary, args) => {
+        if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+          return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
+        }
+        if (binary === "git" && args[0] === "rev-parse") {
+          return {
+            ok: true,
+            stdout: "209d1bd8ced0cced5fd99992fe50f23296d126e8\n",
+            stderr: "",
+            exitCode: 0,
+          };
+        }
+        if (binary === "git" && args[0] === "status") {
+          return { ok: true, stdout: "", stderr: "", exitCode: 0 };
+        }
+        return { ok: false, stdout: "", stderr: "unsupported", exitCode: 1 };
+      },
+    });
+    expect(report.queueTransitionOccurred).toBe(true);
+    expect(report.queueTransitions[0]?.transitionKind).toBe("consume-executed");
+  });
+
+  test("flags content dirty paths when protected surfaces change", () => {
+    const safety = collectMergedPrDrainRowsContentSafetyEvidence({
+      evidenceReport: {
+        generatedAtUtc: "2026-07-02T19:40:00.000Z",
+        sourceSession: SESSION_ID,
+        rootCheckout: {
+          remoteBaseRef: "origin/main",
+          rootCheckoutDirtyPathCount: 1,
+          rootRepoPath: "/tmp/root-repo",
+        },
+        rows: [],
+      },
+      repoRoot: "/tmp/root-repo",
+      runCommand: (binary, args, cwd) => {
+        if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+          return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
+        }
+        if (binary === "git" && args[0] === "status" && cwd === "/tmp/root-repo") {
+          return {
+            ok: true,
+            stdout: " M src/content/docs/modules/bpe.mdx\n",
+            stderr: "",
+            exitCode: 0,
+          };
+        }
+        if (binary === "git" && args[0] === "rev-parse") {
+          return {
+            ok: true,
+            stdout: "209d1bd8ced0cced5fd99992fe50f23296d126e8\n",
+            stderr: "",
+            exitCode: 0,
+          };
+        }
+        return { ok: true, stdout: "", stderr: "", exitCode: 0 };
+      },
+    });
+
+    expect(safety.pageContentUntouched).toBe(false);
+    expect(safety.observedContentDirtyPaths).toContain(
+      "src/content/docs/modules/bpe.mdx",
+    );
+    expect(safety.evidenceSentence).toContain("page content dirty paths observed");
+  });
+
+  test("includes final verification in unified reconciliation output", () => {
+    const evidenceReport = buildPostConsumeFixtureReport();
+    const output = buildMergedPrDrainRowsReconciliationOutput(evidenceReport, {
+      runCommand: (binary, args) => {
+        if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+          return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
+        }
+        if (binary === "git" && args[0] === "rev-parse") {
+          return {
+            ok: true,
+            stdout: "209d1bd8ced0cced5fd99992fe50f23296d126e8\n",
+            stderr: "",
+            exitCode: 0,
+          };
+        }
+        if (binary === "git" && args[0] === "status") {
+          return { ok: true, stdout: "", stderr: "", exitCode: 0 };
+        }
+        return { ok: false, stdout: "", stderr: "unsupported", exitCode: 1 };
+      },
+    });
+
+    expect(output.finalVerificationReport.queueTransitions).toHaveLength(4);
+
+    const formatted = formatMergedPrDrainRowsReconciliationReport(evidenceReport, {
+      consumeReport: output.consumeReport,
+      completeReport: output.completeReport,
+      finalVerificationReport: output.finalVerificationReport,
+      noOpReport: output.noOpReport,
+    });
+    expect(formatted).toContain("Final Verification");
+    expect(formatted).toContain("content-safety page-content-untouched=true");
   });
 });
