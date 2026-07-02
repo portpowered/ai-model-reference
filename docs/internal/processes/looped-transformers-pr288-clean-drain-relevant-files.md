@@ -1086,33 +1086,32 @@ bun run typecheck
 
 Result: PASS (2026-07-02T18:39Z UTC).
 
-## Story 002 merge re-evaluation (2026-07-02T18:39Z UTC)
+## Story 002 merge re-evaluation (2026-07-02T18:45Z UTC)
 
-Twenty-ninth planner merge-path pass. Merge was **not** performed.
+Thirtieth planner merge-path pass. Merge was **not** performed.
 
-### Fresh delta since prior evaluation (18:37Z UTC)
+### Fresh delta since prior evaluation (18:39Z UTC)
 
-| Signal | Prior (18:37Z UTC) | Current (18:39Z UTC) |
+| Signal | Prior (18:39Z UTC) | Current (18:45Z UTC) |
 | --- | --- | --- |
 | `origin/main` SHA | `2d0b21c4` | unchanged `2d0b21c4` |
 | PR #288 head SHA | `5031736e` | unchanged `5031736e` |
 | PR #288 mergeability | MERGEABLE / UNSTABLE | unchanged MERGEABLE / UNSTABLE |
-| Required CI checks | `test` FAILURE, `ci` FAILURE on `5031736e` | unchanged — 9/11 SUCCESS, `test` FAILURE (5m13s timeout), `ci` FAILURE; workflow `28612903832` |
-| BLOCKING review | fix-mapping reply (17:56Z) admits full-branch over-budget; no clearing reply | **second fix-mapping reply (18:33:05Z)** maps both BLOCKING items to fixes on `5031736e` with `audit:canonical-page-surface` **within-budget** validation; still no reviewer clearing/superseding comment |
+| Required CI checks | `test` FAILURE (5m13s), `ci` FAILURE | **test rerun completed** at 18:45:05Z — same FAILURE (5m13s timeout on job `84851225078`); `ci` FAILURE on job `84852246083`; workflow `28612903832` |
+| BLOCKING review | two fix-mapping replies, no clearing reply | unchanged — no new PR conversation comments since 18:33:05Z |
 | Content worktree local HEAD | `5031736e` (synced with remote) | unchanged `5031736e` (ahead=16 vs main, dirty WIP on `table-registry.generated.ts`) |
 | Content vs `origin/looped-transformers` | 0 ahead / 0 behind | unchanged |
 
-The content lane posted a stronger fix-mapping reply at 18:33:05Z claiming both BLOCKING
-findings are resolved on head `5031736e` (within-budget audit, meta tests removed,
-throughput PR #291 split). CI `test` timeout on the same head remains the active merge
-blocker; no reviewer comment clears the original 17:10:15Z BLOCKING rejection.
+Waited for the in-progress `test` rerun (started 18:39:52Z) to reach terminal state.
+It failed again at 5m13s on the same head `5031736e`, confirming the CI timeout blocker
+is stable. No reviewer clearing comment on the 17:10:15Z BLOCKING rejection.
 
 ### Preconditions checked
 
 | Precondition | Status | Evidence |
 | --- | --- | --- |
 | GitHub mergeability | PARTIAL | `mergeable=MERGEABLE`, `mergeStateStatus=UNSTABLE` on head `5031736e` |
-| Required CI checks | **FAIL** | `test` FAILURE (5m13s timeout), `ci` FAILURE on head `5031736e`; workflow `28612903832` |
+| Required CI checks | **FAIL** | `test` FAILURE (5m13s timeout, completed 18:45:05Z), `ci` FAILURE; workflow `28612903832` |
 | Review complete enough to proceed | **PARTIAL** | 18:33:05Z fix-mapping maps both BLOCKING items to concrete fixes with validation, but no reviewer clearing/superseding comment on the 17:10:15Z REJECTED review |
 | Queue/worktree metadata allows action | PASS | Lane metadata present; `work-task-64` at `init` |
 | Scope boundary | PASS | No unrelated edits in this drain lane |
@@ -1123,12 +1122,12 @@ blocker; no reviewer comment clears the original 17:10:15Z BLOCKING rejection.
 
 **Reasons (all must clear before merge):**
 
-1. **Required checks failing:** `test` timed out at 5m13s on head `5031736e`, failing the `ci` aggregate gate (workflow `28612903832`).
+1. **Required checks failing:** `test` timed out at 5m13s on head `5031736e` (rerun confirmed at 18:45:05Z), failing the `ci` aggregate gate (workflow `28612903832`).
 2. **Review not explicitly cleared:** the 18:33:05Z author fix-mapping claims full resolution, but the original BLOCKING/REJECTED review (17:10:15Z) has no later reviewer comment that clears or supersedes it.
 
 **Next safe planner action:** content lane must fix the CI `test` timeout on PR head `5031736e`, then obtain a clearing PR conversation reply from the reviewer (or explicit supersede) before drain story 002 can merge.
 
-### Post-evaluation queue snapshot (2026-07-02T18:39Z UTC)
+### Post-evaluation queue snapshot (2026-07-02T18:45Z UTC)
 
 | Work id | Type | State |
 | --- | --- | --- |
@@ -1137,7 +1136,7 @@ blocker; no reviewer comment clears the original 17:10:15Z BLOCKING rejection.
 
 No `review` work token is active. PR conversation has BLOCKING review (17:10:15Z) plus two author fix-mapping replies (17:56:35Z, 18:33:05Z); no clearing reviewer reply.
 
-## Quality gate (story 002, iteration 29)
+## Quality gate (story 002, iteration 30)
 
 Merge evaluation only; no PR merge or content mutation.
 
@@ -1145,4 +1144,4 @@ Merge evaluation only; no PR merge or content mutation.
 bun run typecheck
 ```
 
-Result: PASS (2026-07-02T18:39Z UTC).
+Result: PASS (2026-07-02T18:45Z UTC).
