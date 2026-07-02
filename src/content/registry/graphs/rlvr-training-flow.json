@@ -1,0 +1,84 @@
+{
+  "id": "graph.rlvr-training-flow",
+  "slug": "rlvr-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["RLVR training flow", "verifiable reward training flow"],
+  "tags": ["alignment", "foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.deepseek-r1"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "training-regime.rlvr",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "prompt",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "prompt",
+      "labelKey": "graph.nodes.prompt.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 230, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": ["response"]
+    },
+    {
+      "id": "response",
+      "labelKey": "graph.nodes.response.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 118 },
+      "size": { "width": 210, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["verifier"]
+    },
+    {
+      "id": "verifier",
+      "labelKey": "graph.nodes.verifier.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 252 },
+      "size": { "width": 210, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["updatedModel"]
+    },
+    {
+      "id": "updatedModel",
+      "labelKey": "graph.nodes.updatedModel.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 386 },
+      "size": { "width": 210, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "prompt-response",
+      "source": "prompt",
+      "target": "response",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "response-verifier",
+      "source": "response",
+      "target": "verifier",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "verifier-updated",
+      "source": "verifier",
+      "target": "updatedModel",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

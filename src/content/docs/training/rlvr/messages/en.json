@@ -1,0 +1,64 @@
+{
+  "title": "Reinforcement Learning with Verifiable Rewards",
+  "description": "A post-training reinforcement learning regime where rewards come from externally checkable task outcomes rather than human preference labels alone.",
+  "openingSummary": "Reinforcement Learning with Verifiable Rewards, usually shortened to RLVR, trains a model with reinforcement learning when the reward can be computed from externally checkable outcomes such as exact answers, unit tests, or rule-based validators instead of human preference labels alone.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Reinforcement Learning with Verifiable Rewards is a post-training method where a language model acts as a policy, generates candidate answers or reasoning traces, and receives reward from deterministic checks on whether those outputs satisfy task rules. The verifier can be as simple as comparing a final answer to a reference, running code against test cases, or applying a formal checker."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Many reasoning-heavy tasks have objectively checkable success criteria. Math problems with exact answers, programming tasks with unit tests, and logic puzzles with rule-based graders all provide reward signals without requiring humans to rank every model output. RLVR exists so teams can optimize models on those tasks with reinforcement learning while keeping the reward grounded in verifiable outcomes."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Training starts from a capable checkpoint, often after supervised fine-tuning. The model samples responses for prompts drawn from verifiable tasks. A verifier scores each response for correctness, formatting, or other rule-based criteria. Those scores become rewards that drive policy updates through a reinforcement learning optimizer. The loop repeats until the model improves on the verifiable task distribution."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Supervised fine-tuning imitates labeled demonstrations directly. RLVR instead explores multiple candidate outputs and keeps updates that score well under external checks. Reinforcement learning from human feedback relies on human preference signals or learned reward models; RLVR relies on externally checkable outcomes where those checks exist."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "RLVR only applies where a reliable verifier exists. Tasks without checkable outcomes still need human feedback or other reward sources. Narrow verifiers can encourage reward hacking or overfitting to the checked format rather than the intended behavior. Strong verifiable scores on one task family do not guarantee broader reasoning or safety."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "trainingFlow": {
+      "title": "RLVR training flow",
+      "alt": "A four-step RLVR flow: task prompt, model response, verifier check, then policy update toward higher verifier reward.",
+      "caption": "RLVR samples model outputs, scores them with an external verifier, and updates the policy from the resulting reward.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and reward flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "prompt": {
+        "label": "Task prompt"
+      },
+      "response": {
+        "label": "Model response"
+      },
+      "verifier": {
+        "label": "Verifier check"
+      },
+      "updatedModel": {
+        "label": "Policy update"
+      }
+    }
+  }
+}
