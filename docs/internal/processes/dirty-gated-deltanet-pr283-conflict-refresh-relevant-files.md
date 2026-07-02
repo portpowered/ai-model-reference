@@ -109,16 +109,15 @@ test-integration, validate-data, linkcheck, ci) — last completed
 Live inspection at 2026-07-02T19:14Z UTC shows `dirty` again because
 `origin/main` advanced 66 commits since that refresh (see drift below).
 
-### Latest PR #283 conversation feedback (blocking unless superseded)
+### Latest PR #283 conversation feedback (historical — see story 003/004 for current state)
 
 1. **BLOCKING** (2026-07-02T17:13:33Z): local `make test` exited non-zero in the
-   review workspace (`test:website` exited code 1) even though GitHub CI is green
-   on head `4c6abf3a`. Reviewer cannot merge until a clean local `make test` is
-   reproduced from PR head. No later clearing comment supersedes this blocker.
+   review workspace on head `4c6abf3a`. Superseded by conflict refresh to
+   `c120a785` with all required GitHub CI checks green (2026-07-02T19:35:34Z).
 2. Prior **BLOCKING** merge-conflict feedback (2026-07-02T15:40:09Z) was addressed
-   by merge commit `4c6abf3a` (2026-07-02T16:12:10Z follow-up comment).
+   by merge commit `4c6abf3a`, then re-refreshed to `c120a785` in story 003.
 3. Prior **APPROVED** (2026-07-02T15:39:56Z) was superseded by later blocking
-   comments in the current review loop.
+   comments in the prior review loop; latest refresh head awaits re-review.
 
 ## `origin/main` identity
 
@@ -299,5 +298,68 @@ auto-merged (`content-page-generation-workflow-relevant-files.md`,
 | Base | `main` @ merge base advanced via merge commit |
 | Local validation | `make typecheck`, `make lint`, focused graph/gated-deltanet tests pass |
 
-Gated DeltaNet page, registry, graph, and discovery intent preserved. CI rerun
-in progress on refreshed head.
+Gated DeltaNet page, registry, graph, and discovery intent preserved. All 11
+required CI checks pass on refreshed head `c120a785` (2026-07-02T19:34:57Z UTC).
+
+## Story 004 — Active-review handoff (N/A)
+
+Captured 2026-07-02T21:00Z UTC. Story 004 runs only when story 002 selects
+`active-review-handoff`. Story 002 selected `branch-refresh-pr-update`; story
+003 completed the refresh in the stamped owner worktree. No handoff payload is
+required.
+
+### Precondition check
+
+| Criterion | Evidence | Result |
+| --- | --- | --- |
+| Selected outcome is `active-review-handoff`? | Story 002 table: `branch-refresh-pr-update` | **no** — story 004 N/A |
+| Partial or hidden conflict resolution committed? | Story 003 merged `origin/main` into `gated-deltanet`, resolved four conflicts, pushed `c120a785`; no stash-only or lane-branch conflict edits | **no** hidden resolution |
+| Active owner collision requiring another lane? | `.claude/worktrees/gated-deltanet` stamps PR #283 `linkage.status=current`; batch 070 drain still `idea:init` | owner lane authoritative |
+
+### Why handoff was not selected
+
+1. **Conflicts were bounded and mechanical.** The seven `merge-tree` paths were
+   shared graph components, process docs, and generated registry surfaces touched
+   during prior PR #283 mergeability follow-ups — not content-intent decisions
+   owned by a separate reviewer.
+2. **Owner worktree aligned with PR #283.** The `gated-deltanet` worktree is the
+   stamped owner lane (`linkage.pullRequest.status=current`). Batch 074
+   conflict-refresh coordinated with that lane; it did not compete with an active
+   reviewer or a progressed batch 070 drain item.
+3. **Refresh completed successfully.** Story 003 pushed `c120a785`; PR #283 is
+   `CLEAN` / `MERGEABLE` with all required checks green on GitHub.
+
+### Ownership-sensitive paths (for reference — resolved in story 003)
+
+| Path | Why not a handoff surface |
+| --- | --- |
+| `AttentionVariantComparisonGraph.tsx` / `.test.tsx` | Mechanical legend/title wiring; adopted main's `buildRegistryGraphLegend` while preserving Gated DeltaNet graph behavior |
+| `ModuleGraph.tsx` | Re-added `attention-variant-graph` routing for Gated DeltaNet; no third-party lane owns that decision |
+| `derived-page-validation-relevant-files.md` | Process-doc listing only; no page content rewrite |
+| `content-page-generation-workflow-relevant-files.md` | Auto-merged without content conflict |
+| `content-reconciliation-variant-related-docs.test.tsx` | Auto-merged; prior PR #283 reconciliation already settled variant peers |
+| `table-registry.generated.ts` | Auto-merged generated artifact |
+
+### Distinction from superseded lane and batch 070 drain
+
+| Lane | State | Role in this decision |
+| --- | --- | --- |
+| Original `gated-deltanet` task | `failed` on queue; plan TERMINAL complete | Queue failure reflects open dirty PR, not incomplete implementation — refresh restores mergeability |
+| Batch 070 `gated-deltanet-pr283-drain` | `idea:init` | Drain ownership for merge/consume after PR is clean; not active implementation ownership |
+| Batch 074 conflict-refresh (this lane) | `task:init` / PROCESSING | Coordinated refresh with owner worktree; handoff not needed |
+
+### Latest inspected PR #283 and `origin/main` (handoff reproduction baseline)
+
+| Field | Value |
+| --- | --- |
+| `origin/main` SHA | `209d1bd8ced0cced5fd99992fe50f23296d126e8` |
+| PR #283 head | `c120a78501692fefbe26b06ec6fa538a57840d5f` |
+| Merge state | `CLEAN` |
+| Mergeable | `MERGEABLE` |
+| CI | 11/11 SUCCESS on head `c120a785` |
+
+### Actions not taken (by design)
+
+- No handoff comment drafted for a separate owner or reviewer.
+- No partial conflict resolution left uncommitted on the owner worktree.
+- No queue movement or batch 070 drain lane activation from this story.
