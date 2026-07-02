@@ -112,7 +112,7 @@ describe("flops concept discovery (flops-concept-page-001)", () => {
       "peak FLOPs",
       "achieved FLOPs",
     ]);
-    expect(page.frontmatter.updatedAt).toBe("2026-07-02");
+    expect(page.frontmatter.updatedAt).toBe("2026-07-03");
     expect(messages.title).toBe("FLOPs");
     expect(messages.description.toLowerCase()).toContain(
       "floating-point operations",
@@ -254,5 +254,53 @@ describe("flops concept page (flops-concept-page-003)", () => {
     );
     expect(html).toContain('data-registry-comparison-table="true"');
     expect(html).toContain("memory bandwidth stalls");
+  });
+});
+
+describe("flops concept page (flops-concept-page-004)", () => {
+  test("messages explain dense transformers, mixture-of-experts routing, quantization effects, and metric distinctions", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const body =
+      messages.sections?.architectureAndPrecision.body?.toLowerCase() ?? "";
+    const confusions =
+      messages.sections?.commonConfusions.body?.toLowerCase() ?? "";
+
+    expect(body).toContain("dense transformer");
+    expect(body).toContain("attention");
+    expect(body).toContain("feed-forward");
+    expect(body).toContain("mixture-of-experts");
+    expect(body).toContain("parameter count");
+    expect(body).toContain("quantization");
+    expect(body).toContain("kernels");
+    expect(body).toContain("memory footprint");
+    expect(body).toContain("tokens per second");
+    expect(body).toContain("time to first token");
+    expect(body).toContain("inter-token latency");
+    expect(confusions).toContain("parameter count");
+    expect(confusions).toContain("memory footprint");
+    expect(confusions).toContain("tokens per second");
+    expect(confusions).toContain("time to first token");
+    expect(confusions).toContain("inter-token latency");
+  });
+
+  test("page renders architecture-and-precision section without vendor leaderboard framing", async () => {
+    const page = await loadConceptPage("flops");
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("Architecture And Precision Effects");
+    expect(html).toContain("mixture-of-experts");
+    expect(html).toContain("quantization");
+    expect(html).toContain("time to first token");
+    expect(html).not.toMatch(/nvidia|amd|leaderboard|benchmark winner/i);
   });
 });
