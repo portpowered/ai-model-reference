@@ -79,6 +79,26 @@ describe("stable-diffusion model page (stable-diffusion-model-page-002)", () => 
     expect(html).toContain("Denoiser");
   });
 
+  test("architecture graph teaches prompt conditioning, latent denoising, and decoding (stable-diffusion-model-page-003)", async () => {
+    const html = await renderModelHtml();
+
+    expect(html).toContain('data-graph-node-id="text-prompt"');
+    expect(html).toContain('data-graph-node-id="text-encoder"');
+    expect(html).toContain('data-graph-node-id="noisy-latent"');
+    expect(html).toContain('data-graph-node-id="latent-denoiser"');
+    expect(html).toContain('data-graph-node-id="vae-decoder"');
+    expect(html).toContain('data-graph-node-id="generated-image"');
+    expect(html).toContain('data-graph-node-id="denoise-repeat-marker"');
+    expect(html).toContain('data-graph-node-id="latent-pipeline"');
+    expect(html).toContain('data-graph-interaction-pan="true"');
+    expect(html).toContain('data-graph-interaction-zoom="true"');
+    expect(html).toContain("Noisy");
+    expect(html).toContain("T×");
+    expect(html).toContain(
+      "Text conditioning steers repeated latent denoising before the decoder maps the final latent into pixels.",
+    );
+  });
+
   test("related docs surface shipped adjacent glossary targets", async () => {
     const html = await renderModelHtml();
 

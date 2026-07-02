@@ -16,7 +16,7 @@
   ],
   "status": "published",
   "createdAt": "2026-07-01T00:00:00.000Z",
-  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
   "subjectId": "model.stable-diffusion",
   "graphType": "model-architecture",
   "rootNodeId": "generated-image",
@@ -47,14 +47,38 @@
       "childNodeIds": []
     },
     {
+      "id": "latent-pipeline",
+      "labelKey": "graph.nodes.latentPipeline.label",
+      "summaryKey": "graph.nodes.latentPipeline.summary",
+      "registryId": "concept.latent-space",
+      "moduleKind": "block",
+      "position": { "x": 175, "y": 170 },
+      "size": { "width": 390, "height": 200 },
+      "visualRole": "group-container",
+      "zIndex": 0,
+      "childNodeIds": []
+    },
+    {
       "id": "latent-denoiser",
       "labelKey": "graph.nodes.latentDenoiser.label",
       "summaryKey": "graph.nodes.latentDenoiser.summary",
       "registryId": "concept.denoising-generation",
       "moduleKind": "block",
-      "position": { "x": 260, "y": 184 },
+      "position": { "x": 260, "y": 220 },
       "size": { "width": 220, "height": 82 },
       "visualRole": "architecture-attention",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "denoise-repeat-marker",
+      "labelKey": "graph.nodes.denoiseRepeatMarker.label",
+      "summaryKey": "graph.nodes.denoiseRepeatMarker.summary",
+      "moduleKind": "other",
+      "position": { "x": 576, "y": 248 },
+      "size": { "width": 48, "height": 120 },
+      "visualRole": "repeat-label",
+      "zIndex": 2,
       "childNodeIds": []
     },
     {
@@ -63,9 +87,22 @@
       "summaryKey": "graph.nodes.textEncoder.summary",
       "registryId": "concept.conditioning",
       "moduleKind": "embedding",
-      "position": { "x": 68, "y": 296 },
+      "position": { "x": 68, "y": 400 },
       "size": { "width": 170, "height": 62 },
       "visualRole": "architecture-embedding",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "noisy-latent",
+      "labelKey": "graph.nodes.noisyLatent.label",
+      "summaryKey": "graph.nodes.noisyLatent.summary",
+      "registryId": "concept.latent-space",
+      "moduleKind": "input",
+      "position": { "x": 430, "y": 400 },
+      "size": { "width": 170, "height": 62 },
+      "visualRole": "architecture-io",
+      "zIndex": 3,
       "childNodeIds": []
     },
     {
@@ -74,9 +111,10 @@
       "summaryKey": "graph.nodes.textPrompt.summary",
       "registryId": "concept.conditioning",
       "moduleKind": "input",
-      "position": { "x": 285, "y": 388 },
+      "position": { "x": 285, "y": 492 },
       "size": { "width": 170, "height": 60 },
       "visualRole": "architecture-io",
+      "zIndex": 3,
       "childNodeIds": []
     }
   ],
@@ -106,17 +144,17 @@
       "targetHandleSide": "left"
     },
     {
+      "id": "noisy-latent-to-latent-denoiser",
+      "source": "noisy-latent",
+      "target": "latent-denoiser",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "right"
+    },
+    {
       "id": "text-prompt-to-text-encoder",
       "source": "text-prompt",
       "target": "text-encoder",
-      "edgeKind": "data-flow",
-      "sourceHandleSide": "top",
-      "targetHandleSide": "bottom"
-    },
-    {
-      "id": "text-prompt-to-latent-denoiser",
-      "source": "text-prompt",
-      "target": "latent-denoiser",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"

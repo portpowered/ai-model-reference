@@ -39,7 +39,8 @@
   },
   "assets": {
     "architectureGraph": {
-      "alt": "Stable Diffusion architecture diagram with a text prompt feeding a text encoder, conditioning a latent denoiser that refines noisy latents over repeated steps, then a variational autoencoder decoder that outputs a generated image."
+      "alt": "Stable Diffusion architecture diagram with a text prompt feeding a text encoder that conditions a latent denoiser, noisy latents entering the denoiser for repeated refinement steps, then a variational autoencoder decoder that outputs a generated image.",
+      "caption": "Text conditioning steers repeated latent denoising before the decoder maps the final latent into pixels."
     }
   },
   "graph": {
@@ -52,13 +53,25 @@
         "label": "VAE\nDecoder",
         "summary": "Maps the denoised latent tensor into pixel space"
       },
+      "latentPipeline": {
+        "label": " ",
+        "summary": "Latent-space denoising region where the U-Net operates on a compressed grid"
+      },
       "latentDenoiser": {
         "label": "Latent\nDenoiser",
-        "summary": "U-Net that removes noise from the latent grid across many steps"
+        "summary": "U-Net with cross-attention that removes noise from the latent grid across many steps"
+      },
+      "denoiseRepeatMarker": {
+        "label": "T×",
+        "summary": "The denoiser repeats for many timesteps until the latent is clean enough to decode"
       },
       "textEncoder": {
         "label": "Text\nEncoder",
         "summary": "Frozen encoder that turns the prompt into conditioning embeddings"
+      },
+      "noisyLatent": {
+        "label": "Noisy\nLatent",
+        "summary": "Random Gaussian noise in the compressed latent grid before denoising begins"
       },
       "textPrompt": {
         "label": "Text\nPrompt",
