@@ -566,8 +566,7 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
       );
 
       const registryRuntimeClassification = classifications.find(
-        (entry) =>
-          entry.path === "src/lib/content/registry-runtime.test.ts",
+        (entry) => entry.path === "src/lib/content/registry-runtime.test.ts",
       );
       expect(registryRuntimeClassification).toEqual(
         expect.objectContaining({
@@ -617,7 +616,9 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
       const formatted =
         formatLatentDiffusionRootDirtyPathClassificationReport(report);
       expect(formatted).toContain("Root Dirty Path Classification");
-      expect(formatted).toContain("classification=stale-merge-checkouter-drift");
+      expect(formatted).toContain(
+        "classification=stale-merge-checkouter-drift",
+      );
       expect(formatted).toContain("shared-modified-test-path=true");
       expect(formatted).toContain("classification=blocked-unknown");
       expect(formatted).toContain("classification-note");
@@ -658,7 +659,9 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
         LATENT_DIFFUSION_RECONCILIATION_DIRTY_PATHS.length,
       );
       expect(
-        report.pathOutcomes.every((outcome) => outcome.finalRootState === "cleared"),
+        report.pathOutcomes.every(
+          (outcome) => outcome.finalRootState === "cleared",
+        ),
       ).toBe(true);
 
       const formatted = formatLatentDiffusionRootReconciliationReport(report);
@@ -698,26 +701,28 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
       };
 
       const dryRunReport = buildLatentDiffusionRootReconciliationReport({
-        classificationReport: buildLatentDiffusionRootDirtyPathClassificationReport({
-          completedWorktreeReport: inspectLatentDiffusionCompletedWorktreeEvidence({
-            branchName,
-            remoteBaseRef: fixture.mainRef,
-            repoRoot: fixture.repoRoot,
-            worktreePath: "/tmp/latent-diffusion-paper-page",
-            runGit: runGitFn,
-          }),
-          generatedAtUtc: "2026-07-02T07:15:00.000Z",
-          landedEvidenceReport: verifyLatentDiffusionLandedEvidence({
+        classificationReport:
+          buildLatentDiffusionRootDirtyPathClassificationReport({
+            completedWorktreeReport:
+              inspectLatentDiffusionCompletedWorktreeEvidence({
+                branchName,
+                remoteBaseRef: fixture.mainRef,
+                repoRoot: fixture.repoRoot,
+                worktreePath: "/tmp/latent-diffusion-paper-page",
+                runGit: runGitFn,
+              }),
             generatedAtUtc: "2026-07-02T07:15:00.000Z",
+            landedEvidenceReport: verifyLatentDiffusionLandedEvidence({
+              generatedAtUtc: "2026-07-02T07:15:00.000Z",
+              remoteBaseRef: fixture.mainRef,
+              repoRoot: fixture.repoRoot,
+              statusOutput,
+              runGit: runGitFn,
+            }),
             remoteBaseRef: fixture.mainRef,
             repoRoot: fixture.repoRoot,
-            statusOutput,
             runGit: runGitFn,
           }),
-          remoteBaseRef: fixture.mainRef,
-          repoRoot: fixture.repoRoot,
-          runGit: runGitFn,
-        }),
         dryRun: true,
         generatedAtUtc: "2026-07-02T07:15:00.000Z",
         performCleanup: false,
@@ -748,26 +753,28 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
       );
 
       const cleanupReport = buildLatentDiffusionRootReconciliationReport({
-        classificationReport: buildLatentDiffusionRootDirtyPathClassificationReport({
-          completedWorktreeReport: inspectLatentDiffusionCompletedWorktreeEvidence({
-            branchName,
-            remoteBaseRef: fixture.mainRef,
-            repoRoot: fixture.repoRoot,
-            worktreePath: "/tmp/latent-diffusion-paper-page",
-            runGit: runGitFn,
-          }),
-          generatedAtUtc: "2026-07-02T07:20:00.000Z",
-          landedEvidenceReport: verifyLatentDiffusionLandedEvidence({
+        classificationReport:
+          buildLatentDiffusionRootDirtyPathClassificationReport({
+            completedWorktreeReport:
+              inspectLatentDiffusionCompletedWorktreeEvidence({
+                branchName,
+                remoteBaseRef: fixture.mainRef,
+                repoRoot: fixture.repoRoot,
+                worktreePath: "/tmp/latent-diffusion-paper-page",
+                runGit: runGitFn,
+              }),
             generatedAtUtc: "2026-07-02T07:20:00.000Z",
+            landedEvidenceReport: verifyLatentDiffusionLandedEvidence({
+              generatedAtUtc: "2026-07-02T07:20:00.000Z",
+              remoteBaseRef: fixture.mainRef,
+              repoRoot: fixture.repoRoot,
+              statusOutput,
+              runGit: runGitFn,
+            }),
             remoteBaseRef: fixture.mainRef,
             repoRoot: fixture.repoRoot,
-            statusOutput,
             runGit: runGitFn,
           }),
-          remoteBaseRef: fixture.mainRef,
-          repoRoot: fixture.repoRoot,
-          runGit: runGitFn,
-        }),
         dryRun: false,
         generatedAtUtc: "2026-07-02T07:20:00.000Z",
         performCleanup: true,
@@ -858,7 +865,10 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
         generatedAtUtc: "2026-07-02T09:00:00.000Z",
         mergeEvidence: {
           mergeCommitSha: LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA,
-          mergeCommitShort: LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA.slice(0, 7),
+          mergeCommitShort: LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA.slice(
+            0,
+            7,
+          ),
           presentInLineage: true,
           pullRequestNumber: LATENT_DIFFUSION_LANDING_PR_NUMBER,
           status: "present-in-lineage",
@@ -897,7 +907,9 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
     expect(decision.status).toBe("released");
     expect(decision.blockingPathCount).toBe(0);
     expect(decision.holdReason).toBeNull();
-    expect(decision.releaseEvidence).toContain("latent-diffusion-dirty-paths=0");
+    expect(decision.releaseEvidence).toContain(
+      "latent-diffusion-dirty-paths=0",
+    );
     expect(decision.releaseEvidence).toContain("all-paths-cleared=true");
   });
 
@@ -908,7 +920,10 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
         generatedAtUtc: "2026-07-02T09:00:00.000Z",
         mergeEvidence: {
           mergeCommitSha: LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA,
-          mergeCommitShort: LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA.slice(0, 7),
+          mergeCommitShort: LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA.slice(
+            0,
+            7,
+          ),
           presentInLineage: true,
           pullRequestNumber: LATENT_DIFFUSION_LANDING_PR_NUMBER,
           status: "present-in-lineage",
@@ -972,7 +987,9 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
     });
 
     expect(formatted).toContain("Content Lane Hold Decision");
-    expect(formatted).toContain(`content-lane-release=${LATENT_DIFFUSION_CONTENT_LANE_RELEASE}`);
+    expect(formatted).toContain(
+      `content-lane-release=${LATENT_DIFFUSION_CONTENT_LANE_RELEASE}`,
+    );
     expect(formatted).toContain("content-lane-status=released");
     expect(formatted).toContain("release-evidence count=2");
   });

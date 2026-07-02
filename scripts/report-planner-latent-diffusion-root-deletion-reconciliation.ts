@@ -46,12 +46,13 @@ const worktreeEvidenceReport = inspectLatentDiffusionCompletedWorktreeEvidence({
   remoteBaseRef,
   repoRoot,
 });
-const classificationReport = buildLatentDiffusionRootDirtyPathClassificationReport({
-  completedWorktreeReport: worktreeEvidenceReport,
-  landedEvidenceReport: report,
-  remoteBaseRef,
-  repoRoot,
-});
+const classificationReport =
+  buildLatentDiffusionRootDirtyPathClassificationReport({
+    completedWorktreeReport: worktreeEvidenceReport,
+    landedEvidenceReport: report,
+    remoteBaseRef,
+    repoRoot,
+  });
 const reconciliationReport = buildLatentDiffusionRootReconciliationReport({
   classificationReport,
   remoteBaseRef,

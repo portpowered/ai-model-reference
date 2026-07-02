@@ -999,7 +999,9 @@ function buildLatentDiffusionRootPathClassificationEvidence(input: {
   remoteBaseRef: string;
   statusCode: string | null;
 }): LatentDiffusionRootDirtyPathClassificationEvidence {
-  const rootCheckoutStatus = mapChangeKindToRootCheckoutStatus(input.changeKind);
+  const rootCheckoutStatus = mapChangeKindToRootCheckoutStatus(
+    input.changeKind,
+  );
   const classification = determineLatentDiffusionRootPathClassification({
     changeKind: input.changeKind,
     changedInCompletedBranchDiff: input.changedInCompletedBranchDiff,
@@ -1079,12 +1081,7 @@ export function classifyLatentDiffusionRootDirtyPaths(
     const presentOnOriginMain =
       originMainPresenceByPath.get(path) ??
       completedPath?.presentOnOriginMain ??
-      pathExistsOnGitRef(
-        options.repoRoot,
-        options.remoteBaseRef,
-        path,
-        runGit,
-      );
+      pathExistsOnGitRef(options.repoRoot, options.remoteBaseRef, path, runGit);
     const changeKind = dirtyPath?.changeKind ?? null;
     const headPresent =
       changeKind === "deleted"
@@ -1299,15 +1296,16 @@ export function determineLatentDiffusionContentLaneHoldDecision(input: {
 }): LatentDiffusionContentLaneHoldDecision {
   const dirtyPaths =
     input.landedEvidenceReport.rootCheckoutEvidence.latentDiffusionDirtyPaths;
-  const ownerlessOrBlockedOutcomes = input.reconciliationReport.pathOutcomes.filter(
-    (outcome) =>
-      outcome.classification === "blocked-unknown" ||
-      outcome.classification === "intended-removal" ||
-      (outcome.classification === "stale-merge-checkouter-drift" &&
-        outcome.finalRootState !== "cleared") ||
-      (outcome.priorRootCheckoutStatus === "deleted" &&
-        outcome.finalRootState !== "cleared"),
-  );
+  const ownerlessOrBlockedOutcomes =
+    input.reconciliationReport.pathOutcomes.filter(
+      (outcome) =>
+        outcome.classification === "blocked-unknown" ||
+        outcome.classification === "intended-removal" ||
+        (outcome.classification === "stale-merge-checkouter-drift" &&
+          outcome.finalRootState !== "cleared") ||
+        (outcome.priorRootCheckoutStatus === "deleted" &&
+          outcome.finalRootState !== "cleared"),
+    );
   const nonClearedOutcomes = input.reconciliationReport.pathOutcomes.filter(
     (outcome) => outcome.finalRootState !== "cleared",
   );
@@ -1468,44 +1466,46 @@ export function buildLatentDiffusionPathReconciliationOutcomes(input: {
   repoRoot: string;
   runGit: RunGit;
 }): LatentDiffusionPathReconciliationOutcome[] {
-  return input.classificationReport.pathClassifications.map((classification) => {
-    const plan = determineLatentDiffusionPathReconciliationPlan({
-      classification,
-      remoteBaseRef: input.remoteBaseRef,
-    });
-    let cleanupPerformed = false;
-    let finalRootState = plan.finalRootState;
-
-    if (
-      input.performCleanup &&
-      !input.dryRun &&
-      plan.plannedCleanupAction === "restore-from-remote-base-ref"
-    ) {
-      cleanupPerformed = restorePathFromRemoteBaseRef({
-        path: classification.path,
+  return input.classificationReport.pathClassifications.map(
+    (classification) => {
+      const plan = determineLatentDiffusionPathReconciliationPlan({
+        classification,
         remoteBaseRef: input.remoteBaseRef,
-        repoRoot: input.repoRoot,
-        runGit: input.runGit,
       });
-    }
+      let cleanupPerformed = false;
+      let finalRootState = plan.finalRootState;
 
-    if (plan.plannedCleanupAction === "restore-from-remote-base-ref") {
-      finalRootState = cleanupPerformed ? "cleared" : "blocked";
-    }
+      if (
+        input.performCleanup &&
+        !input.dryRun &&
+        plan.plannedCleanupAction === "restore-from-remote-base-ref"
+      ) {
+        cleanupPerformed = restorePathFromRemoteBaseRef({
+          path: classification.path,
+          remoteBaseRef: input.remoteBaseRef,
+          repoRoot: input.repoRoot,
+          runGit: input.runGit,
+        });
+      }
 
-    return {
-      classification: classification.classification,
-      cleanupPerformed,
-      cleanupSafetyRationale: plan.cleanupSafetyRationale,
-      finalRootState,
-      operatorDecisionNeeded: plan.operatorDecisionNeeded,
-      ownershipProof: plan.ownershipProof,
-      path: classification.path,
-      plannedCleanupAction: plan.plannedCleanupAction,
-      priorRootCheckoutStatus: classification.rootCheckoutStatus,
-      priorStatusCode: classification.statusCode,
-    };
-  });
+      if (plan.plannedCleanupAction === "restore-from-remote-base-ref") {
+        finalRootState = cleanupPerformed ? "cleared" : "blocked";
+      }
+
+      return {
+        classification: classification.classification,
+        cleanupPerformed,
+        cleanupSafetyRationale: plan.cleanupSafetyRationale,
+        finalRootState,
+        operatorDecisionNeeded: plan.operatorDecisionNeeded,
+        ownershipProof: plan.ownershipProof,
+        path: classification.path,
+        plannedCleanupAction: plan.plannedCleanupAction,
+        priorRootCheckoutStatus: classification.rootCheckoutStatus,
+        priorStatusCode: classification.statusCode,
+      };
+    },
+  );
 }
 
 export function buildLatentDiffusionOperatorHandoff(
@@ -1609,12 +1609,11 @@ export function buildLatentDiffusionRootReconciliationReport(
     staleDriftCleanupCount,
   };
 
-  const contentLaneHoldDecision = determineLatentDiffusionContentLaneHoldDecision(
-    {
+  const contentLaneHoldDecision =
+    determineLatentDiffusionContentLaneHoldDecision({
       landedEvidenceReport,
       reconciliationReport: reconciliationWithoutHoldDecision,
-    },
-  );
+    });
 
   return {
     ...reconciliationWithoutHoldDecision,
@@ -1706,9 +1705,7 @@ export function formatLatentDiffusionContentLaneHoldDecision(
   }
 
   if (decision.status === "released") {
-    lines.push(
-      `- release-evidence count=${decision.releaseEvidence.length}`,
-    );
+    lines.push(`- release-evidence count=${decision.releaseEvidence.length}`);
     for (const evidence of decision.releaseEvidence) {
       lines.push(`    - ${evidence}`);
     }
