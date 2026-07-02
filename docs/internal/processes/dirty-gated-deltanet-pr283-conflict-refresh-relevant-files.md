@@ -205,3 +205,69 @@ still `idea:init`.
 - Only `git fetch` (read-only remote refresh), non-mutating `git merge-tree`,
   drift queries, `gh pr view`, GitHub REST mergeability reads, and
   `you work list` reads were used.
+
+## Story 002 — Selected outcome (2026-07-02T20:30Z UTC)
+
+Story 002 classifies PR #283 into exactly one next outcome from live evidence
+above. No branch mutation, conflict resolution, or Gated DeltaNet content edits
+occurred during classification.
+
+### Out-of-scope guardrails (all outcomes)
+
+- Rewriting the Gated DeltaNet page or registry from scratch is **out of scope**.
+- Reviving the older queue-failed `gated-deltanet` implementation task as a new
+  implementation lane is **out of scope**.
+- Batch 070 `gated-deltanet-pr283-drain` (`idea:init`) remains drain ownership
+  for merge/consume completion after the PR is clean; it does not block this lane
+  from selecting refresh when conflicts are safe.
+
+### Classification decision tree
+
+| Criterion | Evidence | Result |
+| --- | --- | --- |
+| GitHub / branch metadata readable? | PR #283, `origin/gated-deltanet`, and `origin/main` SHAs read successfully | not `blocked-reason` |
+| Active ownership collision? | `.claude/worktrees/gated-deltanet` stamps PR #283 `linkage.status=current`; batch 070 drain still `idea:init`; batch 074 owns conflict-refresh classification only | no collision |
+| Conflicts require a different owner for content intent? | Seven `merge-tree` paths are mechanical re-merge surfaces (process docs, shared graph components touched by PR #283 mergeability commits, generated registry). Prior refresh at `4c6abf3a` resolved the same class without reopening page scope. | no handoff required |
+| Conflicts bounded to safe refresh? | All conflict paths are tied to PR #283 branch integration or validation fallout; no third-party lane owns overlapping refresh work | refresh-safe |
+
+### Selected outcome
+
+| Field | Value |
+| --- | --- |
+| **Outcome** | `branch-refresh-pr-update` |
+| Target PR | #283 (`gated-deltanet`) |
+| Refresh branch | `gated-deltanet` |
+| Refresh worktree | `.claude/worktrees/gated-deltanet` |
+| Base commit | `origin/main` @ `209d1bd8ced0cced5fd99992fe50f23296d126e8` |
+| Current head | `4c6abf3a24a2ff64683c1087034dbf2b58b24903` (66 behind main) |
+
+### Evidence causing selection
+
+1. **Merge state is DIRTY again after a prior safe refresh.** Head `4c6abf3a`
+   integrated main and was CLEAN at 2026-07-02T16:17Z, but `origin/main`
+   advanced 66 commits (PR #294 merge) and GitHub now reports `dirty` /
+   `CONFLICTING` again. This is bounded drift, not unknown ownership.
+2. **Authoritative owner lane is current and aligned.** The `gated-deltanet`
+   worktree stamps PR #283 with `linkage.pullRequest.status=current`. Batch 074
+   conflict refresh coordinates with that owner lane; it does not compete with
+   an active reviewer or a progressed batch 070 drain item.
+3. **Conflict paths are enumerated and refresh-safe.** Non-mutating
+   `git merge-tree` lists seven paths (see drift section). They match the
+   surfaces touched during the prior mergeability follow-up (graph legend/title
+   wiring, variant related-docs reconciliation, process-doc churn). Resolution
+   preserves existing Gated DeltaNet page intent unless a direct conflict forces
+   a minimal mechanical choice.
+4. **Not `active-review-handoff`.** No separate reviewer or lane owns content
+   decisions on these paths. PR #283 conversation blocking on local `make test`
+   (2026-07-02T17:13:33Z) is a quality-gate follow-up for story 003 validation,
+   not evidence that conflict resolution must be deferred to another owner.
+5. **Not `blocked-reason`.** GitHub metadata, branch identity, owner worktree,
+   queue tokens, and batch 070 drain state are consistent and readable.
+
+### Downstream routing
+
+| Story | Runs? | Notes |
+| --- | --- | --- |
+| 003 — Refresh PR #283 when conflicts are safe | **yes** | Merge/rebase `origin/main` into `gated-deltanet` in the owner worktree, resolve the seven known paths, push, rerun checks. |
+| 004 — Hand off unsafe conflicts | no | Not selected. |
+| 005 — Record blocked reason | no | Not selected. |
