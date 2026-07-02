@@ -5,7 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
-import { PREFILL_DECODE_SPLIT_CONCEPT_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -18,7 +18,7 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = PREFILL_DECODE_SPLIT_CONCEPT_PAGE_DIR;
+const pageDir = getDocsPageDir("concepts", "prefill-decode-split");
 const messagesPath = join(pageDir, "messages/en.json");
 const CONCEPT_URL = "/docs/concepts/prefill-decode-split";
 

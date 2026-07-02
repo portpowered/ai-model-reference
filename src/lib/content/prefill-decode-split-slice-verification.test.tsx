@@ -15,7 +15,7 @@ import {
 } from "@/app/docs/docs-slug-renderer";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
-import { PREFILL_DECODE_SPLIT_CONCEPT_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
@@ -28,11 +28,9 @@ import { docsSearchApi } from "@/lib/search/search-server";
 
 const REGISTRY_ID = "concept.prefill-decode-split";
 const PAGE_URL = "/docs/concepts/prefill-decode-split";
-const messagesPath = join(
-  PREFILL_DECODE_SPLIT_CONCEPT_PAGE_DIR,
-  "messages/en.json",
-);
-const assetsPath = join(PREFILL_DECODE_SPLIT_CONCEPT_PAGE_DIR, "assets.json");
+const pageDir = getDocsPageDir("concepts", "prefill-decode-split");
+const messagesPath = join(pageDir, "messages/en.json");
+const assetsPath = join(pageDir, "assets.json");
 
 async function renderSplitPageHtml(): Promise<string> {
   const page = await loadConceptPage("prefill-decode-split");
