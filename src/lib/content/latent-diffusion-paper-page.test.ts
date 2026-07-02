@@ -14,7 +14,11 @@ import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadPaperPage } from "@/lib/content/paper-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
-import { getPaperById } from "@/lib/content/registry-runtime";
+import {
+  getCitationById,
+  getPaperById,
+  getRegistryRecordById,
+} from "@/lib/content/registry-runtime";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -227,5 +231,79 @@ describe("latent-diffusion paper page (latent-diffusion-paper-page-005)", () => 
     expect(html).toContain(
       "Generation flows from input image compression into latent denoising",
     );
+  });
+});
+
+describe("latent-diffusion paper page (latent-diffusion-paper-page-006)", () => {
+  test.each([
+    "Latent Diffusion Models",
+    "latent diffusion",
+    "Stable Diffusion paper",
+    "latent-space denoising",
+  ] as const)("%s query surfaces the canonical paper page through search", async (query) => {
+    const searchResults = await docsSearchApi.search(query);
+
+    expect(resultsIncludeUrl(searchResults, LATENT_DIFFUSION_URL)).toBe(true);
+    expect(searchResults[0]?.url).toBe(LATENT_DIFFUSION_URL);
+  });
+
+  test("paper registry record, citation, tags, and relationships resolve", () => {
+    const record = getPaperById("paper.latent-diffusion");
+    expect(record?.tags).toEqual(["foundations", "model-family"]);
+    expect(record?.citationIds).toEqual(["citation.latent-diffusion-models"]);
+
+    for (const relatedId of record?.relatedIds ?? []) {
+      if (relatedId.startsWith("citation.")) {
+        expect(getCitationById(relatedId)?.id).toBe(relatedId);
+        continue;
+      }
+      expect(getRegistryRecordById(relatedId)?.id).toBe(relatedId);
+    }
+
+    const citation = getCitationById("citation.latent-diffusion-models");
+    expect(citation?.status).toBe("published");
+    expect(citation?.title).toContain("Latent Diffusion Models");
+  });
+
+  test("page bundle asset references validate against local messages", () => {
+    const messagesPath = join(
+      PAPERS_DOCS_ROOT,
+      LATENT_DIFFUSION_SLUG,
+      "messages/en.json",
+    );
+    const assetsPath = join(
+      PAPERS_DOCS_ROOT,
+      LATENT_DIFFUSION_SLUG,
+      "assets.json",
+    );
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const assets = parsePageAssetConfig(
+      JSON.parse(readFileSync(assetsPath, "utf8")),
+    );
+
+    expect(validatePageAssetReferences(assets, messages)).toEqual([]);
+  });
+
+  test("rendered page shows title, summary, sections, related docs, tags, references, and graph without placeholders", async () => {
+    const page = await loadPaperPage(LATENT_DIFFUSION_SLUG);
+    const html = await renderPaperHtml();
+
+    expect(page.messages.openingSummary).toContain(
+      "Stable Diffusion-style image generation",
+    );
+    expect(html).toContain("Latent Diffusion Models");
+    expect(html).toContain("Why It Matters");
+    expect(html).toContain("Method Or Architecture");
+    expect(html).toContain("Evidence");
+    expect(html).toContain("Limitations");
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('data-testid="tag-pill-list"');
+    expect(html).toContain('data-page-asset="contributionGraph"');
+    expect(html).toContain('id="references"');
+    expect(html).toContain('href="/docs/glossary/latent-space"');
+    expect(html).toContain('href="/docs/glossary/conditioning"');
+    expect(html).not.toMatch(/placeholder|coming later|todo/i);
   });
 });
