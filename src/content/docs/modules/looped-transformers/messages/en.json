@@ -1,0 +1,178 @@
+{
+  "title": "Looped Transformers",
+  "description": "A transformer architecture that applies one shared block repeatedly over many loop iterations instead of stacking many distinct layers.",
+  "openingSummary": "Looped transformers reuse one shared transformer block many times in a row. Each loop iteration reads the current hidden states, runs the same attention and feed-forward weights again, and writes back updated states before the model makes a final prediction.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Looped transformers are a transformer architecture that creates depth by repeating one shared block instead of stacking many separate layers. The model embeds input tokens into hidden states, then applies the same transformer block—self-attention followed by a feed-forward path—over and over for a fixed loop count. Each pass refines the hidden states in place. After the last loop iteration, a prediction head reads the final states and produces the output."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "A standard transformer grows its parameter count every time a new layer is added, because each layer keeps its own weights. Looped transformers ask whether depth can come from repeated computation on shared weights instead. That pattern can reduce parameter count while still giving the model many refinement steps. Researchers study looped transformers partly because repeated passes over the same block may help a model carry out iterative in-context learning behavior with fewer total parameters."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Input context tokens are embedded into hidden states that carry information across positions. A loop counter sets how many times the shared block runs. On each iteration, the block applies self-attention so tokens can exchange information, then applies a feed-forward network to refine each position. Residual connections carry the previous state forward so each loop updates rather than replaces the representation. When the loop count is exhausted, the final hidden states feed a prediction head. The same block weights are used on every iteration; only the hidden states change from pass to pass."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "A standard depth-L transformer uses L distinct blocks with separate parameters. A looped transformer applies one shared block L times to the evolving hidden state."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "A standard transformer stack assigns fresh weights to every layer, so depth and parameter count grow together. A looped transformer keeps one block and creates depth by running it repeatedly, which changes how compute and parameters trade off. The shared block still contains ordinary attention and feed-forward submodules; the architectural difference is weight sharing and iteration, not a replacement for those building blocks."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Looped transformers are primarily studied as a research architecture for in-context learning experiments rather than as a widely deployed production stack. Reported work focuses on controlled data-fitting tasks where loop count and parameter sharing can be compared directly against standard depth-matched transformers."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Each loop iteration adds another full pass through attention and feed-forward compute, so inference can cost more wall-clock time than a shallow parameter-matched model even when total weights are smaller. Quality also depends on how many loops are used and how training schedules the loop count. Looped transformers are not a drop-in substitute for every standard transformer design; they target settings where iterative refinement and parameter sharing are the main research question."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Looped transformers matter because they separate depth from parameter count in a concrete, testable way. Once the looped pattern is clear, readers can compare it with standard depth-stacked transformers, weight-sharing schemes, and iterative inference ideas without re-deriving the whole architecture from a paper abstract."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "title": "Looped transformer compute flow",
+      "alt": "Looped transformer graph showing input context embeddings, loop count, a shared transformer block applied repeatedly, updated hidden states, and a final prediction head",
+      "caption": "Hidden states move through the same shared block on each loop iteration. The loop counter sets how many refinement passes run before the prediction head reads the final states.",
+      "legend": {
+        "data-flow": {
+          "label": "Hidden state computation path"
+        },
+        "control-flow": {
+          "label": "Loop iteration control"
+        },
+        "residual": {
+          "label": "Residual connection"
+        },
+        "architecture-io": {
+          "label": "Loop count input"
+        },
+        "annotation": {
+          "label": "Shared-weight note"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "standardStack": {
+          "title": "Standard transformer stack"
+        },
+        "loopedBlock": {
+          "title": "Looped transformer"
+        },
+        "sharedBlockParts": {
+          "title": "Shared transformer block"
+        }
+      },
+      "dimensions": {
+        "depthPattern": "How depth is created",
+        "parameterPattern": "How parameters scale with depth",
+        "computationRole": "What repeated passes do"
+      },
+      "values": {
+        "standardStack": {
+          "depthPattern": "L distinct layers stacked in sequence, each with its own weights",
+          "parameterPattern": "Parameter count grows with layer count because every layer stores separate matrices",
+          "computationRole": "Each layer transforms states once on the forward pass"
+        },
+        "loopedBlock": {
+          "depthPattern": "One shared block applied L times in a loop over the same states",
+          "parameterPattern": "Parameter count stays tied to one block while loop count adds compute depth",
+          "computationRole": "Each loop iteration refines the same hidden states with reused weights"
+        },
+        "sharedBlockParts": {
+          "depthPattern": "Single attention and feed-forward block used as the repeated unit",
+          "parameterPattern": "Weights are shared across loop iterations rather than duplicated per layer",
+          "computationRole": "Self-attention and feed-forward run inside every loop pass"
+        }
+      }
+    }
+  },
+  "math": {
+    "standardStackSchema": {
+      "label": "Standard depth-L transformer stack",
+      "formula": "h^{(l)} = \\mathrm{Block}_l\\big(h^{(l-1)}\\big),\\quad l = 1,\\ldots,L",
+      "variableDefinitions": {
+        "h": {
+          "term": "h^{(l)}",
+          "definition": "Hidden states after layer l."
+        },
+        "l": {
+          "term": "l",
+          "definition": "Layer index from 1 to L."
+        },
+        "L": {
+          "term": "L",
+          "definition": "Total number of distinct layers."
+        },
+        "blockl": {
+          "term": "\\mathrm{Block}_l",
+          "definition": "Transformer block with layer-specific parameters."
+        }
+      }
+    },
+    "loopedBlockSchema": {
+      "label": "Looped transformer with shared block",
+      "formula": "h^{(\\ell)} = \\mathrm{Block}\\big(h^{(\\ell-1)}\\big),\\quad \\ell = 1,\\ldots,L",
+      "variableDefinitions": {
+        "h": {
+          "term": "h^{(\\ell)}",
+          "definition": "Hidden states after loop iteration ell."
+        },
+        "ell": {
+          "term": "\\ell",
+          "definition": "Loop iteration index from 1 to L."
+        },
+        "L": {
+          "term": "L",
+          "definition": "Fixed loop count for repeated block application."
+        },
+        "block": {
+          "term": "\\mathrm{Block}",
+          "definition": "Shared transformer block reused on every iteration."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputContext": {
+        "label": "Input context token embeddings"
+      },
+      "loopCounter": {
+        "label": "Loop count L"
+      },
+      "sharedTransformerBlock": {
+        "label": "Shared transformer block (attention + feed-forward)"
+      },
+      "hiddenStateUpdate": {
+        "label": "Updated hidden states h^(ell)"
+      },
+      "finalPrediction": {
+        "label": "Final prediction head"
+      },
+      "sharedWeightsNote": {
+        "label": "Same block weights reused on every loop iteration"
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "table.looped-transformers-comparison",
+  "subjectId": "module.looped-transformers",
+  "columns": [
+    {
+      "moduleId": "concept.transformer-architecture",
+      "titleKey": "tables.comparison.columns.standardStack.title"
+    },
+    {
+      "moduleId": "module.looped-transformers",
+      "titleKey": "tables.comparison.columns.loopedBlock.title"
+    },
+    {
+      "moduleId": "module.attention",
+      "titleKey": "tables.comparison.columns.sharedBlockParts.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "depthPattern",
+      "labelKey": "tables.comparison.dimensions.depthPattern"
+    },
+    {
+      "id": "parameterPattern",
+      "labelKey": "tables.comparison.dimensions.parameterPattern"
+    },
+    {
+      "id": "computationRole",
+      "labelKey": "tables.comparison.dimensions.computationRole"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "concept.transformer-architecture": {
+      "depthPattern": "tables.comparison.values.standardStack.depthPattern",
+      "parameterPattern": "tables.comparison.values.standardStack.parameterPattern",
+      "computationRole": "tables.comparison.values.standardStack.computationRole"
+    },
+    "module.looped-transformers": {
+      "depthPattern": "tables.comparison.values.loopedBlock.depthPattern",
+      "parameterPattern": "tables.comparison.values.loopedBlock.parameterPattern",
+      "computationRole": "tables.comparison.values.loopedBlock.computationRole"
+    },
+    "module.attention": {
+      "depthPattern": "tables.comparison.values.sharedBlockParts.depthPattern",
+      "parameterPattern": "tables.comparison.values.sharedBlockParts.parameterPattern",
+      "computationRole": "tables.comparison.values.sharedBlockParts.computationRole"
+    }
+  }
+}
