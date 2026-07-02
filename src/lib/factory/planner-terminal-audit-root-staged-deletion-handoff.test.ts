@@ -14,7 +14,6 @@ import {
   PLANNER_TERMINAL_AUDIT_DRIFT_REMAINS_OPERATOR_HOLD_STATEMENT,
   PLANNER_TERMINAL_AUDIT_FACTORY_LINKAGE_PATH,
   PLANNER_TERMINAL_AUDIT_FORBIDDEN_PAGE_CONTENT_PATH_PREFIXES,
-  PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_BRANCH_DIRTY_ROOT_TOUCH_ALLOWLIST,
   PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_KNOWN_PATHS,
   PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_SCOPE_STATEMENT,
   PLANNER_TERMINAL_AUDIT_META_PLANNER_OPERATOR_HANDOFF_STATEMENT,
@@ -475,7 +474,7 @@ describe("planner terminal audit root staged deletion handoff evidence", () => {
     );
   });
 
-  test("implementation branch avoids forbidden page content and unallowlisted dirty root paths", () => {
+  test("implementation branch avoids forbidden page content and dirty root paths", () => {
     for (const knownPath of PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_KNOWN_PATHS) {
       expect(isPlannerTerminalAuditForbiddenPageContentPath(knownPath)).toBe(
         false,
@@ -483,6 +482,7 @@ describe("planner terminal audit root staged deletion handoff evidence", () => {
       for (const prefix of PLANNER_TERMINAL_AUDIT_FORBIDDEN_PAGE_CONTENT_PATH_PREFIXES) {
         expect(knownPath.startsWith(prefix)).toBe(false);
       }
+      expect(PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS).not.toContain(knownPath);
     }
 
     expect(() =>
@@ -490,6 +490,16 @@ describe("planner terminal audit root staged deletion handoff evidence", () => {
         ...PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_KNOWN_PATHS,
       ]),
     ).not.toThrow();
+
+    for (const dirtyPath of PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS) {
+      expect(() =>
+        assertPlannerTerminalAuditImplementationLanePathsPreserveScope([
+          dirtyPath,
+        ]),
+      ).toThrow(
+        `implementation lane touched forbidden dirty root path: ${dirtyPath}`,
+      );
+    }
 
     const repoRoot = resolve(import.meta.dir, "../../..");
     const changedPaths =
@@ -506,13 +516,7 @@ describe("planner terminal audit root staged deletion handoff evidence", () => {
       return;
     }
 
-    const allowlistedDirtyRootTouches = new Set<string>(
-      PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_BRANCH_DIRTY_ROOT_TOUCH_ALLOWLIST,
-    );
     for (const dirtyPath of PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS) {
-      if (allowlistedDirtyRootTouches.has(dirtyPath)) {
-        continue;
-      }
       expect(
         PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_KNOWN_PATHS,
       ).not.toContain(dirtyPath);

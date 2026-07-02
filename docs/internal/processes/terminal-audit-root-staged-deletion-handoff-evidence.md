@@ -136,7 +136,7 @@ Implementation lane limited to planner/factory reporting surfaces outside dirty 
 
 - Read-only evidence discovery: `true`
 - Forbidden page-content prefixes: `src/content/docs/`, `src/content/registry/`, `src/content/messages/`, `src/content/graphs/`, `src/generated/`
-- Dirty-root touch allowlist: `package.json`
+- Forbidden dirty root paths: `docs/internal/processes/factory-linkage-relevant-files.md`, `package.json`, `scripts/report-terminal-lane-main-branch-landing-audit.ts`, `src/lib/factory/planner-merged-lane-evidence.ts`, `src/lib/factory/terminal-lane-main-branch-landing-audit.test.ts`, `src/lib/factory/terminal-lane-main-branch-landing-audit.ts`
 
 ## Read-Only Evidence Commands
 

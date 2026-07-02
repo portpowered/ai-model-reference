@@ -23,12 +23,12 @@ Planner-facing handoff for terminal-audit root staged deletion drift evidence.
 - `terminalAuditRemotePresentDeletions` lists the three terminal-audit deleted paths with `present-on-origin-main` evidence and `git cat-file -e origin/main:<path>` reviewer commands; group classification defaults to `remote-present-local-deletion-drift`.
 - `dirtyRootPathClassifications` lists all six dirty root paths with `owner-state` (`already-merged-owned`, `ownerless`, `operator-hold`), optional `lane`, and per-path `next-safe-action`; `ownerlessDirtyPathPreservationStatement` states page refills must not overwrite ownerless root drift.
 - `plannerRefillHandoffDecision` emits drift state (`terminal-audit-drift-cleared`, `terminal-audit-drift-explicitly-owned`, `terminal-audit-drift-remains-operator-hold`), page-refill hold when ownerless/operator-hold paths remain, meta-planner loop action, and active PR context (#264 mergeable/passing, #251 queue-stale) as decision support only.
-- `implementationLaneScope` records read-only evidence discovery, forbidden page-content prefixes, dirty-root touch allowlist (`package.json` script registration only), and the non-page scope statement in formatted/markdown output.
+- `implementationLaneScope` records read-only evidence discovery, forbidden page-content prefixes, forbidden dirty root paths (all six PRD paths), and the non-page scope statement in formatted/markdown output.
 - Use `--repo-root` against the root checkout for live evidence; default fixture fallback keeps review deterministic when the root checkout is unavailable.
 
 ## Commands
 
 | When | Command |
 | --- | --- |
-| Emit terminal-audit root staged deletion handoff evidence | `bun run report:planner-terminal-audit-root-staged-deletion-handoff` |
+| Emit terminal-audit root staged deletion handoff evidence | `bun ./scripts/report-planner-terminal-audit-root-staged-deletion-handoff.ts` |
 | Write markdown artifact from live root checkout | `bun ./scripts/report-planner-terminal-audit-root-staged-deletion-handoff.ts --repo-root <root> --write-artifact docs/internal/processes/terminal-audit-root-staged-deletion-handoff-evidence.md` |

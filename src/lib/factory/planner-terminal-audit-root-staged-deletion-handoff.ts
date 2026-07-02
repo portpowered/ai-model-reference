@@ -39,13 +39,9 @@ export const PLANNER_TERMINAL_AUDIT_FORBIDDEN_PAGE_CONTENT_PATH_PREFIXES = [
   "src/generated/",
 ] as const;
 
-export const PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_BRANCH_DIRTY_ROOT_TOUCH_ALLOWLIST =
-  ["package.json"] as const;
-
 export const PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_KNOWN_PATHS = [
   "docs/internal/processes/terminal-audit-root-staged-deletion-handoff-evidence.md",
   "docs/internal/processes/terminal-audit-root-staged-deletion-handoff-relevant-files.md",
-  "package.json",
   "scripts/report-planner-terminal-audit-root-staged-deletion-handoff.ts",
   "src/lib/factory/planner-terminal-audit-root-staged-deletion-handoff.test.ts",
   "src/lib/factory/planner-terminal-audit-root-staged-deletion-handoff.ts",
@@ -211,7 +207,7 @@ export interface TerminalAuditDirtyPathClassification {
 }
 
 export interface PlannerTerminalAuditImplementationLaneScope {
-  dirtyRootTouchAllowlist: readonly string[];
+  forbiddenDirtyRootPaths: readonly string[];
   forbiddenPageContentPathPrefixes: readonly string[];
   readOnlyEvidenceDiscovery: true;
   scopeStatement: string;
@@ -294,9 +290,7 @@ export function isPlannerTerminalAuditForbiddenPageContentPath(
 
 export function buildPlannerTerminalAuditImplementationLaneScope(): PlannerTerminalAuditImplementationLaneScope {
   return {
-    dirtyRootTouchAllowlist: [
-      ...PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_BRANCH_DIRTY_ROOT_TOUCH_ALLOWLIST,
-    ],
+    forbiddenDirtyRootPaths: [...PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS],
     forbiddenPageContentPathPrefixes: [
       ...PLANNER_TERMINAL_AUDIT_FORBIDDEN_PAGE_CONTENT_PATH_PREFIXES,
     ],
@@ -308,16 +302,10 @@ export function buildPlannerTerminalAuditImplementationLaneScope(): PlannerTermi
 export function assertPlannerTerminalAuditImplementationLanePathsPreserveScope(
   changedPaths: readonly string[],
 ): void {
-  const allowlistedDirtyRootTouches = new Set<string>(
-    PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_BRANCH_DIRTY_ROOT_TOUCH_ALLOWLIST,
-  );
   for (const dirtyPath of PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS) {
-    if (allowlistedDirtyRootTouches.has(dirtyPath)) {
-      continue;
-    }
     if (changedPaths.includes(dirtyPath)) {
       throw new Error(
-        `implementation lane touched unallowlisted dirty root path: ${dirtyPath}`,
+        `implementation lane touched forbidden dirty root path: ${dirtyPath}`,
       );
     }
   }
@@ -1032,7 +1020,7 @@ export function formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceRepor
     `  read-only-evidence-discovery=${report.implementationLaneScope.readOnlyEvidenceDiscovery}`,
     `  scope-statement=${report.implementationLaneScope.scopeStatement}`,
     `  forbidden-page-content-prefixes=${report.implementationLaneScope.forbiddenPageContentPathPrefixes.join(",")}`,
-    `  dirty-root-touch-allowlist=${report.implementationLaneScope.dirtyRootTouchAllowlist.join(",")}`,
+    `  forbidden-dirty-root-paths=${report.implementationLaneScope.forbiddenDirtyRootPaths.join(",")}`,
     "- evidence-commands",
     ...report.evidenceCommands.map((command) => `  ${command}`),
     `- preservation-statement=${report.preservationStatement}`,
@@ -1173,7 +1161,7 @@ export function formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceMarkd
     "",
     `- Read-only evidence discovery: \`${report.implementationLaneScope.readOnlyEvidenceDiscovery}\``,
     `- Forbidden page-content prefixes: ${report.implementationLaneScope.forbiddenPageContentPathPrefixes.map((prefix) => `\`${prefix}\``).join(", ")}`,
-    `- Dirty-root touch allowlist: ${report.implementationLaneScope.dirtyRootTouchAllowlist.map((path) => `\`${path}\``).join(", ")}`,
+    `- Forbidden dirty root paths: ${report.implementationLaneScope.forbiddenDirtyRootPaths.map((path) => `\`${path}\``).join(", ")}`,
     "",
     "## Read-Only Evidence Commands",
     "",
