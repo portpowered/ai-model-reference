@@ -1,0 +1,52 @@
+{
+  "title": "Tokenizers overview",
+  "description": "How tokenizers turn raw text into reusable pieces before embeddings, attention, and next-token prediction begin.",
+  "openingSummary": "A language model does not read raw text directly; a tokenizer first cuts text into reusable pieces, and that choice affects context length, cost, and how easily the model can represent rare words, punctuation, or mixed-language input.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A tokenizer is the preprocessing step that turns text into a sequence of token IDs. Those IDs usually stand for word pieces rather than whole words or single characters. The model then looks up each ID in an embedding table before the transformer architecture starts mixing context with attention. In practice, tokenizers balance vocabulary size against flexibility: a larger vocabulary can store more whole words directly, while a smaller one leans more on reusable subword pieces."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Tokenization changes several reader-visible outcomes at once. It sets how much text fits inside a fixed context window, because models count tokens rather than words. It shapes serving cost, because longer token sequences require more embedding lookups, more attention work, and more memory in the key-value cache during generation. It also affects how gracefully a model handles rare names, code, emojis, and languages where word boundaries are less obvious. Two models can see the same sentence very differently if they use different tokenizers."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Take the phrase \"unbelievable pricing\". One tokenizer might split it into \"un\", \"believ\", \"able\", \" pricing\". Another might keep \"unbelievable\" whole and split only the second word. A byte-level tokenizer might break unusual punctuation or emoji into even smaller pieces. All of those outputs still describe the same text, but they change how many positions the model must process. Fewer tokens usually mean more room in the context window and lower compute cost, while finer-grained pieces make it easier to cover unfamiliar text without storing every full word in the vocabulary."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A tokenizer is not the same as a token: token is the output unit, while tokenizer is the system that creates those units. Tokenization also happens before embeddings, not inside attention. Finally, tokenizers are a family rather than one algorithm. Byte pair encoding (BPE), WordPiece, and SentencePiece are nearby approaches that make different tradeoffs about merges, vocabulary construction, and language coverage, but they all serve the same broad job of converting raw text into model-readable pieces."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "relatedDocs": {
+    "concept.token": {
+      "reason": "Start here if you want the narrower definition of one token as the discrete unit the model reads and predicts."
+    },
+    "concept.transformer-architecture": {
+      "reason": "Follow this next to see what the transformer stack does after token IDs become embeddings."
+    },
+    "module.bpe": {
+      "reason": "BPE is one of the most common subword tokenizer families and a useful first comparison point."
+    },
+    "module.wordpiece": {
+      "reason": "WordPiece is a close relative used in several encoder-style language model families."
+    },
+    "module.sentencepiece": {
+      "reason": "SentencePiece trains directly from raw text and is common when whitespace rules vary across languages."
+    },
+    "model.gpt-3": {
+      "reason": "GPT-3 is a concrete model page that connects tokenizer choices to an autoregressive transformer system."
+    }
+  }
+}

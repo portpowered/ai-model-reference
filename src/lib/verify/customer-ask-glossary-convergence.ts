@@ -1,4 +1,4 @@
-import { glossaryPageHref } from "@/lib/content/content-hrefs";
+import { conceptPageHref, glossaryPageHref } from "@/lib/content/content-hrefs";
 import { proseAutoLinkAnchorOpenTagPattern } from "@/lib/content/prose-auto-link";
 import { assertFooterChromeContract } from "@/lib/navigation/docs-page-footer-contract";
 import {
@@ -73,7 +73,7 @@ export const GLOSSARY_CUSTOMER_ASK_REASONS = {
 
 const VECTOR_GLOSSARY_HREF = glossaryPageHref("vector");
 const TOKEN_GLOSSARY_HREF = glossaryPageHref("token");
-const EMBEDDING_GLOSSARY_HREF = glossaryPageHref("embedding");
+const EMBEDDING_GLOSSARY_HREF = conceptPageHref("embedding");
 
 const H1_PATTERN = /<h1\b[^>]*>[\s\S]*?<\/h1>/gi;
 

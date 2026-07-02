@@ -5,11 +5,11 @@ import {
   publishedDocsHrefFromEntry,
 } from "@/lib/content/published-docs-registry-contract";
 import {
-  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS,
-  GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
-  GENERATED_PUBLISHED_DOCS_ENTRIES,
-  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS,
-} from "@/lib/content/published-docs-registry-manifest";
+  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS as GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS_DATA,
+  GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS as GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS_DATA,
+  GENERATED_PUBLISHED_DOCS_ENTRIES as GENERATED_PUBLISHED_DOCS_ENTRIES_DATA,
+  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS as GENERATED_PUBLISHED_DOCS_REGISTRY_IDS_DATA,
+} from "./generated/published-docs-registry.generated";
 
 export type {
   PublishedDocsEntry,
@@ -22,6 +22,41 @@ export type PublishedDocsIndex = {
   bySlug: ReadonlyMap<string, readonly PublishedDocsEntry[]>;
   registryIds: PublishedDocsRegistryIds;
 };
+
+function publishedDocsRegistryEntryPriority(entry: PublishedDocsEntry): number {
+  if (entry.pageKind === "concept" && entry.section === "concepts") {
+    return 2;
+  }
+
+  if (entry.pageKind === "glossary" && entry.section === "glossary") {
+    return 1;
+  }
+
+  return 0;
+}
+
+function resolvePublishedDocsRegistryEntryCollision(
+  existingEntry: PublishedDocsEntry,
+  candidateEntry: PublishedDocsEntry,
+): PublishedDocsEntry {
+  const existingPriority = publishedDocsRegistryEntryPriority(existingEntry);
+  const candidatePriority = publishedDocsRegistryEntryPriority(candidateEntry);
+
+  if (existingPriority === 0 || candidatePriority === 0) {
+    throw new Error(
+      `Duplicate published docs registryId "${existingEntry.registryId}" at "${existingEntry.docsSlug}" and "${candidateEntry.docsSlug}"`,
+    );
+  }
+
+  if (existingPriority === candidatePriority) {
+    throw new Error(
+      `Ambiguous published docs registryId "${existingEntry.registryId}" at "${existingEntry.docsSlug}" and "${candidateEntry.docsSlug}"`,
+    );
+  }
+
+  return candidatePriority > existingPriority ? candidateEntry : existingEntry;
+}
+
 function getModuleBackedConceptEntryBySlug(
   slug: string,
 ): PublishedDocsEntry | undefined {
@@ -47,7 +82,15 @@ function buildRuntimePublishedDocsIndex(
   const bySlug = new Map<string, PublishedDocsEntry[]>();
 
   for (const entry of entries) {
-    byRegistryId.set(entry.registryId, entry);
+    const existingEntry = byRegistryId.get(entry.registryId);
+    if (existingEntry) {
+      byRegistryId.set(
+        entry.registryId,
+        resolvePublishedDocsRegistryEntryCollision(existingEntry, entry),
+      );
+    } else {
+      byRegistryId.set(entry.registryId, entry);
+    }
 
     const slugEntries = bySlug.get(entry.slug);
     if (slugEntries) {
@@ -67,18 +110,20 @@ function buildRuntimePublishedDocsIndex(
 }
 
 export const publishedDocsIndex = buildRuntimePublishedDocsIndex(
-  GENERATED_PUBLISHED_DOCS_ENTRIES,
+  GENERATED_PUBLISHED_DOCS_ENTRIES_DATA as readonly PublishedDocsEntry[],
 );
 
 export const PUBLISHED_DOCS_REGISTRY_IDS: ReadonlySet<string> = new Set(
-  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS,
+  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS_DATA as readonly string[],
 );
 
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS: ReadonlySet<string> =
-  new Set(GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS);
+  new Set(
+    GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS_DATA as readonly string[],
+  );
 
 export const MODULE_BACKED_CONCEPT_REGISTRY_IDS: ReadonlySet<string> = new Set(
-  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS,
+  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS_DATA as readonly string[],
 );
 
 export function listPublishedDocsEntries(): readonly PublishedDocsEntry[] {

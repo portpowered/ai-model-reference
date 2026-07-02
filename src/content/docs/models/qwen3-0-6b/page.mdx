@@ -1,0 +1,84 @@
+---
+title: "Qwen3-0.6B"
+description: "The smallest dense Qwen3 open-weight checkpoint: a 0.6-billion-parameter causal language model with 32,768-token context, Apache 2.0 licensing, and post-training for reasoning and instruction following."
+kind: "model"
+registryId: "model.qwen3-0-6b"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - model-family
+  - context-window
+  - attention
+  - tokenization
+aliases:
+  - "Qwen3-0.6B"
+  - "Qwen 3 0.6B"
+  - "Qwen3 small dense model"
+  - "small Qwen model"
+updatedAt: "2026-07-01"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModelArchitectureGraph } from "@/features/models/components/ModelArchitectureGraph";
+import { ModelAtAGlance } from "@/features/models/components/ModelAtAGlance";
+import { ModelModuleList } from "@/features/models/components/ModelModuleList";
+import { ModelTrainingSummary } from "@/features/models/components/ModelTrainingSummary";
+
+
+<ModelAtAGlance registryId="model.qwen3-0-6b" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="inputs-and-outputs" titleKey="sections.inputsAndOutputs.title">
+  <T k="sections.inputsAndOutputs.body" />
+</Section>
+
+<Section id="architecture" titleKey="sections.architecture.title">
+  <T k="sections.architecture.body" />
+  <ModelArchitectureGraph registryId="model.qwen3-0-6b" assetId="architectureGraph" />
+</Section>
+
+<Section id="important-modules" titleKey="sections.importantModules.title">
+  <T k="sections.importantModules.body" />
+  <ModelModuleList registryId="model.qwen3-0-6b" />
+</Section>
+
+<Section id="training" titleKey="sections.training.title">
+  <T k="sections.training.body" />
+  <ModelTrainingSummary registryId="model.qwen3-0-6b" />
+</Section>
+
+<Section id="practical-notes" titleKey="sections.practicalNotes.title">
+  <T k="sections.practicalNotes.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="model.qwen3-0-6b"
+    groups={[
+      "same-model-family",
+      "shared-modules",
+      "shared-training-regimes",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+  <RelatedDocs registryId="model.qwen3-0-6b" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="model.qwen3-0-6b" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="model.qwen3-0-6b" />
+</Section>

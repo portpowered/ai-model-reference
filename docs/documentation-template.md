@@ -31,6 +31,15 @@ docs/templates/<kind>.assets.json      # starter page asset config
 
 When creating a canonical docs page, use the `.mdx` file as the page structure, copy the starter message file to `messages/en.json`, copy the starter asset config to `assets.json`, and use the `.content.md` guide to fill in the values. Do not paste `.content.md` prose into `page.mdx`.
 
+For modules, concepts, glossary entries, training regimes, and systems, starter
+authoring guidance should describe `primaryClassificationId`,
+`secondaryClassificationIds`, and `relationships` as the canonical taxonomy
+shape. Legacy fields such as `moduleType`, `conceptType`, `regimeType`,
+`systemType`, `variantGroup`, `moduleFamily`, and `sidebarGrouping` are on the
+staged deprecation path described in
+[ontology-classification-topology-convergence-plan](./temp/ontology-classification-topology-convergence-plan.md)
+and should not be presented as the preferred path for new starter content.
+
 ## Required Pattern
 
 Canonical docs pages should include:

@@ -2,6 +2,7 @@ import { DocsDescription, DocsTitle } from "fumadocs-ui/layouts/docs/page";
 import type { ReactNode } from "react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { DocsFoldedSummary } from "@/features/docs/components/DocsFoldedSummary";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import type { LoadedModulePage } from "@/lib/content/module-page-load";
 
@@ -16,6 +17,13 @@ export function renderModuleDocsShell(
       null,
       createElement(DocsTitle, null, loadedPage.messages.title),
       createElement(DocsDescription, null, loadedPage.messages.description),
+      loadedPage.messages.openingSummary
+        ? createElement(
+            DocsFoldedSummary,
+            null,
+            loadedPage.messages.openingSummary,
+          )
+        : null,
       createElement(ModulePageProviders, {
         messages: loadedPage.messages,
         assets: loadedPage.assets,

@@ -1,0 +1,18 @@
+{
+  "id": "organization.zai",
+  "slug": "zai",
+  "kind": "organization",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Z.ai", "zai-org", "Zhipu AI"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["paper.glm-5"],
+  "citationIds": ["citation.glm-5-technical-report"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "website": "https://z.ai",
+  "modelIds": ["model.glm-5", "model.glm-5-2"],
+  "paperIds": ["paper.glm-5"],
+  "systemIds": ["system.speculative-decoding"]
+}

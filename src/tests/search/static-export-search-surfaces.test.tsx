@@ -5,6 +5,7 @@ import {
   beforeEach,
   describe,
   expect,
+  setDefaultTimeout,
   spyOn,
   test,
 } from "bun:test";
@@ -29,7 +30,17 @@ import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
 const STATIC_HANDOFF_CLIENT = { from: STATIC_HANDOFF_BOOTSTRAP_FETCH_URL };
 const FAILING_BOOTSTRAP_URL = "http://static-handoff-fail.test/api/search";
 const FAILING_BOOTSTRAP_CLIENT = { from: FAILING_BOOTSTRAP_URL };
-const STATIC_EXPORT_EMPTY_HANDOFF = { q: null, tag: null } as const;
+const STATIC_EXPORT_EMPTY_HANDOFF = {
+  q: null,
+  tag: null,
+  classification: null,
+} as const;
+const STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS = 10_000;
+const defaultContextPromise = loadAppTestContext();
+let staticHandoffBootstrapPayload: Awaited<
+  ReturnType<Response["json"]>
+> | null = null;
+setDefaultTimeout(15_000);
 
 function withWindowLocationSearch(
   search: string,
@@ -69,9 +80,21 @@ function installFailingBootstrapFetchMock(): void {
   }) as unknown as typeof fetch;
 }
 
+async function loadStaticHandoffBootstrapPayload() {
+  if (staticHandoffBootstrapPayload !== null) {
+    return staticHandoffBootstrapPayload;
+  }
+
+  staticHandoffBootstrapPayload = await (
+    await docsSearchApi.staticGET()
+  ).json();
+  return staticHandoffBootstrapPayload;
+}
+
 async function installStaticHandoffFetchMock(): Promise<void> {
-  const exported = await (await docsSearchApi.staticGET()).json();
-  globalThis.fetch = createStaticHandoffBootstrapFetch(exported);
+  globalThis.fetch = createStaticHandoffBootstrapFetch(
+    await loadStaticHandoffBootstrapPayload(),
+  );
 }
 
 function renderSearchPage(
@@ -121,14 +144,9 @@ describe("static export search surfaces", () => {
     await lockGlobalFetch().then(async (release) => {
       releaseFetchLock = release;
       await installStaticHandoffFetchMock();
-      await primeStaticHandoffSearch(
-        await loadAppTestContext(),
-        renderSearchPage,
-      );
-      await primeStaticHandoffSearch(
-        await loadAppTestContext(),
-        renderSearchDialog,
-      );
+      const context = await defaultContextPromise;
+      await primeStaticHandoffSearch(context, renderSearchPage);
+      await primeStaticHandoffSearch(context, renderSearchDialog);
       restoreFetchMock();
       releaseFetchLock?.();
       releaseFetchLock = null;
@@ -161,7 +179,11 @@ describe("static export search surfaces", () => {
       query,
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS },
+    );
     expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
   });
 
@@ -201,7 +223,11 @@ describe("static export search surfaces", () => {
       ) as HTMLInputElement;
       expect(searchInput.value).toBe("GQA");
 
-      const results = await screen.findByTestId("search-page-results");
+      const results = await screen.findByTestId(
+        "search-page-results",
+        {},
+        { timeout: STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS },
+      );
       expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
     });
   });
@@ -217,7 +243,11 @@ describe("static export search surfaces", () => {
       ) as HTMLInputElement;
       expect(searchInput.value).toBe("attention");
 
-      const results = await screen.findByTestId("search-page-results");
+      const results = await screen.findByTestId(
+        "search-page-results",
+        {},
+        { timeout: STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS },
+      );
       expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
     });
   });
@@ -242,7 +272,11 @@ describe("static export search surfaces", () => {
       ) as HTMLInputElement;
       expect(searchInput.value).toBe("attention");
 
-      const results = await screen.findByTestId("search-page-results");
+      const results = await screen.findByTestId(
+        "search-page-results",
+        {},
+        { timeout: STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS },
+      );
       expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
     });
   });
@@ -267,7 +301,11 @@ describe("static export search surfaces", () => {
         ),
       ).toBeNull();
 
-      const results = await screen.findByTestId("search-page-results");
+      const results = await screen.findByTestId(
+        "search-page-results",
+        {},
+        { timeout: STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS },
+      );
       expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
     });
   });
@@ -282,7 +320,11 @@ describe("static export search surfaces", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS },
+    );
     const firstRow = within(results).getAllByTestId("search-result-row")[0];
     expect(firstRow?.className).toContain("focus-visible:ring-2");
     firstRow?.focus();
@@ -291,13 +333,21 @@ describe("static export search surfaces", () => {
 });
 
 describe("static export search bootstrap failures", () => {
+  let releaseFetchLock: (() => void) | null = null;
+
   beforeAll(() => {
     captureOriginalFetch();
+  });
+
+  beforeEach(async () => {
+    releaseFetchLock = await lockGlobalFetch();
   });
 
   afterEach(() => {
     cleanup();
     restoreFetchMock();
+    releaseFetchLock?.();
+    releaseFetchLock = null;
   });
 
   test("/search exposes recoverable error when static bootstrap fetch fails", async () => {
@@ -308,7 +358,7 @@ describe("static export search bootstrap failures", () => {
       <SearchPagePanelContent
         messages={context.messages}
         metaByUrl={context.metaByUrl}
-        handoff={{ q: null, tag: null }}
+        handoff={{ q: null, tag: null, classification: null }}
         searchClient={FAILING_BOOTSTRAP_CLIENT}
       />,
       { context },

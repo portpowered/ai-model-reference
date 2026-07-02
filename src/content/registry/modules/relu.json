@@ -22,15 +22,22 @@
   "releaseDate": "2010-01-01",
   "authors": ["Vinod Nair", "Geoffrey E. Hinton"],
   "sourceId": "citation.rectified-linear-units-improve-restricted-boltzmann-machines",
-  "moduleType": "activation",
+  "primaryClassificationId": "classification.module.activation",
+  "relationships": [
+    {
+      "relationshipType": "variant",
+      "targetId": "concept.activation"
+    },
+    {
+      "relationshipType": "used-by",
+      "targetId": "module.standard-ffn"
+    }
+  ],
   "optimizes": ["activation-sparsity"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "none",
-  "moduleFamily": "activation-functions",
-  "conceptType": "activation-function",
-  "variantGroup": "activation-variants"
+  "mathLevel": "none"
 }

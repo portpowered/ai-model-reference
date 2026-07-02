@@ -100,7 +100,7 @@ describe("RelatedDocList", () => {
     expect(html).not.toContain('href="/vi/docs/glossary/tensor"');
   });
 
-  test("renders plain text entries and planned state when no href is present", () => {
+  test("renders plain text entries when no href is present", () => {
     const html = renderToStaticMarkup(
       <RelatedDocList
         items={[
@@ -116,7 +116,6 @@ describe("RelatedDocList", () => {
     );
 
     expect(html).toContain("Future concept");
-    expect(html).toContain('data-planned="true"');
     expect(html).not.toContain("<a");
   });
 

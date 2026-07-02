@@ -32,7 +32,6 @@ const LAYER_NORM_URL = "/docs/modules/layer-norm";
 const BATCH_NORM_URL = "/docs/modules/batch-norm";
 const GROUP_NORM_URL = "/docs/modules/group-norm";
 const MIXTURE_OF_EXPERTS_URL = "/docs/modules/mixture-of-experts";
-const ROUTING_SYSTEM_URL = "/docs/systems/routing";
 const RELU_URL = "/docs/modules/relu";
 const LEAKY_RELU_URL = "/docs/modules/leaky-relu";
 const SILU_URL = "/docs/modules/silu";
@@ -59,7 +58,7 @@ const SINUSOIDAL_POSITIONAL_EMBEDDINGS_URL =
 const SUPERHOT_ROPE_URL = "/docs/modules/superhot-rope";
 const CONTEXT_WINDOW_URL = "/docs/glossary/context-window";
 const KV_CACHE_URL = "/docs/glossary/kv-cache";
-const PREFILL_URL = "/docs/glossary/prefill";
+const PREFILL_URL = "/docs/concepts/prefill";
 const DECODE_URL = "/docs/glossary/decode";
 const PREFILL_DECODE_SPLIT_URL = "/docs/glossary/prefill-decode-split";
 const SAMPLING_OVERVIEW_URL = "/docs/glossary/sampling-overview";
@@ -168,7 +167,6 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   GROUP_NORM_URL,
   STANDARD_FFN_URL,
   MIXTURE_OF_EXPERTS_URL,
-  ROUTING_SYSTEM_URL,
   RELU_URL,
   LEAKY_RELU_URL,
   SILU_URL,
@@ -327,37 +325,6 @@ describe("exportOramaIndexSnapshot", () => {
 
     expect(hits.length).toBeGreaterThan(0);
     expect((hits[0]?.document as { url: string }).url).toBe(url);
-  });
-
-  test.each([
-    { query: "routing", expectedRank: "first" },
-    { query: "request routing", expectedRank: "first" },
-    { query: "inference routing", expectedRank: "first" },
-    { query: "serve request to specialist model", expectedRank: "contains" },
-  ] as const)("Orama database resolves the canonical routing system page for %s", async ({
-    query,
-    expectedRank,
-  }) => {
-    const registry = await loadRegistry();
-    const pages = await loadPublishedDocsPages("en");
-    const documents = buildSearchDocuments(pages, registry);
-    const db = await createOramaDatabase(documents);
-    const { hits } = await search(db, { term: query });
-
-    expect(hits.length).toBeGreaterThan(0);
-
-    if (expectedRank === "first") {
-      expect((hits[0]?.document as { url: string }).url).toBe(
-        ROUTING_SYSTEM_URL,
-      );
-      return;
-    }
-
-    expect(
-      hits.some(
-        (hit) => (hit.document as { url: string }).url === ROUTING_SYSTEM_URL,
-      ),
-    ).toBe(true);
   });
 });
 

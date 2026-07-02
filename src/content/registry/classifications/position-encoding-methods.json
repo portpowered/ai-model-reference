@@ -1,0 +1,23 @@
+{
+  "id": "classification.module.positional-encoding",
+  "slug": "position-encoding-methods",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "position encoding",
+    "position encoding method",
+    "positional encoding family",
+    "position-encoding-methods"
+  ],
+  "tags": ["position-encoding", "foundations"],
+  "relatedIds": ["concept.positional-encodings", "module.rope"],
+  "citationIds": ["citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["module"],
+  "parentClassificationId": "classification.module",
+  "legacyIds": ["classification.position-encoding-methods"]
+}

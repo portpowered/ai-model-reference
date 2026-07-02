@@ -1,0 +1,104 @@
+{
+  "id": "graph.speculative-decoding-system-flow",
+  "slug": "speculative-decoding-system-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "speculative decoding system flow",
+    "draft and verify system flow"
+  ],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [],
+  "citationIds": ["citation.speculative-decoding-paper"],
+  "status": "published",
+  "createdAt": "2026-06-22T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
+  "subjectId": "system.speculative-decoding",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "request",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "request",
+      "labelKey": "graph.nodes.request.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["draft"]
+    },
+    {
+      "id": "draft",
+      "labelKey": "graph.nodes.draft.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 210, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["verify"]
+    },
+    {
+      "id": "verify",
+      "labelKey": "graph.nodes.verify.label",
+      "moduleKind": "operation",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 210, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["accept", "fallback"]
+    },
+    {
+      "id": "accept",
+      "labelKey": "graph.nodes.accept.label",
+      "moduleKind": "output",
+      "position": { "x": 110, "y": 380 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "fallback",
+      "labelKey": "graph.nodes.fallback.label",
+      "moduleKind": "operation",
+      "position": { "x": 390, "y": 380 },
+      "size": { "width": 220, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "request-draft",
+      "source": "request",
+      "target": "draft",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "draft-verify",
+      "source": "draft",
+      "target": "verify",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "verify-accept",
+      "source": "verify",
+      "target": "accept",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "verify-fallback",
+      "source": "verify",
+      "target": "fallback",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "top"
+    }
+  ]
+}

@@ -8,7 +8,7 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import {
   expectGlossaryBodyOmitsTitleHeading,
   expectHtmlToContainProse,
@@ -23,7 +23,7 @@ import {
   assertGroupedQueryAttentionSingleGraphConvergence,
 } from "@/lib/verify/grouped-query-attention-module-convergence";
 
-const pageDir = GROUPED_QUERY_ATTENTION_PAGE_DIR;
+const pageDir = getDocsPageDir("modules", "grouped-query-attention");
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
 

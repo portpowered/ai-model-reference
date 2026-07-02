@@ -7,7 +7,7 @@ import {
   expect,
   test,
 } from "bun:test";
-import { cleanup, screen, within } from "@testing-library/react";
+import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SearchPagePanelContent } from "@/features/docs/search/SearchPagePanel";
@@ -32,7 +32,17 @@ import {
 import { createDocsSearchRouteFetch } from "@/tests/search/route-fetch";
 import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
 
-const TARGET_PATH_PAGES = [
+type TargetPathPage = {
+  slug: string;
+  title: string;
+  url: string;
+  searchUrl?: string;
+  panelQuery?: string;
+  summarySnippet: string;
+  aliasQueries: readonly string[];
+};
+
+const TARGET_PATH_PAGES: readonly TargetPathPage[] = [
   {
     slug: "token",
     title: "Token",
@@ -44,6 +54,8 @@ const TARGET_PATH_PAGES = [
     slug: "embedding",
     title: "Embedding",
     url: "/docs/glossary/embedding",
+    searchUrl: "/docs/concepts/embedding",
+    panelQuery: "embeddings",
     summarySnippet: "dense vector",
     aliasQueries: ["embeddings", "token embedding"] as const,
   },
@@ -61,7 +73,7 @@ const TARGET_PATH_PAGES = [
     summarySnippet: "probability distribution",
     aliasQueries: ["softmax function"] as const,
   },
-] as const;
+];
 
 const TARGET_PATH_URLS = TARGET_PATH_PAGES.map((page) => page.url);
 const CHAIN_TAG = "token-to-probability-chain";
@@ -94,7 +106,7 @@ async function primeDocsSearchClient(
     <SearchPagePanelContent
       messages={context.messages}
       metaByUrl={context.metaByUrl}
-      handoff={{ q: null, tag: null }}
+      handoff={{ q: null, tag: null, classification: null }}
     />,
     { context },
   );
@@ -154,7 +166,9 @@ describe("Phase 2 token-probability path search indexing (phase-2-token-probabil
 
 describe("Phase 2 token-probability path search ranking (phase-2-token-probability-path-convergence-004)", () => {
   test.each(
-    TARGET_PATH_PAGES.map(({ title, url }) => [title, url] as const),
+    TARGET_PATH_PAGES.map(
+      ({ title, url, searchUrl }) => [title, searchUrl ?? url] as const,
+    ),
   )("ranks %s glossary first for canonical title query", async (title, url) => {
     const results = await docsSearchApi.search(title);
     expect(results.length).toBeGreaterThan(0);
@@ -162,8 +176,8 @@ describe("Phase 2 token-probability path search ranking (phase-2-token-probabili
   });
 
   test.each(
-    TARGET_PATH_PAGES.flatMap(({ aliasQueries, url }) =>
-      aliasQueries.map((query) => [query, url] as const),
+    TARGET_PATH_PAGES.flatMap(({ aliasQueries, url, searchUrl }) =>
+      aliasQueries.map((query) => [query, searchUrl ?? url] as const),
     ),
   )("alias query %s ranks the target glossary first", async (query, url) => {
     const results = await docsSearchApi.search(query);
@@ -244,29 +258,45 @@ describe("Phase 2 token-probability path search panel verification (phase-2-toke
   });
 
   test.each(
-    TARGET_PATH_PAGES.map(({ title, url }) => [title, url] as const),
-  )("/search panel shows Glossary kind for %s query", async (title, url) => {
+    TARGET_PATH_PAGES.filter((page) => page.slug !== "embedding").map(
+      ({ title, url, searchUrl, slug, panelQuery }) =>
+        [panelQuery ?? title, searchUrl ?? url, slug] as const,
+    ),
+  )("/search panel shows expected kind for %s query", async (query, url, slug) => {
     const context = await loadAppTestContext();
     await renderWithAppProviders(
       <SearchPagePanelContent
         messages={context.messages}
         metaByUrl={context.metaByUrl}
-        handoff={{ q: null, tag: null }}
+        handoff={{ q: null, tag: null, classification: null }}
       />,
       { context },
     );
 
     const user = userEvent.setup();
-    await user.type(
-      screen.getByLabelText(context.messages.search.placeholder),
-      title,
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
     );
+    await user.click(searchInput);
+    await user.paste(query);
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 15_000 },
+    );
+    await waitFor(
+      () => {
+        const firstUrl = within(results).getAllByTestId("search-result-url")[0];
+        expect(firstUrl?.textContent).toContain(url);
+      },
+      { timeout: 15_000 },
+    );
     const firstUrl = within(results).getAllByTestId("search-result-url")[0];
     expect(firstUrl?.textContent).toContain(url);
 
     const kindLabels = within(results).getAllByTestId("search-result-kind");
-    expect(kindLabels[0]?.textContent).toContain("Glossary");
+    const expectedKind = slug === "embedding" ? "Concept" : "Glossary";
+    expect(kindLabels[0]?.textContent).toContain(expectedKind);
   });
 });

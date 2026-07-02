@@ -1,0 +1,39 @@
+---
+title: "Inference Engine"
+description: "The serving runtime layer that takes model weights plus live requests and turns them into token outputs by coordinating kernels, scheduling, memory movement, and cache state on real hardware."
+kind: "system"
+registryId: "system.inference-engine"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - kv-cache
+  - quantization
+aliases:
+  - "inference engine"
+  - "model runtime"
+  - "serving engine"
+  - "LLM inference engine"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { SystemAtAGlance } from "@/features/models/components/SystemAtAGlance";
+import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
+
+
+<SystemAtAGlance registryId="system.inference-engine" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title"><T k="sections.whatItIs.body" /></Section>
+<Section id="where-it-sits" titleKey="sections.whereItSits.title"><T k="sections.whereItSits.body" /></Section>
+<Section id="how-it-works" titleKey="sections.howItWorks.title"><T k="sections.howItWorks.body" /><SystemFlowGraph registryId="system.inference-engine" assetId="systemFlow" /></Section>
+<Section id="practical-impact" titleKey="sections.practicalImpact.title"><T k="sections.practicalImpact.body" /><BlockMath formula="\\text{served token latency} \\approx \\text{kernel work} + \\text{scheduling delay} + \\text{memory movement} + \\text{cache overhead}" /></Section>
+<Section id="related" titleKey="sections.related.title"><T k="sections.related.body" /><RelatedDocs registryId="system.inference-engine" /></Section>
+<Section id="tags" titleKey="sections.tags.title"><TagPillList registryId="system.inference-engine" showDescriptions /></Section>
+<Section id="references" titleKey="sections.references.title"><CitationList registryId="system.inference-engine" /></Section>

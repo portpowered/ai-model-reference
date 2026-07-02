@@ -1,0 +1,21 @@
+{
+  "id": "classification.module",
+  "slug": "module",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "neural network component",
+    "model component",
+    "module classification root"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": ["concept.transformer-architecture"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "classificationType": "domain",
+  "classifiesKinds": ["module"],
+  "legacyIds": ["classification.neural-network-components"]
+}

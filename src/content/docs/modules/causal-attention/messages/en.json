@@ -1,0 +1,216 @@
+{
+  "title": "Causal Attention",
+  "description": "An attention pattern that lets each token read earlier tokens and itself, but not later tokens, so the model can predict text one step at a time.",
+  "openingSummary": "Causal attention is the decoder-style attention pattern that blocks future tokens. Each position can use the tokens that already exist in the prefix and its own position, but it cannot peek at tokens that have not been generated yet.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Causal attention is the masked version of self-attention used for next-token prediction. For a query at position t, the mask keeps keys from positions 0 through t visible and blocks positions after t."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "The mask preserves the training and inference rule that the model must predict the next token from only the prefix it has already seen. Without that restriction, a decoder could cheat by reading the answer from later positions."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Queries, keys, and values are computed as in ordinary self-attention, but the score matrix is multiplied by a causal mask before softmax. That mask keeps the diagonal and everything to the left, while zeroing scores for future positions. The result is an attention pattern where each token can read its earlier context and itself, but not tokens that come later in the sequence."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formulas below contrast causal attention with bidirectional attention. The projections stay the same, but causal attention applies a triangular mask that blocks future positions, which is what makes token-by-token autoregressive generation possible."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with bidirectional attention, causal attention gives up right-context access so the model can produce text one token at a time. Compared with the broader attention page, this page focuses on the no-looking-ahead mask rather than the full query-key-value mechanism."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Causal attention appears in decoder-only transformer stacks and on the decoder side of encoder-decoder systems when the output must be generated step by step."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Because each token cannot read future positions, causal attention gives up some contextual information that encoder-style full-context attention can use. Long outputs also require repeated decode steps, so latency depends on token-by-token generation rather than one full-sequence pass."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Most chat and text-generation systems still rely on autoregressive decoding. Understanding causal attention explains why decoders need a key-value cache, why generation unfolds left to right, and why future tokens stay hidden during both training and inference."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Causal attention versus bidirectional attention time reach",
+      "caption": "Causal attention stops at the current token, while bidirectional attention can also read later positions.",
+      "variants": {
+        "causal": {
+          "label": "Causal"
+        },
+        "bidirectional": {
+          "label": "Bidirectional"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "causal": {
+          "title": "Causal Attention"
+        },
+        "bidirectional": {
+          "title": "Bidirectional Attention"
+        },
+        "attention": {
+          "title": "Attention Overview"
+        }
+      },
+      "dimensions": {
+        "visibleContext": "Visible context per query",
+        "bestFitTask": "Best-fit task style",
+        "generationBehavior": "Generation behavior"
+      },
+      "values": {
+        "causal": {
+          "visibleContext": "Earlier tokens plus the current token only",
+          "bestFitTask": "Decoder-style next-token prediction and autoregressive generation",
+          "generationBehavior": "Produces output one token at a time without looking ahead"
+        },
+        "bidirectional": {
+          "visibleContext": "Both earlier and later tokens in the same visible sequence",
+          "bestFitTask": "Encoder-style understanding and masked language model objectives",
+          "generationBehavior": "Not suitable for plain next-token decoding because future tokens stay visible"
+        },
+        "attention": {
+          "visibleContext": "Depends on the architecture and mask pattern chosen for the attention block",
+          "bestFitTask": "General attention lookup across many Transformer designs",
+          "generationBehavior": "Varies with the chosen mask, sequence source, and objective"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Causal attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(M_{\\mathrm{causal}} \\odot \\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Bidirectional attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(M_{\\mathrm{bi}} \\odot \\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "g": {
+          "term": "n",
+          "definition": "Visible sequence length."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        },
+        "gi": {
+          "term": "M_{\\mathrm{bi}}",
+          "definition": "Bidirectional mask that keeps both left and right context available inside the visible sequence."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "timeCurrentQuery": {
+        "label": "q_t"
+      },
+      "timeKv0": {
+        "label": "KV_0"
+      },
+      "timeKv1": {
+        "label": "KV_1"
+      },
+      "timeKvEllipsis": {
+        "label": "\\cdots"
+      },
+      "timeKvT3": {
+        "label": "KV_{t-3}"
+      },
+      "timeKvT2": {
+        "label": "KV_{t-2}"
+      },
+      "timeKvT1": {
+        "label": "KV_{t-1}"
+      },
+      "timeKvLeftEllipsis": {
+        "label": "\\cdots"
+      },
+      "timeKvTMinus2": {
+        "label": "KV_{t-2}"
+      },
+      "timeKvTMinus1": {
+        "label": "KV_{t-1}"
+      },
+      "timeKvT": {
+        "label": "KV_t"
+      },
+      "timeKvTPlus1": {
+        "label": "KV_{t+1}"
+      },
+      "timeKvTPlus2": {
+        "label": "KV_{t+2}"
+      },
+      "timeKvRightEllipsis": {
+        "label": "\\cdots"
+      }
+    }
+  }
+}

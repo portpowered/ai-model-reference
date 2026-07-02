@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   baseRecordSchema,
   citationRecordSchema,
+  classificationRecordSchema,
   conceptRecordSchema,
   moduleRecordSchema,
   pageAssetConfigSchema,
@@ -24,6 +25,7 @@ const validBaseFields = {
   status: "published" as const,
   createdAt: "2026-06-01T00:00:00.000Z",
   updatedAt: "2026-06-02T00:00:00.000Z",
+  sortOrder: 10,
 };
 
 describe("registry schemas", () => {
@@ -90,6 +92,20 @@ describe("registry schemas", () => {
     expect(result.success).toBe(true);
   });
 
+  test("accepts a valid classification record", () => {
+    const result = classificationRecordSchema.safeParse({
+      ...validBaseFields,
+      id: "classification.module.activation",
+      slug: "activation-functions",
+      kind: "classification",
+      classificationType: "family",
+      classifiesKinds: ["module"],
+      parentClassificationId: "classification.module",
+      legacyIds: ["classification.activation-functions"],
+    });
+    expect(result.success).toBe(true);
+  });
+
   test("parses registry records through the kind discriminated union", () => {
     const result = registryRecordSchema.safeParse({
       ...validBaseFields,
@@ -123,12 +139,60 @@ describe("registry schemas", () => {
     expect(result.success).toBe(false);
   });
 
+  test("accepts ontology metadata on participating records", () => {
+    const result = moduleRecordSchema.safeParse({
+      ...validBaseFields,
+      kind: "module",
+      moduleType: "activation",
+      optimizes: ["activation-sparsity"],
+      exampleModelIds: [],
+      improvesOnIds: [],
+      tradeoffIds: [],
+      usedByModelIds: [],
+      introducedByPaperIds: [],
+      mathLevel: "none",
+      primaryClassificationId: "classification.module.activation",
+      secondaryClassificationIds: ["classification.module.feed-forward"],
+      relationships: [
+        {
+          relationshipType: "uses",
+          targetId: "concept.activation",
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  test("rejects malformed ontology relationships", () => {
+    const result = moduleRecordSchema.safeParse({
+      ...validBaseFields,
+      kind: "module",
+      moduleType: "activation",
+      optimizes: ["activation-sparsity"],
+      exampleModelIds: [],
+      improvesOnIds: [],
+      tradeoffIds: [],
+      usedByModelIds: [],
+      introducedByPaperIds: [],
+      mathLevel: "none",
+      relationships: [
+        {
+          relationshipType: "uses",
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+
   test("reports unsupported sidebar grouping values with record id and value", () => {
     const issues = validateSidebarGroupingForRecord(
       "module",
       "module.grouped-query-attention",
       {
-        modules: "wrong-group" as never,
+        primaryClassificationId: "classification.module.attention",
+        sidebarGrouping: {
+          modules: "wrong-group" as never,
+        },
       },
     );
     expect(issues).toHaveLength(1);
@@ -141,12 +205,46 @@ describe("registry schemas", () => {
       "module",
       "module.grouped-query-attention",
       {
-        glossary: "model-taxonomy",
+        sidebarGrouping: {
+          glossary: "model-taxonomy",
+        },
       },
     );
     expect(issues).toHaveLength(1);
     expect(issues[0]?.message).toContain("module.grouped-query-attention");
     expect(issues[0]?.message).toContain("sidebarGrouping.glossary");
+  });
+
+  test("rejects redundant sidebar grouping overrides when ontology already resolves placement", () => {
+    const issues = validateSidebarGroupingForRecord(
+      "training-regime",
+      "training-regime.dpo",
+      {
+        primaryClassificationId: "classification.training.alignment",
+        sidebarGrouping: {
+          training: "alignment",
+        },
+      },
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0]?.message).toContain("training-regime.dpo");
+    expect(issues[0]?.message).toContain(
+      'sidebarGrouping.training = "alignment"',
+    );
+  });
+
+  test("allows explicit sidebar overrides only when ontology is still too coarse", () => {
+    const issues = validateSidebarGroupingForRecord(
+      "module",
+      "module.attention",
+      {
+        primaryClassificationId: "classification.module.attention",
+        sidebarGrouping: {
+          modules: "attention-foundations",
+        },
+      },
+    );
+    expect(issues).toHaveLength(0);
   });
 
   test("rejects tag records missing category and landingPage", () => {

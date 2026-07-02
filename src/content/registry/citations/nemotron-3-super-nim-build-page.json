@@ -1,0 +1,23 @@
+{
+  "id": "citation.nemotron-3-super-nim-build-page",
+  "slug": "nemotron-3-super-nim-build-page",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "nvidia/nemotron-3-super-120b-a12b",
+    "NVIDIA NIM Nemotron 3 Super build page"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["paper.nemotron-3-super"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["NVIDIA"],
+  "title": "NVIDIA NIM Nemotron 3 Super 120B-A12B Build Page",
+  "url": "https://docs.api.nvidia.com/nim/reference/nvidia-nemotron-3-super-120b-a12b",
+  "mla": "NVIDIA. \"NVIDIA NIM Nemotron 3 Super 120B-A12B.\" NVIDIA NIM Documentation, 2026.",
+  "year": 2026
+}

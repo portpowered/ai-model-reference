@@ -73,7 +73,7 @@ const JAPANESE_MODULE_EXPECTATIONS: readonly JapaneseModuleExpectation[] = [
       "/ja/docs/modules/multi-head-attention",
     ],
     expectedCanonicalFallbackHrefs: [
-      "/docs/glossary/kv-cache",
+      "/docs/concepts/kv-cache",
       "/docs/glossary/decode",
       "/docs/glossary/prefill-decode-split",
       "/docs/concepts/quantization",
@@ -105,7 +105,7 @@ const JAPANESE_MODULE_EXPECTATIONS: readonly JapaneseModuleExpectation[] = [
       "/ja/docs/modules/grouped-query-attention",
     ],
     expectedCanonicalFallbackHrefs: [
-      "/docs/glossary/kv-cache",
+      "/docs/concepts/kv-cache",
       "/docs/glossary/decode",
       "/docs/glossary/prefill-decode-split",
     ],

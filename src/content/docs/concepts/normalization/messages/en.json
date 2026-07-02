@@ -1,0 +1,32 @@
+{
+  "title": "Normalization",
+  "description": "Keeping activations on a predictable scale so deep model stacks stay trainable and their sublayers receive stable inputs.",
+  "openingSummary": "Normalization is the broad idea of rescaling model activations so each layer receives numbers in a stable range, which makes deep stacks easier to train and keeps later computations from being dominated by runaway magnitudes.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Normalization means taking a vector or feature group whose values may have drifted too large or too unevenly, then rescaling it into a more predictable numeric band before the next computation runs. In modern model stacks, that usually happens inside attention blocks, feed-forward blocks, or nearby residual paths. The exact recipe differs by variant, but the family goal stays the same: keep the signal usable without erasing what the model learned."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Deep networks repeatedly multiply, add, and route activations from one layer to the next. When scales drift, gradients can swing with them, optimization steps become less reliable, and the signal handed between blocks is harder to read. Normalization keeps activation and tensor magnitudes in a steadier band so later layers receive values in a more predictable range. That steadier flow helps training stay stable and, at inference time, can keep attention scores or hidden states from becoming numerically awkward. Normalization is recurring support for the stack rather than the main task-performing layer."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Picture one token vector leaving self-attention with a few very large features and many small ones. A normalization step measures that vector with its chosen statistics, rescales it, and then applies any learned gain or shift terms. The next feed-forward or attention sublayer sees an input whose overall scale is easier to work with, even though the token still carries its original information pattern."
+    },
+    "whenToOpenAVariantPage": {
+      "title": "When To Open A Variant Page",
+      "body": "Stay on this page when you want the family-level idea: why normalization exists, what problem it addresses, and why many architectures need some form of it. Open a variant page when the question becomes which values get normalized and where that rescaling sits in the stack. Layer normalization and RMSNorm aggregate statistics across the features inside each token vector and usually sit after attention or feed-forward sublayers. Batch normalization aggregates across the minibatch dimension in convolutional stacks. Group normalization splits channel groups within one example. Query-key normalization rescales query and key vectors inside attention rather than the whole block output. Those pages explain one rule's statistics, placement, and tradeoffs; this page keeps to the shared family idea."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

@@ -1,15 +1,17 @@
 import { join } from "node:path";
+import {
+  getGeneratedContentRuntimeRoot,
+  getProjectRoot,
+  getRegistryRoot,
+} from "../src/lib/content/content-paths";
 import { writeGeneratedRegistryRuntimeModule } from "../src/lib/content/registry-runtime-generation";
 
-const projectRoot = process.cwd();
+const projectRoot = getProjectRoot();
 const outputPath = join(
-  projectRoot,
-  "src",
-  "lib",
-  "content",
+  getGeneratedContentRuntimeRoot(projectRoot),
   "registry-runtime.generated.ts",
 );
-const registryRoot = join(projectRoot, "src", "content", "registry");
+const registryRoot = getRegistryRoot();
 
 const result = await writeGeneratedRegistryRuntimeModule({
   outputPath,

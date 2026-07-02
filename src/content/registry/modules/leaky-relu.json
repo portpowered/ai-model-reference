@@ -27,15 +27,22 @@
   "releaseDate": "2013-01-01",
   "authors": ["Andrew L. Maas", "Awni Y. Hannun", "Andrew Y. Ng"],
   "sourceId": "citation.rectifier-nonlinearities-improve-neural-network-acoustic-models",
-  "moduleType": "activation",
+  "primaryClassificationId": "classification.module.activation",
+  "relationships": [
+    {
+      "relationshipType": "variant",
+      "targetId": "module.relu"
+    },
+    {
+      "relationshipType": "used-by",
+      "targetId": "module.standard-ffn"
+    }
+  ],
   "optimizes": ["gradient-flow"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "none",
-  "moduleFamily": "activation-functions",
-  "conceptType": "activation-function",
-  "variantGroup": "activation-variants"
+  "mathLevel": "none"
 }

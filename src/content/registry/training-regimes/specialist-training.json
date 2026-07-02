@@ -19,6 +19,9 @@
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
   "regimeType": "post-training",
+  "sidebarGrouping": {
+    "training": "post-training"
+  },
   "usedByModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "relatedModuleIds": ["module.deepseekmoe"],
   "paperIds": ["paper.deepseek-v4"],

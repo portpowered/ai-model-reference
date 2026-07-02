@@ -1,0 +1,45 @@
+{
+  "title": "Prefill",
+  "description": "The prompt-processing stage that reads the full input once, builds the first attention state, and sets up generation before any reply token appears.",
+  "openingSummary": "The first generated token often feels slow because the model must process the whole prompt before it can begin replying; prefill is that one-time prompt pass, and it usually dominates time-to-first-token as prompts get longer while it builds the initial KV cache.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Prefill is the first forward pass of autoregressive generation. The model reads every token already in the prompt, runs attention and the rest of the decoder stack across that full input, and produces the first hidden-state context plus the initial key-value (KV) cache. No reply token has been emitted yet, so this stage is the setup work that makes generation possible."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Prefill explains why long prompts can feel slow even when the final answer is short. The model has to score attention across the prompt, allocate cache entries for every processed position, and finish that burst of work before it can stream the first token. That is why prompt length often shows up first in time-to-first-token, serving cost, and early latency discussions."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a 6,000-token prompt that asks for a 30-token answer. Prefill is the pass that reads those 6,000 prompt tokens once, computes their hidden states and attention outputs, and stores the first KV-cache entries. After that, decode can generate the 30 answer tokens one by one without replaying the entire prompt from scratch."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Prefill is not the same as decode. Prefill processes the existing prompt as one setup stage, while decode repeats a smaller next-token step after the cache already exists. It is also not the same as the KV cache itself: prefill creates the first cache state, but the cache is the saved data structure that later steps reuse. Techniques such as chunked prefill or prefill/decode split are serving strategies built around this stage, not different definitions of the stage."
+    },
+    "servingPath": {
+      "title": "Serving Path",
+      "body": "Use the pages below to move through the full serving path. KV cache explains the saved state that prefill creates, decode explains the token-by-token loop that follows, and grouped-query attention shows one attention variant teams use when they need the cache to stay cheaper at longer prompt lengths."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "kvCache": "KV cache",
+    "decode": "Decode",
+    "prefillDecodeSplit": "Prefill/decode split",
+    "autoregressiveGeneration": "Autoregressive generation",
+    "attention": "Attention",
+    "groupedQueryAttention": "Grouped-query attention",
+    "timeToFirstToken": "Time to first token"
+  }
+}

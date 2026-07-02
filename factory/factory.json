@@ -549,7 +549,7 @@
   "workers": [
     {
       "executorProvider": "SCRIPT_WRAP",
-      "modelProvider": "CODEX",
+      "modelProvider": "CURSOR",
       "name": "processor",
       "skipPermissions": true,
       "stopToken": "\u003cCOMPLETE\u003e",

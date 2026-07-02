@@ -32,7 +32,17 @@ export const VERIFY_SEARCH_DIALOG_STUB_ENV = "VERIFY_SEARCH_DIALOG_STUB";
 export type RunPhase1SearchDialogChecksOptions = {
   timeoutMs?: number;
   queries?: readonly string[];
+  browser?: Browser;
   launchBrowser?: () => Promise<Browser>;
+  logger?: (message: string) => void;
+  /**
+   * Test hook: when set, overrides the dialog opener used before query checks run.
+   */
+  openDialog?: (
+    page: Page,
+    baseUrl: string,
+    timeoutMs: number,
+  ) => Promise<Locator>;
   /**
    * Test hook: when set, skips Playwright and runs this checker per query instead.
    */
@@ -71,6 +81,10 @@ export function formatPhase1SearchDialogCheckFailure(
   failure: Phase1SearchDialogCheckFailure,
 ): string {
   return `${failure.surface}?query=${encodeURIComponent(failure.query)}: ${failure.reason}`;
+}
+
+export function formatSearchDialogOpenFailureReason(timeoutMs: number): string {
+  return `did not open the header search dialog on the home page within ${timeoutMs}ms`;
 }
 
 /**
@@ -182,8 +196,7 @@ async function openHeaderSearchDialog(
     }
   }
 
-  await dialog.waitFor({ state: "visible", timeout: 1 });
-  return dialog;
+  throw new Error(formatSearchDialogOpenFailureReason(timeoutMs));
 }
 
 async function waitForSearchDialogOutcome(
@@ -283,28 +296,45 @@ export async function runPhase1SearchDialogChecks(
   }
 
   const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
-  const browser = await launchBrowser();
+  const browser = options.browser ?? (await launchBrowser());
+  const logger = options.logger;
 
   try {
+    logger?.("[phase-1-search-dialog] opening browser page");
     const page = await browser.newPage();
     page.setDefaultTimeout(timeoutMs);
+    const openDialog = options.openDialog ?? openHeaderSearchDialog;
 
-    const dialog = await openHeaderSearchDialog(page, baseUrl, timeoutMs);
+    try {
+      logger?.("[phase-1-search-dialog] opening header search dialog");
+      const dialog = await openDialog(page, baseUrl, timeoutMs);
 
-    for (const query of queries) {
-      const reason = await checkSearchDialogQuery(
-        page,
-        baseUrl,
-        query,
-        timeoutMs,
-        dialog,
-      );
-      if (reason) {
+      for (const query of queries) {
+        logger?.(`[phase-1-search-dialog] checking query "${query}"`);
+        const reason = await checkSearchDialogQuery(
+          page,
+          baseUrl,
+          query,
+          timeoutMs,
+          dialog,
+        );
+        if (reason) {
+          failures.push({ query, surface: "header-dialog", reason });
+        }
+      }
+    } catch (error) {
+      const reason =
+        error instanceof Error
+          ? error.message
+          : formatSearchDialogOpenFailureReason(timeoutMs);
+      for (const query of queries) {
         failures.push({ query, surface: "header-dialog", reason });
       }
     }
   } finally {
-    await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
+    if (!options.browser) {
+      await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
+    }
   }
 
   return failures;

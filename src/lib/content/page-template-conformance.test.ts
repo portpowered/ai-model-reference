@@ -117,4 +117,24 @@ describe("validatePageTemplateConformance", () => {
 
     expect(errors).toEqual([]);
   });
+
+  test("allows optional how-it-differs section on system pages", () => {
+    const withHowItDiffers = readTemplate("system").replace(
+      /<Section id="practical-impact"/,
+      `<Section id="how-it-differs" titleKey="sections.howItDiffers.title">
+  <T k="sections.howItDiffers.body" />
+</Section>
+
+<Section id="practical-impact"`,
+    );
+
+    const errors = validatePageTemplateConformance({
+      pagePath: `${docsRoot}/systems/dynamic-batching/page.mdx`,
+      docsRoot,
+      kind: "system",
+      mdxSource: withHowItDiffers,
+    });
+
+    expect(errors).toEqual([]);
+  });
 });

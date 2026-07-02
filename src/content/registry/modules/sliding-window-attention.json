@@ -21,6 +21,7 @@
   "releaseDate": "2020-04-01",
   "authors": ["Iz Beltagy", "Matthew E. Peters", "Arman Cohan"],
   "sourceId": "citation.longformer",
+  "primaryClassificationId": "classification.module.attention",
   "moduleType": "attention",
   "moduleFamily": "attention",
   "conceptType": "attention-variant",

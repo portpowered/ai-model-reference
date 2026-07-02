@@ -23,7 +23,7 @@ const PASSING_STUB_HTML: Record<string, string> = {
   "/ja/search": `<html>
     <h1>検索</h1>
     <p>正規の検索エントリ URL: /search。</p>
-    <p>/search?tag=attention</p>
+    <p>?tag=&lt;slug&gt;</p>
     <output data-testid="search-page-idle"></output>
   </html>`,
   "/ja/docs/modules/multi-head-attention": `<html>

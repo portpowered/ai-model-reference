@@ -1,0 +1,144 @@
+{
+  "id": "graph.local-attention-neighborhood-pattern",
+  "slug": "local-attention-neighborhood-pattern",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention", "context-window"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "subjectId": "module.local-attention",
+  "graphType": "attention-pattern",
+  "rootNodeId": "local-time-current-query",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "local-time-current-query",
+      "labelKey": "graph.nodes.timeCurrentQuery.label",
+      "moduleKind": "attention",
+      "position": { "x": 420, "y": 0 },
+      "headCountRole": "query",
+      "visualRole": "summary-node",
+      "childNodeIds": [
+        "local-time-kv-0",
+        "local-time-kv-1",
+        "local-time-kv-ellipsis",
+        "local-time-kv-i-2",
+        "local-time-kv-i-1",
+        "local-time-kv-i",
+        "local-time-kv-i-plus-1",
+        "local-time-kv-i-plus-2"
+      ]
+    },
+    {
+      "id": "local-time-kv-0",
+      "labelKey": "graph.nodes.timeKv0.label",
+      "moduleKind": "cache",
+      "position": { "x": 0, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node-muted",
+      "childNodeIds": []
+    },
+    {
+      "id": "local-time-kv-1",
+      "labelKey": "graph.nodes.timeKv1.label",
+      "moduleKind": "cache",
+      "position": { "x": 120, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node-muted",
+      "childNodeIds": []
+    },
+    {
+      "id": "local-time-kv-ellipsis",
+      "labelKey": "graph.nodes.timeKvEllipsis.label",
+      "moduleKind": "cache",
+      "position": { "x": 240, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node-muted",
+      "childNodeIds": []
+    },
+    {
+      "id": "local-time-kv-i-2",
+      "labelKey": "graph.nodes.timeKvI2.label",
+      "moduleKind": "cache",
+      "position": { "x": 360, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "local-time-kv-i-1",
+      "labelKey": "graph.nodes.timeKvI1.label",
+      "moduleKind": "cache",
+      "position": { "x": 480, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "local-time-kv-i",
+      "labelKey": "graph.nodes.timeKvI.label",
+      "moduleKind": "cache",
+      "position": { "x": 600, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "local-time-kv-i-plus-1",
+      "labelKey": "graph.nodes.timeKvIp1.label",
+      "moduleKind": "cache",
+      "position": { "x": 720, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "local-time-kv-i-plus-2",
+      "labelKey": "graph.nodes.timeKvIp2.label",
+      "moduleKind": "cache",
+      "position": { "x": 840, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "local-time-query-to-kv-i-2",
+      "source": "local-time-current-query",
+      "target": "local-time-kv-i-2",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "local-time-query-to-kv-i-1",
+      "source": "local-time-current-query",
+      "target": "local-time-kv-i-1",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "local-time-query-to-kv-i",
+      "source": "local-time-current-query",
+      "target": "local-time-kv-i",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "local-time-query-to-kv-i-plus-1",
+      "source": "local-time-current-query",
+      "target": "local-time-kv-i-plus-1",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "local-time-query-to-kv-i-plus-2",
+      "source": "local-time-current-query",
+      "target": "local-time-kv-i-plus-2",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

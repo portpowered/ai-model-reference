@@ -8,6 +8,7 @@
   "tags": ["feed-forward", "foundations"],
   "relatedIds": [
     "concept.transformer-architecture",
+    "concept.mixture-of-experts",
     "module.standard-ffn",
     "module.mixture-of-experts",
     "concept.activation"
@@ -22,15 +23,22 @@
   "releaseDate": "1989-03-01",
   "authors": ["Kurt Hornik", "Maxwell Stinchcombe", "Halbert White"],
   "sourceId": "citation.multilayer-feedforward-networks-are-universal-approximators",
-  "moduleType": "feed-forward",
+  "primaryClassificationId": "classification.module.feed-forward",
+  "relationships": [
+    {
+      "relationshipType": "part-of",
+      "targetId": "classification.module"
+    },
+    {
+      "relationshipType": "uses",
+      "targetId": "concept.activation"
+    }
+  ],
   "optimizes": ["per-token-capacity"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "none",
-  "moduleFamily": "feed-forward-network",
-  "conceptType": "feed-forward-block",
-  "variantGroup": "feed-forward-family"
+  "mathLevel": "none"
 }

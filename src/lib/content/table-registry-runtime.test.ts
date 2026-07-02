@@ -137,9 +137,17 @@ describe("table-registry-runtime", () => {
     expect(tableIds.length).toBe(generatedTableRegistrySourceFiles.length);
     expect(tableIds).toContain("table.bpe-comparison");
     expect(tableIds).toContain("table.byte-level-tokenization-comparison");
+    expect(tableIds).toContain("table.unigram-tokenizer-comparison");
+    expect(tableIds).toContain("table.tokenizer-mismatch-comparison");
     expect(
       getTableById("table.byte-level-tokenization-comparison")?.subjectId,
     ).toBe("module.byte-level-tokenization");
+    expect(getTableById("table.unigram-tokenizer-comparison")?.subjectId).toBe(
+      "module.unigram-tokenizer",
+    );
+    expect(getTableById("table.tokenizer-mismatch-comparison")?.subjectId).toBe(
+      "module.tokenizer-mismatch",
+    );
   });
 
   test("resolves every shipped module comparison table through the synchronous helpers", () => {

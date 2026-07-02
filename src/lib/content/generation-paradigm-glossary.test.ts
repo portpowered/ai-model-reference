@@ -81,7 +81,7 @@ describe("Phase 2 generation paradigm glossary pages (US-003)", () => {
     expect(html).toContain('href="/docs/glossary/encoder-decoder"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
   });
 
   test("denoising generation links backward to latent cluster and generative model", async () => {

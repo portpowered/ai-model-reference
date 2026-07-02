@@ -5,19 +5,24 @@ import {
   MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS,
   MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS,
 } from "@/features/models/components/module-attention-math-variable-definitions";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { expectModuleMathSchemaDefinitionsInMathSection } from "@/lib/content/module-test-helpers";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { assertGroupedQueryAttentionMathDefinitionsConvergence } from "@/lib/verify/grouped-query-attention-module-convergence";
 
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
+
 describe("grouped-query-attention module math schema definitions", () => {
   test("published GQA messages include symbol-level math variable definitions per formula", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(
         readFileSync(
-          join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "messages/en.json"),
+          join(groupedQueryAttentionPageDir, "messages/en.json"),
           "utf8",
         ),
       ),
@@ -45,7 +50,7 @@ describe("grouped-query-attention module math schema definitions", () => {
 
   test("published GQA page uses ModuleAttentionSchemaComparison in math section", () => {
     const raw = readFileSync(
-      join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "page.mdx"),
+      join(groupedQueryAttentionPageDir, "page.mdx"),
       "utf8",
     );
 
