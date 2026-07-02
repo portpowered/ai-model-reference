@@ -4,13 +4,17 @@ import { resolve } from "node:path";
 import {
   buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport,
   formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport,
+  PLANNER_TERMINAL_AUDIT_ACTIVE_PR_CONTEXT_DECISION_SUPPORT,
   PLANNER_TERMINAL_AUDIT_ALREADY_MERGED_NEXT_SAFE_ACTION,
   PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS,
+  PLANNER_TERMINAL_AUDIT_DRIFT_REMAINS_OPERATOR_HOLD_STATEMENT,
   PLANNER_TERMINAL_AUDIT_FACTORY_LINKAGE_PATH,
+  PLANNER_TERMINAL_AUDIT_META_PLANNER_OPERATOR_HANDOFF_STATEMENT,
   PLANNER_TERMINAL_AUDIT_NO_MUTATION_STATEMENT,
   PLANNER_TERMINAL_AUDIT_OPERATOR_HOLD_DELETION_NEXT_SAFE_ACTION,
   PLANNER_TERMINAL_AUDIT_OWNERLESS_DIRTY_PATH_PRESERVATION_STATEMENT,
   PLANNER_TERMINAL_AUDIT_OWNERLESS_MODIFIED_NEXT_SAFE_ACTION,
+  PLANNER_TERMINAL_AUDIT_PAGE_REFILL_HOLD_BELOW_FLOOR_STATEMENT,
   PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS,
   PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_GROUP_CLASSIFICATION,
   PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_NEXT_SAFE_ACTION,
@@ -363,6 +367,57 @@ describe("planner terminal audit root staged deletion handoff evidence", () => {
     );
     expect(formatted).toContain(
       "path=scripts/report-terminal-lane-main-branch-landing-audit.ts status=D   owner-state=operator-hold",
+    );
+  });
+
+  test("emits planner refill and operator handoff decision for ownerless root drift", () => {
+    const report =
+      buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport(
+        buildSixPathFixtureReportOptions({
+          statusOutput: sixPathStatusFixture,
+          watchdogSnapshot: buildFactoryLinkageAlreadyMergedWatchdogSnapshot(),
+        }),
+      );
+
+    const decision = report.plannerRefillHandoffDecision;
+    expect(decision.driftState).toBe(
+      "terminal-audit-drift-remains-operator-hold",
+    );
+    expect(decision.driftStateStatement).toBe(
+      PLANNER_TERMINAL_AUDIT_DRIFT_REMAINS_OPERATOR_HOLD_STATEMENT,
+    );
+    expect(decision.pageRefillsHeld).toBe(true);
+    expect(decision.pageRefillHoldStatement).toBe(
+      PLANNER_TERMINAL_AUDIT_PAGE_REFILL_HOLD_BELOW_FLOOR_STATEMENT,
+    );
+    expect(decision.metaPlannerLoopAction).toBe(
+      "request-human-operator-cleanup-handoff",
+    );
+    expect(decision.metaPlannerLoopActionStatement).toBe(
+      PLANNER_TERMINAL_AUDIT_META_PLANNER_OPERATOR_HANDOFF_STATEMENT,
+    );
+    expect(decision.activePrContext).toEqual([
+      ...PLANNER_TERMINAL_AUDIT_ACTIVE_PR_CONTEXT_DECISION_SUPPORT,
+    ]);
+
+    const formatted =
+      formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport(report);
+    expect(formatted).toContain("- planner-refill-handoff-decision");
+    expect(formatted).toContain(
+      "drift-state=terminal-audit-drift-remains-operator-hold",
+    );
+    expect(formatted).toContain(
+      `page-refill-hold-statement=${PLANNER_TERMINAL_AUDIT_PAGE_REFILL_HOLD_BELOW_FLOOR_STATEMENT}`,
+    );
+    expect(formatted).toContain(
+      "meta-planner-loop-action=request-human-operator-cleanup-handoff",
+    );
+    expect(formatted).toContain("- active-pr-context-decision-support");
+    expect(formatted).toContain(
+      "pr=#264 lane=latent-diffusion-paper-page state=mergeable/passing",
+    );
+    expect(formatted).toContain(
+      "pr=#251 lane=tokens-per-second-serving-metric-page state=queue-stale with open follow-up already in progress",
     );
   });
 });

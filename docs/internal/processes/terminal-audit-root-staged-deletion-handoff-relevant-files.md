@@ -22,6 +22,7 @@ Planner-facing handoff for terminal-audit root staged deletion drift evidence.
 - Inject `watchdogSnapshot` when tests need already-merged-owned evidence for `docs/internal/processes/factory-linkage-relevant-files.md` without live `you` queue discovery.
 - `terminalAuditRemotePresentDeletions` lists the three terminal-audit deleted paths with `present-on-origin-main` evidence and `git cat-file -e origin/main:<path>` reviewer commands; group classification defaults to `remote-present-local-deletion-drift`.
 - `dirtyRootPathClassifications` lists all six dirty root paths with `owner-state` (`already-merged-owned`, `ownerless`, `operator-hold`), optional `lane`, and per-path `next-safe-action`; `ownerlessDirtyPathPreservationStatement` states page refills must not overwrite ownerless root drift.
+- `plannerRefillHandoffDecision` emits drift state (`terminal-audit-drift-cleared`, `terminal-audit-drift-explicitly-owned`, `terminal-audit-drift-remains-operator-hold`), page-refill hold when ownerless/operator-hold paths remain, meta-planner loop action, and active PR context (#264 mergeable/passing, #251 queue-stale) as decision support only.
 - Use `--repo-root` against the root checkout for live evidence; default fixture fallback keeps review deterministic when the root checkout is unavailable.
 
 ## Commands

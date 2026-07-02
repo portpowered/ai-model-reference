@@ -78,6 +78,63 @@ export const PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_NEXT_SAFE_ACTION =
 export const PLANNER_TERMINAL_AUDIT_OPERATOR_HOLD_DELETION_NEXT_SAFE_ACTION =
   PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_NEXT_SAFE_ACTION;
 
+export type TerminalAuditDriftState =
+  | "terminal-audit-drift-cleared"
+  | "terminal-audit-drift-explicitly-owned"
+  | "terminal-audit-drift-remains-operator-hold";
+
+export type TerminalAuditMetaPlannerLoopAction =
+  | "submit-page-work"
+  | "dispatch-non-page-repair"
+  | "request-human-operator-cleanup-handoff";
+
+export const PLANNER_TERMINAL_AUDIT_DRIFT_CLEARED_STATEMENT =
+  "Terminal-audit drift cleared: no ownerless or operator-hold dirty root paths remain.";
+
+export const PLANNER_TERMINAL_AUDIT_DRIFT_EXPLICITLY_OWNED_STATEMENT =
+  "Terminal-audit drift explicitly owned: every dirty root path has explicit ownership evidence.";
+
+export const PLANNER_TERMINAL_AUDIT_DRIFT_REMAINS_OPERATOR_HOLD_STATEMENT =
+  "Terminal-audit drift remains operator hold: ownerless or operator-hold dirty root paths are still preserved.";
+
+export const PLANNER_TERMINAL_AUDIT_PAGE_REFILL_HOLD_BELOW_FLOOR_STATEMENT =
+  "Page refills remain held despite useful active depth being below 3.";
+
+export const PLANNER_TERMINAL_AUDIT_META_PLANNER_SUBMIT_PAGE_WORK_STATEMENT =
+  "Submit page work: terminal-audit root drift is cleared and page refills may resume toward the useful-worker floor.";
+
+export const PLANNER_TERMINAL_AUDIT_META_PLANNER_DISPATCH_REPAIR_STATEMENT =
+  "Dispatch another non-page repair outside dirty root paths; do not overwrite preserved ownerless or operator-hold surfaces.";
+
+export const PLANNER_TERMINAL_AUDIT_META_PLANNER_OPERATOR_HANDOFF_STATEMENT =
+  "Request human operator cleanup/handoff for ownerless or operator-hold root drift before resuming page refills.";
+
+export const PLANNER_TERMINAL_AUDIT_ACTIVE_PR_CONTEXT_DECISION_SUPPORT = [
+  {
+    laneName: "latent-diffusion-paper-page",
+    pullRequestNumber: 264,
+    stateSummary: "mergeable/passing",
+  },
+  {
+    laneName: "tokens-per-second-serving-metric-page",
+    pullRequestNumber: 251,
+    stateSummary: "queue-stale with open follow-up already in progress",
+  },
+] as const;
+
+export type TerminalAuditActivePrContextEntry =
+  (typeof PLANNER_TERMINAL_AUDIT_ACTIVE_PR_CONTEXT_DECISION_SUPPORT)[number];
+
+export interface TerminalAuditPlannerRefillHandoffDecision {
+  activePrContext: TerminalAuditActivePrContextEntry[];
+  driftState: TerminalAuditDriftState;
+  driftStateStatement: string;
+  metaPlannerLoopAction: TerminalAuditMetaPlannerLoopAction;
+  metaPlannerLoopActionStatement: string;
+  pageRefillHoldStatement?: string;
+  pageRefillsHeld: boolean;
+}
+
 export type TerminalAuditRemotePresentDeletionGroupClassification =
   | typeof PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETION_GROUP_CLASSIFICATION
   | typeof PLANNER_TERMINAL_AUDIT_EXPLICITLY_OWNED_DELETION_GROUP_CLASSIFICATION;
@@ -129,6 +186,7 @@ export interface PlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport {
   gitDiffCachedStat: string;
   gitStatusShortBranch: string;
   ownerlessDirtyPathPreservationStatement: string;
+  plannerRefillHandoffDecision: TerminalAuditPlannerRefillHandoffDecision;
   preservationStatement: string;
   reconciliation: TerminalAuditReconciliationEvidenceSummary;
   reconciliationReportFormatted: string;
@@ -465,6 +523,112 @@ function buildTerminalAuditDeletionEvidenceFromReconciliation(
   };
 }
 
+function hasOwnerlessOrOperatorHoldDirtyPaths(
+  classifications: TerminalAuditDirtyPathClassification[],
+): boolean {
+  return classifications.some(
+    (classification) =>
+      classification.ownerState === "ownerless" ||
+      classification.ownerState === "operator-hold",
+  );
+}
+
+function resolveTerminalAuditDriftState(input: {
+  dirtyRootPathClassifications: TerminalAuditDirtyPathClassification[];
+  totalDirtyPathCount: number;
+}): {
+  driftState: TerminalAuditDriftState;
+  driftStateStatement: string;
+} {
+  if (input.totalDirtyPathCount === 0) {
+    return {
+      driftState: "terminal-audit-drift-cleared",
+      driftStateStatement: PLANNER_TERMINAL_AUDIT_DRIFT_CLEARED_STATEMENT,
+    };
+  }
+
+  if (
+    hasOwnerlessOrOperatorHoldDirtyPaths(input.dirtyRootPathClassifications)
+  ) {
+    return {
+      driftState: "terminal-audit-drift-remains-operator-hold",
+      driftStateStatement:
+        PLANNER_TERMINAL_AUDIT_DRIFT_REMAINS_OPERATOR_HOLD_STATEMENT,
+    };
+  }
+
+  return {
+    driftState: "terminal-audit-drift-explicitly-owned",
+    driftStateStatement:
+      PLANNER_TERMINAL_AUDIT_DRIFT_EXPLICITLY_OWNED_STATEMENT,
+  };
+}
+
+function resolveTerminalAuditMetaPlannerLoopAction(
+  driftState: TerminalAuditDriftState,
+): {
+  metaPlannerLoopAction: TerminalAuditMetaPlannerLoopAction;
+  metaPlannerLoopActionStatement: string;
+} {
+  switch (driftState) {
+    case "terminal-audit-drift-cleared":
+      return {
+        metaPlannerLoopAction: "submit-page-work",
+        metaPlannerLoopActionStatement:
+          PLANNER_TERMINAL_AUDIT_META_PLANNER_SUBMIT_PAGE_WORK_STATEMENT,
+      };
+    case "terminal-audit-drift-explicitly-owned":
+      return {
+        metaPlannerLoopAction: "dispatch-non-page-repair",
+        metaPlannerLoopActionStatement:
+          PLANNER_TERMINAL_AUDIT_META_PLANNER_DISPATCH_REPAIR_STATEMENT,
+      };
+    case "terminal-audit-drift-remains-operator-hold":
+      return {
+        metaPlannerLoopAction: "request-human-operator-cleanup-handoff",
+        metaPlannerLoopActionStatement:
+          PLANNER_TERMINAL_AUDIT_META_PLANNER_OPERATOR_HANDOFF_STATEMENT,
+      };
+  }
+}
+
+export function buildTerminalAuditPlannerRefillHandoffDecision(input: {
+  dirtyRootPathClassifications: TerminalAuditDirtyPathClassification[];
+  totalDirtyPathCount: number;
+  activePrContext?: readonly TerminalAuditActivePrContextEntry[];
+}): TerminalAuditPlannerRefillHandoffDecision {
+  const { driftState, driftStateStatement } = resolveTerminalAuditDriftState({
+    dirtyRootPathClassifications: input.dirtyRootPathClassifications,
+    totalDirtyPathCount: input.totalDirtyPathCount,
+  });
+  const { metaPlannerLoopAction, metaPlannerLoopActionStatement } =
+    resolveTerminalAuditMetaPlannerLoopAction(driftState);
+  const pageRefillsHeld = hasOwnerlessOrOperatorHoldDirtyPaths(
+    input.dirtyRootPathClassifications,
+  );
+
+  return {
+    activePrContext: [
+      ...(input.activePrContext ??
+        PLANNER_TERMINAL_AUDIT_ACTIVE_PR_CONTEXT_DECISION_SUPPORT),
+    ],
+    driftState,
+    driftStateStatement,
+    metaPlannerLoopAction,
+    metaPlannerLoopActionStatement,
+    pageRefillHoldStatement: pageRefillsHeld
+      ? PLANNER_TERMINAL_AUDIT_PAGE_REFILL_HOLD_BELOW_FLOOR_STATEMENT
+      : undefined,
+    pageRefillsHeld,
+  };
+}
+
+function formatTerminalAuditActivePrContextLine(
+  entry: TerminalAuditActivePrContextEntry,
+): string {
+  return `pr=#${entry.pullRequestNumber} lane=${entry.laneName} state=${entry.stateSummary}`;
+}
+
 export function buildTerminalAuditRemotePresentDeletionGroup(input: {
   reconciliationReport: PlannerRootCheckoutReconciliationReport;
   remoteBaseRef: string;
@@ -577,6 +741,12 @@ export function buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport
         options.ownerlessDirtyPathPreservationStatement,
       watchdogPathEvidence,
     });
+  const plannerRefillHandoffDecision =
+    buildTerminalAuditPlannerRefillHandoffDecision({
+      dirtyRootPathClassifications:
+        dirtyPathClassificationResult.classifications,
+      totalDirtyPathCount: reconciliationReport.totalDirtyPathCount,
+    });
 
   return {
     dirtyRootPathClassifications: dirtyPathClassificationResult.classifications,
@@ -589,6 +759,7 @@ export function buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport
     gitStatusShortBranch,
     ownerlessDirtyPathPreservationStatement:
       dirtyPathClassificationResult.ownerlessDirtyPathPreservationStatement,
+    plannerRefillHandoffDecision,
     preservationStatement:
       options.preservationStatement ??
       PLANNER_TERMINAL_AUDIT_NO_MUTATION_STATEMENT,
@@ -684,6 +855,23 @@ export function formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceRepor
     ),
   );
 
+  const decision = report.plannerRefillHandoffDecision;
+  lines.push(
+    "- planner-refill-handoff-decision",
+    `  drift-state=${decision.driftState}`,
+    `  drift-state-statement=${decision.driftStateStatement}`,
+    `  page-refills-held=${decision.pageRefillsHeld}`,
+    ...(decision.pageRefillHoldStatement
+      ? [`  page-refill-hold-statement=${decision.pageRefillHoldStatement}`]
+      : []),
+    `  meta-planner-loop-action=${decision.metaPlannerLoopAction}`,
+    `  meta-planner-loop-action-statement=${decision.metaPlannerLoopActionStatement}`,
+    "- active-pr-context-decision-support",
+    ...decision.activePrContext.map(
+      (entry) => `  - ${formatTerminalAuditActivePrContextLine(entry)}`,
+    ),
+  );
+
   lines.push(
     "- evidence-commands",
     ...report.evidenceCommands.map((command) => `  ${command}`),
@@ -776,6 +964,30 @@ export function formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceMarkd
     ...report.dirtyRootPathClassifications.map(
       (classification) =>
         `| \`${classification.path}\` | \`${classification.statusCode.trim()}\` | \`${classification.ownerState}\` | \`${classification.laneName ?? "(none)"}\` | ${classification.nextSafeAction} |`,
+    ),
+    "",
+  );
+
+  const decision = report.plannerRefillHandoffDecision;
+  lines.push(
+    "## Planner Refill and Operator Handoff Decision",
+    "",
+    `- Drift state: \`${decision.driftState}\``,
+    `- Drift state statement: ${decision.driftStateStatement}`,
+    `- Page refills held: \`${decision.pageRefillsHeld}\``,
+    ...(decision.pageRefillHoldStatement
+      ? [`- Page refill hold: ${decision.pageRefillHoldStatement}`]
+      : []),
+    `- Meta-planner loop action: \`${decision.metaPlannerLoopAction}\``,
+    `- Meta-planner loop action statement: ${decision.metaPlannerLoopActionStatement}`,
+    "",
+    "### Active PR Context (Decision Support Only)",
+    "",
+    "| PR | Lane | State |",
+    "| --- | --- | --- |",
+    ...decision.activePrContext.map(
+      (entry) =>
+        `| #${entry.pullRequestNumber} | \`${entry.laneName}\` | ${entry.stateSummary} |`,
     ),
     "",
   );
