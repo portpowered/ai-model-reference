@@ -3,6 +3,7 @@ import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import {
   evaluateSearchDialogDomSnapshot,
   formatPhase1SearchDialogCheckFailure,
+  formatSearchDialogOpenFailureReason,
   PHASE_1_SEARCH_DIALOG_QUERIES,
   resolveSearchDialogCheckOptionsFromEnv,
   runPhase1SearchDialogChecks,
@@ -117,6 +118,14 @@ describe("formatPhase1SearchDialogCheckFailure", () => {
   });
 });
 
+describe("formatSearchDialogOpenFailureReason", () => {
+  test("describes a home-page dialog open timeout", () => {
+    expect(formatSearchDialogOpenFailureReason(45_000)).toBe(
+      "did not open the header search dialog on the home page within 45000ms",
+    );
+  });
+});
+
 describe("resolveSearchDialogCheckOptionsFromEnv", () => {
   test("returns pass stub when VERIFY_SEARCH_DIALOG_STUB=pass", async () => {
     const options = resolveSearchDialogCheckOptionsFromEnv({
@@ -170,5 +179,42 @@ describe("runPhase1SearchDialogChecks", () => {
     expect(formatPhase1SearchDialogCheckFailure(failure)).toBe(
       "header-dialog?query=GQA: forced failure for GQA",
     );
+  });
+
+  test("returns per-query failures when the dialog never opens", async () => {
+    const failures = await runPhase1SearchDialogChecks(
+      "http://127.0.0.1:3200",
+      {
+        queries: ["GQA", "attention"],
+        launchBrowser: async () =>
+          ({
+            newPage: async () =>
+              ({
+                setDefaultTimeout() {},
+              }) as never,
+            close: async () => {},
+          }) as never,
+        openDialog: async () => {
+          throw new Error(
+            "did not open the header search dialog on the home page within 45000ms",
+          );
+        },
+      },
+    );
+
+    expect(failures).toEqual([
+      {
+        query: "GQA",
+        surface: "header-dialog",
+        reason:
+          "did not open the header search dialog on the home page within 45000ms",
+      },
+      {
+        query: "attention",
+        surface: "header-dialog",
+        reason:
+          "did not open the header search dialog on the home page within 45000ms",
+      },
+    ]);
   });
 });

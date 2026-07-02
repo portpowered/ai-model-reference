@@ -1,0 +1,87 @@
+{
+  "id": "graph.deployment-system-flow",
+  "slug": "deployment-system-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["deployment system flow"],
+  "tags": ["foundations", "quantization", "kv-cache"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.goodfellow-deep-learning",
+    "citation.deepseek-v4-paper"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "system.deployment",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "package",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "package",
+      "labelKey": "graph.nodes.package.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["fit"]
+    },
+    {
+      "id": "fit",
+      "labelKey": "graph.nodes.fit.label",
+      "moduleKind": "hardware",
+      "position": { "x": 250, "y": 112 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["rollout"]
+    },
+    {
+      "id": "rollout",
+      "labelKey": "graph.nodes.rollout.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 244 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["rollback"]
+    },
+    {
+      "id": "rollback",
+      "labelKey": "graph.nodes.rollback.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 376 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "package-fit",
+      "source": "package",
+      "target": "fit",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "fit-rollout",
+      "source": "fit",
+      "target": "rollout",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "rollout-rollback",
+      "source": "rollout",
+      "target": "rollback",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

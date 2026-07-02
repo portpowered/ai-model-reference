@@ -1,0 +1,9 @@
+{
+  "architectureGraph": {
+    "type": "graph",
+    "graphId": "graph.nemotron-3-super-architecture",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.architectureGraph.alt"
+  }
+}

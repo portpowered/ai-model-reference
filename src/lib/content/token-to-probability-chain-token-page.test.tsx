@@ -6,12 +6,14 @@ import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import { getConceptById } from "@/lib/content/registry-runtime";
 
 describe("Phase 2 token page learning chain entry (US-010)", () => {
-  test("token registry includes chain tag and forward relatedIds to embedding, vocabulary size, logit, and softmax", () => {
+  test("token registry includes chain tag plus tokenizer overview, special tokens, and forward relatedIds to embedding, vocabulary size, logit, and softmax", () => {
     const token = getConceptById("concept.token");
     expect(token?.tags).toContain("token-to-probability-chain");
     expect(token?.tags).toContain("foundations");
     expect(token?.relatedIds).toEqual([
       "module.byte-level-tokenization",
+      "concept.special-tokens",
+      "concept.tokenizers-overview",
       "concept.embedding",
       "concept.vocabulary-size",
       "concept.logit",
@@ -35,7 +37,7 @@ describe("Phase 2 token page learning chain entry (US-010)", () => {
     expect(page.frontmatter.tags).toContain("foundations");
   });
 
-  test("token page related section links to embedding and vocabulary size with a visible reason label", async () => {
+  test("token page related section links to tokenizer overview, embedding, and vocabulary size with visible reason labels", async () => {
     const page = await loadGlossaryPage("token");
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -47,8 +49,10 @@ describe("Phase 2 token page learning chain entry (US-010)", () => {
     );
 
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain("Tokenizer overview");
+    expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
     expect(html).toContain("embeddings");
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');

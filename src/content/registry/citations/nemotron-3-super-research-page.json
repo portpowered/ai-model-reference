@@ -1,0 +1,20 @@
+{
+  "id": "citation.nemotron-3-super-research-page",
+  "slug": "nemotron-3-super-research-page",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["NVIDIA Nemotron 3 Super research page"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["paper.nemotron-3-super"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["NVIDIA"],
+  "title": "NVIDIA Nemotron 3 Super",
+  "url": "https://research.nvidia.com/labs/nemotron/Nemotron-3-Super/",
+  "mla": "NVIDIA. \"NVIDIA Nemotron 3 Super.\" NVIDIA Research, 2026.",
+  "year": 2026
+}

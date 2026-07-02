@@ -90,7 +90,7 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
     expect(contextExtension?.isPlanned).toBe(false);
 
     const alibi = items.find((item) => item.registryId === "concept.alibi");
-    expect(alibi?.href).toBe("/docs/modules/alibi");
+    expect(alibi?.href).toBe("/docs/concepts/alibi");
     expect(alibi?.isPlanned).toBe(false);
 
     const ntkAware = items.find(

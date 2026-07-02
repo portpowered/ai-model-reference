@@ -177,7 +177,27 @@ describe("docs source local pages", () => {
     expect(page.toc.some(hasTocUrl("#what-it-is"))).toBe(true);
   });
 
-  test("loadLocalDocsPage resolves the shipped japanese core reader path through the shared MDX route contract", async () => {
+  test("loadLocalDocsPage resolves the published routing system page with its English messages and graph asset", async () => {
+    const page = await loadLocalDocsPage({
+      section: "systems",
+      slug: "routing",
+    });
+
+    expect(page.messages.title).toBe("Routing");
+    expect(page.messages.openingSummary).toContain(
+      "choosing where a request should go",
+    );
+    expect(page.frontmatter.kind).toBe("system");
+    expect(page.frontmatter.registryId).toBe("system.routing");
+    expect(page.assets.systemFlow).toMatchObject({
+      type: "graph",
+      graphId: "graph.routing-system-flow",
+    });
+    expect(page.toc.some(hasTocUrl("#practical-impact"))).toBe(true);
+    expect(page.toc.some(hasTocUrl("#related"))).toBe(true);
+  });
+
+  test("loadLocalDocsPage resolves the shipped japanese attention proof set through the shared MDX route contract", async () => {
     const transformerPage = await loadLocalDocsPage(
       {
         section: "concepts",
@@ -206,6 +226,34 @@ describe("docs source local pages", () => {
       },
       "ja",
     );
+    const multiHeadPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "multi-head-attention",
+      },
+      "ja",
+    );
+    const multiQueryPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "multi-query-attention",
+      },
+      "ja",
+    );
+    const slidingWindowPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "sliding-window-attention",
+      },
+      "ja",
+    );
+    const linearAttentionPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "linear-attention",
+      },
+      "ja",
+    );
 
     expect(transformerPage.messages.title).toBe("Transformer アーキテクチャ");
     expect(transformerPage.messages.sections?.whatItIs?.title).toBe(
@@ -227,7 +275,7 @@ describe("docs source local pages", () => {
     expect(
       groupedQueryAttentionPage.messages.assets?.computeFlow?.caption,
     ).toBe(
-      "Multi-head attention と grouped-query attention を切り替えて、query head 数と key-value head 数を同じ図で比較します。",
+      "Grouped-query attention は複数の query head に各 key-value pair を共有させることで、key-value head 数を減らします。",
     );
     expect(
       groupedQueryAttentionPage.messages.tables?.comparison?.dimensions
@@ -236,6 +284,25 @@ describe("docs source local pages", () => {
     expect(groupedQueryAttentionPage.toc.some(hasTocUrl("#what-it-is"))).toBe(
       true,
     );
+
+    expect(multiHeadPage.messages.sections?.whyItExists?.body).toContain(
+      "表現の幅",
+    );
+    expect(multiHeadPage.messages.title).toBe("マルチヘッド attention");
+    expect(multiQueryPage.messages.sections?.whyItExists?.body).toContain(
+      "KV-cache サイズ",
+    );
+    expect(multiQueryPage.messages.title).toBe("マルチクエリ attention");
+    expect(slidingWindowPage.messages.sections?.whyItExists?.body).toContain(
+      "attention 計算コスト",
+    );
+    expect(slidingWindowPage.messages.title).toBe(
+      "スライディングウィンドウ attention",
+    );
+    expect(linearAttentionPage.messages.sections?.whyItExists?.body).toContain(
+      "系列長スケーリング",
+    );
+    expect(linearAttentionPage.messages.title).toBe("線形 attention");
   });
 
   test("loadLocalDocsPage resolves shipped vietnamese head-sharing module messages through the shared MDX route contract", async () => {

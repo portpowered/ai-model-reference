@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "DeepSeekMoE is the DeepSeek-specific MoE block family described in the V4 report. It still follows the broad MoE idea of routing tokens to a subset of experts, but it is presented as a mature backbone choice rather than an experimental add-on."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "The module aims to raise parameter capacity while keeping per-token active compute much lower than a dense feed-forward block of the same total size."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "DeepSeekMoE matters because it links model design to serving design. Once expert routing is central, the runtime must also be built to move tokens and overlap expert work efficiently."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -35,21 +31,32 @@
       "title": "Why It Still Matters",
       "body": "This page is a good bridge between architecture and systems thinking, because MoE is rarely just a local block choice once the model is large enough."
     },
-    "related": { "title": "Related" },
-    "tags": { "title": "Tags" },
-    "references": { "title": "References" }
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
   },
   "assets": {
     "computeFlow": {
-      "alt": "A token enters a router, selected experts process it, and their outputs are merged.",
-      "caption": "DeepSeekMoE is easiest to picture as token routing plus expert execution plus merge."
+      "alt": "A token enters a router, selected experts process it, and their outputs are merged."
     }
   },
   "graph": {
     "nodes": {
-      "token": { "label": "Token state" },
-      "router": { "label": "Router" },
-      "experts": { "label": "Selected experts" }
+      "token": {
+        "label": "Token state"
+      },
+      "router": {
+        "label": "Router"
+      },
+      "experts": {
+        "label": "Selected experts"
+      }
     }
   }
 }

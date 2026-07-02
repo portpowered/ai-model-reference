@@ -22,11 +22,17 @@
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2023-06-01",
+  "authors": [
+    "Shouyuan Chen",
+    "Sherman Wong",
+    "Liangjian Chen",
+    "Yuandong Tian"
+  ],
+  "sourceId": "citation.chen-positional-interpolation",
+  "primaryClassificationId": "classification.module.positional-encoding",
   "moduleType": "position-encoding",
   "optimizes": ["long-context-extrapolation"],
-  "practicalBenefits": [
-    "reuses pretrained positional behavior at longer lengths"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

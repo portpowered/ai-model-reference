@@ -42,7 +42,7 @@ describe("localizePageTree", () => {
     expect(links).toContain("/vi/docs/glossary/token");
   });
 
-  test("keeps only the shipped japanese core reader path in the localized page tree", () => {
+  test("localizes the shipped japanese attention proof set in the page tree", () => {
     const localizedTree = localizePageTree(source.pageTree, "ja");
     const links = collectLinks(localizedTree.children);
 
@@ -50,6 +50,10 @@ describe("localizePageTree", () => {
     expect(links).toContain("/ja/docs/glossary/token");
     expect(links).toContain("/ja/docs/modules/attention");
     expect(links).toContain("/ja/docs/modules/grouped-query-attention");
+    expect(links).toContain("/ja/docs/modules/multi-head-attention");
+    expect(links).toContain("/ja/docs/modules/multi-query-attention");
+    expect(links).toContain("/ja/docs/modules/sliding-window-attention");
+    expect(links).toContain("/ja/docs/modules/linear-attention");
     expect(links).not.toContain("/ja/docs/modules/swiglu");
     expect(links).not.toContain("/ja/docs/modules/relu");
     expect(links).not.toContain("/ja/docs/getting-started");

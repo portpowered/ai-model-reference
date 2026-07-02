@@ -1,0 +1,16 @@
+{
+  "id": "classification.training",
+  "slug": "training",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["training classification root"],
+  "tags": ["foundations"],
+  "relatedIds": ["training-regime.dpo"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "domain",
+  "classifiesKinds": ["training-regime"]
+}

@@ -47,6 +47,15 @@ describe("locale-routing", () => {
     expect(buildLocalizedRoute({ surface: "browse" }, "ja")).toBe("/ja/browse");
     expect(buildLocalizedRoute({ surface: "search" }, "vi")).toBe("/vi/search");
     expect(buildLocalizedRoute({ surface: "search" }, "ja")).toBe("/ja/search");
+    expect(buildLocalizedRoute({ surface: "topology" }, "en")).toBe(
+      "/topology",
+    );
+    expect(buildLocalizedRoute({ surface: "topology" }, "vi")).toBe(
+      "/vi/topology",
+    );
+    expect(buildLocalizedRoute({ surface: "topology" }, "ja")).toBe(
+      "/ja/topology",
+    );
     expect(
       buildLocalizedRoute(
         { surface: "docs-page", slug: "modules/grouped-query-attention" },
@@ -98,6 +107,13 @@ describe("locale-routing", () => {
       locale: "vi",
       pathname: "/browse",
       destination: { surface: "browse" },
+    });
+
+    expect(matchLocalizedRoute("/ja/topology")).toEqual({
+      kind: "matched",
+      locale: "ja",
+      pathname: "/topology",
+      destination: { surface: "topology" },
     });
 
     expect(matchLocalizedRoute("/vi/docs/glossary")).toEqual({
@@ -155,6 +171,8 @@ describe("locale-routing", () => {
       "/vi/search?tag=attention",
     );
     expect(switchRouteLocale("/browse", "ja")).toBe("/ja/browse");
+    expect(switchRouteLocale("/topology", "vi")).toBe("/vi/topology");
+    expect(switchRouteLocale("/vi/topology", "ja")).toBe("/ja/topology");
     expect(switchRouteLocale("/search?tag=attention", "ja")).toBe(
       "/ja/search?tag=attention",
     );

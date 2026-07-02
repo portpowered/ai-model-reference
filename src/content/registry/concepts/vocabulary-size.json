@@ -15,12 +15,13 @@
   "relatedIds": [
     "concept.token",
     "module.byte-level-tokenization",
+    "concept.special-tokens",
     "concept.embedding",
     "concept.hidden-size",
     "concept.logit",
     "model.gpt-3"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.gpt-2-report", "citation.sennrich-bpe"],
   "status": "published",
   "createdAt": "2026-06-19T00:00:00.000Z",
   "updatedAt": "2026-06-19T00:00:00.000Z",

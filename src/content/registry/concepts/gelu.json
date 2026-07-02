@@ -1,0 +1,24 @@
+{
+  "id": "concept.gelu",
+  "slug": "gelu",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["gelu", "Gaussian Error Linear Unit", "transformer activation"],
+  "tags": ["activation", "foundations"],
+  "relatedIds": [
+    "concept.activation",
+    "concept.feed-forward-network",
+    "concept.standard-ffn",
+    "concept.relu",
+    "concept.silu",
+    "concept.swiglu"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": [],
+  "explainsIds": []
+}

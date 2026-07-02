@@ -1,0 +1,200 @@
+{
+  "title": "Diffusion Transformer Block",
+  "description": "A transformer-style block that updates noisy image or latent patch tokens during diffusion denoising, steered by timestep and optional conditioning signals.",
+  "openingSummary": "A Diffusion Transformer block is one transformer-style layer inside a Diffusion Transformer denoiser. It reads noisy image or latent patch tokens, mixes them with self-attention, refines them with a feed-forward path, and uses timestep and optional conditioning signals to steer each update toward a cleaner sample.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A Diffusion Transformer block is a single transformer-style layer used inside a Diffusion Transformer denoiser. The block treats noisy image patches or latent patches as token-like states. Each block reads those patch states, lets them interact through self-attention, refines them through a feed-forward path, and returns updated states that the surrounding denoiser can use on the next diffusion step."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Convolutional denoisers mix information through local neighborhoods, which can make long-range patch relationships expensive to model. A Diffusion Transformer block uses self-attention so any patch can directly influence any other patch in the same layer. That global mixing helps a denoiser coordinate structure, layout, and fine detail across the whole image or latent field without stacking very deep local receptive fields."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Noisy patch or latent tokens enter the block together with a timestep signal that says how noisy the sample still is. The timestep is embedded and used to modulate normalization or scaling inside the block so the same weights can behave differently at early versus late denoising steps. Optional class or text conditioning can enter through a separate embedding that is added or fused into the same modulation path. Self-attention then mixes information across all patch tokens, and a feed-forward network refines each token state. Residual connections carry the previous token values forward, and the block outputs updated patch states for the denoising head or the next repeated block in the stack."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "A generic transformer block updates token states from the previous layer output alone. A Diffusion Transformer block keeps that attention and feed-forward shape but injects timestep and optional conditioning into the modulation path before each sublayer runs."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "A generic transformer block updates token states for language, vision, or other tasks without a diffusion timestep. A Diffusion Transformer block is the denoising-specific variant: it runs on noisy patch tokens and uses timestep and optional conditioning to steer each update. A complete diffusion model stacks many such blocks, adds patch embedding, timestep embedding, and a denoising output head, and repeats the stack across iterative denoising steps. The diffusion training objective is separate: it defines how the full model learns from noisy targets, while this page focuses on what one block does inside that denoiser during inference or training forward passes."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Diffusion Transformer image models stack many identical or near-identical blocks over latent or pixel patches. Class-conditional variants add a label embedding to the modulation path, and later text-to-image systems reuse the same block pattern with text conditioning instead of class labels."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Self-attention over many patches scales quadratically with patch count, so very high-resolution fields can become expensive in memory and compute. Quality also depends on how patches or latent grids represent the image: coarse patches can miss fine detail, while very fine patches multiply token count. The block itself does not choose the denoising schedule, noise parameterization, or sampler; those surrounding choices still strongly affect output quality and stability."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Diffusion Transformer blocks matter because they show how standard transformer computation is repurposed for iterative denoising. Once the block pattern is clear, readers can compare latent versus pixel denoisers, class versus text conditioning, and later efficiency variants without relearning the whole diffusion stack from scratch."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "title": "Diffusion Transformer block compute flow",
+      "alt": "Diffusion Transformer block graph showing noisy patch tokens, timestep and optional conditioning modulation, self-attention, feed-forward refinement, and updated patch states for denoising",
+      "caption": "Noisy patch tokens move down the main path through modulated normalization, self-attention, and feed-forward refinement, while timestep and optional conditioning inputs steer the block through separate modulation edges rather than as ordinary image tokens.",
+      "legend": {
+        "data-flow": {
+          "label": "Patch token computation path"
+        },
+        "conditioning": {
+          "label": "Timestep and conditioning steering"
+        },
+        "residual": {
+          "label": "Residual connection"
+        },
+        "architecture-io": {
+          "label": "Conditioning input"
+        },
+        "annotation": {
+          "label": "Conditioning role note"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "genericTransformer": {
+          "title": "Generic transformer block"
+        },
+        "ditBlock": {
+          "title": "Diffusion Transformer block"
+        },
+        "fullDiffusionModel": {
+          "title": "Complete diffusion denoiser"
+        }
+      },
+      "dimensions": {
+        "tokenInput": "What enters the block",
+        "conditioningRole": "Timestep and conditioning role",
+        "outputRole": "What the block output supports"
+      },
+      "values": {
+        "genericTransformer": {
+          "tokenInput": "Ordinary token or patch embeddings from the previous layer",
+          "conditioningRole": "No diffusion timestep; task context comes from embeddings or cross-attention elsewhere",
+          "outputRole": "Updated hidden states for the next layer or task head"
+        },
+        "ditBlock": {
+          "tokenInput": "Noisy image or latent patch tokens at the current diffusion step",
+          "conditioningRole": "Timestep embedding modulates normalization or scaling; optional class or text conditioning steers the same path",
+          "outputRole": "Updated patch states for the denoising head or the next repeated block"
+        },
+        "fullDiffusionModel": {
+          "tokenInput": "Patch embedding, timestep embedding, and optional conditioning for the whole stack",
+          "conditioningRole": "Global diffusion state and conditioning shared across all blocks and denoising iterations",
+          "outputRole": "Noise or velocity prediction used by the sampler to produce a cleaner sample over many steps"
+        }
+      }
+    }
+  },
+  "math": {
+    "genericBlockSchema": {
+      "label": "Generic transformer block update",
+      "formula": "x' = x + \\mathrm{FFN}(\\mathrm{Attn}(\\mathrm{Norm}(x)))",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Input token states for the block."
+        },
+        "xprime": {
+          "term": "x'",
+          "definition": "Output token states after attention, feed-forward, and residuals."
+        },
+        "norm": {
+          "term": "\\mathrm{Norm}",
+          "definition": "Normalization applied before each sublayer."
+        },
+        "attn": {
+          "term": "\\mathrm{Attn}",
+          "definition": "Self-attention sublayer over tokens."
+        },
+        "ffn": {
+          "term": "\\mathrm{FFN}",
+          "definition": "Feed-forward sublayer applied per token."
+        }
+      }
+    },
+    "ditBlockSchema": {
+      "label": "Diffusion Transformer block update with modulation",
+      "formula": "x \\leftarrow x + \\mathrm{Attn}\\big(\\mathrm{Mod}(\\mathrm{Norm}(x), c_t, c)\\big);\\quad x \\leftarrow x + \\mathrm{FFN}\\big(\\mathrm{Mod}(\\mathrm{Norm}(x), c_t, c)\\big)",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Noisy patch or latent token states at the current diffusion step."
+        },
+        "ct": {
+          "term": "c_t",
+          "definition": "Timestep embedding for the current noise level."
+        },
+        "c": {
+          "term": "c",
+          "definition": "Optional class, text, or other conditioning embedding."
+        },
+        "norm": {
+          "term": "\\mathrm{Norm}",
+          "definition": "Normalization applied before each sublayer."
+        },
+        "mod": {
+          "term": "\\mathrm{Mod}",
+          "definition": "Modulation path that combines normalization with timestep and conditioning."
+        },
+        "attn": {
+          "term": "\\mathrm{Attn}",
+          "definition": "Self-attention sublayer over patch tokens."
+        },
+        "ffn": {
+          "term": "\\mathrm{FFN}",
+          "definition": "Feed-forward sublayer applied after attention in the full block."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "noisyPatchTokens": {
+        "label": "Noisy patch or latent tokens"
+      },
+      "timestepSignal": {
+        "label": "Timestep embedding c_t"
+      },
+      "optionalConditioning": {
+        "label": "Optional class or text conditioning c"
+      },
+      "modulatedNorm": {
+        "label": "Normalization modulated by c_t and c"
+      },
+      "selfAttention": {
+        "label": "Self-attention over patches"
+      },
+      "feedForward": {
+        "label": "Feed-forward refinement"
+      },
+      "residualOutput": {
+        "label": "Updated patch states for denoising"
+      },
+      "conditioningNote": {
+        "label": "Timestep and conditioning steer the block; they are not ordinary image tokens"
+      }
+    }
+  }
+}

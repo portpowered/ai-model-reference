@@ -6,7 +6,11 @@
   "defaultSummaryKey": "description",
   "aliases": ["DeepSeek-V4-Pro"],
   "tags": ["foundations", "attention", "context-window", "model-family"],
-  "relatedIds": ["model.deepseek-v4-flash", "paper.deepseek-v4"],
+  "relatedIds": [
+    "concept.mixture-of-experts",
+    "model.deepseek-v4-flash",
+    "paper.deepseek-v4"
+  ],
   "citationIds": ["citation.deepseek-v4-paper"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",

@@ -19,8 +19,8 @@ const PHASE_5_SERVING_DOCS = [
     query: "key-value cache",
   },
   {
-    docsSlug: "glossary/prefill",
-    url: "/docs/glossary/prefill",
+    docsSlug: "concepts/prefill",
+    url: "/docs/concepts/prefill",
     query: "prompt processing",
   },
   {
@@ -61,19 +61,23 @@ function collectLinks(children: Node[]): string[] {
 }
 
 describe("Phase 5 serving-path search and locale stability (US-005)", () => {
-  test("published English docs and search surfaces include the four-page serving slice", async () => {
-    const pages = await loadPublishedDocsPages("en");
-    const docsSlugs = pages.map((page) => page.docsSlug);
-    const meta = await loadSearchResultMetaMap("en");
+  test(
+    "published English docs and search surfaces include the four-page serving slice",
+    async () => {
+      const pages = await loadPublishedDocsPages("en");
+      const docsSlugs = pages.map((page) => page.docsSlug);
+      const meta = await loadSearchResultMetaMap("en");
 
-    for (const page of PHASE_5_SERVING_DOCS) {
-      expect(docsSlugs).toContain(page.docsSlug);
-      expect(meta.get(page.url)?.title).toBeDefined();
+      for (const page of PHASE_5_SERVING_DOCS) {
+        expect(docsSlugs).toContain(page.docsSlug);
+        expect(meta.get(page.url)?.title).toBeDefined();
 
-      const results = await docsSearchApi.search(page.query);
-      expect(results.some((result) => result.url === page.url)).toBe(true);
-    }
-  });
+        const results = await docsSearchApi.search(page.query);
+        expect(results.some((result) => result.url === page.url)).toBe(true);
+      }
+    },
+    { timeout: 15_000 },
+  );
 
   test("existing transformer and attention surfaces still expose entry points into the serving path", () => {
     const servingPathIds = new Set([

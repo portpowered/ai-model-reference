@@ -80,7 +80,9 @@ describe("byte-level tokenization discovery surfaces (byte-level-tokenization-pa
           children: gpt3Page.content,
         }),
       );
-      expect(gpt3Html).toContain('href="/docs/modules/byte-level-tokenization"');
+      expect(gpt3Html).toContain(
+        'href="/docs/modules/byte-level-tokenization"',
+      );
     },
     { timeout: 120_000 },
   );

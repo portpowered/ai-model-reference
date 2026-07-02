@@ -2,8 +2,14 @@ import type * as PageTree from "fumadocs-core/page-tree";
 import type { Node } from "fumadocs-core/page-tree";
 
 export const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
+export const GPT_3_MODEL_URL = "/docs/models/gpt-3";
+export const DEEPSEEK_V4_PAPER_URL = "/docs/papers/deepseek-v4";
 export const GROUPED_QUERY_ATTENTION_URL =
   "/docs/modules/grouped-query-attention";
+export const WHY_LONG_CONTEXT_IS_HARD_URL =
+  "/docs/concepts/why-long-context-is-hard";
+export const DPO_TRAINING_URL = "/docs/training/dpo";
+export const ROUTING_SYSTEM_URL = "/docs/systems/routing";
 
 /** Copy shown only by the legacy DocsShell placeholder sidebar. */
 export const PLACEHOLDER_SIDEBAR_DESCRIPTION =

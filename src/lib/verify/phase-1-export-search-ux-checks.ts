@@ -1,11 +1,16 @@
 import { existsSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
+import type { Browser } from "playwright";
 import { resolveBasePathForExportVerification } from "@/lib/build/static-export";
 import { verifyPhase1ExportSearchFromOutDir } from "@/lib/build/verify-phase-1-export-search";
 import {
   shouldSerializeExportIntegrationProbes,
   withExportIntegrationProbeLock,
 } from "./export-integration-probe-lock";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "./launch-playwright-browser";
 import { EXPORT_SEARCH_HYDRATION_SURFACE } from "./phase-1-export-search-convergence-evidence";
 import {
   type RunPhase1SearchDialogChecksOptions,
@@ -22,6 +27,10 @@ import { isRetryableStaticExportSearchProbeFailure } from "./static-export-searc
 export const DEFAULT_EXPORT_OUT_DIR = "out";
 
 export const EXPORT_SEARCH_UX_STUB_ENV = "VERIFY_EXPORT_SEARCH_UX_STUB";
+/** CI can finish export hydration after 45s on slower runners; keep a single higher shared budget here. */
+export const DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS = 75_000;
+export const CI_SCRIPT_TIMEOUT_MS_ENV = "CI_SCRIPT_TIMEOUT_MS";
+export const DEFAULT_CI_SCRIPT_TIMEOUT_MS = 300_000;
 const EXPORT_SEARCH_UX_RETRY_ATTEMPTS = 3;
 const EXPORT_SEARCH_UX_RETRY_DELAY_MS = 5_000;
 
@@ -50,10 +59,23 @@ function withCiScopedSearchUxQueryOptions<
   return { ...options, queries };
 }
 
+function withDefaultExportSearchUxTimeout<T extends { timeoutMs?: number }>(
+  options: T | undefined,
+): T {
+  if (options === undefined) {
+    return { timeoutMs: DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS } as T;
+  }
+  return {
+    ...options,
+    timeoutMs: options.timeoutMs ?? DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
+  };
+}
+
 export type RunPhase1ExportSearchUxChecksOptions = {
   outDir?: string;
   cwd?: string;
   basePath?: string;
+  logger?: (message: string) => void;
   searchPageOptions?: RunPhase1SearchPageChecksOptions;
   searchDialogOptions?: RunPhase1SearchDialogChecksOptions;
 };
@@ -87,6 +109,27 @@ export function resolveExportSearchUxCheckOptionsFromEnv(
   return {};
 }
 
+export function resolveCiScriptTimeoutMs(
+  env: Record<string, string | undefined> = process.env,
+): number | null {
+  const isCi = env.CI === "true" || env.GITHUB_ACTIONS === "true";
+  if (!isCi) {
+    return null;
+  }
+
+  const raw = env[CI_SCRIPT_TIMEOUT_MS_ENV]?.trim();
+  if (!raw) {
+    return DEFAULT_CI_SCRIPT_TIMEOUT_MS;
+  }
+
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return DEFAULT_CI_SCRIPT_TIMEOUT_MS;
+  }
+
+  return parsed;
+}
+
 function resolveOutDirAbsolute(outDir: string, cwd: string): string {
   return isAbsolute(outDir) ? outDir : join(cwd, outDir);
 }
@@ -99,7 +142,9 @@ function isRetryableSearchDialogFailureReason(reason: string): boolean {
   return (
     reason.includes(
       "timed out waiting for search results in header search dialog",
-    ) || reason.includes("no search results rendered in header search dialog")
+    ) ||
+    reason.includes("no search results rendered in header search dialog") ||
+    reason.includes("did not open the header search dialog")
   );
 }
 
@@ -125,6 +170,15 @@ function isRetryableExportSearchUxFailure(
   return reason.includes("search input did not hydrate on /search within");
 }
 
+function usesPlaywrightBrowser(
+  options:
+    | RunPhase1SearchPageChecksOptions
+    | RunPhase1SearchDialogChecksOptions
+    | undefined,
+): boolean {
+  return options?.runQueryCheck === undefined;
+}
+
 /**
  * Verifies Phase 1 `/search` and header dialog queries against a served static export artifact.
  */
@@ -136,8 +190,16 @@ export async function runPhase1ExportSearchUxChecks(
   const absoluteOutDir = resolveOutDirAbsolute(outDir, cwd);
   const basePath =
     options.basePath ?? resolveBasePathForExportVerification(process.env);
+  const log = options.logger ?? (() => {});
+
+  log(
+    `[phase-1-export-search-ux] starting verification outDir=${outDir} cwd=${cwd} basePath=${basePath || "/"}`,
+  );
 
   if (!existsSync(absoluteOutDir)) {
+    log(
+      `[phase-1-export-search-ux] missing export directory at ${absoluteOutDir}`,
+    );
     return [
       {
         surface: "export-artifact",
@@ -146,8 +208,12 @@ export async function runPhase1ExportSearchUxChecks(
     ];
   }
 
+  log("[phase-1-export-search-ux] verifying export search artifact");
   const artifact = await verifyPhase1ExportSearchFromOutDir(outDir, { cwd });
   if (!artifact.ok) {
+    log(
+      `[phase-1-export-search-ux] export artifact verification failed: ${artifact.reason}`,
+    );
     return [
       {
         surface: "export-artifact",
@@ -155,53 +221,99 @@ export async function runPhase1ExportSearchUxChecks(
       },
     ];
   }
+  log("[phase-1-export-search-ux] export search artifact verified");
 
   const runServedChecksOnce = async (): Promise<
     Phase1ExportSearchUxCheckFailure[]
   > => {
+    log("[phase-1-export-search-ux] starting static export HTTP server");
     const session = await createStaticExportHttpServer({
       outDir,
       cwd,
       basePath,
     });
+    log(
+      `[phase-1-export-search-ux] static export HTTP server listening at ${session.baseUrl}`,
+    );
 
     try {
       const failures: Phase1ExportSearchUxCheckFailure[] = [];
 
-      const searchPageOptions = withCiScopedSearchUxQueryOptions(
-        options.searchPageOptions,
+      const searchPageOptions = withDefaultExportSearchUxTimeout(
+        withCiScopedSearchUxQueryOptions(options.searchPageOptions),
       );
-      const searchDialogOptions = withCiScopedSearchUxQueryOptions(
-        options.searchDialogOptions,
+      const searchDialogOptions = withDefaultExportSearchUxTimeout(
+        withCiScopedSearchUxQueryOptions(options.searchDialogOptions),
       );
+      const sharedBrowserTimeoutMs = Math.max(
+        searchPageOptions.timeoutMs ?? DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
+        searchDialogOptions.timeoutMs ?? DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
+      );
+      const needsSharedBrowser =
+        usesPlaywrightBrowser(searchPageOptions) ||
+        usesPlaywrightBrowser(searchDialogOptions);
+      let sharedBrowser: Browser | undefined;
 
-      const searchPageFailures = await runPhase1SearchPageChecks(
-        session.baseUrl,
-        searchPageOptions,
-      );
-      for (const failure of searchPageFailures) {
-        failures.push({
-          surface: "/search",
-          query: failure.query,
-          reason: formatPhase1ExportSearchHydrationUxReason(failure.reason),
-        });
+      if (needsSharedBrowser) {
+        log("[phase-1-export-search-ux] launching shared browser");
+        sharedBrowser = await launchPlaywrightBrowser();
+        log("[phase-1-export-search-ux] shared browser launched");
       }
 
-      const searchDialogFailures = await runPhase1SearchDialogChecks(
-        session.baseUrl,
-        searchDialogOptions,
-      );
-      for (const failure of searchDialogFailures) {
-        failures.push({
-          surface: "header-dialog",
-          query: failure.query,
-          reason: failure.reason,
-        });
+      try {
+        const searchPageFailures = await runPhase1SearchPageChecks(
+          session.baseUrl,
+          {
+            ...searchPageOptions,
+            browser: sharedBrowser,
+            logger: options.searchPageOptions?.logger ?? log,
+          },
+        );
+        log(
+          `[phase-1-export-search-ux] /search checks completed with ${searchPageFailures.length} failure(s)`,
+        );
+        for (const failure of searchPageFailures) {
+          failures.push({
+            surface: "/search",
+            query: failure.query,
+            reason: formatPhase1ExportSearchHydrationUxReason(failure.reason),
+          });
+        }
+
+        const searchDialogFailures = await runPhase1SearchDialogChecks(
+          session.baseUrl,
+          {
+            ...searchDialogOptions,
+            browser: sharedBrowser,
+            logger: options.searchDialogOptions?.logger ?? log,
+          },
+        );
+        log(
+          `[phase-1-export-search-ux] header dialog checks completed with ${searchDialogFailures.length} failure(s)`,
+        );
+        for (const failure of searchDialogFailures) {
+          failures.push({
+            surface: "header-dialog",
+            query: failure.query,
+            reason: failure.reason,
+          });
+        }
+      } finally {
+        if (sharedBrowser) {
+          log("[phase-1-export-search-ux] closing shared browser");
+          await closePlaywrightBrowserWithTimeout(
+            sharedBrowser,
+            sharedBrowserTimeoutMs,
+          );
+          log("[phase-1-export-search-ux] shared browser closed");
+        }
       }
 
       return failures;
     } finally {
+      log("[phase-1-export-search-ux] stopping static export HTTP server");
       await session.cleanup();
+      log("[phase-1-export-search-ux] static export HTTP server stopped");
     }
   };
 
@@ -215,6 +327,9 @@ export async function runPhase1ExportSearchUxChecks(
       attempt <= EXPORT_SEARCH_UX_RETRY_ATTEMPTS;
       attempt += 1
     ) {
+      log(
+        `[phase-1-export-search-ux] served verification attempt ${attempt}/${EXPORT_SEARCH_UX_RETRY_ATTEMPTS}`,
+      );
       failures = await runServedChecksOnce();
       const shouldRetry =
         failures.length > 0 &&
@@ -222,9 +337,15 @@ export async function runPhase1ExportSearchUxChecks(
         attempt < EXPORT_SEARCH_UX_RETRY_ATTEMPTS;
 
       if (!shouldRetry) {
+        log(
+          `[phase-1-export-search-ux] served verification completed with ${failures.length} failure(s)`,
+        );
         return failures;
       }
 
+      log(
+        `[phase-1-export-search-ux] retrying after ${EXPORT_SEARCH_UX_RETRY_DELAY_MS}ms because all ${failures.length} failure(s) were retryable`,
+      );
       await sleep(EXPORT_SEARCH_UX_RETRY_DELAY_MS);
     }
 

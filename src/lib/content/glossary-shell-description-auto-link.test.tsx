@@ -16,6 +16,8 @@ import {
 } from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 
+const GLOSSARY_SHELL_RENDER_GROUP_SIZE = 12;
+
 describe("glossary shell description auto-link convergence", () => {
   test("glossary docs routes wire shell descriptions through DocsAutoLinkedDescription", () => {
     const pageRendererSource = readFileSync(
@@ -45,12 +47,22 @@ describe("glossary shell description auto-link convergence", () => {
     expect(autoLinkedDescriptionSource).toContain("ProseAutoLinkText");
   });
 
-  test(
-    "published glossary pages render auto-linked shell descriptions without body duplication",
-    async () => {
+  test.each(
+    Array.from(
+      { length: Math.ceil(57 / GLOSSARY_SHELL_RENDER_GROUP_SIZE) },
+      (_, i) => i,
+    ),
+  )(
+    "published glossary pages render auto-linked shell descriptions without body duplication group %i",
+    async (groupIndex) => {
       const pages = await listPublishedGlossaryPages();
+      const start = groupIndex * GLOSSARY_SHELL_RENDER_GROUP_SIZE;
+      const group = pages.slice(
+        start,
+        start + GLOSSARY_SHELL_RENDER_GROUP_SIZE,
+      );
 
-      for (const page of pages) {
+      for (const page of group) {
         const loadedPage = await loadLocalDocsPage({
           section: "glossary",
           slug: page.slug,
@@ -117,7 +129,7 @@ describe("glossary shell description auto-link convergence", () => {
       "An ordered list of numbers that represents a point or direction in continuous space—embeddings and activations are vectors at different stages of the model.",
     );
     expectGlossaryShellDescriptionAutoLink(html, {
-      href: "/docs/glossary/embedding",
+      href: "/docs/concepts/embedding",
       phrase: "embeddings",
     });
     expectGlossaryPresentationConvergence(articleHtml, {
@@ -145,7 +157,7 @@ describe("glossary shell description auto-link convergence", () => {
       phrase: "vectors",
     });
     expectGlossaryShellDescriptionAutoLink(html, {
-      href: "/docs/glossary/embedding",
+      href: "/docs/concepts/embedding",
       phrase: "token embedding",
     });
     expectGlossaryShellDescriptionAutoLink(html, {
@@ -181,7 +193,7 @@ describe("glossary shell description auto-link convergence", () => {
       phrase: "dense vector",
     });
     expectGlossaryShellDescriptionAutoLink(html, {
-      href: "/docs/glossary/embedding",
+      href: "/docs/concepts/embedding",
       phrase: "vector embedding",
     });
     expectGlossaryShellDescriptionAutoLink(html, {

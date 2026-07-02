@@ -17,10 +17,17 @@ function documentForUrl(
     description: "GQA module",
     bodyText: "",
     headings: [],
+    directAliases: ["GQA"],
     aliases: ["GQA"],
     tags: ["attention"],
     relatedIds: [],
     facets: { kind: "module", tags: ["attention"] },
+    topology: {
+      secondaryClassificationIds: [],
+      secondaryClassifications: [],
+      relationships: [],
+      terms: [],
+    },
     ...overrides,
   };
 }

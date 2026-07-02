@@ -1,12 +1,9 @@
+import {
+  deriveOntologyMetadataLabels,
+  formatMetadataToken,
+} from "@/lib/content/metadata-labels";
 import { getModuleById } from "@/lib/content/registry-runtime";
 import type { ModuleRecord } from "@/lib/content/schemas";
-
-function formatLabel(value: string): string {
-  return value
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
 
 function MetadataRow({ label, value }: { label: string; value: string }) {
   return (
@@ -18,28 +15,23 @@ function MetadataRow({ label, value }: { label: string; value: string }) {
 }
 
 function buildRows(record: ModuleRecord) {
+  const metadataLabels = deriveOntologyMetadataLabels(record);
   const rows: Array<{ label: string; value: string }> = [
-    { label: "Module type", value: formatLabel(record.moduleType) },
-    { label: "Status", value: formatLabel(record.status) },
-    { label: "Math level", value: formatLabel(record.mathLevel) },
+    { label: "Status", value: formatMetadataToken(record.status) },
+    { label: "Math level", value: formatMetadataToken(record.mathLevel) },
   ];
 
-  if (record.moduleFamily) {
-    rows.push({
-      label: "Module family",
-      value: formatLabel(record.moduleFamily),
+  if (metadataLabels.primaryLabel) {
+    rows.unshift({
+      label: "Classification",
+      value: metadataLabels.primaryLabel,
     });
   }
-  if (record.conceptType) {
+
+  if (metadataLabels.secondaryLabels.length > 0) {
     rows.push({
-      label: "Concept type",
-      value: formatLabel(record.conceptType),
-    });
-  }
-  if (record.variantGroup) {
-    rows.push({
-      label: "Variant group",
-      value: formatLabel(record.variantGroup),
+      label: "Also classified as",
+      value: metadataLabels.secondaryLabels.join(", "),
     });
   }
 
@@ -49,7 +41,17 @@ function buildRows(record: ModuleRecord) {
 export function ModuleMetadataCard({ registryId }: { registryId: string }) {
   const record = getModuleById(registryId);
   if (!record) {
-    return null;
+    return (
+      <aside
+        className="my-6 rounded-lg border border-border bg-card p-4"
+        data-registry-id={registryId}
+        aria-label="Module metadata"
+      >
+        <p className="text-sm text-muted-foreground">
+          Module metadata is unavailable for this record.
+        </p>
+      </aside>
+    );
   }
 
   const rows = buildRows(record);

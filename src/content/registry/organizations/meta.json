@@ -1,0 +1,21 @@
+{
+  "id": "organization.meta",
+  "slug": "meta",
+  "kind": "organization",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Meta", "Meta AI", "Meta Platforms"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["paper.llama-3"],
+  "citationIds": [
+    "citation.llama-3-herd-of-models",
+    "citation.llama-3-meta-release"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "website": "https://ai.meta.com",
+  "modelIds": ["model.llama-3"],
+  "paperIds": ["paper.llama-3"],
+  "systemIds": []
+}

@@ -1,0 +1,22 @@
+{
+  "id": "model.generated-model-term",
+  "slug": "generated-model-term",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "family": "gpt",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

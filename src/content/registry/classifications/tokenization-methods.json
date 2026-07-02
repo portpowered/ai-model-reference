@@ -1,0 +1,27 @@
+{
+  "id": "classification.module.tokenization",
+  "slug": "tokenization-methods",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "tokenization",
+    "tokenizer family",
+    "tokenization method",
+    "tokenization-methods"
+  ],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "module.bpe",
+    "module.clip-image-tokenization"
+  ],
+  "citationIds": ["citation.sennrich-bpe"],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["module"],
+  "parentClassificationId": "classification.module",
+  "legacyIds": ["classification.tokenization-methods"]
+}

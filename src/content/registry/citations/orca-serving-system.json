@@ -1,0 +1,26 @@
+{
+  "id": "citation.orca-serving-system",
+  "slug": "orca-serving-system",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Orca paper", "Orca serving system"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Gyeong-In Yu",
+    "Joo Seong Jeong",
+    "Geon-Woo Kim",
+    "Soojeong Kim",
+    "Byung-Gon Chun"
+  ],
+  "title": "Orca: A Distributed Serving System for Transformer-Based Generative Models",
+  "year": 2022,
+  "url": "https://www.usenix.org/conference/osdi22/presentation/yu",
+  "mla": "Yu, Gyeong-In, et al. \"Orca: A Distributed Serving System for Transformer-Based Generative Models.\" 16th USENIX Symposium on Operating Systems Design and Implementation (OSDI 22), 2022, https://www.usenix.org/conference/osdi22/presentation/yu."
+}

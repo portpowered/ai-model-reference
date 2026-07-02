@@ -1,0 +1,87 @@
+---
+title: "Reinforcement Learning with Verifiable Rewards"
+description: "A post-training reinforcement learning regime where rewards come from externally checkable task outcomes rather than human preference labels alone."
+kind: "training-regime"
+registryId: "training-regime.rlvr"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - alignment
+  - foundations
+aliases:
+  - "RLVR"
+  - "Reinforcement Learning with Verifiable Rewards"
+  - "reinforcement learning from verifiable rewards"
+  - "verifiable rewards"
+updatedAt: "2026-07-01"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
+
+
+<TrainingRegimeAtAGlance registryId="training-regime.rlvr" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
+</Section>
+
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+  <TrainingRegimeFlow registryId="training-regime.rlvr" assetId="trainingFlow" />
+  <BlockMath formula="R = \\mathbb{1}[\\text{verifier}(y, x) = \\text{pass}]" />
+</Section>
+
+<Section id="compared-to-nearby-regimes" titleKey="sections.comparedToNearbyRegimes.title">
+  <T k="sections.comparedToNearbyRegimes.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/concepts/alignment", labelKey: "links.alignment" },
+      { href: "/docs/training/post-training", labelKey: "links.postTraining" },
+      {
+        href: "/docs/training/supervised-fine-tuning",
+        labelKey: "links.supervisedFineTuning",
+      },
+      {
+        href: "/docs/training/instruction-tuning",
+        labelKey: "links.instructionTuning",
+      },
+      { href: "/docs/training/dpo", labelKey: "links.dpo" },
+      { href: "/search?q=RLHF", labelKey: "links.rlhfSearch" },
+      { href: "/search?q=GRPO", labelKey: "links.grpoSearch" },
+      {
+        href: "/docs/models/nemotron-3-super",
+        labelKey: "links.nemotron3SuperModelPage",
+      },
+      { href: "/docs/papers/deepseek-v4", labelKey: "links.deepseekV4PaperPage" },
+    ]}
+  />
+</Section>
+
+<Section id="limitations-and-failure-modes" titleKey="sections.limitationsAndFailureModes.title">
+  <T k="sections.limitationsAndFailureModes.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="training-regime.rlvr" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="training-regime.rlvr" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="training-regime.rlvr" />
+</Section>

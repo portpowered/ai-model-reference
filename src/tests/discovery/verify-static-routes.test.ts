@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -12,6 +12,9 @@ import {
   verifyPhase1StaticRoutesFromManifest,
   verifyRequiredBuildStaticRoutesFromManifest,
 } from "@/lib/build/verify-phase-1-static-routes";
+import { getGeneratedDocsSourceRoot } from "@/lib/content/content-paths";
+
+setDefaultTimeout(30_000);
 
 /** Minimal manifest whose values cover every required static route. */
 function completeRequiredBuildManifest(): Record<string, string> {
@@ -25,6 +28,20 @@ function completePhase1Manifest(): Record<string, string> {
   return Object.fromEntries(
     PHASE_1_STATIC_ROUTES.map((route) => [`/_app${route}`, route]),
   );
+}
+
+function regenerateFumadocsSourceBindings() {
+  const prepareResult = spawnSync("bun", ["run", "prepare:content-runtime"], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+  });
+  expect(prepareResult.status).toBe(0);
+
+  const generateResult = spawnSync("bunx", ["fumadocs-mdx"], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+  });
+  expect(generateResult.status).toBe(0);
 }
 
 describe("verifyRequiredBuildStaticRoutesFromManifest", () => {
@@ -145,4 +162,34 @@ describe("verify-phase-1-static-routes script", () => {
 
     rmSync(dir, { recursive: true, force: true });
   });
+
+  test(
+    "uses published docs runtime instead of requiring .source for explicit fixture manifests",
+    () => {
+      const dir = mkdtempSync(join(tmpdir(), "phase-1-manifest-"));
+      const manifestPath = join(dir, "app-path-routes-manifest.json");
+      const sourceRoot = getGeneratedDocsSourceRoot(process.cwd());
+      writeFileSync(
+        manifestPath,
+        JSON.stringify(completeRequiredBuildManifest()),
+      );
+
+      try {
+        rmSync(sourceRoot, { recursive: true, force: true });
+
+        const result = spawnSync(
+          "bun",
+          ["./scripts/verify-phase-1-static-routes.ts", manifestPath],
+          { cwd: process.cwd(), encoding: "utf8" },
+        );
+
+        expect(result.status).toBe(0);
+        expect(result.stdout).toContain("Required static routes verified");
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+        regenerateFumadocsSourceBindings();
+      }
+    },
+    { timeout: 15_000 },
+  );
 });

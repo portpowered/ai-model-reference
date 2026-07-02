@@ -11,8 +11,10 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import {
+  COMPATIBILITY_SAME_CONCEPT_TYPE,
   CURATED_RELATED,
   DERIVED_RELATED_DOC_GROUP_LABELS,
+  type DerivedRelatedDocGroupId,
   deriveCuratedRelatedItems,
   deriveRelatedDocGroups,
   type RelatedDocItem,
@@ -81,7 +83,7 @@ const DERIVED_GROUP_IDS = [
 const CLUSTER_REASON_LABEL_SAMPLES: {
   label: string;
   registryId: (typeof FOUNDATION_CHAIN_CONCEPT_IDS)[number];
-  expectedGroupId: (typeof DERIVED_GROUP_IDS)[number];
+  expectedGroupId: DerivedRelatedDocGroupId;
   expectedPeerSlug: (typeof FOUNDATION_CHAIN_SLUGS)[number];
 }[] = [
   {
@@ -111,7 +113,7 @@ const CLUSTER_REASON_LABEL_SAMPLES: {
   {
     label: "evaluation cluster",
     registryId: "concept.perplexity",
-    expectedGroupId: SAME_CONCEPT_TYPE,
+    expectedGroupId: COMPATIBILITY_SAME_CONCEPT_TYPE,
     expectedPeerSlug: "scaling-law",
   },
 ];

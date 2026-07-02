@@ -44,6 +44,7 @@ const BATCH_017_DOCS_URLS = [
   "/docs/glossary/residual-connection",
   "/docs/glossary/skip-connection",
   "/docs/concepts/positional-encodings",
+  "/docs/concepts/alibi",
   "/docs/modules/rope",
   "/docs/modules/alibi",
   "/docs/glossary/context-window",
@@ -59,9 +60,12 @@ const SPOT_CHECK_URLS = [
 ] as const;
 
 const BATCH_017_DOCS_URL_GROUPS = [
-  BATCH_017_DOCS_URLS.slice(0, 12),
-  BATCH_017_DOCS_URLS.slice(12),
+  BATCH_017_DOCS_URLS.slice(0, 9),
+  BATCH_017_DOCS_URLS.slice(9, 18),
+  BATCH_017_DOCS_URLS.slice(18, 26),
+  BATCH_017_DOCS_URLS.slice(26),
 ] as const;
+const SHELL_TITLE_CONVERGENCE_TIMEOUT_MS = 120_000;
 
 function parseDocsUrl(url: string): {
   section: "concepts" | "glossary" | "modules";
@@ -155,7 +159,7 @@ describe("Phase 2/3 reconciliation single primary title (US-005)", () => {
           await expectSingleShellOwnedPrimaryTitle(url);
         }
       },
-      { timeout: 120_000 },
+      { timeout: SHELL_TITLE_CONVERGENCE_TIMEOUT_MS },
     );
   }
 

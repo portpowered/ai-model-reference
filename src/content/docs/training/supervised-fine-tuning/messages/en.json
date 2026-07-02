@@ -1,0 +1,93 @@
+{
+  "title": "Supervised Fine-Tuning",
+  "description": "A post-training regime that adapts a capable base model by training on labeled input-output examples.",
+  "openingSummary": "Supervised fine-tuning adapts an already capable model using labeled examples: each training item pairs an input with a target output the model should learn to produce. Teams use it after pretraining to shape instruction following, task behavior, domain language, or style before preference optimization or deployment tuning.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Supervised fine-tuning is a post-training stage where a model learns from labeled input-output pairs. Each example shows what the model should read and what it should say or predict next. The method does not build broad world knowledge from scratch. It refines an existing base model toward concrete behaviors defined by the dataset."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Pretraining produces a broadly capable base model, but that model may not follow instructions, speak in a product tone, or handle a specific task format. Supervised fine-tuning exists to close that gap with direct demonstration. When humans provide prompt-plus-answer pairs, task inputs with labels, or domain examples with target responses, the model can be nudged to imitate those targets."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Training starts from a pretrained or otherwise capable checkpoint. The dataset supplies labeled input-output pairs: a prompt with a desired answer, a task input with its label, or a domain example with a target response. For each pair, the optimizer pushes the model to make that target output more likely when the input is shown. In plain terms, the model is taught to imitate the demonstrated answer rather than invent a different one. The loop repeats across many examples until similar inputs reliably draw the demonstrated behavior."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Pretraining builds broad base capability from large unlabeled or self-supervised next-token prediction over massive text. Supervised fine-tuning starts after that stage and adapts an already capable checkpoint using labeled input-output examples. Pretraining supplies general language patterns; supervised fine-tuning teaches concrete target responses for specific inputs.\n\nInstruction tuning is a common supervised fine-tuning use case focused on following instructions in chat or task prompts. Supervised fine-tuning is the broader supervised adaptation pattern: the same training loop can shape domain language, task formats, or style—not only instruction following.\n\nDirect preference optimization learns from preference pairs that mark one answer as preferred over another for the same prompt. Supervised fine-tuning instead imitates the provided target output directly for each example, without requiring a rejected comparison.\n\nReinforcement learning from human feedback commonly adds steps beyond simple supervised imitation, such as fitting a reward model from human rankings and running policy optimization against that reward. Supervised fine-tuning is the simpler supervised demonstration step that many post-training pipelines use before or alongside those preference-optimization loops."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "Supervised fine-tuning inherits whatever quality and coverage exist in the demonstration data. Noisy labels, missing edge cases, or examples that contradict each other teach the wrong habits just as strongly as good demonstrations teach the right ones.\n\nWhen the dataset is too small, biased, or inconsistent, the model may overfit by memorizing training phrasing instead of learning a general pattern. That narrow imitation can look strong on the training distribution but fail when real inputs shift in topic, format, or user intent.\n\nDistribution shift is a common failure mode: the model adapts to the examples it saw, so new prompts, new domains, or safety-sensitive situations outside that coverage may regress. Heavy supervised updates can also erode broader behavior learned during pretraining if the new examples dominate the update budget and do not represent the full product surface."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "updateMechanisms": "Teams can apply those updates in two broad ways. Full-model fine-tuning changes all or most of the base weights, so every layer can shift toward the new behavior. Adapter-like training keeps the original checkpoint mostly frozen and learns smaller attached update paths or limited parameter subsets instead. Supervised fine-tuning does not require one specific adapter method; many lighter update routes share the same supervised imitation pattern.",
+    "adaptationTargets": "Depending on which examples dominate the dataset, that supervised pattern can reshape style, task behavior, domain language, or instruction following. A customer-support tone dataset steers phrasing, a structured extraction dataset steers task format, a legal corpus steers domain vocabulary, and an instruction demonstration set steers how the model follows prompts."
+  },
+  "math": {
+    "supervisedImitationObjective": {
+      "label": "Supervised imitation objective",
+      "formula": "\\max_\\theta \\sum_i \\log p_\\theta(y_i \\mid x_i)",
+      "variableDefinitions": {
+        "theta": {
+          "term": "\\theta",
+          "definition": "model weights"
+        },
+        "i": {
+          "term": "i",
+          "definition": "training example index"
+        },
+        "xi": {
+          "term": "x_i",
+          "definition": "the input for example i"
+        },
+        "yi": {
+          "term": "y_i",
+          "definition": "the target output for example i"
+        },
+        "ptheta": {
+          "term": "p_\\theta(\\cdot)",
+          "definition": "the model probability distribution parameterized by those weights"
+        }
+      }
+    }
+  },
+  "assets": {
+    "trainingFlow": {
+      "title": "Supervised fine-tuning training flow",
+      "alt": "A three-step supervised fine-tuning flow: labeled input-output examples, supervised target imitation objective, then the adapted model.",
+      "caption": "Supervised fine-tuning turns labeled demonstrations into model updates by making each target output more likely for its paired input.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "examples": {
+        "label": "Labeled input-output examples"
+      },
+      "objective": {
+        "label": "Supervised target imitation"
+      },
+      "adaptedModel": {
+        "label": "Adapted model"
+      }
+    }
+  }
+}

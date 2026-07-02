@@ -1,0 +1,54 @@
+{
+  "id": "paper.llama-3",
+  "slug": "llama-3",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Llama 3", "The Llama 3 Herd of Models", "Meta Llama 3 paper"],
+  "tags": [
+    "foundations",
+    "model-family",
+    "attention",
+    "context-window",
+    "position-encoding"
+  ],
+  "relatedIds": ["model.llama-3", "organization.meta"],
+  "citationIds": [
+    "citation.llama-3-herd-of-models",
+    "citation.llama-3-meta-release"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "authors": ["Meta AI", "Llama Team"],
+  "publishedAt": "2024-07-23",
+  "url": "https://arxiv.org/abs/2407.21783",
+  "introducesIds": ["model.llama-3"],
+  "supportsIds": [
+    "concept.transformer-architecture",
+    "concept.autoregressive-generation",
+    "concept.decoder",
+    "concept.context-window",
+    "concept.context-extension",
+    "concept.alignment"
+  ],
+  "arguesAgainstIds": [],
+  "modelIds": ["model.llama-3"],
+  "moduleIds": [
+    "module.grouped-query-attention",
+    "module.rope",
+    "module.rmsnorm",
+    "module.swiglu",
+    "module.causal-attention"
+  ],
+  "conceptIds": [
+    "concept.transformer-architecture",
+    "concept.autoregressive-generation",
+    "concept.decoder",
+    "concept.context-window",
+    "concept.context-extension",
+    "concept.alignment"
+  ],
+  "venue": "arXiv",
+  "arxivId": "2407.21783"
+}

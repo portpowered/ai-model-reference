@@ -7,7 +7,6 @@ import {
 } from "@/lib/content/registry-runtime";
 import {
   deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
 } from "@/lib/content/related-docs";
 
 describe("byte-level tokenization registry identity (byte-level-tokenization-page-004)", () => {
@@ -49,6 +48,7 @@ describe("byte-level tokenization registry identity (byte-level-tokenization-pag
     expect(record.tags).toEqual(["tokenization"]);
     expect(record.citationIds).toEqual(["citation.gpt-2-report"]);
     expect(record.relatedIds).toEqual([
+      "paper.gpt-2-report",
       "concept.token",
       "concept.tokenizers-overview",
       "module.bpe",
@@ -73,6 +73,7 @@ describe("byte-level tokenization registry identity (byte-level-tokenization-pag
     );
 
     expect(items.map((item) => item.registryId)).toEqual([
+      "paper.gpt-2-report",
       "concept.token",
       "concept.tokenizers-overview",
       "module.bpe",
@@ -80,19 +81,20 @@ describe("byte-level tokenization registry identity (byte-level-tokenization-pag
       "model.gpt-3",
     ]);
     expect(items.map((item) => item.href)).toEqual([
+      "/docs/papers/gpt-2-report",
       "/docs/glossary/token",
-      undefined,
+      "/docs/concepts/tokenizers-overview",
       "/docs/modules/bpe",
       "/docs/glossary/vocabulary-size",
       "/docs/models/gpt-3",
     ]);
     expect(items.map((item) => item.isPlanned)).toEqual([
       false,
-      true,
+      false,
+      false,
       false,
       false,
       false,
     ]);
-    expect(items[1]?.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
   });
 });

@@ -9,13 +9,15 @@
     "key-value cache",
     "key value cache",
     "kv-cache",
-    "attention cache"
+    "attention cache",
+    "cache for decoding"
   ],
   "tags": ["foundations", "attention", "kv-cache"],
   "relatedIds": [
     "concept.prefill",
     "concept.decode",
     "concept.prefill-decode-split",
+    "system.batching",
     "concept.autoregressive-generation",
     "module.attention",
     "module.multi-query-attention",
@@ -23,7 +25,11 @@
     "module.sliding-window-attention",
     "concept.transformer"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.shazeer-mqa-paper",
+    "citation.gqa-paper",
+    "citation.kivi-kv-cache-quantization"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

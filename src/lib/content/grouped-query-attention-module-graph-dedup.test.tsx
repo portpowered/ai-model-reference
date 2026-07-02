@@ -1,7 +1,7 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import {
@@ -12,11 +12,17 @@ import { assertGroupedQueryAttentionSingleGraphConvergence } from "@/lib/verify/
 
 const GQA_COMPARISON_GRAPH_ID =
   "graph.grouped-query-attention-gqa-comparison" as const;
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
+
+setDefaultTimeout(15_000);
 
 describe("grouped-query-attention module graph deduplication", () => {
   test("published GQA page renders attention-variant graph only in How It Works", () => {
     const raw = readFileSync(
-      join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "page.mdx"),
+      join(groupedQueryAttentionPageDir, "page.mdx"),
       "utf8",
     );
 

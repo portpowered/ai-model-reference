@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { VOCABULARY_SIZE_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryPresentationConvergence,
@@ -20,7 +20,7 @@ import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = VOCABULARY_SIZE_GLOSSARY_PAGE_DIR;
+const pageDir = getDocsPageDir("glossary", "vocabulary-size");
 const messagesPath = join(pageDir, "messages/en.json");
 
 describe("vocabulary size glossary page", () => {
@@ -70,6 +70,9 @@ describe("vocabulary size glossary page", () => {
         ?.href,
     ).toBe("/docs/modules/byte-level-tokenization");
     expect(
+      items.find((item) => item.registryId === "concept.special-tokens")?.href,
+    ).toBe("/docs/glossary/special-tokens");
+    expect(
       items.find((item) => item.registryId === "concept.hidden-size")?.href,
     ).toBe("/docs/glossary/hidden-size");
     expect(items.find((item) => item.registryId === "model.gpt-3")?.href).toBe(
@@ -101,6 +104,8 @@ describe("vocabulary size glossary page", () => {
       "larger vocabulary can let common strings stay in fewer tokens",
     );
     expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
+    expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain('href="/docs/glossary/hidden-size"');
     expect(html).toContain('href="/docs/models/gpt-3"');

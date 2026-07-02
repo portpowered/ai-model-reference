@@ -56,9 +56,13 @@ runtime, API, CLI, UI, or emitted-event behavior, raise that as a BLOCKING
 quality-rule violation and ask for behavioral coverage instead.
 
 ### Step 4 - review the code against the appropriate standards
-if the code is for the backend, use the backend standards in factory/docs/standards/general-backend-standards.md
-if the code is for the website, use the website standards in factory/docs/standards/general-website-standards.md
-if the change includes canonical docs pages, docs message files, docs templates, or docs graphs/captions, also use factory/docs/standards/docs-writing-standards.md and factory/docs/standards/docs-quality-standards.md. There may be other standards within the package use those as well. 
+if the code is backend, use factory/docs/standards/general-backend-standards.md
+if the code is website, use factory/docs/standards/general-website-standards.md
+
+if the change is docs, use factory/docs/standards/docs-writing-standards.md.
+if the change contains graphing/charts, use factory/docs/standards/graphing-standards.md
+
+There may be other standards within the package use those as well. 
 
 For each rule in the standard, please check if the code is conformant and properly shaped. 
 

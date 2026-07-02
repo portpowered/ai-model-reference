@@ -15,9 +15,17 @@
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2020-10-01",
+  "authors": [
+    "Alex Henry",
+    "Prudhvi Raj Dachapally",
+    "Shubham Pawar",
+    "Yuxuan Chen"
+  ],
+  "sourceId": "citation.query-key-normalization-for-transformers",
+  "primaryClassificationId": "classification.module.normalization",
   "moduleType": "normalization",
   "optimizes": ["attention-logit-stability"],
-  "practicalBenefits": ["keeps attention logits from growing too sharp"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

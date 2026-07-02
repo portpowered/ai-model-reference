@@ -135,7 +135,7 @@
       "id": "feed-forward",
       "labelKey": "graph.nodes.feedForward.label",
       "summaryKey": "graph.nodes.feedForward.summary",
-      "registryId": "module.standard-ffn",
+      "registryId": "module.feed-forward-network",
       "moduleKind": "feed-forward",
       "position": { "x": 260, "y": 532 },
       "size": { "width": 230, "height": 82 },
@@ -205,7 +205,7 @@
       "id": "linear-to-softmax",
       "source": "linear",
       "target": "softmax",
-      "edgeKind": "data-flow",
+      "edgeKind": "depends-on",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },

@@ -1,0 +1,2 @@
+ D src/content/docs/models/clip/page.mdx
+ M src/lib/factory/root.ts

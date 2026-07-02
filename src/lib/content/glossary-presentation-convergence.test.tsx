@@ -85,7 +85,7 @@ describe("glossary presentation convergence", () => {
     );
     expectGlossaryShellPresentationConvergence(html, {
       shellDescriptionAutoLinks: [
-        { href: "/docs/glossary/embedding", phrase: "embeddings" },
+        { href: "/docs/concepts/embedding", phrase: "embeddings" },
       ],
     });
   });
@@ -104,7 +104,7 @@ describe("glossary presentation convergence", () => {
     expectGlossaryShellPresentationConvergence(html, {
       shellDescriptionAutoLinks: [
         { href: "/docs/glossary/vector", phrase: "vectors" },
-        { href: "/docs/glossary/embedding", phrase: "token embedding" },
+        { href: "/docs/concepts/embedding", phrase: "token embedding" },
         { href: "/docs/glossary/token", phrase: "token" },
       ],
     });
@@ -146,7 +146,7 @@ describe("glossary presentation route convergence (built HTML)", () => {
       registryId: "concept.vector",
       title: "Vector",
       shellDescriptionAutoLinks: [
-        { href: "/docs/glossary/embedding", phrase: "embeddings" },
+        { href: "/docs/concepts/embedding", phrase: "embeddings" },
       ],
     },
     {
@@ -155,7 +155,7 @@ describe("glossary presentation route convergence (built HTML)", () => {
       title: "Hidden Size",
       shellDescriptionAutoLinks: [
         { href: "/docs/glossary/vector", phrase: "vectors" },
-        { href: "/docs/glossary/embedding", phrase: "token embedding" },
+        { href: "/docs/concepts/embedding", phrase: "token embedding" },
         { href: "/docs/glossary/token", phrase: "token" },
       ],
     },

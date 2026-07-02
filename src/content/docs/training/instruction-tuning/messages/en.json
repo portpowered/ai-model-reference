@@ -1,0 +1,61 @@
+{
+  "title": "Instruction Tuning",
+  "description": "A supervised post-training regime that teaches a model to follow user instructions by training on prompts paired with desired answers.",
+  "openingSummary": "Instruction tuning is supervised training that shows the model prompts paired with desired answers. The model learns to imitate those answers so it can respond helpfully when a person later asks for a task, question, or command.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Instruction tuning is a post-training stage that shapes how a language model responds to explicit user requests. Instead of only predicting the next token in raw text, the model sees curated examples where each input is a prompt or instruction and each target is the answer people want the model to produce. Training nudges the model toward matching those desired answers on similar requests."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "A base model from large-scale pretraining knows a lot about language patterns, but it does not automatically behave like a helpful assistant. People usually want models that follow directions, stay on topic, and answer in a useful format. Instruction tuning exists to teach that behavior directly from demonstration examples before teams add heavier preference optimization or reinforcement-learning stages."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Each instruction-tuning example pairs an input prompt or instruction with a desired answer, completion, or assistant response. Unlike pretraining text, where the model learns from long passages and predicts the next token wherever it appears, these demonstrations deliberately show what a helpful reply should look like for a specific kind of request. Teams collect or write such examples across common tasks such as summarization, question answering, rewriting, and step-by-step reasoning. Formatting matters because many pipelines wrap prompts and answers in consistent templates so the model learns stable patterns for user requests and assistant replies. Coverage matters because the model can only imitate behaviors that appear often enough in the data. Training uses standard supervised learning: for each example, the model is updated to become more likely to produce the demonstrated answer when it sees a similar prompt. There is no reward model, no preferred-versus-rejected ranking, and no reinforcement signal—only a direct target answer to imitate. Demonstration quality strongly shapes the result. Clear, accurate, and consistent examples produce more reliable instruction-following behavior, while sparse, contradictory, or sloppy examples teach brittle habits. This stage teaches response style from demonstrations; it is not benchmark evaluation, model ranking, or a catalog of papers to download."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Pretraining creates a broad base model from large-scale text. The model learns general language patterns by predicting tokens across huge corpora, but it is not yet shaped to answer explicit user requests in a helpful assistant style. Instruction tuning usually comes later in the post-training pipeline to teach that behavior directly from prompt-and-answer demonstrations. Reinforcement learning from human feedback, often shortened to RLHF, is a different family of workflows. RLHF-style methods collect human rankings or scores, fit a reward model from that feedback, and then optimize the policy so the model earns higher reward on preferred behavior. Instruction tuning does not need a separate reward model or reinforcement loop. It learns from one target answer per prompt using ordinary supervised learning. Direct Preference Optimization, or DPO, is another nearby post-training method, but its training signal is different. DPO uses preferred-versus-rejected answer pairs for each prompt and nudges the model to rank the preferred answer above the rejected one. Instruction tuning instead provides a single desired answer per prompt, or an equivalent supervised target, and asks the model to imitate that answer directly. Instruction tuning sits in the broader alignment and post-training story. Teams often use it to make a base model more helpful and instruction-following before adding heavier preference optimization. It supports alignment goals, but it does not by itself fully solve alignment. Safety, honesty, and value fit still depend on data quality, later preference stages, and deployment safeguards."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "Instruction tuning only teaches what the demonstration data covers. Sparse, inconsistent, or low-quality examples produce brittle instruction-following behavior. The method also does not by itself guarantee safety, honesty, or alignment with human values; it mainly teaches the model to copy demonstrated response patterns."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "trainingFlow": {
+      "title": "Instruction tuning training flow",
+      "alt": "A three-step instruction tuning flow: prompt and desired answer demonstrations, supervised update, then an instruction-following model.",
+      "caption": "Instruction tuning turns prompt-and-answer demonstrations into supervised updates that teach the model to follow user requests.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "demonstrations": {
+        "label": "Prompt + desired answer demonstrations"
+      },
+      "supervisedUpdate": {
+        "label": "Supervised update"
+      },
+      "instructionModel": {
+        "label": "Instruction-following model"
+      }
+    }
+  }
+}

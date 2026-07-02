@@ -1,0 +1,56 @@
+{
+  "id": "system.routing",
+  "slug": "routing",
+  "kind": "system",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Routing",
+    "request routing",
+    "inference routing",
+    "serving router",
+    "serve request to specialist model"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "training-regime.specialist-training",
+    "module.mixture-of-experts",
+    "module.deepseekmoe",
+    "system.batching",
+    "system.expert-parallel-overlap",
+    "system.on-disk-kv-cache",
+    "paper.deepseek-v4",
+    "paper.nemotron-3-super",
+    "model.mixtral-8x22b",
+    "model.mixtral-8x7b",
+    "model.nemotron-3-super"
+  ],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-07-01T18:00:00.000Z",
+  "releaseDate": "2026-06-13",
+  "authors": ["DeepSeek-AI"],
+  "sourceId": "paper.deepseek-v4",
+  "primaryClassificationId": "classification.system.routing",
+  "systemType": "routing",
+  "relatedModelIds": [
+    "model.deepseek-v4-pro",
+    "model.deepseek-v4-flash",
+    "model.mixtral-8x22b",
+    "model.mixtral-8x7b",
+    "model.nemotron-3-super",
+    "model.qwen-3-6-35b-a3b"
+  ],
+  "relatedModuleIds": ["module.mixture-of-experts", "module.deepseekmoe"],
+  "relatedConceptIds": [
+    "concept.prefill-decode-split",
+    "concept.decode",
+    "concept.kv-cache"
+  ],
+  "paperIds": ["paper.deepseek-v4", "paper.nemotron-3-super"],
+  "datasetIds": [],
+  "organizationId": "organization.deepseek-ai",
+  "conceptType": "systems",
+  "variantGroup": "serving-control-plane"
+}

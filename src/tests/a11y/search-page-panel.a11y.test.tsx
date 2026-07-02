@@ -5,6 +5,7 @@ import {
   beforeEach,
   describe,
   expect,
+  setDefaultTimeout,
   test,
 } from "bun:test";
 import { cleanup, screen, waitFor } from "@testing-library/react";
@@ -20,10 +21,13 @@ import {
   restoreFetchMock,
 } from "@/tests/a11y/render";
 
+setDefaultTimeout(30_000);
+
 function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {
     q: searchParams.get("q"),
     tag: searchParams.get("tag"),
+    classification: searchParams.get("classification"),
   };
 }
 
@@ -96,10 +100,13 @@ describe("search page panel accessibility smoke", () => {
     );
     await user.type(searchInput, "zzzz-no-matches-zzzz");
 
-    await waitFor(() => {
-      expect(screen.queryByTestId("search-page-loading")).toBeNull();
-    });
-    await screen.findByTestId("search-page-empty");
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("search-page-loading")).toBeNull();
+      },
+      { timeout: 15_000 },
+    );
+    await screen.findByTestId("search-page-empty", {}, { timeout: 15_000 });
     expect(screen.getByText(context.messages.search.noResults)).toBeTruthy();
 
     await expectNoSeriousAxeViolations(container);

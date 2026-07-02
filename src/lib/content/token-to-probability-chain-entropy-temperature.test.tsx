@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
@@ -15,6 +15,7 @@ import {
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 
 const ENTROPY_GLOSSARY_URL = "/docs/glossary/entropy";
 const TEMPERATURE_GLOSSARY_URL = "/docs/glossary/temperature";
@@ -82,27 +83,24 @@ describe("Phase 2 entropy and temperature glossary pages (US-006)", () => {
 });
 
 describe("Phase 2 entropy and temperature search discoverability (US-006)", () => {
-  const originalFetch = globalThis.fetch;
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch;
-  });
-
   test("search ranks entropy glossary first for Entropy title query", async () => {
     const exported = await (await docsSearchApi.staticGET()).json();
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify(exported), {
-        status: 200,
-      })) as unknown as typeof fetch;
-
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );
-    const client = createDocsSearchClient({
-      metaByUrl,
-      client: { from: DOCS_SEARCH_API_PATH },
-    });
-    const results = await client.search("Entropy");
+    const results = await withGlobalFetchOverride(
+      (async () =>
+        new Response(JSON.stringify(exported), {
+          status: 200,
+        })) as unknown as typeof fetch,
+      async () => {
+        const client = createDocsSearchClient({
+          metaByUrl,
+          client: { from: DOCS_SEARCH_API_PATH },
+        });
+        return client.search("Entropy");
+      },
+    );
 
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe(ENTROPY_GLOSSARY_URL);
@@ -110,19 +108,22 @@ describe("Phase 2 entropy and temperature search discoverability (US-006)", () =
 
   test("search ranks temperature glossary first for Temperature title query", async () => {
     const exported = await (await docsSearchApi.staticGET()).json();
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify(exported), {
-        status: 200,
-      })) as unknown as typeof fetch;
-
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );
-    const client = createDocsSearchClient({
-      metaByUrl,
-      client: { from: DOCS_SEARCH_API_PATH },
-    });
-    const results = await client.search("Temperature");
+    const results = await withGlobalFetchOverride(
+      (async () =>
+        new Response(JSON.stringify(exported), {
+          status: 200,
+        })) as unknown as typeof fetch,
+      async () => {
+        const client = createDocsSearchClient({
+          metaByUrl,
+          client: { from: DOCS_SEARCH_API_PATH },
+        });
+        return client.search("Temperature");
+      },
+    );
 
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe(TEMPERATURE_GLOSSARY_URL);
@@ -130,19 +131,22 @@ describe("Phase 2 entropy and temperature search discoverability (US-006)", () =
 
   test("search finds entropy glossary for distinctive body phrase", async () => {
     const exported = await (await docsSearchApi.staticGET()).json();
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify(exported), {
-        status: 200,
-      })) as unknown as typeof fetch;
-
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );
-    const client = createDocsSearchClient({
-      metaByUrl,
-      client: { from: DOCS_SEARCH_API_PATH },
-    });
-    const results = await client.search(ENTROPY_BODY_PHRASE);
+    const results = await withGlobalFetchOverride(
+      (async () =>
+        new Response(JSON.stringify(exported), {
+          status: 200,
+        })) as unknown as typeof fetch,
+      async () => {
+        const client = createDocsSearchClient({
+          metaByUrl,
+          client: { from: DOCS_SEARCH_API_PATH },
+        });
+        return client.search(ENTROPY_BODY_PHRASE);
+      },
+    );
 
     expect(results.some((result) => result.url === ENTROPY_GLOSSARY_URL)).toBe(
       true,
@@ -151,19 +155,22 @@ describe("Phase 2 entropy and temperature search discoverability (US-006)", () =
 
   test("search finds temperature glossary for distinctive body phrase", async () => {
     const exported = await (await docsSearchApi.staticGET()).json();
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify(exported), {
-        status: 200,
-      })) as unknown as typeof fetch;
-
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );
-    const client = createDocsSearchClient({
-      metaByUrl,
-      client: { from: DOCS_SEARCH_API_PATH },
-    });
-    const results = await client.search(TEMPERATURE_BODY_PHRASE);
+    const results = await withGlobalFetchOverride(
+      (async () =>
+        new Response(JSON.stringify(exported), {
+          status: 200,
+        })) as unknown as typeof fetch,
+      async () => {
+        const client = createDocsSearchClient({
+          metaByUrl,
+          client: { from: DOCS_SEARCH_API_PATH },
+        });
+        return client.search(TEMPERATURE_BODY_PHRASE);
+      },
+    );
 
     expect(
       results.some((result) => result.url === TEMPERATURE_GLOSSARY_URL),

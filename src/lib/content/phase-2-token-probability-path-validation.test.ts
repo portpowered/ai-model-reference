@@ -20,7 +20,7 @@ describe("Phase 2 token-probability path validation gate (phase-2-token-probabil
     expect(result.status).toBe("pass");
   });
 
-  test("token related-docs gate passes with embedding, vocabulary size, logit, and softmax explanations", async () => {
+  test("token related-docs gate passes with special tokens plus embedding, vocabulary size, logit, and softmax explanations", async () => {
     const result = await runTokenRelatedDocsGate();
     expect(result.status).toBe("pass");
   });

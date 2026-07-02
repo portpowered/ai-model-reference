@@ -1,0 +1,32 @@
+{
+  "title": "Attention with linear biases (ALiBi)",
+  "description": "A positional idea that subtracts larger attention penalties for farther token pairs instead of storing explicit position embeddings.",
+  "openingSummary": "Attention with linear biases (ALiBi) tells attention that farther tokens should usually count a little less, so a model can track order without learned absolute position tables and still discuss longer contexts in a simple way.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Attention with linear biases (ALiBi) is a way to put position information directly into attention scores. After the usual query-key match is computed, ALiBi subtracts a distance-based penalty from each score. Nearby token pairs lose less, far-apart pairs lose more, so the model learns that distance matters without adding a separate position vector to every token."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "This matters because many older position schemes depend on absolute tables tied to specific index slots. ALiBi avoids those learned absolute tables, so there is no position embedding matrix to run out of when the sequence grows past training length. That is why ALiBi often shows up in long-context discussions: the bias pattern can keep extending even when attention itself is still expensive."
+    },
+    "simpleExample": {
+      "title": "How It Changes Attention",
+      "body": "Imagine one token looking back across a sentence. With ALiBi, the raw content match still comes first, but the attention logit for a faraway token gets pushed down more than the logit for a nearby token. Different heads can use different slopes, so some heads stay more local while others tolerate longer jumps. The main change is small but specific: position is expressed as a distance penalty inside attention rather than as a stored embedding outside it."
+    },
+    "commonConfusions": {
+      "title": "Tradeoffs And Limits",
+      "body": "ALiBi is simpler than rotary position embedding (RoPE), but it also gives up some flexibility. RoPE changes the query and key vectors themselves so relative offsets live inside the dot product, while ALiBi leaves those vectors alone and adds a fixed distance preference afterward. That simplicity can help extrapolation, but it does not make long-context attention cheap, and some model families still prefer RoPE because it has become the more common default in modern decoder stacks."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

@@ -1,0 +1,126 @@
+---
+title: Mixture of Experts
+description: A broad sparse-routing architecture pattern that activates only a few expert sub-networks per token instead of one dense path for every token.
+kind: "concept"
+registryId: "concept.mixture-of-experts"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - "feed-forward"
+  - "foundations"
+aliases:
+  - "MoE"
+  - "sparse MoE"
+  - "mixture-of-experts architecture"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section
+  id="how-sparse-routing-changes-scaling"
+  titleKey="sections.howSparseRoutingChangesScaling.title"
+>
+  <T k="sections.howSparseRoutingChangesScaling.body" />
+</Section>
+
+<Section
+  id="where-you-see-it"
+  titleKey="sections.whereYouSeeIt.title"
+>
+  <T k="sections.whereYouSeeIt.body" />
+
+  <ul className="mt-4 list-none space-y-2 pl-0">
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/feed-forward-network"
+      >
+        Feed-forward network
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/standard-ffn"
+      >
+        Standard FFN
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/mixture-of-experts"
+      >
+        Mixture of Experts module page
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/deepseekmoe"
+      >
+        DeepSeekMoE
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/models/deepseek-v4-pro"
+      >
+        DeepSeek V4 Pro
+      </a>
+    </li>
+  </ul>
+</Section>
+
+<Section
+  id="routing-complexity"
+  titleKey="sections.routingComplexity.title"
+>
+  <T k="sections.routingComplexity.body" />
+</Section>
+
+<Section id="load-balancing" titleKey="sections.loadBalancing.title">
+  <T k="sections.loadBalancing.body" />
+</Section>
+
+<Section id="serving-behavior" titleKey="sections.servingBehavior.title">
+  <T k="sections.servingBehavior.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.mixture-of-experts"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "used-by-models",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.mixture-of-experts" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.mixture-of-experts" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.mixture-of-experts" />
+</Section>

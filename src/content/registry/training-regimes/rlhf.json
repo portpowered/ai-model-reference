@@ -1,0 +1,57 @@
+{
+  "id": "training-regime.rlhf",
+  "slug": "rlhf",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "RLHF",
+    "reinforcement learning from human feedback",
+    "human feedback reinforcement learning",
+    "preference reinforcement learning"
+  ],
+  "tags": ["alignment", "foundations"],
+  "relatedIds": [
+    "concept.alignment",
+    "training-regime.instruction-tuning",
+    "training-regime.dpo",
+    "training-regime.post-training"
+  ],
+  "citationIds": [
+    "citation.training-language-models-to-follow-instructions-with-human-feedback"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "releaseDate": "2022-03-04",
+  "authors": [
+    "Long Ouyang",
+    "Jeff Wu",
+    "Xu Jiang",
+    "Diogo Almeida",
+    "Carroll L. Wainwright",
+    "Pamela Mishkin",
+    "Chong Zhang",
+    "Sandhini Agarwal",
+    "Katarina Slama",
+    "Alex Ray",
+    "John Schulman",
+    "Jacob Hilton",
+    "Fraser Kelton",
+    "Luke Miller",
+    "Maddie Simens",
+    "Amanda Askell",
+    "Peter Welinder",
+    "Paul F. Christiano",
+    "Jan Leike",
+    "Ryan Lowe"
+  ],
+  "sourceId": "citation.training-language-models-to-follow-instructions-with-human-feedback",
+  "primaryClassificationId": "classification.training.alignment",
+  "regimeType": "alignment",
+  "usedByModelIds": [],
+  "relatedModuleIds": [],
+  "paperIds": [],
+  "conceptType": "training",
+  "variantGroup": "alignment-rlhf"
+}

@@ -50,6 +50,7 @@ describe("groupTagIndexEntriesByCategory", () => {
     expect(groups.map((group) => group.category)).toEqual([
       "architecture",
       "module-type",
+      "training",
       "inference",
       "model-family",
     ]);
@@ -66,12 +67,13 @@ describe("groupTagIndexEntriesByCategory", () => {
       "position-encoding",
       "tokenization",
     ]);
-    expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual([
+    expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual(["alignment"]);
+    expect(groups[3]?.tags.map((tag) => tag.slug)).toEqual([
       "context-window",
       "kv-cache",
       "quantization",
     ]);
-    expect(groups[3]?.tags.map((tag) => tag.slug)).toEqual(["model-family"]);
+    expect(groups[4]?.tags.map((tag) => tag.slug)).toEqual(["model-family"]);
   });
 
   it("sorts tags alphabetically by title inside each category group", () => {

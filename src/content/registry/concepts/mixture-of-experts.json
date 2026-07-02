@@ -4,17 +4,29 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["MoE", "mixture-of-experts layer", "sparse MoE"],
+  "aliases": [
+    "MoE",
+    "mixture of experts",
+    "sparse MoE",
+    "mixture-of-experts architecture",
+    "expert routing"
+  ],
   "tags": ["feed-forward", "foundations"],
   "relatedIds": [
     "concept.feed-forward-network",
     "concept.standard-ffn",
+    "module.mixture-of-experts",
+    "module.deepseekmoe",
+    "model.deepseek-v4-pro",
     "concept.transformer-architecture"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.sparsely-gated-mixture-of-experts-layer",
+    "citation.deepseek-v4-paper"
+  ],
   "status": "published",
   "createdAt": "2026-06-08T00:00:00.000Z",
-  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": [],
   "explainsIds": []

@@ -1,0 +1,81 @@
+{
+  "title": "CLIP",
+  "description": "A dual-encoder multimodal model that learns to align text and images in one shared embedding space.",
+  "openingSummary": "Contrastive Language-Image Pre-training (CLIP) learns to place captions and images near each other in the same vector space, which is why later image systems often reuse it to understand prompts instead of asking it to generate pixels directly.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Contrastive Language-Image Pre-training (CLIP) is a multimodal model from OpenAI that learns from paired text and images. Instead of producing a paragraph or painting a picture, it learns representations: a text encoder turns a caption into a vector, an image encoder turns an image into a vector, and the model is trained so matching pairs land close together."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "CLIP takes either text, images, or both. Its immediate outputs are embeddings and similarity scores rather than generated pixels. In practice, people use those outputs to rank images against text, retrieve matching examples, classify images with text labels, or supply conditioning signals to another model such as a diffusion pipeline."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "The core pattern is a dual encoder. One tower reads tokenized text, and the other reads image patches. Each tower maps its input into the same shared embedding space, then a similarity step compares the two vectors. During training, matched caption-image pairs are pulled closer together and mismatched pairs are pushed farther apart, so the shared space becomes useful for cross-modal comparison."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The modules below explain most of CLIP's mechanics. Bidirectional attention lets each encoder read its whole input, multi-head attention gives each tower several parallel comparison paths, and learned positional embeddings help preserve order inside token and patch sequences."
+    },
+    "training": {
+      "title": "Training",
+      "body": "CLIP's defining training idea is contrastive learning over large text-image datasets. For each minibatch, the model scores many captions against many images and learns to raise the score of the true pair while lowering the scores of the wrong pairings. That objective teaches alignment without asking the model to predict pixels or autoregressively emit text."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "CLIP became widely reused because it is good at turning prompts and images into comparable features. Retrieval systems use it for ranking, zero-shot classifiers use it for label matching, and text-guided image generation systems often use its text embeddings as conditioning. It is usually not the final image generator because it does not contain a decoder or denoiser that can synthesize pixels on its own."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "CLIP architecture diagram with text tokens and image patches flowing through separate encoders into a shared embedding space, followed by a similarity comparison step."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "similarityOutput": {
+        "label": "Similarity\nScores",
+        "summary": "The final comparison scores that say which captions and images match best"
+      },
+      "sharedSpace": {
+        "label": "Shared\nEmbedding\nSpace",
+        "summary": "Both towers project their outputs into one vector space so text and images become directly comparable"
+      },
+      "textProjection": {
+        "label": "Text\nProjection",
+        "summary": "Maps the text encoder output into the shared space"
+      },
+      "imageProjection": {
+        "label": "Image\nProjection",
+        "summary": "Maps the image encoder output into the shared space"
+      },
+      "textEncoder": {
+        "label": "Text\nEncoder",
+        "summary": "Encodes the caption with full-sequence attention so the whole phrase can be compared at once"
+      },
+      "imageEncoder": {
+        "label": "Image\nEncoder",
+        "summary": "Encodes image patches into a visual representation that can be matched against text"
+      },
+      "textTokens": {
+        "label": "Text\nTokens",
+        "summary": "Tokenized caption input"
+      },
+      "imagePatches": {
+        "label": "Image\nPatches",
+        "summary": "Patch sequence cut from the input image before the vision encoder reads it"
+      }
+    }
+  }
+}

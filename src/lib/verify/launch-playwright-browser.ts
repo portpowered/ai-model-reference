@@ -30,6 +30,12 @@ export const PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH_ENV =
 
 let inProcessLaunchGate: Promise<void> = Promise.resolve();
 
+function logPlaywrightLaunch(message: string): void {
+  if (process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true") {
+    console.log(`[playwright-launch] ${message}`);
+  }
+}
+
 function shouldSerializePlaywrightLaunch(): boolean {
   return process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 }
@@ -178,10 +184,18 @@ function tryAcquireLaunchSlot(): (() => void) | null {
 }
 
 async function acquireLaunchSlot(): Promise<() => void> {
+  let loggedWait = false;
   while (true) {
     const release = tryAcquireLaunchSlot();
     if (release) {
+      if (loggedWait) {
+        logPlaywrightLaunch("acquired launch slot after waiting");
+      }
       return release;
+    }
+    if (!loggedWait) {
+      logPlaywrightLaunch("waiting for serialized launch slot");
+      loggedWait = true;
     }
     await sleep(LOCK_POLL_MS);
   }
@@ -218,6 +232,7 @@ async function launchChromiumWithCiRetries(
 ): Promise<Browser> {
   let lastError: unknown;
   if (shouldSerializePlaywrightLaunch()) {
+    logPlaywrightLaunch("serializing Chromium launch");
     await sleep(CI_PLAYWRIGHT_LAUNCH_INITIAL_DELAY_MS);
   }
   for (
@@ -226,14 +241,21 @@ async function launchChromiumWithCiRetries(
     attempt += 1
   ) {
     try {
+      logPlaywrightLaunch(
+        `launch attempt ${attempt}/${CI_PLAYWRIGHT_LAUNCH_ATTEMPTS}`,
+      );
       return await withCiLaunchSerialization(() =>
         chromium.launch(launchOptions),
       );
     } catch (error) {
       lastError = error;
+      const reason = error instanceof Error ? error.message : String(error);
       const canRetry =
         attempt < CI_PLAYWRIGHT_LAUNCH_ATTEMPTS &&
         isPlaywrightLaunchRetryableError(error);
+      logPlaywrightLaunch(
+        `launch attempt ${attempt} failed${canRetry ? ", retrying" : ""}: ${reason}`,
+      );
       if (!canRetry) {
         throw error;
       }

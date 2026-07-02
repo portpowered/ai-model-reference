@@ -57,7 +57,9 @@ describe("Phase 2 token-probability path route rendering (phase-2-token-probabil
     test(`${canonicalRoute} publishes through pages loader and Fumadocs source`, async () => {
       const pages = await loadPublishedDocsPages("en");
       const publishedPage = pages.find(
-        (page) => page.frontmatter.registryId === registryId,
+        (page) =>
+          page.url === canonicalRoute &&
+          page.frontmatter.registryId === registryId,
       );
       const fumadocsPage = source.getPage(["glossary", slug]);
 
