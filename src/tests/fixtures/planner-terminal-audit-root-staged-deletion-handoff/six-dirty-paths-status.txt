@@ -1,0 +1,6 @@
+M  docs/internal/processes/factory-linkage-relevant-files.md
+M  package.json
+D  scripts/report-terminal-lane-main-branch-landing-audit.ts
+M  src/lib/factory/planner-merged-lane-evidence.ts
+D  src/lib/factory/terminal-lane-main-branch-landing-audit.test.ts
+D  src/lib/factory/terminal-lane-main-branch-landing-audit.ts
