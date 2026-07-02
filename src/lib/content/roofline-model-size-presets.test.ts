@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { resolveEffectiveRooflineModelSize } from "@/lib/content/effective-roofline-model-size";
+import { registryDisplayTitle } from "@/lib/content/registry-linking";
 import { getModelById } from "@/lib/content/registry-runtime";
 import {
   getRooflineModelSizePresets,
@@ -6,10 +8,25 @@ import {
   resolveRooflineModelSizePreset,
 } from "./roofline-model-size-presets";
 
+function requireModel(
+  registryId: (typeof ROOFLINE_MODEL_SIZE_PRESET_REGISTRY_IDS)[number],
+) {
+  const model = getModelById(registryId);
+  if (!model) {
+    throw new Error(`expected ${registryId} in registry`);
+  }
+  return model;
+}
+
 describe("getRooflineModelSizePresets", () => {
   test("returns the requested models in stable order with registry-backed labels and sizes", () => {
     const presets = getRooflineModelSizePresets();
+    const registryPresets = ROOFLINE_MODEL_SIZE_PRESET_REGISTRY_IDS.map(
+      (registryId) =>
+        resolveRooflineModelSizePreset(registryId, requireModel(registryId)),
+    );
 
+    expect(presets).toEqual(registryPresets);
     expect(presets.map((preset) => preset.modelId)).toEqual([
       ...ROOFLINE_MODEL_SIZE_PRESET_REGISTRY_IDS,
     ]);
@@ -23,6 +40,16 @@ describe("getRooflineModelSizePresets", () => {
     expect(presets.map((preset) => preset.effectiveSizeBillions)).toEqual([
       40, 37, 3, 27, 0.6,
     ]);
+    expect(presets.map((preset) => preset.label)).toEqual(
+      ROOFLINE_MODEL_SIZE_PRESET_REGISTRY_IDS.map((registryId) =>
+        registryDisplayTitle(requireModel(registryId)),
+      ),
+    );
+    expect(presets.map((preset) => preset.effectiveSizeBillions)).toEqual(
+      ROOFLINE_MODEL_SIZE_PRESET_REGISTRY_IDS.map((registryId) =>
+        resolveEffectiveRooflineModelSize(requireModel(registryId)),
+      ),
+    );
   });
 
   test("keeps stable ordering when a registry record is missing", () => {

@@ -1,6 +1,6 @@
+import { getModelById } from "@/lib/content/registry-runtime";
 import { resolveEffectiveRooflineModelSize } from "./effective-roofline-model-size";
 import { registryDisplayTitle } from "./registry-linking";
-import { getModelById } from "./registry-runtime";
 import type { ModelRecord } from "./schemas";
 
 export const ROOFLINE_MODEL_SIZE_PRESET_REGISTRY_IDS = [
