@@ -2,6 +2,11 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { cleanup, render } from "@testing-library/react";
 import { DEFAULT_TRAINING_SIGNAL_CHART_INPUT } from "@/features/graphs/training-signal/default-training-signal-timeline";
 import { TrainingSignalStackedChart } from "@/features/graphs/training-signal/TrainingSignalStackedChart";
+import {
+  TRAINING_SIGNAL_BAND_KEYS,
+  TRAINING_SIGNAL_BAND_LABELS,
+} from "@/features/graphs/training-signal/training-signal-band-keys";
+import { TRAINING_SIGNAL_BAND_COLORS } from "@/features/graphs/training-signal/training-signal-chart-tokens";
 
 describe("TrainingSignalStackedChart", () => {
   afterEach(() => {
@@ -80,5 +85,81 @@ describe("TrainingSignalStackedChart", () => {
     expect(container.textContent).toContain(
       "Training-signal chart data is incomplete",
     );
+  });
+
+  test("renders a stacked chart surface with title, axes, legend, and all six bands", () => {
+    const { container } = render(
+      <TrainingSignalStackedChart
+        chartInput={DEFAULT_TRAINING_SIGNAL_CHART_INPUT}
+      />,
+    );
+
+    expect(
+      container.querySelector('[data-training-signal-chart-surface="ready"]'),
+    ).toBeTruthy();
+    expect(container.textContent).toContain("LLM training-signal shift chart");
+    expect(container.textContent).toContain("Time");
+    expect(container.textContent).toContain(
+      "Relative signal mix (illustrative)",
+    );
+    expect(container.querySelectorAll(".recharts-area-area").length).toBe(6);
+    expect(
+      container.querySelector(
+        '[data-graph-legend="training-signal-stacked-chart"]',
+      ),
+    ).toBeTruthy();
+
+    for (const bandKey of TRAINING_SIGNAL_BAND_KEYS) {
+      expect(container.textContent).toContain(
+        TRAINING_SIGNAL_BAND_LABELS[bandKey],
+      );
+      expect(
+        container.querySelector(`.training-signal-area--${bandKey}`),
+      ).toBeTruthy();
+    }
+  });
+
+  test("maps each training-signal band to a stable chart token in legend order", () => {
+    const { container, rerender } = render(
+      <TrainingSignalStackedChart
+        chartInput={DEFAULT_TRAINING_SIGNAL_CHART_INPUT}
+      />,
+    );
+
+    const chartContainer = container.querySelector('[data-slot="chart"]');
+    expect(chartContainer).toBeTruthy();
+
+    for (const bandKey of TRAINING_SIGNAL_BAND_KEYS) {
+      const chartStyle = chartContainer?.getAttribute("style") ?? "";
+      expect(chartStyle).toContain(
+        `--color-${bandKey}: ${TRAINING_SIGNAL_BAND_COLORS[bandKey]}`,
+      );
+      expect(
+        container.querySelector(`.training-signal-area--${bandKey}`),
+      ).toBeTruthy();
+    }
+
+    const legendText =
+      container.querySelector(
+        '[data-graph-legend="training-signal-stacked-chart"]',
+      )?.textContent ?? "";
+
+    rerender(
+      <TrainingSignalStackedChart
+        chartInput={DEFAULT_TRAINING_SIGNAL_CHART_INPUT}
+      />,
+    );
+
+    const rerenderedLegendText =
+      container.querySelector(
+        '[data-graph-legend="training-signal-stacked-chart"]',
+      )?.textContent ?? "";
+
+    expect(rerenderedLegendText).toBe(legendText);
+    for (const bandKey of TRAINING_SIGNAL_BAND_KEYS) {
+      expect(
+        container.querySelector(`.training-signal-area--${bandKey}`),
+      ).toBeTruthy();
+    }
   });
 });

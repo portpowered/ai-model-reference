@@ -1,5 +1,6 @@
 "use client";
 
+import { TrainingSignalStackedAreaGraph } from "@/features/graphs/training-signal/TrainingSignalStackedAreaGraph";
 import {
   TRAINING_SIGNAL_BAND_KEYS,
   TRAINING_SIGNAL_BAND_LABELS,
@@ -104,13 +105,12 @@ export function TrainingSignalStackedChart({
           <p>Y-axis: {labeling.yAxisLabel}</p>
         </div>
 
-        <div
-          aria-hidden="true"
-          className="rounded-xl border border-dashed border-border/70 bg-card/30 px-4 py-6 text-center text-sm text-muted-foreground"
-          data-training-signal-chart-surface="pending"
-        >
-          Stacked chart surface renders in the next story slice.
-        </div>
+        <TrainingSignalStackedAreaGraph
+          dataTestId={dataTestId}
+          labeling={labeling}
+          metadata={metadata}
+          timeline={timeline}
+        />
 
         <table className="sr-only">
           <caption>{labeling.accessibleName}</caption>
