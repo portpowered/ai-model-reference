@@ -63,6 +63,7 @@ const linkageLedger: QueueWorktreePrLinkageLedger = {
   prBackedLaneCount: 1,
   actionableLinkageGapLaneCount: 1,
   queueOnlyControlNoiseLaneCount: 0,
+  staleCleanPrMismatchLaneCount: 0,
   issues: [],
   lanes: [
     {

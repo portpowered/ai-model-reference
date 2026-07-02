@@ -78,10 +78,16 @@ Direct script paths remain supported for fixture-driven tests:
   worktree, branch, or PR metadata.
 * `queue-only-noise` — expected queue-only missing worktree rows and stale
   failed `thoughts` loopbacks; compacted into `Noise Summary` rows.
+* `stale-clean-pr-mismatch` — open PR with `mergeability=mergeable` and
+  `checks=passing` while the queue token is `failed`; surfaced as
+  `lane-kind=stale-clean-pr-mismatch` with `mismatch-reason=` evidence in the
+  active PR watchdog and linkage ledger `Stale PR Mismatch Summary` section,
+  not counted as active page implementation depth.
 
 Reuse `isQueueOnlyMissingLinkageLane`, `isStaleFailedLoopbackLane`,
-`isActionableLinkageGapLane`, and `partitionLinkageLanesForSummary` instead of
-duplicating filters in scripts or planner preflight.
+`isStaleCleanPrMismatchLane`, `isActionableLinkageGapLane`, and
+`partitionLinkageLanesForSummary` instead of duplicating filters in scripts or
+planner preflight.
 
 ## Fixture inputs for tests
 

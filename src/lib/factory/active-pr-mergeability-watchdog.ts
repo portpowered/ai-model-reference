@@ -37,6 +37,13 @@ export type PlannerNextAction =
   | "refresh-branch"
   | "repair-token"
   | "open-follow-up-throughput-prd";
+export type PlannerLaneKind =
+  | "stale-clean-pr-mismatch"
+  | "merge-conflict"
+  | "checks-blocked"
+  | "metadata-unavailable"
+  | "active-page-implementation"
+  | "unclassified";
 export type PullRequestLookupFailureKind =
   | "not-found"
   | "auth"
@@ -123,6 +130,8 @@ export interface LaneDiscoveryRecord {
   checkHealth?: CheckHealthStatus;
   mergeabilityClass?: MergeabilityClass;
   queueMismatchRisk?: QueueMismatchRisk;
+  plannerLaneKind?: PlannerLaneKind;
+  staleMismatchReason?: string;
   nextAction?: PlannerNextAction;
   metadataRefreshHints?: string[];
   reasons: string[];
@@ -994,6 +1003,79 @@ export function determineQueueMismatchRisk(
   return "none";
 }
 
+export function classifyPlannerLaneKind(
+  lane: Pick<
+    LaneDiscoveryRecord,
+    | "status"
+    | "queueState"
+    | "queueMismatchRisk"
+    | "mergeabilityClass"
+    | "checkHealth"
+  >,
+): PlannerLaneKind {
+  switch (lane.queueMismatchRisk) {
+    case "queue-stale":
+      return "stale-clean-pr-mismatch";
+    case "conflict-drift":
+      return "merge-conflict";
+    case "checks-blocked":
+      return "checks-blocked";
+    case "metadata-unavailable":
+      return "metadata-unavailable";
+    default:
+      break;
+  }
+
+  if (lane.status === "pr-backed" && lane.queueState === "active") {
+    return "active-page-implementation";
+  }
+
+  return "unclassified";
+}
+
+export function formatStaleCleanPrMismatchReason(
+  lane: Pick<
+    LaneDiscoveryRecord,
+    | "prNumber"
+    | "queueState"
+    | "rawQueueState"
+    | "mergeabilityClass"
+    | "checkHealth"
+    | "workItemName"
+  >,
+): string {
+  const prLabel =
+    typeof lane.prNumber === "number" ? `pr=#${lane.prNumber}` : "pr=?";
+  return [
+    "clean-passing-open-pr-with-queue-failed",
+    prLabel,
+    `queue=${lane.queueState}(${lane.rawQueueState})`,
+    `mergeability=${lane.mergeabilityClass ?? "?"}`,
+    `checks=${lane.checkHealth ?? "?"}`,
+    `work-item=${lane.workItemName}`,
+  ].join(" ");
+}
+
+export function summarizePlannerLaneKinds(
+  lanes: Pick<LaneDiscoveryRecord, "plannerLaneKind">[],
+): Record<PlannerLaneKind, number> {
+  const counts: Record<PlannerLaneKind, number> = {
+    "stale-clean-pr-mismatch": 0,
+    "merge-conflict": 0,
+    "checks-blocked": 0,
+    "metadata-unavailable": 0,
+    "active-page-implementation": 0,
+    unclassified: 0,
+  };
+
+  for (const lane of lanes) {
+    const kind = lane.plannerLaneKind ?? "unclassified";
+    counts[kind] += 1;
+  }
+
+  return counts;
+}
+
 export function isStaleLinkageRefreshHint(reason: string): boolean {
   return (
     reason.startsWith("stamped branch linkage is stale") ||
@@ -1394,11 +1476,28 @@ export function discoverActivePrLaneReport(
       partitionedReasons.metadataRefreshHints,
       collectWorktreeStaleLinkageRefreshHints(worktree),
     );
+    const plannerLaneKind = classifyPlannerLaneKind({
+      status: laneRecord.status,
+      queueState: laneRecord.queueState,
+      queueMismatchRisk,
+      mergeabilityClass,
+      checkHealth,
+    });
+    const staleMismatchReason =
+      plannerLaneKind === "stale-clean-pr-mismatch"
+        ? formatStaleCleanPrMismatchReason({
+            ...laneRecord,
+            mergeabilityClass,
+            checkHealth,
+          })
+        : undefined;
     return {
       ...laneRecord,
       reasons: partitionedReasons.reasons,
       ...(metadataRefreshHints.length > 0 ? { metadataRefreshHints } : {}),
       queueMismatchRisk,
+      plannerLaneKind,
+      ...(staleMismatchReason ? { staleMismatchReason } : {}),
       nextAction: recommendPlannerNextAction({
         queueMismatchRisk,
         checkHealth,
@@ -1415,10 +1514,12 @@ export function formatActivePrLaneReport(report: LaneDiscoveryReport): string {
     (lane) => lane.status === "pr-backed",
   ).length;
   const unclassifiedCount = report.lanes.length - prBackedCount;
+  const laneKindCounts = summarizePlannerLaneKinds(report.lanes);
 
   const lines = [
     "Active PR Mergeability Watchdog",
     `lanes=${report.lanes.length} pr-backed=${prBackedCount} unclassified=${unclassifiedCount}`,
+    `classification active-page-implementation=${laneKindCounts["active-page-implementation"]} stale-clean-pr-mismatch=${laneKindCounts["stale-clean-pr-mismatch"]} merge-conflict=${laneKindCounts["merge-conflict"]} checks-blocked=${laneKindCounts["checks-blocked"]} metadata-unavailable=${laneKindCounts["metadata-unavailable"]} unclassified=${laneKindCounts.unclassified}`,
   ];
 
   if (report.issues.length > 0) {
@@ -1469,6 +1570,12 @@ export function formatActivePrLaneReport(report: LaneDiscoveryReport): string {
     }
     if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
       details.push(`risk=${lane.queueMismatchRisk}`);
+    }
+    if (lane.plannerLaneKind) {
+      details.push(`lane-kind=${lane.plannerLaneKind}`);
+    }
+    if (lane.staleMismatchReason) {
+      details.push(`mismatch-reason=${lane.staleMismatchReason}`);
     }
     if (lane.metadataRefreshHints && lane.metadataRefreshHints.length > 0) {
       details.push(`metadata-refresh=${lane.metadataRefreshHints.join("; ")}`);

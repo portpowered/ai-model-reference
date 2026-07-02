@@ -5,10 +5,12 @@ import { join } from "node:path";
 import {
   classifyBranchDrift,
   classifyMergeability,
+  classifyPlannerLaneKind,
   determineQueueMismatchRisk,
   discoverActivePrLaneReport,
   discoverWorktreeLaneRecords,
   formatActivePrLaneReport,
+  formatStaleCleanPrMismatchReason,
   type PullRequestLookupResult,
   parseQueueLaneRecords,
   parseSessionLaneRecords,
@@ -299,6 +301,7 @@ describe("discoverActivePrLaneReport", () => {
         checkHealth: "pending",
         mergeabilityClass: "check-blocked",
         queueMismatchRisk: "checks-blocked",
+        plannerLaneKind: "checks-blocked",
         nextAction: "wait",
         reasons: [],
       },
@@ -559,6 +562,7 @@ describe("discoverActivePrLaneReport", () => {
           checkHealth: "failing",
           mergeabilityClass: "conflicting",
           queueMismatchRisk: "conflict-drift",
+          plannerLaneKind: "merge-conflict",
           nextAction: "refresh-branch",
           reasons: [],
         },
@@ -571,6 +575,7 @@ describe("discoverActivePrLaneReport", () => {
           workItemNameSource: "queue",
           worktreePath: ".claude/worktrees/beta",
           driftStatus: "unknown",
+          plannerLaneKind: "unclassified",
           reasons: ["no open PR metadata found for branch beta"],
         },
       ],
@@ -579,10 +584,13 @@ describe("discoverActivePrLaneReport", () => {
     expect(reportText).toContain("Active PR Mergeability Watchdog");
     expect(reportText).toContain("lanes=2 pr-backed=1 unclassified=1");
     expect(reportText).toContain(
-      "- status=pr-backed queue=active work-item=alpha work-item-source=metadata branch=alpha branch-source=metadata worktree=.claude/worktrees/alpha pr=#42 drift=diverged(ahead=2,behind=1) metadata=present mergeability=conflicting checks=failing risk=conflict-drift next-action=refresh-branch",
+      "classification active-page-implementation=0 stale-clean-pr-mismatch=0 merge-conflict=1 checks-blocked=0 metadata-unavailable=0 unclassified=1",
     );
     expect(reportText).toContain(
-      "pr=? drift=unknown reason=no open PR metadata found for branch beta",
+      "- status=pr-backed queue=active work-item=alpha work-item-source=metadata branch=alpha branch-source=metadata worktree=.claude/worktrees/alpha pr=#42 drift=diverged(ahead=2,behind=1) metadata=present mergeability=conflicting checks=failing risk=conflict-drift lane-kind=merge-conflict next-action=refresh-branch",
+    );
+    expect(reportText).toContain(
+      "- status=unclassified queue=failed work-item=beta work-item-source=queue branch=beta branch-source=? worktree=.claude/worktrees/beta pr=? drift=unknown lane-kind=unclassified reason=no open PR metadata found for branch beta",
     );
   });
 });
@@ -977,6 +985,73 @@ describe("story 002 classification helpers", () => {
         checkHealth: "unavailable",
       }),
     ).toBe("repair-token");
+  });
+
+  test("labels clean passing PRs with failed queue tokens as stale-clean-pr-mismatch", () => {
+    const lane = {
+      status: "pr-backed" as const,
+      workItemName: "tokens-per-second-serving-metric-page",
+      queueState: "failed" as const,
+      rawQueueState: "failed",
+      prNumber: 251,
+      mergeabilityClass: "mergeable" as const,
+      checkHealth: "passing" as const,
+      queueMismatchRisk: "queue-stale" as const,
+    };
+
+    expect(classifyPlannerLaneKind(lane)).toBe("stale-clean-pr-mismatch");
+    expect(formatStaleCleanPrMismatchReason(lane)).toBe(
+      "clean-passing-open-pr-with-queue-failed pr=#251 queue=failed(failed) mergeability=mergeable checks=passing work-item=tokens-per-second-serving-metric-page",
+    );
+
+    const reportText = formatActivePrLaneReport({
+      issues: [],
+      lanes: [
+        {
+          ...lane,
+          branchName: "tokens-per-second-serving-metric-page",
+          workItemNameSource: "metadata",
+          branchMetadataSource: "metadata",
+          metadataStatus: "present",
+          worktreePath:
+            ".claude/worktrees/tokens-per-second-serving-metric-page",
+          driftStatus: "diverged",
+          commitsAheadOfMain: 10,
+          commitsBehindMain: 102,
+          plannerLaneKind: "stale-clean-pr-mismatch",
+          staleMismatchReason: formatStaleCleanPrMismatchReason(lane),
+          nextAction: "open-follow-up-throughput-prd",
+          reasons: [],
+        },
+        {
+          status: "pr-backed",
+          workItemName: "alpha",
+          queueState: "active",
+          rawQueueState: "active",
+          branchName: "alpha",
+          workItemNameSource: "metadata",
+          branchMetadataSource: "metadata",
+          metadataStatus: "present",
+          worktreePath: ".claude/worktrees/alpha",
+          prNumber: 42,
+          mergeabilityClass: "mergeable",
+          checkHealth: "passing",
+          queueMismatchRisk: "none",
+          plannerLaneKind: "active-page-implementation",
+          reasons: [],
+        },
+      ],
+    });
+
+    expect(reportText).toContain(
+      "classification active-page-implementation=1 stale-clean-pr-mismatch=1 merge-conflict=0",
+    );
+    expect(reportText).toContain("lane-kind=stale-clean-pr-mismatch");
+    expect(reportText).toContain("mismatch-reason=clean-passing-open-pr-with-queue-failed pr=#251");
+    expect(reportText).toContain("lane-kind=active-page-implementation");
+    expect(reportText).not.toContain(
+      "lane-kind=active-page-implementation work-item=tokens-per-second-serving-metric-page",
+    );
   });
 
   test("surfaces auth failures as planner-usable metadata risk", () => {
