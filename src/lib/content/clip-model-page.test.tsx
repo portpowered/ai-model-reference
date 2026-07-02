@@ -1,3 +1,8 @@
+/**
+ * Retained per derived-page-validation policy: CLIP route rendering, acronym
+ * expansion in lead copy, architecture graph output, and inline glossary links
+ * cannot be expressed as derived bundle invariants.
+ */
 import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
