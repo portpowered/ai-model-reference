@@ -38,8 +38,9 @@ watchdog summaries, or planner-facing linkage reports.
   checks page bundle, registry, citation, graph, and focused-test surfaces on
   `origin/main`, records root-checkout dirty paths separately from shipped
   main evidence, inspects completed `latent-diffusion-paper-page`
-  worktree/branch path evidence against `origin/main`, and classifies every
-  reconciliation dirty path by ownership/intent. See
+  worktree/branch path evidence against `origin/main`, classifies every
+  reconciliation dirty path by ownership/intent, and emits root reconciliation
+  outcomes for safe stale-drift restore vs operator handoff. See
   [latent-diffusion-root-deletion-reconciliation-relevant-files](./latent-diffusion-root-deletion-reconciliation-relevant-files.md).
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.

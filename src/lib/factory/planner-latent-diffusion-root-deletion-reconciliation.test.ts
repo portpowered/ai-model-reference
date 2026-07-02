@@ -5,16 +5,19 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   buildLatentDiffusionRootDirtyPathClassificationReport,
+  buildLatentDiffusionRootReconciliationReport,
   classifyLatentDiffusionRootDirtyPaths,
   collectLatentDiffusionCompletedWorktreePathEvidence,
   collectLatentDiffusionOriginMainSurfaceEvidence,
   collectLatentDiffusionRootCheckoutEvidence,
   determineLatentDiffusionCompletedWorktreePathDisposition,
   determineLatentDiffusionLandedEvidenceVerificationStatus,
+  determineLatentDiffusionPathReconciliationPlan,
   determineLatentDiffusionRootPathClassification,
   formatLatentDiffusionCompletedWorktreeEvidenceReport,
   formatLatentDiffusionLandedEvidenceReport,
   formatLatentDiffusionRootDirtyPathClassificationReport,
+  formatLatentDiffusionRootReconciliationReport,
   inspectLatentDiffusionCompletedWorktreeEvidence,
   isLatentDiffusionSharedModifiedTestPath,
   isMergeCommitInLineage,
@@ -617,5 +620,231 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
     } finally {
       fixture.cleanup();
     }
+  });
+
+  test("buildLatentDiffusionRootReconciliationReport records cleared outcomes without handoff when checkout is clean", () => {
+    const fixture = createFixtureRepo();
+
+    try {
+      const branchName = LATENT_DIFFUSION_PAPER_PAGE_LANE_NAME;
+      runGit(fixture.repoRoot, ["branch", "-f", branchName, fixture.mainRef]);
+
+      const report = buildLatentDiffusionRootReconciliationReport({
+        generatedAtUtc: "2026-07-02T07:00:00.000Z",
+        remoteBaseRef: fixture.mainRef,
+        repoRoot: fixture.repoRoot,
+        runGit: (repoRoot, args) => {
+          const result = spawnSync("git", [...args], {
+            cwd: repoRoot,
+            encoding: "utf8",
+          });
+          return {
+            status: result.status,
+            stdout: result.stdout ?? "",
+            stderr: result.stderr ?? "",
+          };
+        },
+      });
+
+      expect(report.allPathsCleared).toBe(true);
+      expect(report.handoffRequired).toBe(false);
+      expect(report.operatorHandoff).toBeNull();
+      expect(report.cleanupPerformedCount).toBe(0);
+      expect(report.pathOutcomes).toHaveLength(
+        LATENT_DIFFUSION_RECONCILIATION_DIRTY_PATHS.length,
+      );
+      expect(
+        report.pathOutcomes.every((outcome) => outcome.finalRootState === "cleared"),
+      ).toBe(true);
+
+      const formatted = formatLatentDiffusionRootReconciliationReport(report);
+      expect(formatted).toContain("Root Reconciliation Outcome");
+      expect(formatted).toContain("operator-handoff: none");
+      expect(formatted).toContain("all-paths-cleared=true");
+    } finally {
+      fixture.cleanup();
+    }
+  });
+
+  test("buildLatentDiffusionRootReconciliationReport performs safe stale-drift cleanup and produces handoff for blocked shared tests", () => {
+    const fixture = createFixtureRepo();
+
+    try {
+      const branchName = LATENT_DIFFUSION_PAPER_PAGE_LANE_NAME;
+      runGit(fixture.repoRoot, ["branch", "-f", branchName, fixture.mainRef]);
+
+      const pagePath = "src/content/docs/papers/latent-diffusion/page.mdx";
+      runGit(fixture.repoRoot, ["rm", pagePath]);
+
+      const statusOutput = [
+        " D src/content/docs/papers/latent-diffusion/page.mdx",
+        " M src/lib/content/registry-runtime.test.ts",
+      ].join("\n");
+
+      const runGitFn = (repoRoot: string, args: readonly string[]) => {
+        const result = spawnSync("git", [...args], {
+          cwd: repoRoot,
+          encoding: "utf8",
+        });
+        return {
+          status: result.status,
+          stdout: result.stdout ?? "",
+          stderr: result.stderr ?? "",
+        };
+      };
+
+      const dryRunReport = buildLatentDiffusionRootReconciliationReport({
+        classificationReport: buildLatentDiffusionRootDirtyPathClassificationReport({
+          completedWorktreeReport: inspectLatentDiffusionCompletedWorktreeEvidence({
+            branchName,
+            remoteBaseRef: fixture.mainRef,
+            repoRoot: fixture.repoRoot,
+            worktreePath: "/tmp/latent-diffusion-paper-page",
+            runGit: runGitFn,
+          }),
+          generatedAtUtc: "2026-07-02T07:15:00.000Z",
+          landedEvidenceReport: verifyLatentDiffusionLandedEvidence({
+            generatedAtUtc: "2026-07-02T07:15:00.000Z",
+            remoteBaseRef: fixture.mainRef,
+            repoRoot: fixture.repoRoot,
+            statusOutput,
+            runGit: runGitFn,
+          }),
+          remoteBaseRef: fixture.mainRef,
+          repoRoot: fixture.repoRoot,
+          runGit: runGitFn,
+        }),
+        dryRun: true,
+        generatedAtUtc: "2026-07-02T07:15:00.000Z",
+        performCleanup: false,
+        remoteBaseRef: fixture.mainRef,
+        repoRoot: fixture.repoRoot,
+        runGit: runGitFn,
+      });
+
+      const pageDryRunOutcome = dryRunReport.pathOutcomes.find(
+        (outcome) => outcome.path === pagePath,
+      );
+      expect(pageDryRunOutcome).toEqual(
+        expect.objectContaining({
+          classification: "stale-merge-checkouter-drift",
+          cleanupPerformed: false,
+          finalRootState: "blocked",
+          plannedCleanupAction: "restore-from-remote-base-ref",
+        }),
+      );
+      expect(dryRunReport.handoffRequired).toBe(true);
+      expect(dryRunReport.operatorHandoff?.blockingPaths).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: "src/lib/content/registry-runtime.test.ts",
+            classification: "blocked-unknown",
+          }),
+        ]),
+      );
+
+      const cleanupReport = buildLatentDiffusionRootReconciliationReport({
+        classificationReport: buildLatentDiffusionRootDirtyPathClassificationReport({
+          completedWorktreeReport: inspectLatentDiffusionCompletedWorktreeEvidence({
+            branchName,
+            remoteBaseRef: fixture.mainRef,
+            repoRoot: fixture.repoRoot,
+            worktreePath: "/tmp/latent-diffusion-paper-page",
+            runGit: runGitFn,
+          }),
+          generatedAtUtc: "2026-07-02T07:20:00.000Z",
+          landedEvidenceReport: verifyLatentDiffusionLandedEvidence({
+            generatedAtUtc: "2026-07-02T07:20:00.000Z",
+            remoteBaseRef: fixture.mainRef,
+            repoRoot: fixture.repoRoot,
+            statusOutput,
+            runGit: runGitFn,
+          }),
+          remoteBaseRef: fixture.mainRef,
+          repoRoot: fixture.repoRoot,
+          runGit: runGitFn,
+        }),
+        dryRun: false,
+        generatedAtUtc: "2026-07-02T07:20:00.000Z",
+        performCleanup: true,
+        remoteBaseRef: fixture.mainRef,
+        repoRoot: fixture.repoRoot,
+        runGit: runGitFn,
+      });
+
+      const pageCleanupOutcome = cleanupReport.pathOutcomes.find(
+        (outcome) => outcome.path === pagePath,
+      );
+      expect(pageCleanupOutcome).toEqual(
+        expect.objectContaining({
+          cleanupPerformed: true,
+          finalRootState: "cleared",
+        }),
+      );
+      expect(cleanupReport.cleanupPerformedCount).toBe(1);
+
+      const existsAfterCleanup = spawnSync(
+        "git",
+        ["cat-file", "-e", `HEAD:${pagePath}`],
+        { cwd: fixture.repoRoot, encoding: "utf8" },
+      );
+      expect(existsAfterCleanup.status).toBe(0);
+
+      const formatted =
+        formatLatentDiffusionRootReconciliationReport(cleanupReport);
+      expect(formatted).toContain("cleanup-performed=true");
+      expect(formatted).toContain("operator-handoff summary=");
+    } finally {
+      fixture.cleanup();
+    }
+  });
+
+  test("determineLatentDiffusionPathReconciliationPlan maps classifications to cleanup or handoff actions", () => {
+    expect(
+      determineLatentDiffusionPathReconciliationPlan({
+        classification: {
+          changedInCompletedBranchDiff: false,
+          classification: "cleared",
+          completedWorktreeDisposition: "existed-unchanged",
+          evidence: [],
+          headPresent: null,
+          isSharedModifiedTestPath: false,
+          path: "src/content/docs/papers/latent-diffusion/page.mdx",
+          presentOnOriginMain: true,
+          rootCheckoutStatus: "clean",
+          statusCode: null,
+        },
+        remoteBaseRef: "origin/main",
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        finalRootState: "cleared",
+        plannedCleanupAction: "none",
+      }),
+    );
+
+    expect(
+      determineLatentDiffusionPathReconciliationPlan({
+        classification: {
+          changedInCompletedBranchDiff: false,
+          classification: "stale-merge-checkouter-drift",
+          completedWorktreeDisposition: "existed-unchanged",
+          evidence: ["root-checkout-status=deleted"],
+          headPresent: false,
+          isSharedModifiedTestPath: false,
+          path: "src/content/docs/papers/latent-diffusion/page.mdx",
+          presentOnOriginMain: true,
+          rootCheckoutStatus: "deleted",
+          statusCode: " D",
+        },
+        remoteBaseRef: "origin/main",
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        finalRootState: "cleared",
+        plannedCleanupAction: "restore-from-remote-base-ref",
+        operatorDecisionNeeded: null,
+      }),
+    );
   });
 });

@@ -1206,3 +1206,359 @@ export function serializeLatentDiffusionRootDirtyPathClassificationReport(
 ): string {
   return JSON.stringify(report, null, 2);
 }
+
+export type LatentDiffusionFinalRootState =
+  | "cleared"
+  | "explicitly-owned"
+  | "blocked";
+
+export type LatentDiffusionReconciliationCleanupAction =
+  | "none"
+  | "restore-from-remote-base-ref"
+  | "handoff-required";
+
+export interface LatentDiffusionPathReconciliationOutcome {
+  classification: LatentDiffusionRootPathClassification;
+  cleanupPerformed: boolean;
+  cleanupSafetyRationale: string | null;
+  finalRootState: LatentDiffusionFinalRootState;
+  operatorDecisionNeeded: string | null;
+  ownershipProof: string[];
+  path: string;
+  plannedCleanupAction: LatentDiffusionReconciliationCleanupAction;
+  priorRootCheckoutStatus: LatentDiffusionRootCheckoutStatus;
+  priorStatusCode: string | null;
+}
+
+export interface LatentDiffusionOperatorHandoffPath {
+  classification: LatentDiffusionRootPathClassification;
+  observedRootCheckoutStatus: LatentDiffusionRootCheckoutStatus;
+  operatorDecisionNeeded: string;
+  path: string;
+  statusCode: string | null;
+}
+
+export interface LatentDiffusionOperatorHandoff {
+  blockingPaths: LatentDiffusionOperatorHandoffPath[];
+  summary: string;
+}
+
+export interface LatentDiffusionRootReconciliationReport {
+  allPathsCleared: boolean;
+  blockedCount: number;
+  cleanupPerformedCount: number;
+  clearedCount: number;
+  explicitlyOwnedCount: number;
+  generatedAtUtc: string;
+  handoffRequired: boolean;
+  operatorHandoff: LatentDiffusionOperatorHandoff | null;
+  pathOutcomes: LatentDiffusionPathReconciliationOutcome[];
+  remoteBaseRef: string;
+  repoRoot: string;
+  staleDriftCleanupCount: number;
+}
+
+export interface BuildLatentDiffusionRootReconciliationReportOptions {
+  classificationReport?: LatentDiffusionRootDirtyPathClassificationReport;
+  completedWorktreeReport?: LatentDiffusionCompletedWorktreeEvidenceReport;
+  dryRun?: boolean;
+  generatedAtUtc?: string;
+  landedEvidenceReport?: LatentDiffusionLandedEvidenceReport;
+  performCleanup?: boolean;
+  remoteBaseRef?: string;
+  repoRoot?: string;
+  runGit?: RunGit;
+  runGitStatus?: RunGitStatus;
+  statusOutput?: string;
+}
+
+export function determineLatentDiffusionPathReconciliationPlan(input: {
+  classification: LatentDiffusionRootDirtyPathClassificationEvidence;
+  remoteBaseRef: string;
+}): Pick<
+  LatentDiffusionPathReconciliationOutcome,
+  | "cleanupSafetyRationale"
+  | "finalRootState"
+  | "operatorDecisionNeeded"
+  | "ownershipProof"
+  | "plannedCleanupAction"
+> {
+  const { classification, remoteBaseRef } = input;
+
+  switch (classification.classification) {
+    case "cleared":
+      return {
+        cleanupSafetyRationale:
+          "No root dirty status; path already matches shipped reconciliation state.",
+        finalRootState: "cleared",
+        operatorDecisionNeeded: null,
+        ownershipProof: [],
+        plannedCleanupAction: "none",
+      };
+    case "stale-merge-checkouter-drift":
+      return {
+        cleanupSafetyRationale: `Content exists on ${remoteBaseRef} and the completed lane did not remove this path; restoring from ${remoteBaseRef} clears stale checkout drift without discarding shipped content.`,
+        finalRootState: "cleared",
+        operatorDecisionNeeded: null,
+        ownershipProof: [
+          `present-on-${remoteBaseRef}=true`,
+          `completed-worktree-disposition=${classification.completedWorktreeDisposition ?? "unavailable"}`,
+          "no-completed-branch-removal-signal",
+          ...classification.evidence,
+        ],
+        plannedCleanupAction: "restore-from-remote-base-ref",
+      };
+    case "operator-owned-work":
+      return {
+        cleanupSafetyRationale: null,
+        finalRootState: "explicitly-owned",
+        operatorDecisionNeeded:
+          "Retain operator modifications; do not restore from origin/main without explicit review.",
+        ownershipProof: [...classification.evidence],
+        plannedCleanupAction: "none",
+      };
+    case "intended-removal":
+      return {
+        cleanupSafetyRationale: null,
+        finalRootState: "blocked",
+        operatorDecisionNeeded:
+          "Confirm whether this path should remain deleted or be restored from origin/main.",
+        ownershipProof: [...classification.evidence],
+        plannedCleanupAction: "handoff-required",
+      };
+    case "blocked-unknown":
+      return {
+        cleanupSafetyRationale: null,
+        finalRootState: "blocked",
+        operatorDecisionNeeded: classification.isSharedModifiedTestPath
+          ? "Confirm whether shared test edits are operator-owned or stale drift before cleanup."
+          : "Confirm path ownership before any restore, stage, or delete action.",
+        ownershipProof: [...classification.evidence],
+        plannedCleanupAction: "handoff-required",
+      };
+  }
+}
+
+function restorePathFromRemoteBaseRef(input: {
+  path: string;
+  remoteBaseRef: string;
+  repoRoot: string;
+  runGit: RunGit;
+}): boolean {
+  const result = input.runGit(input.repoRoot, [
+    "restore",
+    `--source=${input.remoteBaseRef}`,
+    "--staged",
+    "--worktree",
+    "--",
+    input.path,
+  ]);
+  return result.status === 0;
+}
+
+export function buildLatentDiffusionPathReconciliationOutcomes(input: {
+  classificationReport: LatentDiffusionRootDirtyPathClassificationReport;
+  dryRun: boolean;
+  performCleanup: boolean;
+  remoteBaseRef: string;
+  repoRoot: string;
+  runGit: RunGit;
+}): LatentDiffusionPathReconciliationOutcome[] {
+  return input.classificationReport.pathClassifications.map((classification) => {
+    const plan = determineLatentDiffusionPathReconciliationPlan({
+      classification,
+      remoteBaseRef: input.remoteBaseRef,
+    });
+    let cleanupPerformed = false;
+    let finalRootState = plan.finalRootState;
+
+    if (
+      input.performCleanup &&
+      !input.dryRun &&
+      plan.plannedCleanupAction === "restore-from-remote-base-ref"
+    ) {
+      cleanupPerformed = restorePathFromRemoteBaseRef({
+        path: classification.path,
+        remoteBaseRef: input.remoteBaseRef,
+        repoRoot: input.repoRoot,
+        runGit: input.runGit,
+      });
+    }
+
+    if (plan.plannedCleanupAction === "restore-from-remote-base-ref") {
+      finalRootState = cleanupPerformed ? "cleared" : "blocked";
+    }
+
+    return {
+      classification: classification.classification,
+      cleanupPerformed,
+      cleanupSafetyRationale: plan.cleanupSafetyRationale,
+      finalRootState,
+      operatorDecisionNeeded: plan.operatorDecisionNeeded,
+      ownershipProof: plan.ownershipProof,
+      path: classification.path,
+      plannedCleanupAction: plan.plannedCleanupAction,
+      priorRootCheckoutStatus: classification.rootCheckoutStatus,
+      priorStatusCode: classification.statusCode,
+    };
+  });
+}
+
+export function buildLatentDiffusionOperatorHandoff(
+  pathOutcomes: LatentDiffusionPathReconciliationOutcome[],
+): LatentDiffusionOperatorHandoff | null {
+  const blockingPaths = pathOutcomes
+    .filter((outcome) => outcome.plannedCleanupAction === "handoff-required")
+    .map((outcome) => ({
+      classification: outcome.classification,
+      observedRootCheckoutStatus: outcome.priorRootCheckoutStatus,
+      operatorDecisionNeeded:
+        outcome.operatorDecisionNeeded ??
+        "Confirm path ownership before any cleanup action.",
+      path: outcome.path,
+      statusCode: outcome.priorStatusCode,
+    }))
+    .sort((left, right) => left.path.localeCompare(right.path));
+
+  if (blockingPaths.length === 0) {
+    return null;
+  }
+
+  return {
+    blockingPaths,
+    summary: `${blockingPaths.length} path(s) require operator ownership review before any restore, stage, or delete action.`,
+  };
+}
+
+export function buildLatentDiffusionRootReconciliationReport(
+  options: BuildLatentDiffusionRootReconciliationReportOptions = {},
+): LatentDiffusionRootReconciliationReport {
+  const repoRoot = resolve(options.repoRoot ?? process.cwd());
+  const runGit = options.runGit ?? defaultRunGit;
+  const runGitStatus = options.runGitStatus ?? defaultRunGitStatus;
+  const remoteBaseRef =
+    options.remoteBaseRef ?? detectDefaultRemoteBaseRef(repoRoot, runGit);
+  const classificationReport =
+    options.classificationReport ??
+    buildLatentDiffusionRootDirtyPathClassificationReport({
+      completedWorktreeReport: options.completedWorktreeReport,
+      generatedAtUtc: options.generatedAtUtc,
+      landedEvidenceReport: options.landedEvidenceReport,
+      remoteBaseRef,
+      repoRoot,
+      runGit,
+      runGitStatus,
+      statusOutput: options.statusOutput,
+    });
+  const performCleanup = options.performCleanup ?? false;
+  const dryRun = options.dryRun ?? !performCleanup;
+  const pathOutcomes = buildLatentDiffusionPathReconciliationOutcomes({
+    classificationReport,
+    dryRun,
+    performCleanup,
+    remoteBaseRef,
+    repoRoot,
+    runGit,
+  });
+  const operatorHandoff = buildLatentDiffusionOperatorHandoff(pathOutcomes);
+
+  const countByFinalState = (
+    finalRootState: LatentDiffusionFinalRootState,
+  ): number =>
+    pathOutcomes.filter((outcome) => outcome.finalRootState === finalRootState)
+      .length;
+
+  const cleanupPerformedCount = pathOutcomes.filter(
+    (outcome) => outcome.cleanupPerformed,
+  ).length;
+  const staleDriftCleanupCount = pathOutcomes.filter(
+    (outcome) =>
+      outcome.plannedCleanupAction === "restore-from-remote-base-ref",
+  ).length;
+  const handoffRequired = operatorHandoff !== null;
+  const allPathsCleared =
+    pathOutcomes.length > 0 &&
+    pathOutcomes.every((outcome) => outcome.finalRootState === "cleared");
+
+  return {
+    allPathsCleared,
+    blockedCount: countByFinalState("blocked"),
+    cleanupPerformedCount,
+    clearedCount: countByFinalState("cleared"),
+    explicitlyOwnedCount: countByFinalState("explicitly-owned"),
+    generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
+    handoffRequired,
+    operatorHandoff,
+    pathOutcomes,
+    remoteBaseRef,
+    repoRoot,
+    staleDriftCleanupCount,
+  };
+}
+
+function formatPathReconciliationOutcomeLine(
+  outcome: LatentDiffusionPathReconciliationOutcome,
+): string {
+  return [
+    `    - path=${outcome.path}`,
+    `classification=${outcome.classification}`,
+    `prior-root-checkout-status=${outcome.priorRootCheckoutStatus}`,
+    outcome.priorStatusCode
+      ? `prior-status-code=${outcome.priorStatusCode.trim()}`
+      : "prior-status-code=clean",
+    `final-root-state=${outcome.finalRootState}`,
+    `planned-cleanup-action=${outcome.plannedCleanupAction}`,
+    `cleanup-performed=${outcome.cleanupPerformed}`,
+    outcome.cleanupSafetyRationale
+      ? `cleanup-safety-rationale=${outcome.cleanupSafetyRationale}`
+      : "cleanup-safety-rationale=none",
+    outcome.operatorDecisionNeeded
+      ? `operator-decision-needed=${outcome.operatorDecisionNeeded}`
+      : "operator-decision-needed=none",
+    `ownership-proof=${outcome.ownershipProof.join("; ") || "none"}`,
+  ].join(" ");
+}
+
+export function formatLatentDiffusionRootReconciliationReport(
+  report: LatentDiffusionRootReconciliationReport,
+): string {
+  const lines = [
+    `${LATENT_DIFFUSION_ROOT_DELETION_RECONCILIATION_HEADER} — Root Reconciliation Outcome`,
+    `remote-base-ref=${report.remoteBaseRef} path-count=${report.pathOutcomes.length} cleared=${report.clearedCount} explicitly-owned=${report.explicitlyOwnedCount} blocked=${report.blockedCount} stale-drift-cleanup-planned=${report.staleDriftCleanupCount} cleanup-performed=${report.cleanupPerformedCount} handoff-required=${report.handoffRequired} all-paths-cleared=${report.allPathsCleared}`,
+  ];
+
+  for (const outcome of report.pathOutcomes) {
+    lines.push(formatPathReconciliationOutcomeLine(outcome));
+  }
+
+  if (report.operatorHandoff) {
+    lines.push(`- operator-handoff summary=${report.operatorHandoff.summary}`);
+    for (const blockingPath of report.operatorHandoff.blockingPaths) {
+      lines.push(
+        [
+          `    - blocking-path=${blockingPath.path}`,
+          `classification=${blockingPath.classification}`,
+          `observed-root-checkout-status=${blockingPath.observedRootCheckoutStatus}`,
+          blockingPath.statusCode
+            ? `status-code=${blockingPath.statusCode.trim()}`
+            : "status-code=clean",
+          `operator-decision-needed=${blockingPath.operatorDecisionNeeded}`,
+        ].join(" "),
+      );
+    }
+  } else {
+    lines.push("- operator-handoff: none");
+  }
+
+  lines.push(
+    "- reconciliation-note: only stale-merge-checkouter-drift paths may be restored from origin/main; blocked or operator-owned paths require explicit ownership before any file action.",
+  );
+
+  return lines.join("\n");
+}
+
+export function serializeLatentDiffusionRootReconciliationReport(
+  report: LatentDiffusionRootReconciliationReport,
+): string {
+  return JSON.stringify(report, null, 2);
+}

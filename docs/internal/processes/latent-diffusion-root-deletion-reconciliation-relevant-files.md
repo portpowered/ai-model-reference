@@ -34,7 +34,9 @@ on the current checkout head.
   completed `latent-diffusion-paper-page` worktree/branch comparison against
   `origin/main` for every reconciliation dirty path, and root dirty path
   ownership/intent classification (`stale-merge-checkouter-drift`,
-  `operator-owned-work`, `intended-removal`, `blocked-unknown`, `cleared`).
+  `operator-owned-work`, `intended-removal`, `blocked-unknown`, `cleared`),
+  and root reconciliation outcomes (`buildLatentDiffusionRootReconciliationReport`)
+  that plan or perform provably safe stale-drift restore vs operator handoff.
 * `src/lib/factory/planner-latent-diffusion-root-deletion-reconciliation.test.ts`
   — fixture git repo tests for shipped-vs-dirty separation and completed-worktree
   path evidence against `origin/main`.
@@ -118,6 +120,28 @@ The PRD-listed ownerless deletion drift was not reproduced on current head.
 Shared modified tests (`registry-runtime.test.ts`, `source.test.ts`) are
 explicitly flagged by `LATENT_DIFFUSION_SHARED_MODIFIED_TEST_PATHS` for
 `blocked-unknown` classification when dirty.
+
+## Story 004 — Safe cleanup or operator handoff (2026-07-02 UTC)
+
+Read-only reconciliation outcome via
+`buildLatentDiffusionRootReconciliationReport` (default `performCleanup: false`).
+No listed root path was modified during this story because all nine paths are
+already **cleared** in the repair worktree.
+
+| Path | Prior status | Final root state | Cleanup action | Handoff |
+| --- | --- | --- | --- | --- |
+| All nine `LATENT_DIFFUSION_RECONCILIATION_DIRTY_PATHS` | clean | cleared | none | none |
+
+**Outcome summary:** `all-paths-cleared=true`, `handoff-required=false`,
+`cleanup-performed=0`. The PRD-listed ownerless deletion drift was not
+reproduced; no `restore-from-remote-base-ref` action was required.
+
+When stale drift is present, only paths classified
+`stale-merge-checkouter-drift` with `present-on-origin-main=true` and no
+completed-branch removal signal may be restored via
+`git restore --source=<remote-base-ref> --staged --worktree`. Shared modified
+tests and other `blocked-unknown` paths produce an operator handoff naming the
+exact blocking paths and ownership decision needed.
 
 ## Verification commands
 
