@@ -200,6 +200,36 @@ Story 003 may verify the existing `85dfc333` / `efcf4dc5` refresh is current
 against live `origin/main`, capture final mergeability, and run page-level
 validation. No handoff or stale/duplicate closure is required.
 
+## Refresh completion (story 003, 2026-07-02T18:05Z UTC)
+
+**Outcome executed:** `refresh-safe` — merged current `origin/main` into
+`byte-level-tokenization-page` in the page lane worktree.
+
+| Field | Value |
+| --- | --- |
+| Merge commit | `f010c06496df7e7b3b91e2a86aede0f56a9ca9d5` |
+| Prior head | `efcf4dc554c38ad97a9ecbd29a363a85b3a39050` |
+| `origin/main` at merge | `d9ef966b7ecaa46cc19699033ec7d8bfdca16e24` |
+| Merge strategy | `git merge origin/main` (ort, no conflicts) |
+| Branch drift after merge | ahead=13, behind=0 vs `origin/main` |
+| WordPiece / BPE / policy files touched | none — merge brought in `ltx-23` model lane only |
+
+Conflict-free merge integrated seven `origin/main` commits (LTX-2.3 model page
+bundle, search-panel timeout stabilization, and related discovery tests) without
+touching byte-level tokenization surfaces.
+
+### Page-level validation (local, 2026-07-02T18:05Z UTC)
+
+- `bun run typecheck` — pass
+- `bun run lint` — pass (3 pre-existing warnings in unrelated files)
+- `bun test src/lib/content/byte-level-tokenization` — 22 pass, 0 fail
+- `bun run validate-data` — pass
+
+### PR #289 post-refresh state
+
+Re-fetch after push of `f010c064` to `origin/byte-level-tokenization-page`.
+CI re-run expected on the updated head.
+
 ## Evidence commands (read-only)
 
 ```bash
