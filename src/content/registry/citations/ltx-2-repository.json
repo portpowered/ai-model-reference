@@ -1,0 +1,24 @@
+{
+  "id": "citation.ltx-2-repository",
+  "slug": "ltx-2-repository",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "LTX-Video repository",
+    "LTX-2 GitHub repository",
+    "Lightricks LTX open-source codebase"
+  ],
+  "tags": ["model-family", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "repository",
+  "authors": ["Lightricks"],
+  "title": "Lightricks/LTX-2",
+  "url": "https://github.com/Lightricks/LTX-2",
+  "mla": "Lightricks. \"Lightricks/LTX-2.\" GitHub, 2026, https://github.com/Lightricks/LTX-2.",
+  "year": 2026
+}
