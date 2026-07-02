@@ -157,6 +157,22 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata for both target
   branches, DIRTY/CONFLICTING GitHub state with passing CI, and non-mutating
   merge-tree conflict paths for story 002 classification.
+* [clean-open-pr-drain-current-handoffs-relevant-files](./clean-open-pr-drain-current-handoffs-relevant-files.md)
+  — live evidence for open/merged handoff PRs #294/#290/#273/#271/#268/#251:
+  queue row mapping on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, mergeability
+  and CI status, PR #294 merged/consumed proof, conflict-drift on #290/#273,
+  merge-ready #271/#268, queue-stale and review-blocked #251, read-only capture
+  boundary for story 001, story 002 per-PR convergence outcomes
+  (`already-consumed`, `merge-ready-handoff`, `blocked-owner-handoff`,
+  `duplicate-or-stale`) with duplicate-content guard table, and story 003 content
+  PR handoffs for #271 (merge-ready), #290 (duplicate-or-stale close), and #251
+  (blocked-owner) with browser verification on consumed #289 main surface and
+  merge-ready #271 owner worktree, story 004 non-content repair handoffs for
+  #273 (blocked merge/queue recovery), #268 (merge-ready terminal-audit), and
+  #294 (already-consumed generic conflict refresh) with dirty-root and
+  no-new-content scope guards, and story 005 final planner drain report with
+  per-PR outcome table, planner action buckets (consume/review/blocked), scope
+  safety confirmation, and quality-gate evidence.
 * [dirty-generic-pr277-pr279-conflict-refresh-relevant-files](./dirty-generic-pr277-pr279-conflict-refresh-relevant-files.md)
   — batch 074 follow-up after completed batch 073 handoff: fresh DIRTY/CONFLICTING
   state on heads `6a1530a0` / `e5defbc8`, batch 066 drain still `idea:init`,
