@@ -141,5 +141,6 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   `bun run report:planner-root-checkout-reconciliation` on the planner root.
 * [tokens-per-second-pr251-merge-handoff-relevant-files](./tokens-per-second-pr251-merge-handoff-relevant-files.md)
   — PR #251 merge-handoff evidence snapshot: current GitHub/queue/watchdog state,
-  prior stale follow-up outcome, and why `queue-stale` persists. Fixture tests in
+  prior stale follow-up outcome, why `queue-stale` persists, and story 002 recovery
+  decision (**safe branch refresh** on content branch). Fixture tests in
   `src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility.test.ts`.

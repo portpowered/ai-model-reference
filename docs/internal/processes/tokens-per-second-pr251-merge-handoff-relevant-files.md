@@ -224,7 +224,83 @@ Summary for planner:
 | GitHub mergeability | PASS — MERGEABLE / CLEAN |
 
 No newer PR conversation comment supersedes or clears this BLOCKING review as of
-2026-07-02T05:07:42Z UTC.
+2026-07-02T05:07:42Z UTC (reconfirmed 2026-07-02T06:30:00Z UTC via
+`gh api …/issues/251/comments`).
+
+## Lane decision (story 002)
+
+**Single recovery action: safe branch refresh on PR #251 content branch**
+
+The `tokens-per-second-serving-metric-page` content lane must refresh branch
+`tokens-per-second-serving-metric-page` (worktree
+`.claude/worktrees/tokens-per-second-serving-metric-page`) until project
+acceptance clears on PR #251. Do **not** merge PR #251 from this merge-handoff
+lane. Do **not** repair queue tokens alone while BLOCKING review remains.
+
+### Why verification cannot proceed without refresh
+
+| Gate | Head `381abe9a` (2026-07-02 UTC) |
+| --- | --- |
+| GitHub mergeability | MERGEABLE / CLEAN — insufficient alone |
+| GitHub CI | 11/11 SUCCESS — insufficient alone |
+| `audit:canonical-page-surface` | **FAIL** — over-budget; shared hotspot `src/lib/content/prose-auto-link-runtime.ts`; recommended action `declare-exception` / redirect shared work to throughput lane |
+| Browser QA | **FAIL** — Browser-plugin QA on `/docs/glossary/tokens-per-second` not completed on current head |
+| Latest PR conversation review | **BLOCKING** — 2026-07-02T03:31:22Z UTC; no newer comment supersedes it |
+
+Merge and queue-success transitions require clearing the BLOCKING review, not
+only green GitHub checks. The failed `work-task-155` token is **authoritative**
+for this mismatch; `idea:to-complete` is the planner-distortion source.
+
+### Why this action is safer than the alternatives
+
+| Alternative | Why not chosen |
+| --- | --- |
+| Operator merge handoff | BLOCKING review on head `381abe9a` — merge would violate project acceptance despite MERGEABLE/CLEAN |
+| Manual queue repair alone | Would reconcile `idea:to-complete` without fixing surface-budget or Browser QA blockers; masks a real failed task (rejected in stale follow-up story 002) |
+| Explicit resume/refill | PR #251 still blocks planning — BLOCKING review unresolved, watchdog still emits `risk=queue-stale` |
+
+Prior `tokens-per-second-stale-pr-follow-up` also chose refresh but did not
+complete it. This merge-handoff lane records the **same action class** with
+post-`381abe9a` operator steps so the planner has one verifiable recovery path
+instead of ambiguous stale state.
+
+### Operator refresh steps (content lane only; limits scope to PR #251 branch)
+
+Work only on branch `tokens-per-second-serving-metric-page` and its worktree.
+Do not edit tokens-per-second page payload from this merge-handoff worktree.
+
+1. **Resolve shared surface on the content branch.** Either:
+   - revert `src/lib/content/prose-auto-link-runtime.ts` to `origin/main` and
+     keep the page-local alias strategy within budget (e.g. multi-word aliases
+     without bare `throughput` auto-link collisions), **or**
+   - move the `SYSTEM_ALIAS_AMBIGUITY_CANDIDATES` / bare-`throughput` prose
+     auto-link work to the throughput/conflict-reduction lane required by the
+     audit policy (do not hide shared runtime edits in the page-local PR).
+2. **Complete Browser-plugin QA** on `/docs/glossary/tokens-per-second`; post
+   observed title, metric distinctions, graph, related links, and mobile layout
+   in PR #251 conversation.
+3. **Re-run page-local gates** on the content worktree head and push only
+   page-local fixes:
+   ```bash
+   bun run audit:canonical-page-surface -- --page-dir src/content/docs/glossary/tokens-per-second
+   make validate-data && bun run doctor:content-pr
+   bun run typecheck && bun run lint && make test
+   gh pr checks 251
+   ```
+4. **Post PR conversation evidence** mapping each BLOCKING item to the fix;
+   wait for BLOCKING review to be cleared or explicitly superseded.
+5. **After refresh clears BLOCKING review**, operator may merge PR #251 and then
+   reconcile queue tokens in session `0fdc5077-95ed-4396-a183-06e5b16555ca`
+   (`work-task-155`, `idea:to-complete`) — queue repair is a **separate**
+   post-merge operator step, not this lane's chosen action.
+
+### Refresh scope guard
+
+- Branch: `tokens-per-second-serving-metric-page` only.
+- Worktree: `.claude/worktrees/tokens-per-second-serving-metric-page` only.
+- PR: #251 only.
+- This merge-handoff lane (`tokens-per-second-pr251-merge-handoff`) records
+  evidence and decision only; it does not push content-branch commits.
 
 ## Verification for story 001
 
@@ -234,3 +310,12 @@ No newer PR conversation comment supersedes or clears this BLOCKING review as of
 | Focused command verification | `gh pr view 251`, `gh pr checks 251`, `you work list --session …`, fixture watchdog/ledger above |
 | Focused tests | `bun test src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility.test.ts` |
 | Content page payload | not modified by this lane |
+
+## Verification for story 002
+
+| Gate | Result |
+| --- | --- |
+| Typecheck | not rerun — handoff-only decision; no code changes |
+| Focused command verification | `gh pr view 251` (OPEN, MERGEABLE, CLEAN, head `381abe9a`), `gh api …/issues/251/comments` (latest BLOCKING 2026-07-02T03:31:22Z), `you work list --session …` |
+| Decision recorded | **safe branch refresh** on `tokens-per-second-serving-metric-page` with operator steps above |
+| Content page payload | not modified |
