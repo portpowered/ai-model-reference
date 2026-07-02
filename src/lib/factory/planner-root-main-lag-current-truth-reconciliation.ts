@@ -19,6 +19,15 @@ export const ROOT_MAIN_LAG_DEFAULT_PLANNER_REPORT_PATHS = [
   "docs/internal/processes/root-main-lag-current-truth-reconciliation-relevant-files.md",
 ] as const;
 
+export const ROOT_MAIN_LAG_RECONCILIATION_PRESERVE_POLICY =
+  "Do not revert, reset, restore, clean, or discard dirty root work; defer fast-forward sync when the checkout is dirty.";
+
+export const ROOT_MAIN_LAG_RECONCILIATION_SCOPE_LIMIT =
+  "Handoff output is limited to root git truth capture, queue/planner-report comparison, and the smallest safe sync or planner-report note update; do not edit content page bundles.";
+
+export const ROOT_MAIN_LAG_RECONCILIATION_VERIFICATION_COMMAND =
+  "bun run report:planner-root-main-lag-current-truth-reconciliation -- --repo-root <root> --apply --planner-report docs/internal/processes/root-main-lag-current-truth-reconciliation-relevant-files.md";
+
 export type RootWorktreeCleanliness = "clean" | "dirty";
 
 export type RootRemoteRelationship =
@@ -93,11 +102,27 @@ export interface RootMainLagReconciliationOutcome {
   updatedPlannerReportPath?: string;
 }
 
+export interface RootMainLagReconciliationScopeBoundaries {
+  preservePolicy: string;
+  scopeLimit: string;
+}
+
+export interface RootMainLagReconciliationVerificationEvidence {
+  dirtyStatePreventedUpdate?: string;
+  plannerArtifact: string;
+  postOutcomeRelationship: RootRemoteRelationship;
+  postOutcomeWorktree: RootWorktreeCleanliness;
+  userWorkReverted: false;
+  verificationCommand: string;
+}
+
 export interface RootMainLagCurrentTruthHandoff {
   generatedAtUtc: string;
   gitTruth: RootMainLagGitTruthEvidence;
   outcome?: RootMainLagReconciliationOutcome;
   queuePlannerComparison: RootMainLagQueuePlannerComparison;
+  scopeBoundaries?: RootMainLagReconciliationScopeBoundaries;
+  verificationEvidence?: RootMainLagReconciliationVerificationEvidence;
 }
 
 export interface RootMainLagPlannerReportInput {
@@ -821,8 +846,23 @@ export function buildRootMainLagCurrentTruthResolutionSection(
     );
   }
 
+  lines.push("| User work reverted | no |");
+  if (handoff.gitTruth.worktreeCleanliness === "dirty") {
+    lines.push(
+      `| Dirty state prevented update | ${handoff.gitTruth.dirtyPathCount} planner-relevant dirty path(s) in root checkout |`,
+    );
+  } else if (outcome.noUpdateReason?.includes("dirty")) {
+    lines.push(`| Dirty state prevented update | ${outcome.noUpdateReason} |`);
+  }
+
+  lines.push(
+    `| Post-outcome relationship | ${handoff.gitTruth.remoteRelationship} (${handoff.gitTruth.worktreeCleanliness} worktree) |`,
+  );
   lines.push(`| Operational summary | ${outcome.operationalSummary} |`);
   lines.push(`| Planner artifact | \`${plannerReportPath}\` (this file) |`);
+  lines.push(
+    `| Verification command | \`${ROOT_MAIN_LAG_RECONCILIATION_VERIFICATION_COMMAND}\` |`,
+  );
   lines.push("");
   lines.push(ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_END_MARKER);
   lines.push("");
@@ -1030,6 +1070,48 @@ export function applyRootMainLagReconciliationOutcome(
   };
 }
 
+export function buildRootMainLagReconciliationScopeBoundaries(): RootMainLagReconciliationScopeBoundaries {
+  return {
+    preservePolicy: ROOT_MAIN_LAG_RECONCILIATION_PRESERVE_POLICY,
+    scopeLimit: ROOT_MAIN_LAG_RECONCILIATION_SCOPE_LIMIT,
+  };
+}
+
+export function buildRootMainLagReconciliationVerificationEvidence(
+  handoff: RootMainLagCurrentTruthHandoff,
+): RootMainLagReconciliationVerificationEvidence {
+  const plannerArtifact =
+    handoff.outcome?.updatedPlannerReportPath ??
+    ROOT_MAIN_LAG_DEFAULT_PLANNER_REPORT_PATHS[0];
+  let dirtyStatePreventedUpdate: string | undefined;
+
+  if (handoff.gitTruth.worktreeCleanliness === "dirty") {
+    dirtyStatePreventedUpdate = `${handoff.gitTruth.dirtyPathCount} planner-relevant dirty path(s) in root checkout`;
+  } else if (handoff.outcome?.noUpdateReason?.includes("dirty")) {
+    dirtyStatePreventedUpdate = handoff.outcome.noUpdateReason;
+  }
+
+  return {
+    dirtyStatePreventedUpdate,
+    plannerArtifact,
+    postOutcomeRelationship: handoff.gitTruth.remoteRelationship,
+    postOutcomeWorktree: handoff.gitTruth.worktreeCleanliness,
+    userWorkReverted: false,
+    verificationCommand: ROOT_MAIN_LAG_RECONCILIATION_VERIFICATION_COMMAND,
+  };
+}
+
+function attachRootMainLagHandoffBoundariesAndVerification(
+  handoff: RootMainLagCurrentTruthHandoff,
+): RootMainLagCurrentTruthHandoff {
+  return {
+    ...handoff,
+    scopeBoundaries: buildRootMainLagReconciliationScopeBoundaries(),
+    verificationEvidence:
+      buildRootMainLagReconciliationVerificationEvidence(handoff),
+  };
+}
+
 export function performRootMainLagReconciliation(
   options: CaptureRootMainLagGitTruthOptions = {},
 ): RootMainLagCurrentTruthHandoff {
@@ -1040,13 +1122,13 @@ export function performRootMainLagReconciliation(
   );
 
   if (!options.apply) {
-    return {
+    return attachRootMainLagHandoffBoundariesAndVerification({
       ...handoff,
       outcome: {
         ...decidedOutcome,
         applyStatus: "not-requested",
       },
-    };
+    });
   }
 
   const appliedOutcome = applyRootMainLagReconciliationOutcome(
@@ -1064,11 +1146,11 @@ export function performRootMainLagReconciliation(
       ? captureRootMainLagGitTruth(options)
       : handoff.gitTruth;
 
-  return {
+  return attachRootMainLagHandoffBoundariesAndVerification({
     ...handoff,
     gitTruth: refreshedGitTruth,
     outcome: appliedOutcome,
-  };
+  });
 }
 
 export function buildRootMainLagCurrentTruthHandoff(
@@ -1138,6 +1220,37 @@ export function formatRootMainLagQueuePlannerComparison(
   return lines;
 }
 
+export function formatRootMainLagScopeBoundaries(
+  scopeBoundaries: RootMainLagReconciliationScopeBoundaries,
+): string[] {
+  return [
+    "- scope-boundaries",
+    `  - preserve-policy=${scopeBoundaries.preservePolicy}`,
+    `  - scope-limit=${scopeBoundaries.scopeLimit}`,
+  ];
+}
+
+export function formatRootMainLagVerificationEvidence(
+  verificationEvidence: RootMainLagReconciliationVerificationEvidence,
+): string[] {
+  const lines = [
+    "- verification-evidence",
+    `  - user-work-reverted=${verificationEvidence.userWorkReverted}`,
+    `  - post-outcome-relationship=${verificationEvidence.postOutcomeRelationship}`,
+    `  - post-outcome-worktree=${verificationEvidence.postOutcomeWorktree}`,
+    `  - planner-artifact=${verificationEvidence.plannerArtifact}`,
+    `  - verification-command=${verificationEvidence.verificationCommand}`,
+  ];
+
+  if (verificationEvidence.dirtyStatePreventedUpdate) {
+    lines.push(
+      `  - dirty-state-prevented-update=${verificationEvidence.dirtyStatePreventedUpdate}`,
+    );
+  }
+
+  return lines;
+}
+
 export function formatRootMainLagReconciliationOutcome(
   outcome: RootMainLagReconciliationOutcome,
 ): string[] {
@@ -1197,8 +1310,18 @@ export function formatRootMainLagCurrentTruthHandoff(
     ...formatRootMainLagQueuePlannerComparison(handoff.queuePlannerComparison),
   ];
 
+  if (handoff.scopeBoundaries) {
+    lines.push(...formatRootMainLagScopeBoundaries(handoff.scopeBoundaries));
+  }
+
   if (handoff.outcome) {
     lines.push(...formatRootMainLagReconciliationOutcome(handoff.outcome));
+  }
+
+  if (handoff.verificationEvidence) {
+    lines.push(
+      ...formatRootMainLagVerificationEvidence(handoff.verificationEvidence),
+    );
   }
 
   return lines.join("\n");

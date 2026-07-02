@@ -80,8 +80,24 @@ truth from story 001. Do not treat the stale row as current truth.
 | Stale notes retired | stale 2026-07-02T19:01Z 17-commit lag observation |
 | Operational summary | Root is clean and aligned with origin/main; no git update is needed. The stale 2026-07-02T19:01Z lag should be treated as historical context. |
 | Planner artifact | `docs/internal/processes/root-main-lag-current-truth-reconciliation-relevant-files.md` (this file) |
+| Verification command | `bun run report:planner-root-main-lag-current-truth-reconciliation -- --repo-root <root> --apply --planner-report docs/internal/processes/root-main-lag-current-truth-reconciliation-relevant-files.md` |
+| User work reverted | no |
+| Post-outcome relationship | aligned (clean worktree) |
 
 <!-- ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION:END -->
+
+## Verification evidence
+
+Future planners should read the **Current truth resolution** table above and
+re-run the verification command against the planner root checkout
+(`--repo-root` pointing at the root worktree, not this factory worktree).
+
+| Check | Expected |
+| --- | --- |
+| User work preserved | Resolution table shows `User work reverted = no` |
+| Post-outcome git truth | `Relationship` and `Worktree` rows match live `git status` and `origin/main...HEAD` |
+| Planner artifact | This file remains the canonical handoff; do not rely on the stale `2026-07-02T19:01Z` lag row |
+| Content-page boundary | This lane must not edit `src/content/**` page bundles |
 
 ## Boundaries
 
@@ -90,3 +106,6 @@ truth from story 001. Do not treat the stale row as current truth.
 * Do not revert, reset, or fast-forward the root during story 001–002 capture.
 * Story 003 may fast-forward a clean behind root or update this planner report
   when `--apply` is passed; preserve dirty or diverged user work.
+* Story 004 adds scope boundaries, verification evidence, and formatted handoff
+  fields proving no user work was reverted and identifying dirty state that
+  blocked root sync.

@@ -10,6 +10,8 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  buildRootMainLagReconciliationScopeBoundaries,
+  buildRootMainLagReconciliationVerificationEvidence,
   captureRootMainLagGitTruth,
   classifyRootMainLagNoteAlignment,
   classifyRootRemoteRelationship,
@@ -21,6 +23,9 @@ import {
   ROOT_MAIN_LAG_CURRENT_TRUTH_RECONCILIATION_HEADER,
   ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_END_MARKER,
   ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_START_MARKER,
+  ROOT_MAIN_LAG_RECONCILIATION_PRESERVE_POLICY,
+  ROOT_MAIN_LAG_RECONCILIATION_SCOPE_LIMIT,
+  ROOT_MAIN_LAG_RECONCILIATION_VERIFICATION_COMMAND,
   textClaimsCurrentRootMainLag,
   textContainsRootMainLagStaleMarker,
   upsertRootMainLagCurrentTruthResolutionSection,
@@ -791,5 +796,196 @@ describe("upsertRootMainLagCurrentTruthResolutionSection", () => {
     expect(updated).toContain("new");
     expect(updated).not.toContain("old");
     expect(updated).toContain("## Boundaries");
+  });
+});
+
+describe("root main lag reconciliation boundaries and verification", () => {
+  test("emits non-destructive scope boundaries in formatted handoff output", () => {
+    const scopeBoundaries = buildRootMainLagReconciliationScopeBoundaries();
+
+    expect(scopeBoundaries.preservePolicy).toBe(
+      ROOT_MAIN_LAG_RECONCILIATION_PRESERVE_POLICY,
+    );
+    expect(scopeBoundaries.scopeLimit).toBe(
+      ROOT_MAIN_LAG_RECONCILIATION_SCOPE_LIMIT,
+    );
+
+    const handoff = performRootMainLagReconciliation({
+      generatedAtUtc: "2026-07-02T22:00:00.000Z",
+      repoRoot: "/repo/root",
+      remoteBaseRef: "origin/main",
+      statusOutput: "",
+      runGit: (_repoRoot, args) => {
+        if (args[0] === "rev-parse") {
+          return {
+            status: 0,
+            stdout: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+            stderr: "",
+          };
+        }
+        if (args[0] === "symbolic-ref") {
+          return { status: 0, stdout: "main\n", stderr: "" };
+        }
+        if (args[0] === "rev-list") {
+          return { status: 0, stdout: "0\t0\n", stderr: "" };
+        }
+        return { status: 0, stdout: "", stderr: "" };
+      },
+    });
+
+    expect(handoff.scopeBoundaries).toEqual(scopeBoundaries);
+    expect(handoff.verificationEvidence?.userWorkReverted).toBe(false);
+
+    const formatted = formatRootMainLagCurrentTruthHandoff(handoff);
+    expect(formatted).toContain("- scope-boundaries");
+    expect(formatted).toContain(
+      `preserve-policy=${ROOT_MAIN_LAG_RECONCILIATION_PRESERVE_POLICY}`,
+    );
+    expect(formatted).toContain(
+      `scope-limit=${ROOT_MAIN_LAG_RECONCILIATION_SCOPE_LIMIT}`,
+    );
+    expect(formatted).toContain("- verification-evidence");
+    expect(formatted).toContain("user-work-reverted=false");
+    expect(formatted).toContain(
+      `verification-command=${ROOT_MAIN_LAG_RECONCILIATION_VERIFICATION_COMMAND}`,
+    );
+  });
+
+  test("identifies dirty state that prevented root sync in verification evidence", () => {
+    const gitTruth = captureRootMainLagGitTruth({
+      repoRoot: "/repo/root",
+      remoteBaseRef: "origin/main",
+      statusOutput: "?? local-edit.md",
+      runGit: (_repoRoot, args) => {
+        if (args[0] === "rev-parse") {
+          return {
+            status: 0,
+            stdout: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+            stderr: "",
+          };
+        }
+        if (args[0] === "symbolic-ref") {
+          return { status: 0, stdout: "main\n", stderr: "" };
+        }
+        if (args[0] === "rev-list") {
+          return { status: 0, stdout: "0\t2\n", stderr: "" };
+        }
+        return { status: 0, stdout: "", stderr: "" };
+      },
+    });
+    const comparison = compareQueueStateAndPlannerReportsAgainstGitTruth(
+      gitTruth,
+      {},
+    );
+    const outcome = decideRootMainLagReconciliationOutcome(
+      gitTruth,
+      comparison,
+    );
+    const handoff = {
+      generatedAtUtc: "2026-07-02T22:05:00.000Z",
+      gitTruth,
+      outcome: { ...outcome, applyStatus: "not-requested" as const },
+      queuePlannerComparison: comparison,
+    };
+    const verificationEvidence =
+      buildRootMainLagReconciliationVerificationEvidence(handoff);
+
+    expect(verificationEvidence.userWorkReverted).toBe(false);
+    expect(verificationEvidence.dirtyStatePreventedUpdate).toContain(
+      "planner-relevant dirty path",
+    );
+    expect(verificationEvidence.postOutcomeWorktree).toBe("dirty");
+  });
+
+  test("records post-outcome relationship and planner artifact in resolution section", () => {
+    const repoRoot = createFixtureRepo();
+    const plannerReportPath = join(
+      repoRoot,
+      "docs/internal/processes/root-main-lag-current-truth-reconciliation-relevant-files.md",
+    );
+    try {
+      runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "HEAD"]);
+      mkdirSync(join(repoRoot, "docs/internal/processes"), { recursive: true });
+      writeFileSync(
+        plannerReportPath,
+        "# Root lag\n\n## Boundaries\n\n- Do not run you.\n",
+        "utf8",
+      );
+
+      const handoff = performRootMainLagReconciliation({
+        apply: true,
+        generatedAtUtc: "2026-07-02T22:10:00.000Z",
+        plannerReportPath:
+          "docs/internal/processes/root-main-lag-current-truth-reconciliation-relevant-files.md",
+        repoRoot,
+        remoteBaseRef: "origin/main",
+        statusOutput: "",
+      });
+
+      const updatedReport = readFileSync(plannerReportPath, "utf8");
+      expect(updatedReport).toContain("| User work reverted | no |");
+      expect(updatedReport).toContain("| Post-outcome relationship | aligned");
+      expect(updatedReport).toContain(
+        "docs/internal/processes/root-main-lag-current-truth-reconciliation-relevant-files.md",
+      );
+      expect(updatedReport).toContain(
+        ROOT_MAIN_LAG_RECONCILIATION_VERIFICATION_COMMAND,
+      );
+      expect(handoff.verificationEvidence?.postOutcomeRelationship).toBe(
+        "aligned",
+      );
+      expect(handoff.verificationEvidence?.plannerArtifact).toBe(
+        "docs/internal/processes/root-main-lag-current-truth-reconciliation-relevant-files.md",
+      );
+    } finally {
+      rmSync(join(repoRoot, ".."), { recursive: true, force: true });
+    }
+  });
+
+  test("apply path writes only the planner report and never mutates content pages", () => {
+    const repoRoot = createFixtureRepo();
+    const plannerReportPath = join(
+      repoRoot,
+      "docs/internal/processes/root-main-lag-current-truth-reconciliation-relevant-files.md",
+    );
+    const contentPagePath = join(
+      repoRoot,
+      "src/content/docs/glossary/example.mdx",
+    );
+    try {
+      runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "HEAD"]);
+      mkdirSync(join(repoRoot, "docs/internal/processes"), { recursive: true });
+      mkdirSync(join(repoRoot, "src/content/docs/glossary"), {
+        recursive: true,
+      });
+      writeFileSync(
+        plannerReportPath,
+        "# Root lag\n\n## Boundaries\n\n- Do not run you.\n",
+        "utf8",
+      );
+      writeFileSync(
+        contentPagePath,
+        "---\ntitle: Example\n---\n\n# Example\n",
+        "utf8",
+      );
+      const contentBefore = readFileSync(contentPagePath, "utf8");
+
+      performRootMainLagReconciliation({
+        apply: true,
+        generatedAtUtc: "2026-07-02T22:15:00.000Z",
+        plannerReportPath:
+          "docs/internal/processes/root-main-lag-current-truth-reconciliation-relevant-files.md",
+        repoRoot,
+        remoteBaseRef: "origin/main",
+        statusOutput: "",
+      });
+
+      expect(readFileSync(contentPagePath, "utf8")).toBe(contentBefore);
+      expect(readFileSync(plannerReportPath, "utf8")).toContain(
+        ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_START_MARKER,
+      );
+    } finally {
+      rmSync(join(repoRoot, ".."), { recursive: true, force: true });
+    }
   });
 });
