@@ -1,29 +1,21 @@
 {
-  "id": "training-regime.post-training",
-  "slug": "post-training",
+  "id": "training-regime.rlhf",
+  "slug": "rlhf",
   "kind": "training-regime",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
   "aliases": [
-    "Post-Training",
-    "post-training",
-    "post training",
-    "alignment training",
-    "behavior shaping"
+    "RLHF",
+    "reinforcement learning from human feedback",
+    "human feedback reinforcement learning",
+    "preference reinforcement learning"
   ],
-  "tags": ["foundations", "alignment"],
+  "tags": ["alignment", "foundations"],
   "relatedIds": [
-    "training-regime.pretraining",
     "concept.alignment",
-    "training-regime.rlhf",
-    "training-regime.dpo",
-    "training-regime.grpo",
     "training-regime.instruction-tuning",
-    "training-regime.specialist-training",
-    "model.gpt-3",
-    "model.llama-3",
-    "model.deepseek-v4-pro",
-    "model.deepseek-v4-flash"
+    "training-regime.dpo",
+    "training-regime.post-training"
   ],
   "citationIds": [
     "citation.training-language-models-to-follow-instructions-with-human-feedback"
@@ -55,11 +47,11 @@
     "Ryan Lowe"
   ],
   "sourceId": "citation.training-language-models-to-follow-instructions-with-human-feedback",
-  "primaryClassificationId": "classification.training",
-  "regimeType": "post-training",
+  "primaryClassificationId": "classification.training.alignment",
+  "regimeType": "alignment",
   "usedByModelIds": [],
   "relatedModuleIds": [],
   "paperIds": [],
   "conceptType": "training",
-  "variantGroup": "language-model-training-stages"
+  "variantGroup": "alignment-rlhf"
 }

@@ -109,8 +109,6 @@ describe("post-training training-regime discovery contracts", () => {
       "Post-Training",
       "post-training",
       "post training",
-      "RLHF",
-      "reinforcement learning from human feedback",
       "alignment training",
       "behavior shaping",
     ]);
@@ -118,6 +116,7 @@ describe("post-training training-regime discovery contracts", () => {
     expect(record?.relatedIds).toEqual([
       "training-regime.pretraining",
       "concept.alignment",
+      "training-regime.rlhf",
       "training-regime.dpo",
       "training-regime.grpo",
       "training-regime.instruction-tuning",
@@ -199,7 +198,7 @@ describe("post-training training-regime discovery contracts", () => {
     expect(html).toContain('href="/docs/training/dpo"');
     expect(html).toContain('href="/docs/concepts/alignment"');
     expect(html).toContain('href="/docs/training/instruction-tuning"');
-    expect(html).toContain('href="/search?q=RLHF"');
+    expect(html).toContain('href="/docs/training/rlhf"');
     expect(html).toContain('href="/docs/models/gpt-3"');
     expect(html).toContain('href="/docs/models/llama-3"');
     expect(html).toContain('href="/docs/models/deepseek-v4-pro"');
@@ -208,7 +207,7 @@ describe("post-training training-regime discovery contracts", () => {
     expect(html).toContain(">Direct Preference Optimization<");
     expect(html).toContain(">Alignment<");
     expect(html).toContain(">Instruction tuning<");
-    expect(html).toContain(">RLHF search<");
+    expect(html).toContain(">RLHF<");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain(
@@ -239,15 +238,12 @@ describe("post-training training-regime discovery contracts", () => {
     );
     expect(document?.kind).toBe("training-regime");
     expect(document?.aliases).toEqual(
-      expect.arrayContaining([
-        "RLHF",
-        "alignment training",
-        "behavior shaping",
-      ]),
+      expect.arrayContaining(["alignment training", "behavior shaping"]),
     );
     expect(document?.relatedIds).toEqual([
       "training-regime.pretraining",
       "concept.alignment",
+      "training-regime.rlhf",
       "training-regime.dpo",
       "training-regime.grpo",
       "training-regime.instruction-tuning",
@@ -258,21 +254,15 @@ describe("post-training training-regime discovery contracts", () => {
       "model.deepseek-v4-flash",
     ]);
 
-    for (const query of ["post-training", "behavior shaping"]) {
+    for (const query of [
+      "post-training",
+      "behavior shaping",
+      "alignment training",
+    ]) {
       const results = await docsSearchApi.search(query);
       expect(pageBaseUrl(results[0]?.url ?? "")).toBe(
         "/docs/training/post-training",
       );
-    }
-
-    for (const query of ["RLHF", "alignment training"]) {
-      const results = await docsSearchApi.search(query);
-      expect(
-        results.some(
-          (result) =>
-            pageBaseUrl(result.url) === "/docs/training/post-training",
-        ),
-      ).toBe(true);
     }
   });
 });
