@@ -57,6 +57,18 @@ below supersedes that queue snapshot where it diverges.
 
 Preliminary lane outcome for story 002: **active-review handoff** or **focused test fix** — CI is green but review blocks on removing `progress.txt` from the PR diff.
 
+#### Story 002 lane outcome (2026-07-02T22:05:00Z UTC)
+
+| Field | Value |
+| --- | --- |
+| Head SHA (after fix) | `daab2e84` |
+| Failing CI at triage time | **none** — stale queue note "failing test/CI" superseded; 11/11 SUCCESS on prior head `661856de` |
+| Prior CI failure (resolved) | `test` job SIGTERM at 5-minute timeout before merge with `main`; fixed by adopting main's per-matrix timeout budget |
+| Blocking review feedback | **REJECTED/BLOCKING** — `progress.txt` deleted in PR diff (unrelated `prefill-decode-split-concept-page` lane state) |
+| Fix applied | Restored `progress.txt` from `origin/main` on `blog-content-collection-loader` (`daab2e84`); PR diff no longer touches `progress.txt` |
+| Blog-loader cause? | **no** — loader tests and CI pass; blocker was scope-isolation churn, not loader behavior |
+| **Final lane outcome** | **active-review handoff** — CI green, mergeable, blocking `progress.txt` deletion addressed; awaiting reviewer re-check |
+
 ### PR #292 — `tokens-per-second-glossary-page`
 
 | Field | Value |
@@ -185,8 +197,8 @@ done
   artifact; not part of review branches unless accidentally committed).
 - `blog-content-collection-loader` also has modified
   `table-registry.generated.ts` (generated drift from local prepare/typecheck).
-- PR #293 additionally carries `progress.txt` **deletion** in the remote PR
-  diff — distinct from untracked local copies and review-blocking.
+- PR #293 had `progress.txt` **deletion** in the remote PR diff (story 002
+  restored from `origin/main` on `daab2e84`; no longer in PR diff).
 
 ## Story 001 quality gate (this worktree)
 
