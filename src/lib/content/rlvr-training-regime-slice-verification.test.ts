@@ -347,7 +347,9 @@ describe("RLVR training-regime slice verification (rlvr-training-regime-page-005
           .first()
           .waitFor({ state: "visible" });
 
-        const bodyText = await page.locator("article").innerText();
+        const bodyText = await page
+          .locator(`article[data-registry-id="${REGISTRY_ID}"]`)
+          .innerText();
         expect(bodyText).toContain("external verifier");
         expect(bodyText).toContain("Task prompt");
         expect(bodyText).not.toContain("missing message");
