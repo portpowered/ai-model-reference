@@ -98,3 +98,13 @@
   - Story 004 should connect quantization and KV cache compression neighbors in prose without duplicating the byte-movement sections added here.
   - Discard unrelated `table-registry.generated.ts` churn from local `prepare:content-runtime` when it only adds tables outside the story diff.
 ---
+
+## 2026-07-02T23:55:00Z - memory-bandwidth-concept-page-004
+- Added `quantizationAndBandwidth` and `kvCacheCompression` sections connecting weight-only, activation, and KV cache quantization to byte-movement ceilings, including the caveat that halving bytes does not automatically double throughput.
+- Trimmed registry `relatedIds` to story-004 neighbor set: added `concept.activation-quantization`, removed prefill/decode/split serving-path ids while keeping `system.memory` as a systems neighbor.
+- Extended `memory-bandwidth-concept.test.ts` with story-004 message and render assertions for compression neighbors and vendor-neutral copy.
+- Browser-verified built route on port 3745 at desktop and mobile user agents; new sections and neighbor links render without missing-content placeholders.
+- **Learnings for future iterations:**
+  - Story 004 related-id trimming removes curated prefill/decode links but prose auto-linking in earlier sections can still surface those routes in rendered HTML.
+  - Story 005 should add slice-verification coverage plus `make validate-data` and `audit:canonical-page-surface` proof.
+---
