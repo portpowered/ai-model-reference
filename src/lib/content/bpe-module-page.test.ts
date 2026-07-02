@@ -128,6 +128,44 @@ describe("loadModulePage bpe", () => {
   });
 });
 
+describe("bpe page focused validation", () => {
+  test("loadModulePage binds the canonical route to module.bpe with English messages and local assets", async () => {
+    const page = await loadModulePage("bpe");
+    const pages = await loadPublishedDocsPages("en");
+
+    expect(page.frontmatter.registryId).toBe("module.bpe");
+    expect(pages.some((entry) => entry.url === "/docs/modules/bpe")).toBe(true);
+    expect(page.assets.computeFlow.type).toBe("graph");
+    expect(page.assets.comparisonTable.type).toBe("table");
+    expect(validatePageAssetReferences(page.assets, page.messages)).toEqual([]);
+    expect(page.messages.assets?.computeFlow?.alt).toContain(
+      "Byte pair encoding flow",
+    );
+    expect(page.messages.assets?.comparisonTable?.caption).toBe(
+      "How byte pair encoding compares with nearby subword tokenizers",
+    );
+  });
+
+  test("search and related-doc surfaces route readers to the canonical BPE page", async () => {
+    const results = await docsSearchApi.search("subword tokenizer");
+    expect(results[0]?.url.split("#")[0]).toBe("/docs/modules/bpe");
+
+    const page = await loadModulePage("bpe");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain('href="/docs/models/gpt-3"');
+  });
+});
+
 describe("bpe module page assets and registry", () => {
   test("resolves graph and table assets with message-backed copy", () => {
     const messages = pageMessagesSchema.parse(
