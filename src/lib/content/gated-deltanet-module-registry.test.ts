@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { modulePageHref } from "@/lib/content/content-hrefs";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
 import {
@@ -11,6 +12,7 @@ import {
   citationRecordSchema,
   moduleRecordSchema,
 } from "@/lib/content/schemas";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 describe("gated-deltanet module registry slice (gated-deltanet-001)", () => {
   test("publishes module.gated-deltanet with canonical discovery metadata", async () => {
@@ -83,6 +85,15 @@ describe("gated-deltanet module registry slice (gated-deltanet-001)", () => {
         "Gated DeltaNet paper",
         "2412.06464",
       ]),
+    );
+  });
+
+  test("registry-backed aliases resolve the canonical Gated DeltaNet page in search", async () => {
+    const results = await docsSearchApi.search("gated deltanet");
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url.split("#")[0]).toBe(
+      modulePageHref("gated-deltanet"),
     );
   });
 
