@@ -1090,6 +1090,7 @@ export function formatMergedPrDrainRowsReconciliationReport(
   options?: {
     completeReport?: MergedPrDrainRowsCompleteReport;
     consumeReport?: MergedPrDrainRowsConsumeReport;
+    noOpReport?: MergedPrDrainRowsNoOpReport;
   },
 ): string {
   const classificationReport =
@@ -1104,7 +1105,10 @@ export function formatMergedPrDrainRowsReconciliationReport(
     buildMergedPrDrainRowsCompleteReport(classificationReport, {
       sessionId: evidenceReport.sourceSession,
     });
-  return `${formatMergedPrDrainRowsEvidenceReport(evidenceReport).trimEnd()}\n\n${formatMergedPrDrainRowsClassificationReport(classificationReport).trimEnd()}\n\n${formatMergedPrDrainRowsConsumeReport(resolvedConsumeReport).trimEnd()}\n\n${formatMergedPrDrainRowsCompleteReport(resolvedCompleteReport).trimEnd()}\n`;
+  const resolvedNoOpReport =
+    options?.noOpReport ??
+    buildMergedPrDrainRowsNoOpReport(classificationReport);
+  return `${formatMergedPrDrainRowsEvidenceReport(evidenceReport).trimEnd()}\n\n${formatMergedPrDrainRowsClassificationReport(classificationReport).trimEnd()}\n\n${formatMergedPrDrainRowsConsumeReport(resolvedConsumeReport).trimEnd()}\n\n${formatMergedPrDrainRowsCompleteReport(resolvedCompleteReport).trimEnd()}\n\n${formatMergedPrDrainRowsNoOpReport(resolvedNoOpReport).trimEnd()}\n`;
 }
 
 export const MERGED_PR_DRAIN_ROW_CONSUME_OPERATION_NAME =
@@ -1441,11 +1445,30 @@ export interface ExecuteMergedPrDrainRowCompleteHandoffOptions {
   sessionId?: string;
 }
 
+export interface MergedPrDrainRowNoOpHandoff {
+  classification: MergedPrDrainRowClassification;
+  evidenceSentence: string;
+  missingEvidence?: string;
+  nextSafeOwnerAction?: string;
+  noOpReason: MergedPrDrainRowNoOpReason;
+  observedPrState: string;
+  observedQueueState: string;
+  pullRequestNumber: number;
+  rowLeftUntouched: true;
+  workItemName: string;
+}
+
+export interface MergedPrDrainRowsNoOpReport {
+  classificationReport: MergedPrDrainRowsClassificationReport;
+  rows: MergedPrDrainRowNoOpHandoff[];
+}
+
 export interface MergedPrDrainRowsReconciliationOutput {
   classificationReport: MergedPrDrainRowsClassificationReport;
   completeReport: MergedPrDrainRowsCompleteReport;
   consumeReport: MergedPrDrainRowsConsumeReport;
   evidenceReport: MergedPrDrainRowsEvidenceReport;
+  noOpReport: MergedPrDrainRowsNoOpReport;
 }
 
 function buildDrainRowCompleteCommand(options: {
@@ -1760,6 +1783,132 @@ export function serializeMergedPrDrainRowsCompleteReport(
   return `${JSON.stringify(report, null, 2)}\n`;
 }
 
+function resolveNoOpMissingEvidence(
+  classification: MergedPrDrainRowClassification,
+): string | undefined {
+  const row = classification.row;
+  switch (classification.noOpReason) {
+    case "missing-metadata":
+      return "Readable worktree lane metadata for the named row.";
+    case "inaccessible-pr-truth":
+      return `GitHub PR state for PR #${row.definition.pullRequestNumber}.`;
+    case "missing-queue-evidence": {
+      const parts: string[] = [];
+      if (row.mergedVsQueueTruth.contentLaneQueueTruth === "missing-from-queue") {
+        parts.push("content-lane queue tokens");
+      }
+      if (row.mergedVsQueueTruth.drainRowQueueTruth === "missing-from-queue") {
+        parts.push("drain-row queue tokens");
+      }
+      if (parts.length === 0) {
+        return "Queue tokens required to select a safe consume, complete, or settled path.";
+      }
+      return parts.join(" and ");
+    }
+    case "unsafe-root-checkout":
+      return "Clean root checkout state before queue mutation.";
+    default:
+      return undefined;
+  }
+}
+
+function resolveNoOpNextSafeOwnerAction(
+  noOpReason: MergedPrDrainRowNoOpReason | undefined,
+): string | undefined {
+  switch (noOpReason) {
+    case "unfinished-implementation":
+      return "Finish active content-lane implementation tokens before retrying drain reconciliation.";
+    case "unfinished-review":
+      return "Finish active content-lane review tokens before retrying drain reconciliation.";
+    case "row-pr-mismatch":
+      return "Align worktree stamped PR with the expected PR before any queue move.";
+    case "pr-not-merged":
+      return "Wait for PR merge into current origin/main before drain reconciliation.";
+    default:
+      return undefined;
+  }
+}
+
+export function buildMergedPrDrainRowNoOpHandoff(
+  classification: MergedPrDrainRowClassification,
+): MergedPrDrainRowNoOpHandoff | null {
+  if (classification.outcome !== "no-op" || !classification.noOpReason) {
+    return null;
+  }
+
+  return {
+    classification,
+    evidenceSentence: classification.evidenceSentence,
+    missingEvidence: resolveNoOpMissingEvidence(classification),
+    nextSafeOwnerAction: resolveNoOpNextSafeOwnerAction(classification.noOpReason),
+    noOpReason: classification.noOpReason,
+    observedPrState: classification.observedPrState,
+    observedQueueState: classification.observedQueueState,
+    pullRequestNumber: classification.pullRequestNumber,
+    rowLeftUntouched: true,
+    workItemName: classification.row.definition.workItemName,
+  };
+}
+
+export function buildMergedPrDrainRowsNoOpReport(
+  classificationReport: MergedPrDrainRowsClassificationReport,
+): MergedPrDrainRowsNoOpReport {
+  const rows = classificationReport.rows
+    .map((classification) => buildMergedPrDrainRowNoOpHandoff(classification))
+    .filter((handoff): handoff is MergedPrDrainRowNoOpHandoff => Boolean(handoff));
+
+  return {
+    classificationReport,
+    rows,
+  };
+}
+
+function formatNoOpHandoffRow(handoff: MergedPrDrainRowNoOpHandoff): string[] {
+  const lines = [
+    `- work-item=${handoff.workItemName} pr=#${handoff.pullRequestNumber}`,
+    `  no-op-reason=${handoff.noOpReason}`,
+    `  observed-queue-state=${handoff.observedQueueState}`,
+    `  observed-pr-state=${handoff.observedPrState}`,
+    `  row-left-untouched=${handoff.rowLeftUntouched}`,
+    `  evidence=${handoff.evidenceSentence}`,
+  ];
+
+  if (handoff.missingEvidence) {
+    lines.push(`  missing-evidence=${handoff.missingEvidence}`);
+  }
+  if (handoff.nextSafeOwnerAction) {
+    lines.push(`  next-safe-owner-action=${handoff.nextSafeOwnerAction}`);
+  }
+
+  return lines;
+}
+
+export function formatMergedPrDrainRowsNoOpReport(
+  report: MergedPrDrainRowsNoOpReport,
+): string {
+  const lines = [
+    `${MERGED_PR_DRAIN_ROWS_RECONCILIATION_HEADER} — No-Op Handoff`,
+    `generated-at=${report.classificationReport.evidenceReport.generatedAtUtc} session=${report.classificationReport.evidenceReport.sourceSession}`,
+  ];
+
+  if (report.rows.length === 0) {
+    lines.push("", "No-op rows", "- none");
+  } else {
+    lines.push("", "No-op rows");
+    for (const handoff of report.rows) {
+      lines.push(...formatNoOpHandoffRow(handoff));
+    }
+  }
+
+  return `${lines.join("\n").trimEnd()}\n`;
+}
+
+export function serializeMergedPrDrainRowsNoOpReport(
+  report: MergedPrDrainRowsNoOpReport,
+): string {
+  return `${JSON.stringify(report, null, 2)}\n`;
+}
+
 export function buildMergedPrDrainRowsReconciliationOutput(
   evidenceReport: MergedPrDrainRowsEvidenceReport,
   options?: {
@@ -1798,11 +1947,14 @@ export function buildMergedPrDrainRowsReconciliationOutput(
     );
   }
 
+  const noOpReport = buildMergedPrDrainRowsNoOpReport(classificationReport);
+
   return {
     evidenceReport,
     classificationReport,
     consumeReport,
     completeReport,
+    noOpReport,
   };
 }
 

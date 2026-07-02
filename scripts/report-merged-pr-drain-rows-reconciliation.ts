@@ -81,6 +81,7 @@ const output = isJsonOutputRequested(process.argv)
   : formatMergedPrDrainRowsReconciliationReport(report, {
       consumeReport: reconciliationOutput.consumeReport,
       completeReport: reconciliationOutput.completeReport,
+      noOpReport: reconciliationOutput.noOpReport,
     });
 
 process.stdout.write(output);

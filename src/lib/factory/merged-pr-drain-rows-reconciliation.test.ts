@@ -2,9 +2,12 @@ import { describe, expect, test } from "bun:test";
 import {
   buildMergedPrDrainRowCompleteHandoff,
   buildMergedPrDrainRowConsumeHandoff,
+  buildMergedPrDrainRowNoOpHandoff,
   buildMergedPrDrainRowsClassificationReport,
   buildMergedPrDrainRowsCompleteReport,
   buildMergedPrDrainRowsConsumeReport,
+  buildMergedPrDrainRowsNoOpReport,
+  buildMergedPrDrainRowsReconciliationOutput,
   classifyMergedPrDrainRowOutcome,
   collectMergedPrDrainRowsEvidence,
   executeMergedPrDrainRowCompleteHandoff,
@@ -13,6 +16,8 @@ import {
   formatMergedPrDrainRowsCompleteReport,
   formatMergedPrDrainRowsConsumeReport,
   formatMergedPrDrainRowsEvidenceReport,
+  formatMergedPrDrainRowsNoOpReport,
+  formatMergedPrDrainRowsReconciliationReport,
   MERGED_PR_DRAIN_ROW_COMPLETE_OPERATION_NAME,
   MERGED_PR_DRAIN_ROW_COMPLETE_TARGET_STATE,
   MERGED_PR_DRAIN_ROW_CONSUME_OPERATION_NAME,
@@ -21,6 +26,7 @@ import {
   serializeMergedPrDrainRowsCompleteReport,
   serializeMergedPrDrainRowsConsumeReport,
   serializeMergedPrDrainRowsEvidenceReport,
+  serializeMergedPrDrainRowsNoOpReport,
 } from "@/lib/factory/merged-pr-drain-rows-reconciliation";
 
 const SESSION_ID = MERGED_PR_DRAIN_ROWS_TARGET_SESSION_ID;
@@ -668,5 +674,227 @@ describe("buildMergedPrDrainRowCompleteHandoff", () => {
       rows: unknown[];
     };
     expect(serialized.rows).toHaveLength(0);
+  });
+});
+
+function buildPostConsumeFixtureWorkList(): string {
+  return JSON.stringify({
+    results: [
+      {
+        name: "ltx-23-pr281-drain",
+        workId: "batch-pr281-ltx-drain",
+        workTypeName: "idea",
+        state: { name: "complete", type: "TERMINAL" },
+        traceId: "trace-pr281-batch",
+      },
+      {
+        name: "ltx-23",
+        workId: "work-task-17",
+        workTypeName: "task",
+        state: { name: "complete", type: "TERMINAL" },
+        traceId: "trace-ltx-23",
+      },
+      {
+        name: "mamba-pr282-drain",
+        workId: "batch-mamba-drain",
+        workTypeName: "idea",
+        state: { name: "complete", type: "TERMINAL" },
+        traceId: "trace-mamba-batch",
+      },
+      {
+        name: "MAMBA",
+        workId: "work-task-44",
+        workTypeName: "task",
+        state: { name: "complete", type: "TERMINAL" },
+        traceId: "trace-mamba",
+      },
+      {
+        name: "glossary-decomposition-pr284-conflict-refresh",
+        workId: "batch-glossary-drain",
+        workTypeName: "idea",
+        state: { name: "complete", type: "TERMINAL" },
+        traceId: "trace-glossary-batch",
+      },
+      {
+        name: "glossary-decomposition",
+        workId: "work-task-8",
+        workTypeName: "task",
+        state: { name: "complete", type: "TERMINAL" },
+        traceId: "trace-glossary",
+      },
+      {
+        name: "bpe-page",
+        workId: "work-task-68",
+        workTypeName: "task",
+        state: { name: "complete", type: "TERMINAL" },
+        traceId: "trace-bpe",
+      },
+    ],
+  });
+}
+
+function buildPostConsumeFixtureReport() {
+  return collectMergedPrDrainRowsEvidence({
+    generatedAtUtc: "2026-07-02T19:31:00.000Z",
+    repoRoot: process.cwd(),
+    remoteBaseRef: "origin/main",
+    sourceSession: SESSION_ID,
+    workListJsonText: buildPostConsumeFixtureWorkList(),
+    worktreesDir: "/tmp/missing-worktrees",
+    lookupPullRequestByNumber: (pullRequestNumber) => ({
+      pullRequest: {
+        number: pullRequestNumber,
+        state: "MERGED",
+        mergedAt: "2026-07-02T17:00:00Z",
+        mergeCommitSha: `merge-${pullRequestNumber}`,
+        headRefName: `branch-${pullRequestNumber}`,
+      },
+    }),
+    runCommand: (binary, args) => {
+      if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+        return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
+      }
+      if (binary === "git" && args[0] === "merge-base") {
+        return { ok: true, stdout: "", stderr: "", exitCode: 0 };
+      }
+      if (binary === "git" && args[0] === "rev-parse") {
+        return {
+          ok: true,
+          stdout: "209d1bd8ced0cced5fd99992fe50f23296d126e8\n",
+          stderr: "",
+          exitCode: 0,
+        };
+      }
+      if (binary === "git" && args[0] === "status") {
+        return { ok: true, stdout: "", stderr: "", exitCode: 0 };
+      }
+      return { ok: false, stdout: "", stderr: "unsupported", exitCode: 1 };
+    },
+  });
+}
+
+describe("buildMergedPrDrainRowNoOpHandoff", () => {
+  test("builds already-settled no-op handoff without queue mutation", () => {
+    const evidenceReport = buildClassificationFixtureReport();
+    const classificationReport =
+      buildMergedPrDrainRowsClassificationReport(evidenceReport);
+    const bpeClassification = classificationReport.rows.find(
+      (row) => row.row.definition.workItemName === "bpe-page",
+    );
+    expect(bpeClassification).toBeDefined();
+
+    const handoff = buildMergedPrDrainRowNoOpHandoff(
+      bpeClassification as NonNullable<typeof bpeClassification>,
+    );
+    expect(handoff).not.toBeNull();
+    expect(handoff?.noOpReason).toBe("already-settled");
+    expect(handoff?.rowLeftUntouched).toBe(true);
+    expect(handoff?.nextSafeOwnerAction).toBeUndefined();
+    expect(handoff?.missingEvidence).toBeUndefined();
+    expect(handoff?.evidenceSentence).toContain("No dedicated drain row");
+  });
+
+  test("builds already-terminal no-op handoff for post-consume drain rows", () => {
+    const evidenceReport = buildPostConsumeFixtureReport();
+    const classificationReport =
+      buildMergedPrDrainRowsClassificationReport(evidenceReport);
+
+    expect(classificationReport.rows.every((row) => row.outcome === "no-op")).toBe(
+      true,
+    );
+
+    const ltxHandoff = buildMergedPrDrainRowNoOpHandoff(classificationReport.rows[0]);
+    expect(ltxHandoff?.noOpReason).toBe("already-terminal");
+    expect(ltxHandoff?.rowLeftUntouched).toBe(true);
+    expect(ltxHandoff?.observedQueueState).toContain(
+      "drain-row=content-lane-terminal-complete",
+    );
+  });
+
+  test("states next safe owner action for unfinished implementation", () => {
+    const report = buildClassificationFixtureReport();
+    const ltxRow = report.rows.find(
+      (row) => row.definition.workItemName === "ltx-23",
+    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+
+    ltxRow.contentLaneTokens = [
+      {
+        availability: "present",
+        workItemName: "ltx-23",
+        workTypeName: "task",
+        stateName: "in-progress",
+        stateType: "PROCESSING",
+      },
+    ];
+    ltxRow.mergedVsQueueTruth.contentLaneQueueTruth = "non-terminal";
+
+    const classification = classifyMergedPrDrainRowOutcome(ltxRow);
+    expect(classification.noOpReason).toBe("unfinished-implementation");
+
+    const handoff = buildMergedPrDrainRowNoOpHandoff(classification);
+    expect(handoff?.nextSafeOwnerAction).toContain("implementation tokens");
+    expect(handoff?.missingEvidence).toBeUndefined();
+    expect(handoff?.rowLeftUntouched).toBe(true);
+  });
+
+  test("states missing evidence for inaccessible PR truth", () => {
+    const report = buildClassificationFixtureReport();
+    const ltxRow = report.rows.find(
+      (row) => row.definition.workItemName === "ltx-23",
+    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+
+    ltxRow.pullRequestTruth.availability = "unavailable";
+    ltxRow.mergedVsQueueTruth.mergedPullRequestTruth = "unavailable";
+
+    const classification = classifyMergedPrDrainRowOutcome(ltxRow);
+    const handoff = buildMergedPrDrainRowNoOpHandoff(classification);
+    expect(handoff?.noOpReason).toBe("inaccessible-pr-truth");
+    expect(handoff?.missingEvidence).toContain("GitHub PR state");
+    expect(handoff?.nextSafeOwnerAction).toBeUndefined();
+  });
+
+  test("builds and formats no-op report for post-consume live state", () => {
+    const evidenceReport = buildPostConsumeFixtureReport();
+    const noOpReport = buildMergedPrDrainRowsNoOpReport(
+      buildMergedPrDrainRowsClassificationReport(evidenceReport),
+    );
+
+    expect(noOpReport.rows).toHaveLength(4);
+    expect(noOpReport.rows.map((row) => row.noOpReason)).toEqual([
+      "already-terminal",
+      "already-terminal",
+      "already-terminal",
+      "already-settled",
+    ]);
+
+    const formatted = formatMergedPrDrainRowsNoOpReport(noOpReport);
+    expect(formatted).toContain("Merged PR Drain Rows Reconciliation — No-Op Handoff");
+    expect(formatted).toContain("work-item=ltx-23 pr=#281");
+    expect(formatted).toContain("no-op-reason=already-terminal");
+    expect(formatted).toContain("row-left-untouched=true");
+    expect(formatted).toContain("work-item=bpe-page pr=#286");
+    expect(formatted).toContain("no-op-reason=already-settled");
+
+    const serialized = JSON.parse(
+      serializeMergedPrDrainRowsNoOpReport(noOpReport),
+    ) as { rows: Array<{ rowLeftUntouched: boolean }> };
+    expect(serialized.rows.every((row) => row.rowLeftUntouched)).toBe(true);
+  });
+
+  test("includes no-op report in unified reconciliation output", () => {
+    const evidenceReport = buildPostConsumeFixtureReport();
+    const output = buildMergedPrDrainRowsReconciliationOutput(evidenceReport);
+
+    expect(output.noOpReport.rows).toHaveLength(4);
+    expect(output.consumeReport.rows).toHaveLength(0);
+    expect(output.completeReport.rows).toHaveLength(0);
+
+    const formatted = formatMergedPrDrainRowsReconciliationReport(evidenceReport, {
+      consumeReport: output.consumeReport,
+      completeReport: output.completeReport,
+      noOpReport: output.noOpReport,
+    });
+    expect(formatted).toContain("No-Op Handoff");
+    expect(formatted).toContain("no-op-reason=already-terminal");
   });
 });

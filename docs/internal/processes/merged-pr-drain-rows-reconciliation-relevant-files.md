@@ -23,9 +23,10 @@ bun run report:merged-pr-drain-rows-reconciliation
 ```
 
 Text output includes evidence plus per-row `consume` / `complete` / `no-op`
-classification, consume handoff commands, and complete handoff details. JSON output
-(`--json` or `--format json`) serializes the full reconciliation output including
-evidence, classification, consume, and complete reports. Pass `--execute-consume`
+classification, consume handoff commands, complete handoff details, and no-op
+handoff evidence. JSON output (`--json` or `--format json`) serializes the full
+reconciliation output including evidence, classification, consume, complete, and
+no-op reports. Pass `--execute-consume`
 to run accepted manual drain-row consume moves through
 `you work move <drain-work-id> complete --session <session>`. Pass
 `--execute-complete` to run accepted terminal-completion moves for rows classified
@@ -79,6 +80,24 @@ terminal transition: `manual-drain-row-terminal-completion` via
 
 Live queue state has zero rows classified as `complete`; all three drain rows were
 consumed in story 003 and now classify as `already-terminal`.
+
+## No-op handoffs (2026-07-02 UTC)
+
+For every row classified as `no-op`, the report emits an explicit no-op handoff
+with `row-left-untouched=true`, the exact `no-op-reason`, observed queue/PR state,
+and optional `missing-evidence` or `next-safe-owner-action` fields when applicable.
+
+| Work item | PR | Outcome | No-op reason | Owner action |
+| --- | --- | --- | --- | --- |
+| `ltx-23` | #281 | `no-op` | `already-terminal` | none — drain row already `complete/TERMINAL` after consume |
+| `MAMBA` | #282 | `no-op` | `already-terminal` | none — drain row already `complete/TERMINAL` after consume |
+| `glossary-decomposition` | #284 | `no-op` | `already-terminal` | none — drain row already `complete/TERMINAL` after consume |
+| `bpe-page` | #286 | `no-op` | `already-settled` | none — no dedicated drain row |
+
+No-op reasons distinguish `already-terminal` and `already-settled` from unfinished
+implementation/review, row/PR mismatch, missing metadata, inaccessible PR truth,
+missing queue evidence, and unsafe root checkout. Rows with unfinished work name
+the next safe owner action instead of implying completion.
 
 ## Observed report (2026-07-02T19:17:41Z UTC)
 
@@ -150,8 +169,9 @@ recorded separately in the report `merged-vs-queue-truth` field per row.
   `gh pr view`, worktree lane metadata, `origin/main` identity, main-repo root
   checkout dirty-path count, explicit merged-vs-queue truth distinction,
   per-row `consume` / `complete` / `no-op` classification, consume handoff
-  builders/executors for `manual-drain-row-move-to-complete`, and complete handoff
-  builders/executors for `manual-drain-row-terminal-completion`.
+  builders/executors for `manual-drain-row-move-to-complete`, complete handoff
+  builders/executors for `manual-drain-row-terminal-completion`, and no-op handoff
+  builders for unsafe or already-settled rows.
 * `scripts/report-merged-pr-drain-rows-reconciliation.ts` — planner-facing CLI.
   Resolves main-repo worktrees via `git rev-parse --git-common-dir` so reports
   work from nested git worktrees.
@@ -206,4 +226,13 @@ content, registry content, queue rows, worktree files, or root checkout state.
 | Typecheck | `bun run typecheck` — pass |
 | Complete handoff unit tests | `buildMergedPrDrainRowCompleteHandoff` / execute / reclassify cases — pass |
 | Live complete report | zero rows classified as `complete`; all drain rows already terminal |
+| Content/page payload | not modified |
+
+## Verification for story 005
+
+| Gate | Result |
+| --- | --- |
+| Typecheck | `bun run typecheck` — pass |
+| No-op handoff unit tests | `buildMergedPrDrainRowNoOpHandoff` / report / unified output cases — pass |
+| Live no-op report | all four rows emit `row-left-untouched=true` with `already-terminal` or `already-settled` |
 | Content/page payload | not modified |
