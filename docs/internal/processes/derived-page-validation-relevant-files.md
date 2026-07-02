@@ -85,7 +85,6 @@ Fence retained tests with a file- or describe-level comment explaining why the c
 - `src/lib/content/qwen3-5-0-8b-slice-verification.test.tsx` — consolidated review-facing proof for the Qwen3.5-0.8B model slice: route/registry alignment, Qwen-controlled citation resolution and rendered references, architecture graph surface, and related-doc plus search discovery paths; routine bundle invariants stay on `validateDerivedPublishedPageBundles`.
 - `src/lib/content/instruction-tuning-training-regime-slice-verification.test.ts` — consolidated review-facing proof for the instruction tuning training-regime slice: route/registry alignment, graph/citation resolution, alias search, curated-related and tag landing, and rendered training-flow surface; routine bundle invariants stay on `validateDerivedPublishedPageBundles`.
 - `src/lib/content/page-template-conformance.ts` — system pages may add optional `#how-it-differs` between `#how-it-works` and `#practical-impact` for serving-boundary teaching without a template exception list entry.
-- Serving metric pages whose registry aliases include common prose terms (e.g. `throughput`) should prefer multi-word aliases such as `fleet throughput` and `serving throughput` instead of a standalone alias when that term already appears in other pages' localized prose; search still matches the shorter query via alias substring indexing, while prose auto-link skips bare-word collisions and avoids shared cross-page test edits in routine canonical-page PRs.
 
 ## Contributor and factory entrypoints
 
