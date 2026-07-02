@@ -196,17 +196,29 @@ Preliminary lane outcome for story 006: **conflict refresh** complete; **focused
 | Field | Value |
 | --- | --- |
 | Branch | `generic-search-ai-enrichment-plugin` |
-| Head SHA (remote) | `6a1530a0ce11a9633760a7595b14e17038e4df39` |
+| Head SHA (remote) | `6c47de90` (after story 007 conflict refresh) |
 | PR state | OPEN |
-| Mergeability (GitHub) | **`CONFLICTING` / `DIRTY`** |
-| Mergeability (`merge-tree` vs `origin/main`) | **CONFLICT** in `src/tests/search/search-api.test.ts` |
-| Behind/ahead `origin/main` | 144 behind / 8 ahead |
-| CI status | **stale passing** — last full CI 11/11 SUCCESS at 2026-07-02T14:27Z UTC (run 28597394054); checks stale vs current `origin/main` |
+| Mergeability (GitHub) | **`MERGEABLE` / `CLEAN`** on head `6c47de90` |
+| Mergeability (`merge-tree` vs `origin/main` @ `9fa3fa8b`) | **no conflict markers** after merge commit `6c47de90` |
+| Behind/ahead `origin/main` | 0 behind / 9 ahead (after merge) |
+| CI status | **pending** — CI rerun triggered on push of `6c47de90`; prior head had stale 11/11 SUCCESS |
 | Worktree path | `.claude/worktrees/generic-search-ai-enrichment-plugin` |
-| Worktree dirty paths | `?? progress.txt` (untracked local only) |
-| PR conversation | **BLOCKING MERGE** — `gh pr merge 277 --merge` failed; requires merge/rebase with `origin/main` and conflict resolution |
+| Worktree dirty paths | `M table-registry.generated.ts` (generated drift); `?? progress.txt.bak` (factory local) |
+| PR conversation | Prior **BLOCKING MERGE** (2026-07-02T14:59:47Z UTC) addressed via main merge and conflict resolution |
 
-Preliminary lane outcome for story 007: **conflict refresh** — primary blocker is merge conflicts, not failing CI on last recorded head.
+Preliminary lane outcome for story 007: **active-review handoff** after conflict refresh.
+
+#### Story 007 lane outcome (2026-07-02T22:30:00Z UTC)
+
+| Field | Value |
+| --- | --- |
+| Head SHA (after fix) | `6c47de901ca4bbdfa2700c6d26760ac54f087c81` |
+| Stale evidence superseded | Story 001 `CONFLICTING`/`DIRTY` and stale CI on `6a1530a0`; prior review CLEAR on `6a1530a0` superseded by main advance |
+| Conflict refresh | Merged `origin/main` @ `9fa3fa8b`; resolved conflicts in `search-api.test.ts` (combined `setDefaultTimeout` + `LIVE_SEARCH_API_GATE_TIMEOUT_MS`) and `search-page-panel.test.tsx` (main's `expectFirstSearchResultMatch` + 30s GQA waits; retained classification handoff priming) |
+| Prior blocking feedback | **BLOCKING MERGE** — `gh pr merge 277 --merge` failed because merge commit could not be created cleanly |
+| Fix applied | Main merge + conflict resolution pushed as `6c47de90`; merge state now `MERGEABLE`/`CLEAN` |
+| Local validation | `bun run typecheck` + `bun run lint` pass; focused search tests 97 pass, 0 fail |
+| **Final lane outcome** | **active-review handoff** — conflict refresh complete, mergeable, CI rerun pending; awaiting reviewer re-check and terminal green CI |
 
 ## Evidence commands (reproducible)
 
@@ -242,7 +254,8 @@ done
 | --- | --- |
 | **passing** (current head) | #293, #283 |
 | **passing** (merged / terminal) | #288, #292 |
-| **stale passing** (CI green on old head; branch now conflicts with `origin/main`) | #279, #277 |
+| **stale passing** (CI green on old head; branch now conflicts with `origin/main`) | none (stale #279/#277 notes superseded by story 006/007 conflict refresh) |
+| **pending checks** (conflict refresh pushed; CI rerun in flight) | #277 |
 | **missing checks** | none (stale #292 note obsolete) |
 | **failing checks** | none on current recorded heads |
 | **pending checks** | none at evidence capture time |
