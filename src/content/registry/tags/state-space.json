@@ -1,0 +1,22 @@
+{
+  "id": "tag.state-space",
+  "slug": "state-space",
+  "kind": "tag",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "state space",
+    "state-space model",
+    "SSM",
+    "selective state space",
+    "sequence state space"
+  ],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "category": "module-type",
+  "landingPage": "generated-tag-page"
+}
