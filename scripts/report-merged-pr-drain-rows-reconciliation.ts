@@ -70,11 +70,14 @@ const report = collectMergedPrDrainRowsEvidence({
   worktreesDir,
 });
 
-const reconciliationOutput = buildMergedPrDrainRowsReconciliationOutput(report, {
-  executeConsume: isExecuteConsumeRequested(process.argv),
-  executeComplete: isExecuteCompleteRequested(process.argv),
-  sessionId: sourceSession,
-});
+const reconciliationOutput = buildMergedPrDrainRowsReconciliationOutput(
+  report,
+  {
+    executeConsume: isExecuteConsumeRequested(process.argv),
+    executeComplete: isExecuteCompleteRequested(process.argv),
+    sessionId: sourceSession,
+  },
+);
 
 const output = isJsonOutputRequested(process.argv)
   ? serializeMergedPrDrainRowsReconciliationOutput(reconciliationOutput)
