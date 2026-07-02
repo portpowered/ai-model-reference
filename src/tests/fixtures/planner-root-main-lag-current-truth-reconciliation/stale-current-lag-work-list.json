@@ -1,0 +1,9 @@
+{
+  "items": [
+    {
+      "name": "root-main-lag-and-current-truth-reconciliation",
+      "state": "active",
+      "description": "Root checkout is still 17 commits behind origin/main and must be fast-forwarded before planning."
+    }
+  ]
+}
