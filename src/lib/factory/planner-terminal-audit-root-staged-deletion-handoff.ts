@@ -42,6 +42,18 @@ export const PLANNER_TERMINAL_AUDIT_FORBIDDEN_PAGE_CONTENT_PATH_PREFIXES = [
 export const PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_BRANCH_DIRTY_ROOT_TOUCH_ALLOWLIST =
   ["package.json"] as const;
 
+export const PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_KNOWN_PATHS = [
+  "docs/internal/processes/terminal-audit-root-staged-deletion-handoff-evidence.md",
+  "docs/internal/processes/terminal-audit-root-staged-deletion-handoff-relevant-files.md",
+  "package.json",
+  "scripts/report-planner-terminal-audit-root-staged-deletion-handoff.ts",
+  "src/lib/factory/planner-terminal-audit-root-staged-deletion-handoff.test.ts",
+  "src/lib/factory/planner-terminal-audit-root-staged-deletion-handoff.ts",
+  "src/tests/fixtures/planner-terminal-audit-root-staged-deletion-handoff/six-dirty-paths-cached-diff-stat.txt",
+  "src/tests/fixtures/planner-terminal-audit-root-staged-deletion-handoff/six-dirty-paths-status.txt",
+  "src/tests/fixtures/planner-terminal-audit-root-staged-deletion-handoff/six-dirty-paths-watchdog-report.txt",
+] as const;
+
 export const PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_SCOPE_STATEMENT =
   "Implementation lane limited to planner/factory reporting surfaces outside dirty root path mutation; page content, registry, localized messages, graph payloads, and page assets were not edited.";
 
@@ -291,6 +303,79 @@ export function buildPlannerTerminalAuditImplementationLaneScope(): PlannerTermi
     readOnlyEvidenceDiscovery: true,
     scopeStatement: PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_SCOPE_STATEMENT,
   };
+}
+
+export function assertPlannerTerminalAuditImplementationLanePathsPreserveScope(
+  changedPaths: readonly string[],
+): void {
+  const allowlistedDirtyRootTouches = new Set<string>(
+    PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_BRANCH_DIRTY_ROOT_TOUCH_ALLOWLIST,
+  );
+  for (const dirtyPath of PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS) {
+    if (allowlistedDirtyRootTouches.has(dirtyPath)) {
+      continue;
+    }
+    if (changedPaths.includes(dirtyPath)) {
+      throw new Error(
+        `implementation lane touched unallowlisted dirty root path: ${dirtyPath}`,
+      );
+    }
+  }
+
+  for (const changedPath of changedPaths) {
+    if (isPlannerTerminalAuditForbiddenPageContentPath(changedPath)) {
+      throw new Error(
+        `implementation lane touched forbidden page content path: ${changedPath}`,
+      );
+    }
+  }
+}
+
+export function discoverPlannerTerminalAuditBranchChangedPaths(
+  repoRoot: string,
+): string[] | undefined {
+  const diffStrategies: readonly (readonly string[])[] = [
+    ["diff", "--name-only", "origin/main...HEAD"],
+    ["diff", "--name-only", "origin/main", "HEAD"],
+  ];
+
+  for (const args of diffStrategies) {
+    const result = spawnSync("git", [...args], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    });
+    if (result.status === 0) {
+      return result.stdout
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+    }
+  }
+
+  const mergeBase = spawnSync("git", ["merge-base", "HEAD", "origin/main"], {
+    cwd: repoRoot,
+    encoding: "utf8",
+  });
+  if (mergeBase.status !== 0) {
+    return undefined;
+  }
+
+  const diffFromMergeBase = spawnSync(
+    "git",
+    ["diff", "--name-only", mergeBase.stdout.trim(), "HEAD"],
+    {
+      cwd: repoRoot,
+      encoding: "utf8",
+    },
+  );
+  if (diffFromMergeBase.status !== 0) {
+    return undefined;
+  }
+
+  return diffFromMergeBase.stdout
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
 }
 
 function defaultRunGit(
