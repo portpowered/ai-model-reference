@@ -31,8 +31,10 @@ on the current checkout head.
 * `src/lib/factory/planner-latent-diffusion-root-deletion-reconciliation.ts` —
   read-only landed-evidence verification for PR #264 / merge `3ea842f`,
   `origin/main` surface presence, separate root-checkout dirty-path capture,
-  and completed `latent-diffusion-paper-page` worktree/branch comparison against
-  `origin/main` for every reconciliation dirty path.
+  completed `latent-diffusion-paper-page` worktree/branch comparison against
+  `origin/main` for every reconciliation dirty path, and root dirty path
+  ownership/intent classification (`stale-merge-checkouter-drift`,
+  `operator-owned-work`, `intended-removal`, `blocked-unknown`, `cleared`).
 * `src/lib/factory/planner-latent-diffusion-root-deletion-reconciliation.test.ts`
   — fixture git repo tests for shipped-vs-dirty separation and completed-worktree
   path evidence against `origin/main`.
@@ -91,6 +93,31 @@ content.
 **Intentional removal check:** none of the listed latent-diffusion page bundle,
 registry, citation, graph, or focused-test paths were removed on the completed
 branch; all remain present and content-identical to `origin/main`.
+
+## Story 003 — Root dirty path classification (2026-07-02 UTC)
+
+Read-only classification via `classifyLatentDiffusionRootDirtyPaths` /
+`buildLatentDiffusionRootDirtyPathClassificationReport`. No listed root path was
+modified during this story.
+
+| Path | Root checkout | Origin/main | Completed branch | Classification |
+| --- | --- | --- | --- | --- |
+| `src/content/docs/papers/latent-diffusion/assets.json` | clean | present | existed-unchanged | cleared |
+| `src/content/docs/papers/latent-diffusion/messages/en.json` | clean | present | existed-unchanged | cleared |
+| `src/content/docs/papers/latent-diffusion/page.mdx` | clean | present | existed-unchanged | cleared |
+| `src/content/registry/citations/latent-diffusion-models.json` | clean | present | existed-unchanged | cleared |
+| `src/content/registry/graphs/latent-diffusion-contribution.json` | clean | present | existed-unchanged | cleared |
+| `src/content/registry/papers/latent-diffusion.json` | clean | present | existed-unchanged | cleared |
+| `src/lib/content/latent-diffusion-paper-page.test.ts` | clean | present | existed-unchanged | cleared |
+| `src/lib/content/registry-runtime.test.ts` | clean | present | existed-modified | cleared |
+| `src/lib/source.test.ts` | clean | present | existed-unchanged | cleared |
+
+**Classification summary:** all nine reconciliation paths are **cleared** in the
+current repair worktree — zero latent-diffusion dirty paths in root checkout.
+The PRD-listed ownerless deletion drift was not reproduced on current head.
+Shared modified tests (`registry-runtime.test.ts`, `source.test.ts`) are
+explicitly flagged by `LATENT_DIFFUSION_SHARED_MODIFIED_TEST_PATHS` for
+`blocked-unknown` classification when dirty.
 
 ## Verification commands
 

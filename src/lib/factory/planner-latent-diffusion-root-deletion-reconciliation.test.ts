@@ -4,14 +4,19 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  buildLatentDiffusionRootDirtyPathClassificationReport,
+  classifyLatentDiffusionRootDirtyPaths,
   collectLatentDiffusionCompletedWorktreePathEvidence,
   collectLatentDiffusionOriginMainSurfaceEvidence,
   collectLatentDiffusionRootCheckoutEvidence,
   determineLatentDiffusionCompletedWorktreePathDisposition,
   determineLatentDiffusionLandedEvidenceVerificationStatus,
+  determineLatentDiffusionRootPathClassification,
   formatLatentDiffusionCompletedWorktreeEvidenceReport,
   formatLatentDiffusionLandedEvidenceReport,
+  formatLatentDiffusionRootDirtyPathClassificationReport,
   inspectLatentDiffusionCompletedWorktreeEvidence,
+  isLatentDiffusionSharedModifiedTestPath,
   isMergeCommitInLineage,
   LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA,
   LATENT_DIFFUSION_LANDING_PR_NUMBER,
@@ -20,6 +25,7 @@ import {
   LATENT_DIFFUSION_PAPER_ROUTE,
   LATENT_DIFFUSION_RECONCILIATION_DIRTY_PATHS,
   LATENT_DIFFUSION_ROOT_DELETION_RECONCILIATION_HEADER,
+  LATENT_DIFFUSION_SHARED_MODIFIED_TEST_PATHS,
   verifyLatentDiffusionLandedEvidence,
 } from "@/lib/factory/planner-latent-diffusion-root-deletion-reconciliation";
 
@@ -404,6 +410,210 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
       expect(formatted).toContain(
         "path=src/content/docs/papers/latent-diffusion/page.mdx",
       );
+    } finally {
+      fixture.cleanup();
+    }
+  });
+
+  test("lists shared modified test paths explicitly for ownership classification", () => {
+    expect(LATENT_DIFFUSION_SHARED_MODIFIED_TEST_PATHS).toEqual([
+      "src/lib/content/registry-runtime.test.ts",
+      "src/lib/source.test.ts",
+    ]);
+    expect(
+      isLatentDiffusionSharedModifiedTestPath(
+        "src/lib/content/registry-runtime.test.ts",
+      ),
+    ).toBe(true);
+    expect(
+      isLatentDiffusionSharedModifiedTestPath(
+        "src/lib/content/latent-diffusion-paper-page.test.ts",
+      ),
+    ).toBe(false);
+  });
+
+  test("determineLatentDiffusionRootPathClassification covers drift, shared tests, and clean paths", () => {
+    expect(
+      determineLatentDiffusionRootPathClassification({
+        changeKind: null,
+        changedInCompletedBranchDiff: false,
+        completedWorktreeDisposition: "existed-unchanged",
+        isSharedModifiedTestPath: false,
+        presentOnOriginMain: true,
+      }),
+    ).toBe("cleared");
+
+    expect(
+      determineLatentDiffusionRootPathClassification({
+        changeKind: "deleted",
+        changedInCompletedBranchDiff: false,
+        completedWorktreeDisposition: "existed-unchanged",
+        isSharedModifiedTestPath: false,
+        presentOnOriginMain: true,
+      }),
+    ).toBe("stale-merge-checkouter-drift");
+
+    expect(
+      determineLatentDiffusionRootPathClassification({
+        changeKind: "modified",
+        changedInCompletedBranchDiff: false,
+        completedWorktreeDisposition: "existed-unchanged",
+        isSharedModifiedTestPath: true,
+        presentOnOriginMain: true,
+      }),
+    ).toBe("blocked-unknown");
+
+    expect(
+      determineLatentDiffusionRootPathClassification({
+        changeKind: "deleted",
+        changedInCompletedBranchDiff: true,
+        completedWorktreeDisposition: "removed-on-branch",
+        isSharedModifiedTestPath: false,
+        presentOnOriginMain: false,
+      }),
+    ).toBe("intended-removal");
+  });
+
+  test("classifyLatentDiffusionRootDirtyPaths classifies every reconciliation path with evidence", () => {
+    const fixture = createFixtureRepo();
+
+    try {
+      const branchName = LATENT_DIFFUSION_PAPER_PAGE_LANE_NAME;
+      runGit(fixture.repoRoot, ["branch", "-f", branchName, fixture.mainRef]);
+
+      const statusOutput = [
+        " D src/content/docs/papers/latent-diffusion/page.mdx",
+        " M src/lib/content/registry-runtime.test.ts",
+        " M src/lib/source.test.ts",
+      ].join("\n");
+
+      const landedEvidenceReport = verifyLatentDiffusionLandedEvidence({
+        generatedAtUtc: "2026-07-02T06:00:00.000Z",
+        remoteBaseRef: fixture.mainRef,
+        repoRoot: fixture.repoRoot,
+        statusOutput,
+        runGit: (repoRoot, args) => {
+          const result = spawnSync("git", [...args], {
+            cwd: repoRoot,
+            encoding: "utf8",
+          });
+          return {
+            status: result.status,
+            stdout: result.stdout ?? "",
+            stderr: result.stderr ?? "",
+          };
+        },
+      });
+      const completedWorktreeReport =
+        inspectLatentDiffusionCompletedWorktreeEvidence({
+          branchName,
+          remoteBaseRef: fixture.mainRef,
+          repoRoot: fixture.repoRoot,
+          worktreePath: "/tmp/latent-diffusion-paper-page",
+          runGit: (repoRoot, args) => {
+            const result = spawnSync("git", [...args], {
+              cwd: repoRoot,
+              encoding: "utf8",
+            });
+            return {
+              status: result.status,
+              stdout: result.stdout ?? "",
+              stderr: result.stderr ?? "",
+            };
+          },
+        });
+
+      const classifications = classifyLatentDiffusionRootDirtyPaths({
+        completedWorktreeReport,
+        landedEvidenceReport,
+        remoteBaseRef: fixture.mainRef,
+        repoRoot: fixture.repoRoot,
+        runGit: (repoRoot, args) => {
+          const result = spawnSync("git", [...args], {
+            cwd: repoRoot,
+            encoding: "utf8",
+          });
+          return {
+            status: result.status,
+            stdout: result.stdout ?? "",
+            stderr: result.stderr ?? "",
+          };
+        },
+      });
+
+      expect(classifications).toHaveLength(
+        LATENT_DIFFUSION_RECONCILIATION_DIRTY_PATHS.length,
+      );
+
+      const pageClassification = classifications.find(
+        (entry) =>
+          entry.path === "src/content/docs/papers/latent-diffusion/page.mdx",
+      );
+      expect(pageClassification).toEqual(
+        expect.objectContaining({
+          classification: "stale-merge-checkouter-drift",
+          presentOnOriginMain: true,
+          rootCheckoutStatus: "deleted",
+          statusCode: " D",
+        }),
+      );
+
+      const registryRuntimeClassification = classifications.find(
+        (entry) =>
+          entry.path === "src/lib/content/registry-runtime.test.ts",
+      );
+      expect(registryRuntimeClassification).toEqual(
+        expect.objectContaining({
+          classification: "blocked-unknown",
+          isSharedModifiedTestPath: true,
+          rootCheckoutStatus: "modified",
+        }),
+      );
+
+      const sourceTestClassification = classifications.find(
+        (entry) => entry.path === "src/lib/source.test.ts",
+      );
+      expect(sourceTestClassification).toEqual(
+        expect.objectContaining({
+          classification: "blocked-unknown",
+          isSharedModifiedTestPath: true,
+          rootCheckoutStatus: "modified",
+        }),
+      );
+
+      const clearedCount = classifications.filter(
+        (entry) => entry.classification === "cleared",
+      ).length;
+      expect(clearedCount).toBe(
+        LATENT_DIFFUSION_RECONCILIATION_DIRTY_PATHS.length - 3,
+      );
+
+      const report = buildLatentDiffusionRootDirtyPathClassificationReport({
+        completedWorktreeReport,
+        generatedAtUtc: "2026-07-02T06:00:00.000Z",
+        landedEvidenceReport,
+        remoteBaseRef: fixture.mainRef,
+        repoRoot: fixture.repoRoot,
+        runGit: (repoRoot, args) => {
+          const result = spawnSync("git", [...args], {
+            cwd: repoRoot,
+            encoding: "utf8",
+          });
+          return {
+            status: result.status,
+            stdout: result.stdout ?? "",
+            stderr: result.stderr ?? "",
+          };
+        },
+      });
+
+      const formatted =
+        formatLatentDiffusionRootDirtyPathClassificationReport(report);
+      expect(formatted).toContain("Root Dirty Path Classification");
+      expect(formatted).toContain("classification=stale-merge-checkouter-drift");
+      expect(formatted).toContain("shared-modified-test-path=true");
+      expect(formatted).toContain("classification=blocked-unknown");
+      expect(formatted).toContain("classification-note");
     } finally {
       fixture.cleanup();
     }

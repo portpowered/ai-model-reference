@@ -37,8 +37,9 @@ watchdog summaries, or planner-facing linkage reports.
   repair lane: confirms PR #264 / merge `3ea842f` in `origin/main` lineage,
   checks page bundle, registry, citation, graph, and focused-test surfaces on
   `origin/main`, records root-checkout dirty paths separately from shipped
-  main evidence, and inspects completed `latent-diffusion-paper-page`
-  worktree/branch path evidence against `origin/main`. See
+  main evidence, inspects completed `latent-diffusion-paper-page`
+  worktree/branch path evidence against `origin/main`, and classifies every
+  reconciliation dirty path by ownership/intent. See
   [latent-diffusion-root-deletion-reconciliation-relevant-files](./latent-diffusion-root-deletion-reconciliation-relevant-files.md).
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.

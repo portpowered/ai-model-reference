@@ -39,6 +39,29 @@ export const LATENT_DIFFUSION_RECONCILIATION_DIRTY_PATHS = [
   "src/lib/source.test.ts",
 ] as const;
 
+export const LATENT_DIFFUSION_SHARED_MODIFIED_TEST_PATHS = [
+  "src/lib/content/registry-runtime.test.ts",
+  "src/lib/source.test.ts",
+] as const;
+
+export type LatentDiffusionRootPathClassification =
+  | "stale-merge-checkouter-drift"
+  | "operator-owned-work"
+  | "intended-removal"
+  | "blocked-unknown"
+  | "cleared";
+
+export type LatentDiffusionRootCheckoutStatus =
+  | "clean"
+  | "deleted"
+  | "modified"
+  | "added"
+  | "renamed"
+  | "copied"
+  | "type-changed"
+  | "untracked"
+  | "unknown";
+
 export type LatentDiffusionOriginMainSurfaceKind =
   | "page-bundle"
   | "registry-record"
@@ -846,6 +869,340 @@ export function formatLatentDiffusionCompletedWorktreeEvidenceReport(
 
 export function serializeLatentDiffusionCompletedWorktreeEvidenceReport(
   report: LatentDiffusionCompletedWorktreeEvidenceReport,
+): string {
+  return JSON.stringify(report, null, 2);
+}
+
+export interface LatentDiffusionRootDirtyPathClassificationEvidence {
+  changedInCompletedBranchDiff: boolean | null;
+  classification: LatentDiffusionRootPathClassification;
+  completedWorktreeDisposition: LatentDiffusionCompletedWorktreePathDisposition | null;
+  evidence: string[];
+  headPresent: boolean | null;
+  isSharedModifiedTestPath: boolean;
+  path: string;
+  presentOnOriginMain: boolean;
+  rootCheckoutStatus: LatentDiffusionRootCheckoutStatus;
+  statusCode: string | null;
+}
+
+export interface LatentDiffusionRootDirtyPathClassificationReport {
+  blockedUnknownCount: number;
+  clearedCount: number;
+  generatedAtUtc: string;
+  intendedRemovalCount: number;
+  operatorOwnedCount: number;
+  pathClassifications: LatentDiffusionRootDirtyPathClassificationEvidence[];
+  remoteBaseRef: string;
+  repoRoot: string;
+  staleDriftCount: number;
+}
+
+export interface ClassifyLatentDiffusionRootDirtyPathsOptions {
+  completedWorktreeReport: LatentDiffusionCompletedWorktreeEvidenceReport;
+  landedEvidenceReport: LatentDiffusionLandedEvidenceReport;
+  remoteBaseRef: string;
+  repoRoot: string;
+  runGit?: RunGit;
+}
+
+export function isLatentDiffusionSharedModifiedTestPath(path: string): boolean {
+  return (
+    LATENT_DIFFUSION_SHARED_MODIFIED_TEST_PATHS as readonly string[]
+  ).includes(path);
+}
+
+export function mapChangeKindToRootCheckoutStatus(
+  changeKind: PlannerWorktreeDriftChangeKind | null,
+): LatentDiffusionRootCheckoutStatus {
+  if (changeKind === null) {
+    return "clean";
+  }
+
+  switch (changeKind) {
+    case "deleted":
+      return "deleted";
+    case "modified":
+      return "modified";
+    case "added":
+      return "added";
+    case "renamed":
+      return "renamed";
+    case "copied":
+      return "copied";
+    case "type-changed":
+      return "type-changed";
+    case "untracked":
+      return "untracked";
+    default:
+      return "unknown";
+  }
+}
+
+export function determineLatentDiffusionRootPathClassification(input: {
+  changeKind: PlannerWorktreeDriftChangeKind | null;
+  changedInCompletedBranchDiff: boolean | null;
+  completedWorktreeDisposition: LatentDiffusionCompletedWorktreePathDisposition | null;
+  isSharedModifiedTestPath: boolean;
+  presentOnOriginMain: boolean;
+}): LatentDiffusionRootPathClassification {
+  if (input.changeKind === null) {
+    return "cleared";
+  }
+
+  if (input.changeKind === "deleted") {
+    if (
+      input.presentOnOriginMain &&
+      input.completedWorktreeDisposition !== "removed-on-branch"
+    ) {
+      return "stale-merge-checkouter-drift";
+    }
+
+    if (
+      !input.presentOnOriginMain &&
+      input.completedWorktreeDisposition === "removed-on-branch"
+    ) {
+      return "intended-removal";
+    }
+
+    return "blocked-unknown";
+  }
+
+  if (input.isSharedModifiedTestPath) {
+    return "blocked-unknown";
+  }
+
+  if (
+    input.completedWorktreeDisposition === "existed-modified" &&
+    input.changedInCompletedBranchDiff === true
+  ) {
+    return "operator-owned-work";
+  }
+
+  return "blocked-unknown";
+}
+
+function buildLatentDiffusionRootPathClassificationEvidence(input: {
+  changeKind: PlannerWorktreeDriftChangeKind | null;
+  changedInCompletedBranchDiff: boolean | null;
+  completedWorktreeDisposition: LatentDiffusionCompletedWorktreePathDisposition | null;
+  headPresent: boolean | null;
+  isSharedModifiedTestPath: boolean;
+  path: string;
+  presentOnOriginMain: boolean;
+  remoteBaseRef: string;
+  statusCode: string | null;
+}): LatentDiffusionRootDirtyPathClassificationEvidence {
+  const rootCheckoutStatus = mapChangeKindToRootCheckoutStatus(input.changeKind);
+  const classification = determineLatentDiffusionRootPathClassification({
+    changeKind: input.changeKind,
+    changedInCompletedBranchDiff: input.changedInCompletedBranchDiff,
+    completedWorktreeDisposition: input.completedWorktreeDisposition,
+    isSharedModifiedTestPath: input.isSharedModifiedTestPath,
+    presentOnOriginMain: input.presentOnOriginMain,
+  });
+
+  const evidence: string[] = [
+    `root-checkout-status=${rootCheckoutStatus}`,
+    input.statusCode
+      ? `root-status-code=${input.statusCode.trim()}`
+      : "root-status-code=clean",
+    `present-on-origin-main=${input.presentOnOriginMain}`,
+    `completed-worktree-disposition=${input.completedWorktreeDisposition ?? "unavailable"}`,
+  ];
+
+  if (input.isSharedModifiedTestPath) {
+    evidence.push("shared-modified-test-path=true");
+  }
+
+  if (input.headPresent !== null) {
+    evidence.push(`head-present=${input.headPresent}`);
+  }
+
+  if (input.changedInCompletedBranchDiff !== null) {
+    evidence.push(
+      `changed-in-completed-branch-diff=${input.changedInCompletedBranchDiff}`,
+    );
+  }
+
+  if (classification === "stale-merge-checkouter-drift") {
+    evidence.push(
+      `present-on-${input.remoteBaseRef}=true with root deletion and no completed-branch removal signal`,
+    );
+  }
+
+  return {
+    changedInCompletedBranchDiff: input.changedInCompletedBranchDiff,
+    classification,
+    completedWorktreeDisposition: input.completedWorktreeDisposition,
+    evidence,
+    headPresent: input.headPresent,
+    isSharedModifiedTestPath: input.isSharedModifiedTestPath,
+    path: input.path,
+    presentOnOriginMain: input.presentOnOriginMain,
+    rootCheckoutStatus,
+    statusCode: input.statusCode,
+  };
+}
+
+export function classifyLatentDiffusionRootDirtyPaths(
+  options: ClassifyLatentDiffusionRootDirtyPathsOptions,
+): LatentDiffusionRootDirtyPathClassificationEvidence[] {
+  const runGit = options.runGit ?? defaultRunGit;
+  const dirtyPathByPath = new Map(
+    options.landedEvidenceReport.rootCheckoutEvidence.latentDiffusionDirtyPaths.map(
+      (entry) => [entry.path, entry],
+    ),
+  );
+  const completedPathByPath = new Map(
+    options.completedWorktreeReport.pathEvidence.map((entry) => [
+      entry.path,
+      entry,
+    ]),
+  );
+  const originMainPresenceByPath = new Map(
+    options.landedEvidenceReport.originMainSurfaces.map((surface) => [
+      surface.path,
+      surface.presentOnOriginMain,
+    ]),
+  );
+
+  return LATENT_DIFFUSION_RECONCILIATION_DIRTY_PATHS.map((path) => {
+    const dirtyPath = dirtyPathByPath.get(path);
+    const completedPath = completedPathByPath.get(path);
+    const presentOnOriginMain =
+      originMainPresenceByPath.get(path) ??
+      completedPath?.presentOnOriginMain ??
+      pathExistsOnGitRef(
+        options.repoRoot,
+        options.remoteBaseRef,
+        path,
+        runGit,
+      );
+    const changeKind = dirtyPath?.changeKind ?? null;
+    const headPresent =
+      changeKind === "deleted"
+        ? pathExistsOnGitRef(options.repoRoot, "HEAD", path, runGit)
+        : null;
+
+    return buildLatentDiffusionRootPathClassificationEvidence({
+      changeKind,
+      changedInCompletedBranchDiff:
+        completedPath?.changedInCompletedBranchDiff ?? null,
+      completedWorktreeDisposition: completedPath?.disposition ?? null,
+      headPresent,
+      isSharedModifiedTestPath: isLatentDiffusionSharedModifiedTestPath(path),
+      path,
+      presentOnOriginMain,
+      remoteBaseRef: options.remoteBaseRef,
+      statusCode: dirtyPath?.statusCode ?? null,
+    });
+  });
+}
+
+export function buildLatentDiffusionRootDirtyPathClassificationReport(
+  options: {
+    completedWorktreeReport?: LatentDiffusionCompletedWorktreeEvidenceReport;
+    generatedAtUtc?: string;
+    landedEvidenceReport?: LatentDiffusionLandedEvidenceReport;
+    remoteBaseRef?: string;
+    repoRoot?: string;
+    runGit?: RunGit;
+    runGitStatus?: RunGitStatus;
+    statusOutput?: string;
+  } = {},
+): LatentDiffusionRootDirtyPathClassificationReport {
+  const repoRoot = resolve(options.repoRoot ?? process.cwd());
+  const runGit = options.runGit ?? defaultRunGit;
+  const runGitStatus = options.runGitStatus ?? defaultRunGitStatus;
+  const remoteBaseRef =
+    options.remoteBaseRef ?? detectDefaultRemoteBaseRef(repoRoot, runGit);
+  const landedEvidenceReport =
+    options.landedEvidenceReport ??
+    verifyLatentDiffusionLandedEvidence({
+      generatedAtUtc: options.generatedAtUtc,
+      remoteBaseRef,
+      repoRoot,
+      runGit,
+      runGitStatus,
+      statusOutput: options.statusOutput,
+    });
+  const completedWorktreeReport =
+    options.completedWorktreeReport ??
+    inspectLatentDiffusionCompletedWorktreeEvidence({
+      generatedAtUtc: options.generatedAtUtc,
+      remoteBaseRef,
+      repoRoot,
+      runGit,
+    });
+  const pathClassifications = classifyLatentDiffusionRootDirtyPaths({
+    completedWorktreeReport,
+    landedEvidenceReport,
+    remoteBaseRef,
+    repoRoot,
+    runGit,
+  });
+
+  const countByClassification = (
+    classification: LatentDiffusionRootPathClassification,
+  ): number =>
+    pathClassifications.filter(
+      (entry) => entry.classification === classification,
+    ).length;
+
+  return {
+    blockedUnknownCount: countByClassification("blocked-unknown"),
+    clearedCount: countByClassification("cleared"),
+    generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
+    intendedRemovalCount: countByClassification("intended-removal"),
+    operatorOwnedCount: countByClassification("operator-owned-work"),
+    pathClassifications,
+    remoteBaseRef,
+    repoRoot,
+    staleDriftCount: countByClassification("stale-merge-checkouter-drift"),
+  };
+}
+
+function formatRootDirtyPathClassificationLine(
+  entry: LatentDiffusionRootDirtyPathClassificationEvidence,
+): string {
+  return [
+    `    - path=${entry.path}`,
+    `classification=${entry.classification}`,
+    `root-checkout-status=${entry.rootCheckoutStatus}`,
+    entry.statusCode
+      ? `status-code=${entry.statusCode.trim()}`
+      : "status-code=clean",
+    `present-on-origin-main=${entry.presentOnOriginMain}`,
+    `completed-worktree-disposition=${entry.completedWorktreeDisposition ?? "unavailable"}`,
+    entry.isSharedModifiedTestPath
+      ? "shared-modified-test-path=true"
+      : "shared-modified-test-path=false",
+    `evidence=${entry.evidence.join("; ")}`,
+  ].join(" ");
+}
+
+export function formatLatentDiffusionRootDirtyPathClassificationReport(
+  report: LatentDiffusionRootDirtyPathClassificationReport,
+): string {
+  const lines = [
+    `${LATENT_DIFFUSION_ROOT_DELETION_RECONCILIATION_HEADER} — Root Dirty Path Classification`,
+    `remote-base-ref=${report.remoteBaseRef} path-count=${report.pathClassifications.length} cleared=${report.clearedCount} stale-drift=${report.staleDriftCount} operator-owned=${report.operatorOwnedCount} intended-removal=${report.intendedRemovalCount} blocked-unknown=${report.blockedUnknownCount}`,
+  ];
+
+  for (const entry of report.pathClassifications) {
+    lines.push(formatRootDirtyPathClassificationLine(entry));
+  }
+
+  lines.push(
+    "- classification-note: cleared paths have no root dirty status; stale-merge-checkouter-drift requires present-on-origin-main deletion without completed-branch removal; shared modified tests require explicit ownership when dirty.",
+  );
+
+  return lines.join("\n");
+}
+
+export function serializeLatentDiffusionRootDirtyPathClassificationReport(
+  report: LatentDiffusionRootDirtyPathClassificationReport,
 ): string {
   return JSON.stringify(report, null, 2);
 }
