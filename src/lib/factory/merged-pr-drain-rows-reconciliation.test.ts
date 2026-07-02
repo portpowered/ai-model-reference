@@ -1,8 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildMergedPrDrainRowsClassificationReport,
+  classifyMergedPrDrainRowOutcome,
   collectMergedPrDrainRowsEvidence,
+  formatMergedPrDrainRowsClassificationReport,
   formatMergedPrDrainRowsEvidenceReport,
   MERGED_PR_DRAIN_ROWS_TARGET_SESSION_ID,
+  serializeMergedPrDrainRowsClassificationReport,
   serializeMergedPrDrainRowsEvidenceReport,
 } from "@/lib/factory/merged-pr-drain-rows-reconciliation";
 
@@ -192,6 +196,151 @@ describe("collectMergedPrDrainRowsEvidence", () => {
       "MAMBA",
       "glossary-decomposition",
       "bpe-page",
+    ]);
+  });
+});
+
+function buildClassificationFixtureReport() {
+  return collectMergedPrDrainRowsEvidence({
+    generatedAtUtc: "2026-07-02T18:00:00.000Z",
+    repoRoot: process.cwd(),
+    remoteBaseRef: "origin/main",
+    sourceSession: SESSION_ID,
+    workListJsonText: buildFixtureWorkList(),
+    worktreesDir: "/tmp/missing-worktrees",
+    lookupPullRequestByNumber: (pullRequestNumber) => ({
+      pullRequest: {
+        number: pullRequestNumber,
+        state: "MERGED",
+        mergedAt: "2026-07-02T17:00:00Z",
+        mergeCommitSha: `merge-${pullRequestNumber}`,
+        headRefName: `branch-${pullRequestNumber}`,
+      },
+    }),
+    runCommand: (binary, args) => {
+      if (binary === "git" && args[0] === "rev-parse" && args[1] === "--git-common-dir") {
+        return { ok: true, stdout: ".git\n", stderr: "", exitCode: 0 };
+      }
+      if (binary === "git" && args[0] === "merge-base") {
+        return { ok: true, stdout: "", stderr: "", exitCode: 0 };
+      }
+      if (binary === "git" && args[0] === "rev-parse") {
+        return {
+          ok: true,
+          stdout: "209d1bd8ced0cced5fd99992fe50f23296d126e8\n",
+          stderr: "",
+          exitCode: 0,
+        };
+      }
+      if (binary === "git" && args[0] === "status") {
+        return { ok: true, stdout: "", stderr: "", exitCode: 0 };
+      }
+      return { ok: false, stdout: "", stderr: "unsupported", exitCode: 1 };
+    },
+  });
+}
+
+describe("classifyMergedPrDrainRowOutcome", () => {
+  test("classifies merged rows with stale init drain rows as consume", () => {
+    const report = buildClassificationFixtureReport();
+    const consumeRows = ["ltx-23", "MAMBA", "glossary-decomposition"];
+
+    for (const workItemName of consumeRows) {
+      const row = report.rows.find(
+        (candidate) => candidate.definition.workItemName === workItemName,
+      );
+      expect(row).toBeDefined();
+      const classification = classifyMergedPrDrainRowOutcome(row as NonNullable<typeof row>);
+      expect(classification.outcome).toBe("consume");
+      expect(classification.observedPrState).toContain("MERGED");
+      expect(classification.observedQueueState).toContain("drain-row=drain-row-initial");
+      expect(classification.evidenceSentence).toContain("terminal-complete");
+    }
+  });
+
+  test("classifies rows without drain rows and terminal content lanes as no-op", () => {
+    const report = buildClassificationFixtureReport();
+    const bpeRow = report.rows.find(
+      (row) => row.definition.workItemName === "bpe-page",
+    );
+    expect(bpeRow).toBeDefined();
+
+    const classification = classifyMergedPrDrainRowOutcome(bpeRow as NonNullable<typeof bpeRow>);
+    expect(classification.outcome).toBe("no-op");
+    expect(classification.noOpReason).toBe("already-settled");
+    expect(classification.observedQueueState).toContain("drain-row=no-drain-row");
+  });
+
+  test("classifies open PR truth as no-op with pr-not-merged reason", () => {
+    const report = buildClassificationFixtureReport();
+    const ltxRow = report.rows.find(
+      (row) => row.definition.workItemName === "ltx-23",
+    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+
+    ltxRow.pullRequestTruth.state = "OPEN";
+    ltxRow.pullRequestTruth.availability = "open";
+    ltxRow.mergedVsQueueTruth.mergedPullRequestTruth = "not-merged";
+
+    const classification = classifyMergedPrDrainRowOutcome(ltxRow);
+    expect(classification.outcome).toBe("no-op");
+    expect(classification.noOpReason).toBe("pr-not-merged");
+  });
+
+  test("classifies non-terminal drain rows with finished lanes as complete", () => {
+    const report = buildClassificationFixtureReport();
+    const ltxRow = report.rows.find(
+      (row) => row.definition.workItemName === "ltx-23",
+    ) as NonNullable<ReturnType<typeof buildClassificationFixtureReport>["rows"][number]>;
+
+    ltxRow.mergedVsQueueTruth.drainRowQueueTruth = "non-terminal";
+    ltxRow.drainRowTokens = [
+      {
+        availability: "present",
+        workItemName: "ltx-23-pr281-drain",
+        workTypeName: "idea",
+        stateName: "in-review",
+        stateType: "PROCESSING",
+      },
+    ];
+
+    const classification = classifyMergedPrDrainRowOutcome(ltxRow);
+    expect(classification.outcome).toBe("complete");
+    expect(classification.evidenceSentence).toContain("terminal completion transition");
+  });
+
+  test("builds and formats a classification report for all four rows", () => {
+    const evidenceReport = buildClassificationFixtureReport();
+    const classificationReport =
+      buildMergedPrDrainRowsClassificationReport(evidenceReport);
+
+    expect(classificationReport.rows).toHaveLength(4);
+    expect(
+      classificationReport.rows.map((row) => ({
+        workItemName: row.row.definition.workItemName,
+        outcome: row.outcome,
+      })),
+    ).toEqual([
+      { workItemName: "ltx-23", outcome: "consume" },
+      { workItemName: "MAMBA", outcome: "consume" },
+      { workItemName: "glossary-decomposition", outcome: "consume" },
+      { workItemName: "bpe-page", outcome: "no-op" },
+    ]);
+
+    const formatted = formatMergedPrDrainRowsClassificationReport(classificationReport);
+    expect(formatted).toContain("Merged PR Drain Rows Reconciliation — Classification");
+    expect(formatted).toContain("work-item=ltx-23 pr=#281 outcome=consume");
+    expect(formatted).toContain("work-item=bpe-page pr=#286 outcome=no-op");
+
+    const serialized = JSON.parse(
+      serializeMergedPrDrainRowsClassificationReport(classificationReport),
+    ) as {
+      rows: Array<{ outcome: string }>;
+    };
+    expect(serialized.rows.map((row) => row.outcome)).toEqual([
+      "consume",
+      "consume",
+      "consume",
+      "no-op",
     ]);
   });
 });

@@ -22,11 +22,27 @@ environment.
 bun run report:merged-pr-drain-rows-reconciliation
 ```
 
+Text output includes evidence plus per-row `consume` / `complete` / `no-op`
+classification. JSON output (`--json` or `--format json`) serializes the
+classification report.
+
 Fixture-backed unit tests:
 
 ```bash
 bun test src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts
 ```
+
+## Classification outcomes (2026-07-02 UTC)
+
+| Work item | PR | Outcome | Evidence |
+| --- | --- | --- | --- |
+| `ltx-23` | #281 | `consume` | PR merged into `origin/main`; content lane terminal-complete; drain row `ltx-23-pr281-drain` remains `init/INITIAL`. |
+| `MAMBA` | #282 | `consume` | PR merged into `origin/main`; content lane terminal-complete; drain row `mamba-pr282-drain` remains `init/INITIAL`. |
+| `glossary-decomposition` | #284 | `consume` | PR merged into `origin/main`; content lane terminal-complete; drain row `glossary-decomposition-pr284-conflict-refresh` remains `init/INITIAL`. |
+| `bpe-page` | #286 | `no-op` | No dedicated drain row; content lane already terminal-complete (`already-settled`). |
+
+Classification is derived from queue + PR evidence. Worktree metadata augments
+evidence but is not required when queue tokens and PR truth are sufficient.
 
 ## Observed report (2026-07-02T19:17:41Z UTC)
 
@@ -96,7 +112,8 @@ recorded separately in the report `merged-vs-queue-truth` field per row.
 * `src/lib/factory/merged-pr-drain-rows-reconciliation.ts` — read-only evidence
   capture for the four named rows: queue tokens, GitHub PR truth via
   `gh pr view`, worktree lane metadata, `origin/main` identity, main-repo root
-  checkout dirty-path count, and explicit merged-vs-queue truth distinction.
+  checkout dirty-path count, explicit merged-vs-queue truth distinction, and
+  per-row `consume` / `complete` / `no-op` classification.
 * `scripts/report-merged-pr-drain-rows-reconciliation.ts` — planner-facing CLI.
   Resolves main-repo worktrees via `git rev-parse --git-common-dir` so reports
   work from nested git worktrees.
@@ -112,8 +129,8 @@ recorded separately in the report `merged-vs-queue-truth` field per row.
 
 ## Scope guardrails
 
-This lane gathers evidence only. It does not edit page content, registry content,
-queue rows, worktree files, or root checkout state.
+This lane gathers evidence and classification only. It does not edit page
+content, registry content, queue rows, worktree files, or root checkout state.
 
 ## Verification for story 001
 
@@ -122,4 +139,13 @@ queue rows, worktree files, or root checkout state.
 | Typecheck | `bun run typecheck` — pass |
 | Unit tests | `merged-pr-drain-rows-reconciliation.test.ts` — pass |
 | Live report | `bun run report:merged-pr-drain-rows-reconciliation` — pass |
+| Content/page payload | not modified |
+
+## Verification for story 002
+
+| Gate | Result |
+| --- | --- |
+| Typecheck | `bun run typecheck` — pass |
+| Classification unit tests | `classifyMergedPrDrainRowOutcome` cases — pass |
+| Live classification report | `bun run report:merged-pr-drain-rows-reconciliation` — pass |
 | Content/page payload | not modified |

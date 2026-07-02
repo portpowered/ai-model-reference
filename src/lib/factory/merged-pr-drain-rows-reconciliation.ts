@@ -137,6 +137,35 @@ export interface MergedPrDrainRowsEvidenceReport {
   sourceSession: string;
 }
 
+export type MergedPrDrainRowOutcome = "consume" | "complete" | "no-op";
+
+export type MergedPrDrainRowNoOpReason =
+  | "already-terminal"
+  | "already-settled"
+  | "unfinished-implementation"
+  | "unfinished-review"
+  | "row-pr-mismatch"
+  | "missing-metadata"
+  | "inaccessible-pr-truth"
+  | "pr-not-merged"
+  | "missing-queue-evidence"
+  | "unsafe-root-checkout";
+
+export interface MergedPrDrainRowClassification {
+  evidenceSentence: string;
+  observedPrState: string;
+  observedQueueState: string;
+  outcome: MergedPrDrainRowOutcome;
+  pullRequestNumber: number;
+  row: MergedPrDrainRowEvidence;
+  noOpReason?: MergedPrDrainRowNoOpReason;
+}
+
+export interface MergedPrDrainRowsClassificationReport {
+  evidenceReport: MergedPrDrainRowsEvidenceReport;
+  rows: MergedPrDrainRowClassification[];
+}
+
 export interface MergedPullRequestLookupResult {
   pullRequest: {
     baseRefName?: string;
@@ -802,4 +831,264 @@ export function serializeMergedPrDrainRowsEvidenceReport(
   report: MergedPrDrainRowsEvidenceReport,
 ): string {
   return `${JSON.stringify(report, null, 2)}\n`;
+}
+
+function isTokenTerminalComplete(token: QueueTokenEvidence): boolean {
+  const stateName = token.stateName?.toLowerCase();
+  const stateType = token.stateType?.toUpperCase();
+  return stateName === "complete" && stateType === "TERMINAL";
+}
+
+function hasUnfinishedImplementation(
+  contentLaneTokens: QueueTokenEvidence[],
+): boolean {
+  const taskTokens = contentLaneTokens.filter(
+    (token) =>
+      token.availability === "present" &&
+      token.workTypeName?.toLowerCase() === "task",
+  );
+  if (taskTokens.length === 0) {
+    return false;
+  }
+  return taskTokens.some((token) => !isTokenTerminalComplete(token));
+}
+
+function hasUnfinishedReview(contentLaneTokens: QueueTokenEvidence[]): boolean {
+  const reviewTokens = contentLaneTokens.filter(
+    (token) =>
+      token.availability === "present" &&
+      token.workTypeName?.toLowerCase() === "review",
+  );
+  if (reviewTokens.length === 0) {
+    return false;
+  }
+  return reviewTokens.some((token) => !isTokenTerminalComplete(token));
+}
+
+function summarizeObservedQueueState(row: MergedPrDrainRowEvidence): string {
+  const contentLaneSummary = `content-lane=${row.mergedVsQueueTruth.contentLaneQueueTruth}`;
+  const drainRowSummary = `drain-row=${row.mergedVsQueueTruth.drainRowQueueTruth}`;
+  return `${contentLaneSummary}; ${drainRowSummary}`;
+}
+
+function summarizeObservedPrState(row: MergedPrDrainRowEvidence): string {
+  if (row.pullRequestTruth.availability === "unavailable") {
+    return "unavailable";
+  }
+  const state = row.pullRequestTruth.state ?? "unknown";
+  const lineage = row.pullRequestTruth.mergePresentInOriginMainLineage
+    ? "in-origin-main-lineage"
+    : "not-in-origin-main-lineage";
+  return `${state}/${lineage}`;
+}
+
+function buildNoOpClassification(options: {
+  evidenceSentence: string;
+  noOpReason: MergedPrDrainRowNoOpReason;
+  row: MergedPrDrainRowEvidence;
+}): MergedPrDrainRowClassification {
+  return {
+    row: options.row,
+    pullRequestNumber: options.row.definition.pullRequestNumber,
+    observedQueueState: summarizeObservedQueueState(options.row),
+    observedPrState: summarizeObservedPrState(options.row),
+    outcome: "no-op",
+    noOpReason: options.noOpReason,
+    evidenceSentence: options.evidenceSentence,
+  };
+}
+
+export function classifyMergedPrDrainRowOutcome(
+  row: MergedPrDrainRowEvidence,
+): MergedPrDrainRowClassification {
+  const observedQueueState = summarizeObservedQueueState(row);
+  const observedPrState = summarizeObservedPrState(row);
+  const baseFields = {
+    row,
+    pullRequestNumber: row.definition.pullRequestNumber,
+    observedQueueState,
+    observedPrState,
+  };
+
+  if (row.pullRequestTruth.availability === "unavailable") {
+    return buildNoOpClassification({
+      row,
+      noOpReason: "inaccessible-pr-truth",
+      evidenceSentence:
+        "GitHub PR truth is unavailable, so queue movement cannot be classified safely.",
+    });
+  }
+
+  if (row.mergedVsQueueTruth.mergedPullRequestTruth !== "merged-into-origin-main") {
+    return buildNoOpClassification({
+      row,
+      noOpReason: "pr-not-merged",
+      evidenceSentence:
+        "PR is not merged into current origin/main lineage, so the row must stay active.",
+    });
+  }
+
+  if (row.mergedVsQueueTruth.contentLaneQueueTruth === "missing-from-queue") {
+    return buildNoOpClassification({
+      row,
+      noOpReason: "missing-queue-evidence",
+      evidenceSentence:
+        "Content-lane queue tokens are missing, so completion cannot be inferred safely.",
+    });
+  }
+
+  if (hasUnfinishedImplementation(row.contentLaneTokens)) {
+    return buildNoOpClassification({
+      row,
+      noOpReason: "unfinished-implementation",
+      evidenceSentence:
+        "Content-lane task tokens are still non-terminal, so implementation work remains active.",
+    });
+  }
+
+  if (hasUnfinishedReview(row.contentLaneTokens)) {
+    return buildNoOpClassification({
+      row,
+      noOpReason: "unfinished-review",
+      evidenceSentence:
+        "Content-lane review tokens are still non-terminal, so review work remains active.",
+    });
+  }
+
+  if (
+    row.worktreeMetadata.availability === "present" &&
+    row.worktreeMetadata.pullRequestNumber !== undefined &&
+    row.worktreeMetadata.pullRequestNumber !== row.definition.pullRequestNumber
+  ) {
+    return buildNoOpClassification({
+      row,
+      noOpReason: "row-pr-mismatch",
+      evidenceSentence: `Worktree metadata stamps PR #${row.worktreeMetadata.pullRequestNumber}, which does not match expected PR #${row.definition.pullRequestNumber}.`,
+    });
+  }
+
+  const drainRowTruth = row.mergedVsQueueTruth.drainRowQueueTruth;
+  const contentLaneTruth = row.mergedVsQueueTruth.contentLaneQueueTruth;
+
+  if (drainRowTruth === "no-drain-row") {
+    if (contentLaneTruth === "content-lane-terminal-complete") {
+      return {
+        ...baseFields,
+        outcome: "no-op",
+        noOpReason: "already-settled",
+        evidenceSentence:
+          "No dedicated drain row exists and the content lane is already terminal-complete.",
+      };
+    }
+
+    return buildNoOpClassification({
+      row,
+      noOpReason: "missing-queue-evidence",
+      evidenceSentence:
+        "No drain row exists and the content lane is not terminal-complete, so no safe transition is available.",
+    });
+  }
+
+  if (drainRowTruth === "content-lane-terminal-complete") {
+    return {
+      ...baseFields,
+      outcome: "no-op",
+      noOpReason: "already-terminal",
+      evidenceSentence:
+        "The drain row is already terminal-complete, so no queue movement is required.",
+    };
+  }
+
+  if (drainRowTruth === "missing-from-queue") {
+    return buildNoOpClassification({
+      row,
+      noOpReason: "missing-queue-evidence",
+      evidenceSentence:
+        "Expected drain-row queue tokens are missing, so consume/complete cannot be selected safely.",
+    });
+  }
+
+  if (
+    contentLaneTruth === "content-lane-terminal-complete" &&
+    drainRowTruth === "drain-row-initial"
+  ) {
+    return {
+      ...baseFields,
+      outcome: "consume",
+      evidenceSentence:
+        "PR is merged into origin/main, the content lane is terminal-complete, and the stale drain row remains init/INITIAL.",
+    };
+  }
+
+  if (
+    contentLaneTruth === "content-lane-terminal-complete" &&
+    drainRowTruth === "non-terminal"
+  ) {
+    return {
+      ...baseFields,
+      outcome: "complete",
+      evidenceSentence:
+        "PR is merged and implementation/review are finished, but the drain row still needs a valid terminal completion transition.",
+    };
+  }
+
+  return buildNoOpClassification({
+    row,
+    noOpReason: "missing-queue-evidence",
+    evidenceSentence:
+      "Queue evidence does not match a safe consume, complete, or already-settled path.",
+  });
+}
+
+export function buildMergedPrDrainRowsClassificationReport(
+  evidenceReport: MergedPrDrainRowsEvidenceReport,
+): MergedPrDrainRowsClassificationReport {
+  return {
+    evidenceReport,
+    rows: evidenceReport.rows.map(classifyMergedPrDrainRowOutcome),
+  };
+}
+
+function formatClassificationRow(row: MergedPrDrainRowClassification): string[] {
+  const lines = [
+    `- work-item=${row.row.definition.workItemName} pr=#${row.pullRequestNumber} outcome=${row.outcome}`,
+    `  observed-queue-state=${row.observedQueueState}`,
+    `  observed-pr-state=${row.observedPrState}`,
+    `  evidence=${row.evidenceSentence}`,
+  ];
+  if (row.noOpReason) {
+    lines.push(`  no-op-reason=${row.noOpReason}`);
+  }
+  return lines;
+}
+
+export function formatMergedPrDrainRowsClassificationReport(
+  report: MergedPrDrainRowsClassificationReport,
+): string {
+  const lines = [
+    `${MERGED_PR_DRAIN_ROWS_RECONCILIATION_HEADER} — Classification`,
+    `generated-at=${report.evidenceReport.generatedAtUtc} session=${report.evidenceReport.sourceSession}`,
+    "",
+    "Row outcomes",
+  ];
+
+  for (const row of report.rows) {
+    lines.push(...formatClassificationRow(row));
+  }
+
+  return `${lines.join("\n").trimEnd()}\n`;
+}
+
+export function serializeMergedPrDrainRowsClassificationReport(
+  report: MergedPrDrainRowsClassificationReport,
+): string {
+  return `${JSON.stringify(report, null, 2)}\n`;
+}
+
+export function formatMergedPrDrainRowsReconciliationReport(
+  evidenceReport: MergedPrDrainRowsEvidenceReport,
+): string {
+  const classificationReport =
+    buildMergedPrDrainRowsClassificationReport(evidenceReport);
+  return `${formatMergedPrDrainRowsEvidenceReport(evidenceReport).trimEnd()}\n\n${formatMergedPrDrainRowsClassificationReport(classificationReport).trimEnd()}\n`;
 }
