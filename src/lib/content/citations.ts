@@ -15,6 +15,7 @@ import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep
 import gpt2Report from "@/content/registry/citations/gpt-2-report.json";
 import gqaPaper from "@/content/registry/citations/gqa-paper.json";
 import groupNormalization from "@/content/registry/citations/group-normalization.json";
+import highResolutionImageSynthesisWithLatentDiffusionModels from "@/content/registry/citations/high-resolution-image-synthesis-with-latent-diffusion-models.json";
 import imageIsWorth16x16Words from "@/content/registry/citations/image-is-worth-16x16-words.json";
 import kaiokendevSuperhot from "@/content/registry/citations/kaiokendev-superhot.json";
 import kaplanScalingLaws from "@/content/registry/citations/kaplan-scaling-laws.json";
@@ -69,6 +70,9 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(goodfellowDeepLearning),
   citationRecordSchema.parse(gluVariantsImproveTransformer),
   citationRecordSchema.parse(gpt2Report),
+  citationRecordSchema.parse(
+    highResolutionImageSynthesisWithLatentDiffusionModels,
+  ),
   citationRecordSchema.parse(gqaPaper),
   citationRecordSchema.parse(groupNormalization),
   citationRecordSchema.parse(imageIsWorth16x16Words),

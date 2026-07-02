@@ -1,0 +1,30 @@
+{
+  "id": "citation.high-resolution-image-synthesis-with-latent-diffusion-models",
+  "slug": "high-resolution-image-synthesis-with-latent-diffusion-models",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Latent Diffusion Models paper",
+    "LDM paper",
+    "Stable Diffusion paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Robin Rombach",
+    "Andreas Blattmann",
+    "Dominik Lorenz",
+    "Patrick Esser",
+    "Björn Ommer"
+  ],
+  "title": "High-Resolution Image Synthesis with Latent Diffusion Models",
+  "year": 2022,
+  "url": "https://arxiv.org/abs/2112.10752",
+  "mla": "Rombach, Robin, et al. \"High-Resolution Image Synthesis with Latent Diffusion Models.\" arXiv, 2022, https://arxiv.org/abs/2112.10752."
+}

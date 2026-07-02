@@ -1,0 +1,57 @@
+{
+  "id": "model.stable-diffusion",
+  "slug": "stable-diffusion",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Stable Diffusion",
+    "SD",
+    "latent diffusion model",
+    "text to image diffusion",
+    "text-to-image diffusion",
+    "latent diffusion image model"
+  ],
+  "tags": ["model-family", "foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.diffusion-model",
+    "concept.denoising-generation",
+    "concept.latent-space",
+    "concept.latent",
+    "concept.conditioning",
+    "concept.loss-function"
+  ],
+  "citationIds": [
+    "citation.high-resolution-image-synthesis-with-latent-diffusion-models",
+    "citation.learning-transferable-visual-models-from-natural-language-supervision",
+    "citation.denoising-diffusion-probabilistic-models"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "authors": [
+    "Robin Rombach",
+    "Andreas Blattmann",
+    "Dominik Lorenz",
+    "Patrick Esser",
+    "Björn Ommer",
+    "Stability AI"
+  ],
+  "sourceId": "citation.high-resolution-image-synthesis-with-latent-diffusion-models",
+  "family": "stable-diffusion",
+  "sourceType": "open-weights",
+  "modalities": ["image"],
+  "architectureIds": [
+    "concept.diffusion-model",
+    "concept.denoising-generation",
+    "concept.latent-space",
+    "concept.latent",
+    "concept.conditioning"
+  ],
+  "moduleIds": [],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2022-08-22",
+  "parameterCount": "roughly 860 million parameters across the U-Net and text encoder"
+}
