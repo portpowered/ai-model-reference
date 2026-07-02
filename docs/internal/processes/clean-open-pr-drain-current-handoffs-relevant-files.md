@@ -675,7 +675,7 @@ artifacts, root work, worktree files, or queue rows were modified by this lane.
 
 | Work id | Type | State | Next planner action |
 | --- | --- | --- | --- |
-| `batch-current-main-and-open-pr-convergence-batch-075-clean-open-pr-drain-current-handoffs` | idea | `to-complete` / PROCESSING | Consume after PR #297 review when operator accepts final report |
+| `batch-current-main-and-open-pr-convergence-batch-075-clean-open-pr-drain-current-handoffs` | idea | `to-complete` / PROCESSING | Consume after PR #307 review when operator accepts final report |
 | `work-plan-128` | plan | `complete` / TERMINAL | — |
 | `work-task-129` | task | `init` / PROCESSING | Close when drain PR merges |
 
