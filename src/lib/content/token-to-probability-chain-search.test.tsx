@@ -37,7 +37,11 @@ const CHAIN_GLOSSARY_PAGES: readonly ChainGlossaryPage[] = [
   { title: "Entropy", url: "/docs/glossary/entropy" },
   { title: "Temperature", url: "/docs/glossary/temperature" },
   { title: "Parameter", url: "/docs/glossary/parameter" },
-  { title: "Activation", url: "/docs/glossary/activation" },
+  {
+    title: "Activation",
+    url: "/docs/glossary/activation",
+    searchUrl: "/docs/concepts/activation",
+  },
   {
     title: "Computational Graph",
     url: "/docs/glossary/computational-graph",
