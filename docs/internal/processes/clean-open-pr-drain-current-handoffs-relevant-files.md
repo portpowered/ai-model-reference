@@ -444,3 +444,148 @@ bun run test
 ```
 
 Result: typecheck PASS (2026-07-02T21:08Z UTC); full test suite PASS — 3615 pass / 0 fail (2026-07-02T21:27Z UTC).
+
+## Story 004 — non-content repair PR handoffs (#273, #268, #294)
+
+Captured 2026-07-02T22:05Z UTC. This story documents operator handoffs for the
+three non-content repair PRs targeted by the drain lane. No page content,
+registry content, root work, worktree files, queue rows, staging area, or branch
+history were mutated. No branch refresh, root cleanup, or broad factory refactor
+was attempted from this drain lane.
+
+### `origin/main` identity (refreshed)
+
+| Field | Value |
+| --- | --- |
+| `origin/main` SHA | `9fa3fa8bed8febb6795d3001366b98bbc7b81fdf` |
+| Commit date | 2026-07-02 14:28:22 -0700 |
+| Subject | Merge pull request #301 from portpowered/root-main-lag-and-current-truth-reconciliation |
+
+PR #294 merge commit `209d1bd8ced0cced5fd99992fe50f23296d126e8` remains an
+ancestor of current `origin/main`.
+
+### Non-content handoff summary
+
+| PR | Work item | Story 002 outcome | Story 004 handoff type | Live evidence supports handoff? |
+| --- | --- | --- | --- | --- |
+| [#273](https://github.com/portpowered/ai-model-reference/pull/273) | `tokens-per-second-pr251-merge-handoff` | blocked-owner-handoff | **blocked-owner-handoff** (merge/queue recovery) | yes — conflict drift; recovery lane complete |
+| [#268](https://github.com/portpowered/ai-model-reference/pull/268) | `terminal-audit-root-staged-deletion-handoff` | merge-ready-handoff | **merge-ready-handoff** | yes — MERGEABLE/CLEAN, BLOCKING addressed |
+| [#294](https://github.com/portpowered/ai-model-reference/pull/294) | `generic-pr277-pr279-conflict-refresh-handoff` | already-consumed | **already-consumed** | yes — merged on `main` |
+
+**Scope guard (reconfirmed):** This drain lane must not start a new
+tokens-per-second content implementation lane, clean or mutate unrelated root
+dirty paths, reopen the merged generic PR #277/#279 conflict-refresh handoff, or
+introduce broad planner, factory, route, search, registry, or root-cleanup work.
+
+### PR #273 — `tokens-per-second-pr251-merge-handoff` (blocked-owner-handoff)
+
+Handled as a **tokens-per-second PR #251 merge/queue recovery handoff**, not as a
+new tokens-per-second content implementation lane. The merge-handoff worktree
+PRD is complete (all stories `passes: true`); PR conversation documents story
+004 non-page scope preservation on head `9a2bf86e`.
+
+| Field | Value |
+| --- | --- |
+| Existing row | queue-absent; handoff worktree PRD all stories `passes: true` |
+| Recovery target | PR [#251](https://github.com/portpowered/ai-model-reference/pull/251) (`tokens-per-second-serving-metric-page`, blocked on unresolved BLOCKING review) |
+| Head branch | `tokens-per-second-pr251-merge-handoff` @ `9a2bf86e` |
+| Current `origin/main` | `9fa3fa8b` |
+| Merge state | CONFLICTING / DIRTY (`baseRefOid=05852b8d`, stale vs current main) |
+| CI on handoff head | 11/11 SUCCESS (stale base) |
+| Blocker | GitHub merge state DIRTY — conflict refresh required on existing handoff branch before operator can advance PR #251 recovery |
+| Owner | `tokens-per-second-pr251-merge-handoff` worktree (lane metadata PR linkage `missing`) |
+| Evidence artifact | `docs/internal/processes/tokens-per-second-pr251-merge-handoff-relevant-files.md` (sibling worktree) |
+
+**Operator action:** Conflict refresh on branch `tokens-per-second-pr251-merge-handoff`
+only — preserves the lane's 3-path allowlist (handoff docs, factory-linkage cross-ref,
+fixture-backed scope test). Recovery action remains **safe branch refresh on content
+branch `tokens-per-second-serving-metric-page`** after PR #251 clears BLOCKING review
+(shared `prose-auto-link-runtime.ts` surface budget). Do **not** regenerate
+tokens-per-second page content from this drain lane.
+
+**No new content:** Tokens-per-second glossary page remains owned by PR #251;
+this handoff lane records queue/merge recovery evidence only.
+
+**Root dirty paths:** Not touched from this drain lane. Root reconciliation and
+dirty-path ownership stay with terminal-audit and operator-hold lanes.
+
+### PR #268 — `terminal-audit-root-staged-deletion-handoff` (merge-ready-handoff)
+
+Handled as a **terminal-audit/root-staged-deletion handoff** with dirty-root
+ownership boundaries preserved. Prior BLOCKING review (`package.json` in diff,
+dirty-root allowlist) was addressed in PR conversation with mapped fixes: removed
+`package.json` mutation, removed dirty-root touch allowlist, scope guard fails on
+any of the six PRD dirty root paths. No newer BLOCKING/REJECTED/FAIL conversation
+comments follow the addressing reply.
+
+| Field | Value |
+| --- | --- |
+| Existing row | queue-absent; handoff worktree PRD all stories `passes: true` |
+| Repair surface | Read-only terminal-audit root staged deletion evidence (`planner-terminal-audit-root-staged-deletion-handoff` report) |
+| Head branch | `terminal-audit-root-staged-deletion-handoff` @ `d6afe796` |
+| Current `origin/main` | `9fa3fa8b` |
+| Merge state | MERGEABLE / CLEAN |
+| CI (2026-07-02T05:30:14Z UTC head) | 11/11 SUCCESS |
+| PR conversation | BLOCKING addressed with scope-guard fixes; no later BLOCKING markers |
+| Evidence artifact | `docs/internal/processes/terminal-audit-root-staged-deletion-handoff-evidence.md` (sibling worktree) |
+
+**Operator action:** Maintainer review and merge PR #268. Root dirty-path
+ownership (`package.json`, terminal-audit deletions, and the other four PRD dirty
+paths) remains **outside** this drain lane — do not clean, revert, stage, or
+unstage unrelated root paths from here.
+
+**No root cleanup:** This drain lane did not reconcile, restore, or mutate any of
+the six dirty root paths on the planner root checkout.
+
+**Browser verification:** N/A — handoff lane emits planner evidence only; no
+customer-facing docs route changes.
+
+### PR #294 — `generic-pr277-pr279-conflict-refresh-handoff` (already-consumed)
+
+Marked **already consumed** — merged evidence remains current on `origin/main`.
+
+| Field | Value |
+| --- | --- |
+| Existing row | batch-073 idea/plan/review/task all `complete` / TERMINAL |
+| State | **MERGED** 2026-07-02T19:04:52Z at merge commit `209d1bd8` |
+| Head branch | `generic-pr277-pr279-conflict-refresh-handoff` @ `124808d8` |
+| Current `origin/main` | `9fa3fa8b` (includes #294 merge ancestry) |
+| Underlying shell PRs | batch 066 drain ideas (`generic-search-ai-enrichment-pr277-drain`, `generic-site-config-pr279-drain`) retain ownership for PR #277/#279 |
+
+**Operator action:** Consume batch-073 queue row if not already done. Do **not**
+reopen or duplicate the generic PR #277/#279 conflict-refresh handoff. Any
+remaining PR #277/#279 coordination stays with batch 066 drain lanes per
+[generic-pr277-pr279-conflict-refresh-handoff-relevant-files](./generic-pr277-pr279-conflict-refresh-handoff-relevant-files.md).
+
+**No duplicate handoff:** Generic conflict-refresh purpose is fulfilled; this
+drain lane records consumption only.
+
+### Branch refresh actions (story 004)
+
+| PR | Refresh attempted? | Reason |
+| --- | --- | --- |
+| #273 | no | blocked-owner — conflict refresh belongs to owner handoff worktree, not this drain lane |
+| #268 | no | merge-ready — no drain-lane refresh required; operator merge |
+| #294 | no | already-consumed — merged |
+
+### Broad-cleanup guard (story 004)
+
+| Prohibited action | Status |
+| --- | --- |
+| New tokens-per-second content lane | not started |
+| Root dirty-path cleanup / restore | not performed |
+| Generic PR #277/#279 handoff duplication | not performed |
+| Broad planner/factory/route/search/registry refactor | not introduced |
+| Page content, registry, or navigation edits | not performed |
+
+### Quality gate (story 004)
+
+Handoff-only documentation; no page content, registry content, root work,
+worktree files, queue rows, staging area, or branch history were changed.
+
+```bash
+bun run typecheck
+bun run test
+```
+
+Result: typecheck PASS (2026-07-02T22:06Z UTC); full test suite PASS — 3615 pass / 0 fail (2026-07-02T21:53Z UTC).
