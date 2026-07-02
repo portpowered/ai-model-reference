@@ -123,6 +123,41 @@ describe("rerankSearchResults", () => {
     );
   });
 
+  test("prefers published concept pages over module pages when title matches tie", () => {
+    const conceptUrl = "/docs/concepts/mixture-of-experts";
+    const moduleUrl = "/docs/modules/mixture-of-experts";
+    const documentsByUrl = new Map<string, SearchDocument>([
+      [
+        moduleUrl,
+        documentForUrl(moduleUrl, {
+          kind: "module",
+          title: "Mixture of Experts",
+          directAliases: ["MoE", "sparse MoE"],
+          aliases: ["MoE", "sparse MoE"],
+          facets: { kind: "module", tags: ["feed-forward"] },
+        }),
+      ],
+      [
+        conceptUrl,
+        documentForUrl(conceptUrl, {
+          kind: "concept",
+          title: "Mixture of Experts",
+          directAliases: ["MoE", "mixture of experts", "sparse MoE"],
+          aliases: ["MoE", "mixture of experts", "sparse MoE"],
+          facets: { kind: "concept", tags: ["feed-forward"] },
+        }),
+      ],
+    ]);
+
+    expect(
+      findBestTitleMatchPageUrl("mixture of experts", documentsByUrl),
+    ).toBe(conceptUrl);
+    expect(findBestTitleMatchPageUrl("MoE", documentsByUrl)).toBe(conceptUrl);
+    expect(findBestTitleMatchPageUrl("sparse MoE", documentsByUrl)).toBe(
+      conceptUrl,
+    );
+  });
+
   test("uses direct aliases instead of broad tag aliases for exact page boosts", () => {
     const canonicalUrl = "/docs/modules/feed-forward-network";
     const taggedUrl = "/docs/systems/expert-parallel-overlap";

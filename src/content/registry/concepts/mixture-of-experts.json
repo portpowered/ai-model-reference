@@ -6,6 +6,7 @@
   "defaultSummaryKey": "description",
   "aliases": [
     "MoE",
+    "mixture of experts",
     "sparse MoE",
     "mixture-of-experts architecture",
     "expert routing"

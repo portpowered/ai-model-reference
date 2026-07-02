@@ -208,6 +208,50 @@ function scoreDocumentMatch(query: string, document: SearchDocument): number {
   return 0;
 }
 
+function titleMatchKindPriority(kind: string): number {
+  if (kind === "concept") {
+    return 0;
+  }
+  if (kind === "glossary") {
+    return 1;
+  }
+  if (kind === "module") {
+    return 2;
+  }
+  return 3;
+}
+
+function shouldReplaceBestTitleMatch(
+  currentBestUrl: string | undefined,
+  currentBestScore: number,
+  candidateUrl: string,
+  candidateScore: number,
+  documentsByUrl: Map<string, SearchDocument>,
+): boolean {
+  if (candidateScore > currentBestScore) {
+    return true;
+  }
+
+  if (
+    candidateScore < 90 ||
+    candidateScore !== currentBestScore ||
+    !currentBestUrl
+  ) {
+    return false;
+  }
+
+  const currentBestDocument = documentsByUrl.get(currentBestUrl);
+  const candidateDocument = documentsByUrl.get(candidateUrl);
+  if (!currentBestDocument || !candidateDocument) {
+    return false;
+  }
+
+  return (
+    titleMatchKindPriority(candidateDocument.kind) <
+    titleMatchKindPriority(currentBestDocument.kind)
+  );
+}
+
 export function findBestTitleMatchPageUrl(
   query: string,
   documentsByUrl: Map<string, SearchDocument>,
@@ -217,7 +261,15 @@ export function findBestTitleMatchPageUrl(
 
   for (const [url, document] of documentsByUrl) {
     const score = scoreDocumentMatch(query, document);
-    if (score > bestScore) {
+    if (
+      shouldReplaceBestTitleMatch(
+        bestUrl,
+        bestScore,
+        url,
+        score,
+        documentsByUrl,
+      )
+    ) {
       bestScore = score;
       bestUrl = url;
     }
