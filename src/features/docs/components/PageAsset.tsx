@@ -8,13 +8,13 @@ import {
   ActivationFunctionChart,
   isActivationChartId,
 } from "@/features/models/components/ActivationFunctionChart";
+import { AttentionVariantComparisonGraph } from "@/features/models/components/AttentionVariantComparisonGraph";
+import { RegistryComparisonTable } from "@/features/models/components/RegistryComparisonTable";
+import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
 import {
   isRooflineChartId,
   RooflineTeachingChart,
 } from "@/features/models/components/RooflineTeachingChart";
-import { AttentionVariantComparisonGraph } from "@/features/models/components/AttentionVariantComparisonGraph";
-import { RegistryComparisonTable } from "@/features/models/components/RegistryComparisonTable";
-import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
 import { lookupAsset, resolveAssetText } from "@/lib/content/assets";
 import { lookupMessage } from "@/lib/content/messages";
 import type { PageAsset as PageAssetRecord } from "@/lib/content/schemas";

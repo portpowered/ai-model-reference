@@ -9,10 +9,6 @@ export {
   isActivationChartId,
 } from "./ActivationFunctionChart";
 export {
-  isRooflineChartId,
-  RooflineTeachingChart,
-} from "./RooflineTeachingChart";
-export {
   AtAGlanceCard,
   AtAGlanceDefinitionRow,
   AtAGlanceListSection,
@@ -69,6 +65,10 @@ export {
   RegistryGraphFlowNodePopup,
   StructuralNode,
 } from "./RegistryGraphFlow";
+export {
+  isRooflineChartId,
+  RooflineTeachingChart,
+} from "./RooflineTeachingChart";
 export {
   buildRegistryGraphFlowNodeThemeStyle,
   REGISTRY_GRAPH_FLOW_INTERACTION,
