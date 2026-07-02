@@ -12,7 +12,8 @@ watchdog summaries, or planner-facing linkage reports.
 * `src/lib/factory/planner-batch-collision-preflight.ts` — consumes linkage
   ledger data and should scope actionable gap reporting through shared helpers.
 * `src/lib/factory/planner-worktree-drift-watchdog.ts` — root vs active
-  worktree drift classification, including already-merged root drift.
+  worktree drift classification, including already-merged root drift and
+  ownerless root dirty path recovery guidance.
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 
@@ -35,6 +36,10 @@ Direct script paths remain supported for fixture-driven tests:
 * `already-merged-owned` — root drift matches dirty paths or shared surfaces
   from a terminal-complete or merged-into-main page lane; report includes PR and
   merge-commit evidence when available.
+* `ownerless-root-dirty-paths` — root dirty paths with no active or merged lane
+  owner; report includes preserve-policy guidance, `investigate-and-preserve`
+  next action, and target session `0fdc5077-95ed-4396-a183-06e5b16555ca` in
+  recovery examples.
 * `pr-backed` — lane has resolved `pullRequest` evidence from live lookup,
   branch candidates, or current stamped lane metadata.
 * `actionable-gaps` — active/failed task or review lanes missing repairable

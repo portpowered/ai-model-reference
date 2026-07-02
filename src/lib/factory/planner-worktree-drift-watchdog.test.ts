@@ -2,6 +2,9 @@ import { describe, expect, test } from "bun:test";
 import {
   buildPlannerWorktreeDriftSnapshot,
   formatPlannerWorktreeDriftReport,
+  PLANNER_OWNERLESS_ROOT_DRIFT_NEXT_SAFE_ACTION,
+  PLANNER_OWNERLESS_ROOT_DRIFT_PRESERVE_POLICY,
+  PLANNER_OWNERLESS_ROOT_DRIFT_TARGET_SESSION_ID,
   parsePlannerRelevantDirtyPaths,
   serializePlannerWorktreeDriftSnapshot,
 } from "@/lib/factory/planner-worktree-drift-watchdog";
@@ -103,10 +106,10 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
         {
           category: "shared-helper",
           evidenceSummary:
-            "Root dirty path src/lib/factory/watchdog.ts has no obvious active owner.",
-          kind: "root-drift-without-obvious-owner",
+            "Ownerless root dirty path src/lib/factory/watchdog.ts (no active or merged lane claims it).",
+          kind: "ownerless-root-dirty-paths",
           laneNames: [],
-          nextAction: "investigate",
+          nextAction: "investigate-and-preserve",
           path: "src/lib/factory/watchdog.ts",
           surface: "src/lib/factory",
         },
@@ -122,7 +125,7 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
               kind: "root-owned",
               reasonCode: "root-unmatched",
               reason:
-                "No active lane currently matches this dirty path or shared surface, so the drift remains rooted in the planner checkout.",
+                "Ownerless root dirty path: no active or merged lane currently matches this dirty path or shared surface.",
             },
             path: "src/lib/factory/watchdog.ts",
             statusCode: " M",
@@ -189,11 +192,22 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
     );
     expect(report).toContain("- risks");
     expect(report).toContain(
-      "risk=root-drift-without-obvious-owner path=src/lib/factory/watchdog.ts surface=src/lib/factory lanes=none next-action=investigate evidence=Root dirty path src/lib/factory/watchdog.ts has no obvious active owner.",
+      "risk=ownerless-root-dirty-paths path=src/lib/factory/watchdog.ts surface=src/lib/factory lanes=none next-action=investigate-and-preserve evidence=Ownerless root dirty path src/lib/factory/watchdog.ts (no active or merged lane claims it).",
     );
+    expect(report).toContain("- recovery-guidance");
+    expect(report).toContain(
+      `condition=ownerless-root-dirty-paths count=1 target-session=${PLANNER_OWNERLESS_ROOT_DRIFT_TARGET_SESSION_ID}`,
+    );
+    expect(report).toContain(
+      `preserve-policy=${PLANNER_OWNERLESS_ROOT_DRIFT_PRESERVE_POLICY}`,
+    );
+    expect(report).toContain(
+      `next-safe-action=${PLANNER_OWNERLESS_ROOT_DRIFT_NEXT_SAFE_ACTION}`,
+    );
+    expect(report).toContain("ownerless-paths=src/lib/factory/watchdog.ts");
     expect(report).toContain("- location=root repo=/repo dirty-shared-paths=1");
     expect(report).toContain(
-      "path=src/lib/factory/watchdog.ts status= M change=modified surface=src/lib/factory category=shared-helper owner=root-owned ownership-reason=No active lane currently matches this dirty path or shared surface, so the drift remains rooted in the planner checkout.",
+      "path=src/lib/factory/watchdog.ts status= M change=modified surface=src/lib/factory category=shared-helper owner=root-owned ownership-reason=Ownerless root dirty path: no active or merged lane currently matches this dirty path or shared surface.",
     );
     expect(report).toContain(
       "- location=worktree lane=alpha branch=alpha linkage=linked worktree=.claude/worktrees/alpha dirty-shared-paths=2 next-action=wait",
@@ -363,16 +377,16 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
       kind: "root-owned",
       reasonCode: "root-unmatched",
       reason:
-        "No active lane currently matches this dirty path or shared surface, so the drift remains rooted in the planner checkout.",
+        "Ownerless root dirty path: no active or merged lane currently matches this dirty path or shared surface.",
     });
     expect(snapshot.risks).toEqual([
       {
         category: "shared-helper",
         evidenceSummary:
-          "Root dirty path package.json has no obvious active owner.",
-        kind: "root-drift-without-obvious-owner",
+          "Ownerless root dirty path package.json (no active or merged lane claims it).",
+        kind: "ownerless-root-dirty-paths",
         laneNames: [],
-        nextAction: "investigate",
+        nextAction: "investigate-and-preserve",
         path: "package.json",
         surface: "package.json",
       },
@@ -486,7 +500,7 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
       kind: "root-owned",
       reasonCode: "root-unmatched",
       reason:
-        "No active lane currently matches this dirty path or shared surface, so the drift remains rooted in the planner checkout.",
+        "Ownerless root dirty path: no active or merged lane currently matches this dirty path or shared surface.",
     });
     expect(snapshot.risks).toEqual([
       {
@@ -512,10 +526,10 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
       {
         category: "shared-helper",
         evidenceSummary:
-          "Root dirty path package.json has no obvious active owner.",
-        kind: "root-drift-without-obvious-owner",
+          "Ownerless root dirty path package.json (no active or merged lane claims it).",
+        kind: "ownerless-root-dirty-paths",
         laneNames: [],
-        nextAction: "investigate",
+        nextAction: "investigate-and-preserve",
         path: "package.json",
         surface: "package.json",
       },
@@ -534,7 +548,97 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
       "risk=already-merged-root-drift path=src/content/modules/cross-attention.mdx",
     );
     expect(report).not.toContain(
-      "risk=root-drift-without-obvious-owner path=src/content/modules/cross-attention.mdx",
+      "risk=ownerless-root-dirty-paths path=src/content/modules/cross-attention.mdx",
+    );
+    expect(report).toContain("- recovery-guidance");
+    expect(report).toContain(
+      `condition=ownerless-root-dirty-paths count=1 target-session=${PLANNER_OWNERLESS_ROOT_DRIFT_TARGET_SESSION_ID}`,
+    );
+    expect(report).toContain(
+      `preserve-policy=${PLANNER_OWNERLESS_ROOT_DRIFT_PRESERVE_POLICY}`,
+    );
+    expect(report).toContain(
+      `next-safe-action=${PLANNER_OWNERLESS_ROOT_DRIFT_NEXT_SAFE_ACTION}`,
+    );
+    expect(report).toContain("ownerless-paths=package.json");
+    expect(report).toContain(
+      "risk=ownerless-root-dirty-paths path=package.json",
+    );
+  });
+
+  test("reports ownerless root dirty paths with preserve guidance when multiple unmatched paths remain staged", () => {
+    const snapshot = buildPlannerWorktreeDriftSnapshot(
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        laneCount: 1,
+        activeLaneCount: 1,
+        failedLaneCount: 0,
+        linkedLaneCount: 1,
+        linkedWithGapsLaneCount: 0,
+        prBackedLaneCount: 1,
+        actionableLinkageGapLaneCount: 0,
+        queueOnlyControlNoiseLaneCount: 0,
+        issues: [],
+        lanes: [
+          {
+            laneName: "tokens-per-second-serving-metric-page",
+            queueState: "active",
+            rawQueueState: "active",
+            linkageStatus: "linked",
+            worktreePath:
+              ".claude/worktrees/tokens-per-second-serving-metric-page",
+            branchName: "tokens-per-second-serving-metric-page",
+            pullRequest: { number: 201 },
+            pullRequestLookup: { status: "resolved" },
+            missingLinkageReasons: [],
+          },
+        ],
+      },
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        repoRoot: "/repo",
+        runGitStatus: (cwd) => {
+          if (cwd === "/repo") {
+            return [
+              " M src/components/docs/DocsFoldedSummary.tsx",
+              " M src/lib/content/registry-graph.test.ts",
+              " M package.json",
+            ].join("\n");
+          }
+          if (
+            cwd ===
+            "/repo/.claude/worktrees/tokens-per-second-serving-metric-page"
+          ) {
+            return " M docs/planner/active-lane.md";
+          }
+          throw new Error(`unexpected cwd ${cwd}`);
+        },
+      },
+    );
+
+    const ownerlessRisks = snapshot.risks.filter(
+      (risk) => risk.kind === "ownerless-root-dirty-paths",
+    );
+    expect(ownerlessRisks).toHaveLength(3);
+    expect(ownerlessRisks.map((risk) => risk.nextAction)).toEqual([
+      "investigate-and-preserve",
+      "investigate-and-preserve",
+      "investigate-and-preserve",
+    ]);
+
+    const report = formatPlannerWorktreeDriftReport(snapshot);
+    expect(report).toContain("- recovery-guidance");
+    expect(report).toContain(
+      `condition=ownerless-root-dirty-paths count=3 target-session=${PLANNER_OWNERLESS_ROOT_DRIFT_TARGET_SESSION_ID}`,
+    );
+    expect(report).toContain(
+      `preserve-policy=${PLANNER_OWNERLESS_ROOT_DRIFT_PRESERVE_POLICY}`,
+    );
+    expect(report).toContain(
+      `next-safe-action=${PLANNER_OWNERLESS_ROOT_DRIFT_NEXT_SAFE_ACTION}`,
+    );
+    expect(report).toContain(
+      "ownerless-paths=package.json, src/components/docs/DocsFoldedSummary.tsx, src/lib/content/registry-graph.test.ts",
     );
   });
 });

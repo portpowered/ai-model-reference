@@ -46,12 +46,22 @@ export type PlannerWorktreeDriftOwnershipReasonCode =
 export type PlannerWorktreeDriftNextAction =
   | "wait"
   | "investigate"
+  | "investigate-and-preserve"
   | "open-follow-up-throughput-prd";
 export type PlannerWorktreeDriftRiskKind =
   | "multi-lane-hotspot-collision"
-  | "root-drift-without-obvious-owner"
+  | "ownerless-root-dirty-paths"
   | "ambiguous-shared-surface-ownership"
   | "already-merged-root-drift";
+
+export const PLANNER_OWNERLESS_ROOT_DRIFT_PRESERVE_POLICY =
+  "Do not revert or overwrite root dirty paths as part of drift repair.";
+
+export const PLANNER_OWNERLESS_ROOT_DRIFT_NEXT_SAFE_ACTION =
+  "Investigate and preserve the root dirty paths until ownership is resolved.";
+
+export const PLANNER_OWNERLESS_ROOT_DRIFT_TARGET_SESSION_ID =
+  "0fdc5077-95ed-4396-a183-06e5b16555ca";
 
 export interface PlannerWorktreeDriftOwnership {
   branchName?: string;
@@ -535,7 +545,7 @@ function attributeRootDirtyPathOwnership(
       kind: "unowned",
       reasonCode: "linkage-gaps-unresolved",
       reason:
-        "No active lane currently matches this root drift, and linkage gaps leave ownership unresolved.",
+        "Ownerless root dirty path: no active lane matches this drift and linkage gaps leave ownership unresolved.",
     };
   }
 
@@ -543,7 +553,7 @@ function attributeRootDirtyPathOwnership(
     kind: "root-owned",
     reasonCode: "root-unmatched",
     reason:
-      "No active lane currently matches this dirty path or shared surface, so the drift remains rooted in the planner checkout.",
+      "Ownerless root dirty path: no active or merged lane currently matches this dirty path or shared surface.",
   };
 }
 
@@ -619,12 +629,16 @@ function buildDriftRisks(
       dirtyPath.ownership.reasonCode === "root-unmatched" ||
       dirtyPath.ownership.reasonCode === "linkage-gaps-unresolved"
     ) {
+      const ownerlessReason =
+        dirtyPath.ownership.reasonCode === "linkage-gaps-unresolved"
+          ? "linkage gaps leave ownership unresolved"
+          : "no active or merged lane claims it";
       risks.push({
         category: dirtyPath.category,
-        evidenceSummary: `Root dirty path ${dirtyPath.path} has no obvious active owner.`,
-        kind: "root-drift-without-obvious-owner",
+        evidenceSummary: `Ownerless root dirty path ${dirtyPath.path} (${ownerlessReason}).`,
+        kind: "ownerless-root-dirty-paths",
         laneNames: [],
-        nextAction: "investigate",
+        nextAction: "investigate-and-preserve",
         path: dirtyPath.path,
         surface: dirtyPath.surface,
       });
@@ -813,6 +827,39 @@ function formatWorktreePath(repoRoot: string, worktreePath: string): string {
     : worktreePath;
 }
 
+function collectOwnerlessRootDirtyPaths(
+  snapshot: PlannerWorktreeDriftSnapshot,
+): PlannerWorktreeDirtyPath[] {
+  const ownerlessPaths = snapshot.root.dirtyPaths.filter((dirtyPath) =>
+    snapshot.risks.some(
+      (risk) =>
+        risk.kind === "ownerless-root-dirty-paths" &&
+        risk.path === dirtyPath.path,
+    ),
+  );
+
+  return ownerlessPaths.sort((left, right) =>
+    left.path.localeCompare(right.path),
+  );
+}
+
+function formatOwnerlessRootDriftRecoveryGuidance(
+  ownerlessPaths: PlannerWorktreeDirtyPath[],
+): string[] {
+  if (ownerlessPaths.length === 0) {
+    return [];
+  }
+
+  const pathList = ownerlessPaths.map((dirtyPath) => dirtyPath.path).join(", ");
+  return [
+    "- recovery-guidance",
+    `  - condition=ownerless-root-dirty-paths count=${ownerlessPaths.length} target-session=${PLANNER_OWNERLESS_ROOT_DRIFT_TARGET_SESSION_ID}`,
+    `  - preserve-policy=${PLANNER_OWNERLESS_ROOT_DRIFT_PRESERVE_POLICY}`,
+    `  - next-safe-action=${PLANNER_OWNERLESS_ROOT_DRIFT_NEXT_SAFE_ACTION}`,
+    `  - ownerless-paths=${pathList}`,
+  ];
+}
+
 export function formatPlannerWorktreeDriftReport(
   snapshot: PlannerWorktreeDriftSnapshot,
 ): string {
@@ -844,6 +891,13 @@ export function formatPlannerWorktreeDriftReport(
       );
     }
     lines.push("");
+  }
+
+  const ownerlessRecoveryGuidance = formatOwnerlessRootDriftRecoveryGuidance(
+    collectOwnerlessRootDirtyPaths(snapshot),
+  );
+  if (ownerlessRecoveryGuidance.length > 0) {
+    lines.push(...ownerlessRecoveryGuidance, "");
   }
 
   lines.push(
