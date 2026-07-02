@@ -445,3 +445,68 @@ re-open batch 073 for branch refresh.
   `gh pr checks`, `gh api` mergeability, `gh pr view --comments`, `you work list`,
   and non-mutating `git merge-tree` (2026-07-03T00:30Z UTC).
 - Local quality gate: `bun run typecheck` passed on this lane worktree.
+
+## Story 005 — Final verification (quality gate and non-duplication)
+
+Captured 2026-07-03T01:15Z UTC. Confirms the batch 074 reconciliation lane
+outcome is complete, non-duplicative, and passes local quality gates. Story 002
+classified both PRs as **active-review-handoff**, not **blocked**, so no
+per-PR blocked-reason record is required in this story.
+
+### Selected outcome per PR (final)
+
+| PR | Final outcome | Blocker type on target PR (unchanged; batch 066 owns fix) |
+| --- | --- | --- |
+| #277 | **handed off to batch 066** (`generic-search-ai-enrichment-pr277-drain`) | BLOCKING MERGE — DIRTY/conflict drift; head `6a1530a0` unchanged |
+| #279 | **handed off to batch 066** (`generic-site-config-pr279-drain`) | BLOCKING — local `make test` a11y timeout plus DIRTY/conflict drift; head `e5defbc8` unchanged |
+
+Neither PR was **refreshed** in this lane (story 003 N/A). Neither PR is
+**blocked with workflow-repair** — batch 066 drain ideas already exist at
+`idea:init` / INITIAL and own completion. See story 004 handoff packets for
+numbered next actions per drain lane.
+
+### Non-duplication and scope constraints (verified)
+
+| Check | Result |
+| --- | --- |
+| New generic shell features implemented | **no** — only evidence/handoff docs on this branch |
+| Queue items manually moved | **no** — batch 066 drain ideas remain `idea:init` / INITIAL (re-verified 2026-07-03T01:15Z UTC) |
+| Competing drain lanes created | **no** |
+| Target PR branches mutated | **no** — heads `6a1530a0` (#277) and `e5defbc8` (#279) unchanged |
+| Unrelated route/search/sidebar/site-config files edited | **no** |
+| Root checkout dirty files unrelated to #277/#279 cleaned or modified | **no** — this lane diff is docs-only |
+
+### Branch diff scope (this lane vs `origin/main`)
+
+Only these files changed on `dirty-generic-pr277-pr279-conflict-refresh`:
+
+- `docs/internal/processes/dirty-generic-pr277-pr279-conflict-refresh-relevant-files.md`
+- `docs/internal/processes/factory-linkage-relevant-files.md`
+
+No `src/` application code, search, sidebar, route, or site-config runtime files
+were touched.
+
+### Live PR state at lane close (re-verified 2026-07-03T01:15Z UTC)
+
+| PR | Head SHA | Mergeable | Merge state | CI |
+| --- | --- | --- | --- | --- |
+| #277 | `6a1530a0` | CONFLICTING | DIRTY | 11/11 SUCCESS |
+| #279 | `e5defbc8` | CONFLICTING | DIRTY | 11/11 SUCCESS |
+
+`origin/main` remains at `209d1bd8ced0cced5fd99992fe50f23296d126e8`.
+
+### Quality gate results (2026-07-03T01:15Z UTC)
+
+| Command | Result |
+| --- | --- |
+| `bun run typecheck` | **pass** |
+| `bun run lint` | **pass** (4 pre-existing warnings in unrelated test files; 0 errors) |
+| `make test` | **pass** — 3596 pass / 0 fail / 30400 expect() calls across 532 files (~1512s, 2026-07-02T20:10:55Z UTC) |
+
+### Planner reconciliation summary
+
+Batch 074 (`dirty-generic-pr277-pr279-conflict-refresh`) gathered fresh evidence,
+reaffirmed batch 073's **handoff-to-batch-066** outcome with updated drift proof,
+and delivered exact handoff packets in story 004. Batch 066 owns PR #277 and PR
+#279 refresh, conflict resolution, local gate fixes, review/consume, and merge.
+Recommended drain order: **PR #277 first**, then **PR #279**.
