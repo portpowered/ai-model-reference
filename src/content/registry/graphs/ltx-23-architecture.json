@@ -1,0 +1,225 @@
+{
+  "id": "graph.ltx-23-architecture",
+  "slug": "ltx-23-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["LTX-2.3 architecture graph", "LTX audio video generation flow"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.ltx-2-3-huggingface",
+    "citation.ltx-2-efficient-joint-audio-visual-foundation-model"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "subjectId": "model.ltx-23",
+  "graphType": "model-architecture",
+  "rootNodeId": "sync-output",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "sync-output",
+      "labelKey": "graph.nodes.syncOutput.label",
+      "summaryKey": "graph.nodes.syncOutput.summary",
+      "registryId": "concept.multimodal-model",
+      "moduleKind": "output",
+      "position": { "x": 255, "y": 0 },
+      "size": { "width": 220, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "video-decoder",
+      "labelKey": "graph.nodes.videoDecoder.label",
+      "summaryKey": "graph.nodes.videoDecoder.summary",
+      "registryId": "concept.decoder",
+      "moduleKind": "output",
+      "position": { "x": 155, "y": 110 },
+      "size": { "width": 170, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "audio-decoder",
+      "labelKey": "graph.nodes.audioDecoder.label",
+      "summaryKey": "graph.nodes.audioDecoder.summary",
+      "registryId": "concept.decoder",
+      "moduleKind": "output",
+      "position": { "x": 405, "y": 110 },
+      "size": { "width": 170, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "latent-denoising",
+      "labelKey": "graph.nodes.latentDenoising.label",
+      "summaryKey": "graph.nodes.latentDenoising.summary",
+      "registryId": "concept.denoising-generation",
+      "moduleKind": "block",
+      "position": { "x": 220, "y": 230 },
+      "size": { "width": 290, "height": 82 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "diffusion-transformer",
+      "labelKey": "graph.nodes.diffusionTransformer.label",
+      "summaryKey": "graph.nodes.diffusionTransformer.summary",
+      "registryId": "concept.transformer-architecture",
+      "moduleKind": "block",
+      "position": { "x": 240, "y": 360 },
+      "size": { "width": 250, "height": 82 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "cross-attention",
+      "labelKey": "graph.nodes.crossAttention.label",
+      "summaryKey": "graph.nodes.crossAttention.summary",
+      "registryId": "module.cross-attention",
+      "moduleKind": "attention",
+      "position": { "x": 560, "y": 360 },
+      "size": { "width": 170, "height": 82 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "conditioning",
+      "labelKey": "graph.nodes.conditioning.label",
+      "summaryKey": "graph.nodes.conditioning.summary",
+      "registryId": "concept.conditioning",
+      "moduleKind": "block",
+      "position": { "x": 265, "y": 480 },
+      "size": { "width": 200, "height": 62 },
+      "visualRole": "architecture-linear",
+      "childNodeIds": []
+    },
+    {
+      "id": "text-prompt",
+      "labelKey": "graph.nodes.textPrompt.label",
+      "summaryKey": "graph.nodes.textPrompt.summary",
+      "registryId": "concept.token",
+      "moduleKind": "input",
+      "position": { "x": 70, "y": 590 },
+      "size": { "width": 150, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "image-reference",
+      "labelKey": "graph.nodes.imageReference.label",
+      "summaryKey": "graph.nodes.imageReference.summary",
+      "registryId": "concept.representation",
+      "moduleKind": "input",
+      "position": { "x": 290, "y": 590 },
+      "size": { "width": 150, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "audio-reference",
+      "labelKey": "graph.nodes.audioReference.label",
+      "summaryKey": "graph.nodes.audioReference.summary",
+      "registryId": "concept.modality",
+      "moduleKind": "input",
+      "position": { "x": 510, "y": 590 },
+      "size": { "width": 150, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "video-decoder-to-sync-output",
+      "source": "video-decoder",
+      "target": "sync-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "audio-decoder-to-sync-output",
+      "source": "audio-decoder",
+      "target": "sync-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "latent-denoising-to-video-decoder",
+      "source": "latent-denoising",
+      "target": "video-decoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "latent-denoising-to-audio-decoder",
+      "source": "latent-denoising",
+      "target": "audio-decoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "diffusion-transformer-to-latent-denoising",
+      "source": "diffusion-transformer",
+      "target": "latent-denoising",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "cross-attention-to-diffusion-transformer",
+      "source": "cross-attention",
+      "target": "diffusion-transformer",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "left",
+      "targetHandleSide": "right"
+    },
+    {
+      "id": "conditioning-to-cross-attention",
+      "source": "conditioning",
+      "target": "cross-attention",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "conditioning-to-diffusion-transformer",
+      "source": "conditioning",
+      "target": "diffusion-transformer",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "text-prompt-to-conditioning",
+      "source": "text-prompt",
+      "target": "conditioning",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "image-reference-to-conditioning",
+      "source": "image-reference",
+      "target": "conditioning",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "audio-reference-to-conditioning",
+      "source": "audio-reference",
+      "target": "conditioning",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    }
+  ]
+}

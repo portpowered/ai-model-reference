@@ -79,7 +79,38 @@ async function waitForSearchPagePanelResults(
   );
 }
 
+async function expectFirstSearchResultMatch(
+  results: HTMLElement,
+  expectations: { url?: string; titlePattern?: RegExp },
+  options: { timeout?: number } = {},
+): Promise<void> {
+  const timeout = options.timeout ?? SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS;
+  await waitFor(
+    () => {
+      const firstRow = within(results).getAllByTestId("search-result-row")[0];
+      const firstUrl = within(results).getAllByTestId("search-result-url")[0];
+      if (expectations.url) {
+        expect(firstUrl?.textContent).toContain(expectations.url);
+      }
+      if (expectations.titlePattern) {
+        expect(firstRow?.textContent).toMatch(expectations.titlePattern);
+      }
+    },
+    { timeout },
+  );
+}
+
 /** Orama static search suspends on first client render; unmount + brief wait primes the cache. */
+async function findSearchPageResults(timeout = 15_000): Promise<HTMLElement> {
+  await waitFor(
+    () => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    },
+    { timeout },
+  );
+  return screen.findByTestId("search-page-results", {}, { timeout });
+}
+
 async function primeDocsSearchClient(
   context: Awaited<ReturnType<typeof loadAppTestContext>>,
   searchParams = new URLSearchParams(),
@@ -311,9 +342,8 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
-    const firstUrl = within(results).getAllByTestId("search-result-url")[0];
-    expect(firstUrl?.textContent).toContain(SAMPLE_MODULE_URL);
+    const results = await waitForSearchPagePanelResults();
+    await expectFirstSearchResultMatch(results, { url: SAMPLE_MODULE_URL });
   });
 
   test.each([
@@ -330,12 +360,11 @@ describe("SearchPagePanel Phase 1 queries", () => {
       query,
     );
 
-    const results = await screen.findByTestId("search-page-results");
-    const firstRow = within(results).getAllByTestId("search-result-row")[0];
-    const firstUrl = within(results).getAllByTestId("search-result-url")[0];
-
-    expect(firstUrl?.textContent).toContain(PREFILL_URL);
-    expect(firstRow?.textContent).toMatch(/prefill/i);
+    const results = await waitForSearchPagePanelResults();
+    await expectFirstSearchResultMatch(results, {
+      url: PREFILL_URL,
+      titlePattern: /prefill/i,
+    });
   });
 
   test.each([
@@ -363,10 +392,11 @@ describe("SearchPagePanel Phase 1 queries", () => {
       query,
     );
 
-    const results = await screen.findByTestId("search-page-results");
-    const firstUrl = within(results).getAllByTestId("search-result-url")[0];
-    expect(firstUrl?.textContent).toContain(url);
-    expect(results.textContent).toMatch(title);
+    const results = await waitForSearchPagePanelResults();
+    await expectFirstSearchResultMatch(results, {
+      url: url,
+      titlePattern: title,
+    });
   });
 
   test("exposes idle state with aria-live region before query entry", async () => {
@@ -540,7 +570,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await waitForSearchPagePanelResults();
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -564,7 +594,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await waitForSearchPagePanelResults();
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -611,7 +641,7 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("token");
 
-    const results = await waitForSearchPagePanelResults();
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/Token/i);
     expect(
       screen.queryByText(
@@ -716,7 +746,7 @@ describe("SearchPagePanel tag handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await waitForSearchPagePanelResults();
+    const results = await findSearchPageResults();
     const urls = collectResultUrlsFromNodes(
       within(results).getAllByTestId("search-result-url"),
     );
