@@ -1,0 +1,67 @@
+{
+  "id": "model.clip",
+  "slug": "clip",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "CLIP",
+    "Contrastive Language-Image Pre-training",
+    "text-image encoder",
+    "text image encoder",
+    "contrastive text image model",
+    "multimodal encoder",
+    "text-image conditioning model"
+  ],
+  "tags": ["foundations", "model-family", "alignment"],
+  "relatedIds": [
+    "concept.conditioning",
+    "concept.encoder",
+    "concept.patch",
+    "concept.multimodal-model",
+    "module.clip-image-tokenization",
+    "paper.learning-transferable-visual-models-from-natural-language-supervision"
+  ],
+  "citationIds": [
+    "citation.learning-transferable-visual-models-from-natural-language-supervision"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "authors": [
+    "Alec Radford",
+    "Jong Wook Kim",
+    "Chris Hallacy",
+    "Aditya Ramesh",
+    "Gabriel Goh",
+    "Sandhini Agarwal",
+    "Girish Sastry",
+    "Amanda Askell",
+    "Pamela Mishkin",
+    "Jack Clark",
+    "Gretchen Krueger",
+    "Ilya Sutskever"
+  ],
+  "sourceId": "citation.learning-transferable-visual-models-from-natural-language-supervision",
+  "family": "clip",
+  "sourceType": "research",
+  "modalities": ["text", "image", "multimodal"],
+  "architectureIds": [
+    "concept.encoder",
+    "concept.multimodal-model",
+    "concept.patch"
+  ],
+  "moduleIds": [
+    "module.bidirectional-attention",
+    "module.multi-head-attention",
+    "module.learned-positional-embeddings",
+    "module.clip-image-tokenization"
+  ],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [
+    "paper.learning-transferable-visual-models-from-natural-language-supervision"
+  ],
+  "releaseDate": "2021-01-05",
+  "parameterCount": "400 million parameters"
+}

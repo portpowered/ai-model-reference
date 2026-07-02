@@ -30,8 +30,14 @@ describe("CLIP paper discovery surfaces (clip-paper-page-004)", () => {
     );
   });
 
+  test("search still surfaces the CLIP paper when the bare CLIP alias is shared with the model page", async () => {
+    const results = await docsSearchApi.search("CLIP");
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.some((result) => result.url === CLIP_PAPER_URL)).toBe(true);
+  });
+
   test.each([
-    "CLIP",
     "CLIP paper",
     "Learning Transferable Visual Models From Natural Language Supervision",
     "contrastive image text",
