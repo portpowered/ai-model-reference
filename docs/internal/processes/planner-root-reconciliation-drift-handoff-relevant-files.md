@@ -44,7 +44,7 @@ Reuse existing reports instead of duplicating git or lane parsing:
 
 | When | Command |
 | --- | --- |
-| Capture read-only drift evidence and per-path ownership classification for the eight root reconciliation paths | `bun run report:planner-root-reconciliation-drift-handoff` |
+| Capture read-only drift evidence and per-path ownership classification for the eight root reconciliation paths | `bun ./scripts/report-planner-root-reconciliation-drift-handoff.ts` |
 
 ## Fixture-backed verification
 
