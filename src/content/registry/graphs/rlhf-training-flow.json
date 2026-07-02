@@ -1,0 +1,106 @@
+{
+  "id": "graph.rlhf-training-flow",
+  "slug": "rlhf-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "RLHF training flow",
+    "reinforcement learning from human feedback flow"
+  ],
+  "tags": ["alignment", "foundations"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.training-language-models-to-follow-instructions-with-human-feedback"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-02T12:00:00.000Z",
+  "subjectId": "training-regime.rlhf",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "baseModel",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "baseModel",
+      "labelKey": "graph.nodes.baseModel.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 240, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": ["humanPreferences"]
+    },
+    {
+      "id": "humanPreferences",
+      "labelKey": "graph.nodes.humanPreferences.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 122 },
+      "size": { "width": 220, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["rewardModel"]
+    },
+    {
+      "id": "rewardModel",
+      "labelKey": "graph.nodes.rewardModel.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 244 },
+      "size": { "width": 220, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["policyOptimization"]
+    },
+    {
+      "id": "policyOptimization",
+      "labelKey": "graph.nodes.policyOptimization.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 366 },
+      "size": { "width": 220, "height": 84 },
+      "visualRole": "process-node",
+      "childNodeIds": ["alignedModel"]
+    },
+    {
+      "id": "alignedModel",
+      "labelKey": "graph.nodes.alignedModel.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 488 },
+      "size": { "width": 220, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "base-model-human-preferences",
+      "source": "baseModel",
+      "target": "humanPreferences",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "human-preferences-reward-model",
+      "source": "humanPreferences",
+      "target": "rewardModel",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "reward-model-policy-optimization",
+      "source": "rewardModel",
+      "target": "policyOptimization",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "policy-optimization-aligned-model",
+      "source": "policyOptimization",
+      "target": "alignedModel",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}
