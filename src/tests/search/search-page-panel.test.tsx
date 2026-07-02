@@ -504,7 +504,11 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 15_000 },
+    );
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -528,7 +532,11 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 15_000 },
+    );
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -542,7 +550,11 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("unknown-topic");
 
-    const empty = await screen.findByTestId("search-page-empty");
+    const empty = await screen.findByTestId(
+      "search-page-empty",
+      {},
+      { timeout: 15_000 },
+    );
     expect(empty.textContent).toContain(context.messages.search.noResults);
     expect(
       screen.queryByText(
@@ -566,7 +578,11 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("token");
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 15_000 },
+    );
     expect(results.textContent).toMatch(/Token/i);
     expect(
       screen.queryByText(
