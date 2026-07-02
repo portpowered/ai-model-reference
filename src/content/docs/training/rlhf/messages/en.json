@@ -1,0 +1,67 @@
+{
+  "title": "Reinforcement Learning from Human Feedback",
+  "description": "A post-training alignment workflow that collects human preference signals, fits a reward model, and optimizes the language-model policy toward preferred behavior.",
+  "openingSummary": "Reinforcement Learning from Human Feedback, usually shortened to RLHF, is a post-training workflow that steers model behavior using human preference signals after a base or instruction-tuned checkpoint already exists.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Reinforcement Learning from Human Feedback is a post-training alignment method. Teams start from a pretrained or instruction-tuned language model, collect human rankings or scores over its outputs, train a reward model that predicts those preferences, and then run reinforcement learning so the policy earns higher reward on behavior people prefer."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Instruction-tuned models can follow demonstrations, but product teams often need behavior shaped by comparative judgments: which answer is more helpful, honest, or safe. RLHF exists to turn those preference judgments into a training signal that nudges the model toward aligned behavior for instruction following, preference alignment, and safety-policy shaping."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The workflow starts from a pretrained or instruction-tuned model that generates candidate answers. Human annotators rank or score those outputs side by side, producing preference data. A reward model learns to predict those human judgments and turns them into a scalar reward or preference signal. A reinforcement-learning optimizer, often Proximal Policy Optimization or PPO, updates the policy so preferred answers earn higher reward while a KL penalty keeps updates close to a reference model. The result is aligned model behavior that reflects the collected preference signal."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Supervised fine-tuning and instruction tuning learn from one target answer per prompt. RLHF learns from comparative human judgments and a separate reward-model plus policy-optimization loop, which lets teams shape behavior from rankings instead of only copying demonstrations. Direct Preference Optimization, or DPO, can learn from preference pairs without maintaining that separate reward model and PPO machinery. Group Relative Policy Optimization, or GRPO, reframes optimization over groups of sampled candidates rather than the classic human-ranking plus reward-model pipeline."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "RLHF depends on costly human data collection, and annotator inconsistency can weaken the preference signal. A reward model can mismatch what users actually want, so policy optimization may chase the wrong objective. Optimization can become unstable when reward estimates are noisy or the KL penalty is poorly tuned. Models may also learn to exploit the reward model through reward hacking, or become overly narrow when preference data covers only a thin slice of behavior."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "trainingFlow": {
+      "title": "RLHF feedback-and-optimization loop",
+      "alt": "A five-step RLHF flow: pretrained or instruction-tuned model, human preference data, reward model or preference signal, policy optimization, then aligned model behavior.",
+      "caption": "RLHF collects human preferences, fits a reward signal, and optimizes the policy toward preferred behavior while staying close to a reference model.",
+      "legend": {
+        "data-flow": {
+          "label": "Preference and policy flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "baseModel": {
+        "label": "Pretrained or\ninstruction-tuned model"
+      },
+      "humanPreferences": {
+        "label": "Human preference\ndata collection"
+      },
+      "rewardModel": {
+        "label": "Reward model\nor preference signal"
+      },
+      "policyOptimization": {
+        "label": "Policy optimization\n(PPO / RL loop)"
+      },
+      "alignedModel": {
+        "label": "Aligned model\nbehavior"
+      }
+    }
+  }
+}
