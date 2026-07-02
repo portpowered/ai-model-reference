@@ -72,6 +72,16 @@ function blogPostAssetsPath(pageDir: string): string {
   return join(pageDir, "assets.json");
 }
 
+export function readBlogPostFrontmatter(
+  slug: string,
+  options: { blogRoot?: string } = {},
+): BlogPostFrontmatter {
+  const blogRoot = options.blogRoot ?? BLOG_ROOT;
+  const pageDir = blogPostPageDir(blogRoot, slug);
+  const sourcePath = blogPostMdxPath(pageDir);
+  return parseBlogPostFrontmatterFromMdx(sourcePath, { slug, sourcePath });
+}
+
 function parseBlogPostFrontmatterFromMdx(
   mdxPath: string,
   context: { slug: string; sourcePath: string },
