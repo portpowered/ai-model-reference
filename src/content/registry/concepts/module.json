@@ -4,28 +4,15 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "model module",
-    "building block",
-    "network module"
-  ],
-  "tags": [
-    "taxonomy",
-    "foundations"
-  ],
+  "aliases": ["model module", "building block", "network module"],
+  "tags": ["taxonomy", "foundations"],
   "relatedIds": [],
-  "citationIds": [
-    "citation.attention-is-all-you-need"
-  ],
+  "citationIds": ["citation.attention-is-all-you-need"],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T00:00:00.000Z",
   "primaryClassificationId": "classification.concept.architecture",
   "conceptType": "architecture",
-  "prerequisiteIds": [
-    "concept.architecture"
-  ],
-  "explainsIds": [
-    "concept.component"
-  ]
+  "prerequisiteIds": ["concept.architecture"],
+  "explainsIds": ["concept.component"]
 }

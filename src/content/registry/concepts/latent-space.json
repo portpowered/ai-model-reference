@@ -9,19 +9,14 @@
     "compressed representation space",
     "latent representation space"
   ],
-  "tags": [
-    "foundations",
-    "taxonomy"
-  ],
+  "tags": ["foundations", "taxonomy"],
   "relatedIds": [
     "concept.generative-model",
     "concept.latent",
     "concept.encoder",
     "concept.denoising-generation"
   ],
-  "citationIds": [
-    "citation.goodfellow-deep-learning"
-  ],
+  "citationIds": ["citation.goodfellow-deep-learning"],
   "status": "published",
   "createdAt": "2026-06-04T11:31:47.947Z",
   "updatedAt": "2026-06-04T12:00:00.000Z",
@@ -32,8 +27,5 @@
     "concept.representation",
     "concept.modality"
   ],
-  "explainsIds": [
-    "concept.encoder",
-    "concept.denoising-generation"
-  ]
+  "explainsIds": ["concept.encoder", "concept.denoising-generation"]
 }

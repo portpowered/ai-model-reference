@@ -9,10 +9,7 @@
     "neural architecture",
     "network architecture"
   ],
-  "tags": [
-    "taxonomy",
-    "foundations"
-  ],
+  "tags": ["taxonomy", "foundations"],
   "relatedIds": [
     "concept.transformer",
     "concept.diffusion-model",
@@ -30,11 +27,6 @@
   "updatedAt": "2026-06-04T00:00:00.000Z",
   "primaryClassificationId": "classification.concept.architecture",
   "conceptType": "architecture",
-  "prerequisiteIds": [
-    "concept.model"
-  ],
-  "explainsIds": [
-    "concept.module",
-    "concept.component"
-  ]
+  "prerequisiteIds": ["concept.model"],
+  "explainsIds": ["concept.module", "concept.component"]
 }

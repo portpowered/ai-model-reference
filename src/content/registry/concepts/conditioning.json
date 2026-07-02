@@ -10,10 +10,7 @@
     "control signal",
     "classifier-free guidance"
   ],
-  "tags": [
-    "foundations",
-    "taxonomy"
-  ],
+  "tags": ["foundations", "taxonomy"],
   "relatedIds": [
     "concept.special-tokens",
     "concept.autoregressive-generation",

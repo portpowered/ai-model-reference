@@ -4,23 +4,14 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "ML model",
-    "machine learning model",
-    "neural network model"
-  ],
-  "tags": [
-    "taxonomy",
-    "foundations"
-  ],
+  "aliases": ["ML model", "machine learning model", "neural network model"],
+  "tags": ["taxonomy", "foundations"],
   "relatedIds": [
     "concept.architecture",
     "concept.modality",
     "concept.foundation-model"
   ],
-  "citationIds": [
-    "citation.goodfellow-deep-learning"
-  ],
+  "citationIds": ["citation.goodfellow-deep-learning"],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T00:00:00.000Z",

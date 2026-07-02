@@ -9,24 +9,14 @@
     "classifier",
     "discriminative classifier"
   ],
-  "tags": [
-    "taxonomy",
-    "foundations"
-  ],
-  "relatedIds": [
-    "concept.generative-model"
-  ],
-  "citationIds": [
-    "citation.goodfellow-deep-learning"
-  ],
+  "tags": ["taxonomy", "foundations"],
+  "relatedIds": ["concept.generative-model"],
+  "citationIds": ["citation.goodfellow-deep-learning"],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T00:00:00.000Z",
   "primaryClassificationId": "classification.concept.model-type",
   "conceptType": "general",
-  "prerequisiteIds": [
-    "concept.model",
-    "concept.foundation-model"
-  ],
+  "prerequisiteIds": ["concept.model", "concept.foundation-model"],
   "explainsIds": []
 }

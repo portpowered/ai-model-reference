@@ -9,10 +9,7 @@
     "diffusion architecture",
     "denoising diffusion"
   ],
-  "tags": [
-    "taxonomy",
-    "model-family"
-  ],
+  "tags": ["taxonomy", "model-family"],
   "relatedIds": [
     "concept.architecture",
     "concept.denoising-generation",

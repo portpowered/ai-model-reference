@@ -4,30 +4,15 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "foundation models",
-    "base model",
-    "pretrained model"
-  ],
-  "tags": [
-    "taxonomy",
-    "foundations"
-  ],
-  "relatedIds": [
-    "concept.generative-model",
-    "concept.discriminative-model"
-  ],
-  "citationIds": [
-    "citation.brown-gpt-3",
-    "citation.wei-emergent-abilities"
-  ],
+  "aliases": ["foundation models", "base model", "pretrained model"],
+  "tags": ["taxonomy", "foundations"],
+  "relatedIds": ["concept.generative-model", "concept.discriminative-model"],
+  "citationIds": ["citation.brown-gpt-3", "citation.wei-emergent-abilities"],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T00:00:00.000Z",
   "primaryClassificationId": "classification.concept.model-type",
   "conceptType": "general",
-  "prerequisiteIds": [
-    "concept.model"
-  ],
+  "prerequisiteIds": ["concept.model"],
   "explainsIds": []
 }
