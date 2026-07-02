@@ -1,0 +1,22 @@
+## Codebase Patterns
+- Use `getDocsPageDir(section, slug)` for page tests; do not add new `*_PAGE_DIR` exports.
+- Run `make validate-data` before registry-focused tests so `registry-runtime.generated.ts` exists.
+- Module registry slices follow `multi-token-prediction-module-registry.test.ts`: schema parse, citation proof, curated related-docs with `PUBLISHED_DOCS_REGISTRY_IDS`.
+- Place diffusion-related modules under `classification.module.transformer-block` with `moduleFamily: "transformer-block"` when describing denoising transformer blocks.
+- Reuse existing citations (`citation.denoising-diffusion-probabilistic-models`) when factual claims already have published sources; add new citation/paper records only when missing.
+- Paper records can ship in registry before page bundles (e.g. `paper.diffusion-transformers`); related-doc tests should only assert hrefs for targets in `PUBLISHED_DOCS_REGISTRY_IDS`.
+
+## 2026-07-02T00:00:00Z - diffusion-transformer-block-module-001
+- Registered `module.diffusion-transformer-block` with discovery aliases, transformer-block classification, and links to transformer, attention, feed-forward, diffusion, conditioning, and patch concepts.
+- Added `citation.scalable-diffusion-models-with-transformers` (DiT, arXiv:2212.09748) and `paper.diffusion-transformers` relationship record; reused existing DDPM citation for denoising claims.
+- Added focused registry test proving schema validity, citations, and curated related-doc hrefs for shipped nearby pages.
+- Files changed:
+  - `src/content/registry/modules/diffusion-transformer-block.json`
+  - `src/content/registry/citations/scalable-diffusion-models-with-transformers.json`
+  - `src/content/registry/papers/diffusion-transformers.json`
+  - `src/lib/content/diffusion-transformer-block-module-registry.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: Registry-only story 001 can land before the page bundle; tests should assert `PUBLISHED_DOCS_REGISTRY_IDS.has(moduleId)` is false until story 002 publishes `/docs/modules/diffusion-transformer-block`.
+  - Gotchas encountered: `bun test` on registry slices fails without `make validate-data` because generated runtime is gitignored.
+  - Useful context: `paper.latent-diffusion` and `training-regime.diffusion-training-objective` are published and safe related-doc targets; Stable Diffusion model record does not exist on this branch.
+---
