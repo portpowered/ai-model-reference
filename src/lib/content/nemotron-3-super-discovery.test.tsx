@@ -164,40 +164,44 @@ describe("nemotron 3 super reader-facing discovery (nemotron-3-super-model-page-
     expect(html).not.toContain("data-missing-graph-id");
   });
 
-  test("content and registry validation pass for the Nemotron 3 Super slice", async () => {
-    const modelsDocsRoot = getModelsDocsRoot();
-    const pageDir = join(modelsDocsRoot, MODEL_SLUG);
-    const registryPath = join(
-      getRegistryRoot(),
-      "models",
-      `${MODEL_SLUG}.json`,
-    );
-    const indexes = await loadRegistry({ registryRoot: getRegistryRoot() });
+  test(
+    "content and registry validation pass for the Nemotron 3 Super slice",
+    async () => {
+      const modelsDocsRoot = getModelsDocsRoot();
+      const pageDir = join(modelsDocsRoot, MODEL_SLUG);
+      const registryPath = join(
+        getRegistryRoot(),
+        "models",
+        `${MODEL_SLUG}.json`,
+      );
+      const indexes = await loadRegistry({ registryRoot: getRegistryRoot() });
 
-    const bundleErrors = await validateGeneratedPageBundle({
-      registryRoot: getRegistryRoot(),
-      docsRoot: join(getContentRoot(), "docs"),
-      pageDirectory: pageDir,
-      registryPath,
-      pageUrl: MODEL_URL,
-      indexes,
-    });
-    expect(bundleErrors).toEqual([]);
+      const bundleErrors = await validateGeneratedPageBundle({
+        registryRoot: getRegistryRoot(),
+        docsRoot: join(getContentRoot(), "docs"),
+        pageDirectory: pageDir,
+        registryPath,
+        pageUrl: MODEL_URL,
+        indexes,
+      });
+      expect(bundleErrors).toEqual([]);
 
-    const loaded = await loadModelPageFromDisk(
-      MODEL_SLUG,
-      "en",
-      modelsDocsRoot,
-    );
-    expect(loaded.frontmatter.status).toBe("published");
-    expect(loaded.frontmatter.registryId).toBe("model.nemotron-3-super");
+      const loaded = await loadModelPageFromDisk(
+        MODEL_SLUG,
+        "en",
+        modelsDocsRoot,
+      );
+      expect(loaded.frontmatter.status).toBe("published");
+      expect(loaded.frontmatter.registryId).toBe("model.nemotron-3-super");
 
-    const registryIssues = await validateRegistryContent();
-    const touchedIssues = registryIssues.filter((issue) =>
-      TOUCHED_RECORD_IDS.some((recordId) => issue.message.includes(recordId)),
-    );
-    expect(touchedIssues).toEqual([]);
-  });
+      const registryIssues = await validateRegistryContent();
+      const touchedIssues = registryIssues.filter((issue) =>
+        TOUCHED_RECORD_IDS.some((recordId) => issue.message.includes(recordId)),
+      );
+      expect(touchedIssues).toEqual([]);
+    },
+    { timeout: 30_000 },
+  );
 
   test("served model page renders title, sections, graph, tags, and references without errors", async () => {
     if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {

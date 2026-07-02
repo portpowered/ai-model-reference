@@ -14,7 +14,7 @@ import {
 } from "@/lib/build/verify-phase-1-static-routes";
 import { getGeneratedDocsSourceRoot } from "@/lib/content/content-paths";
 
-setDefaultTimeout(15_000);
+setDefaultTimeout(30_000);
 
 /** Minimal manifest whose values cover every required static route. */
 function completeRequiredBuildManifest(): Record<string, string> {

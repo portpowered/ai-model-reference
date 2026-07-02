@@ -38,10 +38,28 @@ setDefaultTimeout(15_000);
 
 const SEARCH_PAGE_RESULTS_TIMEOUT_MS = 15_000;
 
-function findSearchPageResults() {
+async function findSearchPageResults() {
+  await waitFor(
+    () => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    },
+    { timeout: SEARCH_PAGE_RESULTS_TIMEOUT_MS },
+  );
   return screen.findByTestId(
     "search-page-results",
     {},
+    { timeout: SEARCH_PAGE_RESULTS_TIMEOUT_MS },
+  );
+}
+
+async function expectFirstSearchResultUrl(urlSubstring: string) {
+  await findSearchPageResults();
+  await waitFor(
+    () => {
+      const results = screen.getByTestId("search-page-results");
+      const firstUrl = within(results).getAllByTestId("search-result-url")[0];
+      expect(firstUrl?.textContent).toContain(urlSubstring);
+    },
     { timeout: SEARCH_PAGE_RESULTS_TIMEOUT_MS },
   );
 }
@@ -301,11 +319,9 @@ describe("SearchPagePanel Phase 1 queries", () => {
       query,
     );
 
-    const results = await findSearchPageResults();
+    await expectFirstSearchResultUrl(PREFILL_URL);
+    const results = screen.getByTestId("search-page-results");
     const firstRow = within(results).getAllByTestId("search-result-row")[0];
-    const firstUrl = within(results).getAllByTestId("search-result-url")[0];
-
-    expect(firstUrl?.textContent).toContain(PREFILL_URL);
     expect(firstRow?.textContent).toMatch(/prefill/i);
   });
 

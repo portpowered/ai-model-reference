@@ -1,0 +1,26 @@
+{
+  "id": "citation.scalable-diffusion-models-with-transformers",
+  "slug": "scalable-diffusion-models-with-transformers",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "DiT paper",
+    "Diffusion Transformers paper",
+    "Scalable Diffusion Models with Transformers",
+    "2212.09748",
+    "arxiv:2212.09748"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["William Peebles", "Saining Xie"],
+  "title": "Scalable Diffusion Models with Transformers",
+  "year": 2022,
+  "url": "https://arxiv.org/abs/2212.09748",
+  "mla": "Peebles, William, and Saining Xie. \"Scalable Diffusion Models with Transformers.\" arXiv, 2022, https://arxiv.org/abs/2212.09748."
+}
