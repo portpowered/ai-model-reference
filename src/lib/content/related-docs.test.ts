@@ -859,7 +859,6 @@ describe("related-docs", () => {
         [
           "module.manifold-constrained-hyper-connections",
           "module.diffusion-transformer-block",
-          "module.looped-transformers",
         ].includes(registryId),
       ),
     ).toBe(true);
