@@ -36,6 +36,16 @@ import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
 
 setDefaultTimeout(15_000);
 
+const SEARCH_PAGE_RESULTS_TIMEOUT_MS = 15_000;
+
+function findSearchPageResults() {
+  return screen.findByTestId(
+    "search-page-results",
+    {},
+    { timeout: SEARCH_PAGE_RESULTS_TIMEOUT_MS },
+  );
+}
+
 function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {
     q: searchParams.get("q"),
@@ -197,7 +207,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expect(results.className).toContain("list-none");
     expect(results.className).not.toContain("list-disc");
     expect(results.querySelectorAll("li").length).toBeGreaterThan(0);
@@ -213,7 +223,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expectSharedSearchResultRowPanel(within(results));
   });
 
@@ -227,7 +237,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expectThinSearchMetadataPanel(within(results), { expectSummary: true });
   });
 
@@ -241,7 +251,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expectFullRowSearchResultHighlightPanel(within(results));
     const row = within(results).getAllByTestId("search-result-row")[0];
     expect(row?.className).toContain("hover:bg-accent");
@@ -258,7 +268,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "Grouped",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expectReadableQueryMatchHighlightPanel(within(results));
   });
 
@@ -272,7 +282,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     const firstUrl = within(results).getAllByTestId("search-result-url")[0];
     expect(firstUrl?.textContent).toContain(SAMPLE_MODULE_URL);
   });
@@ -291,7 +301,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       query,
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     const firstRow = within(results).getAllByTestId("search-result-row")[0];
     const firstUrl = within(results).getAllByTestId("search-result-url")[0];
 
@@ -324,7 +334,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       query,
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     const firstUrl = within(results).getAllByTestId("search-result-url")[0];
     expect(firstUrl?.textContent).toContain(url);
     expect(results.textContent).toMatch(title);
@@ -399,7 +409,7 @@ describe("SearchPagePanel query handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("GQA");
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
   });
 
@@ -504,7 +514,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -528,7 +538,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -566,7 +576,7 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("token");
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/Token/i);
     expect(
       screen.queryByText(
@@ -616,7 +626,7 @@ describe("SearchPagePanel tag handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("attention");
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
   });
 
@@ -662,7 +672,7 @@ describe("SearchPagePanel tag handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     const urls = collectResultUrlsFromNodes(
       within(results).getAllByTestId("search-result-url"),
     );

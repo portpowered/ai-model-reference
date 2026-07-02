@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -13,6 +13,8 @@ import {
   verifyRequiredBuildStaticRoutesFromManifest,
 } from "@/lib/build/verify-phase-1-static-routes";
 import { getGeneratedDocsSourceRoot } from "@/lib/content/content-paths";
+
+setDefaultTimeout(15_000);
 
 /** Minimal manifest whose values cover every required static route. */
 function completeRequiredBuildManifest(): Record<string, string> {

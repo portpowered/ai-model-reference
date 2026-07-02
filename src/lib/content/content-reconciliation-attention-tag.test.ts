@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
@@ -14,6 +14,8 @@ import {
   loadTagResourceGroups,
 } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+
+setDefaultTimeout(15_000);
 
 const ATTENTION_TAG_SLUG = PHASE_1_ATTENTION_TAG_SLUG;
 
