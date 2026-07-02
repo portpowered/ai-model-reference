@@ -1,0 +1,44 @@
+{
+  "title": "Mixture of Experts",
+  "description": "A broad sparse-routing architecture pattern that activates only a few expert sub-networks per token instead of one dense path for every token.",
+  "openingSummary": "Mixture of experts, often shortened to MoE, is a sparse model design that keeps a large pool of specialist sub-networks available but activates only a few of them for each token, which changes the usual scaling tradeoff between total parameter count and active compute.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A mixture of experts system combines many expert sub-networks with a router that decides which experts should handle each input. The broad idea is older than transformers: different parts of the model can specialize, while the router sends each example to the few specialists that seem most useful. In modern language models, this pattern usually appears inside the feed-forward slot of a transformer block, where a single dense multilayer perceptron is replaced by a bank of expert feed-forward layers."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Dense scaling makes every token pay for every hidden unit in the layer, even when only part of that capacity is useful for the current token. Mixture of experts changes that bargain. The model can keep many more total parameters in reserve while activating only a small top-k subset on each step. That is why MoE shows up so often in discussions about scaling economics: it offers a way to grow total capacity faster than active per-token compute."
+    },
+    "howSparseRoutingChangesScaling": {
+      "title": "How Sparse Routing Changes Scaling",
+      "body": "The router scores the available experts for each token and keeps only the highest-ranked few. Those selected experts run, their outputs are merged, and the rest stay inactive for that token. Compared with a standard dense feed-forward network, the active path is narrower than the total parameter pool behind it. This means a model can advertise a very large total parameter count while the active path per token stays much closer to a smaller dense baseline."
+    },
+    "whereYouSeeIt": {
+      "title": "Where You See It",
+      "body": "The neighboring pages below move from the parent feed-forward concept into the dense baseline, then into the module-level MoE implementation and a concrete shipped family. Start with the feed-forward overview if you want the slot inside the transformer block, the standard FFN page for the dense baseline, the module page for routing mechanics, DeepSeekMoE for one named variant, and DeepSeek V4 Pro for a representative deployed model that uses expert routing."
+    },
+    "routingComplexity": {
+      "title": "Routing Complexity",
+      "body": "The router decides which experts handle each token, and those choices shape training. Tokens routed to the same expert share updates, so an expert that keeps seeing similar inputs can specialize there while others receive little useful signal. That coupling means routing is not just an inference shortcut: unstable or overly concentrated routing can leave parts of the expert pool under-trained even though the model still advertises a large parameter count."
+    },
+    "loadBalancing": {
+      "title": "Load Balancing",
+      "body": "If the router keeps sending most tokens to a small set of popular experts, those specialists become overloaded while the rest of the pool sits idle. Training recipes often add load-balancing pressure so traffic spreads more evenly, but the basic risk remains: sparse routing saves compute only when work is actually distributed across experts rather than collapsing onto a few favorites."
+    },
+    "servingBehavior": {
+      "title": "Serving Behavior",
+      "body": "At serving time, each token may need a different subset of experts, which complicates batching and tail latency compared with a dense layer where every token follows the same path. Systems must place expert weights across devices, move activations to the right locations, and keep memory footprints predictable as batch composition changes. Those placement and communication costs can eat into the compute win unless the serving stack is designed around sparse routing from the start."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

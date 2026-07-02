@@ -7,6 +7,7 @@
   "aliases": ["DeepSeekMoE", "DeepSeek MoE"],
   "tags": ["feed-forward", "foundations"],
   "relatedIds": [
+    "concept.mixture-of-experts",
     "module.mixture-of-experts",
     "paper.deepseek-v4",
     "system.routing"

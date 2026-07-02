@@ -113,6 +113,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "/docs/concepts/prefill",
       "/docs/concepts/alignment",
       ...ARCHITECTURE_CONCEPT_URLS,
+      "/docs/concepts/mixture-of-experts",
     ] as const) {
       expect(entries.some((entry) => entry.url === url)).toBe(true);
     }
@@ -147,6 +148,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Key-value cache", "/docs/concepts/kv-cache"],
       ["Decode", "/docs/glossary/decode"],
       ["Prefill", "/docs/concepts/prefill"],
+      ["Mixture of Experts", "/docs/concepts/mixture-of-experts"],
       ["Positional encodings", "/docs/concepts/positional-encodings"],
       ["Token", "/docs/glossary/token"],
       ["Transformer architecture", "/docs/concepts/transformer-architecture"],
