@@ -149,6 +149,45 @@ describe("content PR doctor", () => {
     );
   });
 
+  test("passes clean preflight and proceeds to canonical preparation", () => {
+    const commands: string[] = [];
+    const result = runContentPrDoctor({
+      cwd: repoRoot,
+      log: () => {},
+      logError: () => {},
+      verifyRuntimeCompleteness() {
+        return createSuccessfulRuntimeCompletenessResult();
+      },
+      runCommand(command, _options) {
+        commands.push(command.join(" "));
+
+        if (command[0] === "git") {
+          return command[1] === "status"
+            ? createGitInspectionResult(command)
+            : {
+                signal: null,
+                status: 0,
+                stdout: "",
+                stderr: "",
+              };
+        }
+
+        return {
+          signal: null,
+          status: 0,
+        } satisfies ContentPrDoctorCommandResult;
+      },
+    });
+
+    expect(result.ok).toBe(true);
+    expect(commands[0]).toBe(
+      `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
+        " ",
+      )}`,
+    );
+    expect(commands[1]).toBe(CONTENT_PR_DOCTOR_PREPARATION_COMMAND.join(" "));
+  });
+
   test("fails early when tracked scoped paths are already dirty", () => {
     const result = runContentPrDoctor({
       cwd: repoRoot,
@@ -180,12 +219,14 @@ describe("content PR doctor", () => {
     }
 
     expect(result.stage).toBe("preflight-cleanliness");
+    expect(result.message).toContain("already dirty at doctor start");
     expect(result.details).toEqual([
       " M src/content/docs/modules/grouped-query-attention/page.mdx",
     ]);
     expect(result.repairGuidance).toContain(
       "Review, commit, stash, or discard",
     );
+    expect(result.repairGuidance).toContain("bun run doctor:content-pr");
   });
 
   test("does not start preparation when preflight finds scoped tracked changes", () => {
@@ -215,6 +256,61 @@ describe("content PR doctor", () => {
       `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
         " ",
       )}`,
+    ]);
+  });
+
+  test("fails at the preparation stage when canonical generation command exits non-zero", () => {
+    const commands: string[] = [];
+    const result = runContentPrDoctor({
+      cwd: repoRoot,
+      log: () => {},
+      logError: () => {},
+      verifyRuntimeCompleteness() {
+        return createSuccessfulRuntimeCompletenessResult();
+      },
+      runCommand(command, _options) {
+        commands.push(command.join(" "));
+
+        if (command[0] === "git") {
+          return command[1] === "status"
+            ? createGitInspectionResult(command)
+            : {
+                signal: null,
+                status: 0,
+                stdout: "",
+                stderr: "",
+              };
+        }
+
+        if (
+          command.join(" ") === CONTENT_PR_DOCTOR_PREPARATION_COMMAND.join(" ")
+        ) {
+          return {
+            signal: null,
+            status: 1,
+          } satisfies ContentPrDoctorCommandResult;
+        }
+
+        return {
+          signal: null,
+          status: 0,
+        } satisfies ContentPrDoctorCommandResult;
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.stage).toBe("prepare-content-runtime");
+    expect(result.message).toContain("bun run prepare:content-runtime");
+    expect(result.repairGuidance).toContain("bun run doctor:content-pr");
+    expect(commands).toEqual([
+      `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
+        " ",
+      )}`,
+      CONTENT_PR_DOCTOR_PREPARATION_COMMAND.join(" "),
     ]);
   });
 
@@ -260,6 +356,9 @@ describe("content PR doctor", () => {
     }
 
     expect(result.stage).toBe("prepare-content-runtime");
+    expect(result.message).toContain(
+      "regenerated tracked scoped paths",
+    );
     expect(result.details).toEqual([
       " M src/lib/content/generated/registry-runtime.generated.ts",
     ]);
@@ -332,7 +431,62 @@ describe("content PR doctor", () => {
     expect(commands).not.toContain("bun run linkcheck");
   });
 
-  test("identifies the failed narrow validation step and reports repair guidance", () => {
+  test("identifies validate-data as the failed narrow validation step and reports repair guidance", () => {
+    const commands: string[] = [];
+    const result = runContentPrDoctor({
+      cwd: repoRoot,
+      log: () => {},
+      logError: () => {},
+      verifyRuntimeCompleteness() {
+        return createSuccessfulRuntimeCompletenessResult();
+      },
+      runCommand(command, _options) {
+        commands.push(command.join(" "));
+
+        if (command[0] === "git") {
+          return command[1] === "status"
+            ? createGitInspectionResult(command)
+            : {
+                signal: null,
+                status: 0,
+                stdout: "",
+                stderr: "",
+              };
+        }
+
+        if (command.join(" ") === "bun run validate-data") {
+          return {
+            signal: null,
+            status: 1,
+          } satisfies ContentPrDoctorCommandResult;
+        }
+
+        return {
+          signal: null,
+          status: 0,
+        } satisfies ContentPrDoctorCommandResult;
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.stage).toBe("narrow-validation");
+    expect(result.message).toContain('failed at "validate-data"');
+    expect(result.failedValidationStep).toEqual(
+      CONTENT_PR_DOCTOR_VALIDATION_STEPS[0],
+    );
+    expect(result.repairGuidance).toContain(
+      "Fix the registry or content validation errors",
+    );
+    expect(result.repairGuidance).toContain("bun run doctor:content-pr");
+    expect(commands).toContain("bun run validate-data");
+    expect(commands).not.toContain("bun run linkcheck");
+  });
+
+  test("identifies linkcheck as the failed narrow validation step and reports repair guidance", () => {
     const commands: string[] = [];
     const logs: string[] = [];
     const result = runContentPrDoctor({
@@ -383,6 +537,7 @@ describe("content PR doctor", () => {
       CONTENT_PR_DOCTOR_VALIDATION_STEPS[1],
     );
     expect(result.repairGuidance).toContain("Fix the reported docs links");
+    expect(result.repairGuidance).toContain("bun run doctor:content-pr");
     expect(logs).toEqual(
       expect.arrayContaining([
         expect.stringContaining("Running validate-data"),
@@ -452,6 +607,9 @@ describe("content PR doctor", () => {
     }
 
     expect(result.stage).toBe("final-cleanliness");
+    expect(result.message).toContain(
+      "supported content PR proof left tracked scoped paths dirty",
+    );
     expect(result.details).toEqual([
       " M src/content/docs/modules/grouped-query-attention/page.mdx",
     ]);
