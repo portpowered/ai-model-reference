@@ -11,22 +11,17 @@
     "disaggregated serving",
     "disaggregated prefill decode"
   ],
-  "tags": ["foundations", "kv-cache"],
+  "tags": ["foundations", "attention", "kv-cache"],
   "relatedIds": [
     "concept.prefill",
     "concept.decode",
     "concept.kv-cache",
-    "concept.autoregressive-generation",
-    "module.attention",
-    "module.multi-query-attention",
-    "module.grouped-query-attention",
-    "module.sliding-window-attention",
-    "concept.transformer"
+    "concept.autoregressive-generation"
   ],
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
-  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
   "conceptType": "inference",
   "sidebarGrouping": {
     "glossary": "sequence-and-attention"

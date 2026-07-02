@@ -106,6 +106,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
       "/docs/glossary/decode",
       "/docs/glossary/kv-cache",
       "/docs/glossary/prefill",
+      "/docs/glossary/prefill-decode-split",
       "/docs/glossary/token",
     ]);
   });
@@ -158,6 +159,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).toContain('href="/docs/glossary/token"');
   });
 });

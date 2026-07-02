@@ -291,6 +291,12 @@ export const PREFILL_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "prefill");
 /** Phase 5 decode glossary page directory. */
 export const DECODE_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "decode");
 
+/** Prefill/decode split concept page directory. */
+export const PREFILL_DECODE_SPLIT_CONCEPT_PAGE_DIR = join(
+  CONCEPTS_DOCS_ROOT,
+  "prefill-decode-split",
+);
+
 /** Phase 5 prefill/decode split glossary page directory. */
 export const PREFILL_DECODE_SPLIT_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
