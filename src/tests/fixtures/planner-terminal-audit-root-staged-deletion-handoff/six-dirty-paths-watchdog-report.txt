@@ -1,0 +1,8 @@
+Planner Worktree Drift Watchdog
+active-lanes=0 merged-lanes=47 evaluated-worktrees=0 risk-cases=1 root-dirty-shared-paths=6 worktree-dirty-shared-paths=0 total-dirty-shared-paths=6
+
+- risks
+  - risk=already-merged-root-drift path=docs/internal/processes/factory-linkage-relevant-files.md surface=docs/internal lanes=tokens-per-second-stale-pr-follow-up next-action=investigate-and-preserve evidence=Root dirty path docs/internal/processes/factory-linkage-relevant-files.md is already-merged root drift from lane tokens-per-second-stale-pr-follow-up (PR #251, merge abc123d, complete/terminal, session 0fdc5077-95ed-4396-a183-06e5b16555ca).
+
+- location=root repo=/repo dirty-shared-paths=6
+  - path=docs/internal/processes/factory-linkage-relevant-files.md status=M  change=modified surface=docs/internal category=authored-content owner=already-merged-owned:tokens-per-second-stale-pr-follow-up merge-evidence=PR #251, merge abc123d, complete/terminal, session 0fdc5077-95ed-4396-a183-06e5b16555ca ownership-reason=Root drift matches already-merged lane tokens-per-second-stale-pr-follow-up (PR #251, merge abc123d, complete/terminal, session 0fdc5077-95ed-4396-a183-06e5b16555ca).
