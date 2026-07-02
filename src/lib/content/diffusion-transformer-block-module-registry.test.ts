@@ -156,6 +156,6 @@ describe("diffusion transformer block module registry slice (diffusion-transform
     ).toBe("/docs/papers/latent-diffusion");
     expect(
       PUBLISHED_DOCS_REGISTRY_IDS.has("module.diffusion-transformer-block"),
-    ).toBe(false);
+    ).toBe(true);
   });
 });

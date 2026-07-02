@@ -1,0 +1,49 @@
+{
+  "id": "table.diffusion-transformer-block-comparison",
+  "subjectId": "module.diffusion-transformer-block",
+  "columns": [
+    {
+      "moduleId": "concept.transformer-architecture",
+      "titleKey": "tables.comparison.columns.genericTransformer.title"
+    },
+    {
+      "moduleId": "module.diffusion-transformer-block",
+      "titleKey": "tables.comparison.columns.ditBlock.title"
+    },
+    {
+      "moduleId": "concept.denoising-generation",
+      "titleKey": "tables.comparison.columns.fullDiffusionModel.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "tokenInput",
+      "labelKey": "tables.comparison.dimensions.tokenInput"
+    },
+    {
+      "id": "conditioningRole",
+      "labelKey": "tables.comparison.dimensions.conditioningRole"
+    },
+    {
+      "id": "outputRole",
+      "labelKey": "tables.comparison.dimensions.outputRole"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "concept.transformer-architecture": {
+      "tokenInput": "tables.comparison.values.genericTransformer.tokenInput",
+      "conditioningRole": "tables.comparison.values.genericTransformer.conditioningRole",
+      "outputRole": "tables.comparison.values.genericTransformer.outputRole"
+    },
+    "module.diffusion-transformer-block": {
+      "tokenInput": "tables.comparison.values.ditBlock.tokenInput",
+      "conditioningRole": "tables.comparison.values.ditBlock.conditioningRole",
+      "outputRole": "tables.comparison.values.ditBlock.outputRole"
+    },
+    "concept.denoising-generation": {
+      "tokenInput": "tables.comparison.values.fullDiffusionModel.tokenInput",
+      "conditioningRole": "tables.comparison.values.fullDiffusionModel.conditioningRole",
+      "outputRole": "tables.comparison.values.fullDiffusionModel.outputRole"
+    }
+  }
+}
