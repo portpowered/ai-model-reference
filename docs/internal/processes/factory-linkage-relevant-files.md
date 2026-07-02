@@ -109,3 +109,6 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   — PR-head mergeability phase for page branches.
 * [factory-batch-input-relevant-files](./factory-batch-input-relevant-files.md)
   — planner batch input examples.
+* [tokens-per-second-stale-pr-follow-up-relevant-files](./tokens-per-second-stale-pr-follow-up-relevant-files.md)
+  — stale PR #251 vs failed `work-task-155` / `idea:to-complete` evidence snapshot
+  and watchdog `risk=queue-stale` classification for the serving-metric lane.
