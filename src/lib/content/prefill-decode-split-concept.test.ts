@@ -140,7 +140,8 @@ describe("prefill-decode-split concept discovery", () => {
     const splitServingResults = await docsSearchApi.search("split serving");
     expect(splitServingResults[0]?.url).toBe(CONCEPT_URL);
 
-    const tokensPerSecondResults = await docsSearchApi.search("tokens per second");
+    const tokensPerSecondResults =
+      await docsSearchApi.search("tokens per second");
     expect(
       tokensPerSecondResults.some((result) => result.url === CONCEPT_URL),
     ).toBe(false);
