@@ -492,7 +492,8 @@ describe("planner terminal audit root staged deletion handoff evidence", () => {
     ).not.toThrow();
 
     const repoRoot = resolve(import.meta.dir, "../../..");
-    const changedPaths = discoverPlannerTerminalAuditBranchChangedPaths(repoRoot);
+    const changedPaths =
+      discoverPlannerTerminalAuditBranchChangedPaths(repoRoot);
     if (changedPaths) {
       expect(() =>
         assertPlannerTerminalAuditImplementationLanePathsPreserveScope(
@@ -512,9 +513,9 @@ describe("planner terminal audit root staged deletion handoff evidence", () => {
       if (allowlistedDirtyRootTouches.has(dirtyPath)) {
         continue;
       }
-      expect(PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_KNOWN_PATHS).not.toContain(
-        dirtyPath,
-      );
+      expect(
+        PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_KNOWN_PATHS,
+      ).not.toContain(dirtyPath);
     }
   });
 });
