@@ -31,13 +31,14 @@
   },
   "assets": {
     "contributionGraph": {
-      "alt": "A contribution map showing image compression, latent denoising, conditioning, and decoding as the main stages of Latent Diffusion Models.",
-      "caption": "Latent Diffusion Models chain compression, latent-space denoising, conditioning, and decoding into one generation pipeline."
+      "alt": "A pipeline diagram flowing from an input image through autoencoder compression, iterative latent denoising guided by conditioning, to decoded pixel output.",
+      "caption": "Generation flows from input image compression into latent denoising, with conditioning steering the loop, then decoding back to pixels."
     }
   },
   "graph": {
     "nodes": {
       "paper": { "label": "Latent Diffusion Models" },
+      "inputImage": { "label": "Input image" },
       "autoencoder": { "label": "Autoencoder compression" },
       "latentDenoising": { "label": "Latent denoising loop" },
       "conditioning": { "label": "Conditioning inputs" },

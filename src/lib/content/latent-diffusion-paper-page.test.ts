@@ -4,6 +4,10 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToReadableStream } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import {
+  parsePageAssetConfig,
+  validatePageAssetReferences,
+} from "@/lib/content/assets";
 import { PAPERS_DOCS_ROOT } from "@/lib/content/content-paths";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
@@ -149,5 +153,79 @@ describe("latent-diffusion paper page (latent-diffusion-paper-page-004)", () => 
     expect(html).toContain('href="/docs/glossary/conditioning"');
     expect(html).toContain('href="/docs/glossary/latent-space"');
     expect(html).not.toMatch(/on this page|reader shortcut/i);
+  });
+});
+
+describe("latent-diffusion paper page (latent-diffusion-paper-page-005)", () => {
+  const messagesPath = join(
+    PAPERS_DOCS_ROOT,
+    LATENT_DIFFUSION_SLUG,
+    "messages/en.json",
+  );
+  const assetsPath = join(
+    PAPERS_DOCS_ROOT,
+    LATENT_DIFFUSION_SLUG,
+    "assets.json",
+  );
+
+  test("contribution graph asset resolves with message-backed alt and caption", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const assets = parsePageAssetConfig(
+      JSON.parse(readFileSync(assetsPath, "utf8")),
+    );
+
+    expect(assets.contributionGraph.type).toBe("graph");
+    if (assets.contributionGraph.type === "graph") {
+      expect(assets.contributionGraph.graphId).toBe(
+        "graph.latent-diffusion-contribution",
+      );
+    }
+    expect(validatePageAssetReferences(assets, messages)).toEqual([]);
+    expect(messages.assets?.contributionGraph?.alt).toMatch(
+      /compression|denois/i,
+    );
+    expect(messages.assets?.contributionGraph?.caption).toMatch(
+      /pipeline|flow|chain/i,
+    );
+  });
+
+  test("contribution graph encodes sequential pipeline data-flow stages", () => {
+    const graph = getGraphById("graph.latent-diffusion-contribution");
+    const edgePairs =
+      graph?.edges.map((edge) => `${edge.source}->${edge.target}`) ?? [];
+
+    expect(edgePairs).toContain("inputImage->autoencoder");
+    expect(edgePairs).toContain("autoencoder->latentDenoising");
+    expect(edgePairs).toContain("latentDenoising->decoder");
+    expect(edgePairs).toContain("conditioning->latentDenoising");
+    expect(graph?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "inputImage",
+        "autoencoder",
+        "latentDenoising",
+        "conditioning",
+        "decoder",
+      ]),
+    );
+  });
+
+  test("rendered page includes contribution graph with pipeline stage labels", async () => {
+    const html = await renderPaperHtml();
+
+    expect(html).toContain('data-page-asset="contributionGraph"');
+    expect(html).toContain(
+      'data-graph-id="graph.latent-diffusion-contribution"',
+    );
+    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain("Input image");
+    expect(html).toContain("Autoencoder compression");
+    expect(html).toContain("Latent denoising loop");
+    expect(html).toContain("Conditioning inputs");
+    expect(html).toContain("Decode to pixels");
+    expect(html).toContain(
+      "Generation flows from input image compression into latent denoising",
+    );
   });
 });

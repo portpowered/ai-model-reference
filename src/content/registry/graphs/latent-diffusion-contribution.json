@@ -10,7 +10,7 @@
   "citationIds": ["citation.latent-diffusion-models"],
   "status": "published",
   "createdAt": "2026-07-01T00:00:00.000Z",
-  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
   "subjectId": "paper.latent-diffusion",
   "graphType": "paper-contribution",
   "rootNodeId": "paper",
@@ -22,39 +22,43 @@
       "id": "paper",
       "labelKey": "graph.nodes.paper.label",
       "moduleKind": "other",
-      "position": { "x": 300, "y": 0 },
+      "position": { "x": 320, "y": 0 },
       "size": { "width": 240, "height": 72 },
       "visualRole": "summary-node",
-      "childNodeIds": [
-        "autoencoder",
-        "latentDenoising",
-        "conditioning",
-        "decoder"
-      ]
+      "childNodeIds": ["inputImage"]
+    },
+    {
+      "id": "inputImage",
+      "labelKey": "graph.nodes.inputImage.label",
+      "moduleKind": "input",
+      "position": { "x": 340, "y": 120 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["autoencoder"]
     },
     {
       "id": "autoencoder",
       "labelKey": "graph.nodes.autoencoder.label",
       "moduleKind": "block",
-      "position": { "x": 20, "y": 150 },
-      "size": { "width": 180, "height": 72 },
+      "position": { "x": 330, "y": 240 },
+      "size": { "width": 200, "height": 72 },
       "visualRole": "process-node",
-      "childNodeIds": []
+      "childNodeIds": ["latentDenoising"]
     },
     {
       "id": "latentDenoising",
       "labelKey": "graph.nodes.latentDenoising.label",
       "moduleKind": "block",
-      "position": { "x": 220, "y": 150 },
-      "size": { "width": 180, "height": 72 },
-      "visualRole": "process-node",
-      "childNodeIds": []
+      "position": { "x": 320, "y": 360 },
+      "size": { "width": 220, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["decoder"]
     },
     {
       "id": "conditioning",
       "labelKey": "graph.nodes.conditioning.label",
       "moduleKind": "block",
-      "position": { "x": 420, "y": 150 },
+      "position": { "x": 600, "y": 360 },
       "size": { "width": 180, "height": 72 },
       "visualRole": "process-node",
       "childNodeIds": []
@@ -62,8 +66,8 @@
     {
       "id": "decoder",
       "labelKey": "graph.nodes.decoder.label",
-      "moduleKind": "block",
-      "position": { "x": 620, "y": 150 },
+      "moduleKind": "output",
+      "position": { "x": 340, "y": 480 },
       "size": { "width": 180, "height": 72 },
       "visualRole": "process-node",
       "childNodeIds": []
@@ -71,32 +75,40 @@
   ],
   "edges": [
     {
-      "id": "paper-autoencoder",
+      "id": "paper-input",
       "source": "paper",
+      "target": "inputImage",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "input-autoencoder",
+      "source": "inputImage",
       "target": "autoencoder",
       "edgeKind": "data-flow",
       "sourceHandleSide": "bottom",
       "targetHandleSide": "top"
     },
     {
-      "id": "paper-latent-denoising",
-      "source": "paper",
+      "id": "autoencoder-denoising",
+      "source": "autoencoder",
       "target": "latentDenoising",
       "edgeKind": "data-flow",
       "sourceHandleSide": "bottom",
       "targetHandleSide": "top"
     },
     {
-      "id": "paper-conditioning",
-      "source": "paper",
-      "target": "conditioning",
+      "id": "conditioning-denoising",
+      "source": "conditioning",
+      "target": "latentDenoising",
       "edgeKind": "data-flow",
-      "sourceHandleSide": "bottom",
-      "targetHandleSide": "top"
+      "sourceHandleSide": "left",
+      "targetHandleSide": "right"
     },
     {
-      "id": "paper-decoder",
-      "source": "paper",
+      "id": "denoising-decoder",
+      "source": "latentDenoising",
       "target": "decoder",
       "edgeKind": "data-flow",
       "sourceHandleSide": "bottom",
