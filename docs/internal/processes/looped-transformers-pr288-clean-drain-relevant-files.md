@@ -575,3 +575,71 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T18:05Z UTC).
+
+## Story 002 merge re-evaluation (2026-07-02T17:54Z UTC)
+
+Sixth planner merge-path pass. Merge was **not** performed.
+
+### Fresh delta since prior evaluation (18:05Z UTC)
+
+| Signal | Prior (18:05Z UTC) | Current (17:54Z UTC) |
+| --- | --- | --- |
+| `origin/main` SHA | `d22d1e0` | unchanged `d22d1e0` |
+| PR #288 mergeability | CONFLICTING / DIRTY | unchanged CONFLICTING / DIRTY |
+| PR #288 head SHA | `fc575f9e` | unchanged `fc575f9e` |
+| BLOCKING review | unresolved (17:10:15Z) | still unresolved; no clearing comment |
+| Content worktree local HEAD | `cf13e353` | unchanged `cf13e353` |
+| Content vs `origin/main` | reported behind=9 | **corrected: ahead=9, behind=0** (merge-base `d22d1e0`) |
+| Content vs `origin/looped-transformers` | ahead=47, not pushed | unchanged ahead=47, **not pushed** |
+| Content working tree | dirty on `table-registry.generated.ts` | unchanged dirty WIP |
+| `audit:canonical-page-surface` (content WT) | not re-run in iteration 5 | **over-budget** / `redirect-to-throughput-prd` |
+
+No material change in merge preconditions since iteration 5. The prior “behind=9 vs
+`origin/main`” note was incorrect; the content worktree includes all of `origin/main`
+plus nine local-only commits.
+
+### Preconditions checked
+
+| Precondition | Status | Evidence |
+| --- | --- | --- |
+| GitHub mergeability | **FAIL** | `mergeable=CONFLICTING`, `mergeStateStatus=DIRTY` on head `fc575f9e` |
+| Required CI checks | PASS | 11/11 SUCCESS on remote head `fc575f9e` |
+| Review complete enough to proceed | **FAIL** | Unresolved BLOCKING PR conversation comment (2026-07-02T17:10:15Z); content WT audit still over-budget |
+| Queue/worktree metadata allows action | PASS | Lane metadata present; `work-task-64` at `init` |
+| Scope boundary | PASS | No unrelated edits in this drain lane |
+
+### Merge decision
+
+**Outcome:** do not merge PR #288 in this drain pass.
+
+**Reasons (both must clear before merge):**
+
+1. **Review incomplete:** BLOCKING conversation comment remains unresolved. Content
+   worktree local HEAD `cf13e353` still reports `audit:canonical-page-surface`
+   over-budget and is not on PR head `fc575f9e`.
+2. **Merge conflict (remote):** GitHub reports CONFLICTING/DIRTY on `fc575f9e`. Local
+   fixes remain unpushed (ahead=47 vs remote PR branch).
+
+**Next safe planner action:** content lane must finish WIP, bring audit in-budget,
+push to `origin/looped-transformers`, post a clearing PR conversation reply, then
+retry drain story 002.
+
+### Post-evaluation queue snapshot (2026-07-02T17:54Z UTC)
+
+| Work id | Type | State |
+| --- | --- | --- |
+| `work-task-64` (`looped-transformers`) | task | `init` / PROCESSING |
+| `work-task-88` (`looped-transformers-pr288-clean-drain`) | task | `init` / PROCESSING |
+
+No `review` work token is active. The BLOCKING PR conversation comment is the live
+review signal.
+
+## Quality gate (story 002, iteration 6)
+
+Merge evaluation only; no PR merge or content mutation.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T17:54Z UTC).
