@@ -115,6 +115,21 @@ Preliminary lane outcome for story 003: **merge-ready handoff** pending CI confi
 
 Preliminary lane outcome for story 004: **merge-complete** — no further triage action; reconcile queue/drain tokens only.
 
+#### Story 004 lane outcome (2026-07-02T21:12:00Z UTC)
+
+| Field | Value |
+| --- | --- |
+| Head SHA at merge | `feaa2f9fe2ba001f3802c8305e437b6cfbe438a8` |
+| Merge commit | `91f6beb3d048fc0d46f5173b78a7ebc14dc6d3c9` |
+| PR state | **MERGED** (2026-07-02T19:58:31Z UTC by AndreasAbdi) |
+| Stale queue notes superseded | "UNSTABLE" and "failing test/CI" — prior `test` SIGTERM at 300s timeout resolved by merging main CI stabilizations (`timeout_minutes: 6`, discovery smoke cache reuse); 11/11 SUCCESS on merge head |
+| Prior blocking feedback | **REJECTED/BLOCKING** surface-audit over-budget and page-specific meta tests in shared verification paths |
+| Fix applied (on lane branch) | Removed page-specific meta tests/helpers; split audit infrastructure to throughput PR #291; set `conceptType: looped-transformer-architecture`; merged main through `feaa2f9f` for inherited timeout fix |
+| Reviewer follow-up | **Ready to merge** (latest PR conversation comment supersedes/clears blocking feedback); merged after all 11/11 CI SUCCESS |
+| Worktree dirty state | `?? progress.txt` only (untracked factory local; not in PR diff); HEAD 40 behind `origin/main` (expected post-merge) |
+| Browser / page verification | Page shipped on `main` via merge; prior lane verification confirmed title, graph, math, citation on built route |
+| **Final lane outcome** | **merge-complete** — no further triage action; reconcile queue/drain tokens only |
+
 ### PR #283 — `gated-deltanet`
 
 | Field | Value |
