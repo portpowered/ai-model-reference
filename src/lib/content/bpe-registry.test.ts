@@ -2,11 +2,29 @@ import { describe, expect, test } from "bun:test";
 import {
   getPublishedDocsRegistryIds,
   getRegistryRecordById,
+  listModuleRecords,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
 describe("bpe registry relationships", () => {
+  test("keeps one canonical module.bpe record with tokenizer discovery aliases", () => {
+    const bpeModules = listModuleRecords().filter(
+      (record) => record.id === "module.bpe" || record.slug === "bpe",
+    );
+
+    expect(bpeModules).toHaveLength(1);
+    expect(bpeModules[0]?.id).toBe("module.bpe");
+    expect(bpeModules[0]?.aliases).toEqual(
+      expect.arrayContaining([
+        "BPE",
+        "byte pair encoding",
+        "byte-pair encoding",
+        "subword tokenizer",
+      ]),
+    );
+  });
+
   test("curated related ids preserve published routes across tokenizer neighbors", () => {
     const source = getRegistryRecordById("module.bpe");
     if (!source) {
