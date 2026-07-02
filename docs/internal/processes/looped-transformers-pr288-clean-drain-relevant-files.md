@@ -962,3 +962,65 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T18:29Z UTC).
+
+## Story 002 merge re-evaluation (2026-07-02T18:37Z UTC)
+
+Twenty-eighth planner merge-path pass. Merge was **not** performed.
+
+### Fresh delta since prior evaluation (18:29Z UTC)
+
+| Signal | Prior (18:29Z UTC) | Current (18:37Z UTC) |
+| --- | --- | --- |
+| `origin/main` SHA | `2d0b21c4` | unchanged `2d0b21c4` |
+| PR #288 head SHA | `b8ab2c85` | **`5031736e`** (pushed to `origin/looped-transformers`) |
+| PR #288 mergeability | MERGEABLE / UNSTABLE | MERGEABLE / UNSTABLE on head `5031736e` |
+| Required CI checks | `test` FAILURE, `ci` FAILURE on `b8ab2c85` | **`test` FAILURE (5m13s timeout), `ci` FAILURE** on `5031736e`; workflow `28612903832` |
+| BLOCKING review | fix-mapping reply (17:56Z), no clearing reply | unchanged — no clearing/superseding reviewer comment |
+| Content worktree local HEAD | `5031736e` (ahead=36 vs remote, not pushed) | **`5031736e`** (synced with remote, ahead=16 vs main) |
+| Content vs `origin/main` | behind=0, ahead=16 | unchanged behind=0, ahead=16 |
+| Content vs `origin/looped-transformers` | ahead=36, not pushed | **0 ahead / 0 behind** (remote synced) |
+| Content working tree | dirty on `table-registry.generated.ts` | unchanged dirty WIP |
+
+The content lane pushed `5031736e` to `origin/looped-transformers`, clearing the stale
+remote-head blocker. GitHub re-ran CI on the new head; `test` still fails at the 5-minute
+timeout (SIGTERM pattern), failing the `ci` aggregate gate. BLOCKING review remains open.
+
+### Preconditions checked
+
+| Precondition | Status | Evidence |
+| --- | --- | --- |
+| GitHub mergeability | PARTIAL | `mergeable=MERGEABLE`, `mergeStateStatus=UNSTABLE` on head `5031736e` |
+| Required CI checks | **FAIL** | `test` FAILURE (5m13s timeout), `ci` FAILURE on head `5031736e`; workflow `28612903832` |
+| Review complete enough to proceed | **FAIL** | BLOCKING comment (17:10:15Z) has fix-mapping reply (17:56:35Z) but no clearing reply; reply reports full branch audit still over-budget |
+| Queue/worktree metadata allows action | PASS | Lane metadata present; `work-task-64` at `init` |
+| Scope boundary | PASS | No unrelated edits in this drain lane |
+
+### Merge decision
+
+**Outcome:** do not merge PR #288 in this drain pass.
+
+**Reasons (all must clear before merge):**
+
+1. **Required checks failing:** `test` timed out at 5 minutes on head `5031736e`, failing the `ci` aggregate gate (workflow `28612903832`).
+2. **Review incomplete:** the BLOCKING conversation comment (17:10:15Z) has a fix-mapping reply but no later comment that clears or supersedes it. The reply itself reports full branch `audit:canonical-page-surface` still **over-budget**.
+
+**Next safe planner action:** content lane must fix the CI `test` timeout on PR head `5031736e`, resolve remaining full-branch audit over-budget (or obtain reviewer acceptance), obtain a clearing PR conversation reply, then retry drain story 002.
+
+### Post-evaluation queue snapshot (2026-07-02T18:37Z UTC)
+
+| Work id | Type | State |
+| --- | --- | --- |
+| `work-task-64` (`looped-transformers`) | task | `init` / PROCESSING |
+| `work-task-88` (`looped-transformers-pr288-clean-drain`) | task | `init` / PROCESSING |
+
+No `review` work token is active. The BLOCKING PR conversation comment plus its fix-mapping reply (no clearing reply) remain the live review signal.
+
+## Quality gate (story 002, iteration 28)
+
+Merge evaluation only; no PR merge or content mutation.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T18:37Z UTC).
