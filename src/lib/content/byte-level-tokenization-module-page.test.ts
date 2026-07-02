@@ -15,6 +15,7 @@ import {
 } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { getRegistryRecordById } from "@/lib/content/registry-runtime";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { getTableById } from "@/lib/content/table-registry-runtime";
 
@@ -178,6 +179,46 @@ describe("byte-level-tokenization BPE relationship (byte-level-tokenization-page
     expect(html).toContain('data-math-schema="byteCoverage"');
     expect(html).toContain('data-math-schema="bytePairMerge"');
     expect(html).toContain('href="/docs/modules/bpe"');
+  });
+});
+
+describe("byte-level tokenization registry and related docs (byte-level-tokenization-page-004)", () => {
+  test("rendered page exposes curated related docs and GPT-2 citation links", async () => {
+    const page = await loadModulePage("byte-level-tokenization");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain('href="/docs/modules/bpe"');
+    expect(html).toContain('href="/docs/glossary/vocabulary-size"');
+    expect(html).toContain('href="/docs/models/gpt-3"');
+    expect(html).toContain('data-testid="citation-list"');
+    expect(html).toContain("Radford");
+    expect(html).toContain(
+      'href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf"',
+    );
+    expect(html).toContain('href="/tags/tokenization"');
+  });
+
+  test("published registry record stays bound to the canonical module page", () => {
+    const record = getRegistryRecordById("module.byte-level-tokenization");
+    expect(record?.kind).toBe("module");
+    if (record?.kind !== "module") {
+      throw new Error(
+        "expected module.byte-level-tokenization in registry runtime",
+      );
+    }
+
+    expect(record.slug).toBe("byte-level-tokenization");
+    expect(record.status).toBe("published");
+    expect(record.sourceId).toBe("citation.gpt-2-report");
   });
 });
 

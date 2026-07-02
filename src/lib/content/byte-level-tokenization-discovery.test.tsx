@@ -9,7 +9,7 @@ import { loadRegistry } from "@/lib/content/registry";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-describe("byte-level tokenization discovery surfaces (byte-level-tokenization-page-003)", () => {
+describe("byte-level tokenization discovery surfaces (byte-level-tokenization-page-004)", () => {
   test("search documents carry the byte-focused phrasing and canonical aliases", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");

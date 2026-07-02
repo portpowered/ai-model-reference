@@ -4,6 +4,7 @@ import chenPositionalInterpolation from "@/content/registry/citations/chen-posit
 import deepseekV2MlaPaper from "@/content/registry/citations/deepseek-v2-mla-paper.json";
 import dingLongrope from "@/content/registry/citations/ding-longrope.json";
 import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep-learning.json";
+import gpt2Report from "@/content/registry/citations/gpt-2-report.json";
 import gqaPaper from "@/content/registry/citations/gqa-paper.json";
 import kaiokendevSuperhot from "@/content/registry/citations/kaiokendev-superhot.json";
 import kaplanScalingLaws from "@/content/registry/citations/kaplan-scaling-laws.json";
@@ -28,6 +29,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(deepseekV2MlaPaper),
   citationRecordSchema.parse(dingLongrope),
   citationRecordSchema.parse(goodfellowDeepLearning),
+  citationRecordSchema.parse(gpt2Report),
   citationRecordSchema.parse(gqaPaper),
   citationRecordSchema.parse(kaiokendevSuperhot),
   citationRecordSchema.parse(kaplanScalingLaws),
