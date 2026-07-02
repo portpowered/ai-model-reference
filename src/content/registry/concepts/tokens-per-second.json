@@ -10,8 +10,8 @@
     "tokens/s",
     "tok/s",
     "TPS",
-    "throughput",
-    "generation throughput"
+    "generation throughput",
+    "serving throughput"
   ],
   "tags": ["foundations", "kv-cache"],
   "relatedIds": [
