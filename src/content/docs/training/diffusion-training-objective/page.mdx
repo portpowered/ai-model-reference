@@ -1,0 +1,170 @@
+---
+title: "Diffusion Training Objective"
+description: "The pretraining-style regime where a denoiser learns to predict noise or a clean-direction signal from corrupted examples across a noise schedule."
+kind: "training-regime"
+registryId: "training-regime.diffusion-training-objective"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - model-family
+aliases:
+  - "Diffusion Training Objective"
+  - "diffusion training objective"
+  - "diffusion objective"
+  - "denoising objective"
+  - "diffusion loss"
+  - "noise prediction objective"
+updatedAt: "2026-07-01"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+
+
+<TrainingRegimeAtAGlance registryId="training-regime.diffusion-training-objective" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
+</Section>
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+  <BlockMath formula="\\mathcal{L} = \\mathbb{E}_{t,\\,x_0,\\,\\epsilon}\\left[\\left\\lVert \\epsilon - \\epsilon_\\theta(x_t, t) \\right\\rVert^2\\right]" />
+  <div
+    className="rounded-lg border border-border bg-card p-4"
+    data-page-math-variable-definitions="noisePredictionObjective"
+  >
+    <dl className="space-y-2">
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="theta"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>&theta;</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.noisePredictionObjective.variableDefinitions.theta.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="x0"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            x<sub>0</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.noisePredictionObjective.variableDefinitions.x0.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="epsilon"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>&epsilon;</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.noisePredictionObjective.variableDefinitions.epsilon.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="t"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>t</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.noisePredictionObjective.variableDefinitions.t.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="xt"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            x<sub>t</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.noisePredictionObjective.variableDefinitions.xt.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="epsilontheta"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            &epsilon;<sub>&theta;</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.noisePredictionObjective.variableDefinitions.epsilontheta.definition" />
+        </dd>
+      </div>
+    </dl>
+  </div>
+</Section>
+<Section
+  id="compared-to-nearby-regimes"
+  titleKey="sections.comparedToNearbyRegimes.title"
+>
+  <T k="sections.comparedToNearbyRegimes.body" />
+  <LocalizedLinkList
+    items={[
+      {
+        href: "/docs/training/pretraining",
+        labelKey: "links.pretraining",
+      },
+      {
+        href: "/docs/glossary/diffusion-model",
+        labelKey: "links.diffusionModel",
+      },
+      {
+        href: "/docs/glossary/denoising-generation",
+        labelKey: "links.denoisingGeneration",
+      },
+      {
+        href: "/docs/glossary/latent-space",
+        labelKey: "links.latentSpace",
+      },
+      {
+        href: "/docs/glossary/autoregressive-generation",
+        labelKey: "links.autoregressiveGeneration",
+      },
+    ]}
+  />
+</Section>
+<Section
+  id="limitations-and-failure-modes"
+  titleKey="sections.limitationsAndFailureModes.title"
+>
+  <T k="sections.limitationsAndFailureModes.body" />
+</Section>
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="training-regime.diffusion-training-objective" />
+</Section>
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList
+    registryId="training-regime.diffusion-training-objective"
+    showDescriptions
+  />
+</Section>
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="training-regime.diffusion-training-objective" />
+</Section>

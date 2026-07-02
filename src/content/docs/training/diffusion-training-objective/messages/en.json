@@ -1,0 +1,75 @@
+{
+  "title": "Diffusion Training Objective",
+  "description": "The pretraining-style regime where a denoiser learns to predict noise or a clean-direction signal from corrupted examples across a noise schedule.",
+  "openingSummary": "The diffusion training objective teaches a model to reverse controlled corruption: training starts from clean examples, adds a known amount of noise at a chosen schedule level, and asks the model to predict the noise or the direction back toward a cleaner state. The model learns one denoising correction at a time rather than producing a finished sample in a single step.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "The diffusion training objective is the learning target used to train denoising generative models. Training pairs a clean example with a noised version of that example and asks the network to predict the corruption signal needed to undo one step of noise. Variants may target the added noise directly, a score that points toward higher data density, or an estimate of the clean sample, but the shared idea is the same: learn how to move one step from a noisy state toward a plausible clean state."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Many generative systems need a training recipe that matches how they will later produce outputs. Diffusion models do not emit a finished image, audio clip, or latent grid in one forward pass. They refine a noisy state through many small updates. The diffusion training objective exists so the model learns those partial corrections during training instead of being trained for a one-shot reconstruction task that does not match generation."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "A training batch begins with clean data such as pixels or latents. A schedule picks how much noise to add, producing a corrupted state at level t. The denoiser reads that noisy state and the level index, then outputs a prediction of the noise or clean-direction signal. The loss compares that prediction to the known corruption and updates the weights. Repeating this across many examples and many schedule levels teaches the model how denoising should behave from nearly clean inputs through heavily corrupted ones."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Language-model pretraining optimizes next-token prediction over token sequences. The diffusion training objective instead optimizes denoising corrections over continuous or spatially structured states such as pixel grids or latent tensors. Denoising generation describes the iterative output loop that uses a trained denoiser at inference; the diffusion training objective is the learning recipe that prepares that denoiser. Diffusion models and latent-space pages explain the model family and compressed representation settings where this objective commonly appears."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "The objective only teaches one-step denoising behavior at sampled noise levels. If the schedule under-represents very noisy or nearly clean states, generation can fail at the corresponding inference steps. If training data is narrow, the denoiser may learn texture and layout habits that do not generalize. Because each training step predicts a local correction rather than the final sample, poor schedule design or too few reverse steps at inference can leave visible artifacts even when training loss looks healthy."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "pretraining": "Pretraining",
+    "diffusionModel": "Diffusion model",
+    "denoisingGeneration": "Denoising generation",
+    "latentSpace": "Latent space",
+    "autoregressiveGeneration": "Autoregressive generation"
+  },
+  "math": {
+    "noisePredictionObjective": {
+      "label": "Noise prediction objective",
+      "formula": "\\mathcal{L} = \\mathbb{E}_{t,\\,x_0,\\,\\epsilon}\\left[\\left\\lVert \\epsilon - \\epsilon_\\theta(x_t, t) \\right\\rVert^2\\right]",
+      "variableDefinitions": {
+        "theta": {
+          "term": "\\theta",
+          "definition": "denoiser weights"
+        },
+        "x0": {
+          "term": "x_0",
+          "definition": "a clean training example before noise is added"
+        },
+        "epsilon": {
+          "term": "\\epsilon",
+          "definition": "the noise sample used to corrupt the example"
+        },
+        "t": {
+          "term": "t",
+          "definition": "the schedule level that controls corruption strength"
+        },
+        "xt": {
+          "term": "x_t",
+          "definition": "the noised state at schedule level t"
+        },
+        "epsilontheta": {
+          "term": "\\epsilon_\\theta",
+          "definition": "the denoiser noise prediction given weights \\theta"
+        }
+      }
+    }
+  }
+}
