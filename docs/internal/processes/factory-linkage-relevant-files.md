@@ -155,3 +155,15 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata for both target
   branches, DIRTY/CONFLICTING GitHub state with passing CI, and non-mutating
   merge-tree conflict paths for story 002 classification.
+* [merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files](./merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files.md)
+  — merged PR drain evidence for PRs #274/#275/#276/#278/#280: live queue tokens
+  on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata,
+  merge-commit ancestry on `origin/main`, explicit separation of merged PR
+  truth from queue completion truth, story 002 per-row consume/complete/no-op
+  classification, story 003 consume execution for `rlvr-pr275-drain`
+  (`you work move` to `complete` on session `930b51a6-07ce-44e6-a639-7a6217f6e864`),
+  story 004 zero-target complete handoff (no completion transitions required),
+  story 005 no-op handoffs for five already-terminal primary lanes plus
+  `ownerless-rlvr-navigation-root-dirty-handoff` (unfinished root-dirty classification),
+  and story 006 final verification (root clean, docs-only branch diff, one queue
+  consume before/after recorded, content worktree drift untouched).
