@@ -19,7 +19,8 @@
     "concept.parameter",
     "concept.loss-function",
     "concept.optimizer-state",
-    "concept.conditioning"
+    "concept.conditioning",
+    "training-regime.grpo"
   ],
   "citationIds": [
     "citation.training-language-models-to-follow-instructions-with-human-feedback"

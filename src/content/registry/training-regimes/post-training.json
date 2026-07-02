@@ -18,6 +18,7 @@
     "training-regime.pretraining",
     "concept.alignment",
     "training-regime.dpo",
+    "training-regime.grpo",
     "training-regime.instruction-tuning",
     "training-regime.specialist-training",
     "model.gpt-3",
