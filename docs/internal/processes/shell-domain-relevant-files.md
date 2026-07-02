@@ -19,6 +19,8 @@ or shell fixture proofs that must stay independent from AI registry helpers.
   AI docs page tree; composes adapter settings into `buildShellCollectionPageTree`.
 * `src/lib/navigation/generated-docs-page-tree-wiring.test.ts`
   Adapter-to-shell wiring regression for base-tree preservation and page inclusion.
+* `src/lib/navigation/ai-docs-sidebar-adapter-parity.test.ts`
+  Consolidated AI adapter parity and non-AI fixture sidebar independence regression.
 * `src/app/(site)/site-renderers.tsx`
   AI browse and section-index render entry points used by public routes.
 
