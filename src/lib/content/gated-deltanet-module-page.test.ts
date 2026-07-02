@@ -58,6 +58,21 @@ describe("gated-deltanet page messages", () => {
     expect(messages.sections?.mathOrComputeSchema.body).toContain(
       "targeted delta-rule write",
     );
+    expect(messages.sections?.comparedToNearbyModules.body).toContain(
+      "DeltaNet-style updates",
+    );
+    expect(messages.sections?.comparedToNearbyModules.body).toContain(
+      "Mamba2-style gating",
+    );
+    expect(messages.sections?.comparedToNearbyModules.body).toContain(
+      "near-linear long-context cost",
+    );
+    expect(messages.sections?.limitationsAndTradeoffs.body).toContain(
+      "compressed rather than directly addressable token by token",
+    );
+    expect(messages.tables?.comparison?.values?.gdn?.pastAddressability).toContain(
+      "compressed into one recurrent state",
+    );
     expect(messages.math?.mhaSchema?.variableDefinitions?.q?.term).toBe("Q");
     expect(messages.math?.gdnSchema?.variableDefinitions?.g?.term).toBe(
       "\\alpha_t",
@@ -129,6 +144,14 @@ describe("loadModulePage gated-deltanet", () => {
     expect(html).toContain("delta-rule path is different");
     expect(html).toContain("Gated decay plus targeted delta-rule memory edits");
     expect(html).toContain(
+      "Indirect; the past is compressed into one recurrent state",
+    );
+    expect(html).toContain("DeltaNet-style updates");
+    expect(html).toContain("Mamba2-style gating");
+    expect(html).toContain("near-linear long-context cost");
+    expect(html).toContain('href="/docs/modules/multi-head-attention"');
+    expect(html).toContain('data-comparison-dimension="pastAddressability"');
+    expect(html).toContain(
       'data-graph-legend="graph.gated-deltanet-gdn-comparison"',
     );
     expect(html).toContain("Gate decay control");
@@ -164,6 +187,10 @@ describe("loadModulePage gated-deltanet", () => {
     );
     expect(html).toContain("α_t controls memory decay");
     expect(html).toContain('data-math-schema="gdn"');
+    expect(html).toContain(
+      "compressed rather than directly addressable token by token",
+    );
+    expect(html).toContain('id="compared-to-nearby-modules"');
   });
 });
 

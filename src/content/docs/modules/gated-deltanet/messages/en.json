@@ -21,7 +21,7 @@
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Multi-head attention keeps the full pairwise score matrix and remains the most direct way to address any earlier token. Linear attention compresses the past into a running summary, but ordinary accumulation-only updates can be harder to erase or replace precisely. Gated Delta Networks add gated decay and delta-rule editing on top of that recurrent form. Sliding-window attention stays closer to dense attention but only inside a local band, while Gated DeltaNet keeps one compact global state that is updated selectively at each step."
+      "body": "Multi-head attention keeps the full pairwise score matrix and remains the most direct way to address any earlier token. Linear attention compresses the past into a running summary, but ordinary accumulation-only updates can be harder to erase or replace precisely. DeltaNet-style updates use the same delta-rule write without the separate input-dependent gate that scales memory decay, so older content can linger unless another write overwrites it. Mamba2-style gating controls state decay in selective state-space mixers, but it does not use the same targeted key-value delta edit that Gated Delta Networks apply on top of their memory matrix. Sliding-window attention and sparse attention stay closer to dense softmax attention, yet they only connect tokens inside a local band or chosen pattern. Gated DeltaNet keeps one compact global recurrent state and updates it selectively at each step. That design trades direct token-by-token addressability for near-linear long-context cost: gated decay plus delta-rule editing can clear or replace memory slots without materializing an n-by-n attention map. Hybrid stacks that mix Gated DeltaNet with sliding-window attention or sparse attention are common when a model needs both efficient global mixing and direct local or patterned access."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
@@ -29,7 +29,7 @@
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "A fixed-size recurrent state cannot store every past token independently the way dense attention can. Retrieval quality depends on how cleanly keys, gates, and delta writes use the available state width, so very long contexts can still stress the compressed memory. Hybrid designs that mix Gated DeltaNet with local or dense attention remain common when a model needs both efficiency and direct token access."
+      "body": "The main tradeoff is retrieval fidelity. A fixed-size recurrent state cannot store every past token independently the way dense attention can, because the past is compressed rather than directly addressable token by token. Retrieval quality depends on how cleanly keys, gates, and delta writes use the available state width, so very long contexts can still stress the compressed memory even when compute stays affordable. Hybrid designs that mix Gated DeltaNet with sliding-window attention, sparse attention, or dense attention remain common when a model needs both efficient global mixing and direct token access."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
@@ -97,28 +97,33 @@
       "dimensions": {
         "memoryForm": "Memory form",
         "sequenceScaling": "Sequence scaling",
-        "updateStyle": "Update style"
+        "updateStyle": "Update style",
+        "pastAddressability": "Past addressability"
       },
       "values": {
         "gdn": {
           "memoryForm": "Fixed-size matrix-valued recurrent state carried across positions",
           "sequenceScaling": "Near-linear O(n) per layer with constant state width",
-          "updateStyle": "Gated decay plus targeted delta-rule memory edits"
+          "updateStyle": "Gated decay plus targeted delta-rule memory edits",
+          "pastAddressability": "Indirect; the past is compressed into one recurrent state rather than stored per token"
         },
         "linear": {
           "memoryForm": "Running key-value summary accumulated across positions",
           "sequenceScaling": "Near-linear O(n) per head with fixed feature-map dimension",
-          "updateStyle": "Associative accumulation of feature-mapped keys and values"
+          "updateStyle": "Associative accumulation of feature-mapped keys and values",
+          "pastAddressability": "Indirect; earlier tokens are summarized in accumulated statistics"
         },
         "mha": {
           "memoryForm": "Explicit attention weights over all earlier tokens",
           "sequenceScaling": "Quadratic O(n²) per head",
-          "updateStyle": "Softmax-weighted sum over all allowed key positions"
+          "updateStyle": "Softmax-weighted sum over all allowed key positions",
+          "pastAddressability": "Direct; any earlier token can be scored explicitly"
         },
         "window": {
           "memoryForm": "Dense attention inside a fixed local window",
           "sequenceScaling": "Linear O(n·W) per head when window width W is fixed",
-          "updateStyle": "Softmax over keys inside the local band only"
+          "updateStyle": "Softmax over keys inside the local band only",
+          "pastAddressability": "Direct only inside the local window; distant tokens need other layers or patterns"
         }
       }
     }
