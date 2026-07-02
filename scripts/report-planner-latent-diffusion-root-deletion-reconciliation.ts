@@ -1,6 +1,9 @@
 import { resolve } from "node:path";
 import {
+  formatLatentDiffusionCompletedWorktreeEvidenceReport,
   formatLatentDiffusionLandedEvidenceReport,
+  inspectLatentDiffusionCompletedWorktreeEvidence,
+  serializeLatentDiffusionCompletedWorktreeEvidenceReport,
   serializeLatentDiffusionLandedEvidenceReport,
   verifyLatentDiffusionLandedEvidence,
 } from "../src/lib/factory/planner-latent-diffusion-root-deletion-reconciliation";
@@ -32,9 +35,26 @@ const report = verifyLatentDiffusionLandedEvidence({
   remoteBaseRef,
   repoRoot,
 });
+const worktreeEvidenceReport = inspectLatentDiffusionCompletedWorktreeEvidence({
+  remoteBaseRef,
+  repoRoot,
+});
 
 process.stdout.write(
   isJsonOutputRequested(process.argv)
-    ? serializeLatentDiffusionLandedEvidenceReport(report)
-    : `${formatLatentDiffusionLandedEvidenceReport(report)}\n`,
+    ? `${JSON.stringify(
+        {
+          completedWorktreeEvidence: JSON.parse(
+            serializeLatentDiffusionCompletedWorktreeEvidenceReport(
+              worktreeEvidenceReport,
+            ),
+          ),
+          landedEvidence: JSON.parse(
+            serializeLatentDiffusionLandedEvidenceReport(report),
+          ),
+        },
+        null,
+        2,
+      )}\n`
+    : `${formatLatentDiffusionLandedEvidenceReport(report)}\n\n${formatLatentDiffusionCompletedWorktreeEvidenceReport(worktreeEvidenceReport)}\n`,
 );

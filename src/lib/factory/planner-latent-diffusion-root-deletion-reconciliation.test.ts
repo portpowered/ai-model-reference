@@ -1,17 +1,22 @@
 import { describe, expect, test } from "bun:test";
+import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
 import {
+  collectLatentDiffusionCompletedWorktreePathEvidence,
   collectLatentDiffusionOriginMainSurfaceEvidence,
   collectLatentDiffusionRootCheckoutEvidence,
+  determineLatentDiffusionCompletedWorktreePathDisposition,
   determineLatentDiffusionLandedEvidenceVerificationStatus,
+  formatLatentDiffusionCompletedWorktreeEvidenceReport,
   formatLatentDiffusionLandedEvidenceReport,
+  inspectLatentDiffusionCompletedWorktreeEvidence,
   isMergeCommitInLineage,
   LATENT_DIFFUSION_LANDING_MERGE_COMMIT_SHA,
   LATENT_DIFFUSION_LANDING_PR_NUMBER,
   LATENT_DIFFUSION_ORIGIN_MAIN_SURFACES,
+  LATENT_DIFFUSION_PAPER_PAGE_LANE_NAME,
   LATENT_DIFFUSION_PAPER_ROUTE,
   LATENT_DIFFUSION_RECONCILIATION_DIRTY_PATHS,
   LATENT_DIFFUSION_ROOT_DELETION_RECONCILIATION_HEADER,
@@ -53,7 +58,12 @@ function createFixtureRepo(): {
     encoding: "utf8",
   }).stdout.trim();
 
-  runGit(repoRoot, ["commit", "--allow-empty", "-m", "latent-diffusion landing"]);
+  runGit(repoRoot, [
+    "commit",
+    "--allow-empty",
+    "-m",
+    "latent-diffusion landing",
+  ]);
   const mergeCommitSha = spawnSync("git", ["rev-parse", "HEAD"], {
     cwd: repoRoot,
     encoding: "utf8",
@@ -121,13 +131,13 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
 
     expect(evidence.isClean).toBe(false);
     expect(evidence.dirtyPathCount).toBe(4);
-    expect(evidence.latentDiffusionDirtyPaths.map((entry) => entry.path)).toEqual(
-      [
-        "src/content/docs/papers/latent-diffusion/page.mdx",
-        "src/lib/content/registry-runtime.test.ts",
-        "src/lib/source.test.ts",
-      ],
-    );
+    expect(
+      evidence.latentDiffusionDirtyPaths.map((entry) => entry.path),
+    ).toEqual([
+      "src/content/docs/papers/latent-diffusion/page.mdx",
+      "src/lib/content/registry-runtime.test.ts",
+      "src/lib/source.test.ts",
+    ]);
   });
 
   test("determineLatentDiffusionLandedEvidenceVerificationStatus requires merge commit and all surfaces", () => {
@@ -218,11 +228,13 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
       });
 
       expect(
-        report.originMainSurfaces.every((surface) => surface.presentOnOriginMain),
+        report.originMainSurfaces.every(
+          (surface) => surface.presentOnOriginMain,
+        ),
       ).toBe(true);
-      expect(report.rootCheckoutEvidence.latentDiffusionDirtyPaths).toHaveLength(
-        2,
-      );
+      expect(
+        report.rootCheckoutEvidence.latentDiffusionDirtyPaths,
+      ).toHaveLength(2);
       expect(report.rootCheckoutEvidence.isClean).toBe(false);
       expect(
         isMergeCommitInLineage(
@@ -241,7 +253,9 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
       );
 
       const formatted = formatLatentDiffusionLandedEvidenceReport(report);
-      expect(formatted).toContain(LATENT_DIFFUSION_ROOT_DELETION_RECONCILIATION_HEADER);
+      expect(formatted).toContain(
+        LATENT_DIFFUSION_ROOT_DELETION_RECONCILIATION_HEADER,
+      );
       expect(formatted).toContain("shipped-vs-dirty");
       expect(formatted).toContain(
         "path=src/content/docs/papers/latent-diffusion/page.mdx",
@@ -250,6 +264,145 @@ describe("planner-latent-diffusion-root-deletion-reconciliation", () => {
       expect(formatted).toContain(`route=${LATENT_DIFFUSION_PAPER_ROUTE}`);
       expect(formatted).toContain(
         "path=src/lib/content/latent-diffusion-paper-page.test.ts",
+      );
+    } finally {
+      fixture.cleanup();
+    }
+  });
+
+  test("determineLatentDiffusionCompletedWorktreePathDisposition classifies branch vs main presence", () => {
+    expect(
+      determineLatentDiffusionCompletedWorktreePathDisposition({
+        contentMatchesOriginMain: true,
+        presentOnCompletedBranch: true,
+        presentOnOriginMain: true,
+      }),
+    ).toBe("existed-unchanged");
+
+    expect(
+      determineLatentDiffusionCompletedWorktreePathDisposition({
+        contentMatchesOriginMain: false,
+        presentOnCompletedBranch: true,
+        presentOnOriginMain: true,
+      }),
+    ).toBe("existed-modified");
+
+    expect(
+      determineLatentDiffusionCompletedWorktreePathDisposition({
+        contentMatchesOriginMain: null,
+        presentOnCompletedBranch: false,
+        presentOnOriginMain: true,
+      }),
+    ).toBe("removed-on-branch");
+  });
+
+  test("collectLatentDiffusionCompletedWorktreePathEvidence records branch diff and main mismatches", () => {
+    const fixture = createFixtureRepo();
+
+    try {
+      const changedPath = "src/content/docs/papers/latent-diffusion/page.mdx";
+      const unchangedPath =
+        "src/content/docs/papers/latent-diffusion/assets.json";
+      const branchName = "latent-diffusion-paper-page";
+      runGit(fixture.repoRoot, ["checkout", "-B", branchName, fixture.mainRef]);
+      writeFileSync(
+        join(fixture.repoRoot, changedPath),
+        "export const changed = true;\n",
+      );
+      runGit(fixture.repoRoot, ["add", changedPath]);
+      runGit(fixture.repoRoot, [
+        "commit",
+        "-m",
+        "branch-only page bundle change",
+      ]);
+
+      const evidence = collectLatentDiffusionCompletedWorktreePathEvidence({
+        branchChangedPaths: new Set([changedPath, unchangedPath]),
+        branchName,
+        paths: [changedPath, unchangedPath],
+        remoteBaseRef: fixture.mainRef,
+        repoRoot: fixture.repoRoot,
+        runGit: (repoRoot, args) => {
+          const result = spawnSync("git", [...args], {
+            cwd: repoRoot,
+            encoding: "utf8",
+          });
+          return {
+            status: result.status,
+            stdout: result.stdout ?? "",
+            stderr: result.stderr ?? "",
+          };
+        },
+      });
+
+      expect(evidence).toEqual([
+        expect.objectContaining({
+          changedInCompletedBranchDiff: true,
+          contentMatchesOriginMain: false,
+          disposition: "existed-modified",
+          mismatchWithOriginMain: true,
+          path: changedPath,
+          presentOnCompletedBranch: true,
+          presentOnOriginMain: true,
+        }),
+        expect.objectContaining({
+          changedInCompletedBranchDiff: true,
+          contentMatchesOriginMain: true,
+          disposition: "existed-unchanged",
+          mismatchWithOriginMain: false,
+          path: unchangedPath,
+          presentOnCompletedBranch: true,
+          presentOnOriginMain: true,
+        }),
+      ]);
+    } finally {
+      fixture.cleanup();
+    }
+  });
+
+  test("inspectLatentDiffusionCompletedWorktreeEvidence records lane identity and path evidence", () => {
+    const fixture = createFixtureRepo();
+
+    try {
+      const branchName = LATENT_DIFFUSION_PAPER_PAGE_LANE_NAME;
+      runGit(fixture.repoRoot, ["branch", "-f", branchName, fixture.mainRef]);
+
+      const report = inspectLatentDiffusionCompletedWorktreeEvidence({
+        branchName,
+        generatedAtUtc: "2026-07-02T05:00:00.000Z",
+        laneName: branchName,
+        remoteBaseRef: fixture.mainRef,
+        repoRoot: fixture.repoRoot,
+        worktreePath: "/tmp/latent-diffusion-paper-page",
+        runGit: (repoRoot, args) => {
+          const result = spawnSync("git", [...args], {
+            cwd: repoRoot,
+            encoding: "utf8",
+          });
+          return {
+            status: result.status,
+            stdout: result.stdout ?? "",
+            stderr: result.stderr ?? "",
+          };
+        },
+      });
+
+      expect(report.inspectionStatus).toBe("inspected");
+      expect(report.identity.branchName).toBe(branchName);
+      expect(report.identity.worktreePath).toBe(
+        "/tmp/latent-diffusion-paper-page",
+      );
+      expect(report.pathEvidence).toHaveLength(
+        LATENT_DIFFUSION_RECONCILIATION_DIRTY_PATHS.length,
+      );
+      expect(report.mismatchesWithOriginMain).toEqual([]);
+
+      const formatted =
+        formatLatentDiffusionCompletedWorktreeEvidenceReport(report);
+      expect(formatted).toContain("Completed Worktree Evidence");
+      expect(formatted).toContain("completed-vs-main");
+      expect(formatted).toContain(
+        "path=src/content/docs/papers/latent-diffusion/page.mdx",
       );
     } finally {
       fixture.cleanup();

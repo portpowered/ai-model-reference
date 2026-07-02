@@ -30,9 +30,12 @@ on the current checkout head.
 
 * `src/lib/factory/planner-latent-diffusion-root-deletion-reconciliation.ts` —
   read-only landed-evidence verification for PR #264 / merge `3ea842f`,
-  `origin/main` surface presence, and separate root-checkout dirty-path capture.
+  `origin/main` surface presence, separate root-checkout dirty-path capture,
+  and completed `latent-diffusion-paper-page` worktree/branch comparison against
+  `origin/main` for every reconciliation dirty path.
 * `src/lib/factory/planner-latent-diffusion-root-deletion-reconciliation.test.ts`
-  — fixture git repo tests for shipped-vs-dirty separation.
+  — fixture git repo tests for shipped-vs-dirty separation and completed-worktree
+  path evidence against `origin/main`.
 * `scripts/report-planner-latent-diffusion-root-deletion-reconciliation.ts` —
   human-readable and JSON report entry point.
 
@@ -58,6 +61,36 @@ on the current checkout head.
 | Worktree | `.claude/worktrees/latent-diffusion-paper-page` |
 | Branch tip | `0ddfd2bc` (pre-merge reconcile commit) |
 | Landing merge | PR #264 / `3ea842f` on `origin/main` |
+| PR metadata | #264 merged 2026-07-02T04:04:59Z |
+
+## Story 002 — Completed worktree evidence inspection (2026-07-02 UTC)
+
+Read-only inspection via `inspectLatentDiffusionCompletedWorktreeEvidence` and
+`bun run report:planner-latent-diffusion-root-deletion-reconciliation`.
+No source, registry, test, or docs content was modified during this story.
+
+| Path | Completed branch | Origin/main | Disposition | Mismatch with main |
+| --- | --- | --- | --- | --- |
+| `src/content/docs/papers/latent-diffusion/assets.json` | present | present | existed-unchanged | no |
+| `src/content/docs/papers/latent-diffusion/messages/en.json` | present | present | existed-unchanged | no |
+| `src/content/docs/papers/latent-diffusion/page.mdx` | present | present | existed-unchanged | no |
+| `src/content/registry/citations/latent-diffusion-models.json` | present | present | existed-unchanged | no |
+| `src/content/registry/graphs/latent-diffusion-contribution.json` | present | present | existed-unchanged | no |
+| `src/content/registry/papers/latent-diffusion.json` | present | present | existed-unchanged | no |
+| `src/lib/content/latent-diffusion-paper-page.test.ts` | present | present | existed-unchanged | no |
+| `src/lib/content/registry-runtime.test.ts` | present | present | existed-modified | **yes** |
+| `src/lib/source.test.ts` | present | present | existed-unchanged | no |
+
+**Completed-vs-main mismatch:** only `src/lib/content/registry-runtime.test.ts`
+differs between the completed `latent-diffusion-paper-page` branch tip and
+current `origin/main`. The branch tip retains pre-reconcile assertions (for
+example `concept.self-attention` expectations) that main advanced past during
+unrelated merges. This is shared-test drift, not missing latent-diffusion page
+content.
+
+**Intentional removal check:** none of the listed latent-diffusion page bundle,
+registry, citation, graph, or focused-test paths were removed on the completed
+branch; all remain present and content-identical to `origin/main`.
 
 ## Verification commands
 

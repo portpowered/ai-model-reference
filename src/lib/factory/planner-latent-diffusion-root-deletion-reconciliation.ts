@@ -1,13 +1,15 @@
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
+import { parseWorktreeListPorcelain } from "./conflict-hotspot-report";
 import {
   detectDefaultRemoteBaseRef,
   pathExistsOnGitRef,
 } from "./planner-root-checkout-reconciliation";
 import {
-  parsePlannerRelevantDirtyPaths,
   type PlannerWorktreeDriftChangeKind,
+  parsePlannerRelevantDirtyPaths,
 } from "./planner-worktree-drift-watchdog";
+import { readWorktreeLaneMetadata } from "./worktree-lane-metadata";
 
 export const LATENT_DIFFUSION_ROOT_DELETION_RECONCILIATION_HEADER =
   "Latent Diffusion Root Deletion Reconciliation";
@@ -224,13 +226,11 @@ export function isMergeCommitInLineage(
   );
 }
 
-export function buildLatentDiffusionMergeEvidence(
-  options: {
-    remoteBaseRef: string;
-    repoRoot: string;
-    runGit?: RunGit;
-  },
-): LatentDiffusionMergeEvidence {
+export function buildLatentDiffusionMergeEvidence(options: {
+  remoteBaseRef: string;
+  repoRoot: string;
+  runGit?: RunGit;
+}): LatentDiffusionMergeEvidence {
   const runGit = options.runGit ?? defaultRunGit;
   const presentInLineage = isMergeCommitInLineage(
     options.repoRoot,
@@ -248,13 +248,11 @@ export function buildLatentDiffusionMergeEvidence(
   };
 }
 
-export function collectLatentDiffusionOriginMainSurfaceEvidence(
-  options: {
-    remoteBaseRef: string;
-    repoRoot: string;
-    runGit?: RunGit;
-  },
-): LatentDiffusionOriginMainSurfaceEvidence[] {
+export function collectLatentDiffusionOriginMainSurfaceEvidence(options: {
+  remoteBaseRef: string;
+  repoRoot: string;
+  runGit?: RunGit;
+}): LatentDiffusionOriginMainSurfaceEvidence[] {
   const runGit = options.runGit ?? defaultRunGit;
 
   return LATENT_DIFFUSION_ORIGIN_MAIN_SURFACES.map((surface) => {
@@ -345,10 +343,11 @@ export function verifyLatentDiffusionLandedEvidence(
     remoteBaseRef,
     repoRoot,
     rootCheckoutEvidence,
-    verificationStatus: determineLatentDiffusionLandedEvidenceVerificationStatus({
-      mergeEvidence,
-      originMainSurfaces,
-    }),
+    verificationStatus:
+      determineLatentDiffusionLandedEvidenceVerificationStatus({
+        mergeEvidence,
+        originMainSurfaces,
+      }),
   };
 }
 
@@ -400,7 +399,8 @@ export function formatLatentDiffusionLandedEvidenceReport(
   if (report.rootCheckoutEvidence.latentDiffusionDirtyPaths.length === 0) {
     lines.push("    - none");
   } else {
-    for (const dirtyPath of report.rootCheckoutEvidence.latentDiffusionDirtyPaths) {
+    for (const dirtyPath of report.rootCheckoutEvidence
+      .latentDiffusionDirtyPaths) {
       lines.push(formatDirtyPathEvidenceLine(dirtyPath));
     }
   }
@@ -414,6 +414,438 @@ export function formatLatentDiffusionLandedEvidenceReport(
 
 export function serializeLatentDiffusionLandedEvidenceReport(
   report: LatentDiffusionLandedEvidenceReport,
+): string {
+  return JSON.stringify(report, null, 2);
+}
+
+export type LatentDiffusionCompletedWorktreePathDisposition =
+  | "existed-unchanged"
+  | "existed-modified"
+  | "removed-on-branch"
+  | "added-on-branch"
+  | "absent-on-both"
+  | "unavailable";
+
+export type LatentDiffusionCompletedWorktreeInspectionStatus =
+  | "inspected"
+  | "worktree-unavailable"
+  | "branch-unavailable";
+
+export interface LatentDiffusionCompletedWorktreeIdentityEvidence {
+  branchName: string;
+  branchTipSha: string;
+  branchTipShort: string;
+  laneName: string;
+  pullRequestNumber: number | null;
+  pullRequestUrl: string | null;
+  worktreePath: string | null;
+  worktreePresent: boolean;
+}
+
+export interface LatentDiffusionCompletedWorktreePathEvidence {
+  changedInCompletedBranchDiff: boolean;
+  contentMatchesOriginMain: boolean | null;
+  disposition: LatentDiffusionCompletedWorktreePathDisposition;
+  mismatchWithOriginMain: boolean;
+  path: string;
+  presentOnCompletedBranch: boolean;
+  presentOnOriginMain: boolean;
+}
+
+export interface LatentDiffusionCompletedWorktreeEvidenceReport {
+  branchDiffUnavailableReason?: string;
+  generatedAtUtc: string;
+  identity: LatentDiffusionCompletedWorktreeIdentityEvidence;
+  inspectionStatus: LatentDiffusionCompletedWorktreeInspectionStatus;
+  mismatchesWithOriginMain: string[];
+  pathEvidence: LatentDiffusionCompletedWorktreePathEvidence[];
+  remoteBaseRef: string;
+  repoRoot: string;
+}
+
+export interface InspectLatentDiffusionCompletedWorktreeEvidenceOptions {
+  branchName?: string;
+  generatedAtUtc?: string;
+  laneName?: string;
+  remoteBaseRef?: string;
+  repoRoot?: string;
+  runGit?: RunGit;
+  worktreePath?: string;
+}
+
+function gitRefExists(repoRoot: string, ref: string, runGit: RunGit): boolean {
+  return runGit(repoRoot, ["rev-parse", "--verify", ref]).status === 0;
+}
+
+function resolveGitRefSha(
+  repoRoot: string,
+  ref: string,
+  runGit: RunGit,
+): string | null {
+  const result = runGit(repoRoot, ["rev-parse", ref]);
+  if (result.status !== 0 || result.stdout.trim().length === 0) {
+    return null;
+  }
+  return result.stdout.trim();
+}
+
+function normalizeBranchLabel(branch: string | null): string | null {
+  if (!branch) {
+    return null;
+  }
+  return branch.replace(/^refs\/heads\//, "").trim() || null;
+}
+
+export function resolveCompletedWorktreePathForLane(
+  repoRoot: string,
+  laneName: string,
+  runGit: RunGit = defaultRunGit,
+): string | null {
+  const worktreeListResult = runGit(repoRoot, [
+    "worktree",
+    "list",
+    "--porcelain",
+  ]);
+  if (worktreeListResult.status === 0) {
+    for (const worktree of parseWorktreeListPorcelain(
+      worktreeListResult.stdout,
+    )) {
+      const branchName = normalizeBranchLabel(worktree.branch);
+      if (branchName === laneName) {
+        return worktree.path;
+      }
+    }
+  }
+
+  const metadata = readWorktreeLaneMetadata(
+    resolve(repoRoot, ".claude", "worktrees", laneName),
+  );
+  if (metadata?.worktreePath) {
+    return metadata.worktreePath;
+  }
+
+  return null;
+}
+
+function pathsMatchAcrossRefs(
+  repoRoot: string,
+  leftRef: string,
+  rightRef: string,
+  path: string,
+  runGit: RunGit,
+): boolean | null {
+  const result = runGit(repoRoot, [
+    "diff",
+    "--quiet",
+    leftRef,
+    rightRef,
+    "--",
+    path,
+  ]);
+  if (result.status === 0) {
+    return true;
+  }
+  if (result.status === 1) {
+    return false;
+  }
+  return null;
+}
+
+function collectBranchChangedPathSet(input: {
+  branchName: string;
+  mainRef: string;
+  repoRoot: string;
+  runGit: RunGit;
+}): { changedPaths: Set<string>; unavailableReason?: string } {
+  if (!gitRefExists(input.repoRoot, input.branchName, input.runGit)) {
+    return {
+      changedPaths: new Set(),
+      unavailableReason: `branch ref "${input.branchName}" is not available`,
+    };
+  }
+
+  const mergeBaseResult = input.runGit(input.repoRoot, [
+    "merge-base",
+    input.mainRef,
+    input.branchName,
+  ]);
+  const mergeBase = mergeBaseResult.stdout.trim();
+  if (mergeBaseResult.status !== 0 || !mergeBase) {
+    return {
+      changedPaths: new Set(),
+      unavailableReason: `unable to resolve merge-base between ${input.mainRef} and ${input.branchName}`,
+    };
+  }
+
+  const diffResult = input.runGit(input.repoRoot, [
+    "diff",
+    "--name-only",
+    `${mergeBase}..${input.branchName}`,
+  ]);
+  if (diffResult.status !== 0) {
+    return {
+      changedPaths: new Set(),
+      unavailableReason: `unable to diff ${input.branchName} against merge-base ${mergeBase}`,
+    };
+  }
+
+  return {
+    changedPaths: new Set(
+      diffResult.stdout
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0),
+    ),
+  };
+}
+
+export function determineLatentDiffusionCompletedWorktreePathDisposition(input: {
+  contentMatchesOriginMain: boolean | null;
+  presentOnCompletedBranch: boolean;
+  presentOnOriginMain: boolean;
+}): LatentDiffusionCompletedWorktreePathDisposition {
+  if (
+    input.presentOnCompletedBranch === false &&
+    input.presentOnOriginMain === false
+  ) {
+    return "absent-on-both";
+  }
+
+  if (input.presentOnCompletedBranch && !input.presentOnOriginMain) {
+    return "added-on-branch";
+  }
+
+  if (!input.presentOnCompletedBranch && input.presentOnOriginMain) {
+    return "removed-on-branch";
+  }
+
+  if (input.contentMatchesOriginMain === false) {
+    return "existed-modified";
+  }
+
+  if (input.contentMatchesOriginMain === true) {
+    return "existed-unchanged";
+  }
+
+  return "unavailable";
+}
+
+export function collectLatentDiffusionCompletedWorktreePathEvidence(input: {
+  branchName: string;
+  branchChangedPaths: Set<string>;
+  paths: readonly string[];
+  remoteBaseRef: string;
+  repoRoot: string;
+  runGit: RunGit;
+}): LatentDiffusionCompletedWorktreePathEvidence[] {
+  return input.paths.map((path) => {
+    const presentOnCompletedBranch = pathExistsOnGitRef(
+      input.repoRoot,
+      input.branchName,
+      path,
+      input.runGit,
+    );
+    const presentOnOriginMain = pathExistsOnGitRef(
+      input.repoRoot,
+      input.remoteBaseRef,
+      path,
+      input.runGit,
+    );
+    const contentMatchesOriginMain =
+      presentOnCompletedBranch && presentOnOriginMain
+        ? pathsMatchAcrossRefs(
+            input.repoRoot,
+            input.remoteBaseRef,
+            input.branchName,
+            path,
+            input.runGit,
+          )
+        : null;
+    const disposition =
+      determineLatentDiffusionCompletedWorktreePathDisposition({
+        contentMatchesOriginMain,
+        presentOnCompletedBranch,
+        presentOnOriginMain,
+      });
+
+    return {
+      changedInCompletedBranchDiff: input.branchChangedPaths.has(path),
+      contentMatchesOriginMain,
+      disposition,
+      mismatchWithOriginMain: contentMatchesOriginMain === false,
+      path,
+      presentOnCompletedBranch,
+      presentOnOriginMain,
+    };
+  });
+}
+
+export function buildLatentDiffusionCompletedWorktreeIdentityEvidence(input: {
+  branchName: string;
+  branchTipSha: string | null;
+  laneName: string;
+  repoRoot: string;
+  runGit: RunGit;
+  worktreePath: string | null;
+}): LatentDiffusionCompletedWorktreeIdentityEvidence {
+  const metadata = input.worktreePath
+    ? readWorktreeLaneMetadata(input.worktreePath)
+    : null;
+
+  return {
+    branchName: input.branchName,
+    branchTipSha: input.branchTipSha ?? "",
+    branchTipShort: input.branchTipSha ? input.branchTipSha.slice(0, 7) : "",
+    laneName: input.laneName,
+    pullRequestNumber: metadata?.pullRequest?.number ?? null,
+    pullRequestUrl: metadata?.pullRequest?.url ?? null,
+    worktreePath: input.worktreePath,
+    worktreePresent: input.worktreePath !== null,
+  };
+}
+
+export function inspectLatentDiffusionCompletedWorktreeEvidence(
+  options: InspectLatentDiffusionCompletedWorktreeEvidenceOptions = {},
+): LatentDiffusionCompletedWorktreeEvidenceReport {
+  const repoRoot = resolve(options.repoRoot ?? process.cwd());
+  const runGit = options.runGit ?? defaultRunGit;
+  const laneName = options.laneName ?? LATENT_DIFFUSION_PAPER_PAGE_LANE_NAME;
+  const branchName = options.branchName ?? laneName;
+  const remoteBaseRef =
+    options.remoteBaseRef ?? detectDefaultRemoteBaseRef(repoRoot, runGit);
+  const worktreePath =
+    options.worktreePath ??
+    resolveCompletedWorktreePathForLane(repoRoot, laneName, runGit);
+  const branchTipSha = resolveGitRefSha(repoRoot, branchName, runGit);
+
+  if (!branchTipSha) {
+    return {
+      branchDiffUnavailableReason: `branch ref "${branchName}" is not available`,
+      generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
+      identity: buildLatentDiffusionCompletedWorktreeIdentityEvidence({
+        branchName,
+        branchTipSha: null,
+        laneName,
+        repoRoot,
+        runGit,
+        worktreePath,
+      }),
+      inspectionStatus: "branch-unavailable",
+      mismatchesWithOriginMain: [],
+      pathEvidence: [],
+      remoteBaseRef,
+      repoRoot,
+    };
+  }
+
+  if (!worktreePath) {
+    return {
+      generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
+      identity: buildLatentDiffusionCompletedWorktreeIdentityEvidence({
+        branchName,
+        branchTipSha,
+        laneName,
+        repoRoot,
+        runGit,
+        worktreePath: null,
+      }),
+      inspectionStatus: "worktree-unavailable",
+      mismatchesWithOriginMain: [],
+      pathEvidence: [],
+      remoteBaseRef,
+      repoRoot,
+    };
+  }
+
+  const branchDiff = collectBranchChangedPathSet({
+    branchName,
+    mainRef: remoteBaseRef,
+    repoRoot,
+    runGit,
+  });
+  const pathEvidence = collectLatentDiffusionCompletedWorktreePathEvidence({
+    branchChangedPaths: branchDiff.changedPaths,
+    branchName,
+    paths: LATENT_DIFFUSION_RECONCILIATION_DIRTY_PATHS,
+    remoteBaseRef,
+    repoRoot,
+    runGit,
+  });
+
+  return {
+    branchDiffUnavailableReason: branchDiff.unavailableReason,
+    generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
+    identity: buildLatentDiffusionCompletedWorktreeIdentityEvidence({
+      branchName,
+      branchTipSha,
+      laneName,
+      repoRoot,
+      runGit,
+      worktreePath,
+    }),
+    inspectionStatus: "inspected",
+    mismatchesWithOriginMain: pathEvidence
+      .filter((entry) => entry.mismatchWithOriginMain)
+      .map((entry) => entry.path)
+      .sort(),
+    pathEvidence,
+    remoteBaseRef,
+    repoRoot,
+  };
+}
+
+function formatCompletedWorktreePathEvidenceLine(
+  entry: LatentDiffusionCompletedWorktreePathEvidence,
+): string {
+  return [
+    `    - path=${entry.path}`,
+    `disposition=${entry.disposition}`,
+    `present-on-completed-branch=${entry.presentOnCompletedBranch}`,
+    `present-on-origin-main=${entry.presentOnOriginMain}`,
+    `content-matches-origin-main=${entry.contentMatchesOriginMain}`,
+    `changed-in-completed-branch-diff=${entry.changedInCompletedBranchDiff}`,
+    `mismatch-with-origin-main=${entry.mismatchWithOriginMain}`,
+  ].join(" ");
+}
+
+export function formatLatentDiffusionCompletedWorktreeEvidenceReport(
+  report: LatentDiffusionCompletedWorktreeEvidenceReport,
+): string {
+  const lines = [
+    `${LATENT_DIFFUSION_ROOT_DELETION_RECONCILIATION_HEADER} — Completed Worktree Evidence`,
+    `inspection-status=${report.inspectionStatus} remote-base-ref=${report.remoteBaseRef}`,
+    `- completed-lane lane=${report.identity.laneName} branch=${report.identity.branchName} tip=${report.identity.branchTipShort || "unavailable"} worktree=${report.identity.worktreePath ?? "unavailable"} worktree-present=${report.identity.worktreePresent}`,
+    `- pull-request number=${report.identity.pullRequestNumber ?? "none"} url=${report.identity.pullRequestUrl ?? "none"}`,
+    `- path-evidence count=${report.pathEvidence.length} mismatches-with-origin-main=${report.mismatchesWithOriginMain.length}`,
+  ];
+
+  if (report.branchDiffUnavailableReason) {
+    lines.push(
+      `- branch-diff-warning reason=${report.branchDiffUnavailableReason}`,
+    );
+  }
+
+  for (const entry of report.pathEvidence) {
+    lines.push(formatCompletedWorktreePathEvidenceLine(entry));
+  }
+
+  if (report.mismatchesWithOriginMain.length === 0) {
+    lines.push("    - mismatches-with-origin-main: none");
+  } else {
+    for (const path of report.mismatchesWithOriginMain) {
+      lines.push(`    - mismatch path=${path}`);
+    }
+  }
+
+  lines.push(
+    "- completed-vs-main: path evidence above compares the completed lane branch against origin/main; mismatches are recorded separately from planner-root dirty checkout state.",
+  );
+
+  return lines.join("\n");
+}
+
+export function serializeLatentDiffusionCompletedWorktreeEvidenceReport(
+  report: LatentDiffusionCompletedWorktreeEvidenceReport,
 ): string {
   return JSON.stringify(report, null, 2);
 }
