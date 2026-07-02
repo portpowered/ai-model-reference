@@ -1,7 +1,7 @@
 # CLIP Model Main Landing Repair — Evidence Notes
 
 Repair evidence for the `clip-model-main-landing-repair` work item. Verified
-against `origin/main` at `1d259781` (2026-07-02 UTC).
+against `origin/main` at `b11cf9f7` (2026-07-02 UTC).
 
 ## Planner re-entry baseline (`e0c20103`)
 
@@ -145,6 +145,36 @@ Omitted by design (not CLIP model landing scope or redundant with derived valida
 | `make typecheck` | pass |
 | `make validate-data` | pass |
 | Focused CLIP model tests (12 cases) | pass |
+
+## Story 005 blocker assessment (2026-07-02 UTC)
+
+Clean landing **was possible** and **already completed** via PR #255 merge
+`f6a092a3`. No duplicate CLIP page lane was created during this repair worktree.
+
+| Acceptance criterion | Outcome |
+| --- | --- |
+| No duplicate CLIP implementation to bypass a blocker | satisfied — repair verified existing main content; no re-port |
+| Blocker report with exact files/conflicts/failures | not applicable — no landing blocker exists |
+| Attempted command, observed failure, follow-up action | not applicable — all quality gates pass (see below) |
+| Partial repair artifacts limited to blocker report | satisfied — only evidence docs on this branch; no partial CLIP content |
+
+**Blocker for clean landing:** none. Evidence chain:
+
+1. Planner re-entry baseline (`e0c20103`) confirmed CLIP artifacts absent from main.
+2. `origin/clip-model-current-main-reconciliation` inspected (`c20ead0e`, `9b25f8a9`,
+   `c01d651a`, tip `2c3f8fe6`); slice diff against current main is empty for CLIP paths.
+3. PR #255 landed the canonical slice before this repair PRD re-entered planning.
+4. Stories 002–004 verified runtime, registry, discovery, and focused tests on branch head.
+
+| Quality gate | Result |
+| --- | --- |
+| `make typecheck` | pass |
+| `make validate-data` | pass |
+| Focused CLIP model tests (12 cases) | pass |
+
+**Recommended follow-up:** none for CLIP landing. Future work should treat
+`model.clip` and `/docs/models/clip` as canonical on main; do not reopen a
+stale `clip-model-page` duplicate lane.
 
 ## Slice scope (do not broaden)
 
