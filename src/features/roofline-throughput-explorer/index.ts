@@ -34,6 +34,24 @@ export {
   type RooflineThroughputChartModel,
 } from "./roofline-throughput-chart";
 export {
+  clampActiveWeightSizeBillions,
+  clampBytesPerParameter,
+  DEFAULT_ROOFLINE_BYTES_PER_PARAMETER,
+  parseBytesPerParameterInput,
+  ROOFLINE_ACTIVE_WEIGHT_SIZE_CONTROL_LABEL,
+  ROOFLINE_ACTIVE_WEIGHT_SIZE_SLIDER_MAX_BILLIONS,
+  ROOFLINE_ACTIVE_WEIGHT_SIZE_SLIDER_MIN_BILLIONS,
+  ROOFLINE_BYTES_PER_PARAMETER_CONTROL_LABEL,
+  ROOFLINE_BYTES_PER_PARAMETER_MAX,
+  ROOFLINE_BYTES_PER_PARAMETER_MIN,
+  type RooflineActiveWeightSliderBounds,
+  type RooflineScenarioControlEdits,
+  type RooflineScenarioControls,
+  resolveActiveWeightSliderBounds,
+  resolveInitialScenarioControls,
+  scenarioControlsFromPreset,
+} from "./roofline-throughput-explorer-controls";
+export {
   formatActiveWeightSizeBillions,
   ROOFLINE_EMPTY_PRESETS_MESSAGE,
   ROOFLINE_MODEL_PRESET_CONTROL_LABEL,

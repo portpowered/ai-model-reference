@@ -24,6 +24,23 @@ import {
   ROOFLINE_THROUGHPUT_EXPLORER_CHART_LABEL,
 } from "./roofline-throughput-chart";
 import {
+  clampActiveWeightSizeBillions,
+  clampBytesPerParameter,
+  parseBytesPerParameterInput,
+  ROOFLINE_ACTIVE_WEIGHT_SIZE_CONTROL_LABEL,
+  ROOFLINE_ACTIVE_WEIGHT_SIZE_SLIDER_STEP_BILLIONS,
+  ROOFLINE_BYTES_PER_PARAMETER_CONTROL_LABEL,
+  ROOFLINE_BYTES_PER_PARAMETER_MAX,
+  ROOFLINE_BYTES_PER_PARAMETER_MIN,
+  ROOFLINE_BYTES_PER_PARAMETER_STEP,
+  type RooflineScenarioControlEdits,
+  type RooflineScenarioControls,
+  resolveActiveWeightSliderBounds,
+  resolveInitialScenarioControls,
+  scenarioControlsFromPreset,
+} from "./roofline-throughput-explorer-controls";
+import {
+  findPresetById,
   formatActiveWeightSizeBillions,
   ROOFLINE_EMPTY_PRESETS_MESSAGE,
   ROOFLINE_MODEL_PRESET_CONTROL_LABEL,
@@ -38,8 +55,10 @@ const AXIS_TICK_FILL =
 const HOVER_RING = "var(--primary)";
 const HOVER_FILL = "var(--background)";
 
-const DEFAULT_BYTES_PER_PARAMETER = 2;
 const DEFAULT_MEMORY_BANDWIDTH_GBPS = 1000;
+
+const CONTROL_INPUT_CLASSNAME =
+  "h-8 rounded-lg border border-border bg-background px-2.5 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
 
 const ROOFLINE_CHART_CONFIG = {
   maximumThroughputBoundary: {
@@ -61,10 +80,12 @@ export function RooflineThroughputExplorer({
   className,
   presets = [],
   activeWeightSizeBillions: explicitActiveWeightSizeBillions,
-  bytesPerParameter = DEFAULT_BYTES_PER_PARAMETER,
+  bytesPerParameter: explicitBytesPerParameter,
   memoryBandwidthGbps = DEFAULT_MEMORY_BANDWIDTH_GBPS,
   peakComputeFlopsPerSecond,
 }: RooflineThroughputExplorerProps) {
+  const activeWeightBounds = resolveActiveWeightSliderBounds(presets);
+
   const [presetSelection, setPresetSelection] = useState(() =>
     presets.length > 0
       ? resolveInitialPresetSelection(presets, explicitActiveWeightSizeBillions)
@@ -74,6 +95,21 @@ export function RooflineThroughputExplorer({
         },
   );
 
+  const [scenarioControls, setScenarioControls] =
+    useState<RooflineScenarioControls>(() =>
+      resolveInitialScenarioControls({
+        presets,
+        explicitActiveWeightSizeBillions,
+        explicitBytesPerParameter,
+      }),
+    );
+
+  const [controlEdits, setControlEdits] =
+    useState<RooflineScenarioControlEdits>({
+      activeWeightSize: explicitActiveWeightSizeBillions != null,
+      bytesPerParameter: explicitBytesPerParameter != null,
+    });
+
   const selectedPreset =
     presetSelection.selectedPresetId == null
       ? undefined
@@ -82,8 +118,8 @@ export function RooflineThroughputExplorer({
         );
 
   const scenarioInputs: RooflineScenarioInputDraft = {
-    activeWeightSizeBillions: presetSelection.activeWeightSizeBillions,
-    bytesPerParameter,
+    activeWeightSizeBillions: scenarioControls.activeWeightSizeBillions,
+    bytesPerParameter: scenarioControls.bytesPerParameter,
     memoryBandwidthGbps,
     peakComputeFlopsPerSecond,
   };
@@ -92,62 +128,160 @@ export function RooflineThroughputExplorer({
   const hasPresets = presets.length > 0;
 
   function handlePresetChange(modelId: string) {
-    setPresetSelection(resolvePresetSelection(presets, modelId));
+    const nextPresetSelection = resolvePresetSelection(presets, modelId);
+    const nextPreset = findPresetById(presets, modelId);
+
+    setPresetSelection(nextPresetSelection);
+    setControlEdits({
+      activeWeightSize: false,
+      bytesPerParameter: controlEdits.bytesPerParameter,
+    });
+    setScenarioControls((current) =>
+      scenarioControlsFromPreset(nextPreset, activeWeightBounds, current, {
+        activeWeightSize: false,
+        bytesPerParameter: controlEdits.bytesPerParameter,
+      }),
+    );
+  }
+
+  function handleActiveWeightSliderChange(rawValue: string) {
+    const parsed = Number(rawValue);
+    const nextValue = clampActiveWeightSizeBillions(parsed, activeWeightBounds);
+
+    setControlEdits((current) => ({ ...current, activeWeightSize: true }));
+    setScenarioControls((current) => ({
+      ...current,
+      activeWeightSizeBillions: nextValue,
+    }));
+    setPresetSelection((current) => ({
+      ...current,
+      activeWeightSizeBillions: nextValue,
+    }));
+  }
+
+  function handleBytesPerParameterChange(rawValue: string) {
+    const parsed = parseBytesPerParameterInput(rawValue);
+    if (parsed == null) {
+      return;
+    }
+
+    const nextValue = clampBytesPerParameter(parsed);
+
+    setControlEdits((current) => ({ ...current, bytesPerParameter: true }));
+    setScenarioControls((current) => ({
+      ...current,
+      bytesPerParameter: nextValue,
+    }));
   }
 
   return (
     <div className={className} data-roofline-throughput-explorer="explorer">
-      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        {hasPresets ? (
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+      <div className="mb-4 flex flex-col gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          {hasPresets ? (
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <label
+                htmlFor="roofline-model-preset"
+                className="text-sm font-medium text-foreground"
+              >
+                {ROOFLINE_MODEL_PRESET_CONTROL_LABEL}
+              </label>
+              <select
+                id="roofline-model-preset"
+                data-testid="roofline-model-preset"
+                className={`${CONTROL_INPUT_CLASSNAME} w-full min-w-0`}
+                value={presetSelection.selectedPresetId ?? ""}
+                onChange={(event) => handlePresetChange(event.target.value)}
+              >
+                {presets.map((preset) => (
+                  <option key={preset.modelId} value={preset.modelId}>
+                    {preset.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <p
+              className="text-sm text-muted-foreground"
+              data-roofline-throughput-explorer="empty-presets"
+              role="status"
+            >
+              {ROOFLINE_EMPTY_PRESETS_MESSAGE}
+            </p>
+          )}
+
+          {selectedPreset ? (
+            <p
+              className="text-sm text-muted-foreground"
+              data-selected-model-label={selectedPreset.label}
+            >
+              Selected model:{" "}
+              <span className="font-medium text-foreground">
+                {selectedPreset.label}
+              </span>
+            </p>
+          ) : null}
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex min-w-0 flex-col gap-2">
+            <div className="flex items-baseline justify-between gap-3">
+              <label
+                htmlFor="roofline-active-weight-size"
+                className="text-sm font-medium text-foreground"
+              >
+                {ROOFLINE_ACTIVE_WEIGHT_SIZE_CONTROL_LABEL}
+              </label>
+              <output
+                htmlFor="roofline-active-weight-size"
+                className="text-sm font-medium text-foreground tabular-nums"
+                data-active-weight-size-billions={
+                  scenarioControls.activeWeightSizeBillions
+                }
+              >
+                {formatActiveWeightSizeBillions(
+                  scenarioControls.activeWeightSizeBillions,
+                )}
+                B
+              </output>
+            </div>
+            <input
+              id="roofline-active-weight-size"
+              data-testid="roofline-active-weight-size"
+              type="range"
+              className="w-full accent-primary"
+              min={activeWeightBounds.minBillions}
+              max={activeWeightBounds.maxBillions}
+              step={ROOFLINE_ACTIVE_WEIGHT_SIZE_SLIDER_STEP_BILLIONS}
+              value={scenarioControls.activeWeightSizeBillions}
+              onChange={(event) =>
+                handleActiveWeightSliderChange(event.target.value)
+              }
+            />
+          </div>
+
+          <div className="flex min-w-0 flex-col gap-1.5">
             <label
-              htmlFor="roofline-model-preset"
+              htmlFor="roofline-bytes-per-parameter"
               className="text-sm font-medium text-foreground"
             >
-              {ROOFLINE_MODEL_PRESET_CONTROL_LABEL}
+              {ROOFLINE_BYTES_PER_PARAMETER_CONTROL_LABEL}
             </label>
-            <select
-              id="roofline-model-preset"
-              data-testid="roofline-model-preset"
-              className="h-8 w-full min-w-0 rounded-lg border border-border bg-background px-2.5 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              value={presetSelection.selectedPresetId ?? ""}
-              onChange={(event) => handlePresetChange(event.target.value)}
-            >
-              {presets.map((preset) => (
-                <option key={preset.modelId} value={preset.modelId}>
-                  {preset.label}
-                </option>
-              ))}
-            </select>
+            <input
+              id="roofline-bytes-per-parameter"
+              data-testid="roofline-bytes-per-parameter"
+              type="number"
+              className={`${CONTROL_INPUT_CLASSNAME} w-full min-w-0`}
+              min={ROOFLINE_BYTES_PER_PARAMETER_MIN}
+              max={ROOFLINE_BYTES_PER_PARAMETER_MAX}
+              step={ROOFLINE_BYTES_PER_PARAMETER_STEP}
+              value={scenarioControls.bytesPerParameter}
+              onChange={(event) =>
+                handleBytesPerParameterChange(event.target.value)
+              }
+            />
           </div>
-        ) : (
-          <p
-            className="text-sm text-muted-foreground"
-            data-roofline-throughput-explorer="empty-presets"
-            role="status"
-          >
-            {ROOFLINE_EMPTY_PRESETS_MESSAGE}
-          </p>
-        )}
-
-        {selectedPreset ? (
-          <p
-            className="text-sm text-muted-foreground"
-            data-selected-model-label={selectedPreset.label}
-            data-active-weight-size-billions={
-              presetSelection.activeWeightSizeBillions ?? ""
-            }
-          >
-            Active weight:{" "}
-            <span className="font-medium text-foreground">
-              {formatActiveWeightSizeBillions(
-                presetSelection.activeWeightSizeBillions,
-              )}
-              B
-            </span>{" "}
-            parameters ({selectedPreset.label})
-          </p>
-        ) : null}
+        </div>
       </div>
 
       {chartModel.kind === "invalid" ? (
