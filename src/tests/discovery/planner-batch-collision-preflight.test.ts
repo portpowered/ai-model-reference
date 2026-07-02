@@ -339,6 +339,7 @@ describe("planner batch collision preflight script", () => {
   test("prints human-readable evidence rows for hotspot evidence gap", () => {
     const dir = mkdtempSync(join(tmpdir(), "planner-batch-empty-hotspot-"));
     const snapshotPath = join(dir, "hotspot-snapshot.json");
+    const ledgerPath = join(dir, "queue-linkage-ledger.json");
     writeFileSync(
       snapshotPath,
       JSON.stringify(
@@ -354,6 +355,23 @@ describe("planner batch collision preflight script", () => {
         2,
       ),
     );
+    writeFileSync(
+      ledgerPath,
+      JSON.stringify(
+        {
+          generatedAtUtc: "2026-06-20T00:05:00.000Z",
+          laneCount: 0,
+          activeLaneCount: 0,
+          failedLaneCount: 0,
+          linkedLaneCount: 0,
+          linkedWithGapsLaneCount: 0,
+          issues: [],
+          lanes: [],
+        },
+        null,
+        2,
+      ),
+    );
     const result = spawnSync(
       "bun",
       [
@@ -362,6 +380,8 @@ describe("planner batch collision preflight script", () => {
         "partial-lane=src/lib/new-module.ts",
         "--hotspot-snapshot-json",
         snapshotPath,
+        "--queue-linkage-ledger-json",
+        ledgerPath,
       ],
       { cwd: process.cwd(), encoding: "utf8" },
     );
@@ -371,6 +391,7 @@ describe("planner batch collision preflight script", () => {
     expect(result.stdout).toContain("collision-risk=low");
     expect(result.stdout).toContain("recommendation=dispatch now");
     expect(result.stdout).toContain("hotspot-overlap=none");
+    expect(result.stdout).toContain("active-lane-overlap=none");
     expect(result.stdout).toContain(
       "No ranked hotspot overlap found for partial-lane in the recent planner hotspot sample.",
     );
