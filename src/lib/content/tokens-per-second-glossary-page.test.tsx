@@ -81,3 +81,51 @@ describe("tokens per second glossary page (tokens-per-second-glossary-page-002)"
     expect(html).not.toContain("Reader Shortcut");
   });
 });
+
+describe("tokens per second glossary page (tokens-per-second-glossary-page-003)", () => {
+  test("messages distinguish throughput from latency metrics and explain serving mechanics", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const comparison = messages.sections?.metricComparison.body ?? "";
+    expect(comparison.toLowerCase()).toContain("total request latency");
+    expect(comparison.toLowerCase()).toContain("time to first token");
+    expect(comparison.toLowerCase()).toContain("inter-token latency");
+    expect(comparison.toLowerCase()).toContain("streamed output token");
+    expect(comparison.toLowerCase()).toContain("aggregate output rate");
+
+    const mechanics = messages.sections?.whatAffectsThroughput.body ?? "";
+    expect(mechanics.toLowerCase()).toContain("batch size");
+    expect(mechanics.toLowerCase()).toContain("prefill");
+    expect(mechanics.toLowerCase()).toContain("decode");
+    expect(mechanics.toLowerCase()).toContain("kv cache");
+    expect(mechanics.toLowerCase()).toContain("memory bandwidth");
+    expect(mechanics.toLowerCase()).toContain("active model size");
+    expect(mechanics.toLowerCase()).toContain("queue wait");
+  });
+
+  test("page renders metric boundaries and throughput mechanics without reader-shortcut copy", async () => {
+    const page = await loadGlossaryPage("tokens-per-second");
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expectHtmlToContainProse(html, "total request latency");
+    expectHtmlToContainProse(html, "time to first token");
+    expectHtmlToContainProse(html, "inter-token latency");
+    expectHtmlToContainProse(html, "larger batch");
+    expectHtmlToContainProse(html, "prefill");
+    expectHtmlToContainProse(html, "memory bandwidth");
+    expectHtmlToContainProse(html, "model size shifts");
+    expect(html).toContain('id="metric-comparison"');
+    expect(html).toContain('id="what-affects-throughput"');
+    expect(html).not.toContain("Reader Shortcut");
+  });
+});
