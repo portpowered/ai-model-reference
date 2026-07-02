@@ -11,7 +11,6 @@ import TimelinePage from "@/app/docs/timeline/page";
 import { HomeArticle } from "@/components/home/home-article";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
-  criticalDocsAutodiscoveryLoadTimeoutMs,
   criticalDocsAutodiscoveryRenderTimeoutMs,
   loadCriticalDocsSmokePages,
   toCriticalDocsSmokeLocalRef,
@@ -43,8 +42,6 @@ import {
 // Budget grows with the autodiscovered attention and token-to-probability sets.
 const criticalDocsSmokePages = await loadCriticalDocsSmokePages();
 const criticalDocsSmokePageCount = criticalDocsSmokePages.length;
-const CRITICAL_DOCS_AUTODISCOVERY_LOAD_TIMEOUT_MS =
-  criticalDocsAutodiscoveryLoadTimeoutMs(criticalDocsSmokePageCount);
 const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS =
   criticalDocsAutodiscoveryRenderTimeoutMs(criticalDocsSmokePageCount);
 const PHASE_1_TAG_BROWSE_GATE_TIMEOUT_MS = 30_000;
@@ -242,7 +239,7 @@ describe("Phase 1 discovery route smoke", () => {
   });
 
   test(
-    "critical canonical docs autodiscovery loads published local docs content",
+    "critical canonical docs autodiscovery loads and renders published local docs content",
     async () => {
       const pages = criticalDocsSmokePages;
 
@@ -270,10 +267,25 @@ describe("Phase 1 discovery route smoke", () => {
               discoveredPage.url,
             ).toBe(true);
           }
+
+          const html = renderToStaticMarkup(
+            <ModulePageProviders messages={page.messages} assets={page.assets}>
+              {page.content}
+            </ModulePageProviders>,
+          );
+
+          expect(html.length, discoveredPage.url).toBeGreaterThan(0);
+          expect(localDocsRoute(localRef)).toBe(discoveredPage.url);
+          expect(html, discoveredPage.url).toContain(
+            'data-testid="tag-pill-list"',
+          );
+          expect(html, discoveredPage.url).toContain('id="related"');
+          expect(html, discoveredPage.url).not.toContain("Reader Shortcut");
+          expect(html, discoveredPage.url).not.toContain("lorem");
         }),
       );
     },
-    { timeout: CRITICAL_DOCS_AUTODISCOVERY_LOAD_TIMEOUT_MS },
+    { timeout: CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS },
   );
 
   test("/docs/glossary/token loads published local docs content with tokenizer overview handoff", async () => {
@@ -316,37 +328,6 @@ describe("Phase 1 discovery route smoke", () => {
     const html = renderLoadedPageHtml(page);
     expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
   });
-
-  test(
-    "critical canonical docs autodiscovery renders discovered docs content without bespoke inventories",
-    async () => {
-      const pages = criticalDocsSmokePages;
-
-      expect(pages.length).toBeGreaterThan(0);
-
-      await Promise.all(
-        pages.map(async (discoveredPage) => {
-          const localRef = toCriticalDocsSmokeLocalRef(discoveredPage);
-          const page = await loadLocalDocsPage(localRef);
-          const html = renderToStaticMarkup(
-            <ModulePageProviders messages={page.messages} assets={page.assets}>
-              {page.content}
-            </ModulePageProviders>,
-          );
-
-          expect(html.length, discoveredPage.url).toBeGreaterThan(0);
-          expect(localDocsRoute(localRef)).toBe(discoveredPage.url);
-          expect(html, discoveredPage.url).toContain(
-            'data-testid="tag-pill-list"',
-          );
-          expect(html, discoveredPage.url).toContain('id="related"');
-          expect(html, discoveredPage.url).not.toContain("Reader Shortcut");
-          expect(html, discoveredPage.url).not.toContain("lorem");
-        }),
-      );
-    },
-    { timeout: CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS },
-  );
 
   test("/docs/training/dpo loads published local docs content", async () => {
     const page = await loadLocalDocsPage({

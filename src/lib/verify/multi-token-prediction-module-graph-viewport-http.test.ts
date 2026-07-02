@@ -5,11 +5,7 @@ import {
 } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { shouldRunPlaywrightHttpVerifierUnitTests } from "./export-integration-probe-lock";
-import {
-  probeMultiTokenPredictionGraphAtViewport,
-  verifyMultiTokenPredictionGraphViewports,
-} from "./multi-token-prediction-module-graph-viewport-http";
-import { RENDERED_QUALITY_VIEWPORTS } from "./rendered-quality-baseline";
+import { verifyMultiTokenPredictionGraphViewports } from "./multi-token-prediction-module-graph-viewport-http";
 
 const MULTI_TOKEN_PREDICTION_SLUG = "multi-token-prediction";
 /** Serialized CI Playwright launches can approach the default 60s Bun budget. */
@@ -31,32 +27,6 @@ describe("multi-token-prediction module graph viewport probes", () => {
       const failure = await verifyMultiTokenPredictionGraphViewports(html);
 
       expect(failure).toBeNull();
-    },
-    { timeout: MULTI_TOKEN_PREDICTION_GRAPH_VIEWPORT_PROBE_TIMEOUT_MS },
-  );
-
-  test.each([...RENDERED_QUALITY_VIEWPORTS])(
-    "viewport $label exposes graph visibility and keyboard-safe variant tabs",
-    async (viewport) => {
-      if (!shouldRunPlaywrightHttpVerifierUnitTests()) {
-        return;
-      }
-
-      const loadedPage = await loadLocalDocsPage({
-        section: "modules",
-        slug: MULTI_TOKEN_PREDICTION_SLUG,
-      });
-      const probe = await probeMultiTokenPredictionGraphAtViewport(
-        renderModuleDocsShell(loadedPage),
-        { width: viewport.width, height: viewport.height },
-      );
-
-      expect(probe.graphVisible).toBe(true);
-      expect(probe.variantTabsFocusable).toBe(true);
-      expect(probe.graphFitsViewportWidth).toBe(true);
-      if (viewport.id === "desktop") {
-        expect(probe.overlappingNodePairs).toBe(0);
-      }
     },
     { timeout: MULTI_TOKEN_PREDICTION_GRAPH_VIEWPORT_PROBE_TIMEOUT_MS },
   );
