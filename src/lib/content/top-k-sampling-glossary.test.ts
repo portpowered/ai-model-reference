@@ -73,7 +73,7 @@ describe("Phase 5 top-k sampling glossary page (phase-5-sampling-basics-decision
     );
 
     for (const publishedId of [
-      ["concept.sampling-overview", "/docs/glossary/sampling-overview"],
+      ["concept.sampling-overview", "/docs/concepts/sampling-overview"],
       ["concept.greedy-decoding", "/docs/glossary/greedy-decoding"],
       ["concept.temperature", "/docs/glossary/temperature"],
     ] as const) {
@@ -162,7 +162,7 @@ describe("Phase 5 top-k sampling glossary page (phase-5-sampling-basics-decision
         html,
         "Top-p sampling would instead keep however many tokens are needed to cross a cumulative probability threshold, so its candidate count can change from one step to the next.",
       );
-      expect(html).toContain('href="/docs/glossary/sampling-overview"');
+      expect(html).toContain('href="/docs/concepts/sampling-overview"');
       expect(html).toContain('href="/docs/glossary/greedy-decoding"');
       expect(html).toContain('href="/docs/glossary/temperature"');
       expect(html).toContain('href="/docs/glossary/top-p-sampling"');
