@@ -74,11 +74,19 @@ describe("loadModulePage cross-attention", () => {
     expect(html).toContain("Compared To Nearby Modules");
     expect(html).toContain("external memory slots");
     expect(html).toContain(
-      "usually still reads the same growing sequence, while",
+      "builds queries, keys, and values from the same stream",
+    );
+    expect(html).toContain("head-parallel execution pattern that splits");
+    expect(html).toContain(
+      "usually still reads the same growing sequence but blocks future positions",
     );
     expect(html).toContain(
       "again changes the memory source rather than simply opening left and right context",
     );
+    expect(html).toContain(
+      "execution that can wrap either",
+    );
+    expect(html).toContain("lookups");
     expect(html).toContain('data-attention-variant-comparison="true"');
     expect(html).toContain('data-attention-variant-active="cross"');
     expect(html).toContain('data-attention-variant-option="self"');

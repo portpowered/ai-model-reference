@@ -21,7 +21,7 @@
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Compared with the broader attention overview, cross-attention is one specific memory-source pattern rather than the whole family. Compared with multi-head attention, it can still use multiple heads but changes where keys and values come from. Compared with causal attention, the key difference is not next-token masking: causal attention usually still reads the same growing sequence, while cross-attention reads a different memory and can appear inside a causal decoder block. Compared with bidirectional attention, cross-attention again changes the memory source rather than simply opening left and right context inside one sequence."
+      "body": "Compared with self-attention, cross-attention changes where keys and values come from: self-attention builds queries, keys, and values from the same stream, while cross-attention keeps queries on the target stream but reads keys and values from a separate memory source. Compared with multi-head attention, the difference is not the memory layout: multi-head attention is the head-parallel execution pattern that splits attention across multiple heads and can run inside either self-attention or cross-attention blocks. Compared with causal attention, the key difference is masking and allowed positions, not the memory source: causal attention usually still reads the same growing sequence but blocks future positions, while cross-attention can read a different memory and may appear inside a causal decoder block. Compared with bidirectional attention, cross-attention again changes the memory source rather than simply opening left and right context inside one sequence."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
@@ -96,9 +96,9 @@
           "mainUse": "General weighted lookup across Transformer modules"
         },
         "mha": {
-          "querySource": "The same sequence that also produces keys and values in standard self-attention",
-          "memorySource": "The same sequence, split across multiple heads",
-          "mainUse": "Baseline dense attention inside Transformer blocks"
+          "querySource": "Depends on the parent block: the same stream in self-attention or the target stream in cross-attention",
+          "memorySource": "Depends on the parent block: the same stream in self-attention or the external memory in cross-attention, split across parallel heads",
+          "mainUse": "Head-parallel attention execution that can wrap either self-attention or cross-attention lookups"
         },
         "causal": {
           "querySource": "The active generated prefix up to the current token",
