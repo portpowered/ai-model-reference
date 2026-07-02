@@ -5,6 +5,8 @@
 - Place diffusion-related modules under `classification.module.transformer-block` with `moduleFamily: "transformer-block"` when describing denoising transformer blocks.
 - Reuse existing citations (`citation.denoising-diffusion-probabilistic-models`) when factual claims already have published sources; add new citation/paper records only when missing.
 - Paper records can ship in registry before page bundles (e.g. `paper.diffusion-transformers`); related-doc tests should only assert hrefs for targets in `PUBLISHED_DOCS_REGISTRY_IDS`.
+- Module page render tests that include React Flow graphs may need `{ timeout: 15_000 }`; assert rendered HTML with auto-link splits (e.g. `>Diffusion Transformer</a> denoiser`) rather than contiguous source strings.
+- Graph node `moduleKind` must use schema enums (`diffusion-step`, `embedding`); `conditioning` is only valid as `edgeKind`.
 
 ## 2026-07-02T00:00:00Z - diffusion-transformer-block-module-001
 - Registered `module.diffusion-transformer-block` with discovery aliases, transformer-block classification, and links to transformer, attention, feed-forward, diffusion, conditioning, and patch concepts.
@@ -19,4 +21,23 @@
   - Patterns discovered: Registry-only story 001 can land before the page bundle; tests should assert `PUBLISHED_DOCS_REGISTRY_IDS.has(moduleId)` is false until story 002 publishes `/docs/modules/diffusion-transformer-block`.
   - Gotchas encountered: `bun test` on registry slices fails without `make validate-data` because generated runtime is gitignored.
   - Useful context: `paper.latent-diffusion` and `training-regime.diffusion-training-objective` are published and safe related-doc targets; Stable Diffusion model record does not exist on this branch.
+---
+
+## 2026-07-02T12:00:00Z - diffusion-transformer-block-module-002
+- Published canonical `/docs/modules/diffusion-transformer-block` with module template MDX, English messages, local assets, compute-flow graph registry record, comparison table, and focused page/registry tests.
+- Page prose covers noisy patch/latent tokens, timestep and conditioning modulation, self-attention and feed-forward flow, residuals, distinctions from generic transformer blocks and full denoisers, and quadratic-attention tradeoffs.
+- Updated registry test to expect `PUBLISHED_DOCS_REGISTRY_IDS.has("module.diffusion-transformer-block")` after page bundle shipped.
+- Files changed:
+  - `src/content/docs/modules/diffusion-transformer-block/page.mdx`
+  - `src/content/docs/modules/diffusion-transformer-block/messages/en.json`
+  - `src/content/docs/modules/diffusion-transformer-block/assets.json`
+  - `src/content/registry/graphs/diffusion-transformer-block-compute-flow.json`
+  - `src/content/registry/tables/diffusion-transformer-block-comparison.json`
+  - `src/lib/content/diffusion-transformer-block-module-page.test.ts`
+  - `src/lib/content/diffusion-transformer-block-module-registry.test.ts`
+  - `src/lib/content/generated/table-registry.generated.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: Story 002 can ship starter graph/table/math assets; story 003 can deepen graph legend, conditioning visualization, and compute-schema polish without blocking page publication.
+  - Gotchas encountered: Prose auto-linking splits contiguous phrases in static HTML assertions; React Flow static render tests can exceed the default 5s bun timeout.
+  - Useful context: Comparison table columns can reference `concept.transformer-architecture` and `concept.denoising-generation` via the `moduleId` field like MTP uses training-regime/system ids.
 ---
