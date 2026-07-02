@@ -85,7 +85,7 @@ describe("Phase 3 positional family reconciliation (phase-3-pages-007)", () => {
       'href="/docs/modules/absolute-positional-embeddings"',
     );
     expect(positionalEncodingsHtml).toContain(
-      'href="/docs/modules/relative-position-bias"',
+      'href="/docs/concepts/relative-position-bias"',
     );
   });
 });

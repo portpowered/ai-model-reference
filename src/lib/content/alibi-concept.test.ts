@@ -62,7 +62,7 @@ describe("ALiBi concept page", () => {
     expect(
       items.find((item) => item.registryId === "concept.relative-position-bias")
         ?.href,
-    ).toBe("/docs/modules/relative-position-bias");
+    ).toBe("/docs/concepts/relative-position-bias");
     expect(items.find((item) => item.registryId === "concept.rope")?.href).toBe(
       "/docs/modules/rope",
     );

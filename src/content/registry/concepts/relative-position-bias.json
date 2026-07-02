@@ -18,10 +18,12 @@
     "concept.rope",
     "concept.alibi"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.self-attention-with-relative-position-representations"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
-  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": ["concept.positional-encodings"],
   "explainsIds": ["concept.t5-relative-position-bias"]
