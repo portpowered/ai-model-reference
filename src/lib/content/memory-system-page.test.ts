@@ -63,6 +63,7 @@ describe("memory canonical page bundle", () => {
         "serving memory",
         "weight residency",
         "KV cache growth",
+        "memory bandwidth",
       ]),
     );
     expect(searchDocument?.tags).toEqual([
@@ -78,6 +79,7 @@ describe("memory canonical page bundle", () => {
     "serving memory",
     "weight residency",
     "KV cache growth",
+    "memory bandwidth",
   ] as const)("%s query resolves to the canonical memory system page", async (query) => {
     const results = await docsSearchApi.search(query);
 

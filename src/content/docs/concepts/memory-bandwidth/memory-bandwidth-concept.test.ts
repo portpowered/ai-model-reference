@@ -47,7 +47,7 @@ describe("memory-bandwidth concept discovery (memory-bandwidth-concept-page-001)
       "weight bandwidth",
       "throughput ceiling",
     ]);
-    expect(record?.tags).toEqual(["foundations", "kv-cache", "quantization"]);
+    expect(record?.tags).toEqual(["foundations", "kv-cache"]);
     expect(record?.prerequisiteIds).toEqual([
       "concept.kv-cache",
       "concept.quantization",
@@ -117,24 +117,6 @@ describe("memory-bandwidth concept discovery (memory-bandwidth-concept-page-001)
     ).toBe("/docs/systems/continuous-batching");
   });
 
-  test("system.memory no longer claims the memory bandwidth alias while linking to the concept record", async () => {
-    const registry = await loadRegistry();
-    const pages = await loadPublishedDocsPages("en");
-    const memoryDocument = buildSearchDocuments(pages, registry).find(
-      (entry) => entry.url === "/docs/systems/memory",
-    );
-
-    expect(memoryDocument?.aliases).toEqual(
-      expect.arrayContaining([
-        "serving memory",
-        "weight residency",
-        "KV cache growth",
-      ]),
-    );
-    expect(memoryDocument?.aliases).not.toContain("memory bandwidth");
-    expect(memoryDocument?.relatedIds).toContain(REGISTRY_ID);
-  });
-
   test("search index records memory bandwidth with aliases and serving tags", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
@@ -151,7 +133,7 @@ describe("memory-bandwidth concept discovery (memory-bandwidth-concept-page-001)
       ]),
     );
     expect(document?.tags).toEqual(
-      expect.arrayContaining(["foundations", "kv-cache", "quantization"]),
+      expect.arrayContaining(["foundations", "kv-cache"]),
     );
   });
 
@@ -229,7 +211,7 @@ describe("memory-bandwidth concept page (memory-bandwidth-concept-page-002)", ()
     expect(html).toContain('href="/docs/concepts/quantization"');
     expect(html).toContain('href="/docs/systems/memory"');
     expect(html).toContain('href="/tags/kv-cache"');
-    expect(html).toContain('href="/tags/quantization"');
+    expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("missing-message");

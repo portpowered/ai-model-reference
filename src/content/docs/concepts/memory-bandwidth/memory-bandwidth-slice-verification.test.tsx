@@ -134,7 +134,7 @@ describe("memory bandwidth slice verification (memory-bandwidth-concept-page-005
     expect(html).toContain('href="/docs/systems/memory"');
     expect(html).toContain('href="/docs/systems/inference-engine"');
     expect(html).toContain('href="/tags/kv-cache"');
-    expect(html).toContain('href="/tags/quantization"');
+    expect(html).toContain('href="/tags/foundations"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toMatch(/\{\{[^}]+\}\}/);
     expect(html).not.toContain("missing-message");

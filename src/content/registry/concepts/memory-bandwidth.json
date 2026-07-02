@@ -12,7 +12,7 @@
     "weight bandwidth",
     "throughput ceiling"
   ],
-  "tags": ["foundations", "kv-cache", "quantization"],
+  "tags": ["foundations", "kv-cache"],
   "relatedIds": [
     "concept.kv-cache",
     "concept.quantization",
