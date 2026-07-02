@@ -150,3 +150,10 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   Story 003 drift proof: branch diff limited to `docs/internal/processes/*`;
   verify with `git diff main...HEAD --name-only` and
   `bun run report:planner-root-checkout-reconciliation` on the planner root.
+* [byte-level-tokenization-pr289-conflict-refresh-relevant-files](./byte-level-tokenization-pr289-conflict-refresh-relevant-files.md)
+  — PR #289 conflict-refresh evidence: queue `idea:to-complete` + `task:init` on
+  session `930b51a6-07ce-44e6-a639-7a6217f6e864`, missing lane PR linkage,
+  CLEAN/MERGEABLE GitHub state after `85dfc333` merge-main, tokenizer-lane
+  collision preflight with `active-lane-overlap=none`, drain outcome
+  `refresh-safe` (story 002), `handoff-required=false` (story 004), and
+  `stale-or-duplicate=false` with remote-main diff proof (story 005).
