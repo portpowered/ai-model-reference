@@ -5,6 +5,7 @@ import {
   clampBytesPerParameter,
   parseBytesPerParameterInput,
   resolveActiveWeightSliderBounds,
+  resolveGlobalActiveWeightSliderBounds,
   resolveInitialScenarioControls,
   scenarioControlsFromPreset,
 } from "./roofline-throughput-explorer-controls";
@@ -28,6 +29,9 @@ describe("roofline-throughput-explorer-controls", () => {
       minBillions: 0.1,
       maxBillions: 80,
     });
+    expect(
+      resolveActiveWeightSliderBounds(TEST_PRESETS, { customOverride: true }),
+    ).toEqual(resolveGlobalActiveWeightSliderBounds());
   });
 
   test("clamps active weight size and bytes per parameter into valid bounds", () => {

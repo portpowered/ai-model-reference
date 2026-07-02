@@ -39,18 +39,27 @@ function isUsablePresetSize(
   );
 }
 
+export function resolveGlobalActiveWeightSliderBounds(): RooflineActiveWeightSliderBounds {
+  return {
+    minBillions: ROOFLINE_ACTIVE_WEIGHT_SIZE_SLIDER_MIN_BILLIONS,
+    maxBillions: ROOFLINE_ACTIVE_WEIGHT_SIZE_SLIDER_MAX_BILLIONS,
+  };
+}
+
 export function resolveActiveWeightSliderBounds(
   presets: readonly RooflineModelSizePreset[],
+  options?: { customOverride?: boolean },
 ): RooflineActiveWeightSliderBounds {
+  if (options?.customOverride) {
+    return resolveGlobalActiveWeightSliderBounds();
+  }
+
   const presetSizes = presets
     .map((preset) => preset.effectiveSizeBillions)
     .filter(isUsablePresetSize);
 
   if (presetSizes.length === 0) {
-    return {
-      minBillions: ROOFLINE_ACTIVE_WEIGHT_SIZE_SLIDER_MIN_BILLIONS,
-      maxBillions: ROOFLINE_ACTIVE_WEIGHT_SIZE_SLIDER_MAX_BILLIONS,
-    };
+    return resolveGlobalActiveWeightSliderBounds();
   }
 
   const smallestPreset = Math.min(...presetSizes);

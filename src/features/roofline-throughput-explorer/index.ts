@@ -48,9 +48,23 @@ export {
   type RooflineScenarioControlEdits,
   type RooflineScenarioControls,
   resolveActiveWeightSliderBounds,
+  resolveGlobalActiveWeightSliderBounds,
   resolveInitialScenarioControls,
   scenarioControlsFromPreset,
 } from "./roofline-throughput-explorer-controls";
+export {
+  controlRegionsOverlap,
+  isCustomOverridePresetId,
+  ROOFLINE_CUSTOM_ACTIVE_WEIGHT_ERROR,
+  ROOFLINE_CUSTOM_BYTES_PER_PARAMETER_ERROR,
+  ROOFLINE_CUSTOM_OVERRIDE_PRESET_ID,
+  ROOFLINE_CUSTOM_OVERRIDE_PRESET_LABEL,
+  type RooflineCustomOverrideField,
+  type RooflineCustomOverrideFieldErrors,
+  rectsOverlap,
+  validateCustomActiveWeightSizeBillions,
+  validateCustomBytesPerParameter,
+} from "./roofline-throughput-explorer-custom";
 export {
   formatActiveWeightSizeBillions,
   ROOFLINE_EMPTY_PRESETS_MESSAGE,

@@ -67,13 +67,14 @@ export function resolveInitialPresetSelection(
 export function resolvePresetSelection(
   presets: readonly RooflineModelSizePreset[],
   modelId: string,
+  currentActiveWeightSizeBillions?: number,
 ): RooflinePresetSelection {
   const preset = findPresetById(presets, modelId);
 
   if (!preset) {
     return {
       selectedPresetId: null,
-      activeWeightSizeBillions: undefined,
+      activeWeightSizeBillions: currentActiveWeightSizeBillions,
     };
   }
 

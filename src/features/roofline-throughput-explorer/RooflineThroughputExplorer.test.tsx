@@ -300,4 +300,162 @@ describe("RooflineThroughputExplorer", () => {
       activeWeightOutput?.getAttribute("data-active-weight-size-billions"),
     ).toBe("40");
   });
+
+  test("enters custom override mode from the preset control and drives the chart from user inputs", async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <RooflineThroughputExplorer
+        presets={TEST_PRESETS}
+        bytesPerParameter={2}
+        memoryBandwidthGbps={1000}
+        peakComputeFlopsPerSecond={5e12}
+      />,
+    );
+
+    await user.selectOptions(
+      screen.getByTestId("roofline-model-preset"),
+      "__roofline_custom_override__",
+    );
+
+    expect(
+      screen.getByText("Custom scenario values drive the chart."),
+    ).toBeTruthy();
+    expect(screen.queryByText(/Selected model:/)).toBeNull();
+
+    const activeWeightControl = screen.getByTestId(
+      "roofline-active-weight-size",
+    ) as HTMLInputElement;
+    expect(activeWeightControl.type).toBe("number");
+
+    fireEvent.change(activeWeightControl, { target: { value: "120" } });
+    expect(
+      container
+        .querySelector("[data-active-weight-size-billions]")
+        ?.getAttribute("data-active-weight-size-billions"),
+    ).toBe("120");
+    expect(
+      container.querySelector(".roofline-throughput-explorer__active-scenario"),
+    ).toBeTruthy();
+  });
+
+  test("shows inline accessible errors for invalid custom values without updating the chart", async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <RooflineThroughputExplorer
+        presets={TEST_PRESETS}
+        bytesPerParameter={2}
+        memoryBandwidthGbps={1000}
+      />,
+    );
+
+    const initialBoundaryPath = container
+      .querySelector(".recharts-line-curve")
+      ?.getAttribute("d");
+
+    await user.selectOptions(
+      screen.getByTestId("roofline-model-preset"),
+      "__roofline_custom_override__",
+    );
+
+    const bytesControl = screen.getByTestId(
+      "roofline-bytes-per-parameter",
+    ) as HTMLInputElement;
+
+    fireEvent.change(bytesControl, { target: { value: "" } });
+    expect(screen.getAllByRole("alert").length).toBeGreaterThan(0);
+    expect(
+      container.querySelector(".recharts-line-curve")?.getAttribute("d"),
+    ).toBe(initialBoundaryPath);
+
+    fireEvent.change(bytesControl, { target: { value: "4" } });
+    expect(bytesControl.value).toBe("4");
+    expect(
+      container.querySelector(".recharts-line-curve")?.getAttribute("d"),
+    ).not.toBe(initialBoundaryPath);
+  });
+
+  test("keeps control regions non-overlapping at representative mobile and desktop widths", () => {
+    const { container } = render(
+      <RooflineThroughputExplorer
+        presets={TEST_PRESETS}
+        bytesPerParameter={2}
+        memoryBandwidthGbps={1000}
+      />,
+    );
+
+    const explorer = container.querySelector(
+      '[data-roofline-throughput-explorer="explorer"]',
+    ) as HTMLElement;
+    const regions = Array.from(
+      container.querySelectorAll("[data-roofline-control-region]"),
+    ) as HTMLElement[];
+
+    expect(regions.length).toBeGreaterThanOrEqual(3);
+
+    const mobileLayouts = [
+      {
+        width: 360,
+        regions: [
+          { top: 0, left: 0, width: 360 },
+          { top: 72, left: 0, width: 360 },
+          { top: 144, left: 0, width: 360 },
+          { top: 216, left: 0, width: 360 },
+        ],
+      },
+      {
+        width: 1280,
+        regions: [
+          { top: 0, left: 0, width: 620 },
+          { top: 0, left: 640, width: 620 },
+          { top: 88, left: 0, width: 620 },
+          { top: 88, left: 640, width: 620 },
+        ],
+      },
+    ] as const;
+
+    for (const layout of mobileLayouts) {
+      Object.defineProperty(explorer, "clientWidth", {
+        configurable: true,
+        value: layout.width,
+      });
+
+      regions.forEach((region, index) => {
+        const position = layout.regions[index];
+        if (!position) {
+          return;
+        }
+
+        region.getBoundingClientRect = () =>
+          ({
+            top: position.top,
+            left: position.left,
+            right: position.left + position.width,
+            bottom: position.top + 56,
+            width: position.width,
+            height: 56,
+            x: position.left,
+            y: position.top,
+            toJSON: () => ({}),
+          }) as DOMRect;
+      });
+
+      const rects = regions.map((region) => region.getBoundingClientRect());
+      for (let index = 0; index < rects.length; index += 1) {
+        for (
+          let otherIndex = index + 1;
+          otherIndex < rects.length;
+          otherIndex += 1
+        ) {
+          const overlapWidth =
+            Math.min(rects[index].right, rects[otherIndex].right) -
+            Math.max(rects[index].left, rects[otherIndex].left);
+          const overlapHeight =
+            Math.min(rects[index].bottom, rects[otherIndex].bottom) -
+            Math.max(rects[index].top, rects[otherIndex].top);
+
+          expect(overlapWidth > 1 && overlapHeight > 1).toBe(false);
+        }
+      }
+    }
+  });
 });
