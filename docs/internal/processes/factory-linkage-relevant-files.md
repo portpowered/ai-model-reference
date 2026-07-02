@@ -74,6 +74,7 @@ watchdog summaries, or planner-facing linkage reports.
 | Terminal or near-terminal lane landing audit against main | `bun run report:terminal-lane-main-branch-landing-audit` |
 | Root checkout reconciliation against HEAD and origin/main | `bun run report:planner-root-checkout-reconciliation` |
 | Latent diffusion root deletion landed-evidence verification | `bun run report:planner-latent-diffusion-root-deletion-reconciliation` |
+| Merged PR drain row evidence for PRs #281/#282/#284/#286 | `bun run report:merged-pr-drain-rows-reconciliation` |
 
 Direct script paths remain supported for fixture-driven tests:
 
@@ -82,6 +83,7 @@ Direct script paths remain supported for fixture-driven tests:
 * `bun ./scripts/report-terminal-lane-main-branch-landing-audit.ts`
 * `bun ./scripts/report-planner-root-checkout-reconciliation.ts`
 * `bun ./scripts/report-planner-latent-diffusion-root-deletion-reconciliation.ts`
+* `bun ./scripts/report-merged-pr-drain-rows-reconciliation.ts`
 
 ## Classification contract
 
@@ -171,6 +173,11 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   no-new-content scope guards, and story 005 final planner drain report with
   per-PR outcome table, planner action buckets (consume/review/blocked), scope
   safety confirmation, and quality-gate evidence.
+* [dirty-generic-pr277-pr279-conflict-refresh-relevant-files](./dirty-generic-pr277-pr279-conflict-refresh-relevant-files.md)
+  — batch 074 follow-up after completed batch 073 handoff: fresh DIRTY/CONFLICTING
+  state on heads `6a1530a0` / `e5defbc8`, batch 066 drain still `idea:init`,
+  expanded merge-tree conflict set on #277 (four paths), and PR conversation
+  blocking feedback status for story 002 classification.
 * [merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files](./merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files.md)
   — merged PR drain evidence for PRs #274/#275/#276/#278/#280: live queue tokens
   on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata,
