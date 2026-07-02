@@ -1,6 +1,6 @@
 # Terminal Audit Root Staged Deletion Handoff Evidence
 
-Generated at (UTC): 2026-07-02T04:21:13.298Z
+Generated at (UTC): 2026-07-02T04:27:06.618Z
 
 ## Git Status (`git status --short --branch`)
 
@@ -129,6 +129,14 @@ Ownerless root dirty paths remain preserved and must not be overwritten by page 
 | --- | --- | --- |
 | #264 | `latent-diffusion-paper-page` | mergeable/passing |
 | #251 | `tokens-per-second-serving-metric-page` | queue-stale with open follow-up already in progress |
+
+## Implementation Lane Scope
+
+Implementation lane limited to planner/factory reporting surfaces outside dirty root path mutation; page content, registry, localized messages, graph payloads, and page assets were not edited.
+
+- Read-only evidence discovery: `true`
+- Forbidden page-content prefixes: `src/content/docs/`, `src/content/registry/`, `src/content/messages/`, `src/content/graphs/`, `src/generated/`
+- Dirty-root touch allowlist: `package.json`
 
 ## Read-Only Evidence Commands
 

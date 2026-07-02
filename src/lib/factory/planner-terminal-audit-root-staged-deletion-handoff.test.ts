@@ -1,14 +1,20 @@
 import { describe, expect, test } from "bun:test";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport,
   formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport,
+  isPlannerTerminalAuditForbiddenPageContentPath,
+  isPlannerTerminalAuditReadOnlyGitArgs,
   PLANNER_TERMINAL_AUDIT_ACTIVE_PR_CONTEXT_DECISION_SUPPORT,
   PLANNER_TERMINAL_AUDIT_ALREADY_MERGED_NEXT_SAFE_ACTION,
   PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS,
   PLANNER_TERMINAL_AUDIT_DRIFT_REMAINS_OPERATOR_HOLD_STATEMENT,
   PLANNER_TERMINAL_AUDIT_FACTORY_LINKAGE_PATH,
+  PLANNER_TERMINAL_AUDIT_FORBIDDEN_PAGE_CONTENT_PATH_PREFIXES,
+  PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_BRANCH_DIRTY_ROOT_TOUCH_ALLOWLIST,
+  PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_SCOPE_STATEMENT,
   PLANNER_TERMINAL_AUDIT_META_PLANNER_OPERATOR_HANDOFF_STATEMENT,
   PLANNER_TERMINAL_AUDIT_NO_MUTATION_STATEMENT,
   PLANNER_TERMINAL_AUDIT_OPERATOR_HOLD_DELETION_NEXT_SAFE_ACTION,
@@ -419,5 +425,88 @@ describe("planner terminal audit root staged deletion handoff evidence", () => {
     expect(formatted).toContain(
       "pr=#251 lane=tokens-per-second-serving-metric-page state=queue-stale with open follow-up already in progress",
     );
+  });
+
+  test("preserves non-destructive scope with read-only git evidence discovery", () => {
+    const gitInvocations: string[][] = [];
+    const trackingRunGit = (repoRoot: string, args: readonly string[]) => {
+      gitInvocations.push([...args]);
+      return createSixPathFixtureRunGit()(repoRoot, args);
+    };
+
+    const report =
+      buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport(
+        buildSixPathFixtureReportOptions({
+          runGit: trackingRunGit,
+          statusOutput: sixPathStatusFixture,
+          watchdogSnapshot: buildFactoryLinkageAlreadyMergedWatchdogSnapshot(),
+        }),
+      );
+
+    expect(gitInvocations.length).toBeGreaterThan(0);
+    for (const args of gitInvocations) {
+      expect(isPlannerTerminalAuditReadOnlyGitArgs(args)).toBe(true);
+    }
+
+    expect(report.implementationLaneScope.readOnlyEvidenceDiscovery).toBe(true);
+    expect(report.implementationLaneScope.scopeStatement).toBe(
+      PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_SCOPE_STATEMENT,
+    );
+    expect(report.preservationStatement).toBe(
+      PLANNER_TERMINAL_AUDIT_NO_MUTATION_STATEMENT,
+    );
+    expect(report.plannerRefillHandoffDecision.driftState).toBe(
+      "terminal-audit-drift-remains-operator-hold",
+    );
+    expect(
+      report.dirtyRootPathClassifications.map((entry) => entry.path),
+    ).toEqual([...PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS]);
+
+    const formatted =
+      formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport(report);
+    expect(formatted).toContain("- implementation-lane-scope");
+    expect(formatted).toContain(
+      `scope-statement=${PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_SCOPE_STATEMENT}`,
+    );
+    expect(formatted).toContain(
+      `preservation-statement=${PLANNER_TERMINAL_AUDIT_NO_MUTATION_STATEMENT}`,
+    );
+  });
+
+  test("implementation branch avoids forbidden page content and unallowlisted dirty root paths", () => {
+    const repoRoot = resolve(import.meta.dir, "../../..");
+    const diffResult = spawnSync(
+      "git",
+      ["diff", "--name-only", "origin/main...HEAD"],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+      },
+    );
+    expect(diffResult.status).toBe(0);
+
+    const changedPaths = diffResult.stdout
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
+    const allowlistedDirtyRootTouches = new Set<string>(
+      PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_BRANCH_DIRTY_ROOT_TOUCH_ALLOWLIST,
+    );
+    for (const dirtyPath of PLANNER_TERMINAL_AUDIT_DIRTY_ROOT_PATHS) {
+      if (allowlistedDirtyRootTouches.has(dirtyPath)) {
+        continue;
+      }
+      expect(changedPaths).not.toContain(dirtyPath);
+    }
+
+    for (const changedPath of changedPaths) {
+      expect(isPlannerTerminalAuditForbiddenPageContentPath(changedPath)).toBe(
+        false,
+      );
+      for (const prefix of PLANNER_TERMINAL_AUDIT_FORBIDDEN_PAGE_CONTENT_PATH_PREFIXES) {
+        expect(changedPath.startsWith(prefix)).toBe(false);
+      }
+    }
   });
 });

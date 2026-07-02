@@ -31,6 +31,26 @@ export const PLANNER_TERMINAL_AUDIT_EVIDENCE_COMMANDS = [
 export const PLANNER_TERMINAL_AUDIT_NO_MUTATION_STATEMENT =
   "No dirty root paths were modified, reverted, staged, overwritten, or regenerated as part of this handoff.";
 
+export const PLANNER_TERMINAL_AUDIT_FORBIDDEN_PAGE_CONTENT_PATH_PREFIXES = [
+  "src/content/docs/",
+  "src/content/registry/",
+  "src/content/messages/",
+  "src/content/graphs/",
+  "src/generated/",
+] as const;
+
+export const PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_BRANCH_DIRTY_ROOT_TOUCH_ALLOWLIST =
+  ["package.json"] as const;
+
+export const PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_SCOPE_STATEMENT =
+  "Implementation lane limited to planner/factory reporting surfaces outside dirty root path mutation; page content, registry, localized messages, graph payloads, and page assets were not edited.";
+
+export const PLANNER_TERMINAL_AUDIT_READ_ONLY_GIT_SUBCOMMANDS = [
+  "status",
+  "diff",
+  "cat-file",
+] as const;
+
 export const PLANNER_TERMINAL_AUDIT_REMOTE_PRESENT_DELETED_PATHS = [
   "scripts/report-terminal-lane-main-branch-landing-audit.ts",
   "src/lib/factory/terminal-lane-main-branch-landing-audit.test.ts",
@@ -178,6 +198,13 @@ export interface TerminalAuditDirtyPathClassification {
   statusCode: string;
 }
 
+export interface PlannerTerminalAuditImplementationLaneScope {
+  dirtyRootTouchAllowlist: readonly string[];
+  forbiddenPageContentPathPrefixes: readonly string[];
+  readOnlyEvidenceDiscovery: true;
+  scopeStatement: string;
+}
+
 export interface PlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport {
   dirtyRootPathClassifications: TerminalAuditDirtyPathClassification[];
   evidenceCommands: readonly string[];
@@ -185,6 +212,7 @@ export interface PlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport {
   generatedAtUtc: string;
   gitDiffCachedStat: string;
   gitStatusShortBranch: string;
+  implementationLaneScope: PlannerTerminalAuditImplementationLaneScope;
   ownerlessDirtyPathPreservationStatement: string;
   plannerRefillHandoffDecision: TerminalAuditPlannerRefillHandoffDecision;
   preservationStatement: string;
@@ -222,6 +250,47 @@ interface GitCommandResult {
   status: number | null;
   stdout: string;
   stderr: string;
+}
+
+export function isPlannerTerminalAuditReadOnlyGitArgs(
+  args: readonly string[],
+): boolean {
+  const subcommand = args[0];
+  if (!subcommand) {
+    return false;
+  }
+  if (
+    !PLANNER_TERMINAL_AUDIT_READ_ONLY_GIT_SUBCOMMANDS.includes(
+      subcommand as (typeof PLANNER_TERMINAL_AUDIT_READ_ONLY_GIT_SUBCOMMANDS)[number],
+    )
+  ) {
+    return false;
+  }
+  if (subcommand === "diff" && !args.includes("--cached")) {
+    return false;
+  }
+  return true;
+}
+
+export function isPlannerTerminalAuditForbiddenPageContentPath(
+  path: string,
+): boolean {
+  return PLANNER_TERMINAL_AUDIT_FORBIDDEN_PAGE_CONTENT_PATH_PREFIXES.some(
+    (prefix) => path.startsWith(prefix),
+  );
+}
+
+export function buildPlannerTerminalAuditImplementationLaneScope(): PlannerTerminalAuditImplementationLaneScope {
+  return {
+    dirtyRootTouchAllowlist: [
+      ...PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_BRANCH_DIRTY_ROOT_TOUCH_ALLOWLIST,
+    ],
+    forbiddenPageContentPathPrefixes: [
+      ...PLANNER_TERMINAL_AUDIT_FORBIDDEN_PAGE_CONTENT_PATH_PREFIXES,
+    ],
+    readOnlyEvidenceDiscovery: true,
+    scopeStatement: PLANNER_TERMINAL_AUDIT_IMPLEMENTATION_LANE_SCOPE_STATEMENT,
+  };
 }
 
 function defaultRunGit(
@@ -757,6 +826,7 @@ export function buildPlannerTerminalAuditRootStagedDeletionHandoffEvidenceReport
     gitDiffCachedStat:
       options.gitDiffCachedStat ?? runGitDiffCachedStat(repoRoot),
     gitStatusShortBranch,
+    implementationLaneScope: buildPlannerTerminalAuditImplementationLaneScope(),
     ownerlessDirtyPathPreservationStatement:
       dirtyPathClassificationResult.ownerlessDirtyPathPreservationStatement,
     plannerRefillHandoffDecision,
@@ -873,6 +943,11 @@ export function formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceRepor
   );
 
   lines.push(
+    "- implementation-lane-scope",
+    `  read-only-evidence-discovery=${report.implementationLaneScope.readOnlyEvidenceDiscovery}`,
+    `  scope-statement=${report.implementationLaneScope.scopeStatement}`,
+    `  forbidden-page-content-prefixes=${report.implementationLaneScope.forbiddenPageContentPathPrefixes.join(",")}`,
+    `  dirty-root-touch-allowlist=${report.implementationLaneScope.dirtyRootTouchAllowlist.join(",")}`,
     "- evidence-commands",
     ...report.evidenceCommands.map((command) => `  ${command}`),
     `- preservation-statement=${report.preservationStatement}`,
@@ -1007,6 +1082,14 @@ export function formatPlannerTerminalAuditRootStagedDeletionHandoffEvidenceMarkd
   }
 
   lines.push(
+    "## Implementation Lane Scope",
+    "",
+    report.implementationLaneScope.scopeStatement,
+    "",
+    `- Read-only evidence discovery: \`${report.implementationLaneScope.readOnlyEvidenceDiscovery}\``,
+    `- Forbidden page-content prefixes: ${report.implementationLaneScope.forbiddenPageContentPathPrefixes.map((prefix) => `\`${prefix}\``).join(", ")}`,
+    `- Dirty-root touch allowlist: ${report.implementationLaneScope.dirtyRootTouchAllowlist.map((path) => `\`${path}\``).join(", ")}`,
+    "",
     "## Read-Only Evidence Commands",
     "",
     "Run these commands to re-gather evidence without mutating dirty root paths:",
