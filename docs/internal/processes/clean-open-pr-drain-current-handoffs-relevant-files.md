@@ -308,3 +308,139 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T21:05Z UTC).
+
+## Story 003 — clean content PR handoffs (#290, #271, #251)
+
+Captured 2026-07-02T21:10Z UTC. This story documents operator handoffs for the
+three content PRs targeted by the drain lane. No page content, registry content,
+root work, worktree files, queue rows, staging area, or branch history were
+mutated. No branch refresh was attempted from this drain lane.
+
+### `origin/main` identity (unchanged)
+
+| Field | Value |
+| --- | --- |
+| `origin/main` SHA | `a502405d49badc50b8b3c0ea49cd8d35a402738e` |
+| Subject | Merge pull request #298 from portpowered/merged-pr-drain-rows-274-276-278-280-reconciliation |
+
+### Content handoff summary
+
+| PR | Work item | Story 002 outcome | Story 003 handoff type | Live evidence supports merge/review? |
+| --- | --- | --- | --- | --- |
+| [#271](https://github.com/portpowered/ai-model-reference/pull/271) | `relative-position-bias-concept-page` | merge-ready-handoff | **merge-ready-handoff** | yes |
+| [#290](https://github.com/portpowered/ai-model-reference/pull/290) | `byte-level-tokenization-pr289-conflict-refresh` | duplicate-or-stale | **duplicate-or-stale close handoff** | no — content consumed via #289 |
+| [#251](https://github.com/portpowered/ai-model-reference/pull/251) | `tokens-per-second-serving-metric-page` | blocked-owner-handoff | **blocked-owner-handoff** | no — unresolved BLOCKING review |
+
+**Duplicate-content guard (reconfirmed):** Do not generate new byte-level
+tokenization, relative position bias, or tokens-per-second pages while PR #289
+(merged), PR #271 (open owner), or PR #251 (open blocked owner) remain the
+content owners.
+
+### PR #271 — `relative-position-bias-concept-page` (merge-ready-handoff)
+
+| Field | Value |
+| --- | --- |
+| Existing row | queue-absent; content worktree PRD all four stories `passes: true` |
+| Content surface | `/docs/concepts/relative-position-bias` (`concept.relative-position-bias`) |
+| Head branch | `relative-position-bias-concept-page` @ `956bacb2` |
+| Current `origin/main` | `a502405d` |
+| Merge state | MERGEABLE / CLEAN |
+| CI (2026-07-02T05:18:49Z UTC head) | 11/11 SUCCESS (lint, typecheck, test, test-verify-contract, coverage, test-build-contract, build-export, test-integration, validate-data, linkcheck, ci) |
+| PR conversation | US-004 validation + mergeability follow-up (2026-07-02T06:15Z / 06:30Z UTC); no BLOCKING/REJECTED/FAIL markers after merge-resolution push |
+| Branch refresh | Already completed on PR branch (merged `origin/main` 2026-07-02T06:30Z UTC); no drain-lane refresh required |
+
+**Operator action:** Maintainer review and merge PR #271. Optional timed rebase
+if behind-main drift grows; do not open a duplicate relative-position-bias concept
+lane.
+
+**No new content:** The relative-position-bias concept page is owned by PR #271
+and its worktree; this drain lane must not regenerate that page.
+
+**Browser verification (2026-07-02T21:07Z UTC):** Production build from owner
+worktree head `956bacb2` on port 3744 — `curl --max-time 10
+http://127.0.0.1:3744/docs/concepts/relative-position-bias` returned HTTP 200
+with title `Relative position bias` and body prose containing `relative position`.
+
+### PR #290 — `byte-level-tokenization-pr289-conflict-refresh` (duplicate-or-stale)
+
+Live evidence does **not** support merge-ready or review-consume handoff. Content
+is already on `main` via merged PR [#289](https://github.com/portpowered/ai-model-reference/pull/289)
+(`2d0b21c4`, merged 2026-07-02T18:18:04Z). Open PR #290 is CONFLICTING/DIRTY
+(`344126c2`, updated 2026-07-02T17:43:14Z) with green CI on a stale handoff
+branch only.
+
+| Field | Value |
+| --- | --- |
+| Existing row | batch-073 handoff lane TERMINAL-complete (`work-task-86` etc.) |
+| Content surface (owner) | `/docs/modules/byte-level-tokenization` on `main` via PR #289 |
+| Handoff branch | `byte-level-tokenization-pr289-conflict-refresh` @ `344126c2` (stale) |
+| Current `origin/main` | `a502405d` (includes #289 merge) |
+| Merge state | CONFLICTING / DIRTY |
+| CI on handoff head | 11/11 SUCCESS (stale base) |
+
+**Operator action:** Close PR #290 or operator-refresh the handoff branch for
+queue bookkeeping only — **not** for content regeneration. Batch-064 content lane
+(`byte-level-tokenization-page`, PR #289 merged) owns the page.
+
+**No new content:** Byte-level tokenization page content must not be regenerated
+from this drain lane or from PR #290.
+
+**Browser verification (2026-07-02T21:00Z UTC):** Production build from root
+`origin/main` (`a502405d`) on port 3743 — `curl --max-time 10
+http://127.0.0.1:3743/docs/modules/byte-level-tokenization` returned HTTP 200
+with title `Byte-Level Tokenization` confirming consumed content is live on main.
+
+### PR #251 — `tokens-per-second-serving-metric-page` (blocked-owner-handoff)
+
+Live evidence does **not** support merge-ready or review-consume handoff. Latest
+PR conversation comment (2026-07-02T03:31:22Z UTC, head `381abe9a`) contains
+**BLOCKING** review: shared `prose-auto-link-runtime.ts` edit
+(`SYSTEM_ALIAS_AMBIGUITY_CANDIDATES` for bare `throughput`) violates page-local
+surface budget; browser QA incomplete on current head.
+
+| Field | Value |
+| --- | --- |
+| Existing row | batch-039 `idea:to-complete` + `work-task-155:failed` (session 404) |
+| Content surface | `/docs/glossary/tokens-per-second` (`concept.tokens-per-second`) |
+| Head branch | `tokens-per-second-serving-metric-page` @ `381abe9a` |
+| Current `origin/main` | `a502405d` |
+| Merge state | MERGEABLE / CLEAN (GitHub) |
+| CI on head | 11/11 SUCCESS |
+| Blocker | Unresolved **BLOCKING** PR conversation on head `381abe9a` — shared runtime in `prose-auto-link-runtime.ts`; redirect-to-throughput-prd per audit |
+| Owner | `tokens-per-second-serving-metric-page` content lane / `work-task-155` |
+| Related recovery | PR [#273](https://github.com/portpowered/ai-model-reference/pull/273) (`tokens-per-second-pr251-merge-handoff`, CONFLICTING/DIRTY) |
+
+**Operator action:** Content lane must keep the branch page-local (remove shared
+`prose-auto-link-runtime.ts` changes or move throughput alias work to the
+throughput/conflict-reduction lane), rerun
+`audit:canonical-page-surface -- --page-dir src/content/docs/glossary/tokens-per-second`
+to `within-budget`, complete browser QA, then re-review. Do **not** merge or
+regenerate tokens-per-second content from this drain lane.
+
+**No new content:** Tokens-per-second glossary page remains owned by PR #251;
+recovery merge path stays with PR #273 handoff lane (story 004).
+
+**Browser verification:** Not rerun on blocked head from this drain lane — prior
+addressing comments document within-budget audit on earlier heads but latest
+BLOCKING (2026-07-02T03:31:22Z) supersedes merge readiness. Operator must
+re-verify after page-local fix lands on PR #251.
+
+### Branch refresh actions (story 003)
+
+| PR | Refresh attempted? | Reason |
+| --- | --- | --- |
+| #271 | no | Mergeability follow-up already merged `origin/main` on owner branch |
+| #290 | no | duplicate-or-stale — content consumed; handoff branch close/refresh is operator bookkeeping only |
+| #251 | no | blocked-owner — refresh would not clear BLOCKING shared-surface feedback |
+
+### Quality gate (story 003)
+
+Handoff-only documentation; no page content, registry content, root work,
+worktree files, queue rows, staging area, or branch history were changed.
+
+```bash
+bun run typecheck
+bun run test
+```
+
+Result: typecheck PASS (2026-07-02T21:08Z UTC); full test suite PASS — 3615 pass / 0 fail (2026-07-02T21:27Z UTC).
