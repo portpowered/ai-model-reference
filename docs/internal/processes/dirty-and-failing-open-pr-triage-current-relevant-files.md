@@ -10,8 +10,8 @@ assigned in stories 002–007.
 
 | Field | Value |
 | --- | --- |
-| `origin/main` SHA | `a502405d49badc50b8b3c0ea49cd8d35a402738e` |
-| Fetched at (UTC) | 2026-07-02T21:00:00Z |
+| `origin/main` SHA | `099b7198a73505948a073f77b546cd412da5afc8` |
+| Fetched at (UTC) | 2026-07-02T21:15:00Z |
 | Triage worktree branch | `dirty-and-failing-open-pr-triage-current` |
 | Triage worktree HEAD | `a502405d` (matches `origin/main`) |
 | Triage worktree dirty paths | 0 (clean before evidence doc commit) |
@@ -34,7 +34,7 @@ below supersedes that queue snapshot where it diverges.
 | #293 | failing test/CI | **11/11 CI checks SUCCESS**; `MERGEABLE` / `CLEAN`; blocking review on unrelated `progress.txt` deletion in PR diff |
 | #292 | DIRTY, no checks | **MERGED** at 2026-07-02T21:04:48Z on head `46f76782`; last CI 11/11 SUCCESS; stale "no checks" and "DIRTY" notes obsolete |
 | #288 | UNSTABLE, failing test/CI | **MERGED** at 2026-07-02T19:58:31Z; last head CI 11/11 SUCCESS; no further triage action |
-| #283 | DIRTY, passing checks | **11/11 CI checks SUCCESS** on head `c120a785`; `MERGEABLE` / `CLEAN`; worktree clean except untracked local `progress.txt`; conflict refresh complete per PR conversation |
+| #283 | DIRTY, passing checks | **11/11 CI SUCCESS** on head `c120a785`; `MERGEABLE` / `CLEAN`; worktree clean except untracked `progress.txt`; prior BLOCKING local `make test` on `4c6abf3a` superseded — clean `make test` on `c120a785` (3617 pass, 0 fail) |
 | #279 | DIRTY, passing checks | Last recorded CI **11/11 SUCCESS** (2026-07-02T12:41Z); GitHub now **`CONFLICTING` / `DIRTY`**; `merge-tree` conflict in `src/tests/search/search-page-panel.test.tsx`; blocking review: local `make test` failed |
 | #277 | DIRTY, passing checks | Last recorded CI **11/11 SUCCESS** (2026-07-02T14:27Z); GitHub now **`CONFLICTING` / `DIRTY`**; `merge-tree` conflict in `src/tests/search/search-api.test.ts`; blocking review: merge attempt failed |
 
@@ -139,13 +139,28 @@ Preliminary lane outcome for story 004: **merge-complete** — no further triage
 | PR state | OPEN |
 | Mergeability (GitHub) | `MERGEABLE` / `CLEAN` |
 | Mergeability (`merge-tree` vs `origin/main`) | no conflict markers |
-| Behind/ahead `origin/main` | 49 behind / 11 ahead |
+| Behind/ahead `origin/main` | 57 behind / 11 ahead (as of 2026-07-02T21:15Z UTC) |
 | CI status | **passing** — 11/11 SUCCESS (run 28616230564, completed ~2026-07-02T19:35Z UTC) |
 | Worktree path | `.claude/worktrees/gated-deltanet` |
 | Worktree dirty paths | `?? progress.txt` (untracked local only) |
-| PR conversation | Conflict refresh complete on `c120a785`; CI green; **MERGEABLE** confirmed in conversation |
+| PR conversation | Conflict refresh complete on `c120a785`; CI green; prior **BLOCKING** local `make test` on `4c6abf3a` (2026-07-02T17:13Z UTC) |
 
 Preliminary lane outcome for story 005: **merge-ready handoff** or **active-review handoff** — conflict refresh done; checks passing.
+
+#### Story 005 lane outcome (2026-07-02T21:36:00Z UTC)
+
+| Field | Value |
+| --- | --- |
+| Head SHA (triage time) | `c120a78501692fefbe26b06ec6fa538a57840d5f` |
+| Dirty state | **clean** — only untracked factory `progress.txt`; no committed or modified paths in lane worktree |
+| CI status | **passing** — 11/11 SUCCESS on head `c120a785` (unchanged since conflict refresh) |
+| Mergeability (GitHub) | `MERGEABLE` / `CLEAN` |
+| Mergeability (`merge-tree` vs `origin/main` @ `099b7198`) | no conflict markers |
+| Prior blocking feedback | **BLOCKING** local `make test` failed on head `4c6abf3a` (2026-07-02T17:13Z UTC); conflict refresh to `c120a785` did not include explicit clean-rerun reply |
+| Local quality gate rerun | `make test` on clean `gated-deltanet` worktree @ `c120a785`: **PASS** — 3617 pass, 0 fail (~1241s, completed 2026-07-02T21:36:15Z UTC) |
+| Review state | No open review decision; awaiting reviewer re-check after blocking local-test feedback addressed |
+| Browser / page verification | Prior lane verification on built route; no new page edits this triage pass |
+| **Final lane outcome** | **active-review handoff** — CI green, mergeable, conflict refresh complete, local `make test` clean on refreshed head; awaiting reviewer re-check |
 
 ### PR #279 — `generic-site-config-neutral-surfaces`
 
