@@ -92,6 +92,32 @@ Page bundle uses current-main model-page contracts: `kind: model`,
 `registryId: model.clip`, `ModelArchitectureGraph`, `ModelModuleList`,
 `DerivedRelatedDocs`, and `CitationList` components.
 
+## Story 003 registry and discovery verification (2026-07-02 UTC)
+
+`model.clip` is published on branch head with slug `clip`, resolving to
+`/docs/models/clip` via `published-docs-registry.generated.ts`. Registry
+relationships use current-main ids only (`concept.conditioning`, `concept.encoder`,
+`concept.patch`, `concept.multimodal-model`, `module.clip-image-tokenization`,
+`paper.learning-transferable-visual-models-from-natural-language-supervision`);
+no stale `clip-model-page` or Stable Diffusion links.
+
+| Check | Result |
+| --- | --- |
+| `make typecheck` | pass |
+| `make validate-data` | pass |
+| `clip-model-record.test.ts` (3 cases) | pass — published status, aliases, related ids resolve to published records |
+| `clip-model-discovery.test.tsx` (6 cases) | pass — search documents, query ranking for CLIP / contrastive text image / text-image conditioning / multimodal encoder, curated related navigation to tokenization module, paper, and glossary conditioning/multimodal-model |
+| Browser build smoke | skipped — host disk full (`ENOSPC`); discovery behavior verified programmatically via `docsSearchApi.search` and `deriveCuratedRelatedItems` in focused tests |
+
+Representative discovery queries confirmed in tests:
+
+| Query | CLIP page in results | First result when required |
+| --- | --- | --- |
+| `CLIP` | yes | yes |
+| `contrastive text image model` | yes | yes |
+| `text-image conditioning` | yes | no (still surfaced) |
+| `multimodal encoder` | yes | yes |
+
 ## Slice scope (do not broaden)
 
 Limit changes to the CLIP model page bundle, `model.clip` registry record,
