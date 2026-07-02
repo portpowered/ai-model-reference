@@ -65,6 +65,7 @@ describe("groupTagIndexEntriesByCategory", () => {
       "feed-forward",
       "normalization",
       "position-encoding",
+      "state-space",
       "tokenization",
     ]);
     expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual(["alignment"]);

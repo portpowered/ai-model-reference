@@ -110,6 +110,35 @@ export const CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PAGE_SEARCH_QUERIES =
     (probe) => probe.searchSurface === "api-and-page",
   ).map((probe) => probe.searchQuery) as readonly string[];
 
+/** Base overhead for loading every autodiscovered critical docs page in smoke tests. */
+export const CRITICAL_DOCS_AUTODISCOVERY_LOAD_BASE_OVERHEAD_MS = 10_000;
+/** Per-page budget for load-only autodiscovery smoke loops. */
+export const CRITICAL_DOCS_AUTODISCOVERY_LOAD_PER_PAGE_BUDGET_MS = 500;
+/** Base overhead before per-page SSR render work in autodiscovery smoke tests. */
+export const CRITICAL_DOCS_AUTODISCOVERY_RENDER_BASE_OVERHEAD_MS = 20_000;
+/** Per-page SSR budget for autodiscovery render smoke loops. */
+export const CRITICAL_DOCS_AUTODISCOVERY_RENDER_PER_PAGE_BUDGET_MS = 2_000;
+
+export function criticalDocsAutodiscoveryLoadTimeoutMs(
+  pageCount: number,
+): number {
+  return Math.max(
+    15_000,
+    CRITICAL_DOCS_AUTODISCOVERY_LOAD_BASE_OVERHEAD_MS +
+      pageCount * CRITICAL_DOCS_AUTODISCOVERY_LOAD_PER_PAGE_BUDGET_MS,
+  );
+}
+
+export function criticalDocsAutodiscoveryRenderTimeoutMs(
+  pageCount: number,
+): number {
+  return Math.max(
+    45_000,
+    CRITICAL_DOCS_AUTODISCOVERY_RENDER_BASE_OVERHEAD_MS +
+      pageCount * CRITICAL_DOCS_AUTODISCOVERY_RENDER_PER_PAGE_BUDGET_MS,
+  );
+}
+
 export type CriticalDocsSmokePage = LoadedDocsPageSource & {
   criticalRuleId: CriticalDocsSmokeRuleId;
   discoveryTags: readonly string[];

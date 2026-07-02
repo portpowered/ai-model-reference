@@ -37,6 +37,7 @@ export const moduleTypeSchema = z.enum([
   "inference-optimization",
   "training-method",
   "systems",
+  "state-space",
   "other",
 ]);
 
