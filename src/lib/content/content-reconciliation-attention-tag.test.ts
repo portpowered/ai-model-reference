@@ -114,6 +114,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(paperGroup?.kindLabel).toBe("Paper");
     expect(paperGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/papers/attention-is-all-you-need",
+      "/docs/papers/bert-pre-training-of-deep-bidirectional-transformers",
       "/docs/papers/deepseek-v4",
     ]);
 
