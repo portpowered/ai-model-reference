@@ -23,6 +23,18 @@ export const PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_HEADER =
 export const PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_REPORTED_AT_UTC =
   "2026-07-02T04:01:00.000Z";
 
+export const PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PRESERVE_POLICY =
+  "Do not revert, restore, stage, unstage, clean, delete, overwrite, normalize, or edit any of the eight target root paths.";
+
+export const PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_SCOPE_LIMIT =
+  "Handoff output is limited to classification, evidence, and next actions; do not add or edit content page bundles, registry records, generated artifacts, package manifests, or broad unrelated tests.";
+
+export const PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PAGE_REFILL_HOLD =
+  "Page-refill clearance is not available until all eight target paths are clean or explicitly owned.";
+
+export const PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PAGE_REFILL_RESUME =
+  "Page-refill clearance is available; all eight target paths are clean or explicitly owned.";
+
 export const PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_TARGET_PATHS = [
   "docs/internal/processes/factory-linkage-relevant-files.md",
   "scripts/report-planner-root-checkout-reconciliation.ts",
@@ -86,12 +98,24 @@ export interface DriftHandoffPathClassificationRecord {
   path: PlannerRootReconciliationDriftHandoffTargetPath;
 }
 
+export interface DriftHandoffScopeBoundaries {
+  preservePolicy: string;
+  scopeLimit: string;
+}
+
+export interface DriftHandoffPageRefillGate {
+  blockingPaths: PlannerRootReconciliationDriftHandoffTargetPath[];
+  pageRefillHold: boolean;
+}
+
 export interface PlannerRootReconciliationDriftHandoffReport {
   evidenceCapturedAtUtc: string;
   evidenceSources: DriftHandoffEvidenceSourceRecord[];
+  pageRefillGate: DriftHandoffPageRefillGate;
   pathClassifications: DriftHandoffPathClassificationRecord[];
   reportedDriftAtUtc: string;
   repoRoot: string;
+  scopeBoundaries: DriftHandoffScopeBoundaries;
   targetPathGitStatus: DriftHandoffTargetPathGitStatus[];
 }
 
@@ -741,6 +765,49 @@ export function classifyDriftHandoffTargetPath(input: {
   };
 }
 
+const DRIFT_HANDOFF_PAGE_REFILL_CLEAR_CLASSIFICATIONS =
+  new Set<DriftHandoffPathClassification>(["clean", "existing-lane-owned"]);
+
+export function buildDriftHandoffScopeBoundaries(): DriftHandoffScopeBoundaries {
+  return {
+    preservePolicy: PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PRESERVE_POLICY,
+    scopeLimit: PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_SCOPE_LIMIT,
+  };
+}
+
+export function determineDriftHandoffPageRefillHold(
+  pathClassifications: DriftHandoffPathClassificationRecord[],
+): boolean {
+  return pathClassifications.some(
+    (record) =>
+      !DRIFT_HANDOFF_PAGE_REFILL_CLEAR_CLASSIFICATIONS.has(
+        record.classification,
+      ),
+  );
+}
+
+export function buildDriftHandoffPageRefillGate(
+  pathClassifications: DriftHandoffPathClassificationRecord[],
+): DriftHandoffPageRefillGate {
+  const pageRefillHold =
+    determineDriftHandoffPageRefillHold(pathClassifications);
+  const blockingPaths = pageRefillHold
+    ? pathClassifications
+        .filter(
+          (record) =>
+            !DRIFT_HANDOFF_PAGE_REFILL_CLEAR_CLASSIFICATIONS.has(
+              record.classification,
+            ),
+        )
+        .map((record) => record.path)
+    : [];
+
+  return {
+    blockingPaths,
+    pageRefillHold,
+  };
+}
+
 export function classifyDriftHandoffTargetPaths(
   input: ClassifyDriftHandoffTargetPathsInput,
 ): DriftHandoffPathClassificationRecord[] {
@@ -1019,11 +1086,13 @@ export function buildPlannerRootReconciliationDriftHandoffReport(
     evidenceCapturedAtUtc:
       options.evidenceCapturedAtUtc ?? new Date().toISOString(),
     evidenceSources,
+    pageRefillGate: buildDriftHandoffPageRefillGate(pathClassifications),
     pathClassifications,
     reportedDriftAtUtc:
       options.reportedDriftAtUtc ??
       PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_REPORTED_AT_UTC,
     repoRoot,
+    scopeBoundaries: buildDriftHandoffScopeBoundaries(),
     targetPathGitStatus,
   };
 }
@@ -1083,6 +1152,34 @@ function formatPathClassificationRecord(
   ];
 }
 
+function formatScopeBoundaries(
+  scopeBoundaries: DriftHandoffScopeBoundaries,
+): string[] {
+  return [
+    "- scope-boundaries",
+    `  - preserve-policy=${scopeBoundaries.preservePolicy}`,
+    `  - scope-limit=${scopeBoundaries.scopeLimit}`,
+  ];
+}
+
+function formatPageRefillGate(
+  pageRefillGate: DriftHandoffPageRefillGate,
+): string[] {
+  const refillDecision = pageRefillGate.pageRefillHold
+    ? `page-refill-hold=${PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PAGE_REFILL_HOLD}`
+    : `page-refill-resume=${PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PAGE_REFILL_RESUME}`;
+
+  const lines = ["- page-refill-gate", `  - ${refillDecision}`];
+
+  if (pageRefillGate.blockingPaths.length > 0) {
+    lines.push(
+      `  - blocking-path-count=${pageRefillGate.blockingPaths.length} blocking-paths=${pageRefillGate.blockingPaths.join(",")}`,
+    );
+  }
+
+  return lines;
+}
+
 export function formatPlannerRootReconciliationDriftHandoffReport(
   report: PlannerRootReconciliationDriftHandoffReport,
 ): string {
@@ -1094,6 +1191,8 @@ export function formatPlannerRootReconciliationDriftHandoffReport(
     PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_HEADER,
     `reported-drift-at-utc=${report.reportedDriftAtUtc} evidence-captured-at-utc=${report.evidenceCapturedAtUtc}`,
     `- location=root repo=${report.repoRoot} target-path-count=${report.targetPathGitStatus.length} dirty-target-paths=${dirtyCount}`,
+    ...formatScopeBoundaries(report.scopeBoundaries),
+    ...formatPageRefillGate(report.pageRefillGate),
     "- scoped-git-status",
     ...report.targetPathGitStatus.map(
       (entry) => `  - ${formatTargetPathGitStatus(entry)}`,

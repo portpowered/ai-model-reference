@@ -1,10 +1,17 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildDriftHandoffPageRefillGate,
+  buildDriftHandoffScopeBoundaries,
   buildPlannerRootReconciliationDriftHandoffReport,
   classifyDriftHandoffTargetPath,
+  determineDriftHandoffPageRefillHold,
   formatPlannerRootReconciliationDriftHandoffReport,
   PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_HEADER,
+  PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PAGE_REFILL_HOLD,
+  PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PAGE_REFILL_RESUME,
+  PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PRESERVE_POLICY,
   PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_REPORTED_AT_UTC,
+  PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_SCOPE_LIMIT,
   PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_TARGET_PATHS,
   parseScopedGitStatusForTargetPaths,
 } from "./planner-root-reconciliation-drift-handoff";
@@ -269,6 +276,132 @@ describe("planner root reconciliation drift handoff", () => {
     expect(formatted).toContain("- path-classifications");
     expect(formatted).toContain(
       "path=src/lib/factory/planner-root-checkout-reconciliation.ts classification=unresolved",
+    );
+  });
+
+  test("emits non-destructive scope boundaries in formatted report output", () => {
+    const scopeBoundaries = buildDriftHandoffScopeBoundaries();
+
+    expect(scopeBoundaries.preservePolicy).toBe(
+      PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PRESERVE_POLICY,
+    );
+    expect(scopeBoundaries.scopeLimit).toBe(
+      PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_SCOPE_LIMIT,
+    );
+
+    const report = buildPlannerRootReconciliationDriftHandoffReport({
+      repoRoot: "/repo",
+      runGit: (_repoRoot, args) => {
+        if (args[0] === "status" && args.includes("--branch")) {
+          return { status: 0, stdout: "## main...origin/main\n", stderr: "" };
+        }
+        return { status: 0, stdout: "", stderr: "" };
+      },
+      runGitStatus: () => "",
+      skipActivePrLinkage: true,
+      skipMergedLaneMetadata: true,
+      skipWorktreeDrift: true,
+    });
+
+    expect(report.scopeBoundaries).toEqual(scopeBoundaries);
+
+    const formatted = formatPlannerRootReconciliationDriftHandoffReport(report);
+    expect(formatted).toContain("- scope-boundaries");
+    expect(formatted).toContain(
+      `preserve-policy=${PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PRESERVE_POLICY}`,
+    );
+    expect(formatted).toContain(
+      `scope-limit=${PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_SCOPE_LIMIT}`,
+    );
+  });
+
+  test("holds page-refill clearance when any path is not clean or explicitly owned", () => {
+    const classifications = [
+      {
+        classification: "clean" as const,
+        classificationEvidence: [],
+        nextSafeAction: "no-action-needed" as const,
+        nextSafeActionReason: "clean",
+        path: "docs/internal/processes/factory-linkage-relevant-files.md" as const,
+      },
+      {
+        classification: "unresolved" as const,
+        classificationEvidence: [],
+        nextSafeAction: "keep-refill-blocked" as const,
+        nextSafeActionReason: "unresolved",
+        path: "src/lib/factory/planner-root-checkout-reconciliation.ts" as const,
+      },
+    ];
+
+    expect(determineDriftHandoffPageRefillHold(classifications)).toBe(true);
+
+    const gate = buildDriftHandoffPageRefillGate(classifications);
+    expect(gate.pageRefillHold).toBe(true);
+    expect(gate.blockingPaths).toEqual([
+      "src/lib/factory/planner-root-checkout-reconciliation.ts",
+    ]);
+  });
+
+  test("resumes page-refill clearance when all paths are clean or explicitly owned", () => {
+    const classifications = [
+      {
+        classification: "clean" as const,
+        classificationEvidence: [],
+        nextSafeAction: "no-action-needed" as const,
+        nextSafeActionReason: "clean",
+        path: "docs/internal/processes/factory-linkage-relevant-files.md" as const,
+      },
+      {
+        classification: "existing-lane-owned" as const,
+        classificationEvidence: [],
+        nextSafeAction: "wait-for-owning-lane" as const,
+        nextSafeActionReason: "owned",
+        path: "src/lib/factory/planner-root-checkout-reconciliation.ts" as const,
+      },
+    ];
+
+    expect(determineDriftHandoffPageRefillHold(classifications)).toBe(false);
+
+    const gate = buildDriftHandoffPageRefillGate(classifications);
+    expect(gate.pageRefillHold).toBe(false);
+    expect(gate.blockingPaths).toEqual([]);
+  });
+
+  test("emits page-refill hold guidance for unresolved dirty paths", () => {
+    const report = buildPlannerRootReconciliationDriftHandoffReport({
+      repoRoot: "/repo",
+      runGit: (_repoRoot, args) => {
+        if (args[0] === "status" && args.includes("--branch")) {
+          return {
+            status: 0,
+            stdout: [
+              "## main...origin/main",
+              " M src/lib/factory/planner-root-checkout-reconciliation.ts",
+            ].join("\n"),
+            stderr: "",
+          };
+        }
+        return { status: 0, stdout: "", stderr: "" };
+      },
+      runGitStatus: () =>
+        " M src/lib/factory/planner-root-checkout-reconciliation.ts\n",
+      skipActivePrLinkage: true,
+      skipMergedLaneMetadata: true,
+      skipWorktreeDrift: true,
+    });
+
+    expect(report.pageRefillGate.pageRefillHold).toBe(true);
+    expect(report.pageRefillGate.blockingPaths).toContain(
+      "src/lib/factory/planner-root-checkout-reconciliation.ts",
+    );
+
+    const formatted = formatPlannerRootReconciliationDriftHandoffReport(report);
+    expect(formatted).toContain("- page-refill-gate");
+    expect(formatted).toContain(
+      `page-refill-hold=${PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PAGE_REFILL_HOLD}`,
+    );
+    expect(formatted).not.toContain(
+      `page-refill-resume=${PLANNER_ROOT_RECONCILIATION_DRIFT_HANDOFF_PAGE_REFILL_RESUME}`,
     );
   });
 });

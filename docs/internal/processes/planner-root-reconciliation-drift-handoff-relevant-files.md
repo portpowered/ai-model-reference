@@ -23,8 +23,11 @@ The handoff classifies exactly these eight root dirty paths:
   evidence capture for the eight paths: scoped
   `git status --short --branch -- <paths>`, root checkout reconciliation
   excerpts, worktree drift excerpts, active PR linkage summary, merged-lane
-  metadata summary, and per-path ownership classification with one next safe
-  action. Records `unavailable` when an evidence source cannot be collected.
+  metadata summary, per-path ownership classification with one next safe
+  action, non-destructive scope boundaries, and page-refill gate guidance.
+  Records `unavailable` when an evidence source cannot be collected. Page-refill
+  clearance is withheld until all eight paths are `clean` or
+  `existing-lane-owned`.
 * `scripts/report-planner-root-reconciliation-drift-handoff.ts` — planner-facing
   CLI with fixture flags aligned to other factory reports.
 
