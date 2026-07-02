@@ -685,3 +685,180 @@ describe("planner batch collision preflight", () => {
     );
   });
 });
+
+describe("observable preflight behavior contract", () => {
+  test("covers low dispatch, medium split, and high hold with machine-readable overlap details", () => {
+    const lowSnapshot = collectPlannerBatchCollisionPreflightSnapshot(
+      ["low-lane=docs/guide.md"],
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        hotspotSnapshot,
+        linkageLedger,
+      },
+    );
+    expect(lowSnapshot.candidates[0]).toEqual(
+      expect.objectContaining({
+        name: "low-lane",
+        collisionRisk: "low",
+        recommendation: "dispatch now",
+        hotspotSurfaceOverlaps: [],
+        activeLaneOverlaps: [],
+      }),
+    );
+
+    const mediumSnapshot = collectPlannerBatchCollisionPreflightSnapshot(
+      ["medium-lane=src/lib/factory,docs/guide.md"],
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        hotspotSnapshot,
+        linkageLedger,
+      },
+    );
+    expect(mediumSnapshot.candidates[0]).toEqual(
+      expect.objectContaining({
+        name: "medium-lane",
+        collisionRisk: "medium",
+        recommendation: "split the batch",
+      }),
+    );
+    expect(mediumSnapshot.candidates[0]?.hotspotSurfaceOverlaps).toEqual([
+      expect.objectContaining({
+        surface: "src/lib/factory",
+        category: "shared-helper",
+      }),
+    ]);
+    expect(mediumSnapshot.candidates[0]?.activeLaneOverlaps).toEqual([]);
+
+    const fixture = createOwnedLaneRepoFixture();
+    const activeLane = linkageLedger.lanes[0];
+    if (!activeLane) {
+      throw new Error("Expected alpha-lane fixture in linkage ledger");
+    }
+    const highSnapshot = collectPlannerBatchCollisionPreflightSnapshot(
+      ["high-lane=src/lib/factory"],
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        hotspotSnapshot,
+        linkageLedger: {
+          ...linkageLedger,
+          lanes: [activeLane],
+        },
+        repoRoot: fixture.repoRoot,
+      },
+    );
+    expect(highSnapshot.candidates[0]).toEqual(
+      expect.objectContaining({
+        name: "high-lane",
+        collisionRisk: "high",
+        recommendation: "hold",
+      }),
+    );
+    expect(
+      highSnapshot.candidates[0]?.hotspotSurfaceOverlaps.length,
+    ).toBeGreaterThan(0);
+    expect(highSnapshot.candidates[0]?.activeLaneOverlaps).toEqual([
+      expect.objectContaining({
+        laneName: "alpha-lane",
+        ownedSurface: "src/lib/factory",
+      }),
+    ]);
+
+    fixture.cleanup();
+  });
+
+  test("keeps partial-evidence candidate present with explicit gaps in machine-readable output", () => {
+    const emptyHotspotSnapshot: ConflictHotspotSnapshot = {
+      ...hotspotSnapshot,
+      rankedSurfaces: [],
+      topPaths: [],
+    };
+    const snapshot = collectPlannerBatchCollisionPreflightSnapshot(
+      ["partial-lane=src/lib/new-module.ts"],
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        hotspotSnapshot: emptyHotspotSnapshot,
+      },
+    );
+
+    expect(snapshot.candidates).toHaveLength(1);
+    expect(snapshot.candidates[0]).toEqual(
+      expect.objectContaining({
+        name: "partial-lane",
+        expectedSurfaceHints: ["src/lib/new-module.ts"],
+        hotspotSurfaceOverlaps: [],
+        activeLaneOverlaps: [],
+        collisionRisk: "low",
+        recommendation: "dispatch now",
+      }),
+    );
+    expect(snapshot.candidates[0]?.hotspotEvidenceSummary).toEqual([
+      "No ranked hotspot overlap found for partial-lane in the recent planner hotspot sample.",
+    ]);
+    expect(snapshot.candidates[0]?.activeOwnershipGaps).toEqual([
+      "Active-lane ownership was not collected because queue/worktree linkage data was unavailable.",
+    ]);
+  });
+
+  test("includes candidate name, risk, recommendation, and concise evidence in human-readable output", () => {
+    const lowOutput = formatPlannerBatchCollisionPreflightSnapshot(
+      collectPlannerBatchCollisionPreflightSnapshot(
+        ["low-lane=docs/guide.md"],
+        {
+          generatedAtUtc: "2026-06-20T00:00:00.000Z",
+          hotspotSnapshot,
+          linkageLedger,
+        },
+      ),
+    );
+    expect(lowOutput).toContain("candidate=low-lane");
+    expect(lowOutput).toContain("collision-risk=low");
+    expect(lowOutput).toContain("recommendation=dispatch now");
+    expect(lowOutput).toContain("hotspot-overlap=none");
+    expect(lowOutput).toContain("active-lane-overlap=none");
+
+    const mediumOutput = formatPlannerBatchCollisionPreflightSnapshot(
+      collectPlannerBatchCollisionPreflightSnapshot(
+        ["medium-lane=src/lib/factory,docs/guide.md"],
+        {
+          generatedAtUtc: "2026-06-20T00:00:00.000Z",
+          hotspotSnapshot,
+          linkageLedger,
+        },
+      ),
+    );
+    expect(mediumOutput).toContain("candidate=medium-lane");
+    expect(mediumOutput).toContain("collision-risk=medium");
+    expect(mediumOutput).toContain("recommendation=split the batch");
+    expect(mediumOutput).toContain(
+      "hotspot-overlap=src/lib/factory [shared helper] touches=7 matched-hints=src/lib/factory",
+    );
+
+    const fixture = createOwnedLaneRepoFixture();
+    const activeLane = linkageLedger.lanes[0];
+    if (!activeLane) {
+      throw new Error("Expected alpha-lane fixture in linkage ledger");
+    }
+    const highOutput = formatPlannerBatchCollisionPreflightSnapshot(
+      collectPlannerBatchCollisionPreflightSnapshot(
+        ["high-lane=src/lib/factory"],
+        {
+          generatedAtUtc: "2026-06-20T00:00:00.000Z",
+          hotspotSnapshot,
+          linkageLedger: {
+            ...linkageLedger,
+            lanes: [activeLane],
+          },
+          repoRoot: fixture.repoRoot,
+        },
+      ),
+    );
+    expect(highOutput).toContain("candidate=high-lane");
+    expect(highOutput).toContain("collision-risk=high");
+    expect(highOutput).toContain("recommendation=hold");
+    expect(highOutput).toContain(
+      "active-lane-overlap=alpha-lane surface=src/lib/factory [shared helper] matched-hints=src/lib/factory",
+    );
+
+    fixture.cleanup();
+  });
+});
