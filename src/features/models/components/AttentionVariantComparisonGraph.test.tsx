@@ -229,7 +229,13 @@ describe("AttentionVariantComparisonGraph", () => {
 
   test("renders missing label state in dev mode", () => {
     const { container } = render(
-      <PageMessagesProvider messages={{}} isDev>
+      <PageMessagesProvider
+        messages={{
+          title: "Mamba Selective State-Space Module",
+          description: "test",
+        }}
+        isDev
+      >
         <PageAssetsProvider assets={mambaAssets} isDev>
           <AttentionVariantComparisonGraph
             assetId="computeFlow"
