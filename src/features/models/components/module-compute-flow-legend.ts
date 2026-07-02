@@ -5,6 +5,7 @@ import type { ModuleGraphEdge } from "@/lib/content/schemas";
 const EDGE_KIND_COLORS: Partial<Record<ModuleGraphEdge["edgeKind"], string>> = {
   "cache-read": "#2563eb",
   "cache-write": "#2563eb",
+  conditioning: "#0369a1",
   contains: "#334155",
   "control-flow": "#111111",
   "data-flow": "#111111",
@@ -13,6 +14,7 @@ const EDGE_KIND_COLORS: Partial<Record<ModuleGraphEdge["edgeKind"], string>> = {
 } as const;
 
 const VISUAL_ROLE_COLORS = {
+  "architecture-io": "#7c2d12",
   "summary-node": "#0369a1",
   "process-node": "#7c2d12",
   annotation: "#64748b",

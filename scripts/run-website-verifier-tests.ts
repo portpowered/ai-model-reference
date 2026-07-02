@@ -16,6 +16,8 @@ if (prepareResult.status !== 0) {
 
 const websiteVerifierPatterns = [
   /customer-ask-.*convergence(-http)?\.test\.ts$/,
+  /diffusion-transformer-block-module-convergence\.test\.ts$/,
+  /diffusion-transformer-block-module-graph-viewport-http\.test\.ts$/,
   /docs-footer-hover-checks\.test\.ts$/,
   /docs-shell-convergence(-http)?\.test\.ts$/,
   /export-search-ux-checks\.test\.ts$/,
