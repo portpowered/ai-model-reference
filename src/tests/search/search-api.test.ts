@@ -278,6 +278,16 @@ describe("docsSearchApi", () => {
     expectUniqueCanonicalPageUrls(results.map((result) => result.url));
   });
 
+  test("search ranks the canonical self-attention concept first for exact reader queries", async () => {
+    const hyphenatedResults = await docsSearchApi.search("self-attention");
+    const spacedResults = await docsSearchApi.search("self attention");
+
+    expect(hyphenatedResults.length).toBeGreaterThan(0);
+    expect(spacedResults.length).toBeGreaterThan(0);
+    expect(hyphenatedResults[0]?.url).toBe("/docs/concepts/self-attention");
+    expect(spacedResults[0]?.url).toBe("/docs/concepts/self-attention");
+  });
+
   test.each([
     "attention",
     "KV cache",
@@ -497,6 +507,28 @@ describe("docs search static client", () => {
 
       expect(results.length).toBeGreaterThan(0);
       expect(results[0]?.url).toBe(SAMPLE_URL);
+    });
+  });
+
+  test("orama static client returns the canonical self-attention page for exact reader queries before app-level reranking", async () => {
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const hyphenatedResults = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "self-attention"),
+        (candidateResults) =>
+          candidateResults[0]?.url === "/docs/concepts/self-attention",
+      );
+      const spacedResults = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "self attention"),
+        (candidateResults) =>
+          resultsIncludeUrl(candidateResults, "/docs/concepts/self-attention"),
+      );
+
+      expect(hyphenatedResults.length).toBeGreaterThan(0);
+      expect(spacedResults.length).toBeGreaterThan(0);
+      expect(hyphenatedResults[0]?.url).toBe("/docs/concepts/self-attention");
+      expect(
+        resultsIncludeUrl(spacedResults, "/docs/concepts/self-attention"),
+      ).toBe(true);
     });
   });
 

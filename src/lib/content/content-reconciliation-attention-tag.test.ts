@@ -108,6 +108,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/concepts/kv-cache",
       "/docs/concepts/prefill",
+      "/docs/concepts/self-attention",
     ]);
 
     const paperGroup = groups.find((group) => group.kind === "paper");
@@ -178,6 +179,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/docs/concepts/prefill"');
+    expect(html).toContain('href="/docs/concepts/self-attention"');
     expect(html).toContain('href="/docs/glossary/token"');
   });
 });

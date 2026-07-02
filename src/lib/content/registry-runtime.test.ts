@@ -47,7 +47,8 @@ describe("registry-runtime", () => {
     const record = getModuleById("module.attention");
     expect(record?.slug).toBe("attention");
     expect(record?.tags).toEqual(["attention"]);
-    expect(record?.aliases).toContain("self-attention");
+    expect(record?.aliases).toEqual(["attention"]);
+    expect(record?.relatedIds).toContain("concept.self-attention");
     expect(record?.relatedIds).toContain("module.multi-head-attention");
     expect(record?.relatedIds).toContain("module.multi-query-attention");
     expect(record?.relatedIds).toContain("module.grouped-query-attention");
@@ -1189,6 +1190,22 @@ describe("registry-runtime", () => {
     const logit = getConceptById("concept.logit");
     expect(logit?.status).toBe("published");
     expect(logit?.relatedIds).toContain("concept.softmax");
+  });
+
+  test("getConceptById returns self-attention concept as a published broad attention page", () => {
+    const record = getConceptById("concept.self-attention");
+    expect(record?.slug).toBe("self-attention");
+    expect(record?.status).toBe("published");
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining(["self-attention", "self attention"]),
+    );
+    expect(record?.relatedIds).toEqual([
+      "concept.transformer-architecture",
+      "module.attention",
+      "concept.token",
+      "module.multi-head-attention",
+      "module.grouped-query-attention",
+    ]);
   });
 
   test("getConceptById returns vector glossary bridge concept", () => {
