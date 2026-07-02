@@ -13,11 +13,26 @@ const SECTION_FOLDER_NAMES = {
   systems: "Systems",
 } as const;
 
+const GLOSSARY_DERIVED_FOLDER_NAMES = [
+  "Model Types",
+  "Inference",
+  "Glossary",
+] as const;
+
+const REPRESENTATIVE_GLOSSARY_DERIVED_URLS = {
+  "Model Types": ["/docs/glossary/world-model", "/docs/glossary/encoder"],
+  Inference: [
+    "/docs/glossary/temperature",
+    "/docs/glossary/top-k-sampling",
+    "/docs/glossary/decode",
+  ],
+} as const;
+
 const REPRESENTATIVE_SECTION_URLS = {
   glossary: [
     "/docs/glossary/activation",
     "/docs/glossary/token",
-    "/docs/glossary/top-k-sampling",
+    "/docs/glossary/denoising-generation",
   ],
   concepts: [
     "/docs/concepts/alibi",
@@ -81,6 +96,12 @@ function getFolderChildren(folderName: string): Node[] {
   return folder.children;
 }
 
+function collectGlossarySidebarUrls(): string[] {
+  return GLOSSARY_DERIVED_FOLDER_NAMES.flatMap((folderName) =>
+    collectPageUrls(getFolderChildren(folderName)),
+  );
+}
+
 function docsSlugFromUrl(url: string): string[] {
   return url.replace("/docs/", "").split("/");
 }
@@ -104,7 +125,10 @@ describe("docs navigation source", () => {
     const publishedPages = loadPublishedDocsPagesSync("en");
 
     for (const [section, folderName] of Object.entries(SECTION_FOLDER_NAMES)) {
-      const folderUrls = collectPageUrls(getFolderChildren(folderName));
+      const folderUrls =
+        section === "glossary"
+          ? collectGlossarySidebarUrls()
+          : collectPageUrls(getFolderChildren(folderName));
       const publishedSectionUrls = new Set(
         publishedPages
           .filter((page) => page.docsSlug.startsWith(`${section}/`))
@@ -143,7 +167,10 @@ describe("docs navigation source", () => {
     const publishedPages = loadPublishedDocsPagesSync("en");
 
     for (const [section, folderName] of Object.entries(SECTION_FOLDER_NAMES)) {
-      const folderUrls = collectPageUrls(getFolderChildren(folderName));
+      const folderUrls =
+        section === "glossary"
+          ? collectGlossarySidebarUrls()
+          : collectPageUrls(getFolderChildren(folderName));
       const publishedSectionUrls = publishedPages
         .filter((page) => page.docsSlug.startsWith(`${section}/`))
         .map((page) => page.url);
@@ -166,12 +193,27 @@ describe("docs navigation source", () => {
 
   test("representative discovery routes resolve through the Fumadocs source", () => {
     for (const [section, urls] of Object.entries(REPRESENTATIVE_SECTION_URLS)) {
-      const folderUrls = collectPageUrls(
-        getFolderChildren(
-          SECTION_FOLDER_NAMES[section as keyof typeof SECTION_FOLDER_NAMES],
-        ),
-      );
+      const folderUrls =
+        section === "glossary"
+          ? collectGlossarySidebarUrls()
+          : collectPageUrls(
+              getFolderChildren(
+                SECTION_FOLDER_NAMES[
+                  section as keyof typeof SECTION_FOLDER_NAMES
+                ],
+              ),
+            );
 
+      for (const url of urls) {
+        expect(folderUrls).toContain(url);
+        expect(source.getPage(docsSlugFromUrl(url))).toBeDefined();
+      }
+    }
+
+    for (const [folderName, urls] of Object.entries(
+      REPRESENTATIVE_GLOSSARY_DERIVED_URLS,
+    )) {
+      const folderUrls = collectPageUrls(getFolderChildren(folderName));
       for (const url of urls) {
         expect(folderUrls).toContain(url);
         expect(source.getPage(docsSlugFromUrl(url))).toBeDefined();

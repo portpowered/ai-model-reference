@@ -34,7 +34,7 @@ const REPRESENTATIVE_SUBGROUP_PLACEMENTS = [
   {
     folderName: "Glossary",
     separator: "Generation And Diffusion",
-    url: "/docs/glossary/top-k-sampling",
+    url: "/docs/glossary/denoising-generation",
   },
   {
     folderName: "Concepts",

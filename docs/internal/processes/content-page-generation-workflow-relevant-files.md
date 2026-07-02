@@ -99,6 +99,10 @@ routes:
   `Glossary` folder must union `Model Types`, `Inference`, and remaining
   `Glossary` URLs, or filter out `isGlossaryPageAssignedToDerivedSection`
   pages when asserting the residual glossary folder.
+- Inference terms with canonical concept routes (`concepts/prefill`,
+  `concepts/quantization`, `concepts/kv-cache-quantization`,
+  `concepts/post-training-quantization`) still expose inference classification
+  in search even when they are absent from glossary-derived browse sections.
 - Update `browseIndex.*Section*` copy in `src/content/messages/*/common.json`
   and extend `DOCS_BROWSE_SECTION_ORDER` when introducing another derived area.
 

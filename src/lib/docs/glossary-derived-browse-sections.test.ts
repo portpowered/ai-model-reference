@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
+import { getConceptById } from "@/lib/content/registry-runtime";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import {
   buildDocsBrowseSections,
@@ -26,6 +27,38 @@ const MODEL_TYPE_GLOSSARY_SLUGS = [
 ] as const;
 
 const MODEL_TYPE_CLASSIFICATION_ID = "classification.concept.model-type";
+
+const INFERENCE_GLOSSARY_SLUGS = [
+  "glossary/sampling-overview",
+  "glossary/top-k-sampling",
+  "glossary/top-p-sampling",
+  "glossary/greedy-decoding",
+  "glossary/temperature",
+  "glossary/decode",
+  "glossary/prefill-decode-split",
+  "glossary/kv-cache",
+  "glossary/time-to-first-token",
+  "glossary/inter-token-latency",
+] as const;
+
+const INFERENCE_CONCEPT_SLUGS = [
+  "concepts/prefill",
+  "concepts/quantization",
+  "concepts/kv-cache-quantization",
+  "concepts/post-training-quantization",
+] as const;
+
+const INFERENCE_CLASSIFICATION_ID = "classification.concept.inference";
+
+const SYSTEM_INFERENCE_RELATED_URLS = [
+  "/docs/systems/inference-engine",
+  "/docs/systems/batching",
+  "/docs/systems/dynamic-batching",
+  "/docs/systems/continuous-batching",
+  "/docs/systems/request-scheduling",
+  "/docs/systems/speculative-decoding",
+  "/docs/systems/on-disk-kv-cache",
+] as const;
 
 function pageBaseUrl(url: string): string {
   return url.split("#")[0] ?? url;
@@ -74,12 +107,30 @@ describe("glossary derived browse sections", () => {
 
     const inference = sections.find((section) => section.id === "inference");
     expect(inference?.entries.map((entry) => entry.slug)).toEqual(
-      expect.arrayContaining([
-        "glossary/temperature",
-        "glossary/kv-cache",
-        "glossary/sampling-overview",
-      ]),
+      expect.arrayContaining([...INFERENCE_GLOSSARY_SLUGS]),
     );
+  });
+
+  test("keeps classified inference glossary pages out of the remaining glossary browse section", async () => {
+    const messages = await loadUiMessages();
+    const pages = await loadShippedLocalizedDocsPages(defaultLocale);
+    const sections = buildDocsBrowseSections({
+      pages,
+      locale: defaultLocale,
+      messages,
+    });
+
+    const glossarySection = sections.find(
+      (section) => section.id === "glossary",
+    );
+    for (const slug of INFERENCE_GLOSSARY_SLUGS) {
+      expect(
+        glossarySection?.entries.some((entry) => entry.slug === slug),
+      ).toBe(false);
+    }
+    expect(
+      glossarySection?.entries.some((entry) => entry.slug === "glossary/token"),
+    ).toBe(true);
   });
 
   test("keeps classified model-family glossary pages out of the remaining glossary browse section", async () => {
@@ -169,5 +220,107 @@ describe("glossary derived browse sections", () => {
     expect(document?.topology.primaryClassificationId).toBe(
       MODEL_TYPE_CLASSIFICATION_ID,
     );
+  });
+
+  test.each(
+    INFERENCE_GLOSSARY_SLUGS.map((slug) => [slug] as const),
+  )("matches %s through registry inference classification", async (slug) => {
+    const pages = await loadShippedLocalizedDocsPages(defaultLocale);
+    const page = pages.find((entry) => entry.docsSlug === slug);
+    expect(page).toBeDefined();
+    if (!page) {
+      return;
+    }
+    expect(glossaryPageBelongsToDerivedSection(page, "inference")).toBe(true);
+  });
+
+  test("search documents for inference terms expose inference classification context", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadShippedLocalizedDocsPages(defaultLocale);
+    const documents = buildSearchDocuments(pages, registry);
+
+    for (const slug of INFERENCE_GLOSSARY_SLUGS) {
+      const url = `/docs/${slug}`;
+      const document = documents.find((entry) => entry.url === url);
+      expect(document).toBeDefined();
+      expect(document?.topology.primaryClassificationId).toBe(
+        INFERENCE_CLASSIFICATION_ID,
+      );
+      expect(document?.facets.primaryClassificationId).toBe(
+        INFERENCE_CLASSIFICATION_ID,
+      );
+      expect(document?.topology.primaryClassification?.slug).toBe(
+        "concept-inference",
+      );
+    }
+  });
+
+  test("search documents for inference concept routes expose inference classification context", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadShippedLocalizedDocsPages(defaultLocale);
+    const documents = buildSearchDocuments(pages, registry);
+
+    for (const slug of INFERENCE_CONCEPT_SLUGS) {
+      const url = `/docs/${slug}`;
+      const document = documents.find((entry) => entry.url === url);
+      expect(document).toBeDefined();
+      expect(document?.topology.primaryClassificationId).toBe(
+        INFERENCE_CLASSIFICATION_ID,
+      );
+      expect(document?.facets.primaryClassificationId).toBe(
+        INFERENCE_CLASSIFICATION_ID,
+      );
+    }
+  });
+
+  test.each([
+    { query: "temperature", url: "/docs/glossary/temperature" },
+    { query: "KV cache", url: "/docs/glossary/kv-cache" },
+    { query: "quantization", url: "/docs/concepts/quantization" },
+    { query: "prefill", url: "/docs/concepts/prefill" },
+  ] as const)("search for %s returns canonical page with inference classification context", async ({
+    query,
+    url,
+  }) => {
+    const registry = await loadRegistry();
+    const pages = await loadShippedLocalizedDocsPages(defaultLocale);
+    const documents = buildSearchDocuments(pages, registry);
+    const results = await docsSearchApi.search(query);
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.some((result) => pageBaseUrl(result.url) === url)).toBe(
+      true,
+    );
+
+    const document = documents.find((entry) => entry.url === url);
+    expect(document?.topology.primaryClassificationId).toBe(
+      INFERENCE_CLASSIFICATION_ID,
+    );
+  });
+
+  test("inference latency glossary pages keep related system serving pages discoverable", async () => {
+    const pages = await loadShippedLocalizedDocsPages(defaultLocale);
+    const interTokenLatency = pages.find(
+      (page) => page.docsSlug === "glossary/inter-token-latency",
+    );
+    expect(interTokenLatency).toBeDefined();
+
+    const record = getConceptById("concept.inter-token-latency");
+    expect(record?.relatedIds).toEqual(
+      expect.arrayContaining([
+        "system.batching",
+        "system.continuous-batching",
+        "system.dynamic-batching",
+        "system.request-scheduling",
+        "system.inference-engine",
+      ]),
+    );
+
+    const systemsUrls = pages
+      .filter((page) => page.docsSlug.startsWith("systems/"))
+      .map((page) => page.url);
+    for (const url of SYSTEM_INFERENCE_RELATED_URLS) {
+      expect(systemsUrls).toContain(url);
+    }
   });
 });

@@ -51,11 +51,15 @@ const GLOSSARY_DERIVED_SECTION_CONFIG = {
     sidebarLabel: "Inference",
     starterSlugs: [
       "glossary/sampling-overview",
+      "glossary/top-k-sampling",
+      "glossary/top-p-sampling",
+      "glossary/greedy-decoding",
       "glossary/temperature",
-      "glossary/kv-cache",
-      "glossary/quantization",
-      "glossary/prefill",
       "glossary/decode",
+      "glossary/prefill-decode-split",
+      "glossary/kv-cache",
+      "glossary/time-to-first-token",
+      "glossary/inter-token-latency",
     ],
   },
 } as const satisfies Record<
