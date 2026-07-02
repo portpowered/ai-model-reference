@@ -5,19 +5,23 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Inter-token latency is the elapsed time between consecutive streamed output tokens after generation has started."
+      "body": "Inter-token latency is the elapsed time between consecutive streamed output tokens after generation has started. The first gap still belongs to time to first token (TTFT); inter-token latency begins once the opening token is visible and covers every later pause until the reply ends. Each interval is one decode step in practice—the model reads the growing key-value (KV) cache, runs the next-token pass, and hands the result to the stream."
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Readers feel inter-token latency as the rhythm of a streaming reply after the first token appears."
+      "body": "Readers feel inter-token latency as the rhythm of a streaming reply after the first token appears. A short TTFT followed by sluggish gaps still feels like a slow answer, and a snappy cadence can make a long reply feel responsive even when the first token took longer. Operators track inter-token latency separately from TTFT and aggregate throughput because it answers a different question: how steady is token delivery once streaming has begun."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "Once a chat answer begins streaming, each gap between visible tokens is one inter-token latency interval."
+      "body": "Imagine a chat answer that begins streaming and then prints twenty more tokens. TTFT ends when the first answer token appears. Inter-token latency is the pause between token 1 and token 2, between token 2 and token 3, and so on through the rest of the stream. Summing those gaps describes how the reply felt; it is not the same as dividing total tokens by total wall time."
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Inter-token latency is not time to first token or tokens per second."
+      "body": "Inter-token latency is not time to first token, total response time, or tokens per second. Time to first token measures the wait before streaming starts. Total response time covers the full answer from request to finish. Tokens per second is an aggregate throughput figure—often averaged across many tokens, requests, or a benchmark window—and can look healthy even when individual gaps feel uneven. A system can have low TTFT but choppy streaming, fast per-token gaps but low overall throughput under heavy load, or the opposite."
+    },
+    "whatAffectsCadence": {
+      "title": "What Affects Token Cadence",
+      "body": "Each inter-token interval is shaped by the decode work for one new token, the KV cache reads that step requires, and how quickly memory bandwidth can supply that state. Scheduler contention matters when many active requests compete for the same accelerators. Batching decisions—fixed batch sizes, continuous batching, or dynamic regrouping—change how often a request waits its turn. The active request mix also shifts cadence: prompt-heavy bursts, long decode chains, and cache-heavy conversations do not share the same per-token cost."
     },
     "related": {
       "title": "Related Concepts And Modules"
