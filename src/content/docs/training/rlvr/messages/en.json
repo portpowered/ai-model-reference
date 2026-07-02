@@ -9,7 +9,7 @@
     },
     "whyItExists": {
       "title": "Why It Exists",
-      "body": "Many reasoning-heavy tasks have objectively checkable success criteria. A math problem may have one exact final answer, a programming task may pass or fail a test suite, and a logic puzzle may satisfy a rule-based grader. Those checks provide reward signals without asking humans to rank every model output. RLVR exists so teams can optimize models on those tasks with reinforcement learning while keeping the reward grounded in verifiable outcomes rather than subjective preference alone."
+      "body": "Many reasoning-heavy tasks have objectively checkable success criteria. A math problem may have one exact final answer, a programming task may pass or fail a test suite, and a logic puzzle may satisfy a rule-based grader. Those checks provide reward signals without asking humans to rank every model output. RLVR exists so teams can optimize models on those tasks with reinforcement learning while keeping the reward grounded in verifiable outcomes rather than subjective preference alone. Public work such as DeepSeek-R1 shows how verifier-based reinforcement learning can strengthen math and code reasoning when checkable rewards are available."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -32,6 +32,17 @@
     "references": {
       "title": "References"
     }
+  },
+  "links": {
+    "alignment": "Alignment",
+    "postTraining": "Post-training",
+    "supervisedFineTuning": "Supervised fine-tuning",
+    "instructionTuning": "Instruction tuning",
+    "dpo": "Direct Preference Optimization",
+    "rlhfSearch": "RLHF search",
+    "grpoSearch": "GRPO search",
+    "nemotron3SuperModelPage": "Nemotron 3 Super model page",
+    "deepseekV4PaperPage": "DeepSeek-V4 paper page"
   },
   "assets": {
     "trainingFlow": {

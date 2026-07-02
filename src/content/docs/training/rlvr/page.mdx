@@ -19,6 +19,7 @@ updatedAt: "2026-07-01"
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { BlockMath } from "@/features/docs/components/Math";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -45,6 +46,28 @@ import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeF
 
 <Section id="compared-to-nearby-regimes" titleKey="sections.comparedToNearbyRegimes.title">
   <T k="sections.comparedToNearbyRegimes.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/concepts/alignment", labelKey: "links.alignment" },
+      { href: "/docs/training/post-training", labelKey: "links.postTraining" },
+      {
+        href: "/docs/training/supervised-fine-tuning",
+        labelKey: "links.supervisedFineTuning",
+      },
+      {
+        href: "/docs/training/instruction-tuning",
+        labelKey: "links.instructionTuning",
+      },
+      { href: "/docs/training/dpo", labelKey: "links.dpo" },
+      { href: "/search?q=RLHF", labelKey: "links.rlhfSearch" },
+      { href: "/search?q=GRPO", labelKey: "links.grpoSearch" },
+      {
+        href: "/docs/models/nemotron-3-super",
+        labelKey: "links.nemotron3SuperModelPage",
+      },
+      { href: "/docs/papers/deepseek-v4", labelKey: "links.deepseekV4PaperPage" },
+    ]}
+  />
 </Section>
 
 <Section id="limitations-and-failure-modes" titleKey="sections.limitationsAndFailureModes.title">

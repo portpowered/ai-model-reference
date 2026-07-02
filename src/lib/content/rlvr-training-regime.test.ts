@@ -12,7 +12,9 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadTrainingRegimePage } from "@/lib/content/training-regime-page";
+import { loadUiMessages } from "@/lib/content/ui-messages";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
@@ -45,6 +47,10 @@ describe("RLVR training-regime identity contracts", () => {
       "concept.alignment",
       "training-regime.post-training",
       "training-regime.supervised-fine-tuning",
+      "training-regime.instruction-tuning",
+      "training-regime.dpo",
+      "model.nemotron-3-super",
+      "paper.deepseek-v4",
     ]);
     expect(record?.citationIds).toEqual(["citation.deepseek-r1"]);
     expect(record?.variantGroup).toBe("verifiable-reward-optimization");
@@ -93,7 +99,7 @@ describe("RLVR training-regime identity contracts", () => {
     { timeout: 15000 },
   );
 
-  test("curated related docs keep RLVR attached to alignment and nearby post-training regimes", () => {
+  test("curated related docs keep RLVR attached to alignment, post-training, preference, and reasoning discovery paths", () => {
     const source = getTrainingRegimeById(REGISTRY_ID);
     if (!source) {
       throw new Error("expected training-regime.rlvr in registry");
@@ -117,6 +123,32 @@ describe("RLVR training-regime identity contracts", () => {
         (item) => item.registryId === "training-regime.supervised-fine-tuning",
       )?.href,
     ).toBe("/docs/training/supervised-fine-tuning");
+    expect(
+      items.find(
+        (item) => item.registryId === "training-regime.instruction-tuning",
+      )?.href,
+    ).toBe("/docs/training/instruction-tuning");
+    expect(
+      items.find((item) => item.registryId === "training-regime.dpo")?.href,
+    ).toBe("/docs/training/dpo");
+    expect(
+      items.find((item) => item.registryId === "model.nemotron-3-super")?.href,
+    ).toBe("/docs/models/nemotron-3-super");
+    expect(
+      items.find((item) => item.registryId === "paper.deepseek-v4")?.href,
+    ).toBe("/docs/papers/deepseek-v4");
+  });
+
+  test("alignment tag landing exposes RLVR among training-regime discovery paths", async () => {
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups("alignment", messages, "en");
+    const trainingGroup = groups.find(
+      (group) => group.kind === "training-regime",
+    );
+
+    expect(
+      trainingGroup?.resources.some((resource) => resource.url === PAGE_URL),
+    ).toBe(true);
   });
 
   test("search documents and runtime search resolve RLVR aliases and core terms", async () => {
@@ -138,6 +170,10 @@ describe("RLVR training-regime identity contracts", () => {
       "concept.alignment",
       "training-regime.post-training",
       "training-regime.supervised-fine-tuning",
+      "training-regime.instruction-tuning",
+      "training-regime.dpo",
+      "model.nemotron-3-super",
+      "paper.deepseek-v4",
     ]);
     expect(document?.tags).toEqual(
       expect.arrayContaining(["alignment", "foundations"]),
@@ -188,11 +224,21 @@ describe("RLVR training-regime identity contracts", () => {
       expect(html).toContain("verifier coverage");
       expect(html).toContain("reward hacking");
       expect(html).toContain("Task narrowness");
+      expect(html).toContain('href="/docs/concepts/alignment"');
+      expect(html).toContain('href="/docs/training/post-training"');
+      expect(html).toContain('href="/docs/training/supervised-fine-tuning"');
+      expect(html).toContain('href="/docs/training/instruction-tuning"');
+      expect(html).toContain('href="/docs/training/dpo"');
+      expect(html).toContain('href="/search?q=RLHF"');
+      expect(html).toContain('href="/search?q=GRPO"');
+      expect(html).toContain('href="/docs/models/nemotron-3-super"');
+      expect(html).toContain('href="/docs/papers/deepseek-v4"');
+      expect(html).toContain("DeepSeek-R1");
+      expect(html).toContain("verifier-based reinforcement learning");
       expect(html).toContain('href="/tags/alignment"');
       expect(html).toContain('data-testid="tag-pill-list"');
       expect(html).toContain('data-testid="citation-list"');
       expect(html).toContain('data-testid="curated-related-docs"');
-      expect(html).toContain("DeepSeek-R1");
       expect(html).not.toContain("Reader Shortcut");
       expect(html).not.toContain("missing-content");
     },
@@ -202,11 +248,14 @@ describe("RLVR training-regime identity contracts", () => {
   test("English messages teach the verifier loop steps and adjacent-regime distinctions", async () => {
     const page = await loadTrainingRegimePage(SLUG);
     const howItWorks = page.messages.sections?.howItWorks.body ?? "";
+    const whyItExists = page.messages.sections?.whyItExists.body ?? "";
     const compared = page.messages.sections?.comparedToNearbyRegimes.body ?? "";
     const limits =
       page.messages.sections?.limitationsAndFailureModes.body ?? "";
 
     expect(howItWorks).toContain("task prompt");
+    expect(whyItExists).toContain("DeepSeek-R1");
+    expect(whyItExists).toContain("verifier-based reinforcement learning");
     expect(howItWorks).toContain("candidate response");
     expect(howItWorks).toContain("external verifier");
     expect(howItWorks).toContain("reward signal");

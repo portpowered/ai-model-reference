@@ -14,7 +14,11 @@
   "relatedIds": [
     "concept.alignment",
     "training-regime.post-training",
-    "training-regime.supervised-fine-tuning"
+    "training-regime.supervised-fine-tuning",
+    "training-regime.instruction-tuning",
+    "training-regime.dpo",
+    "model.nemotron-3-super",
+    "paper.deepseek-v4"
   ],
   "citationIds": ["citation.deepseek-r1"],
   "status": "published",
