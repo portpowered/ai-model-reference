@@ -356,9 +356,7 @@ describe("content PR doctor", () => {
     }
 
     expect(result.stage).toBe("prepare-content-runtime");
-    expect(result.message).toContain(
-      "regenerated tracked scoped paths",
-    );
+    expect(result.message).toContain("regenerated tracked scoped paths");
     expect(result.details).toEqual([
       " M src/lib/content/generated/registry-runtime.generated.ts",
     ]);
