@@ -14,6 +14,7 @@
   "tags": ["tokenization", "foundations"],
   "relatedIds": [
     "concept.token",
+    "concept.special-tokens",
     "concept.tokenizers-overview",
     "module.wordpiece",
     "module.sentencepiece",
@@ -26,15 +27,12 @@
   "releaseDate": "2016-06-10",
   "authors": ["Rico Sennrich", "Barry Haddow", "Alexandra Birch"],
   "sourceId": "citation.sennrich-bpe",
+  "primaryClassificationId": "classification.module.tokenization",
   "moduleType": "tokenizer",
   "moduleFamily": "tokenization",
   "conceptType": "subword-tokenization",
   "variantGroup": "subword-tokenizers",
   "optimizes": ["open-vocabulary-coverage", "vocabulary-size-efficiency"],
-  "practicalBenefits": [
-    "covers rare words without a word-level vocabulary",
-    "reuses frequent subword pieces across many words"
-  ],
   "exampleModelIds": ["model.gpt-3"],
   "improvesOnIds": [],
   "tradeoffIds": [],

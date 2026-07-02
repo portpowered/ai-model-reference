@@ -16,9 +16,11 @@ const LEGACY_SUMMARY_MDX_MARKERS = [
 
 const GRAPH_COMPONENT_NAMES = [
   "ModuleGraph",
+  "ModuleChart",
   "ConceptMap",
   "ModelArchitectureGraph",
   "PaperContributionGraph",
+  "SystemFlowGraph",
   "TrainingRegimeFlow",
 ] as const;
 
@@ -28,7 +30,7 @@ type GraphPlacementRule = {
   components: readonly GraphComponentName[];
   requiredSectionId?: string;
   forbiddenSectionIds?: readonly string[];
-  maxPrimaryGraphComponents?: number;
+  minPrimaryGraphComponents?: number;
 };
 
 const graphPlacementRulesByKind: Partial<Record<PageKind, GraphPlacementRule>> =
@@ -40,10 +42,10 @@ const graphPlacementRulesByKind: Partial<Record<PageKind, GraphPlacementRule>> =
       components: ["ConceptMap"],
     },
     module: {
-      components: ["ModuleGraph"],
+      components: ["ModuleGraph", "ModuleChart"],
       requiredSectionId: "how-it-works",
       forbiddenSectionIds: ["math-or-compute-schema"],
-      maxPrimaryGraphComponents: 1,
+      minPrimaryGraphComponents: 1,
     },
     model: {
       components: ["ModelArchitectureGraph"],
@@ -57,10 +59,25 @@ const graphPlacementRulesByKind: Partial<Record<PageKind, GraphPlacementRule>> =
       components: ["TrainingRegimeFlow"],
       requiredSectionId: "how-it-works",
     },
+    system: {
+      components: ["SystemFlowGraph"],
+      requiredSectionId: "how-it-works",
+    },
   };
 
 function isGraphAssetType(type: string): boolean {
   return type === "graph" || type === "attention-variant-graph";
+}
+
+function matchesSupportedAssetType(
+  component: GraphComponentName,
+  assetType: string,
+): boolean {
+  if (component === "ModuleChart") {
+    return assetType === "chart";
+  }
+
+  return isGraphAssetType(assetType);
 }
 
 function extractMdxBody(mdxSource: string): string {
@@ -110,7 +127,7 @@ export function validateGeneratedFoldedSummary(options: {
     if (legacyKey in messages && messages[legacyKey as keyof PageMessages]) {
       errors.push({
         code: "legacy-split-summary-message-key",
-        message: `${messagesPath}: generated bundles must use folded openingSummary instead of legacy "${legacyKey}" message key`,
+        message: `${messagesPath}: generated bundles must not use legacy split summary key "${legacyKey}"`,
         path: messagesPath,
       });
     }
@@ -123,7 +140,7 @@ export function validateGeneratedFoldedSummary(options: {
   ) {
     errors.push({
       code: "legacy-reader-shortcut-callout",
-      message: `${messagesPath}: generated bundles must not include callouts.readerShortcut; fold summary guidance into openingSummary`,
+      message: `${messagesPath}: generated bundles must not include callouts.readerShortcut`,
       path: messagesPath,
     });
   }
@@ -132,7 +149,7 @@ export function validateGeneratedFoldedSummary(options: {
     if (mdxBody.includes(marker)) {
       errors.push({
         code: "legacy-split-summary-mdx",
-        message: `${pagePath}: generated MDX must use folded openingSummary instead of legacy marker "${marker}"`,
+        message: `${pagePath}: generated MDX must not include legacy summary marker "${marker}"`,
         path: pagePath,
       });
     }
@@ -141,9 +158,172 @@ export function validateGeneratedFoldedSummary(options: {
   if (OPENING_SUMMARY_MDX_MARKERS.some((marker) => mdxBody.includes(marker))) {
     errors.push({
       code: "opening-summary-in-mdx",
-      message: `${pagePath}: canonical docs pages must not render openingSummary in MDX; keep it in messages and shell metadata only`,
+      message: `${pagePath}: canonical docs pages must not render openingSummary in MDX`,
       path: pagePath,
     });
+  }
+
+  return errors;
+}
+
+function sectionMustContain(
+  pagePath: string,
+  mdxBody: string,
+  sectionId: string,
+  marker: string,
+  code: string,
+  label: string,
+): ValidationError[] {
+  const sectionBody = sectionSlice(mdxBody, sectionId);
+  if (!sectionBody) {
+    return [];
+  }
+  if (sectionBody.includes(marker)) {
+    return [];
+  }
+  return [
+    {
+      code,
+      message: `${pagePath}: section id="${sectionId}" must include ${label}`,
+      path: pagePath,
+    },
+  ];
+}
+
+export function validateGeneratedKindSpecificStructure(options: {
+  pagePath: string;
+  kind: PageKind;
+  mdxSource: string;
+}): ValidationError[] {
+  const { pagePath, kind, mdxSource } = options;
+  const mdxBody = extractMdxBody(mdxSource);
+  const errors: ValidationError[] = [];
+
+  if (kind === "concept") {
+    errors.push(
+      ...sectionMustContain(
+        pagePath,
+        mdxBody,
+        "related",
+        "<RelatedDocs",
+        "missing-related-docs-component",
+        "RelatedDocs",
+      ),
+    );
+  }
+
+  if (kind === "paper") {
+    for (const sectionId of [
+      "what-the-paper-introduced",
+      "what-it-connects-to",
+    ]) {
+      if (sectionSlice(mdxBody, sectionId)) {
+        errors.push({
+          code: "forbidden-duplicate-related-section",
+          message: `${pagePath}: paper pages must not include section id="${sectionId}"`,
+          path: pagePath,
+        });
+      }
+    }
+  }
+
+  if (kind === "paper" || kind === "training-regime" || kind === "system") {
+    errors.push(
+      ...sectionMustContain(
+        pagePath,
+        mdxBody,
+        "related",
+        "<RelatedDocs",
+        "missing-related-docs-component",
+        "RelatedDocs",
+      ),
+    );
+
+    for (const forbiddenComponent of [
+      "RegistryAssociatedRecords",
+      "RegistryDeepLinkList",
+      "DerivedRelatedDocs",
+    ]) {
+      if (mdxBody.includes(`<${forbiddenComponent}`)) {
+        errors.push({
+          code: "forbidden-duplicate-related-component",
+          message: `${pagePath}: ${kind} pages must not include ${forbiddenComponent}; use RelatedDocs in the related section`,
+          path: pagePath,
+        });
+      }
+    }
+  }
+
+  if (
+    kind === "training-regime" &&
+    sectionSlice(mdxBody, "models-and-papers")
+  ) {
+    errors.push({
+      code: "forbidden-duplicate-related-section",
+      message: `${pagePath}: training-regime pages must not include section id="models-and-papers"`,
+      path: pagePath,
+    });
+  }
+
+  if (kind === "system" && sectionSlice(mdxBody, "associated-records")) {
+    errors.push({
+      code: "forbidden-duplicate-related-section",
+      message: `${pagePath}: system pages must not include section id="associated-records"`,
+      path: pagePath,
+    });
+  }
+
+  if (kind === "training-regime" || kind === "system") {
+    if (!mdxBody.includes("<BlockMath") && !mdxBody.includes("$$")) {
+      errors.push({
+        code: "missing-required-math",
+        message: `${pagePath}: ${kind} pages must include at least one formula or BlockMath expression`,
+        path: pagePath,
+      });
+    }
+  }
+
+  return errors;
+}
+
+export function validateGeneratedAssetRules(options: {
+  pagePath: string;
+  kind: PageKind;
+  assets: PageAssetConfig;
+  messages: PageMessages;
+}): ValidationError[] {
+  const { pagePath, kind, assets, messages } = options;
+  const assetsPath = pagePath.replace(/page\.mdx$/, "assets.json");
+  const messagesPath = pagePath.replace(/page\.mdx$/, "messages/en.json");
+  const errors: ValidationError[] = [];
+
+  if (kind !== "model") {
+    return errors;
+  }
+
+  for (const [assetId, asset] of Object.entries(assets)) {
+    const disallowCaption = asset.type === "graph" || asset.type === "table";
+
+    if (!disallowCaption) {
+      continue;
+    }
+
+    if ("captionKey" in asset && asset.captionKey) {
+      errors.push({
+        code: "forbidden-model-asset-caption",
+        message: `${assetsPath}: model asset "${assetId}" must not define captionKey`,
+        path: assetsPath,
+      });
+    }
+
+    const caption = messages.assets?.[assetId]?.caption;
+    if (caption) {
+      errors.push({
+        code: "forbidden-model-asset-caption-message",
+        message: `${messagesPath}: model asset "${assetId}" must not define caption text`,
+        path: messagesPath,
+      });
+    }
   }
 
   return errors;
@@ -176,12 +356,12 @@ export function validateGeneratedGraphPlacement(options: {
     }
   }
 
-  if (rules.maxPrimaryGraphComponents !== undefined) {
+  if (rules.minPrimaryGraphComponents !== undefined) {
     const graphCount = matchedComponents.length;
-    if (graphCount !== rules.maxPrimaryGraphComponents) {
+    if (graphCount < rules.minPrimaryGraphComponents) {
       errors.push({
         code: "graph-count-mismatch",
-        message: `${pagePath}: ${kind} pages must render exactly ${rules.maxPrimaryGraphComponents} primary graph component(s); found ${graphCount}`,
+        message: `${pagePath}: ${kind} pages must render at least ${rules.minPrimaryGraphComponents} primary graph component(s); found ${graphCount}`,
         path: pagePath,
       });
     }
@@ -208,10 +388,14 @@ export function validateGeneratedGraphPlacement(options: {
       continue;
     }
 
-    if (!isGraphAssetType(asset.type)) {
+    if (!matchesSupportedAssetType(component, asset.type)) {
+      const requiredType =
+        component === "ModuleChart"
+          ? 'type "chart"'
+          : 'type "graph" or "attention-variant-graph"';
       errors.push({
         code: "graph-asset-type-mismatch",
-        message: `${assetsPath}: asset "${assetId}" referenced by ${component} must have type "graph" or "attention-variant-graph"`,
+        message: `${assetsPath}: asset "${assetId}" referenced by ${component} must have ${requiredType}`,
         path: assetsPath,
       });
     }
@@ -291,6 +475,17 @@ export function validateGeneratedCanonicalDocs(
       kind,
       mdxSource,
       assets,
+    }),
+    ...validateGeneratedKindSpecificStructure({
+      pagePath,
+      kind,
+      mdxSource,
+    }),
+    ...validateGeneratedAssetRules({
+      pagePath,
+      kind,
+      assets,
+      messages,
     }),
     ...validateCanonicalMdxProse({
       pagePath,

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import {
@@ -10,6 +10,11 @@ import {
 } from "@/lib/content/module-test-helpers";
 import { formatTagLabel } from "@/lib/content/tags";
 import { assertGroupedQueryAttentionChromeConvergence } from "@/lib/verify/grouped-query-attention-module-convergence";
+
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
 
 describe("grouped-query-attention module tag deduplication", () => {
   test("canonical module template renders TagPillList only in the tags section", () => {
@@ -29,7 +34,7 @@ describe("grouped-query-attention module tag deduplication", () => {
 
   test("published GQA page renders TagPillList only in the tags section", () => {
     const raw = readFileSync(
-      join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "page.mdx"),
+      join(groupedQueryAttentionPageDir, "page.mdx"),
       "utf8",
     );
 

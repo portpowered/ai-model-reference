@@ -4,7 +4,10 @@ import { join } from "node:path";
 import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
 import { shouldRunBuiltHtmlFileConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
-import { runPhase1ExportSearchUxChecks } from "@/lib/verify/phase-1-export-search-ux-checks";
+import {
+  DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
+  runPhase1ExportSearchUxChecks,
+} from "@/lib/verify/phase-1-export-search-ux-checks";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const VERIFY_EXPORT_SEARCH_UX_SCRIPT_INTEGRATION_ENV =
@@ -31,8 +34,10 @@ describe("static export Phase 1 search UX integration", () => {
 
       const failures = await runPhase1ExportSearchUxChecks({
         cwd: repoRoot,
-        searchPageOptions: { timeoutMs: 45_000 },
-        searchDialogOptions: { timeoutMs: 45_000 },
+        searchPageOptions: { timeoutMs: DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS },
+        searchDialogOptions: {
+          timeoutMs: DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
+        },
       });
       expect(failures).toEqual([]);
     },

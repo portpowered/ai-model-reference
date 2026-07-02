@@ -1,0 +1,23 @@
+{
+  "id": "citation.hugging-face-chat-templates-docs",
+  "slug": "hugging-face-chat-templates-docs",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Hugging Face chat templates documentation",
+    "Transformers chat templates docs"
+  ],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["Hugging Face"],
+  "title": "Chat templates",
+  "url": "https://huggingface.co/docs/transformers/chat_templating",
+  "mla": "Hugging Face. \"Chat templates.\" Transformers Documentation, https://huggingface.co/docs/transformers/chat_templating. Accessed 19 June 2026.",
+  "accessedAt": "2026-06-19"
+}

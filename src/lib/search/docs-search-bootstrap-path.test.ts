@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 import {
   DOCS_SEARCH_API_PATH,
   DOCS_SEARCH_BOOTSTRAP_FROM_ENV,
@@ -96,31 +97,28 @@ describe("resolveClientDocsSearchBootstrapFromForLocale", () => {
 });
 
 describe("static search bootstrap fetch path", () => {
-  const originalFetch = globalThis.fetch;
-
   test("oramaStaticClient bootstraps from basePath-prefixed static asset without API route", async () => {
     const bootstrapFrom =
       "http://bootstrap-path-unit.test/ai-model-reference/api/search";
     const payload = await docsSearchApi.export();
 
     let fetchedUrl: string | undefined;
-    globalThis.fetch = (async (input: RequestInfo | URL) => {
-      fetchedUrl =
-        typeof input === "string"
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      return new Response(JSON.stringify(payload), { status: 200 });
-    }) as typeof fetch;
-
-    try {
-      const client = oramaStaticClient({ from: bootstrapFrom });
-      const results = await client.search("GQA");
-      expect(fetchedUrl).toBe(bootstrapFrom);
-      expect(results.length).toBeGreaterThan(0);
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+    await withGlobalFetchOverride(
+      (async (input: RequestInfo | URL) => {
+        fetchedUrl =
+          typeof input === "string"
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        return new Response(JSON.stringify(payload), { status: 200 });
+      }) as typeof fetch,
+      async () => {
+        const client = oramaStaticClient({ from: bootstrapFrom });
+        const results = await client.search("GQA");
+        expect(fetchedUrl).toBe(bootstrapFrom);
+        expect(results.length).toBeGreaterThan(0);
+      },
+    );
   });
 });

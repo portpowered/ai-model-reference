@@ -39,7 +39,7 @@ const FAIL_ROW: CustomerAskConvergenceRow = {
   checkId: BATCH_013_GLOSSARY_CHECKS.embeddingDescriptionLinks.checkId,
   title: BATCH_013_GLOSSARY_CHECKS.embeddingDescriptionLinks.title,
   status: "fail",
-  route: "/docs/glossary/embedding",
+  route: "/docs/concepts/embedding",
   reason: "embedding description paragraph missing resolved inline links",
   checklistRow: "phase-1-glossary-page",
 };

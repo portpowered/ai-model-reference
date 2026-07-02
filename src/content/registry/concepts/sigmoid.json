@@ -1,0 +1,23 @@
+{
+  "id": "concept.sigmoid",
+  "slug": "sigmoid",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["logistic activation", "logistic sigmoid", "sigmoid function"],
+  "tags": ["activation", "foundations"],
+  "relatedIds": [
+    "concept.activation",
+    "concept.feed-forward-network",
+    "concept.standard-ffn",
+    "concept.relu",
+    "concept.silu"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": [],
+  "explainsIds": []
+}

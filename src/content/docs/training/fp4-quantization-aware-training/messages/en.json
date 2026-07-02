@@ -7,37 +7,36 @@
       "title": "What It Is",
       "body": "This is a quantization-aware training step aimed at extremely low precision. Instead of treating quantization as a last-minute export trick, the model sees precision loss during training."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "It targets low-bit deployment quality, memory savings, and practical serving cost."
     },
     "howItWorks": {
       "title": "How It Works",
       "body": "The training loop injects low-precision behavior into the optimization path so the model learns weights and activations that remain more stable after compression."
     },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "This matters because long-context serving is expensive. Low precision is one of the few levers that can materially reduce that cost if the model survives it."
-    },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
       "body": "Unlike post-training quantization, the model is warned about future quantization damage during training instead of after the fact."
-    },
-    "modelsAndPapers": {
-      "title": "Models And Papers",
-      "body": "These links are generated from registry metadata for the regime."
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
       "body": "QAT adds training complexity and still may not save every capability if the target precision is aggressive enough."
     },
+    "related": { "title": "Related To" },
     "tags": { "title": "Tags" },
     "references": { "title": "References" }
   },
   "assets": {
     "trainingFlow": {
+      "title": "FP4 Quantization-Aware Training flow",
       "alt": "A flow from a float model through injected FP4 noise to a deployed low-precision model.",
-      "caption": "QAT teaches the model under the same precision pressure it will later face in deployment."
+      "caption": "QAT teaches the model under the same precision pressure it will later face in deployment.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
     }
   },
   "graph": {

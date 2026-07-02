@@ -1,0 +1,109 @@
+{
+  "id": "graph.inference-engine-system-flow",
+  "slug": "inference-engine-system-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["inference engine system flow"],
+  "tags": ["kv-cache", "quantization"],
+  "relatedIds": [],
+  "citationIds": ["citation.brown-gpt-3", "citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "system.inference-engine",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "requests",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "requests",
+      "labelKey": "graph.nodes.requests.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["runtime"]
+    },
+    {
+      "id": "runtime",
+      "labelKey": "graph.nodes.runtime.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 220, "height": 90 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["weights", "memory", "outputs"]
+    },
+    {
+      "id": "weights",
+      "labelKey": "graph.nodes.weights.label",
+      "moduleKind": "other",
+      "position": { "x": 30, "y": 260 },
+      "size": { "width": 170, "height": 70 },
+      "visualRole": "default",
+      "childNodeIds": []
+    },
+    {
+      "id": "memory",
+      "labelKey": "graph.nodes.memory.label",
+      "moduleKind": "cache",
+      "position": { "x": 250, "y": 260 },
+      "size": { "width": 190, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "outputs",
+      "labelKey": "graph.nodes.outputs.label",
+      "moduleKind": "output",
+      "position": { "x": 490, "y": 260 },
+      "size": { "width": 170, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "requests-runtime",
+      "source": "requests",
+      "target": "runtime",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "weights-runtime",
+      "source": "weights",
+      "target": "runtime",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "runtime-memory",
+      "source": "runtime",
+      "target": "memory",
+      "edgeKind": "cache-write",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "memory-runtime",
+      "source": "memory",
+      "target": "runtime",
+      "edgeKind": "cache-read",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "runtime-outputs",
+      "source": "runtime",
+      "target": "outputs",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "top"
+    }
+  ]
+}

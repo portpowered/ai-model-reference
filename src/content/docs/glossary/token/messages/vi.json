@@ -36,6 +36,9 @@
     "concept.embedding": {
       "reason": "Mỗi token ID trở thành một biểu diễn số học được học trước khi mô hình trộn ngữ cảnh."
     },
+    "concept.vocabulary-size": {
+      "reason": "Con số từ vựng đó cho biết tokenizer có thể phát ra ID cho bao nhiêu token thường và token dành riêng."
+    },
     "concept.logit": {
       "reason": "Dự đoán token tiếp theo bắt đầu như một điểm số ứng viên cho từng token trong từ vựng."
     },

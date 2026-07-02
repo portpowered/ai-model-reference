@@ -5,24 +5,41 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PageAsset } from "@/features/docs/components/PageAsset";
 import { PageAssetsProvider } from "@/features/docs/components/page-assets-context";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
-import assetFixture from "@/lib/content/__fixtures__/page-assets.json";
-import messageFixture from "@/lib/content/__fixtures__/page-messages.json";
 import { parsePageAssetConfig } from "@/lib/content/assets";
-import {
-  GROUPED_QUERY_ATTENTION_PAGE_DIR,
-  RELU_GLOSSARY_PAGE_DIR,
-  SILU_GLOSSARY_PAGE_DIR,
-} from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import type { PageAssetConfig, PageMessages } from "@/lib/content/schemas";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const assets = assetFixture as PageAssetConfig;
-const messages = messageFixture as PageMessages;
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
+const reluPageDir = getDocsPageDir("modules", "relu");
+const siluPageDir = getDocsPageDir("modules", "silu");
+const sigmoidPageDir = getDocsPageDir("modules", "sigmoid");
+const tanhPageDir = getDocsPageDir("modules", "tanh");
+const geluPageDir = getDocsPageDir("modules", "gelu");
+
+const assets = JSON.parse(
+  readFileSync(
+    join(import.meta.dir, "../../../lib/content/__fixtures__/page-assets.json"),
+    "utf8",
+  ),
+) as PageAssetConfig;
+const messages = JSON.parse(
+  readFileSync(
+    join(
+      import.meta.dir,
+      "../../../lib/content/__fixtures__/page-messages.json",
+    ),
+    "utf8",
+  ),
+) as PageMessages;
 
 const gqaMessages = pageMessagesSchema.parse(
   JSON.parse(
     readFileSync(
-      join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "messages/en.json"),
+      join(groupedQueryAttentionPageDir, "messages/en.json"),
       "utf8",
     ),
   ),
@@ -30,28 +47,48 @@ const gqaMessages = pageMessagesSchema.parse(
 
 const gqaAssets = parsePageAssetConfig(
   JSON.parse(
-    readFileSync(join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "assets.json"), "utf8"),
+    readFileSync(join(groupedQueryAttentionPageDir, "assets.json"), "utf8"),
   ),
 );
 
 const reluMessages = pageMessagesSchema.parse(
-  JSON.parse(
-    readFileSync(join(RELU_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
-  ),
+  JSON.parse(readFileSync(join(reluPageDir, "messages/en.json"), "utf8")),
 );
 
 const reluAssets = parsePageAssetConfig(
-  JSON.parse(readFileSync(join(RELU_GLOSSARY_PAGE_DIR, "assets.json"), "utf8")),
+  JSON.parse(readFileSync(join(reluPageDir, "assets.json"), "utf8")),
 );
 
 const siluMessages = pageMessagesSchema.parse(
-  JSON.parse(
-    readFileSync(join(SILU_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
-  ),
+  JSON.parse(readFileSync(join(siluPageDir, "messages/en.json"), "utf8")),
 );
 
 const siluAssets = parsePageAssetConfig(
-  JSON.parse(readFileSync(join(SILU_GLOSSARY_PAGE_DIR, "assets.json"), "utf8")),
+  JSON.parse(readFileSync(join(siluPageDir, "assets.json"), "utf8")),
+);
+
+const sigmoidMessages = pageMessagesSchema.parse(
+  JSON.parse(readFileSync(join(sigmoidPageDir, "messages/en.json"), "utf8")),
+);
+
+const sigmoidAssets = parsePageAssetConfig(
+  JSON.parse(readFileSync(join(sigmoidPageDir, "assets.json"), "utf8")),
+);
+
+const tanhMessages = pageMessagesSchema.parse(
+  JSON.parse(readFileSync(join(tanhPageDir, "messages/en.json"), "utf8")),
+);
+
+const tanhAssets = parsePageAssetConfig(
+  JSON.parse(readFileSync(join(tanhPageDir, "assets.json"), "utf8")),
+);
+
+const geluMessages = pageMessagesSchema.parse(
+  JSON.parse(readFileSync(join(geluPageDir, "messages/en.json"), "utf8")),
+);
+
+const geluAssets = parsePageAssetConfig(
+  JSON.parse(readFileSync(join(geluPageDir, "assets.json"), "utf8")),
 );
 
 function renderPageAsset(
@@ -122,7 +159,7 @@ describe("PageAsset", () => {
     expect(html).toContain('data-graph-node-id="gqa-query-heads"');
     expect(html).toContain('data-graph-node-count="11"');
     expect(html).toContain(
-      "Toggle multi-head attention and grouped-query attention to compare query-head count against key-value head count on one canvas.",
+      "Grouped-query attention reduces key-value head count by letting several query heads share each key-value pair.",
     );
     expect(html).not.toContain(
       ">graph.grouped-query-attention-gqa-comparison<",
@@ -224,9 +261,25 @@ describe("PageAsset", () => {
     expect(html).toContain(
       'data-chart-id="chart.activation-family.relu-intro"',
     );
-    expect(html).toContain("LeakyReLU");
-    expect(html).toContain("SiLU");
+    expect(html).toContain("Activation Curves");
+    expect(html).toContain("ReLU");
     expect(html).not.toContain('data-graph-id="graph.relu-activation-flow"');
+  });
+
+  test("renders the ReLU hidden-state heatmap chart", () => {
+    const html = renderPageAsset(
+      "hiddenStateHeatmap",
+      false,
+      reluAssets,
+      reluMessages,
+    );
+    expect(html).toContain('data-page-asset="hiddenStateHeatmap"');
+    expect(html).toContain('data-asset-type="chart"');
+    expect(html).toContain('data-activation-chart="true"');
+    expect(html).toContain(
+      'data-chart-id="chart.activation-family.relu-hidden-state-heatmap"',
+    );
+    expect(html).toContain('data-echarts-heatmap="true"');
   });
 
   test("renders activation chart for the SiLU module page", () => {
@@ -242,8 +295,63 @@ describe("PageAsset", () => {
     expect(html).toContain(
       'data-chart-id="chart.activation-family.relu-silu-comparison"',
     );
-    expect(html).toContain("smooth self-gating curve in SiLU");
+    expect(html).toContain("ReLU");
+    expect(html).toContain("SiLU");
     expect(html).not.toContain('data-graph-id="graph.silu-activation-flow"');
+  });
+
+  test("renders activation chart for the sigmoid module page", () => {
+    const html = renderPageAsset(
+      "computeFlow",
+      false,
+      sigmoidAssets,
+      sigmoidMessages,
+    );
+    expect(html).toContain('data-page-asset="computeFlow"');
+    expect(html).toContain('data-asset-type="chart"');
+    expect(html).toContain('data-activation-chart="true"');
+    expect(html).toContain(
+      'data-chart-id="chart.activation-family.sigmoid-intro"',
+    );
+    expect(html).toContain("Activation Curves");
+    expect(html).toContain("Sigmoid");
+    expect(html).not.toContain('data-graph-id="graph.sigmoid-activation-flow"');
+  });
+
+  test("renders activation chart for the tanh module page", () => {
+    const html = renderPageAsset(
+      "computeFlow",
+      false,
+      tanhAssets,
+      tanhMessages,
+    );
+    expect(html).toContain('data-page-asset="computeFlow"');
+    expect(html).toContain('data-asset-type="chart"');
+    expect(html).toContain('data-activation-chart="true"');
+    expect(html).toContain(
+      'data-chart-id="chart.activation-family.tanh-intro"',
+    );
+    expect(html).toContain("Activation Curves");
+    expect(html).toContain("Tanh");
+    expect(html).not.toContain('data-graph-id="graph.tanh-activation-flow"');
+  });
+
+  test("renders activation chart for the GELU module page", () => {
+    const html = renderPageAsset(
+      "computeFlow",
+      false,
+      geluAssets,
+      geluMessages,
+    );
+    expect(html).toContain('data-page-asset="computeFlow"');
+    expect(html).toContain('data-asset-type="chart"');
+    expect(html).toContain('data-activation-chart="true"');
+    expect(html).toContain(
+      'data-chart-id="chart.activation-family.gelu-intro"',
+    );
+    expect(html).toContain("GELU");
+    expect(html).toContain("ReLU");
+    expect(html).toContain("SiLU");
   });
 
   test("renders non-react-flow graph fallback markup when webRenderer is not react-flow", () => {

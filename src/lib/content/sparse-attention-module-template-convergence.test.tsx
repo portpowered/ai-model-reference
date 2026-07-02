@@ -1,14 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { SPARSE_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
+
+const pageDir = getDocsPageDir("modules", "sparse-attention");
 
 describe("sparse-attention canonical page template convergence", () => {
   test("published page.mdx follows hardened module template structure", () => {
-    const template = readFileSync(
-      join(SPARSE_ATTENTION_PAGE_DIR, "page.mdx"),
-      "utf8",
-    );
+    const template = readFileSync(join(pageDir, "page.mdx"), "utf8");
 
     expect(template).not.toContain("<FoldedSummary />");
     expect(template).not.toContain('<T k="problemStatement" />');
@@ -26,7 +25,7 @@ describe("sparse-attention canonical page template convergence", () => {
 
   test("published messages use folded summary and symbol math keys", () => {
     const messages = JSON.parse(
-      readFileSync(join(SPARSE_ATTENTION_PAGE_DIR, "messages/en.json"), "utf8"),
+      readFileSync(join(pageDir, "messages/en.json"), "utf8"),
     ) as {
       openingSummary?: string;
       problemStatement?: string;
@@ -51,7 +50,7 @@ describe("sparse-attention canonical page template convergence", () => {
 
   test("published assets configure sparse attention-variant graph and comparison table", () => {
     const assets = JSON.parse(
-      readFileSync(join(SPARSE_ATTENTION_PAGE_DIR, "assets.json"), "utf8"),
+      readFileSync(join(pageDir, "assets.json"), "utf8"),
     ) as Record<string, unknown>;
 
     expect(assets.computeFlow).toBeDefined();

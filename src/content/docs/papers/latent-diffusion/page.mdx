@@ -1,0 +1,59 @@
+---
+title: "Latent Diffusion Models"
+description: "The research paper behind Stable Diffusion-style image generation: compress images into a latent space, denoise there instead of in pixel space, then decode the result."
+kind: "paper"
+registryId: "paper.latent-diffusion"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - model-family
+aliases:
+  - "Latent Diffusion Models"
+  - "LDM"
+  - "latent diffusion"
+  - "Stable Diffusion paper"
+  - "latent-space denoising"
+updatedAt: "2026-07-01"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { PaperContributionGraph } from "@/features/models/components/PaperContributionGraph";
+import { PaperAtAGlance } from "@/features/models/components/PaperAtAGlance";
+
+
+<PaperAtAGlance registryId="paper.latent-diffusion" />
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="method-or-architecture" titleKey="sections.methodOrArchitecture.title">
+  <T k="sections.methodOrArchitecture.body" />
+  <PaperContributionGraph registryId="paper.latent-diffusion" assetId="contributionGraph" />
+</Section>
+
+<Section id="evidence" titleKey="sections.evidence.title">
+  <T k="sections.evidence.body" />
+</Section>
+
+<Section id="limitations" titleKey="sections.limitations.title">
+  <T k="sections.limitations.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="paper.latent-diffusion" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="paper.latent-diffusion" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="paper.latent-diffusion" />
+</Section>

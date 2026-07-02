@@ -20,7 +20,7 @@ describe("Phase 2 token-probability path validation gate (phase-2-token-probabil
     expect(result.status).toBe("pass");
   });
 
-  test("token related-docs gate passes with embedding, logit, and softmax explanations", async () => {
+  test("token related-docs gate passes with special tokens plus embedding, vocabulary size, logit, and softmax explanations", async () => {
     const result = await runTokenRelatedDocsGate();
     expect(result.status).toBe("pass");
   });
@@ -43,7 +43,7 @@ describe("Phase 2 token-probability path validation gate (phase-2-token-probabil
       "[PASS] Search documents for token, embedding, logit, and softmax include route, title, kind/facet, aliases or tags, and summary data",
     );
     expect(report).toContain(
-      "[PASS] Token related-doc data includes embedding, logit, and softmax with relationship explanations",
+      "[PASS] Token related-doc data includes embedding, vocabulary size, logit, and softmax with relationship explanations",
     );
   });
 });

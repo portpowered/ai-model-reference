@@ -5,10 +5,7 @@ import {
   listModuleRecords,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import {
-  deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
-} from "@/lib/content/related-docs";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
 describe("bpe registry relationships", () => {
   test("keeps one canonical module.bpe record with tokenizer discovery aliases", () => {
@@ -28,7 +25,7 @@ describe("bpe registry relationships", () => {
     );
   });
 
-  test("curated related ids preserve published routes and draft tokenizer neighbors", () => {
+  test("curated related ids preserve published routes across tokenizer neighbors", () => {
     const source = getRegistryRecordById("module.bpe");
     if (!source) {
       throw new Error("expected module.bpe in registry runtime");
@@ -42,6 +39,7 @@ describe("bpe registry relationships", () => {
 
     expect(items.map((item) => item.registryId)).toEqual([
       "concept.token",
+      "concept.special-tokens",
       "concept.tokenizers-overview",
       "module.wordpiece",
       "module.sentencepiece",
@@ -49,22 +47,22 @@ describe("bpe registry relationships", () => {
     ]);
     expect(items.map((item) => item.href)).toEqual([
       "/docs/glossary/token",
-      undefined,
-      undefined,
-      undefined,
+      "/docs/glossary/special-tokens",
+      "/docs/concepts/tokenizers-overview",
+      "/docs/modules/wordpiece",
+      "/docs/modules/sentencepiece",
       "/docs/models/gpt-3",
     ]);
     expect(items.map((item) => item.isPlanned)).toEqual([
       false,
-      true,
-      true,
-      true,
+      false,
+      false,
+      false,
+      false,
       false,
     ]);
-    expect(items.slice(1, 4).map((item) => item.reasonLabel)).toEqual([
-      PLANNED_RELATED_REASON_LABEL,
-      PLANNED_RELATED_REASON_LABEL,
-      PLANNED_RELATED_REASON_LABEL,
-    ]);
+    expect(items[2]?.reasonLabel).toBe("curated");
+    expect(items[3]?.reasonLabel).toBe("curated");
+    expect(items[4]?.reasonLabel).toBe("curated");
   });
 });

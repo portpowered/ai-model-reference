@@ -7,6 +7,7 @@ import {
   conceptRecordSchema,
   moduleRecordSchema,
   tagRecordSchema,
+  trainingRegimeRecordSchema,
 } from "./schemas";
 
 const registryRoot = join(import.meta.dir, "../../content/registry");
@@ -41,7 +42,6 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.relatedIds).toContain("module.multi-query-attention");
     expect(module.relatedIds).toContain("module.grouped-query-attention");
     expect(module.optimizes.length).toBeGreaterThan(0);
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
   test("linear-attention module JSON passes moduleRecordSchema", async () => {
@@ -64,7 +64,6 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.relatedIds).toContain("module.multi-query-attention");
     expect(module.relatedIds).toContain("module.grouped-query-attention");
     expect(module.optimizes.length).toBeGreaterThan(0);
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
   test("sliding-window-attention module JSON passes moduleRecordSchema", async () => {
@@ -85,7 +84,6 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.relatedIds).toContain("module.multi-query-attention");
     expect(module.relatedIds).toContain("module.grouped-query-attention");
     expect(module.optimizes.length).toBeGreaterThan(0);
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
   test("sparse-attention module JSON passes moduleRecordSchema", async () => {
@@ -105,7 +103,6 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.relatedIds).toContain("module.multi-query-attention");
     expect(module.relatedIds).toContain("module.grouped-query-attention");
     expect(module.optimizes.length).toBeGreaterThan(0);
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
   test("grouped-query-attention module JSON passes moduleRecordSchema", async () => {
@@ -123,7 +120,47 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.variantGroup).toBe("attention-head-sharing");
     expect(module.citationIds).toContain("citation.gqa-paper");
     expect(module.optimizes.length).toBeGreaterThan(0);
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
+  });
+
+  test("byte-level-tokenization module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/byte-level-tokenization.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.byte-level-tokenization");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("tokenizer");
+    expect(module.moduleFamily).toBe("tokenization");
+    expect(module.tags).toEqual(["tokenization"]);
+    expect(module.aliases).toEqual(
+      expect.arrayContaining([
+        "byte-level tokenization",
+        "byte level tokenization",
+        "byte-level tokenizer",
+        "byte tokenizer",
+        "byte-level BPE",
+      ]),
+    );
+    expect(module.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.token",
+        "concept.tokenizers-overview",
+        "module.bpe",
+        "concept.vocabulary-size",
+        "model.gpt-3",
+      ]),
+    );
+    expect(module.citationIds).toContain("citation.gpt-2-report");
+    expect(module.usedByModelIds).toContain("model.gpt-3");
+    expect(module.exampleModelIds).toContain("model.gpt-3");
+    expect(module.optimizes).toEqual(
+      expect.arrayContaining([
+        "arbitrary-text-coverage",
+        "open-vocabulary-text",
+      ]),
+    );
   });
 
   test("bidirectional-attention module JSON passes moduleRecordSchema", async () => {
@@ -157,7 +194,45 @@ describe("Phase 1 baseline registry records", () => {
     ]);
     expect(module.citationIds).toContain("citation.attention-is-all-you-need");
     expect(module.optimizes.length).toBeGreaterThan(0);
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
+  });
+
+  test("cross-attention module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/cross-attention.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.cross-attention");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("attention");
+    expect(module.moduleFamily).toBe("attention");
+    expect(module.tags).toEqual(["attention"]);
+    expect(module.aliases).toEqual(
+      expect.arrayContaining([
+        "cross attention",
+        "cross-attention",
+        "encoder-decoder attention",
+        "encoder decoder attention",
+      ]),
+    );
+    expect(module.variantGroup).toBe("attention-memory-sources");
+    expect(module.conceptType).toBe("attention-variant");
+    expect(module.primaryClassificationId).toBe(
+      "classification.module.attention",
+    );
+    expect(module.relatedIds).toEqual([
+      "module.attention",
+      "module.multi-head-attention",
+      "module.causal-attention",
+      "module.bidirectional-attention",
+      "concept.transformer-architecture",
+      "concept.encoder-decoder",
+      "concept.multimodal-model",
+    ]);
+    expect(module.citationIds).toContain("citation.attention-is-all-you-need");
+    expect(module.sidebarGrouping?.modules).toBe("attention-foundations");
+    expect(module.optimizes.length).toBeGreaterThan(0);
   });
 
   test("attention tag JSON passes tagRecordSchema", async () => {
@@ -167,6 +242,16 @@ describe("Phase 1 baseline registry records", () => {
     expect(tag.kind).toBe("tag");
     expect(tag.category).toBe("module-type");
     expect(tag.aliases.length).toBeGreaterThan(0);
+  });
+
+  test("alignment tag JSON passes tagRecordSchema", async () => {
+    const tag = await readRegistryJson("tags/alignment.json", tagRecordSchema);
+
+    expect(tag.id).toBe("tag.alignment");
+    expect(tag.kind).toBe("tag");
+    expect(tag.category).toBe("training");
+    expect(tag.parentTagId).toBe("tag.foundations");
+    expect(tag.relatedIds).toContain("concept.alignment");
   });
 
   test("bpe module JSON passes moduleRecordSchema", async () => {
@@ -206,13 +291,18 @@ describe("Phase 1 baseline registry records", () => {
 
     expect(concept.id).toBe("concept.tokenizers-overview");
     expect(concept.kind).toBe("concept");
-    expect(concept.status).toBe("draft");
+    expect(concept.status).toBe("published");
+    expect(concept.conceptType).toBe("architecture");
     expect(concept.tags).toContain("tokenization");
     expect(concept.prerequisiteIds).toContain("concept.token");
+    expect(concept.relatedIds).toContain("concept.transformer-architecture");
     expect(concept.explainsIds).toEqual([
       "module.bpe",
+      "module.byte-level-tokenization",
+      "module.clip-image-tokenization",
       "module.wordpiece",
       "module.sentencepiece",
+      "module.unigram-tokenizer",
     ]);
   });
 
@@ -224,12 +314,16 @@ describe("Phase 1 baseline registry records", () => {
 
     expect(module.id).toBe("module.wordpiece");
     expect(module.kind).toBe("module");
-    expect(module.status).toBe("draft");
+    expect(module.status).toBe("published");
     expect(module.moduleType).toBe("tokenizer");
     expect(module.moduleFamily).toBe("tokenization");
     expect(module.variantGroup).toBe("subword-tokenizers");
     expect(module.relatedIds).toContain("module.bpe");
     expect(module.relatedIds).toContain("module.sentencepiece");
+    expect(module.citationIds).toContain("citation.gnmt-wordpiece");
+    expect(module.citationIds).toContain(
+      "citation.bert-pre-training-of-deep-bidirectional-transformers",
+    );
   });
 
   test("sentencepiece module JSON passes moduleRecordSchema", async () => {
@@ -240,12 +334,61 @@ describe("Phase 1 baseline registry records", () => {
 
     expect(module.id).toBe("module.sentencepiece");
     expect(module.kind).toBe("module");
-    expect(module.status).toBe("draft");
+    expect(module.status).toBe("published");
     expect(module.moduleType).toBe("tokenizer");
     expect(module.moduleFamily).toBe("tokenization");
     expect(module.variantGroup).toBe("subword-tokenizers");
     expect(module.relatedIds).toContain("module.bpe");
     expect(module.relatedIds).toContain("module.wordpiece");
+    expect(module.citationIds).toContain("citation.kudo-sentencepiece");
+  });
+
+  test("tokenizer-mismatch module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/tokenizer-mismatch.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.tokenizer-mismatch");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("tokenizer");
+    expect(module.moduleFamily).toBe("tokenization");
+    expect(module.variantGroup).toBe("tokenizer-failure-modes");
+    expect(module.tags).toEqual(
+      expect.arrayContaining(["tokenization", "foundations"]),
+    );
+    expect(module.aliases).toEqual(
+      expect.arrayContaining([
+        "tokenizer mismatch",
+        "wrong tokenizer",
+        "special token mismatch",
+      ]),
+    );
+    expect(module.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.tokenizers-overview",
+        "module.bpe",
+        "module.wordpiece",
+        "module.sentencepiece",
+        "concept.special-tokens",
+        "concept.embedding",
+        "model.gpt-3",
+      ]),
+    );
+    expect(module.exampleModelIds).toContain("model.gpt-3");
+    expect(module.usedByModelIds).toContain("model.gpt-3");
+    expect(module.citationIds).toEqual(
+      expect.arrayContaining([
+        "citation.zero-shot-tokenizer-transfer",
+        "citation.sennrich-bpe",
+        "citation.hugging-face-chat-templates",
+        "citation.hugging-face-chat-templates-docs",
+      ]),
+    );
+    expect(module.releaseDate).toBeUndefined();
+    expect(module.authors).toBeUndefined();
+    expect(module.sourceId).toBeUndefined();
   });
 
   test("token concept JSON passes conceptRecordSchema", async () => {
@@ -276,10 +419,15 @@ describe("Phase 1 baseline registry records", () => {
     );
 
     expect(tag.id).toBe("tag.tokenization");
+    expect(tag.slug).toBe("tokenization");
     expect(tag.kind).toBe("tag");
     expect(tag.category).toBe("module-type");
     expect(tag.aliases).toEqual(
-      expect.arrayContaining(["tokenizer", "subword tokenization"]),
+      expect.arrayContaining([
+        "tokenizer",
+        "tokenizers",
+        "subword tokenization",
+      ]),
     );
   });
 
@@ -296,6 +444,88 @@ describe("Phase 1 baseline registry records", () => {
     expect(citation.title.length).toBeGreaterThan(0);
     expect(citation.url).toMatch(/^https:\/\//);
     expect(citation.mla.length).toBeGreaterThan(0);
+  });
+
+  test("dpo citation JSON passes citationRecordSchema", async () => {
+    const citation = await readRegistryJson(
+      "citations/direct-preference-optimization.json",
+      citationRecordSchema,
+    );
+
+    expect(citation.id).toBe("citation.direct-preference-optimization");
+    expect(citation.title).toContain("Direct Preference Optimization");
+    expect(citation.authors).toContain("Rafael Rafailov");
+    expect(citation.url).toBe("https://arxiv.org/abs/2305.18290");
+  });
+
+  test("dpo training regime JSON passes trainingRegimeRecordSchema", async () => {
+    const regime = await readRegistryJson(
+      "training-regimes/dpo.json",
+      trainingRegimeRecordSchema,
+    );
+
+    expect(regime.id).toBe("training-regime.dpo");
+    expect(regime.slug).toBe("dpo");
+    expect(regime.regimeType).toBe("alignment");
+    expect(regime.tags).toEqual(expect.arrayContaining(["alignment"]));
+    expect(regime.aliases).toEqual(
+      expect.arrayContaining(["DPO", "Direct Preference Optimization"]),
+    );
+    expect(regime.citationIds).toContain(
+      "citation.direct-preference-optimization",
+    );
+    expect(regime.relatedIds).toContain("concept.alignment");
+    expect(regime.sidebarGrouping).toBeUndefined();
+  });
+
+  test("pretraining training regime JSON passes trainingRegimeRecordSchema", async () => {
+    const regime = await readRegistryJson(
+      "training-regimes/pretraining.json",
+      trainingRegimeRecordSchema,
+    );
+
+    expect(regime.id).toBe("training-regime.pretraining");
+    expect(regime.slug).toBe("pretraining");
+    expect(regime.primaryClassificationId).toBe(
+      "classification.training.pretraining",
+    );
+    expect(regime.regimeType).toBe("pretraining");
+    expect(regime.tags).toEqual(
+      expect.arrayContaining(["foundations", "tokenization"]),
+    );
+    expect(regime.aliases).toEqual(
+      expect.arrayContaining([
+        "Pretraining",
+        "language model pretraining",
+        "base model training",
+      ]),
+    );
+    expect(regime.relatedIds).toEqual(
+      expect.arrayContaining([
+        "model.gpt-3",
+        "concept.transformer-architecture",
+        "module.byte-level-tokenization",
+        "concept.alignment",
+        "training-regime.dpo",
+      ]),
+    );
+    expect(regime.sidebarGrouping).toBeUndefined();
+  });
+
+  test("gpt-2-report citation JSON passes citationRecordSchema", async () => {
+    const citation = await readRegistryJson(
+      "citations/gpt-2-report.json",
+      citationRecordSchema,
+    );
+
+    expect(citation.id).toBe("citation.gpt-2-report");
+    expect(citation.kind).toBe("citation");
+    expect(citation.status).toBe("published");
+    expect(citation.authors).toEqual(
+      expect.arrayContaining(["Alec Radford", "Ilya Sutskever"]),
+    );
+    expect(citation.url).toContain("openai.com");
+    expect(citation.year).toBe(2019);
   });
 
   test("sennrich-bpe citation JSON passes citationRecordSchema", async () => {
@@ -318,11 +548,58 @@ describe("Phase 1 baseline registry records", () => {
     expect(citation.url).toBe("https://arxiv.org/abs/1508.07909");
   });
 
+  test("zero-shot-tokenizer-transfer citation JSON passes citationRecordSchema", async () => {
+    const citation = await readRegistryJson(
+      "citations/zero-shot-tokenizer-transfer.json",
+      citationRecordSchema,
+    );
+
+    expect(citation.id).toBe("citation.zero-shot-tokenizer-transfer");
+    expect(citation.kind).toBe("citation");
+    expect(citation.status).toBe("published");
+    expect(citation.authors).toEqual(
+      expect.arrayContaining(["Benjamin Minixhofer", "Ivan Vulic"]),
+    );
+    expect(citation.title).toBe("Zero-Shot Tokenizer Transfer");
+    expect(citation.url).toBe("https://arxiv.org/abs/2405.07883");
+  });
+
+  test("hugging-face chat template citations pass citationRecordSchema", async () => {
+    const blogCitation = await readRegistryJson(
+      "citations/hugging-face-chat-templates.json",
+      citationRecordSchema,
+    );
+    const docsCitation = await readRegistryJson(
+      "citations/hugging-face-chat-templates-docs.json",
+      citationRecordSchema,
+    );
+
+    expect(blogCitation.id).toBe("citation.hugging-face-chat-templates");
+    expect(blogCitation.citationType).toBe("blog");
+    expect(blogCitation.authors).toEqual(["Matthew Carrigan"]);
+    expect(blogCitation.url).toBe("https://huggingface.co/blog/chat-templates");
+
+    expect(docsCitation.id).toBe("citation.hugging-face-chat-templates-docs");
+    expect(docsCitation.citationType).toBe("documentation");
+    expect(docsCitation.authors).toEqual(["Hugging Face"]);
+    expect(docsCitation.url).toBe(
+      "https://huggingface.co/docs/transformers/chat_templating",
+    );
+  });
+
   test("Phase 1 starter records cross-reference via loadRegistry", async () => {
     const indexes = await loadRegistry();
 
     const module = indexes.byId.get("module.grouped-query-attention");
     expect(module?.kind).toBe("module");
+
+    const byteLevelTokenization = indexes.byId.get(
+      "module.byte-level-tokenization",
+    );
+    expect(byteLevelTokenization?.kind).toBe("module");
+    expect(indexes.bySlug.get("byte-level-tokenization")?.id).toBe(
+      "module.byte-level-tokenization",
+    );
 
     const concept = indexes.byId.get("concept.token");
     expect(concept?.kind).toBe("concept");
@@ -340,6 +617,16 @@ describe("Phase 1 baseline registry records", () => {
       expect(resolveTag(indexes, tagRef)).toBeDefined();
     }
     expect(resolveTag(indexes, "tokenization")?.id).toBe("tag.tokenization");
+
+    for (const tagRef of byteLevelTokenization?.tags ?? []) {
+      expect(resolveTag(indexes, tagRef)).toBeDefined();
+    }
+    for (const relatedId of byteLevelTokenization?.relatedIds ?? []) {
+      expect(indexes.byId.get(relatedId)).toBeDefined();
+    }
+    for (const citationId of byteLevelTokenization?.citationIds ?? []) {
+      expect(indexes.byId.get(citationId)?.kind).toBe("citation");
+    }
   });
 });
 

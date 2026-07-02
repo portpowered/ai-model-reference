@@ -1,0 +1,54 @@
+{
+  "id": "system.memory",
+  "slug": "memory",
+  "kind": "system",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "memory",
+    "serving memory",
+    "weight residency",
+    "KV cache growth",
+    "memory bandwidth"
+  ],
+  "tags": ["foundations", "kv-cache", "context-window"],
+  "relatedIds": [
+    "concept.prefill",
+    "concept.decode",
+    "concept.prefill-decode-split",
+    "concept.kv-cache",
+    "system.batching",
+    "system.continuous-batching",
+    "system.speculative-decoding",
+    "system.routing",
+    "system.inference-engine",
+    "system.deployment",
+    "system.on-disk-kv-cache"
+  ],
+  "citationIds": ["citation.orca-serving-system", "citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-22T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
+  "releaseDate": "2022-07-01",
+  "authors": [
+    "Gyeong-In Yu",
+    "Joo Seong Jeong",
+    "Geon-Woo Kim",
+    "Soojeong Kim",
+    "Byung-Gon Chun"
+  ],
+  "sourceId": "citation.orca-serving-system",
+  "systemType": "memory",
+  "relatedModelIds": [],
+  "relatedModuleIds": [],
+  "relatedConceptIds": [
+    "concept.prefill",
+    "concept.decode",
+    "concept.prefill-decode-split",
+    "concept.kv-cache"
+  ],
+  "paperIds": [],
+  "datasetIds": [],
+  "conceptType": "inference",
+  "variantGroup": "serving-runtime-foundations"
+}

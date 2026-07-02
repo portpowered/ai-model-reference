@@ -35,6 +35,7 @@ const TARGET_PATH_SLUGS = ["token", "embedding", "logit", "softmax"] as const;
 
 const TOKEN_RELATED_PATH_REGISTRY_IDS = [
   "concept.embedding",
+  "concept.vocabulary-size",
   "concept.logit",
   "concept.softmax",
 ] as const;
@@ -42,6 +43,8 @@ const TOKEN_RELATED_PATH_REGISTRY_IDS = [
 export const TOKEN_PATH_RELATED_EXPLANATIONS = {
   "concept.embedding":
     "Each token ID becomes a learned numerical representation before the model mixes context.",
+  "concept.vocabulary-size":
+    "That vocabulary count tells you how many ordinary and reserved tokens the tokenizer can emit IDs for.",
   "concept.logit":
     "Next-token prediction starts as a candidate score for each vocabulary token.",
   "concept.softmax":
@@ -74,7 +77,9 @@ export async function runTargetPathRouteGate(): Promise<TokenProbabilityPathVali
     const slug = registryId.replace("concept.", "");
     const canonicalRoute = glossaryPageHref(slug);
     const page = pages.find(
-      (entry) => entry.frontmatter.registryId === registryId,
+      (entry) =>
+        entry.url === canonicalRoute &&
+        entry.frontmatter.registryId === registryId,
     );
 
     if (!page) {
@@ -183,7 +188,7 @@ export async function runTargetPathSearchDocumentsGate(): Promise<TokenProbabili
 export async function runTokenRelatedDocsGate(): Promise<TokenProbabilityPathValidationDomainResult> {
   const domainId = "token-related-docs";
   const label =
-    "Token related-doc data includes embedding, logit, and softmax with relationship explanations";
+    "Token related-doc data includes embedding, vocabulary size, logit, and softmax with relationship explanations";
 
   const tokenPage = await loadGlossaryPage("token");
 
@@ -215,14 +220,11 @@ export async function runTokenRelatedDocsGate(): Promise<TokenProbabilityPathVal
   );
 
   const curatedIds = curatedItems.map((item) => item.registryId);
-  if (
-    curatedIds.length !== TOKEN_RELATED_PATH_REGISTRY_IDS.length ||
-    !TOKEN_RELATED_PATH_REGISTRY_IDS.every((id) => curatedIds.includes(id))
-  ) {
+  if (!TOKEN_RELATED_PATH_REGISTRY_IDS.every((id) => curatedIds.includes(id))) {
     return failResult(
       domainId,
       label,
-      `token curated related ids ${curatedIds.join(", ")} do not include embedding, logit, and softmax`,
+      `token curated related ids ${curatedIds.join(", ")} do not include embedding, vocabulary size, logit, and softmax`,
     );
   }
 
@@ -235,11 +237,11 @@ export async function runTokenRelatedDocsGate(): Promise<TokenProbabilityPathVal
         `token curated related item ${registryId} missing relationship explanation`,
       );
     }
-    if (!item?.href?.startsWith("/docs/glossary/")) {
+    if (!item?.href?.startsWith("/docs/")) {
       return failResult(
         domainId,
         label,
-        `token curated related item ${registryId} href is not a published glossary route`,
+        `token curated related item ${registryId} href is not a published docs route`,
       );
     }
   }

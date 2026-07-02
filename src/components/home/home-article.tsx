@@ -3,35 +3,28 @@ import {
   HomeBrowseList,
 } from "@/components/home/home-browse-link";
 import { HomeBrushHeader } from "@/components/home/home-brush-header";
-import { isDocsPageShippedForLocale } from "@/lib/content/pages";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
-import {
-  buildLocalizedRoute,
-  defaultLocale,
-  type SiteLocale,
-} from "@/lib/i18n/locale-routing";
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
+import type { SiteConfig } from "@/lib/site/site-config.contract";
+import { resolveSiteConfigHomeFeaturedLinks } from "@/lib/site/site-config-resolution";
 
 type HomeArticleProps = {
   messages: UiMessages;
+  siteConfig: SiteConfig;
   locale?: SiteLocale;
 };
 
-function buildHomeDocsPageHref(docsSlug: string, locale: SiteLocale): string {
-  const hrefLocale = isDocsPageShippedForLocale(docsSlug, locale)
-    ? locale
-    : defaultLocale;
-
-  return buildLocalizedRoute(
-    { surface: "docs-page", slug: docsSlug },
-    hrefLocale,
-  );
-}
-
 export function HomeArticle({
   messages,
+  siteConfig,
   locale = defaultLocale,
 }: HomeArticleProps) {
   const { home } = messages;
+  const featuredLinks = resolveSiteConfigHomeFeaturedLinks(
+    siteConfig,
+    messages,
+    locale,
+  );
 
   return (
     <article className="max-w-3xl">
@@ -49,29 +42,14 @@ export function HomeArticle({
           {home.browseSectionTitle}
         </h2>
         <HomeBrowseList ariaLabel={home.browseSectionTitle}>
-          <HomeBrowseLink
-            href={buildLocalizedRoute({ surface: "browse" }, locale)}
-            title={home.atlasLinkTitle}
-            description={home.atlasLinkDescription}
-          />
-          <HomeBrowseLink
-            href={buildHomeDocsPageHref(
-              "modules/grouped-query-attention",
-              locale,
-            )}
-            title={home.gqaLinkTitle}
-            description={home.gqaLinkDescription}
-          />
-          <HomeBrowseLink
-            href={buildHomeDocsPageHref("modules/swiglu", locale)}
-            title={home.swigluLinkTitle}
-            description={home.swigluLinkDescription}
-          />
-          <HomeBrowseLink
-            href={buildHomeDocsPageHref("modules/relu", locale)}
-            title={home.reluLinkTitle}
-            description={home.reluLinkDescription}
-          />
+          {featuredLinks.map((link) => (
+            <HomeBrowseLink
+              key={link.href}
+              href={link.href}
+              title={link.title}
+              description={link.description}
+            />
+          ))}
         </HomeBrowseList>
       </section>
     </article>

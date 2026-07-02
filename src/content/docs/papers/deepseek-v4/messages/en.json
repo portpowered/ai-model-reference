@@ -3,10 +3,6 @@
   "description": "A technical report that bundles DeepSeek-V4 architecture, long-context attention, post-training methods, and serving systems into one connected release.",
   "openingSummary": "DeepSeek-V4 matters because it is not one isolated trick. The report ties together new block wiring, long-context attention, post-training routines, and serving systems so the model can keep reasoning depth while staying deployable at very long context lengths.",
   "sections": {
-    "whatThePaperIntroduced": {
-      "title": "What The Paper Introduced",
-      "body": "The report introduces the DeepSeek-V4-Pro and DeepSeek-V4-Flash models, manifold-constrained hyper-connections inside the backbone, compressed sparse attention and heavily compressed attention for million-token context, DeepSeekMoE routing changes, several post-training methods, and two important serving systems: on-disk KV cache and expert-parallel overlap."
-    },
     "whyItMatters": {
       "title": "Why It Matters",
       "body": "Many papers improve only one layer of the stack. DeepSeek-V4 is more useful as a reference because it shows how model architecture, post-training, quantization, and serving choices can be designed together."
@@ -23,12 +19,8 @@
       "title": "Limitations",
       "body": "The paper is broad, which means some components are described at a systems level rather than with one clean ablation each. Readers should treat several claims as stack-level evidence, not as perfect proof that one isolated mechanism is always the cause."
     },
-    "whatItConnectsTo": {
-      "title": "What It Connects To",
-      "body": "This expandable list comes directly from paper metadata rather than inferred similarity. It is the fast map from the report to the reusable records it touches."
-    },
     "related": {
-      "title": "Related Reference Pages"
+      "title": "Related To"
     },
     "tags": {
       "title": "Tags"

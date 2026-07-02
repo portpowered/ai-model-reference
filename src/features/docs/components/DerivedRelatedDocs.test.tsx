@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 
 describe("DerivedRelatedDocs", () => {
-  test("renders same-variant-group peers with reason labels for GQA", () => {
+  test("upgrades legacy same-variant-group requests to ontology classification siblings", () => {
     const html = renderToStaticMarkup(
       <DerivedRelatedDocs
         registryId="module.grouped-query-attention"
@@ -12,12 +12,52 @@ describe("DerivedRelatedDocs", () => {
     );
 
     expect(html).toContain('data-testid="derived-related-docs"');
-    expect(html).toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('data-related-group="classification-siblings"');
+    expect(html).toContain("Same classification: attention mechanisms");
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain("MHA");
     expect(html).toContain("MQA");
-    expect(html).toContain("Same variant group");
+    expect(html).toContain("Same classification");
+  });
+
+  test("expands legacy module peer requests into ontology-first groups for ontology-backed pages", () => {
+    const html = renderToStaticMarkup(
+      <DerivedRelatedDocs
+        registryId="module.standard-ffn"
+        groups={["same-variant-group"]}
+      />,
+    );
+
+    expect(html).toContain('data-testid="derived-related-docs"');
+    expect(html).toContain('data-related-group="direct-relationships"');
+    expect(html).toContain('data-related-group="classification-siblings"');
+    expect(html).toContain('data-related-group="shared-parent-classification"');
+    expect(html).not.toContain(
+      'data-related-group="compatibility-same-variant-group"',
+    );
+    expect(html).toContain('href="/docs/modules/feed-forward-network"');
+    expect(html).toContain('href="/docs/modules/swiglu"');
+    expect(html).toContain('href="/docs/modules/relu"');
+    expect(html).toContain("Direct variant relationship");
+    expect(html).toContain("Same classification");
+    expect(html).toContain("Shared parent classification");
+  });
+
+  test("renders direct ontology relationships for standard FFN", () => {
+    const html = renderToStaticMarkup(
+      <DerivedRelatedDocs
+        registryId="module.standard-ffn"
+        groups={["direct-relationships"]}
+      />,
+    );
+
+    expect(html).toContain('data-testid="derived-related-docs"');
+    expect(html).toContain('data-related-group="direct-relationships"');
+    expect(html).toContain('href="/docs/modules/feed-forward-network"');
+    expect(html).toContain('href="/docs/concepts/activation"');
+    expect(html).toContain("Direct variant relationship");
+    expect(html).toContain("Uses this topic");
   });
 
   test("renders shared-tags peers for the token concept glossary page", () => {
@@ -33,7 +73,14 @@ describe("DerivedRelatedDocs", () => {
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain("Shared tag");
-    expect(html).toContain('data-related-group="same-concept-type"');
+    expect(html).toContain(
+      'data-related-group="compatibility-same-concept-type"',
+    );
+    expect(html).not.toContain('data-related-group="direct-relationships"');
+    expect(html).not.toContain('data-related-group="classification-siblings"');
+    expect(html).not.toContain(
+      'data-related-group="shared-parent-classification"',
+    );
     expect(html).toContain('href="/docs/glossary/transformer"');
   });
 

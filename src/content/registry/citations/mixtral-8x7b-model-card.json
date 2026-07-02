@@ -1,0 +1,24 @@
+{
+  "id": "citation.mixtral-8x7b-model-card",
+  "slug": "mixtral-8x7b-model-card",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Mixtral-8x7B model card",
+    "mistralai/Mixtral-8x7B-v0.1",
+    "Mixtral 8x7B Hugging Face model card"
+  ],
+  "tags": ["foundations", "model-family", "feed-forward"],
+  "relatedIds": ["citation.mixtral-8x7b-release"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["Mistral AI"],
+  "title": "Model Card for Mixtral-8x7B",
+  "url": "https://huggingface.co/mistralai/Mixtral-8x7B-v0.1",
+  "mla": "Mistral AI. \"Model Card for Mixtral-8x7B.\" Hugging Face, 2023.",
+  "year": 2023
+}

@@ -1,0 +1,24 @@
+{
+  "id": "citation.mixtral-8x7b-release",
+  "slug": "mixtral-8x7b-release",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Mixtral of experts",
+    "Mixtral 8x7B release",
+    "Mixtral 8x7B blog post"
+  ],
+  "tags": ["foundations", "model-family", "feed-forward"],
+  "relatedIds": ["citation.mixtral-8x7b-model-card"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["Mistral AI"],
+  "title": "Mixtral of experts",
+  "url": "https://mistral.ai/news/mixtral-of-experts",
+  "mla": "Mistral AI. \"Mixtral of experts.\" Mistral AI, December 2023.",
+  "year": 2023
+}

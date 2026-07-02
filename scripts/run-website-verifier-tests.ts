@@ -26,6 +26,9 @@ const websiteVerifierPatterns = [
   /home-search-entry-convergence(-http)?\.test\.ts$/,
   /linear-attention-module-convergence\.test\.ts$/,
   /multi-head-latent-attention-module-convergence\.test\.ts$/,
+  /multi-token-prediction-module-graph-viewport-http\.test\.ts$/,
+  /diffusion-transformer-block-module-convergence\.test\.ts$/,
+  /diffusion-transformer-block-module-graph-viewport-http\.test\.ts$/,
   /reader-convergence-http\.test\.ts$/,
   /reader-route-checks\.test\.ts$/,
   /reader-route-content-convergence(-http)?\.test\.ts$/,
@@ -42,6 +45,7 @@ const websiteVerifierPatterns = [
   /sliding-window-attention-module-convergence\.test\.ts$/,
   /sparse-attention-module-convergence\.test\.ts$/,
   /static-export-gqa-graph-hydration-http\.test\.ts$/,
+  /static-export-mtp-graph-hydration-http\.test\.ts$/,
   /static-export-search-.*-http\.test\.ts$/,
   /tags-navigation-convergence(-http)?\.test\.ts$/,
 ];

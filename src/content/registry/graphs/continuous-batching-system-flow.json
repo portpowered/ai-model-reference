@@ -1,0 +1,109 @@
+{
+  "id": "graph.continuous-batching-system-flow",
+  "slug": "continuous-batching-system-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["continuous batching system flow", "decode refill system flow"],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [],
+  "citationIds": ["citation.orca-serving-system"],
+  "status": "published",
+  "createdAt": "2026-06-22T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
+  "subjectId": "system.continuous-batching",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "queue",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "queue",
+      "labelKey": "graph.nodes.queue.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 210, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["active"]
+    },
+    {
+      "id": "active",
+      "labelKey": "graph.nodes.active.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 220, "height": 90 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["decode", "refill"]
+    },
+    {
+      "id": "decode",
+      "labelKey": "graph.nodes.decode.label",
+      "moduleKind": "operation",
+      "position": { "x": 120, "y": 260 },
+      "size": { "width": 190, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["complete"]
+    },
+    {
+      "id": "refill",
+      "labelKey": "graph.nodes.refill.label",
+      "moduleKind": "other",
+      "position": { "x": 380, "y": 260 },
+      "size": { "width": 220, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["decode"]
+    },
+    {
+      "id": "complete",
+      "labelKey": "graph.nodes.complete.label",
+      "moduleKind": "output",
+      "position": { "x": 120, "y": 400 },
+      "size": { "width": 190, "height": 80 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "queue-active",
+      "source": "queue",
+      "target": "active",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "active-decode",
+      "source": "active",
+      "target": "decode",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "decode-complete",
+      "source": "decode",
+      "target": "complete",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "active-refill",
+      "source": "active",
+      "target": "refill",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "refill-decode",
+      "source": "refill",
+      "target": "decode",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "left",
+      "targetHandleSide": "right"
+    }
+  ]
+}

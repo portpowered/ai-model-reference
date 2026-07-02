@@ -82,10 +82,10 @@ export async function listPublishedGlossaryPages(
   const locale = options.locale ?? defaultLocale;
 
   if (options.contentRoot) {
-    const { loadPublishedDocsPages } = await import("./pages");
+    const { loadShippedLocalizedDocsPages } = await import("./pages");
     try {
       const pages = (
-        await loadPublishedDocsPages(locale, options.contentRoot)
+        await loadShippedLocalizedDocsPages(locale, options.contentRoot)
       ).filter((page) => page.frontmatter.kind === "glossary");
       return sortGlossaryEntriesByTitle(pages.map(toGlossaryEntry), locale).map(
         toGlossaryPageListing,

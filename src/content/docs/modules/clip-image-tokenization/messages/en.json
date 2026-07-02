@@ -1,0 +1,154 @@
+{
+  "title": "CLIP Image Tokenization",
+  "description": "A vision tokenizer that turns fixed-size image patches into embedding vectors for transformer-style image encoders.",
+  "openingSummary": "CLIP-style image tokenization divides an image into a grid of fixed-size patches, projects each patch into a vector token, and feeds that patch-token sequence into a transformer-style image encoder. These patch tokens are not text tokens; they are learned visual units that let vision models reuse the same attention machinery as language models.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "CLIP image tokenization is a vision tokenizer that converts a raw image into a sequence of patch tokens. The image is split into a regular grid of small squares, each square is flattened into a pixel vector, and a learned linear projection turns that vector into one embedding token. The resulting tokens are the discrete units a vision transformer consumes, similar in role to text tokens in a language model but built from local image regions instead of characters or subwords."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Transformer blocks expect a sequence of vectors, not a raw height-by-width pixel grid. Image tokenization bridges that gap by turning local image structure into a fixed-length token stream the encoder can process with self-attention. A regular patch grid also keeps the input shape predictable, which simplifies batching, position handling, and reuse of standard transformer stacks across images of the same resolution."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "A typical CLIP-style vision encoder starts from a square image such as 224×224 pixels. A patch size of 16×16 yields a 14×14 grid, so the tokenizer produces 196 patch tokens before any optional class token is added. Each patch is flattened into a vector of raw pixel values, then multiplied by a learned projection matrix to produce one embedding per patch. Those embeddings form the token sequence passed into the image encoder. Position information is added separately through positional embeddings or another position mechanism, because the patch tokenizer itself mainly defines what each token represents, not where it sits in the grid."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The two formulas below separate the tokenizer into its two core steps. First, the image becomes a grid of patches. Second, each patch vector is projected into one embedding token."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Text tokenizers such as byte pair encoding (BPE) build tokens from learned text pieces or bytes. CLIP image tokenization instead builds tokens from fixed spatial patches in a pixel grid. Both produce a sequence the model can attend over, but the input alphabet, training objective, and failure modes differ. Image patch tokens inherit local visual context from their square region; text tokens inherit linguistic context from subword statistics."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "CLIP pairs this patch-token image encoder with a separate text encoder so image and caption embeddings can be aligned in one shared space. Vision Transformer (ViT) systems use the same patch-token pattern for image classification and later multimodal stacks extend it with cross-attention to text. Readers encounter the mechanism whenever a vision model advertises patch size, image resolution, or ViT-style encoding."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Patch size fixes the local context each token can see. Smaller patches preserve finer detail but increase sequence length and compute. Larger patches shorten the sequence but blur fine structure. The tokenizer also assumes a fixed input resolution at training time, so changing image size later usually requires re-tiling, interpolation, or a different position scheme rather than a simple vocabulary swap."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Patch-based image tokenization is the default front door for transformer vision encoders and many multimodal models built on top of them. Understanding how images become patch tokens explains why vision models report patch counts, why positional embeddings matter for grid order, and why image inputs are not interchangeable with text tokenizer outputs even when both are called tokens."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "CLIP image tokenization flow from input image through patch grid, flattening, linear projection, patch token embeddings, and transformer encoder input"
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "clipImage": {
+          "title": "CLIP Image Tokenization"
+        },
+        "bpe": {
+          "title": "BPE"
+        }
+      },
+      "dimensions": {
+        "inputType": "Input type",
+        "baseUnit": "Base unit",
+        "outputForm": "Output form",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "clipImage": {
+          "inputType": "Fixed-resolution images",
+          "baseUnit": "Equal-size pixel patches from a regular grid",
+          "outputForm": "One learned embedding vector per patch",
+          "mainTradeoff": "Simple and resolution-stable, but patch size locks local detail and sequence length"
+        },
+        "bpe": {
+          "inputType": "Unicode text strings",
+          "baseUnit": "Learned subword pieces built from frequent symbol merges",
+          "outputForm": "Discrete token ids from a text vocabulary",
+          "mainTradeoff": "Flexible open-vocabulary text coverage, but pieces are linguistic rather than spatial"
+        }
+      }
+    }
+  },
+  "math": {
+    "patchSplitSchema": {
+      "label": "Patch grid from one image",
+      "formula": "P = \\{p_{1,1}, \\ldots, p_{H,W}\\}",
+      "variableDefinitions": {
+        "P": {
+          "term": "P",
+          "definition": "Set of non-overlapping image patches covering the input."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of patch rows after tiling the image."
+        },
+        "w": {
+          "term": "W",
+          "definition": "Number of patch columns after tiling the image."
+        },
+        "pij": {
+          "term": "p_{i,j}",
+          "definition": "Flattened pixel vector for the patch at grid row i and column j."
+        }
+      }
+    },
+    "patchProjectionSchema": {
+      "label": "Linear projection of one patch",
+      "formula": "z_i = W p_i + b",
+      "variableDefinitions": {
+        "zi": {
+          "term": "z_i",
+          "definition": "Embedding vector for patch i after projection."
+        },
+        "W": {
+          "term": "W",
+          "definition": "Learned projection matrix shared across patches."
+        },
+        "pi": {
+          "term": "p_i",
+          "definition": "Flattened pixel vector for patch i."
+        },
+        "b": {
+          "term": "b",
+          "definition": "Learned bias vector added after projection."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputImage": {
+        "label": "Input image"
+      },
+      "patchGrid": {
+        "label": "Split into fixed-size patches"
+      },
+      "flattenPatches": {
+        "label": "Flatten each patch to a pixel vector"
+      },
+      "linearProjection": {
+        "label": "Project each patch with a learned matrix"
+      },
+      "patchTokens": {
+        "label": "Patch embedding tokens"
+      },
+      "encoderInput": {
+        "label": "Token sequence for image encoder"
+      }
+    }
+  }
+}

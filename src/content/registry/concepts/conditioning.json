@@ -12,10 +12,14 @@
   ],
   "tags": ["foundations", "taxonomy"],
   "relatedIds": [
+    "concept.special-tokens",
     "concept.autoregressive-generation",
     "concept.denoising-generation"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.classifier-free-diffusion-guidance",
+    "citation.brown-gpt-3"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T11:46:45.985Z",
   "updatedAt": "2026-06-04T12:50:00.000Z",

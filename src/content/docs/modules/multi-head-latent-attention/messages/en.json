@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Multi-head latent attention (MLA) is an attention variant derived from multi-head attention. It keeps multiple query heads but projects keys and values into a shared low-rank latent space that is cached during autoregressive decoding."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "MLA targets key-value cache size, memory bandwidth during autoregressive decoding, and the cost of serving long contexts when full per-head key-value tensors would otherwise dominate memory."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Teams adopt MLA when they need multiple query heads but want a smaller inference cache than full multi-head attention. MLA compresses stored key-value state more aggressively than grouped-query or multi-query sharing alone by caching a latent representation instead of full head tensors."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Multi-head attention versus multi-head latent attention key-value cache comparison",
-      "caption": "Toggle multi-head attention and multi-head latent attention to compare full per-head key-value storage against compressed latent caching on one canvas.",
       "variants": {
         "mha": {
           "label": "Multi-head"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How multi-head latent attention compares with nearby attention variants"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

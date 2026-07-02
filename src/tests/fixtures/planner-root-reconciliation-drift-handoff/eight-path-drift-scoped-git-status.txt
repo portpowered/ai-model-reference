@@ -1,0 +1,9 @@
+## main...origin/main
+ M docs/internal/processes/factory-linkage-relevant-files.md
+ M scripts/report-planner-root-checkout-reconciliation.ts
+ M src/lib/factory/planner-root-checkout-reconciliation.test.ts
+ M src/lib/factory/planner-root-checkout-reconciliation.ts
+ M src/tests/discovery/planner-root-checkout-reconciliation.test.ts
+ M src/tests/fixtures/planner-root-checkout-reconciliation/manual-inspection-shared-edits-dirty-status.txt
+ M src/tests/fixtures/planner-root-checkout-reconciliation/table-registry-drift-dirty-status.txt
+ D src/tests/fixtures/planner-root-checkout-reconciliation/tokenizer-mismatch-dirty-status.txt

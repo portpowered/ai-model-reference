@@ -3,7 +3,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { Agent, get as httpGet } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { httpGetText } from "./http-harness";
+import {
+  httpGetText,
+  VERIFY_PORT_RANGE_END,
+  VERIFY_PORT_RANGE_START,
+} from "./http-harness";
 import { createStaticExportHttpServer } from "./static-export-http-server";
 
 describe("createStaticExportHttpServer", () => {
@@ -72,4 +76,39 @@ describe("createStaticExportHttpServer", () => {
       rmSync(root, { recursive: true, force: true });
     }
   });
+
+  test.serial(
+    "default port allocation stays in range and does not collide across concurrent starts",
+    async () => {
+      const roots = Array.from({ length: 4 }, () =>
+        mkdtempSync(join(tmpdir(), "static-export-server-")),
+      );
+      for (const root of roots) {
+        writeFileSync(join(root, "index.html"), "<html>home</html>");
+      }
+
+      const sessions = await Promise.all(
+        roots.map((root) =>
+          createStaticExportHttpServer({
+            outDir: root,
+          }),
+        ),
+      );
+
+      try {
+        const ports = sessions.map((session) => session.port);
+        expect(new Set(ports).size).toBe(sessions.length);
+        for (const port of ports) {
+          expect(port).toBeGreaterThanOrEqual(VERIFY_PORT_RANGE_START);
+          expect(port).toBeLessThanOrEqual(VERIFY_PORT_RANGE_END);
+          expect(port).not.toBe(3000);
+        }
+      } finally {
+        await Promise.all(sessions.map((session) => session.cleanup()));
+        for (const root of roots) {
+          rmSync(root, { recursive: true, force: true });
+        }
+      }
+    },
+  );
 });

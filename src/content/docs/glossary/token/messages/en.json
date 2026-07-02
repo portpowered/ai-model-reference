@@ -33,8 +33,20 @@
     }
   },
   "relatedDocs": {
+    "module.byte-level-tokenization": {
+      "reason": "Byte-level tokenization shows why tokenizer output does not have to line up with whole words."
+    },
+    "concept.special-tokens": {
+      "reason": "Special tokens show which reserved markers the tokenizer keeps aside for boundaries, padding, and control signals."
+    },
+    "concept.tokenizers-overview": {
+      "reason": "Use the broader tokenizer-family page when you want the preprocessing step, nearby algorithms, and context-cost tradeoffs rather than just the definition of one token."
+    },
     "concept.embedding": {
       "reason": "Each token ID becomes a learned numerical representation before the model mixes context."
+    },
+    "concept.vocabulary-size": {
+      "reason": "That vocabulary count tells you how many ordinary and reserved tokens the tokenizer can emit IDs for."
     },
     "concept.logit": {
       "reason": "Next-token prediction starts as a candidate score for each vocabulary token."

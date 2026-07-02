@@ -1,0 +1,25 @@
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "blockSparse",
+    "variants": [
+      {
+        "variantId": "mha",
+        "graphId": "graph.multi-head-attention-time-pattern",
+        "labelKey": "assets.computeFlow.variants.mha.label"
+      },
+      {
+        "variantId": "blockSparse",
+        "graphId": "graph.block-sparse-attention-time-block-pattern",
+        "labelKey": "assets.computeFlow.variants.blockSparse.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.block-sparse-attention-comparison"
+  }
+}

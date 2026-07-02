@@ -3,7 +3,8 @@
 import { Check, Globe } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -76,6 +77,7 @@ function buildLocaleOption(
 export function LanguageSwitcher({ locale, messages }: LanguageSwitcherProps) {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const [hovered, setHovered] = useState(false);
   const currentSearch =
     searchParams?.toString() ||
     (typeof window === "undefined" ? "" : window.location.search.slice(1));
@@ -92,11 +94,21 @@ export function LanguageSwitcher({ locale, messages }: LanguageSwitcherProps) {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button
+          <button
             type="button"
-            variant="outline"
-            size="icon"
             aria-label={messages.language.open}
+            className={`${buttonVariants({ variant: "outline", size: "icon" })} header-action-icon`}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={
+              hovered
+                ? {
+                    backgroundColor:
+                      "color-mix(in oklch, var(--secondary), var(--foreground) 5%)",
+                    color: "var(--foreground)",
+                  }
+                : undefined
+            }
           />
         }
       >

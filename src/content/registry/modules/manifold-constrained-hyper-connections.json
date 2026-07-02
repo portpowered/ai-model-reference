@@ -14,11 +14,9 @@
   "releaseDate": "2026-06-13",
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
+  "primaryClassificationId": "classification.module.transformer-block",
   "moduleType": "other",
   "optimizes": ["depth-stability", "information-routing"],
-  "practicalBenefits": [
-    "lets many layers exchange richer state without fully widening every residual path"
-  ],
   "exampleModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "improvesOnIds": [],
   "tradeoffIds": [],

@@ -44,6 +44,10 @@ const ALLOWED_CHAIN_CONCEPT_TYPES = new Set([
   "architecture",
 ]);
 
+const ALLOWED_CHAIN_PRIMARY_CLASSIFICATIONS = new Set([
+  "classification.concept.architecture.activation",
+]);
+
 async function readRegistryJson<T>(
   relativePath: string,
   schema: { safeParse: (value: unknown) => { success: boolean; data?: T } },
@@ -82,7 +86,7 @@ describe("Phase 2 token-to-probability chain registry (US-001)", () => {
     expect(tag.parentTagId).toBe("tag.foundations");
   });
 
-  test("fourteen chain concepts pass conceptRecordSchema with chain tag and conceptType", async () => {
+  test("fourteen chain concepts pass conceptRecordSchema with chain tag and supported ontology metadata", async () => {
     for (const id of CHAIN_CONCEPT_IDS) {
       const slug = id.replace("concept.", "");
       const concept = await readRegistryJson(
@@ -92,7 +96,12 @@ describe("Phase 2 token-to-probability chain registry (US-001)", () => {
       expect(concept.id).toBe(id);
       expect(concept.kind).toBe("concept");
       expect(concept.tags).toContain(CHAIN_TAG_SLUG);
-      expect(ALLOWED_CHAIN_CONCEPT_TYPES.has(concept.conceptType)).toBe(true);
+      expect(
+        ALLOWED_CHAIN_CONCEPT_TYPES.has(concept.conceptType ?? "") ||
+          ALLOWED_CHAIN_PRIMARY_CLASSIFICATIONS.has(
+            concept.primaryClassificationId ?? "",
+          ),
+      ).toBe(true);
     }
   });
 

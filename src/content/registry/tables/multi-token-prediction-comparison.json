@@ -1,0 +1,49 @@
+{
+  "id": "table.multi-token-prediction-comparison",
+  "subjectId": "module.multi-token-prediction",
+  "columns": [
+    {
+      "moduleId": "training-regime.pretraining",
+      "titleKey": "tables.comparison.columns.nextToken.title"
+    },
+    {
+      "moduleId": "module.multi-token-prediction",
+      "titleKey": "tables.comparison.columns.mtp.title"
+    },
+    {
+      "moduleId": "system.speculative-decoding",
+      "titleKey": "tables.comparison.columns.speculativeDecoding.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "predictionTargets",
+      "labelKey": "tables.comparison.dimensions.predictionTargets"
+    },
+    {
+      "id": "trainingRole",
+      "labelKey": "tables.comparison.dimensions.trainingRole"
+    },
+    {
+      "id": "inferenceRole",
+      "labelKey": "tables.comparison.dimensions.inferenceRole"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "training-regime.pretraining": {
+      "predictionTargets": "tables.comparison.values.nextToken.predictionTargets",
+      "trainingRole": "tables.comparison.values.nextToken.trainingRole",
+      "inferenceRole": "tables.comparison.values.nextToken.inferenceRole"
+    },
+    "module.multi-token-prediction": {
+      "predictionTargets": "tables.comparison.values.mtp.predictionTargets",
+      "trainingRole": "tables.comparison.values.mtp.trainingRole",
+      "inferenceRole": "tables.comparison.values.mtp.inferenceRole"
+    },
+    "system.speculative-decoding": {
+      "predictionTargets": "tables.comparison.values.speculativeDecoding.predictionTargets",
+      "trainingRole": "tables.comparison.values.speculativeDecoding.trainingRole",
+      "inferenceRole": "tables.comparison.values.speculativeDecoding.inferenceRole"
+    }
+  }
+}

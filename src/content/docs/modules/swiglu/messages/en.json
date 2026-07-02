@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "The swish gated linear unit (SwiGLU) is a gated feed-forward design used in many modern language models. Instead of using one expanded hidden branch, the layer creates a value branch and a gate branch. The gate branch passes through SiLU, then scales the value branch element by element before the layer projects back to the model width."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "SwiGLU optimizes for a more selective dense hidden path. Instead of treating every hidden feature the same way, it lets a learned gate strengthen or suppress each feature before the final projection."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "SwiGLU helps explain why many modern models get better feature filtering without switching to sparse experts. The overall transformer block still has the same feed-forward slot, but the inside of that slot becomes more selective."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Comparison graph showing a standard feed-forward layer versus a swish gated linear unit path with value and SiLU gate branches",
-      "caption": "Switch between the standard feed-forward layer and SwiGLU to see exactly where the extra gate branch appears.",
       "variants": {
         "standard": {
           "label": "Standard feed-forward"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How swish gated linear unit compares with nearby feed-forward variants"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {
@@ -158,6 +151,10 @@
       "inputState": {
         "label": "Token state h_t"
       },
+      "swigluModule": {
+        "label": "SwiGLU",
+        "summary": "This canonical node names the full SwiGLU module so readers can open the main docs page while the rest of the graph explains the internal branch structure."
+      },
       "valueProjection": {
         "label": "Value projection W_v"
       },
@@ -168,10 +165,12 @@
         "label": "Value branch"
       },
       "gateActivation": {
-        "label": "SiLU gate"
+        "label": "SiLU",
+        "summary": "This canonical SiLU node shows the activation that shapes the gate branch before the gate scales the value path."
       },
       "gatedProduct": {
-        "label": "Elementwise multiply"
+        "label": "Elementwise multiply",
+        "summary": "This graph-local operator multiplies the value path by the SiLU-shaped gate, which is the moment the two branches become one SwiGLU update."
       },
       "projectBack": {
         "label": "Project back with W_o"

@@ -45,26 +45,28 @@ describe("Phase 2 planned related docs (US-002)", () => {
     }
   });
 
-  test("RelatedDocs renders published token forward link to embedding", () => {
+  test("RelatedDocs renders published token forward links including special tokens and embedding", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="concept.token" />,
     );
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain("special token");
+    expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain("embeddings");
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
   });
 
   test("RelatedDocs renders GQA curated links to attention overview and sibling variants", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="module.grouped-query-attention" />,
     );
-    expect(html).toContain('data-related-group="same-variant-group"');
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('data-related-group="classification-siblings"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-latent-attention"');
-    expect(html).toContain("Same variant group");
+    expect(html).toContain("Same classification");
     expect(html).toContain("curated");
   });
 
@@ -103,10 +105,12 @@ describe("Phase 2 planned related docs (US-002)", () => {
     );
 
     expect(html).toContain('data-testid="derived-related-docs"');
-    expect(html).toContain('data-related-group="same-concept-type"');
+    expect(html).toContain(
+      'data-related-group="compatibility-same-concept-type"',
+    );
     expect(html).toContain("Transformers");
     expect(html).toContain('href="/docs/glossary/transformer"');
-    expect(html).toContain("Same concept type");
+    expect(html).toContain("Compatibility: same concept type");
   });
 
   test("DerivedRelatedDocs still renders navigable links for published module peers", () => {

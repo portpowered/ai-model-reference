@@ -1,0 +1,26 @@
+{
+  "id": "classification.module.feed-forward",
+  "slug": "feed-forward-networks",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "feed-forward network",
+    "FFN family",
+    "MLP block family",
+    "feed-forward-networks"
+  ],
+  "tags": ["feed-forward", "foundations"],
+  "relatedIds": ["module.feed-forward-network", "module.standard-ffn"],
+  "citationIds": [
+    "citation.multilayer-feedforward-networks-are-universal-approximators",
+    "citation.attention-is-all-you-need"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["module"],
+  "parentClassificationId": "classification.module",
+  "legacyIds": ["classification.feed-forward-networks"]
+}

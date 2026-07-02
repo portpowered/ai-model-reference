@@ -23,11 +23,19 @@
   "status": "published",
   "createdAt": "2026-06-08T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2021-04-01",
+  "authors": [
+    "Jianlin Su",
+    "Yu Lu",
+    "Shengfeng Pan",
+    "Wenbo Liu",
+    "Bo Wen",
+    "Yunfeng Liu"
+  ],
+  "sourceId": "citation.su-roformer-rope",
+  "primaryClassificationId": "classification.module.positional-encoding",
   "moduleType": "position-encoding",
   "optimizes": ["relative-position-awareness"],
-  "practicalBenefits": [
-    "preserves relative position cues inside attention rotations"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

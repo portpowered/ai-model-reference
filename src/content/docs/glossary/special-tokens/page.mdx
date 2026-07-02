@@ -1,0 +1,69 @@
+---
+title: Special Tokens
+description: Reserved tokenizer markers such as beginning-of-sequence, end-of-sequence, padding, and separators that carry structural meaning instead of ordinary text meaning.
+kind: "glossary"
+registryId: "concept.special-tokens"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - tokenization
+  - foundations
+aliases:
+  - "special token"
+  - "special tokens"
+  - "control token"
+  - "control tokens"
+  - "BOS token"
+  - "EOS token"
+  - "padding token"
+  - "separator token"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="where-you-see-them" titleKey="sections.whereYouSeeThem.title">
+  <T k="sections.whereYouSeeThem.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/glossary/token", labelKey: "links.token" },
+      { href: "/docs/modules/bpe", labelKey: "links.bpe" },
+      { href: "/docs/glossary/conditioning", labelKey: "links.conditioning" },
+      { href: "/docs/concepts/prefill", labelKey: "links.prefill" },
+    ]}
+  />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="concept.special-tokens" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.special-tokens" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.special-tokens" />
+</Section>

@@ -1,0 +1,60 @@
+{
+  "title": "Learning Transferable Visual Models From Natural Language Supervision",
+  "description": "The CLIP paper introduced contrastive language-image pretraining with separate image and text encoders that map paired captions and images into one shared embedding space.",
+  "openingSummary": "Learning Transferable Visual Models From Natural Language Supervision, usually called CLIP (Contrastive Language-Image Pretraining), trains separate image and text encoders on large collections of image-caption pairs so that matching pairs land close together in one shared embedding space while mismatched pairs are pushed apart.",
+  "sections": {
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Before CLIP, many vision systems needed task-specific labels or fine-tuning for every new category. CLIP showed that web-scale image-caption pairs already carry useful supervision: the caption names what is in the image. By learning from those pairs with a contrastive objective, one pretrained model can compare images and text directly. That made zero-shot classification through text prompts practical, gave multimodal systems a common representation to build on, and later helped text-conditioned image models route natural-language intent into visual features without retraining the whole stack for every prompt."
+    },
+    "methodOrArchitecture": {
+      "title": "Method Or Architecture",
+      "body": "CLIP keeps two encoders. An image encoder (often a Vision Transformer or ResNet variant) turns each image into a vector. A text encoder (a transformer over the caption tokens) turns each caption into another vector. Both vectors live in the same embedding space with the same dimension. Training samples a batch of image-caption pairs. For each image, the model should score highest against its own caption and lower against every other caption in the batch, and the same rule applies from the text side. That image-text contrastive training pulls true pairs together and pushes unrelated pairs apart. After pretraining, similarity in the shared embedding space becomes a direct measure of whether an image and a phrase belong together, which supports retrieval, open-vocabulary labeling, and later multimodal or conditioning pipelines that need aligned vision-language features."
+    },
+    "evidence": {
+      "title": "Evidence",
+      "body": "The paper's central evidence is transfer rather than a single benchmark headline. The same pretrained encoders can classify images by comparing them to hand-written text prompts such as \"a photo of a dog\" without training a separate classifier head for each category. The pattern matters more than any one score: contrastive pretraining on noisy web captions still yields representations that generalize across datasets and tasks. That made CLIP a reference point for later multimodal models and for systems that borrow its text-image alignment when routing language into visual modules."
+    },
+    "limitations": {
+      "title": "Limitations",
+      "body": "CLIP is a representation-learning paper, not an image generator. It does not train a diffusion model or synthesize pixels on its own. Performance still depends on caption quality, dataset scale, and how well a text prompt describes the target concept. Fine-grained distinctions, counting, spatial reasoning, and rare compositional phrases can remain weak. Readers tracing diffusion or conditioning journeys should treat CLIP as the alignment layer that helps map language to visual features, while image synthesis itself is handled by separate generative systems."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "contributionGraph": {
+      "alt": "A contribution graph that flows from image-caption pairs through dual encoders and contrastive training into a shared embedding space used by multimodal and conditioning systems.",
+      "caption": "CLIP is easiest to read as a chain: paired image-caption data, separate encoders, contrastive alignment, one shared embedding space, then downstream multimodal or conditioning use."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "paper": {
+        "label": "CLIP paper"
+      },
+      "pairs": {
+        "label": "Image-caption pairs"
+      },
+      "encoders": {
+        "label": "Image and text encoders"
+      },
+      "contrastive": {
+        "label": "Contrastive alignment"
+      },
+      "embedding": {
+        "label": "Shared embedding space"
+      },
+      "downstream": {
+        "label": "Multimodal and conditioning use"
+      }
+    }
+  }
+}

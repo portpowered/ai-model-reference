@@ -16,12 +16,13 @@
     "concept.relative-position-bias",
     "concept.rope",
     "concept.context-window",
+    "module.alibi",
     "concept.nope"
   ],
   "citationIds": ["citation.press-alibi"],
   "status": "published",
   "createdAt": "2026-06-08T00:00:00.000Z",
-  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": ["concept.positional-encodings"],
   "explainsIds": []

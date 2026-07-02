@@ -15,6 +15,9 @@
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
   "regimeType": "optimization",
+  "sidebarGrouping": {
+    "training": "optimization"
+  },
   "usedByModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "relatedModuleIds": ["module.compressed-sparse-attention"],
   "paperIds": ["paper.deepseek-v4"],

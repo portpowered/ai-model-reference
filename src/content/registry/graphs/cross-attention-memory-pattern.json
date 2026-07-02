@@ -1,0 +1,130 @@
+{
+  "id": "graph.cross-attention-memory-pattern",
+  "slug": "cross-attention-memory-pattern",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "subjectId": "module.cross-attention",
+  "graphType": "attention-pattern",
+  "rootNodeId": "cross-time-current-query",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "cross-time-current-query",
+      "labelKey": "graph.nodes.timeCurrentQuery.label",
+      "moduleKind": "attention",
+      "position": { "x": 360, "y": 0 },
+      "headCountRole": "query",
+      "visualRole": "summary-node",
+      "childNodeIds": [
+        "cross-time-kv-0",
+        "cross-time-kv-1",
+        "cross-time-kv-ellipsis",
+        "cross-time-kv-s-3",
+        "cross-time-kv-s-2",
+        "cross-time-kv-s-1"
+      ]
+    },
+    {
+      "id": "cross-time-kv-0",
+      "labelKey": "graph.nodes.timeKv0.label",
+      "moduleKind": "cache",
+      "position": { "x": 0, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "cross-time-kv-1",
+      "labelKey": "graph.nodes.timeKv1.label",
+      "moduleKind": "cache",
+      "position": { "x": 140, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "cross-time-kv-ellipsis",
+      "labelKey": "graph.nodes.timeKvEllipsis.label",
+      "moduleKind": "cache",
+      "position": { "x": 280, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "cross-time-kv-s-3",
+      "labelKey": "graph.nodes.timeKvT3.label",
+      "moduleKind": "cache",
+      "position": { "x": 420, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "cross-time-kv-s-2",
+      "labelKey": "graph.nodes.timeKvT2.label",
+      "moduleKind": "cache",
+      "position": { "x": 560, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "cross-time-kv-s-1",
+      "labelKey": "graph.nodes.timeKvT1.label",
+      "moduleKind": "cache",
+      "position": { "x": 700, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "cross-time-query-to-kv-0",
+      "source": "cross-time-current-query",
+      "target": "cross-time-kv-0",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "cross-time-query-to-kv-1",
+      "source": "cross-time-current-query",
+      "target": "cross-time-kv-1",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "cross-time-query-to-kv-ellipsis",
+      "source": "cross-time-current-query",
+      "target": "cross-time-kv-ellipsis",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "cross-time-query-to-kv-s-3",
+      "source": "cross-time-current-query",
+      "target": "cross-time-kv-s-3",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "cross-time-query-to-kv-s-2",
+      "source": "cross-time-current-query",
+      "target": "cross-time-kv-s-2",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "cross-time-query-to-kv-s-1",
+      "source": "cross-time-current-query",
+      "target": "cross-time-kv-s-1",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

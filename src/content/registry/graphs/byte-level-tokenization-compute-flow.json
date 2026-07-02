@@ -1,0 +1,104 @@
+{
+  "id": "graph.byte-level-tokenization-compute-flow",
+  "slug": "byte-level-tokenization-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["tokenization"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "module.byte-level-tokenization",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "raw-text",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "raw-text",
+      "labelKey": "graph.nodes.rawText.label",
+      "moduleKind": "input",
+      "position": { "x": 200, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["utf8-bytes"]
+    },
+    {
+      "id": "utf8-bytes",
+      "labelKey": "graph.nodes.utf8Bytes.label",
+      "moduleKind": "operation",
+      "position": { "x": 190, "y": 110 },
+      "visualRole": "process-node",
+      "childNodeIds": ["byte-pieces"]
+    },
+    {
+      "id": "byte-pieces",
+      "labelKey": "graph.nodes.bytePieces.label",
+      "moduleKind": "tokenizer",
+      "position": { "x": 175, "y": 220 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["merge-pass"]
+    },
+    {
+      "id": "merge-pass",
+      "labelKey": "graph.nodes.mergePass.label",
+      "moduleKind": "operation",
+      "position": { "x": 190, "y": 330 },
+      "visualRole": "process-node",
+      "childNodeIds": ["final-tokens"]
+    },
+    {
+      "id": "final-tokens",
+      "labelKey": "graph.nodes.finalTokens.label",
+      "moduleKind": "output",
+      "position": { "x": 195, "y": 440 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "coverage-note",
+      "labelKey": "graph.nodes.coverageNote.label",
+      "moduleKind": "other",
+      "position": { "x": 470, "y": 140 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "tradeoff-note",
+      "labelKey": "graph.nodes.tradeoffNote.label",
+      "moduleKind": "other",
+      "position": { "x": 470, "y": 320 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "raw-text-to-bytes",
+      "source": "raw-text",
+      "target": "utf8-bytes",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "bytes-to-byte-pieces",
+      "source": "utf8-bytes",
+      "target": "byte-pieces",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "byte-pieces-to-merge-pass",
+      "source": "byte-pieces",
+      "target": "merge-pass",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "merge-pass-to-final-tokens",
+      "source": "merge-pass",
+      "target": "final-tokens",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

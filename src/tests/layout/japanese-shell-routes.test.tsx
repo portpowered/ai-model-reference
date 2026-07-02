@@ -6,7 +6,7 @@ import {
 } from "@/app/(site)/site-renderers";
 
 describe("japanese localized shell routes", () => {
-  test("render japanese empty-state shell copy without requiring translated docs pages", async () => {
+  test("render japanese architecture and glossary indexes with the shipped docs slice only", async () => {
     const architectureHtml = renderToStaticMarkup(
       await renderArchitectureIndexPage("ja"),
     );
@@ -15,15 +15,23 @@ describe("japanese localized shell routes", () => {
     );
 
     expect(architectureHtml).toContain("アーキテクチャ");
-    expect(architectureHtml).toContain("アーキテクチャ項目はまだありません");
-    expect(architectureHtml).toContain("ホームに戻る");
-    expect(architectureHtml).toContain("検索を開く");
-    expect(architectureHtml).not.toContain("Architecture");
+    expect(architectureHtml).toContain("Transformer アーキテクチャ");
+    expect(architectureHtml).toContain(
+      'href="/ja/docs/concepts/transformer-architecture"',
+    );
+    expect(architectureHtml).toContain("Token");
+    expect(architectureHtml).toContain('href="/ja/docs/glossary/token"');
+    expect(architectureHtml).not.toContain(
+      "アーキテクチャ項目はまだありません",
+    );
+    expect(architectureHtml).not.toContain(
+      'href="/ja/docs/concepts/positional-encodings"',
+    );
 
     expect(glossaryHtml).toContain("用語集");
-    expect(glossaryHtml).toContain("用語集の項目はまだありません");
-    expect(glossaryHtml).toContain("ホームに戻る");
-    expect(glossaryHtml).toContain("検索を開く");
-    expect(glossaryHtml).not.toContain("Glossary");
+    expect(glossaryHtml).toContain("Token");
+    expect(glossaryHtml).toContain('href="/ja/docs/glossary/token"');
+    expect(glossaryHtml).not.toContain("用語集の項目はまだありません");
+    expect(glossaryHtml).not.toContain('href="/ja/docs/glossary/vector"');
   });
 });

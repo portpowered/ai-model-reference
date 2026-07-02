@@ -1,55 +1,26 @@
-import batchNormComparison from "@/content/registry/tables/batch-norm-comparison.json";
-import bidirectionalAttentionComparison from "@/content/registry/tables/bidirectional-attention-comparison.json";
-import bpeComparison from "@/content/registry/tables/bpe-comparison.json";
-import feedForwardNetworkComparison from "@/content/registry/tables/feed-forward-network-comparison.json";
-import groupNormComparison from "@/content/registry/tables/group-norm-comparison.json";
-import groupedQueryAttentionComparison from "@/content/registry/tables/grouped-query-attention-comparison.json";
-import layerNormComparison from "@/content/registry/tables/layer-norm-comparison.json";
-import leakyReluComparison from "@/content/registry/tables/leaky-relu-comparison.json";
-import linearAttentionComparison from "@/content/registry/tables/linear-attention-comparison.json";
-import mixtureOfExpertsComparison from "@/content/registry/tables/mixture-of-experts-comparison.json";
-import multiHeadAttentionComparison from "@/content/registry/tables/multi-head-attention-comparison.json";
-import multiHeadLatentAttentionComparison from "@/content/registry/tables/multi-head-latent-attention-comparison.json";
-import multiQueryAttentionComparison from "@/content/registry/tables/multi-query-attention-comparison.json";
-import qkNormComparison from "@/content/registry/tables/qk-norm-comparison.json";
-import reluComparison from "@/content/registry/tables/relu-comparison.json";
-import rmsNormComparison from "@/content/registry/tables/rmsnorm-comparison.json";
-import siluComparison from "@/content/registry/tables/silu-comparison.json";
-import slidingWindowAttentionComparison from "@/content/registry/tables/sliding-window-attention-comparison.json";
-import sparseAttentionComparison from "@/content/registry/tables/sparse-attention-comparison.json";
-import standardFfnComparison from "@/content/registry/tables/standard-ffn-comparison.json";
-import swigluComparison from "@/content/registry/tables/swiglu-comparison.json";
+import { generatedTableRegistryPayloads } from "@/lib/content/generated/table-registry.generated";
 import { type TableRecord, tableRecordSchema } from "@/lib/content/schemas";
 
-const tableRecords: TableRecord[] = [
-  tableRecordSchema.parse(batchNormComparison),
-  tableRecordSchema.parse(bpeComparison),
-  tableRecordSchema.parse(bidirectionalAttentionComparison),
-  tableRecordSchema.parse(feedForwardNetworkComparison),
-  tableRecordSchema.parse(groupNormComparison),
-  tableRecordSchema.parse(groupedQueryAttentionComparison),
-  tableRecordSchema.parse(layerNormComparison),
-  tableRecordSchema.parse(leakyReluComparison),
-  tableRecordSchema.parse(multiHeadAttentionComparison),
-  tableRecordSchema.parse(linearAttentionComparison),
-  tableRecordSchema.parse(mixtureOfExpertsComparison),
-  tableRecordSchema.parse(multiHeadLatentAttentionComparison),
-  tableRecordSchema.parse(multiQueryAttentionComparison),
-  tableRecordSchema.parse(qkNormComparison),
-  tableRecordSchema.parse(reluComparison),
-  tableRecordSchema.parse(rmsNormComparison),
-  tableRecordSchema.parse(siluComparison),
-  tableRecordSchema.parse(slidingWindowAttentionComparison),
-  tableRecordSchema.parse(standardFfnComparison),
-  tableRecordSchema.parse(sparseAttentionComparison),
-  tableRecordSchema.parse(swigluComparison),
-];
+const tableRecords: TableRecord[] = generatedTableRegistryPayloads.map(
+  (record) => tableRecordSchema.parse(record),
+);
 
 const tablesById = new Map(tableRecords.map((record) => [record.id, record]));
+const tableOverridesById = new Map<string, TableRecord>();
 
-/** Synchronous table lookup for client comparison renderers and tests. */
+export function registerTableRecords(records: readonly TableRecord[]): void {
+  for (const record of records) {
+    tableOverridesById.set(record.id, record);
+  }
+}
+
+export function clearRegisteredTableRecords(): void {
+  tableOverridesById.clear();
+}
+
+/** Synchronous table lookup for client table renderers and tests. */
 export function getTableById(tableId: string): TableRecord | undefined {
-  return tablesById.get(tableId);
+  return tableOverridesById.get(tableId) ?? tablesById.get(tableId);
 }
 
 export function listTableRecords(): TableRecord[] {
