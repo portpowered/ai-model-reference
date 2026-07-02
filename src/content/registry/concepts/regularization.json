@@ -15,7 +15,8 @@
     "concept.overfitting",
     "concept.generalization",
     "concept.model-capacity",
-    "concept.loss-function"
+    "concept.loss-function",
+    "concept.optimizer-state"
   ],
   "citationIds": ["citation.goodfellow-deep-learning"],
   "status": "published",

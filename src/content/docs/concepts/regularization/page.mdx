@@ -19,10 +19,12 @@ updatedAt: "2026-07-02"
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ConceptMap } from "@/features/models/components/ConceptMap";
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
   <T k="sections.whatItIs.body" />
@@ -34,6 +36,46 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="simple-example" titleKey="sections.simpleExample.title">
   <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="how-it-helps" titleKey="sections.howItHelps.title">
+  <T k="sections.howItHelps.body" />
+</Section>
+
+<Section id="common-methods" titleKey="sections.commonMethods.title">
+  <T k="sections.commonMethods.body" />
+</Section>
+
+<Section
+  id="compared-to-nearby-concepts"
+  titleKey="sections.comparedToNearbyConcepts.title"
+>
+  <T k="sections.comparedToNearbyConcepts.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/glossary/overfitting", labelKey: "links.overfitting" },
+      {
+        href: "/docs/glossary/generalization",
+        labelKey: "links.generalization"
+      },
+      {
+        href: "/docs/glossary/model-capacity",
+        labelKey: "links.modelCapacity"
+      },
+      {
+        href: "/docs/glossary/optimizer-state",
+        labelKey: "links.optimizerState"
+      }
+    ]}
+  />
+</Section>
+
+<Section id="tradeoffs" titleKey="sections.tradeoffs.title">
+  <T k="sections.tradeoffs.body" />
+  <ConceptMap
+    registryId="concept.regularization"
+    assetId="fitBalanceMap"
+  />
 </Section>
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">

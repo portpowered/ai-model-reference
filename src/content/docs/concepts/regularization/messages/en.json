@@ -15,9 +15,25 @@
       "title": "Simple Example",
       "body": "Imagine fitting a curve through scattered points. A very flexible curve can thread through every training point exactly, including outliers. A regularized fit allows small errors on training points in exchange for a smoother shape. At serve time, the smoother curve is more likely to land near new points that follow the same underlying trend rather than chasing every training oddity."
     },
+    "howItHelps": {
+      "title": "How It Helps",
+      "body": "Regularization reduces overfitting by changing what training is allowed to optimize. One path is to limit model freedom: weight decay and similar penalties shrink large weights so the model cannot rely on extreme, example-specific combinations. Another path is to inject noise during training, as dropout does when it randomly disables activations so no single pathway can memorize alone. A third path is to encourage simpler or more stable solutions—early stopping halts training before memorization overtakes validation gains, data augmentation forces the model to recognize patterns under harmless variation, and label smoothing stops the model from becoming overconfident on noisy labels. These levers differ in mechanism, but each pushes training away from brittle memorization."
+    },
+    "commonMethods": {
+      "title": "Common Methods",
+      "body": "Dropout randomly drops units during training and uses the full network at inference with appropriate scaling. Weight decay adds a penalty on large weights to the loss. Data augmentation presents altered copies of training inputs so the model learns invariances instead of exact pixels or wording. Early stopping monitors validation performance and ends training before the gap between training and validation error widens too far. Label smoothing replaces hard one-hot targets with softer distributions so the model does not chase perfect confidence on every label. These are representative examples, not an exhaustive catalog—teams usually combine a few methods rather than treating regularization as one universal knob."
+    },
+    "comparedToNearbyConcepts": {
+      "title": "Compared To Nearby Concepts",
+      "body": "Overfitting is the failure mode regularization often targets: the model fits training detail so tightly that held-out performance suffers. Generalization is the outcome teams want after regularization—useful behavior on validation, shifted, or live data. Model capacity sets how much detail the architecture could memorize in the first place; regularization does not replace capacity limits but interacts with them when balancing fit and stability.\n\nOptimization is the machinery that updates weights—learning rate schedules, momentum, and adaptive optimizers. Regularization changes the objective or training dynamics those optimizers follow; it is not the same as choosing Adam versus SGD. A well-regularized model can still fail if optimization is unstable, and a clean optimizer cannot by itself prevent memorization when capacity and data make overfitting easy.\n\nFinally, regularization is a family of methods rather than one guaranteed fix. Naming nearby concepts helps you decide whether the next question is about failure mode, desired outcome, architecture headroom, or the training recipe itself."
+    },
+    "tradeoffs": {
+      "title": "Tradeoffs",
+      "body": "Regularization strength is a balance, not a free win. Too little leaves overfitting in place: training error keeps falling while validation error stalls or rises. Too much pushes the model toward underfitting, where both training and validation performance stay weak because useful signal was suppressed along with noise. Teams tune strength with validation curves, held-out checks, and task-specific metrics rather than training loss alone. The diagram below summarizes how weak, balanced, and excessive regularization tend to affect the gap between training fit and validation behavior."
+    },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Regularization is not the same as choosing a smaller model, though both can limit memorization. It is also not identical to the optimization algorithm that updates weights; regularization changes what the training objective rewards or how updates are applied. Finally, regularization is a family of methods, not one switch. Different techniques intervene at different stages of training and inference preparation."
+      "body": "Regularization is not the same as choosing a smaller model, though both can limit memorization. It is also not identical to data cleaning or alignment filtering—those change what the model sees, while regularization changes how aggressively it is allowed to fit what it already sees. Finally, stacking many regularizers without measurement can hide which lever helped; validation monitoring matters more than applying every method at once."
     },
     "related": {
       "title": "Related Concepts And Modules"
@@ -27,6 +43,50 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "links": {
+    "overfitting": "Overfitting",
+    "generalization": "Generalization",
+    "modelCapacity": "Model capacity",
+    "optimizerState": "Optimizer state"
+  },
+  "assets": {
+    "fitBalanceMap": {
+      "alt": "Diagram comparing weak, balanced, and strong regularization against training fit and validation behavior.",
+      "caption": "How regularization strength shifts the balance between training fit, validation behavior, and underfitting risk."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "tuning": {
+        "label": "Regularization strength",
+        "summary": "How strongly training is pushed away from memorization."
+      },
+      "weakRegularization": {
+        "label": "Too weak",
+        "summary": "Little penalty, noise, or stopping pressure."
+      },
+      "balancedRegularization": {
+        "label": "Balanced",
+        "summary": "Enough constraint to limit memorization without erasing signal."
+      },
+      "strongRegularization": {
+        "label": "Too strong",
+        "summary": "Heavy penalties or noise that overshoot the useful range."
+      },
+      "weakOutcome": {
+        "label": "Training fit stays high; validation gap widens",
+        "summary": "Classic overfitting pattern when memorization outruns generalization."
+      },
+      "balancedOutcome": {
+        "label": "Training and validation both useful",
+        "summary": "The model learns signal without chasing every training oddity."
+      },
+      "strongOutcome": {
+        "label": "Training and validation both weak",
+        "summary": "Underfitting when regularization suppresses too much useful structure."
+      }
     }
   },
   "relatedDocs": {
@@ -41,6 +101,9 @@
     },
     "concept.loss-function": {
       "reason": "Many regularizers appear as extra terms in the loss or as constraints on how the loss can be minimized."
+    },
+    "concept.optimizer-state": {
+      "reason": "Optimization updates weights, while regularization shapes the objective and training dynamics those updates follow."
     }
   }
 }
