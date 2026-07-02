@@ -38,7 +38,7 @@
     "dpo": "Direct Preference Optimization",
     "alignment": "Alignment",
     "instructionTuning": "Instruction tuning",
-    "rlhfSearch": "RLHF search",
+    "rlhf": "RLHF",
     "gpt3ModelPage": "GPT-3 model page",
     "llama3ModelPage": "Llama 3 model page",
     "deepseekV4ProModelPage": "DeepSeek-V4-Pro model page",
