@@ -1,19 +1,26 @@
 import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
 import {
   loadLocalDocsPage,
   localDocsRoute,
 } from "@/lib/content/local-docs-page";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import { loadRegistry } from "@/lib/content/registry";
 import {
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { loadTagResourceGroups } from "@/lib/content/tag-resources";
+import { loadUiMessages } from "@/lib/content/ui-messages";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 describe("Relative position bias concept page (US-001)", () => {
   test("canonical route, frontmatter, and default English messages resolve together", async () => {
@@ -179,5 +186,90 @@ describe("Relative position bias concept page (US-001)", () => {
     expect(record?.citationIds).toEqual([
       "citation.self-attention-with-relative-position-representations",
     ]);
+  });
+});
+
+describe("Relative position bias concept discovery (US-003)", () => {
+  test("registry record carries aliases, tags, and curated related ids for discovery", () => {
+    const record = getConceptById("concept.relative-position-bias");
+    expect(record?.aliases).toEqual([
+      "relative position bias",
+      "Relative position bias",
+      "relative positional bias",
+      "relative attention bias",
+    ]);
+    expect(record?.tags).toEqual(["position-encoding", "foundations"]);
+    expect(record?.relatedIds).toEqual([
+      "concept.positional-encodings",
+      "concept.absolute-positional-embeddings",
+      "concept.t5-relative-position-bias",
+      "concept.rope",
+      "concept.alibi",
+    ]);
+  });
+
+  test("position-encoding tag landing surfaces the concept page", async () => {
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups(
+      "position-encoding",
+      messages,
+      "en",
+    );
+    const conceptGroup = groups.find((group) => group.kind === "concept");
+
+    expect(conceptGroup?.resources.map((resource) => resource.url)).toContain(
+      "/docs/concepts/relative-position-bias",
+    );
+
+    const page = await TagLandingPage({
+      params: Promise.resolve({ slug: "position-encoding" }),
+    });
+    const html = renderToStaticMarkup(page);
+    expect(html).toContain('href="/docs/concepts/relative-position-bias"');
+    expect(html).toContain('href="/search?tag=position-encoding"');
+  });
+
+  test("search index and alias queries resolve to the concept route", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+
+    const document = documents.find(
+      (entry) => entry.url === "/docs/concepts/relative-position-bias",
+    );
+    expect(document?.kind).toBe("concept");
+    expect(document?.facets.kind).toBe("concept");
+    expect(document?.aliases).toContain("relative positional bias");
+    expect(document?.aliases).toContain("relative attention bias");
+
+    for (const query of [
+      "relative position bias",
+      "relative positional bias",
+      "relative attention bias",
+    ] as const) {
+      const results = await docsSearchApi.search(query);
+      expect(results[0]?.url).toBe("/docs/concepts/relative-position-bias");
+    }
+  });
+
+  test("rendered tag and related-doc surfaces expose registry-backed navigation", async () => {
+    const page = await loadConceptPage("relative-position-bias");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain(
+      'href="/docs/modules/absolute-positional-embeddings"',
+    );
+    expect(html).toContain('href="/tags/position-encoding"');
+    expect(html).toContain('href="/tags/foundations"');
+    expect(html).toContain('data-testid="tag-pill-list"');
+    expect(html).toContain('data-testid="derived-related-docs"');
+    expect(html).toContain('data-testid="curated-related-docs"');
   });
 });
