@@ -13,7 +13,7 @@
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "A pretrained or instruction-tuned model generates candidate answers. Human annotators rank or score those outputs side by side. A reward model learns to predict those preferences. A reinforcement-learning optimizer, often Proximal Policy Optimization or PPO, updates the policy so preferred answers earn higher reward while a KL penalty keeps updates close to a reference model."
+      "body": "The workflow starts from a pretrained or instruction-tuned model that generates candidate answers. Human annotators rank or score those outputs side by side, producing preference data. A reward model learns to predict those human judgments and turns them into a scalar reward or preference signal. A reinforcement-learning optimizer, often Proximal Policy Optimization or PPO, updates the policy so preferred answers earn higher reward while a KL penalty keeps updates close to a reference model. The result is aligned model behavior that reflects the collected preference signal."
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
@@ -21,7 +21,7 @@
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
-      "body": "RLHF depends on costly, inconsistent, or narrow human data. A reward model can mismatch what users actually want, and policy optimization can become unstable or overfit to the reward signal. Models may also learn to exploit the reward model through reward hacking, or become overly narrow when preference data covers only a thin slice of behavior."
+      "body": "RLHF depends on costly human data collection, and annotator inconsistency can weaken the preference signal. A reward model can mismatch what users actually want, so policy optimization may chase the wrong objective. Optimization can become unstable when reward estimates are noisy or the KL penalty is poorly tuned. Models may also learn to exploit the reward model through reward hacking, or become overly narrow when preference data covers only a thin slice of behavior."
     },
     "related": {
       "title": "Related To"
@@ -35,9 +35,9 @@
   },
   "assets": {
     "trainingFlow": {
-      "title": "RLHF training flow",
-      "alt": "A three-step RLHF flow: base model, human preference data and reward signal, then an aligned model after policy optimization.",
-      "caption": "RLHF turns human preference judgments into a reward signal and then optimizes the policy toward preferred behavior.",
+      "title": "RLHF feedback-and-optimization loop",
+      "alt": "A five-step RLHF flow: pretrained or instruction-tuned model, human preference data, reward model or preference signal, policy optimization, then aligned model behavior.",
+      "caption": "RLHF collects human preferences, fits a reward signal, and optimizes the policy toward preferred behavior while staying close to a reference model.",
       "legend": {
         "data-flow": {
           "label": "Preference and policy flow"
@@ -50,11 +50,17 @@
       "baseModel": {
         "label": "Pretrained or\ninstruction-tuned model"
       },
-      "preferenceData": {
-        "label": "Human preference\ndata and reward signal"
+      "humanPreferences": {
+        "label": "Human preference\ndata collection"
+      },
+      "rewardModel": {
+        "label": "Reward model\nor preference signal"
+      },
+      "policyOptimization": {
+        "label": "Policy optimization\n(PPO / RL loop)"
       },
       "alignedModel": {
-        "label": "Policy-optimized\naligned model"
+        "label": "Aligned model\nbehavior"
       }
     }
   }
