@@ -1,0 +1,89 @@
+{
+  "title": "LTX-2.3",
+  "description": "An open-weight diffusion-transformer model that generates synchronized video and audio from text, image, and audio conditioning.",
+  "openingSummary": "LTX-2.3 is Lightricks' open-weight diffusion-transformer release for synchronized video and audio generation. Instead of predicting the next text token, it denoises joint audio-video latents so motion and sound stay aligned in the finished clip.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "LTX-2.3 is an open-weight video and audio generation model from Lightricks, released on 2026-03-05 with about 22 billion parameters. Public materials describe it as a diffusion transformer built for joint audio-visual generation rather than text-only language modeling. The release ships as downloadable weights on Hugging Face and is positioned as the latest member of the LTX video model line."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "LTX-2.3 accepts text prompts and can also use image or audio references as conditioning signals. Its primary outputs are synchronized video with matching audio rather than a text reply or a still image alone. That multimodal shape matters because viewers judge clips by both picture and sound, so the model is framed around joint generation instead of stitching video and audio together after the fact."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "At a high level, LTX-2.3 follows a latent diffusion pattern. Encoders compress prompts and optional reference media into conditioning features, a diffusion transformer denoises corrupted audio-video latents over many steps, and decoders render pixels and waveforms. Cross-attention lets the denoiser read text and reference signals while it updates the latent sequence. This is a different job from an autoregressive text model: the network learns to remove noise from a compressed spatiotemporal representation instead of emitting one vocabulary token at a time."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Cross-attention is the main named module on this page because it carries conditioning from text and reference inputs into the denoising transformer. That fusion step is what lets a prompt or reference image steer motion, framing, and audio tone while the latent sequence is still being refined."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public LTX materials frame training around a diffusion objective: the model learns to predict denoising updates that recover clean audio-video latents from noised versions. That objective matches the generation loop at inference time and differs from next-token cross-entropy training used by text-only language models."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "LTX-2.3 is useful to read as a latent video diffusion system with synchronized audio rather than as a chat model with a video export button. Working in latent space keeps generation tractable, but readers still need encoder and decoder stages to move between user-visible media and the tensors the transformer denoises. The open-weight release makes the architecture inspectable, while the LTX-2 paper and model card remain the best places to confirm implementation-specific details."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "LTX-2.3 architecture diagram showing text, image, and audio references encoded into conditioning features, cross-attention steering a diffusion transformer that denoises joint audio-video latents, and separate decoders rendering synchronized video and audio."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "syncOutput": {
+        "label": "Synchronized\nVideo + Audio",
+        "summary": "The finished clip where motion and sound were generated together rather than stitched afterward"
+      },
+      "videoDecoder": {
+        "label": "Video\nDecoder",
+        "summary": "Renders denoised video latents into viewable frames"
+      },
+      "audioDecoder": {
+        "label": "Audio\nDecoder",
+        "summary": "Renders denoised audio latents into a matching waveform"
+      },
+      "latentDenoising": {
+        "label": "Latent Audio-Video\nDenoising",
+        "summary": "Iteratively removes noise from compressed spatiotemporal audio-video latents"
+      },
+      "diffusionTransformer": {
+        "label": "Diffusion\nTransformer",
+        "summary": "Transformer backbone that predicts denoising updates across the joint latent sequence"
+      },
+      "crossAttention": {
+        "label": "Cross-\nAttention",
+        "summary": "Lets the denoiser read text and reference conditioning while updating latents"
+      },
+      "conditioning": {
+        "label": "Conditioning\nFeatures",
+        "summary": "Encoded prompt and reference signals that steer generation"
+      },
+      "textPrompt": {
+        "label": "Text\nPrompt",
+        "summary": "Natural-language instructions that describe the desired clip"
+      },
+      "imageReference": {
+        "label": "Image\nReference",
+        "summary": "Optional still image that can guide framing or visual style"
+      },
+      "audioReference": {
+        "label": "Audio\nReference",
+        "summary": "Optional audio clip that can guide tone, rhythm, or ambience"
+      }
+    }
+  }
+}

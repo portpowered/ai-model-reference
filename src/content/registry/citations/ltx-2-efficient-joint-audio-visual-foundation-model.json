@@ -1,0 +1,24 @@
+{
+  "id": "citation.ltx-2-efficient-joint-audio-visual-foundation-model",
+  "slug": "ltx-2-efficient-joint-audio-visual-foundation-model",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "LTX-2 paper",
+    "LTX-Video paper",
+    "LTX audio-video foundation model paper"
+  ],
+  "tags": ["model-family", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Lightricks LTX Team"],
+  "title": "LTX-2: Efficient Joint Audio-Visual Foundation Model",
+  "url": "https://arxiv.org/abs/2601.03233",
+  "mla": "Lightricks LTX Team. \"LTX-2: Efficient Joint Audio-Visual Foundation Model.\" arXiv, 2026, https://arxiv.org/abs/2601.03233.",
+  "year": 2026
+}
