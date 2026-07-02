@@ -227,6 +227,13 @@ const PAGE_CASES = [
       "/docs/modules/silu",
       "/docs/glossary/activation",
     ],
+    curatedHrefs: [
+      "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/concepts/mixture-of-experts",
+      "/docs/modules/silu",
+      "/docs/glossary/activation",
+    ],
     messageNeedles: ["gate", "silu", "mixture of experts"],
     renderNeedle: "input state enters two learned projections",
     searchQuery: "SwiGLU",
@@ -244,6 +251,7 @@ const PAGE_CASES = [
   aliases: readonly string[];
   relatedIds: readonly string[];
   hrefs: readonly string[];
+  curatedHrefs?: readonly string[];
   messageNeedles: readonly string[];
   renderNeedle: string;
   searchQuery: string;
@@ -275,7 +283,10 @@ describe("Phase 3 activation-family glossary pages", () => {
         PUBLISHED_DOCS_REGISTRY_IDS,
       );
 
-      for (const href of testCase.hrefs) {
+      const expectedHrefs =
+        "curatedHrefs" in testCase ? testCase.curatedHrefs : testCase.hrefs;
+
+      for (const href of expectedHrefs) {
         expect(
           items.some((item) => item.href === href && !item.isPlanned),
         ).toBe(true);

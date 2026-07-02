@@ -8,11 +8,11 @@ import bpeComparisonTableRecord from "@/content/registry/tables/bpe-comparison.j
 import byteLevelTokenizationComparisonTableRecord from "@/content/registry/tables/byte-level-tokenization-comparison.json";
 import causalAttentionComparisonTableRecord from "@/content/registry/tables/causal-attention-comparison.json";
 import clipImageTokenizationComparisonTableRecord from "@/content/registry/tables/clip-image-tokenization-comparison.json";
+import crossAttentionComparisonTableRecord from "@/content/registry/tables/cross-attention-comparison.json";
 import feedForwardNetworkComparisonTableRecord from "@/content/registry/tables/feed-forward-network-comparison.json";
 import geluComparisonTableRecord from "@/content/registry/tables/gelu-comparison.json";
 import groupNormComparisonTableRecord from "@/content/registry/tables/group-norm-comparison.json";
 import groupedQueryAttentionComparisonTableRecord from "@/content/registry/tables/grouped-query-attention-comparison.json";
-import interTokenLatencyMetricComparisonTableRecord from "@/content/registry/tables/inter-token-latency-metric-comparison.json";
 import layerNormComparisonTableRecord from "@/content/registry/tables/layer-norm-comparison.json";
 import leakyReluComparisonTableRecord from "@/content/registry/tables/leaky-relu-comparison.json";
 import linearAttentionComparisonTableRecord from "@/content/registry/tables/linear-attention-comparison.json";
@@ -42,11 +42,11 @@ export const generatedTableRegistrySourceFiles = [
   "byte-level-tokenization-comparison.json",
   "causal-attention-comparison.json",
   "clip-image-tokenization-comparison.json",
+  "cross-attention-comparison.json",
   "feed-forward-network-comparison.json",
   "gelu-comparison.json",
   "group-norm-comparison.json",
   "grouped-query-attention-comparison.json",
-  "inter-token-latency-metric-comparison.json",
   "layer-norm-comparison.json",
   "leaky-relu-comparison.json",
   "linear-attention-comparison.json",
@@ -77,11 +77,11 @@ export const generatedTableRegistryPayloads = [
   byteLevelTokenizationComparisonTableRecord,
   causalAttentionComparisonTableRecord,
   clipImageTokenizationComparisonTableRecord,
+  crossAttentionComparisonTableRecord,
   feedForwardNetworkComparisonTableRecord,
   geluComparisonTableRecord,
   groupNormComparisonTableRecord,
   groupedQueryAttentionComparisonTableRecord,
-  interTokenLatencyMetricComparisonTableRecord,
   layerNormComparisonTableRecord,
   leakyReluComparisonTableRecord,
   linearAttentionComparisonTableRecord,
