@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
-  buildRootMainLagCurrentTruthHandoff,
   formatRootMainLagCurrentTruthHandoff,
+  performRootMainLagReconciliation,
   ROOT_MAIN_LAG_DEFAULT_PLANNER_REPORT_PATHS,
   type RootMainLagPlannerReportInput,
   serializeRootMainLagCurrentTruthHandoff,
@@ -85,9 +85,13 @@ const workListJsonText = workListPath
   ? readOptionalFile(workListPath, "work list")
   : undefined;
 const explicitPlannerReportPaths = readRepeatedFlagValues("--planner-report");
+const applyRequested = process.argv.includes("--apply");
+const plannerReportPath = explicitPlannerReportPaths[0];
 
-const handoff = buildRootMainLagCurrentTruthHandoff({
+const handoff = performRootMainLagReconciliation({
+  apply: applyRequested,
   generatedAtUtc,
+  plannerReportPath,
   plannerReports: readPlannerReports(repoRoot, explicitPlannerReportPaths),
   remoteBaseRef,
   repoRoot,

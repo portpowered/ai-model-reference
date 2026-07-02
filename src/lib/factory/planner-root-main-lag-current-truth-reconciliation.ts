@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { classifyBranchDrift } from "./active-pr-mergeability-watchdog";
 import { detectDefaultRemoteBaseRef } from "./planner-root-checkout-reconciliation";
@@ -68,9 +69,34 @@ export interface RootMainLagQueuePlannerComparison {
   queueStateUnavailableReason?: string;
 }
 
+export type RootMainLagReconciliationOutcomeKind =
+  | "root-sync-handoff"
+  | "stale-state-note-update"
+  | "explicit-no-update";
+
+export type RootMainLagReconciliationApplyStatus =
+  | "not-requested"
+  | "applied"
+  | "skipped"
+  | "failed";
+
+export interface RootMainLagReconciliationOutcome {
+  applyDetail?: string;
+  applyStatus: RootMainLagReconciliationApplyStatus;
+  kind: RootMainLagReconciliationOutcomeKind;
+  noUpdateReason?: string;
+  operationalSummary: string;
+  rootSyncAfterHead?: RootCommitIdentity;
+  rootSyncBeforeHead?: RootCommitIdentity;
+  staleNotesCorrected: string[];
+  staleNotesRetired: string[];
+  updatedPlannerReportPath?: string;
+}
+
 export interface RootMainLagCurrentTruthHandoff {
   generatedAtUtc: string;
   gitTruth: RootMainLagGitTruthEvidence;
+  outcome?: RootMainLagReconciliationOutcome;
   queuePlannerComparison: RootMainLagQueuePlannerComparison;
 }
 
@@ -79,9 +105,17 @@ export interface RootMainLagPlannerReportInput {
   text: string;
 }
 
+export const ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_START_MARKER =
+  "<!-- ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION:START -->";
+
+export const ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_END_MARKER =
+  "<!-- ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION:END -->";
+
 export interface CaptureRootMainLagGitTruthOptions {
+  apply?: boolean;
   generatedAtUtc?: string;
   plannerReports?: readonly RootMainLagPlannerReportInput[];
+  plannerReportPath?: string;
   remoteBaseRef?: string;
   repoRoot?: string;
   runGit?: RunGit;
@@ -623,6 +657,420 @@ export function summarizeRootMainLagQueuePlannerComparison(
   return `Inspected planner notes match live git or only preserve the stale ${ROOT_MAIN_LAG_STALE_OBSERVATION_UTC} observation as historical context while root is ${gitTruth.worktreeCleanliness} and ${gitTruth.remoteRelationship} with ${gitTruth.remoteBaseRef}.`;
 }
 
+function commitIdentityFromSha(sha: string): RootCommitIdentity {
+  return {
+    sha,
+    shortSha: sha.slice(0, 7),
+  };
+}
+
+function collectStaleRootLagNoteLabels(
+  comparison: RootMainLagQueuePlannerComparison,
+): string[] {
+  return comparison.noteRecords
+    .filter((record) => record.alignment === "stale-root-lag-reference")
+    .map((record) => record.sourceLabel);
+}
+
+function collectConflictingRootLagNoteLabels(
+  comparison: RootMainLagQueuePlannerComparison,
+): string[] {
+  return comparison.noteRecords
+    .filter((record) => record.alignment === "conflicting-current-condition")
+    .map((record) => record.sourceLabel);
+}
+
+export function decideRootMainLagReconciliationOutcome(
+  gitTruth: RootMainLagGitTruthEvidence,
+  queuePlannerComparison: RootMainLagQueuePlannerComparison,
+): Omit<
+  RootMainLagReconciliationOutcome,
+  "applyDetail" | "applyStatus" | "updatedPlannerReportPath"
+> {
+  const staleNotesCorrected = collectStaleRootLagNoteLabels(
+    queuePlannerComparison,
+  );
+  const conflictingNotes = collectConflictingRootLagNoteLabels(
+    queuePlannerComparison,
+  );
+
+  if (conflictingNotes.length > 0) {
+    const labels = conflictingNotes.join(", ");
+    return {
+      kind: "explicit-no-update",
+      noUpdateReason: `unresolved queue or planner-report conflict in ${labels}`,
+      operationalSummary: `Do not sync the root while planner-facing notes in ${labels} conflict with live git (${gitTruth.worktreeCleanliness}, ${gitTruth.remoteRelationship}, behind=${gitTruth.commitsBehindRemote}).`,
+      rootSyncAfterHead: undefined,
+      rootSyncBeforeHead: undefined,
+      staleNotesCorrected: [],
+      staleNotesRetired: [],
+    };
+  }
+
+  if (gitTruth.worktreeCleanliness === "dirty") {
+    return {
+      kind: "explicit-no-update",
+      noUpdateReason: "dirty root worktree with local user or planner changes",
+      operationalSummary: `Root sync is deferred because the checkout is dirty (${gitTruth.dirtyPathCount} planner-relevant paths). Preserve local work and reconcile ownership before any fast-forward.`,
+      staleNotesCorrected: [],
+      staleNotesRetired: [],
+    };
+  }
+
+  if (gitTruth.remoteRelationship === "unknown") {
+    return {
+      kind: "explicit-no-update",
+      noUpdateReason: "unable to classify root relationship to origin/main",
+      operationalSummary:
+        "Root sync is deferred because the live relationship to origin/main could not be classified safely.",
+      staleNotesCorrected: [],
+      staleNotesRetired: [],
+    };
+  }
+
+  if (
+    gitTruth.remoteRelationship === "diverged" ||
+    gitTruth.remoteRelationship === "ahead"
+  ) {
+    return {
+      kind: "explicit-no-update",
+      noUpdateReason: `${gitTruth.remoteRelationship} history relative to ${gitTruth.remoteBaseRef}`,
+      operationalSummary: `Root sync is deferred because HEAD is ${gitTruth.remoteRelationship} relative to ${gitTruth.remoteBaseRef} (ahead=${gitTruth.commitsAheadOfRemote}, behind=${gitTruth.commitsBehindRemote}).`,
+      staleNotesCorrected: [],
+      staleNotesRetired: [],
+    };
+  }
+
+  if (
+    gitTruth.remoteRelationship === "behind" &&
+    gitTruth.worktreeCleanliness === "clean"
+  ) {
+    return {
+      kind: "root-sync-handoff",
+      operationalSummary: `Root is clean and ${gitTruth.commitsBehindRemote} commit(s) behind ${gitTruth.remoteBaseRef}; fast-forward sync is the smallest safe outcome.`,
+      rootSyncBeforeHead: gitTruth.headCommit,
+      staleNotesCorrected,
+      staleNotesRetired: [],
+    };
+  }
+
+  if (staleNotesCorrected.length > 0) {
+    return {
+      kind: "stale-state-note-update",
+      operationalSummary: `Root already reflects current git truth, but planner-facing notes in ${staleNotesCorrected.join(", ")} still treat the ${ROOT_MAIN_LAG_STALE_OBSERVATION_UTC} lag as current.`,
+      staleNotesCorrected,
+      staleNotesRetired: staleNotesCorrected,
+    };
+  }
+
+  return {
+    kind: "explicit-no-update",
+    noUpdateReason: "root already reflects current truth",
+    operationalSummary: `Root is ${gitTruth.worktreeCleanliness} and ${gitTruth.remoteRelationship} with ${gitTruth.remoteBaseRef}; no git update is needed. The stale ${ROOT_MAIN_LAG_STALE_OBSERVATION_UTC} lag should be treated as historical context.`,
+    staleNotesCorrected: [],
+    staleNotesRetired: [
+      `stale ${ROOT_MAIN_LAG_STALE_OBSERVATION_UTC} ${ROOT_MAIN_LAG_STALE_COMMIT_COUNT}-commit lag observation`,
+    ],
+  };
+}
+
+export function buildRootMainLagCurrentTruthResolutionSection(
+  handoff: RootMainLagCurrentTruthHandoff,
+  outcome: RootMainLagReconciliationOutcome,
+): string {
+  const plannerReportPath =
+    outcome.updatedPlannerReportPath ??
+    ROOT_MAIN_LAG_DEFAULT_PLANNER_REPORT_PATHS[0];
+  const lines = [
+    "## Current truth resolution",
+    "",
+    ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_START_MARKER,
+    "",
+    "| Field | Value |",
+    "| --- | --- |",
+    `| Resolved at UTC | ${handoff.generatedAtUtc} |`,
+    `| Outcome kind | ${outcome.kind} |`,
+    `| Root HEAD | ${handoff.gitTruth.headCommit.shortSha} (${handoff.gitTruth.headCommit.sha}) |`,
+    `| Remote base | ${handoff.gitTruth.remoteBaseRef} ${handoff.gitTruth.remoteMainCommit.shortSha} |`,
+    `| Relationship | ${handoff.gitTruth.remoteRelationship} |`,
+    `| Worktree | ${handoff.gitTruth.worktreeCleanliness} |`,
+  ];
+
+  if (outcome.rootSyncBeforeHead && outcome.rootSyncAfterHead) {
+    lines.push(
+      `| Root sync before | ${outcome.rootSyncBeforeHead.shortSha} (${outcome.rootSyncBeforeHead.sha}) |`,
+    );
+    lines.push(
+      `| Root sync after | ${outcome.rootSyncAfterHead.shortSha} (${outcome.rootSyncAfterHead.sha}) |`,
+    );
+  }
+
+  if (outcome.noUpdateReason) {
+    lines.push(`| No-update reason | ${outcome.noUpdateReason} |`);
+  }
+
+  if (outcome.staleNotesRetired.length > 0) {
+    lines.push(
+      `| Stale notes retired | ${outcome.staleNotesRetired.join("; ")} |`,
+    );
+  }
+
+  if (outcome.staleNotesCorrected.length > 0) {
+    lines.push(
+      `| Stale notes corrected | ${outcome.staleNotesCorrected.join("; ")} |`,
+    );
+  }
+
+  lines.push(`| Operational summary | ${outcome.operationalSummary} |`);
+  lines.push(`| Planner artifact | \`${plannerReportPath}\` (this file) |`);
+  lines.push("");
+  lines.push(ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_END_MARKER);
+  lines.push("");
+
+  return lines.join("\n");
+}
+
+export function upsertRootMainLagCurrentTruthResolutionSection(
+  existingText: string,
+  section: string,
+): string {
+  const startIndex = existingText.indexOf(
+    ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_START_MARKER,
+  );
+  const endIndex = existingText.indexOf(
+    ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_END_MARKER,
+  );
+
+  if (startIndex >= 0 && endIndex > startIndex) {
+    const sectionStart = existingText.lastIndexOf(
+      "## Current truth resolution",
+      startIndex,
+    );
+    const replaceStart = sectionStart >= 0 ? sectionStart : startIndex;
+    const replaceEnd =
+      endIndex + ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_END_MARKER.length;
+    const trailingNewline = existingText.slice(replaceEnd).startsWith("\n")
+      ? 1
+      : 0;
+    return (
+      existingText.slice(0, replaceStart) +
+      section +
+      existingText.slice(replaceEnd + trailingNewline)
+    );
+  }
+
+  const boundariesIndex = existingText.indexOf("\n## Boundaries");
+  if (boundariesIndex >= 0) {
+    return (
+      existingText.slice(0, boundariesIndex + 1) +
+      section +
+      existingText.slice(boundariesIndex + 1)
+    );
+  }
+
+  return `${existingText.trimEnd()}\n\n${section}`;
+}
+
+function resolvePlannerReportAbsolutePath(
+  repoRoot: string,
+  plannerReportPath?: string,
+): string {
+  const selectedPath =
+    plannerReportPath ?? ROOT_MAIN_LAG_DEFAULT_PLANNER_REPORT_PATHS[0];
+  return resolve(repoRoot, selectedPath);
+}
+
+function resolvePlannerReportHandoffPath(
+  _repoRoot: string,
+  plannerReportPath?: string,
+): string {
+  const selectedPath =
+    plannerReportPath ?? ROOT_MAIN_LAG_DEFAULT_PLANNER_REPORT_PATHS[0];
+  if (selectedPath.startsWith("/")) {
+    return selectedPath;
+  }
+  return selectedPath.replace(/^\.\//, "");
+}
+
+function fastForwardRootToRemoteMain(
+  repoRoot: string,
+  remoteBaseRef: string,
+  runGit: RunGit,
+): {
+  afterHead: RootCommitIdentity;
+  beforeHead: RootCommitIdentity;
+} {
+  const beforeSha = resolveGitRef(repoRoot, "HEAD", runGit);
+  const remoteName = remoteBaseRef.includes("/")
+    ? remoteBaseRef.split("/")[0]
+    : "origin";
+  runGit(repoRoot, ["fetch", remoteName]);
+
+  const mergeResult = runGit(repoRoot, ["merge", "--ff-only", remoteBaseRef]);
+  if (mergeResult.status !== 0) {
+    throw new Error(
+      `git merge --ff-only ${remoteBaseRef} failed: ${mergeResult.stderr.trim() || mergeResult.stdout.trim()}`,
+    );
+  }
+
+  const afterSha = resolveGitRef(repoRoot, "HEAD", runGit);
+  return {
+    afterHead: commitIdentityFromSha(afterSha),
+    beforeHead: commitIdentityFromSha(beforeSha),
+  };
+}
+
+export function applyRootMainLagReconciliationOutcome(
+  handoff: RootMainLagCurrentTruthHandoff,
+  outcome: Omit<
+    RootMainLagReconciliationOutcome,
+    "applyDetail" | "applyStatus" | "updatedPlannerReportPath"
+  >,
+  options: {
+    plannerReportPath?: string;
+    runGit?: RunGit;
+  } = {},
+): RootMainLagReconciliationOutcome {
+  const runGit = options.runGit ?? defaultRunGit;
+  const plannerReportPath = resolvePlannerReportAbsolutePath(
+    handoff.gitTruth.repoRoot,
+    options.plannerReportPath,
+  );
+  const handoffPlannerReportPath = resolvePlannerReportHandoffPath(
+    handoff.gitTruth.repoRoot,
+    options.plannerReportPath,
+  );
+
+  if (outcome.kind === "root-sync-handoff") {
+    try {
+      const syncResult = fastForwardRootToRemoteMain(
+        handoff.gitTruth.repoRoot,
+        handoff.gitTruth.remoteBaseRef,
+        runGit,
+      );
+      return {
+        ...outcome,
+        applyDetail: `Fast-forwarded root from ${syncResult.beforeHead.shortSha} to ${syncResult.afterHead.shortSha}.`,
+        applyStatus: "applied",
+        rootSyncAfterHead: syncResult.afterHead,
+        rootSyncBeforeHead: syncResult.beforeHead,
+        updatedPlannerReportPath: handoffPlannerReportPath,
+      };
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown root sync failure";
+      return {
+        ...outcome,
+        applyDetail: message,
+        applyStatus: "failed",
+        updatedPlannerReportPath: handoffPlannerReportPath,
+      };
+    }
+  }
+
+  if (outcome.kind === "stale-state-note-update") {
+    if (!existsSync(plannerReportPath)) {
+      return {
+        ...outcome,
+        applyDetail: `Planner report path missing at ${plannerReportPath}.`,
+        applyStatus: "failed",
+        updatedPlannerReportPath: handoffPlannerReportPath,
+      };
+    }
+
+    const provisionalOutcome: RootMainLagReconciliationOutcome = {
+      ...outcome,
+      applyStatus: "applied",
+      updatedPlannerReportPath: handoffPlannerReportPath,
+    };
+    const section = buildRootMainLagCurrentTruthResolutionSection(
+      handoff,
+      provisionalOutcome,
+    );
+    const existingText = readFileSync(plannerReportPath, "utf8");
+    writeFileSync(
+      plannerReportPath,
+      upsertRootMainLagCurrentTruthResolutionSection(existingText, section),
+      "utf8",
+    );
+    return {
+      ...provisionalOutcome,
+      applyDetail: `Updated stale-state note section in ${handoffPlannerReportPath}.`,
+    };
+  }
+
+  const provisionalOutcome: RootMainLagReconciliationOutcome = {
+    ...outcome,
+    applyStatus: "skipped",
+    updatedPlannerReportPath: handoffPlannerReportPath,
+  };
+
+  if (existsSync(plannerReportPath)) {
+    const section = buildRootMainLagCurrentTruthResolutionSection(
+      handoff,
+      provisionalOutcome,
+    );
+    const existingText = readFileSync(plannerReportPath, "utf8");
+    writeFileSync(
+      plannerReportPath,
+      upsertRootMainLagCurrentTruthResolutionSection(existingText, section),
+      "utf8",
+    );
+    return {
+      ...provisionalOutcome,
+      applyDetail: `Recorded explicit no-update handoff in ${handoffPlannerReportPath}.`,
+      applyStatus: "applied",
+    };
+  }
+
+  return {
+    ...provisionalOutcome,
+    applyDetail:
+      "Explicit no-update outcome recorded in handoff output only; planner report path was unavailable.",
+  };
+}
+
+export function performRootMainLagReconciliation(
+  options: CaptureRootMainLagGitTruthOptions = {},
+): RootMainLagCurrentTruthHandoff {
+  const handoff = buildRootMainLagCurrentTruthHandoff(options);
+  const decidedOutcome = decideRootMainLagReconciliationOutcome(
+    handoff.gitTruth,
+    handoff.queuePlannerComparison,
+  );
+
+  if (!options.apply) {
+    return {
+      ...handoff,
+      outcome: {
+        ...decidedOutcome,
+        applyStatus: "not-requested",
+      },
+    };
+  }
+
+  const appliedOutcome = applyRootMainLagReconciliationOutcome(
+    handoff,
+    decidedOutcome,
+    {
+      plannerReportPath: options.plannerReportPath,
+      runGit: options.runGit,
+    },
+  );
+
+  const refreshedGitTruth =
+    appliedOutcome.kind === "root-sync-handoff" &&
+    appliedOutcome.applyStatus === "applied"
+      ? captureRootMainLagGitTruth(options)
+      : handoff.gitTruth;
+
+  return {
+    ...handoff,
+    gitTruth: refreshedGitTruth,
+    outcome: appliedOutcome,
+  };
+}
+
 export function buildRootMainLagCurrentTruthHandoff(
   options: CaptureRootMainLagGitTruthOptions = {},
 ): RootMainLagCurrentTruthHandoff {
@@ -690,6 +1138,55 @@ export function formatRootMainLagQueuePlannerComparison(
   return lines;
 }
 
+export function formatRootMainLagReconciliationOutcome(
+  outcome: RootMainLagReconciliationOutcome,
+): string[] {
+  const lines = [
+    "- reconciliation-outcome",
+    `  - kind=${outcome.kind}`,
+    `  - apply-status=${outcome.applyStatus}`,
+    `  - operational-summary=${outcome.operationalSummary}`,
+  ];
+
+  if (outcome.noUpdateReason) {
+    lines.push(`  - no-update-reason=${outcome.noUpdateReason}`);
+  }
+
+  if (outcome.rootSyncBeforeHead) {
+    lines.push(
+      `  - root-sync-before=${outcome.rootSyncBeforeHead.sha} short=${outcome.rootSyncBeforeHead.shortSha}`,
+    );
+  }
+
+  if (outcome.rootSyncAfterHead) {
+    lines.push(
+      `  - root-sync-after=${outcome.rootSyncAfterHead.sha} short=${outcome.rootSyncAfterHead.shortSha}`,
+    );
+  }
+
+  if (outcome.staleNotesRetired.length > 0) {
+    lines.push(
+      `  - stale-notes-retired=${outcome.staleNotesRetired.join("; ")}`,
+    );
+  }
+
+  if (outcome.staleNotesCorrected.length > 0) {
+    lines.push(
+      `  - stale-notes-corrected=${outcome.staleNotesCorrected.join("; ")}`,
+    );
+  }
+
+  if (outcome.updatedPlannerReportPath) {
+    lines.push(`  - planner-artifact=${outcome.updatedPlannerReportPath}`);
+  }
+
+  if (outcome.applyDetail) {
+    lines.push(`  - apply-detail=${outcome.applyDetail}`);
+  }
+
+  return lines;
+}
+
 export function formatRootMainLagCurrentTruthHandoff(
   handoff: RootMainLagCurrentTruthHandoff,
 ): string {
@@ -699,6 +1196,10 @@ export function formatRootMainLagCurrentTruthHandoff(
     ...formatRootMainLagGitTruthEvidence(handoff.gitTruth),
     ...formatRootMainLagQueuePlannerComparison(handoff.queuePlannerComparison),
   ];
+
+  if (handoff.outcome) {
+    lines.push(...formatRootMainLagReconciliationOutcome(handoff.outcome));
+  }
 
   return lines.join("\n");
 }

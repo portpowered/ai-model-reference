@@ -10,16 +10,20 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-  buildRootMainLagCurrentTruthHandoff,
   captureRootMainLagGitTruth,
   classifyRootMainLagNoteAlignment,
   classifyRootRemoteRelationship,
   compareQueueStateAndPlannerReportsAgainstGitTruth,
+  decideRootMainLagReconciliationOutcome,
   formatRootMainLagCurrentTruthHandoff,
   mapBranchDriftToRootRemoteRelationship,
+  performRootMainLagReconciliation,
   ROOT_MAIN_LAG_CURRENT_TRUTH_RECONCILIATION_HEADER,
+  ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_END_MARKER,
+  ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_START_MARKER,
   textClaimsCurrentRootMainLag,
   textContainsRootMainLagStaleMarker,
+  upsertRootMainLagCurrentTruthResolutionSection,
 } from "@/lib/factory/planner-root-main-lag-current-truth-reconciliation";
 
 const FIXTURE_DIR = join(
@@ -279,7 +283,7 @@ describe("captureRootMainLagGitTruth", () => {
 
 describe("formatRootMainLagCurrentTruthHandoff", () => {
   test("formats reviewer-verifiable git truth for planners", () => {
-    const handoff = buildRootMainLagCurrentTruthHandoff({
+    const handoff = performRootMainLagReconciliation({
       generatedAtUtc: "2026-07-02T20:15:00.000Z",
       repoRoot: "/repo/root",
       remoteBaseRef: "origin/main",
@@ -325,6 +329,8 @@ describe("formatRootMainLagCurrentTruthHandoff", () => {
     expect(formatted).toContain("relationship=behind(ahead=0,behind=2)");
     expect(formatted).toContain("- queue-planner-comparison");
     expect(formatted).toContain("queue-state=unavailable");
+    expect(formatted).toContain("- reconciliation-outcome");
+    expect(formatted).toContain("kind=root-sync-handoff");
   });
 });
 
@@ -488,5 +494,302 @@ describe("classifyRootRemoteRelationship", () => {
       commitsBehindRemote: 0,
       remoteRelationship: "unknown",
     });
+  });
+});
+
+describe("decideRootMainLagReconciliationOutcome", () => {
+  test("chooses root-sync-handoff for a clean root that is behind origin/main", () => {
+    const gitTruth = captureRootMainLagGitTruth({
+      repoRoot: "/repo/root",
+      remoteBaseRef: "origin/main",
+      statusOutput: "",
+      runGit: (_repoRoot, args) => {
+        if (args[0] === "rev-parse" && args[1] === "HEAD") {
+          return {
+            status: 0,
+            stdout: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+            stderr: "",
+          };
+        }
+        if (args[0] === "rev-parse" && args[1] === "origin/main") {
+          return {
+            status: 0,
+            stdout: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n",
+            stderr: "",
+          };
+        }
+        if (args[0] === "symbolic-ref") {
+          return { status: 0, stdout: "main\n", stderr: "" };
+        }
+        if (args[0] === "rev-list") {
+          return { status: 0, stdout: "2\t0\n", stderr: "" };
+        }
+        return { status: 0, stdout: "", stderr: "" };
+      },
+    });
+    const comparison = compareQueueStateAndPlannerReportsAgainstGitTruth(
+      gitTruth,
+      {},
+    );
+
+    const outcome = decideRootMainLagReconciliationOutcome(
+      gitTruth,
+      comparison,
+    );
+
+    expect(outcome.kind).toBe("root-sync-handoff");
+    expect(outcome.rootSyncBeforeHead?.sha).toBe(
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    );
+  });
+
+  test("chooses stale-state-note-update when aligned root still has current stale lag notes", () => {
+    const gitTruth = alignedGitTruth();
+    const comparison = compareQueueStateAndPlannerReportsAgainstGitTruth(
+      gitTruth,
+      {
+        plannerReports: [
+          {
+            path: "fixture/stale-current-lag-planner-report.md",
+            text: readFixture("stale-current-lag-planner-report.md"),
+          },
+        ],
+      },
+    );
+
+    const outcome = decideRootMainLagReconciliationOutcome(
+      gitTruth,
+      comparison,
+    );
+
+    expect(outcome.kind).toBe("stale-state-note-update");
+    expect(outcome.staleNotesCorrected).toContain(
+      "fixture/stale-current-lag-planner-report.md",
+    );
+  });
+
+  test("chooses explicit-no-update when planner notes conflict with live git", () => {
+    const gitTruth = captureRootMainLagGitTruth({
+      repoRoot: "/repo/root",
+      remoteBaseRef: "origin/main",
+      statusOutput: "",
+      runGit: (_repoRoot, args) => {
+        if (args[0] === "rev-parse") {
+          return {
+            status: 0,
+            stdout: "cccccccccccccccccccccccccccccccccccccccc\n",
+            stderr: "",
+          };
+        }
+        if (args[0] === "symbolic-ref") {
+          return { status: 0, stdout: "main\n", stderr: "" };
+        }
+        if (args[0] === "rev-list") {
+          return { status: 0, stdout: "0\t5\n", stderr: "" };
+        }
+        return { status: 0, stdout: "", stderr: "" };
+      },
+    });
+    const comparison = compareQueueStateAndPlannerReportsAgainstGitTruth(
+      gitTruth,
+      {
+        workListJsonText: readFixture("stale-current-lag-work-list.json"),
+      },
+    );
+
+    const outcome = decideRootMainLagReconciliationOutcome(
+      gitTruth,
+      comparison,
+    );
+
+    expect(outcome.kind).toBe("explicit-no-update");
+    expect(outcome.noUpdateReason).toContain("conflict");
+  });
+
+  test("chooses explicit-no-update for dirty root worktrees", () => {
+    const gitTruth = captureRootMainLagGitTruth({
+      repoRoot: "/repo/root",
+      remoteBaseRef: "origin/main",
+      statusOutput: "?? local-edit.md",
+      runGit: (_repoRoot, args) => {
+        if (args[0] === "rev-parse") {
+          return {
+            status: 0,
+            stdout: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+            stderr: "",
+          };
+        }
+        if (args[0] === "symbolic-ref") {
+          return { status: 0, stdout: "main\n", stderr: "" };
+        }
+        if (args[0] === "rev-list") {
+          return { status: 0, stdout: "0\t2\n", stderr: "" };
+        }
+        return { status: 0, stdout: "", stderr: "" };
+      },
+    });
+    const comparison = compareQueueStateAndPlannerReportsAgainstGitTruth(
+      gitTruth,
+      {},
+    );
+
+    const outcome = decideRootMainLagReconciliationOutcome(
+      gitTruth,
+      comparison,
+    );
+
+    expect(outcome.kind).toBe("explicit-no-update");
+    expect(outcome.noUpdateReason).toContain("dirty");
+  });
+
+  test("chooses explicit-no-update when root already reflects current truth", () => {
+    const gitTruth = alignedGitTruth();
+    const comparison = compareQueueStateAndPlannerReportsAgainstGitTruth(
+      gitTruth,
+      {
+        plannerReports: [
+          {
+            path: "fixture/historical-lag-planner-report.md",
+            text: readFixture("historical-lag-planner-report.md"),
+          },
+        ],
+      },
+    );
+
+    const outcome = decideRootMainLagReconciliationOutcome(
+      gitTruth,
+      comparison,
+    );
+
+    expect(outcome.kind).toBe("explicit-no-update");
+    expect(outcome.noUpdateReason).toBe("root already reflects current truth");
+    expect(outcome.staleNotesRetired.length).toBeGreaterThan(0);
+  });
+});
+
+describe("performRootMainLagReconciliation", () => {
+  test("fast-forwards a clean behind root and records before and after commit identities", () => {
+    const repoRoot = createFixtureRepo();
+    try {
+      const behindHead = spawnSync("git", ["rev-parse", "HEAD"], {
+        cwd: repoRoot,
+        encoding: "utf8",
+      }).stdout.trim();
+      writeFileSync(join(repoRoot, "ahead-on-remote.md"), "remote\n");
+      runGit(repoRoot, ["add", "ahead-on-remote.md"]);
+      runGit(repoRoot, ["commit", "-m", "ahead on remote"]);
+      const originMainSha = spawnSync("git", ["rev-parse", "HEAD"], {
+        cwd: repoRoot,
+        encoding: "utf8",
+      }).stdout.trim();
+      runGit(repoRoot, ["reset", "--hard", behindHead]);
+      runGit(repoRoot, [
+        "update-ref",
+        "refs/remotes/origin/main",
+        originMainSha,
+      ]);
+
+      const handoff = performRootMainLagReconciliation({
+        apply: true,
+        generatedAtUtc: "2026-07-02T21:00:00.000Z",
+        repoRoot,
+        remoteBaseRef: "origin/main",
+        statusOutput: "",
+      });
+
+      expect(handoff.outcome?.kind).toBe("root-sync-handoff");
+      expect(handoff.outcome?.applyStatus).toBe("applied");
+      expect(handoff.outcome?.rootSyncBeforeHead?.sha).toBe(behindHead);
+      expect(handoff.outcome?.rootSyncAfterHead?.sha).toBe(originMainSha);
+      expect(handoff.gitTruth.headCommit.sha).toBe(originMainSha);
+      expect(handoff.gitTruth.remoteRelationship).toBe("aligned");
+    } finally {
+      rmSync(join(repoRoot, ".."), { recursive: true, force: true });
+    }
+  });
+
+  test("records explicit no-update for aligned root without mutating git", () => {
+    const repoRoot = createFixtureRepo();
+    const plannerReportPath = join(
+      repoRoot,
+      "docs/internal/processes/root-main-lag-current-truth-reconciliation-relevant-files.md",
+    );
+    try {
+      runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "HEAD"]);
+      mkdirSync(join(repoRoot, "docs/internal/processes"), { recursive: true });
+      writeFileSync(
+        plannerReportPath,
+        "# Root lag\n\n## Boundaries\n\n- Do not run you.\n",
+        "utf8",
+      );
+
+      const invokedGitCommands: string[][] = [];
+      const handoff = performRootMainLagReconciliation({
+        apply: true,
+        generatedAtUtc: "2026-07-02T21:05:00.000Z",
+        plannerReportPath:
+          "docs/internal/processes/root-main-lag-current-truth-reconciliation-relevant-files.md",
+        repoRoot,
+        remoteBaseRef: "origin/main",
+        statusOutput: "",
+        runGit: (_root, args) => {
+          invokedGitCommands.push([...args]);
+          return spawnSync("git", [...args], {
+            cwd: repoRoot,
+            encoding: "utf8",
+          });
+        },
+      });
+
+      expect(handoff.outcome?.kind).toBe("explicit-no-update");
+      expect(handoff.outcome?.applyStatus).toBe("applied");
+      expect(invokedGitCommands.some((args) => args[0] === "merge")).toBe(
+        false,
+      );
+
+      const updatedReport = readFileSync(plannerReportPath, "utf8");
+      expect(updatedReport).toContain(
+        ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_START_MARKER,
+      );
+      expect(updatedReport).toContain("root already reflects current truth");
+    } finally {
+      rmSync(join(repoRoot, ".."), { recursive: true, force: true });
+    }
+  });
+});
+
+describe("upsertRootMainLagCurrentTruthResolutionSection", () => {
+  test("replaces an existing resolution section idempotently", () => {
+    const original = [
+      "# Root lag",
+      "",
+      "## Current truth resolution",
+      "",
+      ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_START_MARKER,
+      "old",
+      ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_END_MARKER,
+      "",
+      "## Boundaries",
+      "",
+      "- Do not run you.",
+      "",
+    ].join("\n");
+    const replacement = [
+      "## Current truth resolution",
+      "",
+      ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_START_MARKER,
+      "new",
+      ROOT_MAIN_LAG_CURRENT_TRUTH_RESOLUTION_END_MARKER,
+      "",
+    ].join("\n");
+
+    const updated = upsertRootMainLagCurrentTruthResolutionSection(
+      original,
+      replacement,
+    );
+
+    expect(updated).toContain("new");
+    expect(updated).not.toContain("old");
+    expect(updated).toContain("## Boundaries");
   });
 });
