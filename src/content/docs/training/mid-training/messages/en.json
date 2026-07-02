@@ -1,0 +1,85 @@
+{
+  "title": "Mid-Training",
+  "description": "Continued training on a pretrained base checkpoint before final post-training, using targeted data or objectives to extend capability without yet shaping final assistant behavior.",
+  "openingSummary": "Mid-training is continued training that starts from a broadly pretrained base checkpoint and runs before the final post-training stages that shape assistant behavior. Teams use it to extend capability, refresh knowledge, or steer the model toward a domain while the model is still learning from broader corpora rather than final instruction or preference datasets.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Mid-training is the training stage between large-scale pretraining and final post-training. A team loads weights from a pretrained base model and keeps training on additional data or objectives. The run may look like pretraining in mechanics—token prediction, masked language modeling, or similar losses—but it starts from an existing checkpoint instead of random initialization and usually uses a narrower or more targeted data mixture than the first broad pretraining pass."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Pretraining creates a general base model, but product teams often need more capability before behavior shaping begins. Mid-training fills that gap. A longer or refreshed pretraining-style run can add domain knowledge, improve reasoning patterns, or adapt the model to new languages or code styles without yet switching to instruction demonstrations or preference optimization. It lets teams invest compute in capability growth while keeping the final assistant-alignment stage separate."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Training resumes from a pretrained checkpoint. The team chooses a data mixture—general web text, code, synthetic data, domain documents, or a blend—and an objective that matches the goal. Updates continue until the checkpoint reaches the desired capability level or budget limit. The output is an intermediate model that is stronger or more specialized than the original base but has not yet received the final post-training passes that teach instruction following, preference fit, or deployment-specific safety behavior."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Mid-training sits after broad pretraining and before final post-training. It continues capability learning from a base checkpoint rather than building that base from scratch or finishing the product-facing behavior shaping stage."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "Mid-training inherits the limits of its starting checkpoint and the new data mixture. A narrow or noisy continued-training corpus can skew capability without fixing underlying base-model gaps. Because the stage often reuses pretraining-style objectives, it does not by itself produce reliable instruction following or preference-aligned behavior; those outcomes still depend on later post-training."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "trainingFlow": {
+      "title": "Mid-training flow",
+      "alt": "A three-step mid-training flow: pretrained base checkpoint, continued training on targeted data, then an intermediate checkpoint ready for post-training.",
+      "caption": "Mid-training resumes from a pretrained checkpoint and continues training before final post-training behavior shaping.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "baseCheckpoint": {
+        "label": "Pretrained base checkpoint"
+      },
+      "continuedTraining": {
+        "label": "Continued training on targeted data"
+      },
+      "intermediateCheckpoint": {
+        "label": "Intermediate checkpoint"
+      }
+    }
+  },
+  "math": {
+    "continuedTrainingObjective": {
+      "label": "Continued training update",
+      "formula": "\\theta_{\\text{mid}} \\leftarrow \\text{Train}(\\theta_{\\text{pre}}, \\mathcal{D}_{\\text{mid}}, \\mathcal{L}_{\\text{mid}})",
+      "variableDefinitions": {
+        "thetapre": {
+          "term": "\\theta_{\\text{pre}}",
+          "definition": "weights from the pretrained base checkpoint"
+        },
+        "dmid": {
+          "term": "\\mathcal{D}_{\\text{mid}}",
+          "definition": "the continued-training data mixture"
+        },
+        "lmid": {
+          "term": "\\mathcal{L}_{\\text{mid}}",
+          "definition": "the training objective used during mid-training"
+        },
+        "thetamid": {
+          "term": "\\theta_{\\text{mid}}",
+          "definition": "weights after the continued-training run"
+        }
+      }
+    }
+  }
+}
