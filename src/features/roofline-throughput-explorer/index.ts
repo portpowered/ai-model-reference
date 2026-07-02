@@ -1,0 +1,18 @@
+export {
+  computeActiveWeightBytesPerToken,
+  computeMaximumComputeFlopsPerSecond,
+  computeMemoryBoundComputeFlopsPerSecond,
+  computeRooflineScenario,
+  DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS,
+  DEFAULT_ROOFLINE_PEAK_COMPUTE_FLOPS_PER_SECOND,
+  ROOFLINE_FLOPS_PER_PARAMETER_PER_TOKEN,
+  type RooflineBoundaryPoint,
+  type RooflineBoundarySeriesResult,
+  type RooflineInvalidField,
+  type RooflineInvalidReason,
+  type RooflineInvalidResult,
+  type RooflineScenarioInputDraft,
+  type RooflineScenarioInputValues,
+  type RooflineScenarioResult,
+  sampleMaximumThroughputBoundarySeries,
+} from "./roofline-throughput-calculation";
