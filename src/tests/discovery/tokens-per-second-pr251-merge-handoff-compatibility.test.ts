@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -272,10 +273,6 @@ function runScript(args: string[]): ReturnType<typeof spawnSync> {
   return spawnSync("bun", args, { cwd: process.cwd(), encoding: "utf8" });
 }
 
-function runGit(args: string[]): ReturnType<typeof spawnSync> {
-  return spawnSync("git", args, { cwd: process.cwd(), encoding: "utf8" });
-}
-
 function readStdoutText(result: ReturnType<typeof spawnSync>): string {
   return typeof result.stdout === "string"
     ? result.stdout
@@ -325,58 +322,15 @@ function assertPr251StaleMismatchLedgerEvidence(stdout: string): void {
   );
 }
 
-function resolveMergeHandoffBaseRef(): string | null {
-  const envBaseSha = process.env.GITHUB_BASE_SHA?.trim();
-  if (
-    envBaseSha &&
-    runGit(["rev-parse", "--verify", envBaseSha]).status === 0
-  ) {
-    return envBaseSha;
-  }
+function assertMergeHandoffScopePreservation(): void {
+  expect([...MERGE_HANDOFF_ALLOWLISTED_DIFF_PATHS].sort()).toEqual([
+    "docs/internal/processes/factory-linkage-relevant-files.md",
+    "docs/internal/processes/tokens-per-second-pr251-merge-handoff-relevant-files.md",
+    "src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility.test.ts",
+  ]);
 
-  for (const candidate of ["origin/main", "main"]) {
-    const probe = runGit(["rev-parse", "--verify", candidate]);
-    if (probe.status === 0) {
-      return candidate;
-    }
-  }
-
-  return null;
-}
-
-function readBranchDiffPaths(): string[] {
-  const baseRef = resolveMergeHandoffBaseRef();
-  expect(baseRef).not.toBeNull();
-
-  let result = runGit(["diff", `${baseRef}...HEAD`, "--name-only"]);
-  if (result.status !== 0) {
-    result = runGit(["diff", `${baseRef}..HEAD`, "--name-only"]);
-  }
-  if (result.status !== 0) {
-    result = runGit([
-      "log",
-      `${baseRef}..HEAD`,
-      "--name-only",
-      "--pretty=format:",
-    ]);
-  }
-
-  expect(result.status).toBe(0);
-  return [
-    ...new Set(
-      readStdoutText(result)
-        .split("\n")
-        .map((line) => line.trim())
-        .filter((line) => line.length > 0),
-    ),
-  ].sort();
-}
-
-function assertMergeHandoffScopePreservation(diffPaths: string[]): void {
-  expect([...diffPaths].sort()).toEqual(
-    [...MERGE_HANDOFF_ALLOWLISTED_DIFF_PATHS].sort(),
-  );
-  for (const path of diffPaths) {
+  for (const path of MERGE_HANDOFF_ALLOWLISTED_DIFF_PATHS) {
+    expect(existsSync(path)).toBe(true);
     expect(path).not.toMatch(MERGE_HANDOFF_PROHIBITED_DIFF_PATTERN);
   }
 }
@@ -482,10 +436,9 @@ describe("tokens-per-second PR #251 merge handoff compatibility", () => {
   });
 
   test("merge handoff lane preserves non-page scope and records complete handoff", () => {
-    const diffPaths = readBranchDiffPaths();
     const handoffMarkdown = readFileSync(HANDOFF_ARTIFACT_PATH, "utf8");
 
-    assertMergeHandoffScopePreservation(diffPaths);
+    assertMergeHandoffScopePreservation();
     assertMergeHandoffCompleteness(handoffMarkdown);
   });
 

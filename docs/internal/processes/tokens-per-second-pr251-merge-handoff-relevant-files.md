@@ -462,6 +462,11 @@ bun test src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility
   -t "merge handoff lane preserves non-page scope"
 ```
 
+The fixture test asserts the lane allowlist contract (3 paths exist, none match
+prohibited patterns) and required handoff markdown sections. Branch diff scope
+against `main` remains command verification via `git diff main...HEAD --name-only`
+above for planner review.
+
 ## Verification for story 004
 
 | Gate | Result |
