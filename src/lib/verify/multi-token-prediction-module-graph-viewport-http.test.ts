@@ -12,6 +12,8 @@ import {
 import { RENDERED_QUALITY_VIEWPORTS } from "./rendered-quality-baseline";
 
 const MULTI_TOKEN_PREDICTION_SLUG = "multi-token-prediction";
+/** Serialized CI Playwright launches can approach the default 60s Bun budget. */
+const MULTI_TOKEN_PREDICTION_GRAPH_VIEWPORT_PROBE_TIMEOUT_MS = 120_000;
 
 describe("multi-token-prediction module graph viewport probes", () => {
   test(
@@ -30,7 +32,7 @@ describe("multi-token-prediction module graph viewport probes", () => {
 
       expect(failure).toBeNull();
     },
-    { timeout: 60_000 },
+    { timeout: MULTI_TOKEN_PREDICTION_GRAPH_VIEWPORT_PROBE_TIMEOUT_MS },
   );
 
   test.each([...RENDERED_QUALITY_VIEWPORTS])(
@@ -56,7 +58,7 @@ describe("multi-token-prediction module graph viewport probes", () => {
         expect(probe.overlappingNodePairs).toBe(0);
       }
     },
-    { timeout: 60_000 },
+    { timeout: MULTI_TOKEN_PREDICTION_GRAPH_VIEWPORT_PROBE_TIMEOUT_MS },
   );
 
   test("canonical route remains /docs/modules/multi-token-prediction", () => {
