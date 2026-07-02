@@ -37,8 +37,18 @@ All three target PR merge commits are ancestors of current `origin/main`:
 | `byte-level-tokenization-page` | [#289](https://github.com/portpowered/ai-model-reference/pull/289) | MERGED | 2026-07-02T18:18:04Z | `2d0b21c4` | `f010c064` |
 | `pr-surface-module-linked-support-records` | [#291](https://github.com/portpowered/ai-model-reference/pull/291) | MERGED | 2026-07-02T18:02:14Z | `5cc5f1a4` | `aa3d14c6` |
 
-PR conversation comments on all three PRs end with reviewer merge approval; no
-unresolved BLOCKING/REJECTED/FAIL conversation comments remain on the merged PRs.
+PR conversation comments (live `gh pr view <n> --json comments`):
+
+| PR | Conversation comments | Latest review signal |
+| --- | --- | --- |
+| #287 | present (11 comments) | ends with `CLEARED / PASS review` on head `f6c0946b` (2026-07-02T18:58:12Z UTC) |
+| #289 | present (6 comments) | ends with `PASS / non-blocking` on head `f010c064` (2026-07-02T19:12:26Z UTC) |
+| #291 | **none** (`comments: []`) | no PR conversation thread; merged PR truth and queue evidence only |
+
+No unresolved BLOCKING/REJECTED/FAIL conversation comments remain on PRs #287 or
+#289. PR #291 has no conversation comments, so its **missing-queue-row** no-op
+outcome is supported by target-session queue lookups (zero rows) and merged PR
+truth on `origin/main`, not by reviewer merge-approval comments.
 
 ## Factory queue evidence (session `930b51a6-07ce-44e6-a639-7a6217f6e864`)
 
