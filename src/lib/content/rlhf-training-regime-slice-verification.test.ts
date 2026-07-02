@@ -1,6 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "@/lib/verify/launch-playwright-browser";
+import {
+  acquireVerifyServerSession,
+  shouldRunVerifyProductionIntegrationTests,
+} from "@/lib/verify/server-lifecycle";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
@@ -36,6 +44,7 @@ const PAGE_URL = "/docs/training/rlhf";
 const GRAPH_ID = "graph.rlhf-training-flow";
 const INSTRUCTGPT_CITATION_ID =
   "citation.training-language-models-to-follow-instructions-with-human-feedback";
+const repoRoot = join(import.meta.dir, "../../..");
 
 const pageDir = getDocsPageDir("training", SLUG);
 const messagesPath = join(pageDir, "messages/en.json");
@@ -241,4 +250,83 @@ describe("RLHF training-regime slice verification (rlhf-page-004)", () => {
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("missing-content");
   });
+
+  test("served RLHF page renders title, summary, workflow graph, related links, tags, and references at desktop and mobile widths", async () => {
+    if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+      return;
+    }
+
+    const session = await acquireVerifyServerSession({ projectRoot: repoRoot });
+    const browser = await launchPlaywrightBrowser();
+
+    try {
+      for (const viewport of [
+        { width: 1280, height: 800 },
+        { width: 375, height: 667 },
+      ]) {
+        const page = await browser.newPage({ viewport });
+        page.setDefaultTimeout(30_000);
+        await page.goto(`${session.baseUrl}${PAGE_URL}`, {
+          waitUntil: "load",
+        });
+
+        await page
+          .getByRole("heading", {
+            name: "Reinforcement Learning from Human Feedback",
+            exact: true,
+          })
+          .waitFor({ state: "visible" });
+
+        const summaryText = await page
+          .locator('[data-testid="folded-summary"]')
+          .innerText();
+        expect(summaryText).toContain(
+          "post-training workflow that steers model behavior using human preference signals",
+        );
+
+        const bodyText = await page
+          .locator('article[data-registry-id="training-regime.rlhf"]')
+          .innerText();
+
+        for (const sectionTitle of [
+          "What It Is",
+          "How It Works",
+          "Compared To Nearby Regimes",
+          "Related To",
+          "References",
+        ]) {
+          await page
+            .getByRole("heading", { name: sectionTitle })
+            .first()
+            .waitFor({ state: "visible" });
+        }
+
+        const graph = page.locator('[data-react-flow-graph="true"]');
+        await graph.waitFor({ state: "visible" });
+        expect(await graph.getAttribute("data-graph-id")).toBe(GRAPH_ID);
+
+        await page
+          .locator('[data-testid="tag-pill-list"]')
+          .first()
+          .waitFor({ state: "visible" });
+        await page
+          .locator('[data-testid="citation-list"]')
+          .first()
+          .waitFor({ state: "visible" });
+        await page
+          .locator('[data-testid="curated-related-docs"]')
+          .first()
+          .waitFor({ state: "visible" });
+
+        expect(bodyText).not.toContain("missing message");
+        expect(bodyText).not.toContain("missing asset");
+        expect(bodyText).not.toContain("missing-content");
+
+        await page.close();
+      }
+    } finally {
+      await closePlaywrightBrowserWithTimeout(browser);
+      await session.cleanup();
+    }
+  }, 120_000);
 });
