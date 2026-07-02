@@ -150,6 +150,56 @@ This conflict-refresh lane must not:
 - touch WordPiece or BPE unless a direct merge conflict requires it,
 - modify shared page-generation policy.
 
+## Drain outcome (story 002, 2026-07-02T17:30Z UTC)
+
+**Selected outcome:** `refresh-safe`
+
+No new tokenizer pages, WordPiece/BPE work, or shared page-generation policy
+changes are in scope for this lane.
+
+### Evidence for `refresh-safe`
+
+| Criterion | Result |
+| --- | --- |
+| Unsafe active-lane collision | none (`active-lane-overlap=none` from collision preflight 2026-07-02T17:22:40Z) |
+| Conflicts limited to PR-lane files | yes — merge commit `85dfc333` resolved only lane-owned surfaces (`messages/en.json`, `citations.ts`, timeout constants, `byte-level-tokenization-registry.test.ts`) |
+| Shared policy / root-drift / WordPiece / BPE without ownership | not observed — nearby tokenizer worktrees (`bpe-page`, `wordpiece-page`, `tokenizer-mismatch-root-drift-reconciliation`) show no active ownership overlap |
+| PR #289 mergeability | MERGEABLE, merge state CLEAN, all required checks SUCCESS (re-fetched 2026-07-02T17:19Z) |
+| PR #289 head | `efcf4dc554c38ad97a9ecbd29a363a85b3a39050` on `byte-level-tokenization-page` |
+
+The prior DIRTY state from the planner snapshot (2026-07-02T10:01:49-0700) was
+cleared when the page lane merged `origin/main` at `85dfc333` and pushed lint
+fix `efcf4dc5`. Live GitHub now reports a clean merge path.
+
+### Why not `handoff-required`
+
+- Collision preflight reports `active-lane-overlap=none`; no active tokenizer or
+  root-drift lane owns the byte-level tokenization surfaces under refresh.
+- Merge conflicts from the `origin/main` integration were lane-owned and already
+  resolved in the `byte-level-tokenization-page` worktree; no partial hidden
+  resolution remains on the conflict-refresh lane.
+- No WordPiece, BPE, or shared page-generation policy files appear in the
+  unresolved PR diff vs `origin/main`.
+
+### Why not `stale-or-duplicate`
+
+`origin/main` at `d9ef966b7ecaa46cc19699033ec7d8bfdca16e24` ships the baseline
+byte-level tokenization page bundle (`page.mdx`, registry binding), but PR #289
+still carries incremental lane intent not on main:
+
+- `src/lib/content/byte-level-tokenization-page-contract.test.ts` (absent on main)
+- expanded focused tests and message/comparison-table deltas across nine paths
+  (`+421 / -43` vs `origin/main` on 2026-07-02T17:30Z)
+
+Queue `idea:to-complete` + `task:init` is stale relative to completed page PRD
+stories and the open PR; that queue drift alone does not prove duplicate work.
+
+### Next operator action
+
+Story 003 may verify the existing `85dfc333` / `efcf4dc5` refresh is current
+against live `origin/main`, capture final mergeability, and run page-level
+validation. No handoff or stale/duplicate closure is required.
+
 ## Evidence commands (read-only)
 
 ```bash
