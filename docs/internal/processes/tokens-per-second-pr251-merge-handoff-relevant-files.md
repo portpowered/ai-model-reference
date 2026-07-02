@@ -302,6 +302,54 @@ Do not edit tokens-per-second page payload from this merge-handoff worktree.
 - This merge-handoff lane (`tokens-per-second-pr251-merge-handoff`) records
   evidence and decision only; it does not push content-branch commits.
 
+## Planner report classification (story 003)
+
+Captured 2026-07-02 UTC. Normal planner-facing reports must treat PR #251 as
+**merge/queue recovery**, not useful active page implementation, while batch 061
+page lanes remain useful active work.
+
+### Compact meta-planner loopback
+
+```txt
+recovery-item=pr-251-merge-handoff work-item=tokens-per-second-serving-metric-page pr=#251
+recovery-class=stale-clean-pr-mismatch recovery-action=safe-branch-refresh
+useful-active-lanes=stable-diffusion-model-page,relative-position-bias-concept-page,prefill-decode-split-concept-page
+excluded-from-useful-active=tokens-per-second-serving-metric-page
+watchdog-next-action=open-follow-up-throughput-prd ledger-section=Stale PR Mismatch Summary
+```
+
+### Report separation rules
+
+| Lane | Planner classification | Counted as useful active? | Report section |
+| --- | --- | --- | --- |
+| `tokens-per-second-serving-metric-page` (PR #251) | `stale-clean-pr-mismatch` / `risk=queue-stale` | **No** — recovery only | Watchdog action queue + ledger `Stale PR Mismatch Summary` |
+| `stable-diffusion-model-page` | `active-page-implementation` | Yes | Watchdog actionable rows + concurrency-floor `Useful Active Lanes` |
+| `relative-position-bias-concept-page` | `active-page-implementation` | Yes | same |
+| `prefill-decode-split-concept-page` | `active-page-implementation` | Yes | same |
+
+PR #251 maps back to recovery action **safe branch refresh** (story 002). Failed
+`work-task-155` and non-active `idea:to-complete` tokens do not inflate
+`useful-active`; only batch 061 `in-progress` task tokens do.
+
+### Fixture-backed verification
+
+```bash
+unset TMPDIR
+bun test src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility.test.ts \
+  -t "planner reports separate PR #251 recovery"
+```
+
+Observed (fixture, 2026-07-02 UTC):
+
+- Ledger: `stale-clean-pr-mismatch=1`; PR #251 under `Stale PR Mismatch Summary`
+  with `lane-kind=stale-clean-pr-mismatch` and `next-action=open-follow-up-throughput-prd`.
+- Watchdog: `action=open-follow-up` for PR #251 only; batch 061 lanes in
+  actionable rows without `open-follow-up`.
+- Concurrency floor: `useful-active=3` listing batch 061 lanes only; PR #251 absent.
+
+Proof does not require source inventories, docs link topology, route
+registrations, or broad queue scans.
+
 ## Verification for story 001
 
 | Gate | Result |
@@ -318,4 +366,13 @@ Do not edit tokens-per-second page payload from this merge-handoff worktree.
 | Typecheck | not rerun — handoff-only decision; no code changes |
 | Focused command verification | `gh pr view 251` (OPEN, MERGEABLE, CLEAN, head `381abe9a`), `gh api …/issues/251/comments` (latest BLOCKING 2026-07-02T03:31:22Z), `you work list --session …` |
 | Decision recorded | **safe branch refresh** on `tokens-per-second-serving-metric-page` with operator steps above |
+| Content page payload | not modified |
+
+## Verification for story 003
+
+| Gate | Result |
+| --- | --- |
+| Typecheck | `bun run typecheck` — required when code changes land |
+| Focused tests | `bun test src/tests/discovery/tokens-per-second-pr251-merge-handoff-compatibility.test.ts -t "planner reports separate PR #251 recovery"` |
+| Planner classification | PR #251 `stale-clean-pr-mismatch`; batch 061 lanes `active-page-implementation`; concurrency floor excludes PR #251 |
 | Content page payload | not modified |

@@ -1,12 +1,23 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const SESSION_ID = "0fdc5077-95ed-4396-a183-06e5b16555ca";
 const WORK_ITEM = "tokens-per-second-serving-metric-page";
 const PR_NUMBER = 251;
+const BATCH_061_ACTIVE_LANES = [
+  "stable-diffusion-model-page",
+  "relative-position-bias-concept-page",
+  "prefill-decode-split-concept-page",
+] as const;
 
 interface Pr251MergeHandoffFixture {
   cleanup: () => void;
@@ -116,6 +127,135 @@ function createPr251MergeHandoffFixture(): Pr251MergeHandoffFixture {
   };
 }
 
+interface Pr251Batch061Fixture extends Pr251MergeHandoffFixture {
+  concurrencyFloorWorkListPath: string;
+}
+
+function createPr251WithBatch061Fixture(): Pr251Batch061Fixture {
+  const base = createPr251MergeHandoffFixture();
+  const dir = join(base.workListPath, "..");
+  const concurrencyFloorWorkListPath = join(
+    dir,
+    "concurrency-floor-work-list.json",
+  );
+
+  for (const [index, laneName] of BATCH_061_ACTIVE_LANES.entries()) {
+    const worktreePath = join(base.worktreesRoot, laneName);
+    mkdirSync(worktreePath, { recursive: true });
+    writeFileSync(
+      join(worktreePath, "prd.json"),
+      JSON.stringify({ branchName: laneName }, null, 2),
+    );
+    mkdirSync(join(worktreePath, ".claude"), { recursive: true });
+    writeFileSync(
+      join(worktreePath, ".claude", "lane-metadata.json"),
+      `${JSON.stringify(
+        {
+          schemaVersion: 1,
+          workItemName: laneName,
+          branchName: laneName,
+          branchMetadataSource: "setup",
+          worktreePath,
+          sessionId: `batch-061-session-${index + 1}`,
+          pullRequest: {
+            number: 300 + index,
+            url: `https://example.com/pull/${300 + index}`,
+          },
+          createdAtUtc: "2026-06-20T21:08:34.000Z",
+          refreshedAtUtc: "2026-07-02T05:01:30.864Z",
+          linkage: {
+            branch: {
+              status: "current",
+              refreshedAtUtc: "2026-07-02T05:01:30.864Z",
+            },
+            pullRequest: {
+              status: "current",
+              refreshedAtUtc: "2026-07-02T05:01:30.864Z",
+            },
+          },
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  }
+
+  const prMap = JSON.parse(readFileSync(base.prMapPath, "utf8")) as Record<
+    string,
+    unknown
+  >;
+  for (const [index, laneName] of BATCH_061_ACTIVE_LANES.entries()) {
+    prMap[laneName] = {
+      number: 300 + index,
+      headRefName: laneName,
+      mergeStateStatus: "CLEAN",
+      statusCheckRollup: [{ conclusion: "SUCCESS" }],
+      url: `https://example.com/pull/${300 + index}`,
+    };
+  }
+  writeFileSync(base.prMapPath, JSON.stringify(prMap, null, 2));
+
+  const workList = JSON.parse(readFileSync(base.workListPath, "utf8")) as {
+    items: Array<Record<string, unknown>>;
+  };
+  workList.items.push(
+    ...BATCH_061_ACTIVE_LANES.map((laneName, index) => ({
+      name: laneName,
+      workId: `batch-061-task-${index + 1}`,
+      workTypeName: "task",
+      state: "in-progress",
+      sessionId: `batch-061-session-${index + 1}`,
+    })),
+  );
+  writeFileSync(base.workListPath, JSON.stringify(workList, null, 2));
+
+  const sessionList = JSON.parse(
+    readFileSync(base.sessionListPath, "utf8"),
+  ) as {
+    sessions: Array<Record<string, unknown>>;
+  };
+  sessionList.sessions.push(
+    ...BATCH_061_ACTIVE_LANES.map((laneName, index) => ({
+      id: `batch-061-session-${index + 1}`,
+      workItemName: laneName,
+      status: "running",
+    })),
+  );
+  writeFileSync(base.sessionListPath, JSON.stringify(sessionList, null, 2));
+
+  writeFileSync(
+    concurrencyFloorWorkListPath,
+    JSON.stringify({
+      results: [
+        {
+          workId: "work-task-155",
+          name: WORK_ITEM,
+          sessionId: SESSION_ID,
+          state: { name: "failed", type: "FAILED" },
+        },
+        {
+          workId:
+            "batch-serving-metric-tokens-per-second-batch-039-tokens-per-second-serving-metric-page",
+          name: WORK_ITEM,
+          workTypeName: "idea",
+          state: { name: "to-complete", type: "PROCESSING" },
+        },
+        ...BATCH_061_ACTIVE_LANES.map((laneName, index) => ({
+          workId: `batch-061-task-${index + 1}`,
+          name: laneName,
+          sessionId: `batch-061-session-${index + 1}`,
+          state: { name: "in-progress", type: "PROCESSING" },
+        })),
+      ],
+    }),
+  );
+
+  return {
+    ...base,
+    concurrencyFloorWorkListPath,
+  };
+}
+
 function runScript(args: string[]): ReturnType<typeof spawnSync> {
   return spawnSync("bun", args, { cwd: process.cwd(), encoding: "utf8" });
 }
@@ -169,6 +309,40 @@ function assertPr251StaleMismatchLedgerEvidence(stdout: string): void {
   );
 }
 
+function assertPr251RecoveryClassificationEvidence(
+  watchdogStdout: string,
+  ledgerStdout: string,
+): void {
+  expect(watchdogStdout).toContain(`work-item=${WORK_ITEM}`);
+  expect(watchdogStdout).toContain(`pr=#${PR_NUMBER}`);
+  expect(watchdogStdout).toContain("action=open-follow-up");
+  expect(watchdogStdout).not.toContain(
+    `lane-kind=active-page-implementation work-item=${WORK_ITEM}`,
+  );
+
+  expect(ledgerStdout).toContain("Stale PR Mismatch Summary");
+  expect(ledgerStdout).toContain(`lane=${WORK_ITEM}`);
+  expect(ledgerStdout).toContain(`pr=#${PR_NUMBER}`);
+  expect(ledgerStdout).toContain("lane-kind=stale-clean-pr-mismatch");
+  expect(ledgerStdout).toContain("next-action=open-follow-up-throughput-prd");
+  expect(ledgerStdout).toContain("stale-clean-pr-mismatch=1");
+  expect(ledgerStdout).not.toContain(
+    `lane-kind=active-page-implementation lane=${WORK_ITEM}`,
+  );
+
+  for (const laneName of BATCH_061_ACTIVE_LANES) {
+    expect(ledgerStdout).toContain(`lane=${laneName}`);
+    expect(ledgerStdout).toContain(`lane-kind=active-page-implementation`);
+    expect(ledgerStdout).not.toContain(
+      `lane-kind=stale-clean-pr-mismatch lane=${laneName}`,
+    );
+    expect(watchdogStdout).toContain(`work-item=${laneName}`);
+    expect(watchdogStdout).not.toContain(
+      `action=open-follow-up work-item=${laneName}`,
+    );
+  }
+}
+
 describe("tokens-per-second PR #251 merge handoff compatibility", () => {
   test("watchdog and ledger reports capture PR #251 stale queue evidence", () => {
     const fixture = createPr251MergeHandoffFixture();
@@ -213,6 +387,69 @@ describe("tokens-per-second PR #251 merge handoff compatibility", () => {
 
       assertPr251StaleMismatchWatchdogEvidence(readStdoutText(watchdogResult));
       assertPr251StaleMismatchLedgerEvidence(readStdoutText(ledgerResult));
+    } finally {
+      fixture.cleanup();
+    }
+  });
+
+  test("planner reports separate PR #251 recovery from batch 061 useful active lanes", () => {
+    const fixture = createPr251WithBatch061Fixture();
+    const rootStatusPath = join(fixture.workListPath, "..", "root-status.txt");
+    const tasksRoot = join(fixture.workListPath, "..", "tasks");
+    const tempRoot = join(fixture.workListPath, "..", "docs", "temp");
+    writeFileSync(rootStatusPath, "");
+    mkdirSync(tasksRoot, { recursive: true });
+    mkdirSync(tempRoot, { recursive: true });
+
+    try {
+      const watchdogResult = runScript([
+        "./scripts/active-pr-mergeability-watchdog.ts",
+        ...fixtureArgs(fixture),
+      ]);
+      const ledgerResult = runScript([
+        "./scripts/report-queue-worktree-pr-linkage-ledger.ts",
+        ...fixtureArgs(fixture),
+      ]);
+      const concurrencyFloorResult = runScript([
+        "./scripts/report-planner-concurrency-floor.ts",
+        "--root-git-status-file",
+        rootStatusPath,
+        "--work-list-json",
+        fixture.concurrencyFloorWorkListPath,
+        "--tasks-root",
+        tasksRoot,
+        "--temp-root",
+        tempRoot,
+        "--floor",
+        "3",
+        "--json",
+      ]);
+
+      expect(watchdogResult.status).toBe(0);
+      expect(ledgerResult.status).toBe(0);
+      expect(concurrencyFloorResult.status).toBe(0);
+
+      const watchdogStdout = readStdoutText(watchdogResult);
+      const ledgerStdout = readStdoutText(ledgerResult);
+      const concurrencyFloorReport = JSON.parse(
+        readStdoutText(concurrencyFloorResult),
+      ) as {
+        usefulActiveLaneCount: number;
+        usefulActiveLanes: Array<{ workItemName: string }>;
+      };
+
+      assertPr251RecoveryClassificationEvidence(watchdogStdout, ledgerStdout);
+      expect(concurrencyFloorReport.usefulActiveLaneCount).toBe(3);
+      expect(
+        concurrencyFloorReport.usefulActiveLanes
+          .map((lane) => lane.workItemName)
+          .sort(),
+      ).toEqual([...BATCH_061_ACTIVE_LANES].sort());
+      expect(
+        concurrencyFloorReport.usefulActiveLanes.some(
+          (lane) => lane.workItemName === WORK_ITEM,
+        ),
+      ).toBe(false);
     } finally {
       fixture.cleanup();
     }
