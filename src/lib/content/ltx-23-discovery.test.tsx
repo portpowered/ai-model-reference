@@ -1,7 +1,13 @@
+/**
+ * Retained per derived-page-validation policy: representative LTX-2.3 search
+ * ranking, tag browsing, and curated related-doc navigation cannot be expressed
+ * as derived bundle invariants alone.
+ */
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { modelPageHref } from "@/lib/content/content-hrefs";
@@ -12,7 +18,14 @@ import {
 } from "@/lib/content/content-paths";
 import { loadModelPage } from "@/lib/content/model-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
+import {
+  getModelById,
+  getRegistryRecordById,
+  listRelatedRegistryRecords,
+} from "@/lib/content/registry-runtime";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
@@ -30,20 +43,22 @@ import { loadModelPageFromDisk } from "./model-page-load";
 import { validateGeneratedPageBundle } from "./validate-generated-page-bundle";
 import { validateRegistryContent } from "./validate-registry";
 
-const MODEL_SLUG = "nemotron-3-super";
+const MODEL_SLUG = "ltx-23";
+const MODEL_ID = "model.ltx-23";
 const MODEL_URL = modelPageHref(MODEL_SLUG);
 const repoRoot = join(import.meta.dir, "../../..");
 
 const TOUCHED_RECORD_IDS = [
-  "model.nemotron-3-super",
-  "paper.nemotron-3-super",
-  "organization.nvidia",
-  "module.mixture-of-experts",
-  "concept.context-window",
-  "system.routing",
-  "system.inference-engine",
-  "system.deployment",
-  "graph.nemotron-3-super-architecture",
+  "model.ltx-23",
+  "paper.ltx-2",
+  "paper.latent-diffusion",
+  "graph.ltx-23-architecture",
+  "module.cross-attention",
+  "training-regime.diffusion-training-objective",
+  "citation.ltx-2-3-huggingface",
+  "citation.ltx-2-3-model-page",
+  "citation.ltx-2-efficient-joint-audio-visual-foundation-model",
+  "citation.ltx-2-repository",
 ] as const;
 
 function resultsIncludeUrl(
@@ -57,7 +72,7 @@ function resultsIncludeUrl(
   );
 }
 
-describe("nemotron 3 super reader-facing discovery (nemotron-3-super-model-page-005)", () => {
+describe("LTX-2.3 reader-facing discovery (ltx-23-004)", () => {
   test("search documents carry canonical aliases, tags, and registry metadata", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
@@ -66,53 +81,42 @@ describe("nemotron 3 super reader-facing discovery (nemotron-3-super-model-page-
 
     expect(document).toBeDefined();
     expect(document?.kind).toBe("model");
-    expect(document?.registryId).toBe("model.nemotron-3-super");
+    expect(document?.registryId).toBe(MODEL_ID);
     expect(document?.aliases).toEqual(
       expect.arrayContaining([
-        "Nemotron 3 Super",
-        "Nemotron-3-Super-120B-A12B-BF16",
-        "nvidia/nemotron-3-super-120b-a12b",
+        "LTX-2.3",
+        "LTX 2.3",
+        "LTX-23",
+        "ltx-23",
+        "LTX Video 2.3",
+        "LTXV 2.3",
+        "audio video diffusion model",
       ]),
     );
     expect(document?.tags).toEqual(
-      expect.arrayContaining([
-        "foundations",
-        "model-family",
-        "context-window",
-        "quantization",
-      ]),
+      expect.arrayContaining(["foundations", "model-family"]),
     );
     expect(document?.bodyText.length).toBeGreaterThan(200);
   });
 
   test.each([
-    "Nemotron 3 Super",
-    "Nemotron",
-    "nemotron",
-    "Nemotron-3-Super-120B-A12B-BF16",
+    "LTX-2.3",
+    "LTX 2.3",
+    "ltx-23",
+    "LTX Video 2.3",
+    "audio video diffusion model",
   ] as const)("search ranks the canonical model page first for %s", async (query) => {
     const results = await docsSearchApi.search(query);
 
     expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeUrl(results, MODEL_URL)).toBe(true);
     expect(pageBaseUrl(results[0]?.url ?? "")).toBe(MODEL_URL);
   });
 
   test.each([
-    "MoE",
-    "mixture of experts",
-    "context window",
-  ] as const)("search includes the Nemotron 3 Super model page for %s", async (query) => {
-    const results = await docsSearchApi.search(query);
-
-    expect(resultsIncludeUrl(results, MODEL_URL)).toBe(true);
-  });
-
-  test.each([
     "model-family",
-    "context-window",
     "foundations",
-    "quantization",
-  ] as const)("tag browsing lists Nemotron 3 Super under model groups for %s", async (tagSlug) => {
+  ] as const)("tag browsing lists LTX-2.3 under model groups for %s", async (tagSlug) => {
     const messages = await loadUiMessages();
     const groups = await loadTagResourceGroups(tagSlug, messages, "en");
     const modelGroup = groups.find((group) => group.kind === "model");
@@ -123,22 +127,92 @@ describe("nemotron 3 super reader-facing discovery (nemotron-3-super-model-page-
     ).toBe(true);
   });
 
-  test("rendered related section offers MoE, context-window, routing, and serving paths", async () => {
+  test("registry related metadata connects to diffusion, latent, multimodal, and transformer paths", () => {
+    const model = getModelById(MODEL_ID);
+
+    expect(model?.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.diffusion-model",
+        "concept.latent-space",
+        "concept.multimodal-model",
+        "concept.conditioning",
+        "concept.transformer-architecture",
+        "paper.latent-diffusion",
+        "module.cross-attention",
+        "training-regime.diffusion-training-objective",
+      ]),
+    );
+  });
+
+  test("curated related items resolve only to published adjacent targets", () => {
+    const source = getRegistryRecordById(MODEL_ID);
+    if (source?.kind !== "model") {
+      throw new Error("expected model.ltx-23 in registry runtime");
+    }
+
+    const items = deriveCuratedRelatedItems(
+      source,
+      listRelatedRegistryRecords(),
+      PUBLISHED_DOCS_REGISTRY_IDS,
+    );
+
+    expect(
+      items.find((item) => item.registryId === "module.cross-attention")?.href,
+    ).toBe("/docs/modules/cross-attention");
+    expect(
+      items.find((item) => item.registryId === "paper.latent-diffusion")?.href,
+    ).toBe("/docs/papers/latent-diffusion");
+    expect(
+      items.find(
+        (item) => item.registryId === "concept.transformer-architecture",
+      )?.href,
+    ).toBe("/docs/concepts/transformer-architecture");
+    expect(
+      items.find((item) => item.registryId === "concept.diffusion-model")?.href,
+    ).toBe("/docs/glossary/diffusion-model");
+    expect(
+      items.find((item) => item.registryId === "concept.latent-space")?.href,
+    ).toBe("/docs/glossary/latent-space");
+    expect(
+      items.find((item) => item.registryId === "paper.ltx-2")?.href,
+    ).toBeUndefined();
+    expect(
+      items
+        .filter((item) => item.href !== undefined)
+        .every((item) => item.href?.startsWith("/docs/")),
+    ).toBe(true);
+  });
+
+  test("rendered related section offers diffusion, cross-attention, and latent navigation paths", async () => {
     const curatedHtml = renderToStaticMarkup(
-      createElement(RelatedDocs, { registryId: "model.nemotron-3-super" }),
+      createElement(RelatedDocs, { registryId: MODEL_ID }),
+    );
+    const derivedHtml = renderToStaticMarkup(
+      createElement(DerivedRelatedDocs, {
+        registryId: MODEL_ID,
+        groups: [
+          "same-model-family",
+          "shared-modules",
+          "shared-training-regimes",
+          "shared-tags",
+          "curated-related",
+        ],
+      }),
     );
 
     expect(curatedHtml).toContain('data-testid="curated-related-docs"');
-    expect(curatedHtml).toContain('href="/docs/modules/mixture-of-experts"');
-    expect(curatedHtml).toContain(
-      'href="/docs/modules/mamba-selective-state-space"',
-    );
-    expect(curatedHtml).toContain('href="/docs/glossary/context-window"');
-    expect(curatedHtml).toContain('href="/docs/systems/routing"');
-    expect(curatedHtml).toContain('href="/docs/systems/inference-engine"');
-    expect(curatedHtml).toContain('href="/docs/systems/deployment"');
+    expect(curatedHtml).toContain('href="/docs/modules/cross-attention"');
+    expect(curatedHtml).toContain('href="/docs/papers/latent-diffusion"');
+    expect(curatedHtml).toContain('href="/docs/glossary/diffusion-model"');
+    expect(curatedHtml).toContain('href="/docs/glossary/latent-space"');
     expect(curatedHtml).toContain(
       'href="/docs/concepts/transformer-architecture"',
+    );
+    expect(curatedHtml).not.toContain('href="/docs/papers/ltx-2"');
+    expect(derivedHtml).toContain('data-testid="derived-related-docs"');
+    expect(derivedHtml).toContain('href="/docs/modules/cross-attention"');
+    expect(derivedHtml).toContain(
+      'href="/docs/training/diffusion-training-objective"',
     );
 
     const page = await loadModelPage(MODEL_SLUG);
@@ -151,61 +225,55 @@ describe("nemotron 3 super reader-facing discovery (nemotron-3-super-model-page-
       }),
     );
 
-    expect(html).toContain("Nemotron 3 Super");
+    expect(html).toContain("LTX-2.3");
     expect(html).toContain("What It Is");
     expect(html).toContain("Architecture");
     expect(html).toContain("Practical Notes");
-    expect(html).toContain('href="/docs/modules/mamba-selective-state-space"');
     expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="citation-list"');
-    expect(html).toContain(
-      'data-graph-id="graph.nemotron-3-super-architecture"',
-    );
+    expect(html).toContain('data-graph-id="graph.ltx-23-architecture"');
     expect(html).not.toContain("Draft placeholder");
     expect(html).not.toContain("missing message");
     expect(html).not.toContain("missing asset");
     expect(html).not.toContain("data-missing-graph-id");
+    expect(html).not.toContain('href="/docs/papers/ltx-2"');
   });
 
-  test(
-    "content and registry validation pass for the Nemotron 3 Super slice",
-    async () => {
-      const modelsDocsRoot = getModelsDocsRoot();
-      const pageDir = join(modelsDocsRoot, MODEL_SLUG);
-      const registryPath = join(
-        getRegistryRoot(),
-        "models",
-        `${MODEL_SLUG}.json`,
-      );
-      const indexes = await loadRegistry({ registryRoot: getRegistryRoot() });
+  test("content and registry validation pass for the LTX-2.3 slice", async () => {
+    const modelsDocsRoot = getModelsDocsRoot();
+    const pageDir = join(modelsDocsRoot, MODEL_SLUG);
+    const registryPath = join(
+      getRegistryRoot(),
+      "models",
+      `${MODEL_SLUG}.json`,
+    );
+    const indexes = await loadRegistry({ registryRoot: getRegistryRoot() });
 
-      const bundleErrors = await validateGeneratedPageBundle({
-        registryRoot: getRegistryRoot(),
-        docsRoot: join(getContentRoot(), "docs"),
-        pageDirectory: pageDir,
-        registryPath,
-        pageUrl: MODEL_URL,
-        indexes,
-      });
-      expect(bundleErrors).toEqual([]);
+    const bundleErrors = await validateGeneratedPageBundle({
+      registryRoot: getRegistryRoot(),
+      docsRoot: join(getContentRoot(), "docs"),
+      pageDirectory: pageDir,
+      registryPath,
+      pageUrl: MODEL_URL,
+      indexes,
+    });
+    expect(bundleErrors).toEqual([]);
 
-      const loaded = await loadModelPageFromDisk(
-        MODEL_SLUG,
-        "en",
-        modelsDocsRoot,
-      );
-      expect(loaded.frontmatter.status).toBe("published");
-      expect(loaded.frontmatter.registryId).toBe("model.nemotron-3-super");
+    const loaded = await loadModelPageFromDisk(
+      MODEL_SLUG,
+      "en",
+      modelsDocsRoot,
+    );
+    expect(loaded.frontmatter.status).toBe("published");
+    expect(loaded.frontmatter.registryId).toBe(MODEL_ID);
 
-      const registryIssues = await validateRegistryContent();
-      const touchedIssues = registryIssues.filter((issue) =>
-        TOUCHED_RECORD_IDS.some((recordId) => issue.message.includes(recordId)),
-      );
-      expect(touchedIssues).toEqual([]);
-    },
-    { timeout: 30_000 },
-  );
+    const registryIssues = await validateRegistryContent();
+    const touchedIssues = registryIssues.filter((issue) =>
+      TOUCHED_RECORD_IDS.some((recordId) => issue.message.includes(recordId)),
+    );
+    expect(touchedIssues).toEqual([]);
+  }, 30_000);
 
   test("served model page renders title, sections, graph, tags, and references without errors", async () => {
     if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
@@ -227,14 +295,16 @@ describe("nemotron 3 super reader-facing discovery (nemotron-3-super-model-page-
         });
 
         await page
-          .getByRole("heading", { name: "Nemotron 3 Super", exact: true })
+          .getByRole("heading", { name: "LTX-2.3", exact: true })
           .waitFor({ state: "visible" });
 
         for (const sectionTitle of [
           "What It Is",
+          "Inputs And Outputs",
           "Architecture",
           "Practical Notes",
-          "Related",
+          "Related Models, Modules, And Papers",
+          "Tags",
           "References",
         ]) {
           await page
@@ -246,7 +316,7 @@ describe("nemotron 3 super reader-facing discovery (nemotron-3-super-model-page-
         const graph = page.locator('[data-react-flow-graph="true"]');
         await graph.waitFor({ state: "visible" });
         expect(await graph.getAttribute("data-graph-id")).toBe(
-          "graph.nemotron-3-super-architecture",
+          "graph.ltx-23-architecture",
         );
 
         await page

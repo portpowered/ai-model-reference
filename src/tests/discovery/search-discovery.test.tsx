@@ -11,6 +11,8 @@ import TimelinePage from "@/app/docs/timeline/page";
 import { HomeArticle } from "@/components/home/home-article";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
+  criticalDocsAutodiscoveryLoadTimeoutMs,
+  criticalDocsAutodiscoveryRenderTimeoutMs,
   loadCriticalDocsSmokePages,
   toCriticalDocsSmokeLocalRef,
 } from "@/lib/content/critical-docs-smoke";
@@ -38,10 +40,12 @@ import {
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
 
-// Renders every metadata-discovered critical docs page; budget grows with the
-// attention and token-to-probability smoke sets without bespoke route lists.
-const CRITICAL_DOCS_AUTODISCOVERY_LOAD_TIMEOUT_MS = 30_000;
-const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 90_000;
+// Budget grows with the autodiscovered attention and token-to-probability sets.
+const criticalDocsSmokePageCount = (await loadCriticalDocsSmokePages()).length;
+const CRITICAL_DOCS_AUTODISCOVERY_LOAD_TIMEOUT_MS =
+  criticalDocsAutodiscoveryLoadTimeoutMs(criticalDocsSmokePageCount);
+const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS =
+  criticalDocsAutodiscoveryRenderTimeoutMs(criticalDocsSmokePageCount);
 const PHASE_1_TAG_BROWSE_GATE_TIMEOUT_MS = 30_000;
 
 const PHASE_1_DISCOVERY_ROUTES = [

@@ -1,0 +1,4 @@
+{
+  "title": "State Space",
+  "summary": "State-space and selective state-space sequence modules that carry compact recurrent state across tokens."
+}
