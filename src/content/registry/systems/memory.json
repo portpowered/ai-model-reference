@@ -8,11 +8,11 @@
     "memory",
     "serving memory",
     "weight residency",
-    "KV cache growth",
-    "memory bandwidth"
+    "KV cache growth"
   ],
   "tags": ["foundations", "kv-cache", "context-window"],
   "relatedIds": [
+    "concept.memory-bandwidth",
     "concept.prefill",
     "concept.decode",
     "concept.prefill-decode-split",
@@ -42,6 +42,7 @@
   "relatedModelIds": [],
   "relatedModuleIds": [],
   "relatedConceptIds": [
+    "concept.memory-bandwidth",
     "concept.prefill",
     "concept.decode",
     "concept.prefill-decode-split",

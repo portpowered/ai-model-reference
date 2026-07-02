@@ -25,10 +25,10 @@ describe("memory system registry", () => {
       "serving memory",
       "weight residency",
       "KV cache growth",
-      "memory bandwidth",
     ]);
     expect(record?.tags).toEqual(["foundations", "kv-cache", "context-window"]);
     expect(record?.relatedIds).toEqual([
+      "concept.memory-bandwidth",
       "concept.prefill",
       "concept.decode",
       "concept.prefill-decode-split",
@@ -42,6 +42,7 @@ describe("memory system registry", () => {
       "system.on-disk-kv-cache",
     ]);
     expect(record?.relatedConceptIds).toEqual([
+      "concept.memory-bandwidth",
       "concept.prefill",
       "concept.decode",
       "concept.prefill-decode-split",
