@@ -363,3 +363,73 @@ required.
 - No handoff comment drafted for a separate owner or reviewer.
 - No partial conflict resolution left uncommitted on the owner worktree.
 - No queue movement or batch 070 drain lane activation from this story.
+
+## Story 005 — Blocked reason (N/A)
+
+Captured 2026-07-02T22:00Z UTC. Story 005 runs only when story 002 selects
+`blocked-reason`. Story 002 selected `branch-refresh-pr-update`; story 003
+completed the refresh. No blocked-reason payload is required.
+
+### Precondition check
+
+| Criterion | Evidence | Result |
+| --- | --- | --- |
+| Selected outcome is `blocked-reason`? | Story 002 table: `branch-refresh-pr-update` | **no** — story 005 N/A |
+| Missing or contradictory GitHub/branch/ownership metadata? | PR #283, `origin/gated-deltanet`, `origin/main`, owner worktree, and queue tokens all readable and consistent in stories 001–002 | **no** blocker |
+| Gated DeltaNet content edited for blocked classification? | Lane branch diff is docs-only (`*-relevant-files.md`); no `src/content/` or registry edits on this branch | **no** |
+
+### Why blocked-reason was not selected
+
+1. **All metadata was readable.** PR #283 title, branch, author, merge state, checks,
+   `origin/main` identity, branch drift, owner worktree, and queue tokens were
+   captured without contradiction in story 001.
+2. **Safe action was possible.** Story 002 classified conflicts as bounded and
+   refresh-safe; story 003 merged `origin/main` into `gated-deltanet`, resolved
+   four conflicts, and pushed `c120a785` with `CLEAN` / `MERGEABLE` merge state
+   and 11/11 required CI checks green.
+3. **No stale/duplicate classification.** PR #283 remains the authoritative open
+   lane for Gated DeltaNet. The queue-failed `gated-deltanet` task reflects open
+   dirty-merge state that story 003 resolved — not superseded implementation.
+   Batch 070 `gated-deltanet-pr283-drain` stays `idea:init` for post-clean
+   merge/consume; it does not reclassify PR #283 as duplicate.
+
+### Blocker assessment (for reference — none recorded)
+
+| Acceptance criterion | Outcome |
+| --- | --- |
+| Blocker identifies missing/contradictory evidence | not applicable — evidence was complete |
+| Blocker states smallest next action to unblock | not applicable — refresh completed in story 003 |
+| Blocker does not classify PR #283 stale/superseded without proof | satisfied — PR #283 treated as active owner lane throughout |
+| No Gated DeltaNet content files edited for blocked classification | satisfied — lane branch is evidence docs only |
+
+### Latest inspected PR #283 state (final verification baseline)
+
+| Field | Value |
+| --- | --- |
+| `origin/main` SHA | `209d1bd8ced0cced5fd99992fe50f23296d126e8` |
+| PR #283 head | `c120a78501692fefbe26b06ec6fa538a57840d5f` |
+| Merge state | `CLEAN` |
+| Mergeable | `MERGEABLE` |
+| CI | 11/11 SUCCESS on head `c120a785` (2026-07-02T19:34:57Z UTC) |
+
+### Lane outcome summary (all stories complete)
+
+| Story | Outcome |
+| --- | --- |
+| 001 — Evidence | PR #283 dirty against main; owner worktree current; batch 070 drain `idea:init` |
+| 002 — Classification | `branch-refresh-pr-update` |
+| 003 — Refresh | Merged main into `gated-deltanet`; head `c120a785`; CLEAN/MERGEABLE |
+| 004 — Handoff | N/A (refresh selected) |
+| 005 — Blocked reason | N/A (refresh selected; no metadata gap) |
+
+### Quality gate results (2026-07-02T22:00Z UTC)
+
+| Command | Result |
+| --- | --- |
+| `make typecheck` | **pass** |
+
+### Actions not taken (by design)
+
+- No blocked-reason comment drafted for planner escalation.
+- No PR #283 stale/duplicate classification recorded.
+- No Gated DeltaNet content or registry edits on this lane branch.
