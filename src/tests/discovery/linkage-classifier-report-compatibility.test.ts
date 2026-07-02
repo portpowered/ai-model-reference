@@ -228,7 +228,7 @@ describe("linkage classifier report compatibility", () => {
       expect(result.status).toBe(0);
       expect(result.stdout).toContain("Queue Worktree PR Linkage Ledger");
       expect(result.stdout).toContain(
-        "queue-derived-lanes=5 active=2 failed=3 pr-backed=1 actionable-gaps=1 queue-only-noise=3 linked=1 linked-with-gaps=4",
+        "queue-derived-lanes=5 active=2 failed=3 pr-backed=1 actionable-gaps=1 stale-clean-pr-mismatch=0 queue-only-noise=3 linked=1 linked-with-gaps=4",
       );
       assertRepresentativeLedgerRows(readStdoutText(result));
     } finally {

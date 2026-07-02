@@ -88,10 +88,16 @@ Direct script paths remain supported for fixture-driven tests:
   worktree, branch, or PR metadata.
 * `queue-only-noise` — expected queue-only missing worktree rows and stale
   failed `thoughts` loopbacks; compacted into `Noise Summary` rows.
+* `stale-clean-pr-mismatch` — open PR with `mergeability=mergeable` and
+  `checks=passing` while the queue token is `failed`; surfaced as
+  `lane-kind=stale-clean-pr-mismatch` with `mismatch-reason=` evidence in the
+  active PR watchdog and linkage ledger `Stale PR Mismatch Summary` section,
+  not counted as active page implementation depth.
 
 Reuse `isQueueOnlyMissingLinkageLane`, `isStaleFailedLoopbackLane`,
-`isActionableLinkageGapLane`, and `partitionLinkageLanesForSummary` instead of
-duplicating filters in scripts or planner preflight.
+`isStaleCleanPrMismatchLane`, `isActionableLinkageGapLane`, and
+`partitionLinkageLanesForSummary` instead of duplicating filters in scripts or
+planner preflight.
 
 ## Fixture inputs for tests
 
@@ -110,6 +116,9 @@ inventory checks. Supported fixture flags:
 
 Representative regression coverage lives in
 `src/tests/discovery/linkage-classifier-report-compatibility.test.ts`,
+`src/tests/discovery/tokens-per-second-stale-pr-follow-up-compatibility.test.ts`
+(PR #251 stale-clean mismatch fixture for watchdog action queue and ledger
+`Stale PR Mismatch Summary`),
 `src/tests/discovery/planner-root-drift-pr-metadata-repair-compatibility.test.ts`
 (already-merged root drift, ownerless recovery guidance, and PR-backed metadata
 refresh with passing checks), and
@@ -122,3 +131,9 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   — PR-head mergeability phase for page branches.
 * [factory-batch-input-relevant-files](./factory-batch-input-relevant-files.md)
   — planner batch input examples.
+* [tokens-per-second-stale-pr-follow-up-relevant-files](./tokens-per-second-stale-pr-follow-up-relevant-files.md)
+  — stale PR #251 vs failed `work-task-155` / `idea:to-complete` evidence snapshot
+  and watchdog `risk=queue-stale` classification for the serving-metric lane.
+  Story 003 drift proof: branch diff limited to `docs/internal/processes/*`;
+  verify with `git diff main...HEAD --name-only` and
+  `bun run report:planner-root-checkout-reconciliation` on the planner root.

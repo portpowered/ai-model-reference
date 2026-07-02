@@ -51,6 +51,7 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
         prBackedLaneCount: 1,
         actionableLinkageGapLaneCount: 1,
         queueOnlyControlNoiseLaneCount: 0,
+        staleCleanPrMismatchLaneCount: 0,
         issues: [],
         lanes: [
           {
@@ -233,6 +234,7 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
         prBackedLaneCount: 2,
         actionableLinkageGapLaneCount: 0,
         queueOnlyControlNoiseLaneCount: 0,
+        staleCleanPrMismatchLaneCount: 0,
         issues: [],
         lanes: [
           {
@@ -343,6 +345,7 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
         prBackedLaneCount: 1,
         actionableLinkageGapLaneCount: 0,
         queueOnlyControlNoiseLaneCount: 0,
+        staleCleanPrMismatchLaneCount: 0,
         issues: [],
         lanes: [
           {
@@ -406,6 +409,7 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
         prBackedLaneCount: 1,
         actionableLinkageGapLaneCount: 0,
         queueOnlyControlNoiseLaneCount: 0,
+        staleCleanPrMismatchLaneCount: 0,
         issues: [],
         lanes: [
           {
@@ -578,6 +582,7 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
         prBackedLaneCount: 1,
         actionableLinkageGapLaneCount: 0,
         queueOnlyControlNoiseLaneCount: 0,
+        staleCleanPrMismatchLaneCount: 0,
         issues: [],
         lanes: [
           {

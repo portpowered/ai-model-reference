@@ -1,9 +1,12 @@
 import {
   type CheckHealthStatus,
+  classifyPlannerLaneKind,
   type DiscoverActivePrLanesOptions,
   discoverActivePrLaneReport,
+  formatStaleCleanPrMismatchReason,
   type LaneDiscoveryRecord,
   type MergeabilityClass,
+  type PlannerLaneKind,
   type PlannerNextAction,
   type PullRequestLookupFailureKind,
   type QueueLaneState,
@@ -47,6 +50,8 @@ export interface QueueWorktreePrLinkageLane {
   checkHealth?: CheckHealthStatus;
   mergeabilityClass?: MergeabilityClass;
   queueMismatchRisk?: QueueMismatchRisk;
+  plannerLaneKind?: PlannerLaneKind;
+  staleMismatchReason?: string;
   nextAction?: PlannerNextAction;
   metadataRefreshHints?: string[];
 }
@@ -54,7 +59,8 @@ export interface QueueWorktreePrLinkageLane {
 export type LaneLinkageNoiseClass =
   | "actionable-gap"
   | "queue-only-missing-linkage"
-  | "stale-failed-loopback";
+  | "stale-failed-loopback"
+  | "stale-clean-pr-mismatch";
 
 export interface QueueWorktreePrLinkageLedger {
   generatedAtUtc: string;
@@ -66,6 +72,7 @@ export interface QueueWorktreePrLinkageLedger {
   prBackedLaneCount: number;
   actionableLinkageGapLaneCount: number;
   queueOnlyControlNoiseLaneCount: number;
+  staleCleanPrMismatchLaneCount: number;
   lanes: QueueWorktreePrLinkageLane[];
   issues: string[];
 }
@@ -92,6 +99,15 @@ export function isStaleFailedLoopbackLane(
     lane.hasDependsOnRelation === true &&
     lane.nextAction !== "repair-token" &&
     !isQueueOnlyMissingLinkageLane(lane)
+  );
+}
+
+export function isStaleCleanPrMismatchLane(
+  lane: QueueWorktreePrLinkageLane,
+): boolean {
+  return (
+    lane.plannerLaneKind === "stale-clean-pr-mismatch" ||
+    lane.queueMismatchRisk === "queue-stale"
   );
 }
 
@@ -133,19 +149,42 @@ function summarizeLinkageClassificationCounts(
   | "prBackedLaneCount"
   | "actionableLinkageGapLaneCount"
   | "queueOnlyControlNoiseLaneCount"
+  | "staleCleanPrMismatchLaneCount"
 > {
+  const staleCleanPrMismatchLanes = lanes.filter(isStaleCleanPrMismatchLane);
+  const actionableLanes = lanes.filter(
+    (lane) =>
+      !isQueueOnlyControlNoiseLane(lane) && !isStaleCleanPrMismatchLane(lane),
+  );
+
   return {
     prBackedLaneCount: lanes.filter((lane) => lane.pullRequest).length,
-    actionableLinkageGapLaneCount: lanes.filter(isActionableLinkageGapLane)
-      .length,
+    actionableLinkageGapLaneCount: actionableLanes.filter(
+      isActionableLinkageGapLane,
+    ).length,
     queueOnlyControlNoiseLaneCount: lanes.filter(isQueueOnlyControlNoiseLane)
       .length,
+    staleCleanPrMismatchLaneCount: staleCleanPrMismatchLanes.length,
   };
 }
 
 function mapLaneRecord(lane: LaneDiscoveryRecord): QueueWorktreePrLinkageLane {
   const missingLinkageReasons = [...lane.reasons];
   const metadataRefreshHints = [...(lane.metadataRefreshHints ?? [])];
+  const plannerLaneKind =
+    lane.plannerLaneKind ??
+    classifyPlannerLaneKind({
+      status: lane.status,
+      queueState: lane.queueState,
+      queueMismatchRisk: lane.queueMismatchRisk,
+      mergeabilityClass: lane.mergeabilityClass,
+      checkHealth: lane.checkHealth,
+    });
+  const staleMismatchReason =
+    lane.staleMismatchReason ??
+    (plannerLaneKind === "stale-clean-pr-mismatch"
+      ? formatStaleCleanPrMismatchReason(lane)
+      : undefined);
 
   return {
     laneName: lane.workItemName,
@@ -185,6 +224,8 @@ function mapLaneRecord(lane: LaneDiscoveryRecord): QueueWorktreePrLinkageLane {
     checkHealth: lane.checkHealth,
     mergeabilityClass: lane.mergeabilityClass,
     queueMismatchRisk: lane.queueMismatchRisk,
+    plannerLaneKind,
+    ...(staleMismatchReason ? { staleMismatchReason } : {}),
     nextAction: lane.nextAction,
     metadataRefreshHints,
   };
@@ -285,6 +326,7 @@ export function partitionLinkageLanesForSummary(
   actionableLanes: QueueWorktreePrLinkageLane[];
   queueOnlyMissingLinkageLanes: QueueWorktreePrLinkageLane[];
   staleFailedLoopbackLanes: QueueWorktreePrLinkageLane[];
+  staleCleanPrMismatchLanes: QueueWorktreePrLinkageLane[];
 } {
   const orderedLanes = sortPlannerWatchdogLanes(lanes);
   const queueOnlyMissingLinkageLanes = orderedLanes.filter(
@@ -293,16 +335,21 @@ export function partitionLinkageLanesForSummary(
   const staleFailedLoopbackLanes = orderedLanes.filter(
     isStaleFailedLoopbackLane,
   );
+  const staleCleanPrMismatchLanes = orderedLanes.filter(
+    isStaleCleanPrMismatchLane,
+  );
   const actionableLanes = orderedLanes.filter(
     (lane) =>
       !queueOnlyMissingLinkageLanes.includes(lane) &&
-      !staleFailedLoopbackLanes.includes(lane),
+      !staleFailedLoopbackLanes.includes(lane) &&
+      !staleCleanPrMismatchLanes.includes(lane),
   );
 
   return {
     actionableLanes,
     queueOnlyMissingLinkageLanes,
     staleFailedLoopbackLanes,
+    staleCleanPrMismatchLanes,
   };
 }
 
@@ -311,7 +358,7 @@ export function formatQueueWorktreePrLinkageSummary(
 ): string {
   const lines = [
     "Queue Worktree PR Linkage Ledger",
-    `queue-derived-lanes=${ledger.laneCount} active=${ledger.activeLaneCount} failed=${ledger.failedLaneCount} pr-backed=${ledger.prBackedLaneCount} actionable-gaps=${ledger.actionableLinkageGapLaneCount} queue-only-noise=${ledger.queueOnlyControlNoiseLaneCount} linked=${ledger.linkedLaneCount} linked-with-gaps=${ledger.linkedWithGapsLaneCount}`,
+    `queue-derived-lanes=${ledger.laneCount} active=${ledger.activeLaneCount} failed=${ledger.failedLaneCount} pr-backed=${ledger.prBackedLaneCount} actionable-gaps=${ledger.actionableLinkageGapLaneCount} stale-clean-pr-mismatch=${ledger.staleCleanPrMismatchLaneCount} queue-only-noise=${ledger.queueOnlyControlNoiseLaneCount} linked=${ledger.linkedLaneCount} linked-with-gaps=${ledger.linkedWithGapsLaneCount}`,
   ];
 
   if (ledger.issues.length > 0) {
@@ -331,7 +378,16 @@ export function formatQueueWorktreePrLinkageSummary(
     actionableLanes,
     queueOnlyMissingLinkageLanes,
     staleFailedLoopbackLanes,
+    staleCleanPrMismatchLanes,
   } = partitionLinkageLanesForSummary(ledger.lanes);
+
+  if (staleCleanPrMismatchLanes.length > 0) {
+    lines.push("");
+    lines.push("Stale PR Mismatch Summary");
+    for (const lane of staleCleanPrMismatchLanes) {
+      lines.push(formatLinkageLaneDetailRow(lane));
+    }
+  }
 
   if (actionableLanes.length > 0) {
     lines.push("");
@@ -401,6 +457,12 @@ function formatLinkageLaneDetailRow(lane: QueueWorktreePrLinkageLane): string {
   }
   if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
     details.push(`risk=${lane.queueMismatchRisk}`);
+  }
+  if (lane.plannerLaneKind) {
+    details.push(`lane-kind=${lane.plannerLaneKind}`);
+  }
+  if (lane.staleMismatchReason) {
+    details.push(`mismatch-reason=${lane.staleMismatchReason}`);
   }
   if (lane.metadataRefreshHints && lane.metadataRefreshHints.length > 0) {
     details.push(`metadata-refresh=${lane.metadataRefreshHints.join("; ")}`);

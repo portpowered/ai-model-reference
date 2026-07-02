@@ -284,7 +284,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain(
-      "queue-derived-lanes=2 active=1 failed=1 pr-backed=1 actionable-gaps=1 queue-only-noise=0 linked=1 linked-with-gaps=1",
+      "queue-derived-lanes=2 active=1 failed=1 pr-backed=1 actionable-gaps=1 stale-clean-pr-mismatch=0 queue-only-noise=0 linked=1 linked-with-gaps=1",
     );
     expect(result.stdout).toContain("lane=alpha");
     expect(result.stdout).toContain("queue=active");
@@ -369,7 +369,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain(
-      "queue-derived-lanes=1 active=1 failed=0 pr-backed=0 actionable-gaps=1 queue-only-noise=0 linked=0 linked-with-gaps=1",
+      "queue-derived-lanes=1 active=1 failed=0 pr-backed=0 actionable-gaps=1 stale-clean-pr-mismatch=0 queue-only-noise=0 linked=0 linked-with-gaps=1",
     );
     expect(result.stdout).toContain("lane=alpha");
     expect(result.stdout).toContain("metadata=present");
@@ -450,7 +450,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("Queue Worktree PR Linkage Ledger");
     expect(result.stdout).toContain(
-      "queue-derived-lanes=2 active=1 failed=1 pr-backed=1 actionable-gaps=0 queue-only-noise=1 linked=1 linked-with-gaps=1",
+      "queue-derived-lanes=2 active=1 failed=1 pr-backed=1 actionable-gaps=0 stale-clean-pr-mismatch=0 queue-only-noise=1 linked=1 linked-with-gaps=1",
     );
     expect(result.stdout).toContain("lane=alpha");
     expect(result.stdout).toContain("pr=#42");
@@ -669,7 +669,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain(
-      "queue-derived-lanes=2 active=1 failed=1 pr-backed=0 actionable-gaps=2 queue-only-noise=0 linked=0 linked-with-gaps=2",
+      "queue-derived-lanes=2 active=1 failed=1 pr-backed=0 actionable-gaps=2 stale-clean-pr-mismatch=0 queue-only-noise=0 linked=0 linked-with-gaps=2",
     );
     expect(result.stdout).toContain("lane=alpha");
     expect(result.stdout).toContain("lane=beta");

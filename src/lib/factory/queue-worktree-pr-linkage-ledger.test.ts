@@ -6,6 +6,7 @@ import {
   isActionableLinkageGapLane,
   isQueueOnlyControlNoiseLane,
   isQueueOnlyMissingLinkageLane,
+  isStaleCleanPrMismatchLane,
   isStaleFailedLoopbackLane,
   sortPlannerWatchdogLanes,
 } from "@/lib/factory/queue-worktree-pr-linkage-ledger";
@@ -196,7 +197,7 @@ describe("queue-worktree-pr-linkage-ledger", () => {
 
     const summary = formatQueueWorktreePrLinkageSummary(ledger);
     expect(summary).toContain(
-      "pr-backed=1 actionable-gaps=1 queue-only-noise=2",
+      "pr-backed=1 actionable-gaps=1 stale-clean-pr-mismatch=0 queue-only-noise=2",
     );
     expect(summary).toContain("lane=alpha");
     expect(summary).toContain("lane=beta");
@@ -252,6 +253,121 @@ describe("queue-worktree-pr-linkage-ledger", () => {
     expect(isQueueOnlyControlNoiseLane(queueOnlyLane)).toBe(true);
     expect(isQueueOnlyControlNoiseLane(loopbackLane)).toBe(true);
     expect(isQueueOnlyControlNoiseLane(actionableLane)).toBe(false);
+  });
+
+  test("partitions stale-clean-pr-mismatch lanes out of actionable depth", () => {
+    const staleMismatchLane = {
+      laneName: "tokens-per-second-serving-metric-page",
+      queueState: "failed" as const,
+      rawQueueState: "failed",
+      linkageStatus: "linked" as const,
+      worktreePath: ".claude/worktrees/tokens-per-second-serving-metric-page",
+      pullRequest: { number: 251, url: "https://example.com/pr/251" },
+      pullRequestLookup: { status: "resolved" as const },
+      mergeabilityClass: "mergeable" as const,
+      checkHealth: "passing" as const,
+      queueMismatchRisk: "queue-stale" as const,
+      plannerLaneKind: "stale-clean-pr-mismatch" as const,
+      staleMismatchReason:
+        "clean-passing-open-pr-with-queue-failed pr=#251 queue=failed(failed) mergeability=mergeable checks=passing work-item=tokens-per-second-serving-metric-page",
+      missingLinkageReasons: [] as string[],
+      nextAction: "open-follow-up-throughput-prd" as const,
+    };
+    const activePageLane = {
+      laneName: "alpha",
+      queueState: "active" as const,
+      rawQueueState: "active",
+      linkageStatus: "linked" as const,
+      pullRequest: { number: 42 },
+      pullRequestLookup: { status: "resolved" as const },
+      mergeabilityClass: "mergeable" as const,
+      checkHealth: "passing" as const,
+      plannerLaneKind: "active-page-implementation" as const,
+      missingLinkageReasons: [] as string[],
+    };
+    const conflictLane = {
+      laneName: "beta",
+      queueState: "active" as const,
+      rawQueueState: "active",
+      linkageStatus: "linked" as const,
+      pullRequest: { number: 43 },
+      pullRequestLookup: { status: "resolved" as const },
+      mergeabilityClass: "conflicting" as const,
+      checkHealth: "passing" as const,
+      queueMismatchRisk: "conflict-drift" as const,
+      plannerLaneKind: "merge-conflict" as const,
+      missingLinkageReasons: [] as string[],
+      nextAction: "refresh-branch" as const,
+    };
+
+    expect(isStaleCleanPrMismatchLane(staleMismatchLane)).toBe(true);
+    expect(isStaleCleanPrMismatchLane(activePageLane)).toBe(false);
+    expect(isStaleCleanPrMismatchLane(conflictLane)).toBe(false);
+    expect(isActionableLinkageGapLane(staleMismatchLane)).toBe(false);
+
+    const ledger = buildQueueWorktreePrLinkageLedger({
+      lanes: [
+        {
+          status: "pr-backed",
+          workItemName: staleMismatchLane.laneName,
+          queueState: staleMismatchLane.queueState,
+          rawQueueState: staleMismatchLane.rawQueueState,
+          worktreePath: staleMismatchLane.worktreePath,
+          prNumber: 251,
+          prUrl: staleMismatchLane.pullRequest.url,
+          mergeabilityClass: staleMismatchLane.mergeabilityClass,
+          checkHealth: staleMismatchLane.checkHealth,
+          queueMismatchRisk: staleMismatchLane.queueMismatchRisk,
+          plannerLaneKind: staleMismatchLane.plannerLaneKind,
+          staleMismatchReason: staleMismatchLane.staleMismatchReason,
+          nextAction: staleMismatchLane.nextAction,
+          reasons: [],
+        },
+        {
+          status: "pr-backed",
+          workItemName: activePageLane.laneName,
+          queueState: activePageLane.queueState,
+          rawQueueState: activePageLane.rawQueueState,
+          prNumber: 42,
+          mergeabilityClass: activePageLane.mergeabilityClass,
+          checkHealth: activePageLane.checkHealth,
+          plannerLaneKind: activePageLane.plannerLaneKind,
+          reasons: [],
+        },
+        {
+          status: "pr-backed",
+          workItemName: conflictLane.laneName,
+          queueState: conflictLane.queueState,
+          rawQueueState: conflictLane.rawQueueState,
+          prNumber: 43,
+          mergeabilityClass: conflictLane.mergeabilityClass,
+          checkHealth: conflictLane.checkHealth,
+          queueMismatchRisk: conflictLane.queueMismatchRisk,
+          plannerLaneKind: conflictLane.plannerLaneKind,
+          nextAction: conflictLane.nextAction,
+          reasons: [],
+        },
+      ],
+      issues: [],
+    });
+
+    expect(ledger.staleCleanPrMismatchLaneCount).toBe(1);
+    expect(ledger.actionableLinkageGapLaneCount).toBe(0);
+
+    const summary = formatQueueWorktreePrLinkageSummary(ledger);
+    expect(summary).toContain("stale-clean-pr-mismatch=1");
+    expect(summary).toContain("Stale PR Mismatch Summary");
+    expect(summary).toContain("lane=tokens-per-second-serving-metric-page");
+    expect(summary).toContain("lane-kind=stale-clean-pr-mismatch");
+    expect(summary).toContain(
+      "mismatch-reason=clean-passing-open-pr-with-queue-failed pr=#251",
+    );
+    expect(summary).toContain("lane=alpha");
+    expect(summary).toContain("lane=beta");
+    expect(summary).toContain("lane-kind=merge-conflict");
+    expect(summary).toMatch(
+      /Stale PR Mismatch Summary\n- lane=tokens-per-second-serving-metric-page[\s\S]*\n\n- lane=beta/,
+    );
   });
 
   test("sorts actionable PR-backed lanes ahead of waiting cases and linkage noise", () => {
