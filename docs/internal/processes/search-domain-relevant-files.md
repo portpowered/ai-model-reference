@@ -17,8 +17,9 @@ Orama indexing, or `/api/search` behavior.
   (`modelFamily`, `sourceType`, `modalities`, `trainingRegimeIds`, `optimizes`)
   onto generic search documents. Registered by the search builder in story 003.
 * `src/lib/search/build-documents.ts`
-  Composes base documents with `enrichSearchDocument` before returning catalog
-  `SearchDocument` records consumed by `search-server.ts`.
+  Model Atlas search builder: composes base documents with generic
+  `enrichSearchDocument`, then applies `enrichSearchDocumentWithModelAtlasAiFacets`
+  before returning catalog `SearchDocument` records consumed by `search-server.ts`.
 * `src/lib/search/to-advanced-index.ts`
   Projects `SearchDocument` records into Fumadocs advanced search indexes.
 * `src/lib/search/search-server.ts`

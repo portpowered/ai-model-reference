@@ -46,6 +46,11 @@ describe("buildSearchDocumentsForLocale", () => {
     expect((document.facets as { moduleFamily?: string }).moduleFamily).toBe(
       undefined,
     );
+    expect(document.facets.optimizes).toEqual([
+      "kv-cache",
+      "memory-bandwidth",
+      "long-context-inference",
+    ]);
   });
 
   test("includes relationship targets and ancestry roots in feed-forward search topology", async () => {

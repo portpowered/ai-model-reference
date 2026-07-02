@@ -120,7 +120,7 @@ describe("Qwen3.5-0.8B discovery paths", () => {
     expect(html).toContain('data-related-group="curated-related"');
   });
 
-  test("search documents carry canonical aliases and tags without shared AI-only facets", async () => {
+  test("search documents carry canonical aliases, tags, and Model Atlas AI facets", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const documents = buildSearchDocuments(pages, registry);
@@ -145,10 +145,10 @@ describe("Qwen3.5-0.8B discovery paths", () => {
         "attention",
       ]),
     );
-    expect(document?.facets).not.toHaveProperty("modalities");
-    expect(document?.facets).not.toHaveProperty("modelFamily");
-    expect(document?.facets).not.toHaveProperty("sourceType");
-    expect(document?.facets).not.toHaveProperty("trainingRegimeIds");
+    expect(document?.facets.modelFamily).toBe("qwen");
+    expect(document?.facets.sourceType).toBe("open-weights");
+    expect(document?.facets.modalities).toEqual(["text", "image", "video"]);
+    expect(document?.facets.trainingRegimeIds).toEqual([]);
   });
 
   test.each([
