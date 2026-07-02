@@ -1,0 +1,9 @@
+{
+  "items": [
+    {
+      "name": "root-main-lag-and-current-truth-reconciliation",
+      "state": "active",
+      "description": "Root checkout was 17 commits behind origin/main at 2026-07-02T19:01Z; reconcile current truth before planning."
+    }
+  ]
+}
