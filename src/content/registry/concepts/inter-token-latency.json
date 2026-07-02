@@ -10,8 +10,7 @@
     "per-token latency",
     "streaming latency",
     "token cadence",
-    "decode latency",
-    "latency"
+    "decode latency"
   ],
   "tags": ["foundations", "kv-cache"],
   "relatedIds": [
