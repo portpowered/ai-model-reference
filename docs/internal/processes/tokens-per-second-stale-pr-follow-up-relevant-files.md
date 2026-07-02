@@ -179,6 +179,75 @@ Do not edit tokens-per-second page payload, registry, navigation, validation, or
 ownerless root dirty paths named in the customer ask. This snapshot is a
 planner handoff artifact only.
 
+## Drift preservation proof (story 003)
+
+Captured 2026-07-02 UTC. This follow-up lane mutates only planner handoff
+artifacts; it does not reconcile root checkout drift or touch the content PR
+lane.
+
+### Allowlisted branch diff (`main...HEAD`)
+
+Only these paths differ on branch `tokens-per-second-stale-pr-follow-up`:
+
+| Path | Category |
+| --- | --- |
+| `docs/internal/processes/tokens-per-second-stale-pr-follow-up-relevant-files.md` | planner handoff artifact |
+| `docs/internal/processes/factory-linkage-relevant-files.md` | planner observability index (link only) |
+
+Verification:
+
+```bash
+git diff main...HEAD --name-only
+```
+
+### Prohibited paths (must remain absent from this branch diff)
+
+| Pattern | Examples | Branch diff |
+| --- | --- | --- |
+| Tokens-per-second page payload | `src/content/docs/glossary/tokens-per-second/**` | absent |
+| Content / registry / navigation | `src/content/**`, `src/lib/content/**` (except handoff docs) | absent |
+| Validation and test surfaces | `src/tests/**`, `src/lib/**/**.test.ts` | absent |
+| Ownerless root dirty paths | see root baseline below | not touched by this lane |
+
+```bash
+git diff main...HEAD --name-only | grep -E \
+  'src/content/|src/lib/content/|registry|navigation|validation|src/tests/' \
+  || echo "no prohibited paths in branch diff"
+```
+
+### Root dirty-path baseline preserved (main repo checkout)
+
+The planner root at `/Users/abdifamily/work/learn-agent-factories` had
+`root-dirty-paths=8` at story-003 capture time. This follow-up lane did not
+revert, reset, checkout, stage, delete, or overwrite any of them.
+
+| Path | Status at capture | Touched by this lane |
+| --- | --- | --- |
+| `docs/internal/processes/factory-linkage-relevant-files.md` | `M` (root staged) | no — root copy unchanged; worktree branch has separate link edit |
+| `scripts/report-planner-root-checkout-reconciliation.ts` | `M` (root staged) | no |
+| `src/lib/factory/planner-root-checkout-reconciliation.ts` | `M` (root staged) | no |
+| `src/lib/factory/planner-root-checkout-reconciliation.test.ts` | `M` (root staged) | no |
+| `src/tests/discovery/planner-root-checkout-reconciliation.test.ts` | `M` (root staged) | no |
+| `src/tests/fixtures/planner-root-checkout-reconciliation/manual-inspection-shared-edits-dirty-status.txt` | `D` (root staged) | no |
+| `src/tests/fixtures/planner-root-checkout-reconciliation/table-registry-drift-dirty-status.txt` | `D` (root staged) | no |
+| `src/tests/fixtures/planner-root-checkout-reconciliation/tokenizer-mismatch-dirty-status.txt` | `D` (root staged) | no |
+
+Root reconciliation command (read-only evidence):
+
+```bash
+cd /Users/abdifamily/work/learn-agent-factories && \
+  bun ./scripts/report-planner-root-checkout-reconciliation.ts
+```
+
+Observed: `remote-present-deletions=3`, `manual-inspection=5`, preserve guidance
+unchanged. No destructive operator action was taken from this follow-up lane.
+
+### Content PR lane untouched
+
+PR #251 branch `tokens-per-second-serving-metric-page` and its worktree were
+inspected read-only for evidence. No commits, pushes, or file edits were made
+on that lane from this follow-up worktree.
+
 ## Verification for story 001
 
 | Gate | Result |
@@ -195,3 +264,14 @@ planner handoff artifact only.
 | Focused command verification | `gh pr view 251`, `gh api …/issues/251/comments` (latest BLOCKING review 2026-07-02T03:31:22Z), `you work list --session …` |
 | Decision recorded | **refresh PR #251** with pre-merge conditions above |
 | Content page payload | not modified |
+
+## Verification for story 003
+
+| Gate | Result |
+| --- | --- |
+| Typecheck | `bun run typecheck` — pass (no code changes on branch) |
+| Branch diff scope | only 2 allowlisted `docs/internal/processes/*` paths |
+| Prohibited paths | absent from `git diff main...HEAD` |
+| Root dirty paths | 8 paths on main repo preserved; no revert/checkout/reset |
+| Content page payload | not modified |
+| Focused command verification | `git diff main...HEAD --name-only`, root reconciliation report above |

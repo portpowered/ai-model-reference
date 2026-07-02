@@ -112,3 +112,6 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
 * [tokens-per-second-stale-pr-follow-up-relevant-files](./tokens-per-second-stale-pr-follow-up-relevant-files.md)
   — stale PR #251 vs failed `work-task-155` / `idea:to-complete` evidence snapshot
   and watchdog `risk=queue-stale` classification for the serving-metric lane.
+  Story 003 drift proof: branch diff limited to `docs/internal/processes/*`;
+  verify with `git diff main...HEAD --name-only` and
+  `bun run report:planner-root-checkout-reconciliation` on the planner root.
