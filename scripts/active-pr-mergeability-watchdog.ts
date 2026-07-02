@@ -221,6 +221,9 @@ function formatLaneRow(lane: QueueWorktreePrLinkageLane): string {
   if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
     details.push(`risk=${lane.queueMismatchRisk}`);
   }
+  if (lane.metadataRefreshHints && lane.metadataRefreshHints.length > 0) {
+    details.push(`metadata-refresh=${lane.metadataRefreshHints.join("; ")}`);
+  }
   if (lane.nextAction) {
     details.push(`next-action=${lane.nextAction}`);
   }

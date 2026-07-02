@@ -41,7 +41,10 @@ Direct script paths remain supported for fixture-driven tests:
   next action, and target session `0fdc5077-95ed-4396-a183-06e5b16555ca` in
   recovery examples.
 * `pr-backed` — lane has resolved `pullRequest` evidence from live lookup,
-  branch candidates, or current stamped lane metadata.
+  branch candidates, or current stamped lane metadata. Passing checks report
+  `mergeability=mergeable` even when GitHub `mergeStateStatus` is `BLOCKED`.
+  Stale stamped linkage surfaces as `metadata-refresh=` hints, separate from
+  `risk=metadata-unavailable` (reserved for missing PR/check evidence).
 * `actionable-gaps` — active/failed task or review lanes missing repairable
   worktree, branch, or PR metadata.
 * `queue-only-noise` — expected queue-only missing worktree rows and stale
