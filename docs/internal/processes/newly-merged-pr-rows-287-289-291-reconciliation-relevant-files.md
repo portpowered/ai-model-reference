@@ -299,3 +299,60 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T20:47Z UTC).
+
+## Story 004 — complete handoff for rows needing terminal transition
+
+Captured 2026-07-02T20:48Z UTC. Story 002 classified **zero** rows as **complete**.
+This story re-verifies live queue state and documents that no valid terminal
+completion transition is required for any named drain row. No page content,
+registry content, root work, or unrelated worktree files were changed.
+
+### Complete targets from story 002
+
+| Work item | Work id | PR | Outcome in story 002 |
+| --- | --- | --- | --- |
+| — | — | — | **complete** count = 0 |
+
+Story 002 selected **complete** only when a row is finished but still requires an
+explicit terminal completion transition (`idea:to-complete` + `task:to-complete`
+pairing or equivalent valid move). None of the three primary content traces or
+subsidiary drain rows met that criterion.
+
+### Re-verification (2026-07-02T20:48Z UTC)
+
+Fresh `you work list --session 930b51a6-07ce-44e6-a639-7a6217f6e864 --name
+<work-item> --json` confirms:
+
+| Work item | PR | Observed queue state | Blocker for **complete**? |
+| --- | --- | --- | --- |
+| `block-sparse-attention-module-page` | #287 | All tokens `complete` / TERMINAL | Already terminal — no transition needed |
+| `byte-level-tokenization-page` | #289 | All tokens `complete` / TERMINAL | Already terminal — no transition needed |
+| `pr-surface-module-linked-support-records` | #291 | Zero queue rows | **missing-queue-row** — no transition applies |
+
+Subsidiary drain token:
+
+| Work id | Observed state | Story 002 outcome | Why not **complete** |
+| --- | --- | --- | --- |
+| `batch-fresh-pr-drain-and-conflict-refresh-batch-073-block-sparse-attention-pr287-clean-drain` | `complete` / TERMINAL (consumed in story 003) | **consume** | Standalone drain idea consumed via direct terminal move, not `to-complete` pairing |
+
+No row sits in a non-terminal `to-complete` / PROCESSING pairing awaiting a
+valid terminal completion transition. The reconciliation lane itself
+(`newly-merged-pr-rows-287-289-291-reconciliation`) remains in
+`to-complete` / PROCESSING until stories 005–006 finish; that lane is out of
+scope for the three named PR drain rows.
+
+### Completion operations executed
+
+None. Zero rows qualified for **complete**; no manual queue movement was
+performed in story 004.
+
+## Quality gate (story 004)
+
+Handoff-only verification; no page content, registry content, root work,
+worktree files, queue rows, staging area, or branch history were changed.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T20:48Z UTC).
