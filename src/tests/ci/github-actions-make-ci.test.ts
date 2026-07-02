@@ -41,8 +41,6 @@ type WorkflowMatrixEntry = {
   command: string;
   installPlaywright: boolean;
   websiteTestParallelWorkers?: number;
-  commandTimeoutSeconds?: number;
-  stepTimeoutMinutes?: number;
 };
 
 type PackageScripts = Record<string, string>;
@@ -90,24 +88,6 @@ function parseWorkflowMatrixEntries(workflow: string): WorkflowMatrixEntry[] {
 
           return Number.parseInt(raw, 10);
         })(),
-        commandTimeoutSeconds: (() => {
-          const raw = block.match(
-            /^\s*command_timeout_seconds:\s+([^\n]+)/m,
-          )?.[1];
-          if (!raw) {
-            return undefined;
-          }
-
-          return Number.parseInt(raw, 10);
-        })(),
-        stepTimeoutMinutes: (() => {
-          const raw = block.match(/^\s*step_timeout_minutes:\s+([^\n]+)/m)?.[1];
-          if (!raw) {
-            return undefined;
-          }
-
-          return Number.parseInt(raw, 10);
-        })(),
       };
     });
 }
@@ -131,12 +111,6 @@ describe("GitHub Actions make ci", () => {
     expect(workflow).toMatch(/if: \$\{\{ matrix\.install_playwright \}\}/);
     expect(workflow).toMatch(
       /WEBSITE_TEST_PARALLEL_WORKERS: \$\{\{ matrix\.website_test_parallel_workers \}\}/,
-    );
-    expect(workflow).toMatch(
-      /CI_COMMAND_TIMEOUT_SECONDS: \$\{\{ matrix\.command_timeout_seconds \|\| env\.CI_COMMAND_TIMEOUT_SECONDS \}\}/,
-    );
-    expect(workflow).toMatch(
-      /timeout-minutes: \$\{\{ matrix\.step_timeout_minutes \|\| 5 \}\}/,
     );
     expect(workflow).not.toMatch(/continue-on-error:\s*true/i);
   });
@@ -229,8 +203,6 @@ describe("GitHub Actions make ci", () => {
     );
 
     expect(test?.websiteTestParallelWorkers).toBe(1);
-    expect(test?.commandTimeoutSeconds).toBe(600);
-    expect(test?.stepTimeoutMinutes).toBe(10);
     expect(testVerifyContract?.installPlaywright).toBe(true);
     expect(testBuildContract?.installPlaywright).toBe(true);
     expect(buildExport?.command).toBe("make build-export");

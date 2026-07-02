@@ -150,3 +150,8 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   Story 003 drift proof: branch diff limited to `docs/internal/processes/*`;
   verify with `git diff main...HEAD --name-only` and
   `bun run report:planner-root-checkout-reconciliation` on the planner root.
+* [generic-pr277-pr279-conflict-refresh-handoff-relevant-files](./generic-pr277-pr279-conflict-refresh-handoff-relevant-files.md)
+  — PR #277/#279 conflict-refresh evidence: batch 066 drain ownership on session
+  `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata for both target
+  branches, DIRTY/CONFLICTING GitHub state with passing CI, and non-mutating
+  merge-tree conflict paths for story 002 classification.

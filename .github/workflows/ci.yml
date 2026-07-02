@@ -30,8 +30,8 @@ jobs:
           - name: test
             command: make test
             website_test_parallel_workers: 1
-            command_timeout_seconds: 600
-            step_timeout_minutes: 10
+            timeout_minutes: 6
+            ci_command_timeout_seconds: 360
           - name: test-verify-contract
             command: make test-verify-contract
             install_playwright: true
@@ -67,10 +67,10 @@ jobs:
         run: bunx playwright install chromium --with-deps
 
       - name: Run ${{ matrix.name }}
-        timeout-minutes: ${{ matrix.step_timeout_minutes || 5 }}
+        timeout-minutes: ${{ matrix.timeout_minutes || 5 }}
         env:
-          CI_SCRIPT_TIMEOUT_MS: ${{ matrix.ci_script_timeout_ms || env.CI_SCRIPT_TIMEOUT_MS }}
-          CI_COMMAND_TIMEOUT_SECONDS: ${{ matrix.command_timeout_seconds || env.CI_COMMAND_TIMEOUT_SECONDS }}
+          CI_SCRIPT_TIMEOUT_MS: ${{ env.CI_SCRIPT_TIMEOUT_MS }}
+          CI_COMMAND_TIMEOUT_SECONDS: ${{ matrix.ci_command_timeout_seconds || env.CI_COMMAND_TIMEOUT_SECONDS }}
           WEBSITE_TEST_PARALLEL_WORKERS: ${{ matrix.website_test_parallel_workers }}
         run: |
           timeout --signal=TERM --kill-after=30s "${CI_COMMAND_TIMEOUT_SECONDS}s" bash -lc "${{ matrix.command }}"

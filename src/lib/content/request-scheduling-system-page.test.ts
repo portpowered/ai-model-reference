@@ -244,7 +244,7 @@ describe("request scheduling docs route render", () => {
     expect(html).toContain("Practical Impact");
     expect(html).toContain('href="/docs/concepts/prefill"');
     expect(html).toContain('href="/docs/glossary/decode"');
-    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
+    expect(html).toContain('href="/docs/concepts/prefill-decode-split"');
     expect(html).toContain('href="/docs/systems/batching"');
     expect(html).toContain('href="/docs/systems/continuous-batching"');
     expect(html).toContain('href="/docs/systems/routing"');

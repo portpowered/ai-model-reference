@@ -1,0 +1,108 @@
+{
+  "id": "graph.looped-transformers-compute-flow",
+  "slug": "looped-transformers-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["module.looped-transformers"],
+  "citationIds": ["citation.looped-transformers-iclr-2024"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "subjectId": "module.looped-transformers",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "input-context",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "input-context",
+      "labelKey": "graph.nodes.inputContext.label",
+      "moduleKind": "input",
+      "position": { "x": 200, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["shared-transformer-block"]
+    },
+    {
+      "id": "loop-counter",
+      "labelKey": "graph.nodes.loopCounter.label",
+      "moduleKind": "other",
+      "position": { "x": 20, "y": 90 },
+      "visualRole": "architecture-io",
+      "childNodeIds": ["shared-transformer-block"]
+    },
+    {
+      "id": "shared-transformer-block",
+      "labelKey": "graph.nodes.sharedTransformerBlock.label",
+      "moduleKind": "block",
+      "position": { "x": 175, "y": 180 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["hidden-state-update"]
+    },
+    {
+      "id": "hidden-state-update",
+      "labelKey": "graph.nodes.hiddenStateUpdate.label",
+      "moduleKind": "output",
+      "position": { "x": 170, "y": 300 },
+      "visualRole": "process-node",
+      "childNodeIds": ["final-prediction"]
+    },
+    {
+      "id": "final-prediction",
+      "labelKey": "graph.nodes.finalPrediction.label",
+      "moduleKind": "output",
+      "position": { "x": 175, "y": 420 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "shared-weights-note",
+      "labelKey": "graph.nodes.sharedWeightsNote.label",
+      "moduleKind": "other",
+      "position": { "x": 400, "y": 200 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "input-to-block",
+      "source": "input-context",
+      "target": "shared-transformer-block",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "loop-to-block",
+      "source": "loop-counter",
+      "target": "shared-transformer-block",
+      "edgeKind": "control-flow"
+    },
+    {
+      "id": "block-to-hidden",
+      "source": "shared-transformer-block",
+      "target": "hidden-state-update",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "hidden-loop-back",
+      "source": "hidden-state-update",
+      "target": "shared-transformer-block",
+      "edgeKind": "control-flow"
+    },
+    {
+      "id": "hidden-to-prediction",
+      "source": "hidden-state-update",
+      "target": "final-prediction",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "input-residual-hidden",
+      "source": "input-context",
+      "target": "hidden-state-update",
+      "edgeKind": "residual"
+    }
+  ]
+}

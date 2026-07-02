@@ -35,7 +35,6 @@ const INFERENCE_GLOSSARY_SLUGS = [
   "glossary/greedy-decoding",
   "glossary/temperature",
   "glossary/decode",
-  "glossary/prefill-decode-split",
   "glossary/kv-cache",
   "glossary/time-to-first-token",
   "glossary/inter-token-latency",
@@ -43,6 +42,7 @@ const INFERENCE_GLOSSARY_SLUGS = [
 
 const INFERENCE_CONCEPT_SLUGS = [
   "concepts/prefill",
+  "concepts/prefill-decode-split",
   "concepts/quantization",
   "concepts/kv-cache-quantization",
   "concepts/post-training-quantization",

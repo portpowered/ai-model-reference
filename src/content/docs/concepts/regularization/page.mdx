@@ -1,0 +1,107 @@
+---
+title: Regularization
+description: Training-time and model-design choices that discourage brittle memorization so a model is more likely to perform well on new examples.
+kind: "concept"
+registryId: "concept.regularization"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - taxonomy
+aliases:
+  - "Regularization"
+  - "regularization"
+  - "regularizer"
+  - "model regularization"
+  - "training regularization"
+updatedAt: "2026-07-02"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ConceptMap } from "@/features/models/components/ConceptMap";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="how-it-helps" titleKey="sections.howItHelps.title">
+  <T k="sections.howItHelps.body" />
+</Section>
+
+<Section id="common-methods" titleKey="sections.commonMethods.title">
+  <T k="sections.commonMethods.body" />
+</Section>
+
+<Section
+  id="compared-to-nearby-concepts"
+  titleKey="sections.comparedToNearbyConcepts.title"
+>
+  <T k="sections.comparedToNearbyConcepts.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/training/dropout", labelKey: "links.dropout" },
+      { href: "/docs/glossary/overfitting", labelKey: "links.overfitting" },
+      {
+        href: "/docs/glossary/generalization",
+        labelKey: "links.generalization"
+      },
+      {
+        href: "/docs/glossary/model-capacity",
+        labelKey: "links.modelCapacity"
+      },
+      {
+        href: "/docs/glossary/optimizer-state",
+        labelKey: "links.optimizerState"
+      }
+    ]}
+  />
+</Section>
+
+<Section id="tradeoffs" titleKey="sections.tradeoffs.title">
+  <T k="sections.tradeoffs.body" />
+  <ConceptMap
+    registryId="concept.regularization"
+    assetId="fitBalanceMap"
+  />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.regularization"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "used-by-models",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.regularization" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.regularization" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.regularization" />
+</Section>

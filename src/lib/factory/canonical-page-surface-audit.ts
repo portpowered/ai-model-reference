@@ -17,6 +17,7 @@ const DOCS_PAGE_PREFIX = "src/content/docs/";
 const PAGE_MDX_NAME = "page.mdx";
 
 const registryDirectoryByKind: Record<string, string> = {
+  citation: "citations",
   concept: "concepts",
   graph: "graphs",
   module: "modules",
@@ -215,30 +216,80 @@ function isPageSpecificSupportRecord(
   );
 }
 
+function collectPageSpecificLinkedRegistryPaths(
+  pageSlug: string,
+  recordIds: readonly string[],
+): string[] {
+  const supportRecordPaths: string[] = [];
+
+  for (const recordId of recordIds) {
+    if (!isPageSpecificSupportRecord(pageSlug, recordId)) {
+      continue;
+    }
+
+    const kind = recordId.split(".")[0];
+    if (
+      kind !== "citation" &&
+      kind !== "graph" &&
+      kind !== "paper" &&
+      kind !== "table"
+    ) {
+      continue;
+    }
+
+    supportRecordPaths.push(deriveRegistryPathFromId(recordId));
+  }
+
+  return supportRecordPaths;
+}
+
+function collectModuleLinkedSupportRecordPaths(
+  repoRoot: string,
+  registryPath: string,
+  pageSlug: string,
+): readonly string[] {
+  const absoluteRegistryPath = resolve(repoRoot, registryPath);
+  if (!existsSync(absoluteRegistryPath)) {
+    return [];
+  }
+
+  const record = JSON.parse(readFileSync(absoluteRegistryPath, "utf8")) as {
+    citationIds?: string[];
+    introducedByPaperIds?: string[];
+    sourceId?: string;
+  };
+  const linkedRecordIds = [
+    ...(record.citationIds ?? []),
+    ...(record.introducedByPaperIds ?? []),
+    ...(record.sourceId ? [record.sourceId] : []),
+  ];
+
+  return collectPageSpecificLinkedRegistryPaths(pageSlug, linkedRecordIds);
+}
+
 function collectSupportRecordPaths(
   repoRoot: string,
   pageDirectory: string,
   pageSlug: string,
+  registryPath: string,
 ): readonly string[] {
+  const supportRecordPaths = new Set<string>(
+    collectModuleLinkedSupportRecordPaths(repoRoot, registryPath, pageSlug),
+  );
   const assetsPath = resolve(repoRoot, pageDirectory, "assets.json");
   if (!existsSync(assetsPath)) {
-    return [];
+    return [...supportRecordPaths].sort();
   }
 
   const assetIds = collectDeclaredAssetRegistryIds(
     JSON.parse(readFileSync(assetsPath, "utf8")),
   );
-  const supportRecordPaths = new Set<string>();
 
-  for (const graphId of assetIds.graphIds) {
-    if (isPageSpecificSupportRecord(pageSlug, graphId)) {
-      supportRecordPaths.add(deriveRegistryPathFromId(graphId));
-    }
-  }
-  for (const tableId of assetIds.tableIds) {
-    if (isPageSpecificSupportRecord(pageSlug, tableId)) {
-      supportRecordPaths.add(deriveRegistryPathFromId(tableId));
-    }
+  for (const path of collectPageSpecificLinkedRegistryPaths(pageSlug, [
+    ...assetIds.graphIds,
+    ...assetIds.tableIds,
+  ])) {
+    supportRecordPaths.add(path);
   }
 
   return [...supportRecordPaths].sort();
@@ -314,6 +365,7 @@ function loadCanonicalPageScope(
       repoRoot,
       pageDirectory,
       slug,
+      registryPath,
     ),
   };
 }

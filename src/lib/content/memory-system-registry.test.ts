@@ -73,7 +73,7 @@ describe("memory system registry", () => {
     expect(
       items.find((item) => item.registryId === "concept.prefill-decode-split")
         ?.href,
-    ).toBe("/docs/glossary/prefill-decode-split");
+    ).toBe("/docs/concepts/prefill-decode-split");
     expect(
       items.find((item) => item.registryId === "concept.kv-cache")?.href,
     ).toBe("/docs/concepts/kv-cache");

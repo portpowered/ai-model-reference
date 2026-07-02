@@ -31,6 +31,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/architecture",
         "/docs/glossary/conditioning",
         "/docs/glossary/denoising-generation",
+        "/docs/concepts/prefill-decode-split",
         "/docs/glossary/token",
         "/docs/glossary/transformer",
       ]),
