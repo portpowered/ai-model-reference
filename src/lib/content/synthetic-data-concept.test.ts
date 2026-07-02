@@ -119,7 +119,7 @@ describe("synthetic-data concept page", () => {
       "produced or transformed by a model",
     );
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "training signal was generated",
+      "supervision signal was generated",
     );
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
       "scale coverage",
@@ -128,11 +128,42 @@ describe("synthetic-data concept page", () => {
       "not a synonym for all training data",
     );
     expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
-      "web pretraining corpora",
+      "human-written chain-of-thought",
     );
     expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
-      "human-authored instruction data",
+      "synthetic preference data",
     );
+  });
+
+  test("messages explain four synthetic data forms and distinguish web and human sources", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const dataForms = messages.sections?.dataForms.body?.toLowerCase() ?? "";
+    const compared =
+      messages.sections?.comparedToOtherData.body?.toLowerCase() ?? "";
+    const whyItMatters =
+      messages.sections?.whyItMatters.body?.toLowerCase() ?? "";
+
+    expect(dataForms).toContain("model-generated examples");
+    expect(dataForms).toContain("reasoning or tool-use traces");
+    expect(dataForms).toContain("generated labels");
+    expect(dataForms).toContain("generated preference data");
+
+    expect(compared).toContain("web pretraining data");
+    expect(compared).toContain("already existed online");
+    expect(compared).toContain(
+      "not generated specifically as a training signal",
+    );
+    expect(compared).toContain("human-authored instruction data");
+    expect(compared).toContain("written directly by people");
+    expect(compared).toContain("supervision path");
+
+    expect(whyItMatters).toContain("scale coverage");
+    expect(whyItMatters).toContain("lower the cost");
+    expect(whyItMatters).toContain("biases");
+    expect(whyItMatters).toContain("stale");
+    expect(whyItMatters).toContain("overfit");
   });
 
   test("page renders title, sections, opening summary, tags, and related docs", async () => {
@@ -154,7 +185,13 @@ describe("synthetic-data concept page", () => {
 
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
+    expect(html).toContain("Common Forms");
+    expect(html).toContain("Compared To Other Data Sources");
     expect(html).toContain("produced or transformed by a model");
+    expect(html.toLowerCase()).toContain("model-generated examples");
+    expect(html.toLowerCase()).toContain("generated preference data");
+    expect(html.toLowerCase()).toContain("web pretraining data");
+    expect(html.toLowerCase()).toContain("human-authored instruction data");
     expect(html).toContain("not a synonym for all training data");
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('href="/tags/alignment"');

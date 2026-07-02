@@ -5,19 +5,27 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Synthetic data is training material produced or transformed by a model so another model can learn from it. A team might ask a teacher model to write question-answer pairs, grade student answers, record step-by-step reasoning traces, or compare two candidate replies. The defining trait is authorship path: the training signal was generated for this recipe rather than scraped from existing public pages or typed directly by human annotators for that step."
+      "body": "Synthetic data is training material produced or transformed by a model so another model can learn from it. The defining trait is authorship path: the supervision signal was generated for this recipe rather than scraped from existing public pages or typed directly by human annotators for that step."
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Synthetic data lets teams scale coverage into rare scenarios, languages, or task formats without paying humans to write every example. It can also lower the cost of labels and preference comparisons when a strong teacher model is already available. The tradeoff is quality inheritance: the student learns whatever habits, blind spots, and biases the generator encodes, so synthetic pipelines need filtering, verification, and periodic refresh."
+      "body": "Synthetic data lets teams scale coverage into rare scenarios, languages, or task formats without paying humans to write every example. It can also lower the cost of labels and preference comparisons when a strong teacher model is already available. The tradeoffs are equally practical: the student inherits teacher blind spots and biases, stale generator behavior can outlive the teacher's current capabilities, and reward-model or verifier pipelines can overfit to synthetic quirks instead of real user needs."
     },
     "simpleExample": {
       "title": "Simple Example",
       "body": "A product team needs a small assistant model for internal documentation search but has only a handful of human-written demos. They prompt a larger teacher model to draft hundreds of realistic user questions with grounded answers drawn from the company's docs, review a sample for obvious errors, and fine-tune the student on the accepted synthetic set."
     },
+    "dataForms": {
+      "title": "Common Forms",
+      "body": "Synthetic data appears in several concrete shapes. Model-generated examples are new prompts, answers, or task demonstrations drafted by a teacher model for the student to imitate. Reasoning or tool-use traces are step-by-step chains—thought text, calculator calls, retrieval hops, or code actions—recorded from a generator so the student learns a process, not only a final string. Generated labels are scores, categories, rubric grades, or correctness judgments produced by a model instead of a human reviewer. Generated preference data is pairwise or ranked comparisons where a model picks which of two candidate replies is better, cheaper, or safer, supplying the preference signal that alignment recipes consume."
+    },
+    "comparedToOtherData": {
+      "title": "Compared To Other Data Sources",
+      "body": "Web pretraining data is collected from public text that already existed online—crawled pages, books, forums, and code repositories gathered for broad language modeling. Its source is the open web; its purpose is to teach general token patterns before any product-specific recipe. That corpus was not generated specifically as a training signal for the target student model or post-training step.\n\nHuman-authored instruction data is written directly by people who demonstrate the desired behavior—annotators type prompts, answers, or demonstrations without a model authoring the supervision for that step. The author is a human; the supervision path runs from human intent to training example.\n\nSynthetic data differs on both axes. Source: a model creates or transforms the example, label, trace, or preference judgment. Supervision path: human review may filter or spot-check the output, but the primary training artifact came from generator inference rather than direct human drafting or passive web collection."
+    },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Synthetic data is not a synonym for all training data. Web pretraining corpora are collected from public text that already existed online; they are not produced specifically as a training signal for the target recipe. Human-authored instruction data is written directly by people who demonstrate the desired behavior. Synthetic data sits in between: a model creates or transforms the supervision signal that the training step consumes."
+      "body": "Synthetic data is not a synonym for all training data. A recipe may mix web pretraining corpora, human demonstrations, and generated labels in different stages; calling the whole stack synthetic would blur useful distinctions. Synthetic traces are not the same as human-written chain-of-thought notes: the chain was produced by model inference even when a person later edits or filters it. Synthetic preference data is not identical to live human preference collection—model judges or rankers stand in for some or all of the comparisons, which changes cost, bias, and what the reward signal actually measures."
     },
     "related": {
       "title": "Related Concepts And Modules"
