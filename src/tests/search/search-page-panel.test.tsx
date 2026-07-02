@@ -60,6 +60,9 @@ function renderSearchPagePanelContent(
 
 /** Orama static search suspends on first client render; unmount + brief wait primes the cache. */
 async function findSearchPageResults(timeout = 15_000): Promise<HTMLElement> {
+  await waitFor(() => {
+    expect(screen.queryByTestId("search-page-loading")).toBeNull();
+  });
   return screen.findByTestId("search-page-results", {}, { timeout });
 }
 
@@ -671,7 +674,7 @@ describe("SearchPagePanel tag handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await findSearchPageResults();
     const urls = collectResultUrlsFromNodes(
       within(results).getAllByTestId("search-result-url"),
     );
