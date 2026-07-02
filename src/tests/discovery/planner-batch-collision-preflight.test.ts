@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -69,12 +70,8 @@ function writeQueueLinkageLedgerFixture(repoRoot: string): {
   cleanup: () => void;
   ledgerPath: string;
 } {
-  const worktreePath = join(
-    repoRoot,
-    ".claude",
-    "worktrees",
-    "alpha-lane-fixture",
-  );
+  const worktreeName = `alpha-lane-fixture-${randomUUID()}`;
+  const worktreePath = join(repoRoot, ".claude", "worktrees", worktreeName);
   mkdirSync(worktreePath, { recursive: true });
   runCommand(worktreePath, ["git", "init", "--initial-branch=main"]);
   runCommand(worktreePath, [
@@ -137,7 +134,7 @@ function writeQueueLinkageLedgerFixture(repoRoot: string): {
             queueState: "active",
             rawQueueState: "active",
             linkageStatus: "linked",
-            worktreePath: ".claude/worktrees/alpha-lane-fixture",
+            worktreePath: `.claude/worktrees/${worktreeName}`,
             branchName: "alpha-lane",
             branchMetadataSource: "prd",
             pullRequest: {
