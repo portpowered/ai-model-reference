@@ -287,3 +287,47 @@ conflict paths, search-surface owner), then PR #279 against updated
   resolution on target PR branches.
 - Local quality gate: `bun run typecheck` passed on this lane worktree
   (2026-07-02T21:30Z UTC).
+
+## Story 003 — in-lane refresh outcome (N/A)
+
+Captured 2026-07-02T23:20Z UTC. Story 003 runs only when story 002 selects
+**refresh-pr-branch** for a target PR. Story 002 classified both PR #277 and PR
+#279 as **active-review-handoff**, so no in-lane branch refresh was attempted in
+this batch 074 lane.
+
+### Precondition check
+
+| PR | Story 002 classification | Story 003 runs? |
+| --- | --- | --- |
+| #277 | active-review-handoff | no |
+| #279 | active-review-handoff | no |
+
+### Actions not taken (by design)
+
+- No merge or rebase of `origin/main` into
+  `generic-search-ai-enrichment-plugin` or `generic-site-config-neutral-surfaces`.
+- No conflict resolution in
+  `.claude/worktrees/generic-search-ai-enrichment-plugin` or
+  `.claude/worktrees/generic-site-config-neutral-surfaces`.
+- No push to `origin/generic-search-ai-enrichment-plugin` or
+  `origin/generic-site-config-neutral-surfaces`.
+- No queue movement or manual drain-lane creation from this batch 074 lane.
+
+### Live PR state at story 003 close (unchanged heads)
+
+Fresh read-only evidence gathered 2026-07-02T23:20Z UTC (`git fetch`,
+`gh api` mergeability, `gh pr checks`).
+
+| PR | Head SHA | Mergeable | Merge state | CI | Latest blocking PR conversation |
+| --- | --- | --- | --- | --- | --- |
+| #277 | `6a1530a0` | CONFLICTING | DIRTY | 11/11 SUCCESS | **BLOCKING MERGE** (2026-07-02T14:59:47Z): review clear, CI green, local `make test` passed on `6a1530a0`, but `gh pr merge 277 --merge` failed — needs main merge/rebase and conflict resolution in the owned drain lane. |
+| #279 | `e5defbc8` | CONFLICTING | DIRTY | 11/11 SUCCESS | **BLOCKING** (2026-07-02T13:12:04Z): local `make test` a11y timeout on `search-page-panel.a11y.test.tsx`; no later clearing comment. Also DIRTY/CONFLICTING on live GitHub. |
+
+`origin/main` remains at `209d1bd8ced0cced5fd99992fe50f23296d126e8` (2026-07-02T12:04:51-07:00). Branch drift unchanged: PR #277 95 behind / 8 ahead; PR #279 107 behind / 6 ahead. Non-mutating `git merge-tree` conflict paths unchanged (four on #277, one shared `search-page-panel.test.tsx` on #279).
+
+Batch 066 drain items remain the owners for any future branch refresh:
+
+- `generic-search-ai-enrichment-pr277-drain` → PR #277 (`idea:init` / INITIAL, re-verified)
+- `generic-site-config-pr279-drain` → PR #279 (`idea:init` / INITIAL, re-verified)
+
+Story 004 records the exact handoff payload for batch 066 drain lanes.
