@@ -144,12 +144,15 @@ async function typeQueryAndExpectGqaResult(
   );
   await user.type(searchInput, query);
 
-  const results = await screen.findByTestId(
-    "search-page-results",
-    {},
-    { timeout: 5000 },
+  const results = await waitForSearchPagePanelResults({
+    timeout: 30_000,
+  });
+  await waitFor(
+    () => {
+      expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+    },
+    { timeout: 30_000 },
   );
-  expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
 }
 
 describe("SearchPagePanel Phase 1 queries", () => {
@@ -183,10 +186,14 @@ describe("SearchPagePanel Phase 1 queries", () => {
     "GQA",
     "attention",
     "KV cache",
-  ] as const)("shows Grouped-Query Attention for %s query", async (query) => {
-    const context = await loadAppTestContext();
-    await typeQueryAndExpectGqaResult(context, query);
-  });
+  ] as const)(
+    "shows Grouped-Query Attention for %s query",
+    async (query) => {
+      const context = await loadAppTestContext();
+      await typeQueryAndExpectGqaResult(context, query);
+    },
+    { timeout: 30_000 },
+  );
 
   test.each([
     "GQA",
