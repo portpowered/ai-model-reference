@@ -234,3 +234,63 @@ describe("roofline model teaching visual (roofline-model-concept-page-003)", () 
     expect(html).toContain("teaches bounds, not hardware rankings");
   });
 });
+
+describe("roofline model throughput connections (roofline-model-concept-page-004)", () => {
+  test("messages explain why each throughput-adjacent target matters to roofline reasoning", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(
+      messages.sections?.throughputConnections.body?.toLowerCase(),
+    ).toContain("bytes moved");
+    expect(
+      messages.sections?.throughputConnections.body?.toLowerCase(),
+    ).toContain("operations available");
+    expect(messages.links?.memoryBandwidth?.toLowerCase()).toContain(
+      "memory-bandwidth",
+    );
+    expect(messages.links?.flops?.toLowerCase()).toContain("operation");
+    expect(messages.links?.tokensPerSecond?.toLowerCase()).toContain(
+      "generation rate",
+    );
+    expect(messages.links?.inferenceEngine?.toLowerCase()).toContain(
+      "runtime scheduling",
+    );
+    expect(messages.links?.quantization?.toLowerCase()).toContain("bytes");
+    expect(messages.relatedDocs?.["system.memory"]?.reason).toContain("bytes");
+    expect(messages.relatedDocs?.["concept.hidden-size"]?.reason).toContain(
+      "operation",
+    );
+    expect(
+      messages.relatedDocs?.["concept.inter-token-latency"]?.reason,
+    ).toContain("generation rate");
+    expect(messages.relatedDocs?.["system.inference-engine"]?.reason).toContain(
+      "schedule",
+    );
+    expect(messages.relatedDocs?.["concept.quantization"]?.reason).toContain(
+      "bytes per parameter",
+    );
+  });
+
+  test("page renders throughput-adjacent links without missing-content placeholders", async () => {
+    const page = await loadConceptPage("roofline-model");
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("Throughput Connections");
+    expect(html).toContain('href="/docs/systems/memory"');
+    expect(html).toContain('href="/docs/glossary/hidden-size"');
+    expect(html).toContain('href="/docs/glossary/inter-token-latency"');
+    expect(html).toContain('href="/docs/systems/inference-engine"');
+    expect(html).toContain('href="/docs/concepts/quantization"');
+    expect(html).not.toMatch(/\{\{[^}]+\}\}/);
+  });
+});

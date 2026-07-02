@@ -9,9 +9,7 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 const rooflinePageDir = getDocsPageDir("concepts", "roofline-model");
 
 const rooflineMessages = pageMessagesSchema.parse(
-  JSON.parse(
-    readFileSync(join(rooflinePageDir, "messages/en.json"), "utf8"),
-  ),
+  JSON.parse(readFileSync(join(rooflinePageDir, "messages/en.json"), "utf8")),
 );
 
 describe("RooflineTeachingChart", () => {

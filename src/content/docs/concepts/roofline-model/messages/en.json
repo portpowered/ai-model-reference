@@ -31,6 +31,10 @@
       "title": "Common Confusions",
       "body": "The roofline model is a teaching ceiling, not a benchmark leaderboard. It explains memory-bound and compute-bound regions in plain language; it does not pick the best chip, model, or vendor. A point on the chart illustrates limits for one workload and one hardware profile, not a universal ranking of products."
     },
+    "throughputConnections": {
+      "title": "Throughput Connections",
+      "body": "The roofline model is a ceiling chart, but serving discussions name the ingredients that set that ceiling. Use the links below to move from the general bound framework into the pages that explain bytes moved, operations available, observed generation rate, runtime scheduling, and bytes per parameter."
+    },
     "related": {
       "title": "Related Concepts And Modules"
     },
@@ -69,6 +73,30 @@
           "label": "Attainable throughput (GFLOP/s)"
         }
       }
+    }
+  },
+  "links": {
+    "memoryBandwidth": "Memory — how fast weights, activations, and cache state move sets the memory-bandwidth slope",
+    "flops": "Hidden size — model width scales operation counts that feed the compute-bound ceiling",
+    "tokensPerSecond": "Inter-token latency — per-token gaps connect to observed generation rate and aggregate throughput",
+    "inferenceEngine": "Inference engine — runtime scheduling maps work to accelerators under both bounds",
+    "quantization": "Quantization — fewer bytes per parameter shifts arithmetic intensity and memory pressure"
+  },
+  "relatedDocs": {
+    "system.memory": {
+      "reason": "Serving memory pages explain how fast bytes can move through weights, activations, and KV-cache state—the ingredient that sets the sloped roofline region."
+    },
+    "concept.hidden-size": {
+      "reason": "Hidden size shows how model width scales operation counts and memory per token, which feeds the compute ceiling and arithmetic-intensity axis."
+    },
+    "concept.inter-token-latency": {
+      "reason": "Inter-token latency connects per-token decode gaps to the generation rate readers observe once streaming begins."
+    },
+    "system.inference-engine": {
+      "reason": "Inference engines schedule prefill and decode work onto accelerators, so runtime layout affects which bound shows up in practice."
+    },
+    "concept.quantization": {
+      "reason": "Quantization reduces bytes per parameter, which can shift a workload toward higher arithmetic intensity and lower memory pressure."
     }
   }
 }

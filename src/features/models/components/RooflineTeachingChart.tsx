@@ -57,7 +57,9 @@ function buildRooflineData(): RooflineDataPoint[] {
       intensity,
       attainableThroughput,
       lowIntensityWorkload:
-        intensity === lowIntensity ? attainableThroughputFor(lowIntensity) : undefined,
+        intensity === lowIntensity
+          ? attainableThroughputFor(lowIntensity)
+          : undefined,
       highIntensityWorkload:
         intensity === highIntensity
           ? attainableThroughputFor(highIntensity)
@@ -78,9 +80,7 @@ function legendLabel(
   return legend?.[key]?.label ?? fallback;
 }
 
-export function isRooflineChartId(
-  chartId: string,
-): chartId is RooflineChartId {
+export function isRooflineChartId(chartId: string): chartId is RooflineChartId {
   return chartId in ROOFLINE_CHART_IDS;
 }
 
@@ -95,18 +95,23 @@ export function RooflineTeachingChart({
   alt?: string;
   caption?: string;
 }) {
+  const { messages } = usePageMessages();
+
   if (!isRooflineChartId(chartId)) {
     return null;
   }
 
-  const { messages } = usePageMessages();
   const assetMessages = messages.assets?.[assetId];
   const legend = assetMessages?.legend;
   const data = buildRooflineData();
 
   const chartConfig = {
     attainableThroughput: {
-      label: legendLabel(legend, "attainableThroughput", "Attainable throughput"),
+      label: legendLabel(
+        legend,
+        "attainableThroughput",
+        "Attainable throughput",
+      ),
       color: ROOFLINE_STROKE,
     },
     lowIntensityWorkload: {
@@ -127,8 +132,7 @@ export function RooflineTeachingChart({
     },
   } satisfies ChartConfig;
 
-  const chartLabel =
-    assetMessages?.title ?? "Illustrative Roofline Ceiling";
+  const chartLabel = assetMessages?.title ?? "Illustrative Roofline Ceiling";
   const axisLabelX = legendLabel(
     legend,
     "axisX",
