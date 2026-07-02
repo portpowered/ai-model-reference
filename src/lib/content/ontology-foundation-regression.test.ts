@@ -49,6 +49,7 @@ const seededPrimaryClassifications = new Map([
     "classification.module.transformer-block",
   ],
   ["training-regime.dpo", "classification.training.alignment"],
+  ["training-regime.grpo", "classification.training.alignment"],
   ["training-regime.pretraining", "classification.training.pretraining"],
   ["system.routing", "classification.system.routing"],
 ]);
@@ -520,6 +521,7 @@ describe("ontology foundation regression coverage", () => {
     ).toEqual(
       expect.arrayContaining([
         "primary:training-regime.dpo",
+        "primary:training-regime.grpo",
         "primary:training-regime.instruction-tuning",
       ]),
     );

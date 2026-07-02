@@ -80,6 +80,16 @@ async function waitForSearchPagePanelResults(
 }
 
 /** Orama static search suspends on first client render; unmount + brief wait primes the cache. */
+async function findSearchPageResults(timeout = 15_000): Promise<HTMLElement> {
+  await waitFor(
+    () => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    },
+    { timeout },
+  );
+  return screen.findByTestId("search-page-results", {}, { timeout });
+}
+
 async function primeDocsSearchClient(
   context: Awaited<ReturnType<typeof loadAppTestContext>>,
   searchParams = new URLSearchParams(),
@@ -540,7 +550,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await waitForSearchPagePanelResults();
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -564,7 +574,7 @@ describe("SearchPagePanel classification handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await waitForSearchPagePanelResults();
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/ReLU/i);
   });
 
@@ -578,7 +588,11 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("unknown-topic");
 
-    const empty = await screen.findByTestId("search-page-empty");
+    const empty = await screen.findByTestId(
+      "search-page-empty",
+      {},
+      { timeout: 15_000 },
+    );
     expect(empty.textContent).toContain(context.messages.search.noResults);
     expect(
       screen.queryByText(
@@ -607,7 +621,7 @@ describe("SearchPagePanel classification handoff", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("token");
 
-    const results = await waitForSearchPagePanelResults();
+    const results = await findSearchPageResults();
     expect(results.textContent).toMatch(/Token/i);
     expect(
       screen.queryByText(
@@ -712,7 +726,7 @@ describe("SearchPagePanel tag handoff", () => {
       ),
     ).toBeTruthy();
 
-    const results = await waitForSearchPagePanelResults();
+    const results = await findSearchPageResults();
     const urls = collectResultUrlsFromNodes(
       within(results).getAllByTestId("search-result-url"),
     );

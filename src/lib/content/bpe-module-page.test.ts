@@ -87,6 +87,9 @@ describe("loadModulePage bpe", () => {
     expect(html).toContain('href="https://arxiv.org/abs/1508.07909"');
     expect(html).not.toContain("later phase");
     expect(html).toContain('data-graph-id="graph.bpe-compute-flow"');
+    expect(html).toContain('data-page-asset="comparisonTable"');
+    expect(html).toContain('data-table-id="table.bpe-comparison"');
+    expect(html).toContain("Starting view of text");
   });
 
   test("published route is discoverable through source and search documents", async () => {
@@ -102,15 +105,20 @@ describe("loadModulePage bpe", () => {
     expect(bpeDocument).toBeDefined();
     expect(bpeDocument?.aliases).toContain("BPE");
     expect(bpeDocument?.aliases).toContain("byte pair encoding");
+    expect(bpeDocument?.aliases).toContain("byte-pair encoding");
     expect(bpeDocument?.aliases).toContain("subword tokenizer");
     expect(bpeDocument?.tags).toContain("tokenization");
     expect(bpeDocument?.relatedIds).toContain("concept.token");
+    expect(bpeDocument?.relatedIds).toContain("concept.tokenizers-overview");
+    expect(bpeDocument?.relatedIds).toContain("module.wordpiece");
+    expect(bpeDocument?.relatedIds).toContain("module.sentencepiece");
     expect(bpeDocument?.relatedIds).toContain("model.gpt-3");
   });
 
   test.each([
     "BPE",
     "byte pair encoding",
+    "byte-pair encoding",
     "subword tokenizer",
   ] as const)("search ranks the canonical BPE page for %s", async (query) => {
     const results = await docsSearchApi.search(query);
@@ -128,6 +136,48 @@ describe("loadModulePage bpe", () => {
         (result) => result.url.split("#")[0] === "/docs/modules/bpe",
       ),
     ).toBe(true);
+  });
+});
+
+describe("bpe page focused validation", () => {
+  test("loadModulePage binds the canonical route to module.bpe with English messages and local assets", async () => {
+    const page = await loadModulePage("bpe");
+    const pages = await loadPublishedDocsPages("en");
+
+    expect(page.frontmatter.registryId).toBe("module.bpe");
+    expect(pages.some((entry) => entry.url === "/docs/modules/bpe")).toBe(true);
+    expect(page.assets.computeFlow.type).toBe("graph");
+    expect(page.assets.comparisonTable.type).toBe("table");
+    expect(validatePageAssetReferences(page.assets, page.messages)).toEqual([]);
+    expect(page.messages.assets?.computeFlow?.alt).toContain(
+      "Byte pair encoding flow",
+    );
+    expect(page.messages.tables?.comparison?.dimensions?.startingView).toBe(
+      "Starting view of text",
+    );
+  });
+
+  test("search and related-doc surfaces route readers to the canonical BPE page", async () => {
+    const results = await docsSearchApi.search("subword tokenizer");
+    expect(results[0]?.url.split("#")[0]).toBe("/docs/modules/bpe");
+
+    const page = await loadModulePage("bpe");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain('href="/docs/glossary/special-tokens"');
+    expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
+    expect(html).toContain('href="/docs/modules/wordpiece"');
+    expect(html).toContain('href="/docs/modules/sentencepiece"');
+    expect(html).toContain('href="/docs/models/gpt-3"');
   });
 });
 
