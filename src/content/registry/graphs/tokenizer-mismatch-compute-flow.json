@@ -1,0 +1,104 @@
+{
+  "id": "graph.tokenizer-mismatch-compute-flow",
+  "slug": "tokenizer-mismatch-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["tokenization"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "module.tokenizer-mismatch",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "reader-text",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "reader-text",
+      "labelKey": "graph.nodes.readerText.label",
+      "moduleKind": "input",
+      "position": { "x": 180, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["tokenizer-rules"]
+    },
+    {
+      "id": "tokenizer-rules",
+      "labelKey": "graph.nodes.tokenizerRules.label",
+      "moduleKind": "tokenizer",
+      "position": { "x": 145, "y": 110 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["special-tokens"]
+    },
+    {
+      "id": "special-tokens",
+      "labelKey": "graph.nodes.specialTokens.label",
+      "moduleKind": "operation",
+      "position": { "x": 130, "y": 220 },
+      "visualRole": "process-node",
+      "childNodeIds": ["token-ids"]
+    },
+    {
+      "id": "token-ids",
+      "labelKey": "graph.nodes.tokenIds.label",
+      "moduleKind": "operation",
+      "position": { "x": 165, "y": 330 },
+      "visualRole": "process-node",
+      "childNodeIds": ["model-input"]
+    },
+    {
+      "id": "model-input",
+      "labelKey": "graph.nodes.modelInput.label",
+      "moduleKind": "output",
+      "position": { "x": 170, "y": 440 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "drift-note",
+      "labelKey": "graph.nodes.driftNote.label",
+      "moduleKind": "other",
+      "position": { "x": 450, "y": 165 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "failure-note",
+      "labelKey": "graph.nodes.failureNote.label",
+      "moduleKind": "other",
+      "position": { "x": 450, "y": 350 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "reader-text-to-tokenizer-rules",
+      "source": "reader-text",
+      "target": "tokenizer-rules",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "tokenizer-rules-to-special-tokens",
+      "source": "tokenizer-rules",
+      "target": "special-tokens",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "special-tokens-to-token-ids",
+      "source": "special-tokens",
+      "target": "token-ids",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "token-ids-to-model-input",
+      "source": "token-ids",
+      "target": "model-input",
+      "edgeKind": "data-flow"
+    }
+  ]
+}
