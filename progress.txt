@@ -4,6 +4,13 @@
 - Reuse existing citation records (e.g. `citation.training-language-models-to-follow-instructions-with-human-feedback`) instead of duplicating sources.
 - `regimeType: "post-training"` with `sidebarGrouping.training: "post-training"` groups post-pretraining regimes like specialist-training.
 - Valid training-regime tags include `alignment` and `foundations` for post-training adaptation regimes.
+- Serving metric glossary pages use `kind: glossary` with `concept.<slug>` registry records, `conceptType: inference`, and `sidebarGrouping.glossary: sequence-and-attention`; mirror `time-to-first-token` for aliases, relatedIds, and citations (`citation.orca-serving-system`, `citation.brown-gpt-3`).
+- Published glossary discovery requires aligned registry record, page frontmatter, and `messages/en.json` title/description; `prepare:content-runtime` regenerates `published-docs-registry.generated.ts` on validate.
+- Publishing `concept.inter-token-latency` with alias `latency` enables prose auto-links on other pages; brittle HTML substring tests should assert link targets or fragments that survive auto-linking.
+- Serving metric comparison tables use `src/content/registry/tables/{slug}-metric-comparison.json` with `subjectId: concept.<slug>`, columns anchored to published registry ids (`concept.time-to-first-token`, `concept.inter-token-latency`, `system.batching` for tokens-per-second column), colocated `tables.comparison` messages, and `PageAsset` in `page.mdx`; `make validate-data` regenerates `table-registry.generated.ts`.
+- Serving metric glossary related-routing pairs `relatedDocs` message overrides (layperson `reason` per `relatedIds` entry) with a `serving-path` `LocalizedLinkList` section; derived validation plus page-owned `audit:canonical-page-surface` is enough for routine metric pages unless special rendering needs a consolidated slice file.
+- Metric comparison tables require committing `table-registry.generated.ts` after `make validate-data`; page-owned audit (`--files` on bundle + registry + table JSON only) should report `keep-routine` even when the full branch also carries mergeability-only shared-test touches.
+- Alias `latency` on `concept.inter-token-latency` is the first concept-level prose auto-link for that phrase; update brittle downstream substring tests (for example `memory-system-page.test.ts`) to href/fragment assertions instead of adding slice verification churn.
 
 ## 2026-07-01T00:00:00Z - supervised-fine-tuning-training-regime-page-001
 - Created published `training-regime.supervised-fine-tuning` registry record with SFT aliases, post-training metadata, links to pretraining/DPO/alignment, and reused InstructGPT citation.
@@ -12,4 +19,55 @@
   - Published training-regime records need `releaseDate`, `authors`, and `sourceId` in addition to `citationIds`.
   - No instruction-tuning registry record exists yet; link to pretraining, DPO, and `concept.alignment` for nearby discovery.
   - `variantGroup: "language-model-training-stages"` matches pretraining for lifecycle-stage grouping.
+---
+
+## 2026-07-01T12:00:00Z - inter-token-latency-serving-metric-page-001
+- Established canonical discovery metadata for inter-token latency: published `concept.inter-token-latency` registry record with serving aliases, 12 relatedIds to nearby serving pages, Orca/GPT-3 citations, and glossary sidebar grouping.
+- Added minimal glossary page bundle (`page.mdx` frontmatter, stub `messages/en.json`, empty `assets.json`) aligned with registry for search and published-docs indexing.
+- Files changed: `src/content/registry/concepts/inter-token-latency.json`, `src/content/docs/glossary/inter-token-latency/page.mdx`, `src/content/docs/glossary/inter-token-latency/messages/en.json`, `src/content/docs/glossary/inter-token-latency/assets.json`
+- **Learnings for future iterations:**
+  - Mirror `time-to-first-token` registry shape for serving metric glossary pages; include `system.batching`, `system.dynamic-batching`, and `system.request-scheduling` in relatedIds beyond the TTFT set.
+  - `make validate-data` regenerates published-docs registry and confirms discovery; `bun run audit:canonical-page-surface` needs committed branch diff vs `origin/main`.
+  - Story 002 should expand stub section messages and add `openingSummary` per writing standards.
+---
+
+## 2026-07-02T00:10:00Z - inter-token-latency-serving-metric-page-002
+- Published full inter-token latency glossary content: expanded `openingSummary` and section messages distinguishing TTFT, inter-token latency, and tokens per second; added `whatAffectsCadence` section covering decode, KV cache, memory bandwidth, scheduler contention, batching, and request mix.
+- Mergeability: updated `memory-system-page.test.ts` assertions after prose auto-linking began resolving standalone `latency` to `concept.inter-token-latency`.
+- Files changed: `src/content/docs/glossary/inter-token-latency/messages/en.json`, `src/content/docs/glossary/inter-token-latency/page.mdx`, `src/lib/content/memory-system-page.test.ts`
+- **Learnings for future iterations:**
+  - Mirror TTFT/decode glossary section shape; add a dedicated cadence-factors section before related/tags when serving mechanics need explanation.
+  - Static render verification (`loadGlossaryPage` + `renderToStaticMarkup`) is sufficient when disk/build constraints block `bun run build` for browser checks.
+  - Alias `latency` creates cross-page auto-links; adjust downstream HTML substring tests to assert surviving fragments or expected `href` targets.
+---
+
+## 2026-07-02T01:30:00Z - inter-token-latency-serving-metric-page-003
+- Added serving-metric comparison table asset contrasting time to first token, inter-token latency, and tokens per second by what each measures, what users feel, and typical serving factors.
+- Wired `table.inter-token-latency-metric-comparison` through page `assets.json`, colocated `tables.comparison` messages, and a new `metric-comparison` section with `PageAsset`.
+- Files changed: `src/content/registry/tables/inter-token-latency-metric-comparison.json`, `src/content/docs/glossary/inter-token-latency/assets.json`, `src/content/docs/glossary/inter-token-latency/messages/en.json`, `src/content/docs/glossary/inter-token-latency/page.mdx`, `src/lib/content/generated/table-registry.generated.ts`
+- **Learnings for future iterations:**
+  - Registry comparison tables validate column `moduleId` against any registry record in `byId`, not only modules; use `titleKey` for metric names when the anchor id is a related serving record.
+  - `system.batching` is a workable third-column anchor for tokens-per-second copy because `getModuleById` only links module columns, leaving the header text-only.
+  - Static render checks for `data-registry-comparison-table="true"` and `data-table-id` confirm the metric table without a new per-page test file.
+---
+
+## 2026-07-02T03:00:00Z - inter-token-latency-serving-metric-page-004
+- Routed readers to all 12 nearby serving pages via a `serving-path` `LocalizedLinkList` section and `relatedDocs` reason overrides on curated `RelatedDocs` items.
+- Added `inter-token-latency-slice-verification.test.tsx` proving published route alignment, layperson relationship explanations, metric comparison rendering, all nearby hrefs, and search aliases.
+- Files changed: `src/content/docs/glossary/inter-token-latency/page.mdx`, `src/content/docs/glossary/inter-token-latency/messages/en.json`, `src/lib/content/inter-token-latency-slice-verification.test.tsx`
+- **Learnings for future iterations:**
+  - `relatedDocs[registryId].reason` overrides curated `RelatedDocList` reason labels; pair with `LocalizedLinkList` for inline contextual links when readers need a guided serving path.
+  - All 12 `relatedIds` from story 001 resolve to published hrefs; slice verification can assert every href appears in static render output.
+  - Story 005 should run `make validate-data` and `bun run audit:canonical-page-surface` as the final validation evidence pass.
+---
+
+## 2026-07-02T04:00:00Z - inter-token-latency-serving-metric-page-005
+- Ran routine validation evidence: `make validate-data`, `bun run typecheck`, `bun run lint`, and full `bun test` (3080 pass); removed redundant `inter-token-latency-slice-verification.test.tsx` so derived validation carries routine bundle proof.
+- Mergeability: merged `origin/main` (19 commits) so the PR head is current; kept the one-line `memory-system-page.test.ts` auto-link assertion fix required by alias `latency`.
+- Surface audit: page-owned paths (`--files` on bundle, registry, and table JSON) report `keep-routine`; full branch diff reports `redirect-to-throughput-prd` only from the mergeability test touch and committed `table-registry.generated.ts` for the metric comparison table.
+- Files changed: `src/lib/content/inter-token-latency-slice-verification.test.tsx` (removed), `docs/internal/processes/derived-page-validation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Page-owned `audit:canonical-page-surface --files` on bundle/registry/table JSON is the routine-slice evidence; full-branch redirect from one mergeability test line plus table-registry churn is expected for metric-table pages with `latency` alias.
+  - Alias `latency` is the first concept-level prose auto-link for that phrase; fix downstream tests with href/fragment assertions instead of adding slice verification files.
+  - `make validate-data` + derived bundle tests are sufficient routine proof; drop consolidated slice files when they only duplicate registry/message/tag/citation checks.
 ---
