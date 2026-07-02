@@ -1,1 +1,7 @@
-{}
+{
+  "metricComparison": {
+    "type": "table",
+    "tableId": "table.inter-token-latency-metric-comparison",
+    "captionKey": "assets.metricComparison.caption"
+  }
+}

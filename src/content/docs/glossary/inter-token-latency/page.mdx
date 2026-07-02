@@ -21,6 +21,7 @@ updatedAt: "2026-07-01"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
+import { PageAsset } from "@/features/docs/components/PageAsset";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -40,6 +41,11 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
   <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="metric-comparison" titleKey="sections.metricComparison.title">
+  <T k="sections.metricComparison.body" />
+  <PageAsset assetId="metricComparison" />
 </Section>
 
 <Section id="what-affects-cadence" titleKey="sections.whatAffectsCadence.title">

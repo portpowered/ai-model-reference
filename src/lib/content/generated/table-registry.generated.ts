@@ -12,6 +12,7 @@ import feedForwardNetworkComparisonTableRecord from "@/content/registry/tables/f
 import geluComparisonTableRecord from "@/content/registry/tables/gelu-comparison.json";
 import groupNormComparisonTableRecord from "@/content/registry/tables/group-norm-comparison.json";
 import groupedQueryAttentionComparisonTableRecord from "@/content/registry/tables/grouped-query-attention-comparison.json";
+import interTokenLatencyMetricComparisonTableRecord from "@/content/registry/tables/inter-token-latency-metric-comparison.json";
 import layerNormComparisonTableRecord from "@/content/registry/tables/layer-norm-comparison.json";
 import leakyReluComparisonTableRecord from "@/content/registry/tables/leaky-relu-comparison.json";
 import linearAttentionComparisonTableRecord from "@/content/registry/tables/linear-attention-comparison.json";
@@ -45,6 +46,7 @@ export const generatedTableRegistrySourceFiles = [
   "gelu-comparison.json",
   "group-norm-comparison.json",
   "grouped-query-attention-comparison.json",
+  "inter-token-latency-metric-comparison.json",
   "layer-norm-comparison.json",
   "leaky-relu-comparison.json",
   "linear-attention-comparison.json",
@@ -79,6 +81,7 @@ export const generatedTableRegistryPayloads = [
   geluComparisonTableRecord,
   groupNormComparisonTableRecord,
   groupedQueryAttentionComparisonTableRecord,
+  interTokenLatencyMetricComparisonTableRecord,
   layerNormComparisonTableRecord,
   leakyReluComparisonTableRecord,
   linearAttentionComparisonTableRecord,

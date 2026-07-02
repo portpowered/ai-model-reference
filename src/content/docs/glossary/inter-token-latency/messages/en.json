@@ -19,6 +19,10 @@
       "title": "Common Confusions",
       "body": "Inter-token latency is not time to first token, total response time, or tokens per second. Time to first token measures the wait before streaming starts. Total response time covers the full answer from request to finish. Tokens per second is an aggregate throughput figure—often averaged across many tokens, requests, or a benchmark window—and can look healthy even when individual gaps feel uneven. A system can have low TTFT but choppy streaming, fast per-token gaps but low overall throughput under heavy load, or the opposite."
     },
+    "metricComparison": {
+      "title": "How Serving Latency Metrics Compare",
+      "body": "The table below contrasts three serving metrics readers often mix up. Each row names what the metric measures, what the reader feels, and which serving factors usually move it."
+    },
     "whatAffectsCadence": {
       "title": "What Affects Token Cadence",
       "body": "Each inter-token interval is shaped by the decode work for one new token, the KV cache reads that step requires, and how quickly memory bandwidth can supply that state. Scheduler contention matters when many active requests compete for the same accelerators. Batching decisions—fixed batch sizes, continuous batching, or dynamic regrouping—change how often a request waits its turn. The active request mix also shifts cadence: prompt-heavy bursts, long decode chains, and cache-heavy conversations do not share the same per-token cost."
@@ -31,6 +35,48 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "assets": {
+    "metricComparison": {
+      "caption": "Time to first token, inter-token latency, and tokens per second answer different questions about the same streamed reply."
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "ttft": {
+          "title": "Time To First Token"
+        },
+        "itl": {
+          "title": "Inter-Token Latency"
+        },
+        "tps": {
+          "title": "Tokens Per Second"
+        }
+      },
+      "dimensions": {
+        "whatItMeasures": "What it measures",
+        "whatUsersFeel": "What users feel",
+        "servingFactors": "Serving factors that usually affect it"
+      },
+      "values": {
+        "ttft": {
+          "whatItMeasures": "Elapsed time from request start until the first streamed output token appears",
+          "whatUsersFeel": "The awkward pause before the answer begins printing",
+          "servingFactors": "Prompt length, prefill cost, queue wait, cold start, and cache misses before decode begins"
+        },
+        "itl": {
+          "whatItMeasures": "Elapsed time between consecutive streamed output tokens after generation has started",
+          "whatUsersFeel": "The rhythm or choppiness of the answer once streaming is underway",
+          "servingFactors": "Decode work per step, KV cache reads, memory bandwidth, scheduler contention, and batching decisions"
+        },
+        "tps": {
+          "whatItMeasures": "Aggregate output rate—tokens completed over a window, often averaged across many tokens or requests",
+          "whatUsersFeel": "How fast the system seems overall, even when individual gaps feel uneven",
+          "servingFactors": "Batch size, device utilization, queue depth, request mix, and how much work shares each accelerator step"
+        }
+      }
     }
   }
 }
