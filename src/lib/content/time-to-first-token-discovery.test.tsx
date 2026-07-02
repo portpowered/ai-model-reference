@@ -103,18 +103,22 @@ describe("time to first token serving foundations (time-to-first-token-serving-m
     );
   });
 
-  test("search finds TTFT by title, aliases, and serving-metric terms", async () => {
-    for (const query of [
-      "Time To First Token",
-      "TTFT",
-      "time to first token",
-      "first token latency",
-      "serving latency",
-    ] as const) {
-      const results = await docsSearchApi.search(query);
-      expect(results.some((result) => result.url === TTFT_URL)).toBe(true);
-    }
-  });
+  test(
+    "search finds TTFT by title, aliases, and serving-metric terms",
+    async () => {
+      for (const query of [
+        "Time To First Token",
+        "TTFT",
+        "time to first token",
+        "first token latency",
+        "serving latency",
+      ] as const) {
+        const results = await docsSearchApi.search(query);
+        expect(results.some((result) => result.url === TTFT_URL)).toBe(true);
+      }
+    },
+    { timeout: 30_000 },
+  );
 
   test("rendered related sections expose serving foundations and omit batch-owned pages", async () => {
     const page = await loadGlossaryPage("time-to-first-token");

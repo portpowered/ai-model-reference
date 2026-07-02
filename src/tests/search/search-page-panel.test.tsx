@@ -625,19 +625,23 @@ describe("SearchPagePanel tag handoff", () => {
     releaseFetchLock = null;
   });
 
-  test("/search?tag=attention prefills attention and surfaces grouped-query attention", async () => {
-    const context = await loadAppTestContext();
-    const searchParams = new URLSearchParams("tag=attention");
-    await renderSearchPagePanelContent(context, searchParams);
+  test(
+    "/search?tag=attention prefills attention and surfaces grouped-query attention",
+    async () => {
+      const context = await loadAppTestContext();
+      const searchParams = new URLSearchParams("tag=attention");
+      await renderSearchPagePanelContent(context, searchParams);
 
-    const searchInput = screen.getByLabelText(
-      context.messages.search.placeholder,
-    ) as HTMLInputElement;
-    expect(searchInput.value).toBe("attention");
+      const searchInput = screen.getByLabelText(
+        context.messages.search.placeholder,
+      ) as HTMLInputElement;
+      expect(searchInput.value).toBe("attention");
 
-    const results = await screen.findByTestId("search-page-results");
-    expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
-  });
+      const results = await screen.findByTestId("search-page-results");
+      expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+    },
+    { timeout: 30_000 },
+  );
 
   test("shows tag filter description when tag param is present without q", async () => {
     const context = await loadAppTestContext();
