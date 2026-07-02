@@ -232,3 +232,70 @@ bun run typecheck
 ```
 
 Result: PASS (2026-07-02T20:46Z UTC).
+
+## Story 003 — consume handoff for merged drainable rows
+
+Captured 2026-07-02T20:47Z UTC. Story 002 classified one subsidiary drain idea
+as **consume**; this story executes that handoff only. No page content, registry
+content, root work, or unrelated worktree files were changed.
+
+### Consume target
+
+| Work item | Work id | PR | Pre-action state | Post-action state | Operation |
+| --- | --- | --- | --- | --- | --- |
+| `block-sparse-attention-pr287-clean-drain` | `batch-fresh-pr-drain-and-conflict-refresh-batch-073-block-sparse-attention-pr287-clean-drain` | #287 | `init` / INITIAL | `complete` / TERMINAL | `you work move` (see below) |
+
+**Evidence that consume is safe**
+
+- PR #287 is MERGED on current `origin/main` (`b5716eff`).
+- Primary `block-sparse-attention-module-page` content trace
+  (`trace-tokenizer-and-attention-refill-batch-064`) is terminal-complete
+  (idea/plan/review/task all `complete` / TERMINAL).
+- The drain idea scoped only to green-PR merge/consume handoff; its purpose is
+  fulfilled now that PR #287 has landed.
+- No active implementation or review tokens would be skipped by closing this
+  standalone drain idea.
+
+**Consume operation used**
+
+Standalone drain ideas at `init` / INITIAL with no paired plan/task/review trace
+do not enter the `idea:to-complete` + `task:to-complete` → `consume` workstation
+pairing. For this row the accepted operator consume action is a direct terminal
+move on session `930b51a6-07ce-44e6-a639-7a6217f6e864`:
+
+```bash
+you work move batch-fresh-pr-drain-and-conflict-refresh-batch-073-block-sparse-attention-pr287-clean-drain complete \
+  --session 930b51a6-07ce-44e6-a639-7a6217f6e864 --json
+```
+
+Result (2026-07-02T20:47Z UTC):
+
+```json
+{"workId":"batch-fresh-pr-drain-and-conflict-refresh-batch-073-block-sparse-attention-pr287-clean-drain","previousState":"init","newState":"complete","sessionId":"930b51a6-07ce-44e6-a639-7a6217f6e864"}
+```
+
+Post-action verification:
+
+```bash
+you work show batch-fresh-pr-drain-and-conflict-refresh-batch-073-block-sparse-attention-pr287-clean-drain \
+  --session 930b51a6-07ce-44e6-a639-7a6217f6e864 --json
+```
+
+Observed: `state.name` = `complete`, `state.type` = `TERMINAL`.
+
+### Rows not consumed in story 003
+
+Story 002 selected **no-op** for all three primary content lanes and **complete**
+for zero rows. Those handoffs belong to stories 004–005.
+
+## Quality gate (story 003)
+
+Queue consume executed for `block-sparse-attention-pr287-clean-drain` only; no
+page content, registry content, root work, worktree files, staging area, or
+branch history were changed outside the allowed queue move.
+
+```bash
+bun run typecheck
+```
+
+Result: PASS (2026-07-02T20:47Z UTC).
