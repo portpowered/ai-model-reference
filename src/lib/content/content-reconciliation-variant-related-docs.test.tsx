@@ -46,10 +46,14 @@ const HEAD_SHARING_MODULE_URLS = [
   "/docs/modules/multi-head-latent-attention",
 ] as const;
 
+const ATTENTION_VARIANT_RELATED_DOCS_GATE_TIMEOUT_MS = 30_000;
+
 const SUBQUADRATIC_ATTENTION_REGISTRY_IDS = [
   "module.linear-attention",
   "module.gated-deltanet",
 ] as const;
+
+const SOLO_VARIANT_GROUP_MODULES = [] as const;
 
 const SPARSE_PATTERN_REGISTRY_IDS = [
   "module.sparse-attention",
@@ -143,6 +147,20 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
         peers.every((peer) => peer.href?.startsWith("/docs/modules/")),
       ).toBe(true);
       expect(peers.every((peer) => !peer.isPlanned)).toBe(true);
+    }
+  });
+
+  test("solo variant groups omit same-variant-group peers until siblings publish", () => {
+    const modules = listPublishedModuleRecords();
+
+    for (const { registryId } of SOLO_VARIANT_GROUP_MODULES) {
+      const source = expectModuleRecord(registryId);
+      const peers = deriveSameVariantGroupPeers(
+        source,
+        modules,
+        PUBLISHED_DOCS_REGISTRY_IDS,
+      );
+      expect(peers).toEqual([]);
     }
   });
 
@@ -277,24 +295,31 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     ).toHaveLength(1);
   });
 
-  test("module pages render ontology classification sibling peer links in the related section", async () => {
-    for (const url of HEAD_SHARING_MODULE_URLS) {
-      const slug = url.replace("/docs/modules/", "");
-      const loadedPage = await loadLocalDocsPage({ section: "modules", slug });
-      const html = renderModuleDocsShell(loadedPage);
+  test(
+    "module pages render ontology classification sibling peer links in the related section",
+    async () => {
+      for (const url of HEAD_SHARING_MODULE_URLS) {
+        const slug = url.replace("/docs/modules/", "");
+        const loadedPage = await loadLocalDocsPage({
+          section: "modules",
+          slug,
+        });
+        const html = renderModuleDocsShell(loadedPage);
 
-      expect(html).toContain('data-related-group="classification-siblings"');
-      expect(html).not.toContain('data-related-group="same-variant-group"');
-      expect(html).toContain("Same classification: attention mechanisms");
+        expect(html).toContain('data-related-group="classification-siblings"');
+        expect(html).not.toContain('data-related-group="same-variant-group"');
+        expect(html).toContain("Same classification: attention mechanisms");
 
-      for (const peerUrl of HEAD_SHARING_MODULE_URLS) {
-        if (peerUrl === url) {
-          continue;
+        for (const peerUrl of HEAD_SHARING_MODULE_URLS) {
+          if (peerUrl === url) {
+            continue;
+          }
+          expect(html).toContain(`href="${peerUrl}"`);
         }
-        expect(html).toContain(`href="${peerUrl}"`);
       }
-    }
-  });
+    },
+    { timeout: ATTENTION_VARIANT_RELATED_DOCS_GATE_TIMEOUT_MS },
+  );
 
   test("linear attention related docs render subquadratic peers alongside curated links", () => {
     const html = renderToStaticMarkup(

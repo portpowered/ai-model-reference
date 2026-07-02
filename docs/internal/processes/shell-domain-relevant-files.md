@@ -13,8 +13,14 @@ or shell fixture proofs that must stay independent from AI registry helpers.
   Generic section-index message resolution and `renderShellSectionCollectionIndexPage`.
 * `src/lib/navigation/shell-collection-page-tree.ts`
   Generic sidebar/page-tree builder with optional grouping resolvers.
+* `src/lib/navigation/ai-docs-sidebar-adapter.ts`
+  Model Atlas-owned shell sidebar labels, grouping resolvers, collection ids, and `getAiDocsShellPageTreeSettings()` for AI docs collections.
 * `src/lib/navigation/generated-docs-page-tree.ts`
-  AI docs page tree; delegates to `buildShellCollectionPageTree`.
+  AI docs page tree; composes adapter settings into `buildShellCollectionPageTree`.
+* `src/lib/navigation/generated-docs-page-tree-wiring.test.ts`
+  Adapter-to-shell wiring regression for base-tree preservation and page inclusion.
+* `src/lib/navigation/ai-docs-sidebar-adapter-parity.test.ts`
+  Consolidated AI adapter parity and non-AI fixture sidebar independence regression.
 * `src/app/(site)/site-renderers.tsx`
   AI browse and section-index render entry points used by public routes.
 
