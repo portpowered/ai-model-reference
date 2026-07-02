@@ -14,6 +14,14 @@ watchdog summaries, or planner-facing linkage reports.
 * `src/lib/factory/planner-worktree-drift-watchdog.ts` — root vs active
   worktree drift classification, including already-merged root drift and
   ownerless root dirty path recovery guidance.
+* `src/lib/factory/planner-root-checkout-reconciliation.ts` — non-destructive
+  root checkout reconciliation that compares dirty paths against `HEAD` and
+  `origin/main`, classifies remote-present local deletions as ownerless root
+  checkout drift with `present-on-origin-main` evidence, keeps other dirty
+  paths in manual-inspection groups with per-change-kind counts and preserve
+  guidance, and prints operator next actions (page-refill hold, safe cleanup
+  path for remote-present deletions, manual ownership inspection) with target
+  session `0fdc5077-95ed-4396-a183-06e5b16555ca`.
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 
@@ -25,6 +33,7 @@ watchdog summaries, or planner-facing linkage reports.
 | Inspect queue/worktree/PR linkage ledger with optional metadata refresh | `bun run report:queue-worktree-pr-linkage-ledger` |
 | Planner batch dispatch: collision preflight before scheduling overlapping lanes | `bun run report:planner-batch-collision-preflight` |
 | Planner worktree drift against active lanes | `bun run report:planner-worktree-drift-watchdog` |
+| Root checkout reconciliation against HEAD and origin/main | `bun run report:planner-root-checkout-reconciliation` |
 
 Direct script paths remain supported for fixture-driven tests:
 
@@ -63,13 +72,16 @@ inventory checks. Supported fixture flags:
 * `--session-list-json`
 * `--worktrees-dir`
 * `--pr-map-json`
+* `--status-output` for root checkout reconciliation fixture status porcelain
 * `--session` for live `you work list` discovery in integration-style tests
 
 Representative regression coverage lives in
-`src/tests/discovery/linkage-classifier-report-compatibility.test.ts` and
+`src/tests/discovery/linkage-classifier-report-compatibility.test.ts`,
 `src/tests/discovery/planner-root-drift-pr-metadata-repair-compatibility.test.ts`
 (already-merged root drift, ownerless recovery guidance, and PR-backed metadata
-refresh with passing checks).
+refresh with passing checks), and
+`src/tests/discovery/planner-root-checkout-reconciliation.test.ts` with fixture
+status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
 
 ## Related process docs
 
