@@ -489,6 +489,41 @@ describe("planner batch collision preflight", () => {
     );
   });
 
+  test("classifies hotspot-only shared overlap as medium risk with split recommendation and machine-readable evidence fields", () => {
+    const snapshot = collectPlannerBatchCollisionPreflightSnapshot(
+      ["factory-lane=src/lib/factory"],
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        hotspotSnapshot,
+        linkageLedger,
+      },
+    );
+
+    const candidate = snapshot.candidates[0];
+    expect(candidate).toEqual(
+      expect.objectContaining({
+        name: "factory-lane",
+        expectedSurfaceHints: ["src/lib/factory"],
+        collisionRisk: "medium",
+        recommendation: "split the batch",
+        recommendationEvidenceSummary:
+          "The current candidate is aimed at hot shared surface src/lib/factory, so it should be narrowed before dispatch.",
+        hotspotSurfaceOverlaps: [
+          expect.objectContaining({
+            surface: "src/lib/factory",
+            category: "shared-helper",
+          }),
+        ],
+        activeLaneOverlaps: [],
+        activeOwnershipGaps: expect.arrayContaining([
+          expect.stringContaining("repoRoot was unavailable"),
+        ]),
+      }),
+    );
+    expect(candidate?.hotspotEvidenceSummary.length).toBeGreaterThan(0);
+    expect(candidate?.activeLaneEvidenceSummary.length).toBeGreaterThan(0);
+  });
+
   test("keeps active ownership gaps explicit when a linked lane cannot provide ownership details", () => {
     const snapshot = collectPlannerBatchCollisionPreflightSnapshot(
       ["docs-lane=src/content/docs/attention/page.mdx"],
