@@ -1,4 +1,8 @@
-type GeneratedDocsSourceBinding = typeof import("../../.source/server");
+type GeneratedDocsSourceBinding = {
+  docs: {
+    toFumadocsSource(): unknown;
+  };
+};
 
 type LoadGeneratedDocsSourceModule = () => Promise<unknown>;
 

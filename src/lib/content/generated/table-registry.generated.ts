@@ -7,6 +7,9 @@ import blockSparseAttentionComparisonTableRecord from "@/content/registry/tables
 import bpeComparisonTableRecord from "@/content/registry/tables/bpe-comparison.json";
 import byteLevelTokenizationComparisonTableRecord from "@/content/registry/tables/byte-level-tokenization-comparison.json";
 import causalAttentionComparisonTableRecord from "@/content/registry/tables/causal-attention-comparison.json";
+import clipImageTokenizationComparisonTableRecord from "@/content/registry/tables/clip-image-tokenization-comparison.json";
+import crossAttentionComparisonTableRecord from "@/content/registry/tables/cross-attention-comparison.json";
+import diffusionTransformerBlockComparisonTableRecord from "@/content/registry/tables/diffusion-transformer-block-comparison.json";
 import feedForwardNetworkComparisonTableRecord from "@/content/registry/tables/feed-forward-network-comparison.json";
 import geluComparisonTableRecord from "@/content/registry/tables/gelu-comparison.json";
 import groupNormComparisonTableRecord from "@/content/registry/tables/group-norm-comparison.json";
@@ -19,6 +22,7 @@ import mixtureOfExpertsComparisonTableRecord from "@/content/registry/tables/mix
 import multiHeadAttentionComparisonTableRecord from "@/content/registry/tables/multi-head-attention-comparison.json";
 import multiHeadLatentAttentionComparisonTableRecord from "@/content/registry/tables/multi-head-latent-attention-comparison.json";
 import multiQueryAttentionComparisonTableRecord from "@/content/registry/tables/multi-query-attention-comparison.json";
+import multiTokenPredictionComparisonTableRecord from "@/content/registry/tables/multi-token-prediction-comparison.json";
 import qkNormComparisonTableRecord from "@/content/registry/tables/qk-norm-comparison.json";
 import reluComparisonTableRecord from "@/content/registry/tables/relu-comparison.json";
 import rmsnormComparisonTableRecord from "@/content/registry/tables/rmsnorm-comparison.json";
@@ -29,6 +33,7 @@ import sparseAttentionComparisonTableRecord from "@/content/registry/tables/spar
 import standardFfnComparisonTableRecord from "@/content/registry/tables/standard-ffn-comparison.json";
 import swigluComparisonTableRecord from "@/content/registry/tables/swiglu-comparison.json";
 import tanhComparisonTableRecord from "@/content/registry/tables/tanh-comparison.json";
+import tokenizerMismatchComparisonTableRecord from "@/content/registry/tables/tokenizer-mismatch-comparison.json";
 import unigramTokenizerComparisonTableRecord from "@/content/registry/tables/unigram-tokenizer-comparison.json";
 
 export const generatedTableRegistrySourceFiles = [
@@ -38,6 +43,9 @@ export const generatedTableRegistrySourceFiles = [
   "bpe-comparison.json",
   "byte-level-tokenization-comparison.json",
   "causal-attention-comparison.json",
+  "clip-image-tokenization-comparison.json",
+  "cross-attention-comparison.json",
+  "diffusion-transformer-block-comparison.json",
   "feed-forward-network-comparison.json",
   "gelu-comparison.json",
   "group-norm-comparison.json",
@@ -50,6 +58,7 @@ export const generatedTableRegistrySourceFiles = [
   "multi-head-attention-comparison.json",
   "multi-head-latent-attention-comparison.json",
   "multi-query-attention-comparison.json",
+  "multi-token-prediction-comparison.json",
   "qk-norm-comparison.json",
   "relu-comparison.json",
   "rmsnorm-comparison.json",
@@ -60,6 +69,7 @@ export const generatedTableRegistrySourceFiles = [
   "standard-ffn-comparison.json",
   "swiglu-comparison.json",
   "tanh-comparison.json",
+  "tokenizer-mismatch-comparison.json",
   "unigram-tokenizer-comparison.json",
 ] as const;
 
@@ -70,6 +80,9 @@ export const generatedTableRegistryPayloads = [
   bpeComparisonTableRecord,
   byteLevelTokenizationComparisonTableRecord,
   causalAttentionComparisonTableRecord,
+  clipImageTokenizationComparisonTableRecord,
+  crossAttentionComparisonTableRecord,
+  diffusionTransformerBlockComparisonTableRecord,
   feedForwardNetworkComparisonTableRecord,
   geluComparisonTableRecord,
   groupNormComparisonTableRecord,
@@ -82,6 +95,7 @@ export const generatedTableRegistryPayloads = [
   multiHeadAttentionComparisonTableRecord,
   multiHeadLatentAttentionComparisonTableRecord,
   multiQueryAttentionComparisonTableRecord,
+  multiTokenPredictionComparisonTableRecord,
   qkNormComparisonTableRecord,
   reluComparisonTableRecord,
   rmsnormComparisonTableRecord,
@@ -92,5 +106,6 @@ export const generatedTableRegistryPayloads = [
   standardFfnComparisonTableRecord,
   swigluComparisonTableRecord,
   tanhComparisonTableRecord,
+  tokenizerMismatchComparisonTableRecord,
   unigramTokenizerComparisonTableRecord,
 ] as const;

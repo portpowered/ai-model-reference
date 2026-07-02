@@ -5,10 +5,12 @@ import { join } from "node:path";
 import {
   classifyBranchDrift,
   classifyMergeability,
+  classifyPlannerLaneKind,
   determineQueueMismatchRisk,
   discoverActivePrLaneReport,
   discoverWorktreeLaneRecords,
   formatActivePrLaneReport,
+  formatStaleCleanPrMismatchReason,
   type PullRequestLookupResult,
   parseQueueLaneRecords,
   parseSessionLaneRecords,
@@ -299,6 +301,7 @@ describe("discoverActivePrLaneReport", () => {
         checkHealth: "pending",
         mergeabilityClass: "check-blocked",
         queueMismatchRisk: "checks-blocked",
+        plannerLaneKind: "checks-blocked",
         nextAction: "wait",
         reasons: [],
       },
@@ -559,6 +562,7 @@ describe("discoverActivePrLaneReport", () => {
           checkHealth: "failing",
           mergeabilityClass: "conflicting",
           queueMismatchRisk: "conflict-drift",
+          plannerLaneKind: "merge-conflict",
           nextAction: "refresh-branch",
           reasons: [],
         },
@@ -571,6 +575,7 @@ describe("discoverActivePrLaneReport", () => {
           workItemNameSource: "queue",
           worktreePath: ".claude/worktrees/beta",
           driftStatus: "unknown",
+          plannerLaneKind: "unclassified",
           reasons: ["no open PR metadata found for branch beta"],
         },
       ],
@@ -579,11 +584,168 @@ describe("discoverActivePrLaneReport", () => {
     expect(reportText).toContain("Active PR Mergeability Watchdog");
     expect(reportText).toContain("lanes=2 pr-backed=1 unclassified=1");
     expect(reportText).toContain(
-      "- status=pr-backed queue=active work-item=alpha work-item-source=metadata branch=alpha branch-source=metadata worktree=.claude/worktrees/alpha pr=#42 drift=diverged(ahead=2,behind=1) metadata=present mergeability=conflicting checks=failing risk=conflict-drift next-action=refresh-branch",
+      "classification active-page-implementation=0 stale-clean-pr-mismatch=0 merge-conflict=1 checks-blocked=0 metadata-unavailable=0 unclassified=1",
     );
     expect(reportText).toContain(
-      "pr=? drift=unknown reason=no open PR metadata found for branch beta",
+      "- status=pr-backed queue=active work-item=alpha work-item-source=metadata branch=alpha branch-source=metadata worktree=.claude/worktrees/alpha pr=#42 drift=diverged(ahead=2,behind=1) metadata=present mergeability=conflicting checks=failing risk=conflict-drift lane-kind=merge-conflict next-action=refresh-branch",
     );
+    expect(reportText).toContain(
+      "- status=unclassified queue=failed work-item=beta work-item-source=queue branch=beta branch-source=? worktree=.claude/worktrees/beta pr=? drift=unknown lane-kind=unclassified reason=no open PR metadata found for branch beta",
+    );
+  });
+});
+
+describe("active-pr-watchdog-worktree-linkage-repair-001", () => {
+  test("classifies active lanes as PR-backed from stamped lane metadata when live PR lookup fails", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-metadata-pr-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const alphaPath = createWorktree(worktreesRoot, "alpha", "alpha");
+    writeLaneMetadata(alphaPath, {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: alphaPath,
+      sessionId: "sess-1",
+      pullRequest: {
+        number: 42,
+        url: "https://example.com/pull/42",
+      },
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+      linkage: {
+        branch: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+        pullRequest: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+      },
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "alpha", state: "active", sessionId: "sess-1" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(new Map([[alphaPath, "alpha"]])),
+      lookupPullRequest: () => ({
+        pullRequest: null,
+        failureKind: "not-found",
+        failureReason: "no open PR metadata found for branch alpha",
+      }),
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        workItemName: "alpha",
+        queueState: "active",
+        rawQueueState: "active",
+        worktreePath: ".claude/worktrees/alpha",
+        branchName: "alpha",
+        prNumber: 42,
+        prUrl: "https://example.com/pull/42",
+        workItemNameSource: "metadata",
+        branchMetadataSource: "metadata",
+        metadataStatus: "present",
+        sessionId: "sess-1",
+        sessionIdSource: "queue",
+      }),
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  test("keeps PR-backed classification on one lane when another lane lacks PR metadata", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-metadata-pr-mix-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const alphaPath = createWorktree(worktreesRoot, "alpha", "alpha");
+    const betaPath = createWorktree(worktreesRoot, "beta", "beta");
+    writeLaneMetadata(alphaPath, {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: alphaPath,
+      sessionId: null,
+      pullRequest: {
+        number: 42,
+        url: "https://example.com/pull/42",
+      },
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+      linkage: {
+        branch: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+        pullRequest: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+      },
+    });
+    writeLaneMetadata(betaPath, {
+      schemaVersion: 1,
+      workItemName: "beta",
+      branchName: "beta",
+      branchMetadataSource: "setup",
+      worktreePath: betaPath,
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [
+          { name: "alpha", state: "active" },
+          { name: "beta", state: "failed" },
+        ],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(
+        new Map([
+          [alphaPath, "alpha"],
+          [betaPath, "beta"],
+        ]),
+      ),
+      lookupPullRequest: () => ({
+        pullRequest: null,
+        failureKind: "not-found",
+        failureReason: "no open PR metadata found for branch",
+      }),
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        workItemName: "alpha",
+        prNumber: 42,
+        prUrl: "https://example.com/pull/42",
+      }),
+      expect.objectContaining({
+        status: "unclassified",
+        workItemName: "beta",
+        prLookupFailureKind: "not-found",
+      }),
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
   });
 });
 
@@ -641,6 +803,7 @@ describe("story 002 classification helpers", () => {
           "stamped branch alpha-metadata disagrees with prd branch alpha-prd",
         ],
         metadataSessionId: "sess-1",
+        metadataPullRequest: null,
         metadataBranchLinkage: {
           status: "current",
           refreshedAtUtc: "2026-06-20T21:08:34.000Z",
@@ -664,6 +827,7 @@ describe("story 002 classification helpers", () => {
           "stamped lane metadata is incomplete: missing branch name",
         ],
         metadataSessionId: null,
+        metadataPullRequest: null,
         metadataBranchLinkage: {
           status: "missing",
           refreshedAtUtc: "2026-06-20T21:08:34.000Z",
@@ -687,6 +851,7 @@ describe("story 002 classification helpers", () => {
           "stamped lane metadata missing; fell back to worktree heuristics",
         ],
         metadataSessionId: undefined,
+        metadataPullRequest: null,
         metadataBranchLinkage: undefined,
         metadataPullRequestLinkage: undefined,
       },
@@ -741,6 +906,8 @@ describe("story 002 classification helpers", () => {
     expect(classifyMergeability("CLEAN", "passing")).toBe("mergeable");
     expect(classifyMergeability("DIRTY", "passing")).toBe("conflicting");
     expect(classifyMergeability("BLOCKED", "pending")).toBe("check-blocked");
+    expect(classifyMergeability("BLOCKED", "passing")).toBe("mergeable");
+    expect(classifyMergeability(undefined, "passing")).toBe("mergeable");
     expect(classifyMergeability(undefined, "unavailable")).toBe("unknown");
   });
 
@@ -790,6 +957,20 @@ describe("story 002 classification helpers", () => {
       }),
     ).toBe("queue-stale");
     expect(
+      determineQueueMismatchRisk({
+        queueState: "active",
+        mergeabilityClass: "unknown",
+        checkHealth: "passing",
+      }),
+    ).toBe("none");
+    expect(
+      determineQueueMismatchRisk({
+        queueState: "active",
+        mergeabilityClass: "unknown",
+        checkHealth: "unavailable",
+      }),
+    ).toBe("metadata-unavailable");
+    expect(
       recommendPlannerNextAction({
         queueMismatchRisk: "queue-stale",
         mergeabilityClass: "mergeable",
@@ -804,6 +985,75 @@ describe("story 002 classification helpers", () => {
         checkHealth: "unavailable",
       }),
     ).toBe("repair-token");
+  });
+
+  test("labels clean passing PRs with failed queue tokens as stale-clean-pr-mismatch", () => {
+    const lane = {
+      status: "pr-backed" as const,
+      workItemName: "tokens-per-second-serving-metric-page",
+      queueState: "failed" as const,
+      rawQueueState: "failed",
+      prNumber: 251,
+      mergeabilityClass: "mergeable" as const,
+      checkHealth: "passing" as const,
+      queueMismatchRisk: "queue-stale" as const,
+    };
+
+    expect(classifyPlannerLaneKind(lane)).toBe("stale-clean-pr-mismatch");
+    expect(formatStaleCleanPrMismatchReason(lane)).toBe(
+      "clean-passing-open-pr-with-queue-failed pr=#251 queue=failed(failed) mergeability=mergeable checks=passing work-item=tokens-per-second-serving-metric-page",
+    );
+
+    const reportText = formatActivePrLaneReport({
+      issues: [],
+      lanes: [
+        {
+          ...lane,
+          branchName: "tokens-per-second-serving-metric-page",
+          workItemNameSource: "metadata",
+          branchMetadataSource: "metadata",
+          metadataStatus: "present",
+          worktreePath:
+            ".claude/worktrees/tokens-per-second-serving-metric-page",
+          driftStatus: "diverged",
+          commitsAheadOfMain: 10,
+          commitsBehindMain: 102,
+          plannerLaneKind: "stale-clean-pr-mismatch",
+          staleMismatchReason: formatStaleCleanPrMismatchReason(lane),
+          nextAction: "open-follow-up-throughput-prd",
+          reasons: [],
+        },
+        {
+          status: "pr-backed",
+          workItemName: "alpha",
+          queueState: "active",
+          rawQueueState: "active",
+          branchName: "alpha",
+          workItemNameSource: "metadata",
+          branchMetadataSource: "metadata",
+          metadataStatus: "present",
+          worktreePath: ".claude/worktrees/alpha",
+          prNumber: 42,
+          mergeabilityClass: "mergeable",
+          checkHealth: "passing",
+          queueMismatchRisk: "none",
+          plannerLaneKind: "active-page-implementation",
+          reasons: [],
+        },
+      ],
+    });
+
+    expect(reportText).toContain(
+      "classification active-page-implementation=1 stale-clean-pr-mismatch=1 merge-conflict=0",
+    );
+    expect(reportText).toContain("lane-kind=stale-clean-pr-mismatch");
+    expect(reportText).toContain(
+      "mismatch-reason=clean-passing-open-pr-with-queue-failed pr=#251",
+    );
+    expect(reportText).toContain("lane-kind=active-page-implementation");
+    expect(reportText).not.toContain(
+      "lane-kind=active-page-implementation work-item=tokens-per-second-serving-metric-page",
+    );
   });
 
   test("surfaces auth failures as planner-usable metadata risk", () => {
@@ -898,44 +1148,380 @@ describe("story 002 classification helpers", () => {
         new Map([[alphaPath, "alpha-git"]]),
         new Map([["alpha-git", "0\t0"]]),
       ),
-      lookupPullRequest: () => ({
-        pullRequest: null,
-        failureKind: "not-found",
-        failureReason: "no open PR metadata found for branch alpha-git",
-      }),
+      lookupPullRequest: (branchName): PullRequestLookupResult =>
+        branchName === "alpha-git"
+          ? {
+              pullRequest: {
+                number: 99,
+                headRefName: "alpha-git",
+                mergeStateStatus: "CLEAN",
+                statusCheckRollup: [{ conclusion: "SUCCESS" }],
+              },
+            }
+          : {
+              pullRequest: null,
+              failureKind: "not-found",
+              failureReason: `no open PR metadata found for branch ${branchName}`,
+            },
     });
 
     expect(report.lanes).toEqual([
-      {
-        status: "unclassified",
+      expect.objectContaining({
+        status: "pr-backed",
         workItemName: "alpha",
         queueState: "active",
         rawQueueState: "active",
-        workTypeName: undefined,
-        hasDependsOnRelation: false,
         worktreePath: ".claude/worktrees/alpha",
-        branchName: "alpha-meta",
+        branchName: "alpha-git",
         workItemNameSource: "metadata",
         branchMetadataSource: "metadata",
         metadataStatus: "conflicting",
-        prLookupFailureKind: "not-found",
-        prLookupFailureReason: "no open PR metadata found for branch alpha-git",
-        sessionId: undefined,
-        sessionIdSource: undefined,
-        sessionState: undefined,
-        driftStatus: "unknown",
-        commitsAheadOfMain: undefined,
-        commitsBehindMain: undefined,
-        queueMismatchRisk: undefined,
-        nextAction: undefined,
+        prNumber: 99,
+        mergeabilityClass: "mergeable",
+        checkHealth: "passing",
         reasons: [
           "stamped branch alpha-meta disagrees with git branch alpha-git",
           "stamped branch alpha-meta disagrees with prd branch alpha-prd",
           "git branch alpha-git disagrees with prd branch alpha-prd",
-          "no open PR metadata found for branch alpha-git",
+          "PR resolved via worktree branch alpha-git after stamped branch alpha-meta had no open PR",
         ],
-      },
+      }),
     ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+});
+
+describe("active-pr-watchdog-worktree-linkage-repair-002", () => {
+  test("classifies PR-backed lanes from prd branch when stamped metadata omits branch name", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-worktree-prd-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const betaPath = createWorktree(worktreesRoot, "beta", "beta");
+    writeLaneMetadata(betaPath, {
+      schemaVersion: 1,
+      workItemName: "beta",
+      worktreePath: betaPath,
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "beta", state: "active" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(new Map(), new Map([["beta", "0\t1"]])),
+      lookupPullRequest: (branchName): PullRequestLookupResult =>
+        branchName === "beta"
+          ? {
+              pullRequest: {
+                number: 51,
+                headRefName: "beta",
+                url: "https://example.com/pull/51",
+                mergeStateStatus: "CLEAN",
+                statusCheckRollup: [{ conclusion: "SUCCESS" }],
+              },
+            }
+          : {
+              pullRequest: null,
+              failureKind: "not-found",
+              failureReason: `no open PR metadata found for branch ${branchName}`,
+            },
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        workItemName: "beta",
+        queueState: "active",
+        worktreePath: ".claude/worktrees/beta",
+        branchName: "beta",
+        branchMetadataSource: "prd",
+        metadataStatus: "incomplete",
+        prNumber: 51,
+        prUrl: "https://example.com/pull/51",
+        reasons: ["stamped lane metadata is incomplete: missing branch name"],
+      }),
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  test("classifies PR-backed lanes from git branch when worktree metadata is missing", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-worktree-git-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const gammaPath = createWorktree(worktreesRoot, "gamma", "gamma-prd");
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "gamma", state: "active" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(
+        new Map([[gammaPath, "gamma-git"]]),
+        new Map([["gamma-git", "1\t0"]]),
+      ),
+      lookupPullRequest: (branchName): PullRequestLookupResult =>
+        branchName === "gamma-git"
+          ? {
+              pullRequest: {
+                number: 77,
+                headRefName: "gamma-git",
+                mergeStateStatus: "CLEAN",
+                statusCheckRollup: [{ conclusion: "SUCCESS" }],
+              },
+            }
+          : {
+              pullRequest: null,
+              failureKind: "not-found",
+              failureReason: `no open PR metadata found for branch ${branchName}`,
+            },
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        workItemName: "gamma",
+        worktreePath: ".claude/worktrees/gamma",
+        branchName: "gamma-git",
+        branchMetadataSource: "git",
+        metadataStatus: "missing",
+        prNumber: 77,
+        driftStatus: "behind",
+        commitsAheadOfMain: 0,
+        commitsBehindMain: 1,
+        reasons: [
+          "stamped lane metadata missing; fell back to worktree heuristics",
+          "git branch gamma-git disagrees with prd branch gamma-prd",
+        ],
+      }),
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  test("names missing PR metadata as an actionable linkage gap when branch candidates all fail", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-worktree-gap-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const deltaPath = createWorktree(worktreesRoot, "delta", "delta");
+    writeLaneMetadata(deltaPath, {
+      schemaVersion: 1,
+      workItemName: "delta",
+      worktreePath: deltaPath,
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "delta", state: "failed" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(new Map()),
+      lookupPullRequest: () => ({
+        pullRequest: null,
+        failureKind: "not-found",
+        failureReason: "no open PR metadata found for branch delta",
+      }),
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "unclassified",
+        workItemName: "delta",
+        queueState: "failed",
+        worktreePath: ".claude/worktrees/delta",
+        branchName: "delta",
+        branchMetadataSource: "prd",
+        metadataStatus: "incomplete",
+        prLookupFailureKind: "not-found",
+        prLookupFailureReason: "no open PR metadata found for branch delta",
+        reasons: [
+          "stamped lane metadata is incomplete: missing branch name",
+          "no open PR metadata found for branch delta",
+          "missing pull request metadata for actionable task/review lane",
+        ],
+      }),
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+});
+
+describe("planner-root-drift-and-pr-metadata-repair-003", () => {
+  test("reports passing PR-backed lanes as mergeable without metadata-unavailable risk when checks pass under BLOCKED merge state", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-blocked-passing-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const lanePath = createWorktree(
+      worktreesRoot,
+      "tokens-per-second-serving-metric-page",
+      "tokens-per-second-serving-metric-page",
+    );
+    writeLaneMetadata(lanePath, {
+      schemaVersion: 1,
+      workItemName: "tokens-per-second-serving-metric-page",
+      branchName: "tokens-per-second-serving-metric-page",
+      branchMetadataSource: "setup",
+      worktreePath: lanePath,
+      sessionId: "0fdc5077-95ed-4396-a183-06e5b16555ca",
+      pullRequest: {
+        number: 201,
+        url: "https://example.com/pull/201",
+      },
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+      linkage: {
+        branch: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+        pullRequest: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+      },
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [
+          {
+            name: "tokens-per-second-serving-metric-page",
+            state: "active",
+            sessionId: "0fdc5077-95ed-4396-a183-06e5b16555ca",
+          },
+        ],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(
+        new Map([[lanePath, "tokens-per-second-serving-metric-page"]]),
+        new Map([["tokens-per-second-serving-metric-page", "1\t0"]]),
+      ),
+      lookupPullRequest: () => ({
+        pullRequest: {
+          number: 201,
+          headRefName: "tokens-per-second-serving-metric-page",
+          mergeStateStatus: "BLOCKED",
+          statusCheckRollup: [{ conclusion: "SUCCESS" }],
+        },
+      }),
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        workItemName: "tokens-per-second-serving-metric-page",
+        mergeabilityClass: "mergeable",
+        checkHealth: "passing",
+        queueMismatchRisk: "none",
+        nextAction: undefined,
+        reasons: [],
+      }),
+    ]);
+
+    const reportText = formatActivePrLaneReport(report);
+    expect(reportText).toContain("mergeability=mergeable");
+    expect(reportText).toContain("checks=passing");
+    expect(reportText).not.toContain("risk=metadata-unavailable");
+    expect(reportText).not.toContain("next-action=repair-token");
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  test("separates stale stamped linkage refresh hints from primary PR-backed lane state", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-stale-resolved-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const lanePath = createWorktree(worktreesRoot, "alpha", "alpha");
+    writeLaneMetadata(lanePath, {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: lanePath,
+      sessionId: "sess-1",
+      pullRequest: {
+        number: 42,
+        url: "https://example.com/pull/42",
+      },
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-21T00:05:00.000Z",
+      linkage: {
+        branch: {
+          status: "stale",
+          issue: "git branch inspection failed during the last refresh",
+          refreshedAtUtc: "2026-06-21T00:05:00.000Z",
+        },
+        pullRequest: {
+          status: "stale",
+          issue: "pull request lookup API returned 502",
+          refreshedAtUtc: "2026-06-21T00:05:00.000Z",
+        },
+      },
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "alpha", state: "active", sessionId: "sess-1" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(new Map([[lanePath, "alpha"]])),
+      lookupPullRequest: () => ({
+        pullRequest: {
+          number: 42,
+          headRefName: "alpha",
+          mergeStateStatus: "CLEAN",
+          statusCheckRollup: [{ conclusion: "SUCCESS" }],
+        },
+      }),
+    });
+
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        mergeabilityClass: "mergeable",
+        checkHealth: "passing",
+        queueMismatchRisk: "none",
+        reasons: [],
+        metadataRefreshHints: [
+          "stamped branch linkage is stale: git branch inspection failed during the last refresh",
+          "stamped pull request linkage is stale: pull request lookup API returned 502",
+        ],
+      }),
+    ]);
+
+    const reportText = formatActivePrLaneReport(report);
+    expect(reportText).toContain("mergeability=mergeable checks=passing");
+    expect(reportText).toContain("metadata-refresh=");
+    expect(reportText).not.toContain("risk=metadata-unavailable");
 
     rmSync(repoRoot, { recursive: true, force: true });
   });

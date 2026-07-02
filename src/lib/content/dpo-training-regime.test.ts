@@ -33,7 +33,10 @@ describe("DPO training-regime page contracts", () => {
       "preference optimization",
     ]);
     expect(record?.tags).toEqual(["alignment", "foundations"]);
-    expect(record?.relatedIds).toEqual(["concept.alignment"]);
+    expect(record?.relatedIds).toEqual([
+      "concept.alignment",
+      "training-regime.grpo",
+    ]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("training-regime.dpo")).toBe(true);
   });
 
@@ -84,7 +87,7 @@ describe("DPO training-regime page contracts", () => {
     const alignment = items.find(
       (item) => item.registryId === "concept.alignment",
     );
-    expect(alignment?.href).toBe("/docs/glossary/alignment");
+    expect(alignment?.href).toBe("/docs/concepts/alignment");
     expect(alignment?.isPlanned).toBe(false);
   });
 
@@ -129,7 +132,10 @@ describe("DPO training-regime page contracts", () => {
         "preference optimization",
       ]),
     );
-    expect(document?.relatedIds).toEqual(["concept.alignment"]);
+    expect(document?.relatedIds).toEqual([
+      "concept.alignment",
+      "training-regime.grpo",
+    ]);
     expect(document?.tags).toEqual(
       expect.arrayContaining(["alignment", "foundations"]),
     );

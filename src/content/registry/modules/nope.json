@@ -19,6 +19,7 @@
   "releaseDate": "2022-03-01",
   "authors": ["Adi Haviv", "Ori Ram", "Ofir Press", "Peter Izsak", "Omer Levy"],
   "sourceId": "citation.transformer-lms-without-positional-encodings",
+  "primaryClassificationId": "classification.module.positional-encoding",
   "moduleType": "position-encoding",
   "optimizes": ["position-encoding-simplicity"],
   "exampleModelIds": [],

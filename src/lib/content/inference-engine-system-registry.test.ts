@@ -27,10 +27,13 @@ describe("inference engine system registry", () => {
       "concept.prefill",
       "concept.decode",
       "concept.prefill-decode-split",
+      "system.speculative-decoding",
+      "system.batching",
       "system.on-disk-kv-cache",
       "system.expert-parallel-overlap",
       "model.gpt-3",
       "model.deepseek-v4-pro",
+      "model.nemotron-3-super",
     ]);
     expect(record?.relatedConceptIds).toEqual([
       "concept.kv-cache",
@@ -42,6 +45,7 @@ describe("inference engine system registry", () => {
     expect(record?.relatedModelIds).toEqual([
       "model.gpt-3",
       "model.deepseek-v4-pro",
+      "model.nemotron-3-super",
     ]);
   });
 
@@ -59,13 +63,13 @@ describe("inference engine system registry", () => {
 
     expect(
       items.find((item) => item.registryId === "concept.kv-cache")?.href,
-    ).toBe("/docs/glossary/kv-cache");
+    ).toBe("/docs/concepts/kv-cache");
     expect(
       items.find((item) => item.registryId === "concept.quantization")?.href,
     ).toBe("/docs/concepts/quantization");
     expect(
       items.find((item) => item.registryId === "concept.prefill")?.href,
-    ).toBe("/docs/glossary/prefill");
+    ).toBe("/docs/concepts/prefill");
     expect(
       items.find((item) => item.registryId === "concept.decode")?.href,
     ).toBe("/docs/glossary/decode");
@@ -73,6 +77,13 @@ describe("inference engine system registry", () => {
       items.find((item) => item.registryId === "concept.prefill-decode-split")
         ?.href,
     ).toBe("/docs/glossary/prefill-decode-split");
+    expect(
+      items.find((item) => item.registryId === "system.batching")?.href,
+    ).toBe("/docs/systems/batching");
+    expect(
+      items.find((item) => item.registryId === "system.speculative-decoding")
+        ?.href,
+    ).toBe("/docs/systems/speculative-decoding");
     expect(
       items.find((item) => item.registryId === "system.on-disk-kv-cache")?.href,
     ).toBe("/docs/systems/on-disk-kv-cache");

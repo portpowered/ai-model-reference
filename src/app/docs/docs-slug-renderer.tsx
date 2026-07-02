@@ -6,8 +6,11 @@ import {
 } from "fumadocs-ui/layouts/docs/page";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { notFound } from "next/navigation";
+import type { ComponentProps, ComponentType } from "react";
 import { DocsAutoLinkedDescription } from "@/features/docs/components/DocsAutoLinkedDescription";
+import { DocsOpeningSummary } from "@/features/docs/components/DocsOpeningSummary";
 import { DocsPageBreadcrumb } from "@/features/docs/components/DocsPageBreadcrumb";
+import { FoldedOpeningSummary } from "@/features/docs/components/FoldedOpeningSummary";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
   loadLocalDocsPage,
@@ -17,8 +20,25 @@ import { isDocsPageShippedForLocale } from "@/lib/content/pages";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
-import { source } from "@/lib/source";
 import { getMDXComponents } from "../../../mdx-components";
+
+type DocsSlugPageBody = ComponentType<{
+  components?: Record<string, unknown>;
+}>;
+type DocsPageProps = ComponentProps<typeof DocsPage>;
+
+type DocsSlugPageData = {
+  body: DocsSlugPageBody;
+  toc?: DocsPageProps["toc"];
+  full?: DocsPageProps["full"];
+  title?: string;
+  description?: string;
+};
+
+async function loadDocsSource() {
+  const { source } = await import("@/lib/source");
+  return source;
+}
 
 function buildDocsPageAlternates(docsSlug: string) {
   const alternates = localizedRouteAlternates({
@@ -46,6 +66,7 @@ async function renderLocalDocsPage(
     return null;
   }
 
+  const source = await loadDocsSource();
   const page = source.getPage(slug);
   if (!page) {
     return null;
@@ -76,6 +97,17 @@ async function renderLocalDocsPage(
         <DocsTitle>{loadedPage.messages.title}</DocsTitle>
         <DocsDescription>{description}</DocsDescription>
         <DocsBody>
+          {localRef.section !== "systems" && localRef.section !== "glossary" ? (
+            <DocsOpeningSummary
+              text={loadedPage.messages.openingSummary ?? ""}
+            />
+          ) : null}
+          {localRef.section === "systems" ? (
+            <FoldedOpeningSummary
+              label={uiMessages.shell.openingSummary}
+              summary={loadedPage.messages.openingSummary}
+            />
+          ) : null}
           <article data-registry-id={loadedPage.frontmatter.registryId}>
             {loadedPage.content}
           </article>
@@ -99,29 +131,35 @@ export async function renderDocsSlugPage(
     return localPage;
   }
 
+  const source = await loadDocsSource();
   const page = source.getPage(slug);
 
   if (!page) {
     notFound();
   }
 
-  const MDXContent = page.data.body;
+  const docsPageData = page.data as typeof page.data & DocsSlugPageData;
+  const MDXContent = docsPageData.body;
+  const pageTitle = docsPageData.title;
+  if (!pageTitle) {
+    notFound();
+  }
   const uiMessages = await loadUiMessages(locale);
 
   return (
     <DocsPage
       breadcrumb={{ enabled: false }}
-      toc={page.data.toc}
-      full={page.data.full}
+      toc={docsPageData.toc}
+      full={docsPageData.full}
     >
       <DocsPageBreadcrumb
         locale={locale}
         messages={uiMessages}
         slug={slug}
-        title={page.data.title}
+        title={pageTitle}
       />
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
+      <DocsTitle>{pageTitle}</DocsTitle>
+      <DocsDescription>{docsPageData.description}</DocsDescription>
       <DocsBody>
         <MDXContent
           components={getMDXComponents({
@@ -145,6 +183,7 @@ export async function buildDocsPageMetadata(
   const localRef = parseLocalDocsPageRef(slug);
 
   if (localRef) {
+    const source = await loadDocsSource();
     const page = source.getPage(slug);
     if (page && docsSlug) {
       const loadedPage = await loadLocalDocsPage(localRef, locale);
@@ -156,6 +195,7 @@ export async function buildDocsPageMetadata(
     }
   }
 
+  const source = await loadDocsSource();
   const page = source.getPage(slug);
 
   if (!page) {

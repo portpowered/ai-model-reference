@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -69,12 +70,8 @@ function writeQueueLinkageLedgerFixture(repoRoot: string): {
   cleanup: () => void;
   ledgerPath: string;
 } {
-  const worktreePath = join(
-    repoRoot,
-    ".claude",
-    "worktrees",
-    "alpha-lane-fixture",
-  );
+  const worktreeName = `alpha-lane-fixture-${randomUUID()}`;
+  const worktreePath = join(repoRoot, ".claude", "worktrees", worktreeName);
   mkdirSync(worktreePath, { recursive: true });
   runCommand(worktreePath, ["git", "init", "--initial-branch=main"]);
   runCommand(worktreePath, [
@@ -137,7 +134,7 @@ function writeQueueLinkageLedgerFixture(repoRoot: string): {
             queueState: "active",
             rawQueueState: "active",
             linkageStatus: "linked",
-            worktreePath: ".claude/worktrees/alpha-lane-fixture",
+            worktreePath: `.claude/worktrees/${worktreeName}`,
             branchName: "alpha-lane",
             branchMetadataSource: "prd",
             pullRequest: {
@@ -272,5 +269,130 @@ describe("planner batch collision preflight script", () => {
 
     fixture.cleanup();
     ledgerFixture.cleanup();
+  });
+
+  test("emits machine-readable JSON for low dispatch and high hold in one CLI run", () => {
+    const fixture = writeHotspotSnapshotFixture();
+    const ledgerFixture = writeQueueLinkageLedgerFixture(process.cwd());
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-batch-collision-preflight.ts",
+        "--candidate",
+        "safe-lane=docs/guide.md",
+        "--candidate",
+        "hot-lane=src/lib/factory",
+        "--hotspot-snapshot-json",
+        fixture.snapshotPath,
+        "--queue-linkage-ledger-json",
+        ledgerFixture.ledgerPath,
+        "--format",
+        "json",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    const payload = JSON.parse(result.stdout);
+    expect(payload.candidates).toHaveLength(2);
+
+    const safe = payload.candidates.find(
+      (candidate: { name: string }) => candidate.name === "safe-lane",
+    );
+    expect(safe).toEqual(
+      expect.objectContaining({
+        collisionRisk: "low",
+        recommendation: "dispatch now",
+        hotspotSurfaceOverlaps: [],
+        activeLaneOverlaps: [],
+      }),
+    );
+
+    const hot = payload.candidates.find(
+      (candidate: { name: string }) => candidate.name === "hot-lane",
+    );
+    expect(hot).toEqual(
+      expect.objectContaining({
+        collisionRisk: "high",
+        recommendation: "hold",
+      }),
+    );
+    expect(hot.hotspotSurfaceOverlaps).toEqual([
+      expect.objectContaining({
+        surface: "src/lib/factory",
+      }),
+    ]);
+    expect(hot.activeLaneOverlaps).toEqual([
+      expect.objectContaining({
+        laneName: "alpha-lane",
+        ownedSurface: "src/lib/factory",
+      }),
+    ]);
+
+    fixture.cleanup();
+    ledgerFixture.cleanup();
+  });
+
+  test("prints human-readable evidence rows for hotspot evidence gap", () => {
+    const dir = mkdtempSync(join(tmpdir(), "planner-batch-empty-hotspot-"));
+    const snapshotPath = join(dir, "hotspot-snapshot.json");
+    const ledgerPath = join(dir, "queue-linkage-ledger.json");
+    writeFileSync(
+      snapshotPath,
+      JSON.stringify(
+        {
+          generatedAtUtc: "2026-06-20T00:00:00.000Z",
+          recentCommitLimit: 40,
+          repoRoot: "/repo",
+          rankedSurfaces: [],
+          topPaths: [],
+          worktrees: [],
+        },
+        null,
+        2,
+      ),
+    );
+    writeFileSync(
+      ledgerPath,
+      JSON.stringify(
+        {
+          generatedAtUtc: "2026-06-20T00:05:00.000Z",
+          laneCount: 0,
+          activeLaneCount: 0,
+          failedLaneCount: 0,
+          linkedLaneCount: 0,
+          linkedWithGapsLaneCount: 0,
+          issues: [],
+          lanes: [],
+        },
+        null,
+        2,
+      ),
+    );
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-planner-batch-collision-preflight.ts",
+        "--candidate",
+        "partial-lane=src/lib/new-module.ts",
+        "--hotspot-snapshot-json",
+        snapshotPath,
+        "--queue-linkage-ledger-json",
+        ledgerPath,
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("candidate=partial-lane");
+    expect(result.stdout).toContain("collision-risk=low");
+    expect(result.stdout).toContain("recommendation=dispatch now");
+    expect(result.stdout).toContain("hotspot-overlap=none");
+    expect(result.stdout).toContain("active-lane-overlap=none");
+    expect(result.stdout).toContain(
+      "No ranked hotspot overlap found for partial-lane in the recent planner hotspot sample.",
+    );
+
+    rmSync(dir, { recursive: true, force: true });
   });
 });

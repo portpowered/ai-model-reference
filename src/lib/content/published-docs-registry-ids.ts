@@ -23,6 +23,40 @@ export type PublishedDocsIndex = {
   registryIds: PublishedDocsRegistryIds;
 };
 
+function publishedDocsRegistryEntryPriority(entry: PublishedDocsEntry): number {
+  if (entry.pageKind === "concept" && entry.section === "concepts") {
+    return 2;
+  }
+
+  if (entry.pageKind === "glossary" && entry.section === "glossary") {
+    return 1;
+  }
+
+  return 0;
+}
+
+function resolvePublishedDocsRegistryEntryCollision(
+  existingEntry: PublishedDocsEntry,
+  candidateEntry: PublishedDocsEntry,
+): PublishedDocsEntry {
+  const existingPriority = publishedDocsRegistryEntryPriority(existingEntry);
+  const candidatePriority = publishedDocsRegistryEntryPriority(candidateEntry);
+
+  if (existingPriority === 0 || candidatePriority === 0) {
+    throw new Error(
+      `Duplicate published docs registryId "${existingEntry.registryId}" at "${existingEntry.docsSlug}" and "${candidateEntry.docsSlug}"`,
+    );
+  }
+
+  if (existingPriority === candidatePriority) {
+    throw new Error(
+      `Ambiguous published docs registryId "${existingEntry.registryId}" at "${existingEntry.docsSlug}" and "${candidateEntry.docsSlug}"`,
+    );
+  }
+
+  return candidatePriority > existingPriority ? candidateEntry : existingEntry;
+}
+
 function getModuleBackedConceptEntryBySlug(
   slug: string,
 ): PublishedDocsEntry | undefined {
@@ -48,7 +82,15 @@ function buildRuntimePublishedDocsIndex(
   const bySlug = new Map<string, PublishedDocsEntry[]>();
 
   for (const entry of entries) {
-    byRegistryId.set(entry.registryId, entry);
+    const existingEntry = byRegistryId.get(entry.registryId);
+    if (existingEntry) {
+      byRegistryId.set(
+        entry.registryId,
+        resolvePublishedDocsRegistryEntryCollision(existingEntry, entry),
+      );
+    } else {
+      byRegistryId.set(entry.registryId, entry);
+    }
 
     const slugEntries = bySlug.get(entry.slug);
     if (slugEntries) {

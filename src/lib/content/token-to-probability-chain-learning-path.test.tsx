@@ -28,7 +28,7 @@ describe("Phase 2 token-to-probability learning-path navigation (US-012)", () =>
     expect(html).toContain(
       "Each token ID becomes a learned numerical representation before the model mixes context.",
     );
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
   });
 
   test("embedding page surfaces forward link toward logit via tensor", async () => {

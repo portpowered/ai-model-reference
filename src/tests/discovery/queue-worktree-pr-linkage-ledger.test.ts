@@ -284,7 +284,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain(
-      "queue-derived-lanes=2 active=1 failed=1 linked=1 linked-with-gaps=1",
+      "queue-derived-lanes=2 active=1 failed=1 pr-backed=1 actionable-gaps=1 stale-clean-pr-mismatch=0 queue-only-noise=0 linked=1 linked-with-gaps=1",
     );
     expect(result.stdout).toContain("lane=alpha");
     expect(result.stdout).toContain("queue=active");
@@ -295,7 +295,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
     expect(result.stdout).toContain("linkage=linked-with-gaps");
     expect(result.stdout).toContain("metadata=incomplete");
     expect(result.stdout).toContain(
-      "missing=stamped lane metadata is incomplete: missing branch name; no open PR metadata found for branch beta",
+      "missing=stamped lane metadata is incomplete: missing branch name; no open PR metadata found for branch beta; missing pull request metadata for actionable task/review lane",
     );
 
     rmSync(dir, { recursive: true, force: true });
@@ -369,7 +369,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain(
-      "queue-derived-lanes=1 active=1 failed=0 linked=0 linked-with-gaps=1",
+      "queue-derived-lanes=1 active=1 failed=0 pr-backed=0 actionable-gaps=1 stale-clean-pr-mismatch=0 queue-only-noise=0 linked=0 linked-with-gaps=1",
     );
     expect(result.stdout).toContain("lane=alpha");
     expect(result.stdout).toContain("metadata=present");
@@ -450,7 +450,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("Queue Worktree PR Linkage Ledger");
     expect(result.stdout).toContain(
-      "queue-derived-lanes=2 active=1 failed=1 linked=1 linked-with-gaps=1",
+      "queue-derived-lanes=2 active=1 failed=1 pr-backed=1 actionable-gaps=0 stale-clean-pr-mismatch=0 queue-only-noise=1 linked=1 linked-with-gaps=1",
     );
     expect(result.stdout).toContain("lane=alpha");
     expect(result.stdout).toContain("pr=#42");
@@ -458,11 +458,14 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
     expect(result.stdout).toContain("pr-url=https://example.com/pr/42");
     expect(result.stdout).toContain("work-item-source=metadata");
     expect(result.stdout).toContain("metadata=present");
-    expect(result.stdout).toContain("lane=beta");
-    expect(result.stdout).toContain("pr-status=missing");
+    expect(result.stdout).toContain("Noise Summary");
     expect(result.stdout).toContain(
-      "missing=no matching worktree under .claude/worktrees",
+      "noise=queue-only-missing-linkage count=1 work-items=beta",
     );
+    expect(result.stdout).toContain(
+      "1x:no matching worktree under .claude/worktrees",
+    );
+    expect(result.stdout).not.toContain("lane=beta");
     expect(result.stdout).not.toContain("lane=gamma");
 
     rmSync(dir, { recursive: true, force: true });
@@ -588,6 +591,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
           missingLinkageReasons: [
             "stamped lane metadata is incomplete: missing branch name",
             "no open PR metadata found for branch beta",
+            "missing pull request metadata for actionable task/review lane",
           ],
         }),
       ]),
@@ -665,7 +669,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain(
-      "queue-derived-lanes=2 active=1 failed=1 linked=0 linked-with-gaps=2",
+      "queue-derived-lanes=2 active=1 failed=1 pr-backed=0 actionable-gaps=2 stale-clean-pr-mismatch=0 queue-only-noise=0 linked=0 linked-with-gaps=2",
     );
     expect(result.stdout).toContain("lane=alpha");
     expect(result.stdout).toContain("lane=beta");

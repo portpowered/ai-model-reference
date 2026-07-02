@@ -1,10 +1,15 @@
 {
-  "id": "classification.feed-forward-networks",
+  "id": "classification.module.feed-forward",
   "slug": "feed-forward-networks",
   "kind": "classification",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["feed-forward network", "FFN family", "MLP block family"],
+  "aliases": [
+    "feed-forward network",
+    "FFN family",
+    "MLP block family",
+    "feed-forward-networks"
+  ],
   "tags": ["feed-forward", "foundations"],
   "relatedIds": ["module.feed-forward-network", "module.standard-ffn"],
   "citationIds": [
@@ -14,7 +19,8 @@
   "status": "published",
   "createdAt": "2026-06-20T00:00:00.000Z",
   "updatedAt": "2026-06-20T00:00:00.000Z",
-  "classificationType": "topology",
-  "classifiesKinds": ["concept", "module"],
-  "parentClassificationId": "classification.neural-network-components"
+  "classificationType": "family",
+  "classifiesKinds": ["module"],
+  "parentClassificationId": "classification.module",
+  "legacyIds": ["classification.feed-forward-networks"]
 }

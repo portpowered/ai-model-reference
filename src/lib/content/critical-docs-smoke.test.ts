@@ -47,6 +47,60 @@ async function writeFixturePage(input: {
   );
 }
 
+async function writeAttentionClassificationFixtures(
+  registryRoot: string,
+): Promise<void> {
+  await mkdir(join(registryRoot, "classifications"), { recursive: true });
+  await writeFile(
+    join(registryRoot, "classifications", "module.json"),
+    `${JSON.stringify(
+      {
+        id: "classification.module",
+        slug: "module",
+        kind: "classification",
+        defaultTitleKey: "title",
+        defaultSummaryKey: "description",
+        aliases: [],
+        tags: [],
+        relatedIds: [],
+        citationIds: [],
+        status: "published",
+        createdAt: "2026-06-20T00:00:00.000Z",
+        updatedAt: "2026-06-20T00:00:00.000Z",
+        classificationType: "domain",
+        classifiesKinds: ["module"],
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  await writeFile(
+    join(registryRoot, "classifications", "attention-mechanisms.json"),
+    `${JSON.stringify(
+      {
+        id: "classification.module.attention",
+        slug: "attention-mechanisms",
+        kind: "classification",
+        defaultTitleKey: "title",
+        defaultSummaryKey: "description",
+        aliases: ["attention family"],
+        tags: [],
+        relatedIds: [],
+        citationIds: [],
+        status: "published",
+        createdAt: "2026-06-20T00:00:00.000Z",
+        updatedAt: "2026-06-20T00:00:00.000Z",
+        classificationType: "family",
+        classifiesKinds: ["module"],
+        parentClassificationId: "classification.module",
+        legacyIds: ["classification.attention-mechanisms"],
+      },
+      null,
+      2,
+    )}\n`,
+  );
+}
+
 describe("critical docs smoke contract", () => {
   test("documents the supported metadata-backed discovery rules", () => {
     expect(CRITICAL_DOCS_SMOKE_RULES).toEqual([
@@ -118,6 +172,7 @@ describe("critical docs smoke contract", () => {
     try {
       await mkdir(join(registryRoot, "modules"), { recursive: true });
       await mkdir(join(registryRoot, "concepts"), { recursive: true });
+      await writeAttentionClassificationFixtures(registryRoot);
 
       await writeFixturePage({
         docsRoot,
@@ -154,6 +209,7 @@ updatedAt: "2026-06-20"
             status: "published",
             createdAt: "2026-06-20T00:00:00.000Z",
             updatedAt: "2026-06-20T00:00:00.000Z",
+            primaryClassificationId: "classification.module.attention",
             moduleType: "attention",
             optimizes: [],
             exampleModelIds: [],
@@ -193,6 +249,7 @@ updatedAt: "2026-06-20"
 
     try {
       await mkdir(join(registryRoot, "modules"), { recursive: true });
+      await writeAttentionClassificationFixtures(registryRoot);
       await mkdir(join(registryRoot, "concepts"), { recursive: true });
 
       await writeFixturePage({
@@ -249,7 +306,8 @@ updatedAt: "2026-06-20"
             status: "published",
             createdAt: "2026-06-20T00:00:00.000Z",
             updatedAt: "2026-06-20T00:00:00.000Z",
-            moduleType: "systems",
+            primaryClassificationId: "classification.module.attention",
+            moduleType: "attention",
             optimizes: [],
             exampleModelIds: [],
             improvesOnIds: [],
@@ -349,6 +407,7 @@ updatedAt: "2026-06-20"
 
     try {
       await mkdir(join(registryRoot, "modules"), { recursive: true });
+      await writeAttentionClassificationFixtures(registryRoot);
 
       await writeFixturePage({
         docsRoot,
@@ -384,6 +443,7 @@ updatedAt: "2026-06-20"
             status: "published",
             createdAt: "2026-06-20T00:00:00.000Z",
             updatedAt: "2026-06-20T00:00:00.000Z",
+            primaryClassificationId: "classification.module.attention",
             moduleType: "attention",
             optimizes: [],
             exampleModelIds: [],

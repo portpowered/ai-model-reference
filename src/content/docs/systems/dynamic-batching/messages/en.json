@@ -1,0 +1,65 @@
+{
+  "title": "Dynamic Batching",
+  "description": "A serving system that waits briefly for compatible queued requests, then runs them together so accelerators stay busier while trading a small queueing delay for higher throughput.",
+  "openingSummary": "Dynamic batching is a serving habit that pauses briefly to collect compatible queued requests before running them together. That short batch window can keep accelerators busier and raise throughput, but each request may wait a little longer before execution starts.",
+  "links": {
+    "systemFlowTitle": "System flow: how a batch window forms",
+    "systemFlowLegend": "Legend: the middle wait step is the pre-execution batch window. Continuous batching instead refills an active decode set across turns, and request routing chooses where work goes before this execution path."
+  },
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "This is a serving system, not a model architecture change. It decides when to stop waiting for more compatible requests and launch one grouped execution pass so the runtime can amortize fixed accelerator overhead across several requests at once."
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": "Dynamic batching sits in the serving scheduler around the execution path for prefill and decode. The model still computes the same attention and feed-forward layers, but the serving layer chooses how long to hold compatible queued work before those layers run for a packed group instead of one request at a time."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Incoming compatible requests enter a queue. The scheduler opens a batch window, waits up to a configured limit for more matching work, then closes the window and forms one batch from whatever arrived during that interval. The accelerator runs that grouped pass once, and each request continues on its own output path afterward. The defining behavior is the pre-execution wait: the runtime gathers compatible queued requests before execution instead of launching every arrival immediately."
+    },
+    "howItDiffers": {
+      "title": "How It Differs",
+      "body": "Dynamic batching forms a batch by briefly waiting for compatible queued requests before execution. The scheduler holds work only long enough to gather a denser group, then launches one shared pass for that window. Continuous batching is a different serving habit: it keeps an active token-generation set alive during decode and refills open slots as requests finish, rather than making one fixed pre-execution batch-window decision. Dynamic batching decides what enters the first grouped pass; continuous batching keeps reshaping who stays in the active decode set across many turns. Serving-time request routing is also separate. Routing chooses which model, hardware tier, or execution path should handle a request before expensive work begins. Dynamic batching does not steer traffic between backends. It decides when compatible work that has already reached an execution path should run together in one denser pass."
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": "A small batch window or queueing delay lets the scheduler gather enough compatible requests to improve utilization and tokens per second. The gain is higher throughput because fixed overhead is spread across more useful work in one pass. The cost is that a request may wait in queue during batch formation, and an oversized window can hurt first-token or tail latency even while total system output improves. Operators tune the window against live traffic shape, queue depth, and latency targets."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "Requests enter a queue, wait through a batch window, are grouped into one compatible batch, run through a shared accelerator pass, and then continue as separate responses.",
+      "caption": "Dynamic batching adds a short pre-execution wait so compatible requests can share one denser serving pass."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "queue": {
+        "label": "Queue compatible requests"
+      },
+      "wait": {
+        "label": "Wait through batch window"
+      },
+      "pack": {
+        "label": "Form compatible batch"
+      },
+      "run": {
+        "label": "Run shared model step"
+      },
+      "return": {
+        "label": "Return per-request outputs"
+      }
+    }
+  }
+}

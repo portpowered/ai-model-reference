@@ -1,0 +1,56 @@
+---
+title: "GPT-2 Report"
+description: "A technical report that introduced GPT-2 as a large decoder-only language model trained with broad next-token pretraining and byte-level BPE tokenization."
+kind: "paper"
+registryId: "paper.gpt-2-report"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - model-family
+  - tokenization
+aliases:
+  - "GPT-2 report"
+  - "Language Models are Unsupervised Multitask Learners"
+updatedAt: "2026-06-20"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { PaperContributionGraph } from "@/features/models/components/PaperContributionGraph";
+import { PaperAtAGlance } from "@/features/models/components/PaperAtAGlance";
+
+<PaperAtAGlance registryId="paper.gpt-2-report" />
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="method-or-architecture" titleKey="sections.methodOrArchitecture.title">
+  <T k="sections.methodOrArchitecture.body" />
+  <PaperContributionGraph registryId="paper.gpt-2-report" assetId="contributionGraph" />
+</Section>
+
+<Section id="evidence" titleKey="sections.evidence.title">
+  <T k="sections.evidence.body" />
+</Section>
+
+<Section id="limitations" titleKey="sections.limitations.title">
+  <T k="sections.limitations.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="paper.gpt-2-report" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="paper.gpt-2-report" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="paper.gpt-2-report" />
+</Section>

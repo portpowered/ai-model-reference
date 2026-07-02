@@ -29,8 +29,14 @@
   },
   "assets": {
     "trainingFlow": {
+      "title": "Specialist Training flow",
       "alt": "A flow from domain pockets to specialists to a merged model stack.",
-      "caption": "Specialist training raises some capability bands with focused supervision before merge."
+      "caption": "Specialist training raises some capability bands with focused supervision before merge.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
     }
   },
   "graph": {

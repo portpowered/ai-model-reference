@@ -189,15 +189,19 @@ describe("planner live queue snapshot alignment", () => {
 
         const linkageStdout = readStdoutText(linkageResult);
         expect(linkageStdout).toContain(
-          "queue-derived-lanes=3 active=1 failed=2 linked=0 linked-with-gaps=3",
+          "queue-derived-lanes=3 active=1 failed=2 pr-backed=0 actionable-gaps=2 stale-clean-pr-mismatch=0 queue-only-noise=1 linked=0 linked-with-gaps=3",
         );
-        expect(linkageStdout).toContain("lane=planner-follow-up");
         expect(linkageStdout).toContain("lane=alpha");
         expect(linkageStdout).toContain("lane=beta");
+        expect(linkageStdout).toContain("Noise Summary");
+        expect(linkageStdout).toContain(
+          "noise=queue-only-missing-linkage count=1 work-items=planner-follow-up",
+        );
+        expect(linkageStdout).not.toContain("lane=planner-follow-up");
 
         const mergeabilityStdout = readStdoutText(mergeabilityResult);
         expect(mergeabilityStdout).toContain(
-          "lanes=3 pr-backed=0 linked-with-gaps=3",
+          "lanes=3 pr-backed=0 actionable-gaps=2 queue-only-noise=1",
         );
         expect(mergeabilityStdout).toContain("work-item=alpha");
         expect(mergeabilityStdout).toContain(

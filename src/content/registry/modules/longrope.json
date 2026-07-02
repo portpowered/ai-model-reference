@@ -28,6 +28,7 @@
     "Mao Yang"
   ],
   "sourceId": "citation.ding-longrope",
+  "primaryClassificationId": "classification.module.positional-encoding",
   "moduleType": "position-encoding",
   "optimizes": ["very-long-context-extrapolation"],
   "exampleModelIds": [],

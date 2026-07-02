@@ -28,7 +28,7 @@ const POST_REPAIR_ARTICLE_HTML = `
     <section id="what-it-is"><h2>What It Is</h2></section>
     <section id="related">
       <ul data-testid="curated-related-docs">
-        <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
+        <li><a href="/docs/concepts/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
       </ul>
     </section>
     <section id="tags">
@@ -45,7 +45,7 @@ const FOOTER_CONTRACT_HTML = `
       <div class="inline-flex items-center gap-1.5 font-medium"><p>Scaling Law</p></div>
       <p class="text-fd-muted-foreground truncate">Previous Page</p>
     </a>
-    <a class="flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground text-end" href="/docs/glossary/embedding">
+    <a class="flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground text-end" href="/docs/concepts/embedding">
       <div class="inline-flex items-center gap-1.5 font-medium flex-row-reverse"><p>Embedding</p></div>
       <p class="text-fd-muted-foreground truncate">Next Page</p>
     </a>
@@ -72,7 +72,7 @@ const PRE_REPAIR_DUPLICATE_TITLE_HTML = `
         <li><a href="/tags/attention" ${CHROME_LINK_CLASS}>Attention</a></li>
       </ul>
       <ul data-testid="curated-related-docs">
-        <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
+        <li><a href="/docs/concepts/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
       </ul>
     </article>
   </html>
@@ -86,7 +86,7 @@ const PRE_REPAIR_DUPLICATE_TAGS_HTML = `
       <ul data-testid="tag-pill-list" aria-label="Tags"><li><a ${CHROME_LINK_CLASS}>A</a></li></ul>
       <ul data-testid="tag-pill-list" aria-label="Tags"><li><a ${CHROME_LINK_CLASS}>B</a></li></ul>
       <ul data-testid="curated-related-docs">
-        <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
+        <li><a href="/docs/concepts/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
       </ul>
     </article>
   </html>
@@ -102,7 +102,7 @@ const PRE_REPAIR_WHERE_IT_APPEARS_HTML = `
         <li><a href="/tags/attention" ${CHROME_LINK_CLASS}>Attention</a></li>
       </ul>
       <ul data-testid="curated-related-docs">
-        <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
+        <li><a href="/docs/concepts/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
       </ul>
     </article>
   </html>
@@ -119,7 +119,7 @@ const PRE_REPAIR_PROBLEM_CORE_HTML = `
         <li><a href="/tags/attention" ${CHROME_LINK_CLASS}>Attention</a></li>
       </ul>
       <ul data-testid="curated-related-docs">
-        <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
+        <li><a href="/docs/concepts/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
       </ul>
     </article>
   </html>
@@ -134,7 +134,7 @@ const PRE_REPAIR_UNDERLINE_HTML = `
         <li><a href="/tags/attention" class="underline">Attention</a></li>
       </ul>
       <ul data-testid="curated-related-docs">
-        <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
+        <li><a href="/docs/concepts/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
       </ul>
     </article>
   </html>
@@ -192,7 +192,7 @@ describe("assertGlossaryPresentationConvergence", () => {
               <li><a href="/tags/attention" ${CHROME_LINK_CLASS}>Attention</a></li>
             </ul>
             <ul data-testid="curated-related-docs">
-              <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
+              <li><a href="/docs/concepts/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
             </ul>
           </article>
         </html>
@@ -226,7 +226,7 @@ describe("evaluateGlossaryFooterHoverRow", () => {
   test("reports fail when footer navigation exists but contract markers are missing", () => {
     const html = `
       <div id="nd-page">
-        <a href="/docs/glossary/embedding"><span>Previous</span><p>Embedding</p></a>
+        <a href="/docs/concepts/embedding"><span>Previous</span><p>Embedding</p></a>
         <p class="text-fd-muted-foreground truncate">Next Page</p>
       </div>
     `;
@@ -304,7 +304,7 @@ const POST_REPAIR_VECTOR_SHELL_HTML = `
   <html>
     <h1>Vector</h1>
     <p class="mb-8 text-lg text-fd-muted-foreground">
-      An ordered list of numbers that represents a point or direction in continuous space—<a href="/docs/glossary/embedding" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>embeddings</a> and activations are vectors at different stages of the model.
+      An ordered list of numbers that represents a point or direction in continuous space—<a href="/docs/concepts/embedding" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>embeddings</a> and activations are vectors at different stages of the model.
     </p>
     <article data-registry-id="${GLOSSARY_VECTOR_REGISTRY_ID}">
       <section id="what-it-is"><h2>What It Is</h2></section>
@@ -316,7 +316,7 @@ const POST_REPAIR_HIDDEN_SIZE_SHELL_HTML = `
   <html>
     <h1>Hidden Size</h1>
     <p class="mb-8 text-lg text-fd-muted-foreground">
-      The width of a model's internal <a href="/docs/glossary/vector" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>vectors</a>—the number of dimensions in each <a href="/docs/glossary/embedding" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token embedding</a> and each <a href="/docs/glossary/token" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token</a>'s per-position hidden state before the vocabulary projection.
+      The width of a model's internal <a href="/docs/glossary/vector" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>vectors</a>—the number of dimensions in each <a href="/docs/concepts/embedding" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token embedding</a> and each <a href="/docs/glossary/token" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token</a>'s per-position hidden state before the vocabulary projection.
     </p>
     <article data-registry-id="${GLOSSARY_HIDDEN_SIZE_REGISTRY_ID}">
       <section id="what-it-is"><h2>What It Is</h2></section>
@@ -361,11 +361,11 @@ describe("assertGlossaryVectorDescriptionLinks", () => {
 
   test("fails when vector shell description is missing embedding link", () => {
     const html = POST_REPAIR_VECTOR_SHELL_HTML.replace(
-      'href="/docs/glossary/embedding"',
+      'href="/docs/concepts/embedding"',
       "",
     );
     expect(assertGlossaryVectorDescriptionLinks(html)).toContain(
-      "/docs/glossary/embedding",
+      "/docs/concepts/embedding",
     );
   });
 });

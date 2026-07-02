@@ -44,7 +44,8 @@ type RepresentativeDiscoveryContract = {
   representativeQueries: readonly string[];
 };
 
-const REPRESENTATIVE_DISCOVERY_CONTRACTS = [
+/** Representative routes that must stay aligned across source, tag landing, and search. */
+export const REPRESENTATIVE_DISCOVERY_CONTRACTS = [
   {
     pageUrl: "/docs/modules/grouped-query-attention",
     expectedKind: "module",
@@ -68,6 +69,16 @@ const REPRESENTATIVE_DISCOVERY_CONTRACTS = [
     expectedKind: "glossary",
     requiredTagSlugs: ["foundations"],
     representativeQueries: ["skip connection"],
+  },
+  {
+    pageUrl: "/docs/concepts/normalization",
+    expectedKind: "concept",
+    requiredTagSlugs: ["normalization", "foundations"],
+    representativeQueries: [
+      "normalization",
+      "normalization layer",
+      "norm layer",
+    ],
   },
 ] as const satisfies readonly RepresentativeDiscoveryContract[];
 

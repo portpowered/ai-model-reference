@@ -8,6 +8,7 @@
   "tags": ["feed-forward", "foundations"],
   "relatedIds": [
     "module.feed-forward-network",
+    "concept.mixture-of-experts",
     "module.mixture-of-experts",
     "concept.activation"
   ],
@@ -27,10 +28,7 @@
     "Illia Polosukhin"
   ],
   "sourceId": "citation.attention-is-all-you-need",
-  "primaryClassificationId": "classification.feed-forward-networks",
-  "secondaryClassificationIds": [
-    "classification.transformer-feed-forward-components"
-  ],
+  "primaryClassificationId": "classification.module.feed-forward",
   "relationships": [
     {
       "relationshipType": "variant",
@@ -41,15 +39,11 @@
       "targetId": "concept.activation"
     }
   ],
-  "moduleType": "feed-forward",
   "optimizes": ["per-token-capacity"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "none",
-  "moduleFamily": "feed-forward-network",
-  "conceptType": "feed-forward-variant",
-  "variantGroup": "feed-forward-family"
+  "mathLevel": "none"
 }

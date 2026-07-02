@@ -9,13 +9,15 @@
     "key-value cache",
     "key value cache",
     "kv-cache",
-    "attention cache"
+    "attention cache",
+    "cache for decoding"
   ],
   "tags": ["foundations", "attention", "kv-cache"],
   "relatedIds": [
     "concept.prefill",
     "concept.decode",
     "concept.prefill-decode-split",
+    "system.batching",
     "concept.autoregressive-generation",
     "module.attention",
     "module.multi-query-attention",

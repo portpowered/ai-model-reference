@@ -25,6 +25,10 @@ export type SectionAnchor = {
   titleKey: string;
 };
 
+type LinkReadablePageData = {
+  getText(format: "raw"): Promise<string>;
+};
+
 /** Slugifies a markdown heading for same-page anchor validation. */
 export function slugifyHeading(title: string): string {
   return title
@@ -95,10 +99,11 @@ async function readFumadocsLinkFiles(): Promise<FileObject[]> {
     if (!page.absolutePath) {
       throw new Error(`Missing absolutePath for docs page at ${page.url}`);
     }
+    const pageData = page.data as typeof page.data & LinkReadablePageData;
 
     files.push({
       path: page.absolutePath,
-      content: await page.data.getText("raw"),
+      content: await pageData.getText("raw"),
       url: page.url,
     });
   }

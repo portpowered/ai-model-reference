@@ -96,10 +96,11 @@ They differ in frontmatter `kind: glossary`, route prefix
 (`/docs/glossary/<slug>`), and glossary-specific message rules described in
 `glossary.content.md`.
 
-### Page generation for concept and glossary
+### Page generation for canonical bundles
 
-For **concept** and **glossary** pages, the preferred direct-authoring path is
-the page-spec workflow:
+For **concept**, **glossary**, **module**, **model**, **paper**, and
+**training-regime** pages, the preferred direct-authoring path is the page-spec
+workflow:
 
 ```sh
 bun run generate:page-bundle -- --help
@@ -113,9 +114,9 @@ the registry record:
 bun run generate:page-bundle -- --spec page-specs/page-spec-workflow-sample.json --dry-run
 ```
 
-See `page-specs/page-spec-workflow-sample.json` for the input shape and
-`docs/temp/processes/content-page-generation-workflow-relevant-files.md` for the
-full contract.
+See `page-specs/` for checked-in sample inputs across the supported canonical
+kinds and `bun run generate:page-bundle -- --help` for the full checked-in
+contract.
 
 **Legacy scaffold** — `scaffold:doc-page` still generates concept and glossary
 bundles from CLI flags for backward compatibility. Its `--help` output points
@@ -126,13 +127,141 @@ unless you are reproducing an older scaffold-only workflow.
 bun run scaffold:doc-page -- --help
 ```
 
-### Template copy for other canonical kinds
+The page-spec generator is the supported common path for those canonical kinds.
+Templates in `docs/templates/` remain the production structures behind the
+generator and the fallback path for exceptional manual work, but contributors
+should not need template copy plus multi-file hand edits in the common case.
 
-All other canonical kinds (**model**, **module**, **paper**, **training-regime**)
-still start from the template bundle in `docs/templates/`. Copy
-`<kind>.mdx` to `page.mdx`, rename the starter JSON files into the published
-folder, create the matching registry record under `src/content/registry/`, and
-follow `<kind>.content.md` until page-spec or scaffold support expands.
+### Review preflight before opening a page PR
+
+After authoring or generating a canonical page bundle, run these checks before
+review:
+
+| When | Command | Why |
+| --- | --- | --- |
+| Page bundle and registry shape are aligned | `make validate-data` | Primary derived page-bundle validation proof for ordinary content-only pages |
+| Structural proof passes and the review commit is ready | `bun run audit:canonical-page-surface` | Catch shared-surface drift before review |
+
+#### Drop accidental `next-env.d.ts` drift before review
+
+Root `next-env.d.ts` is a **generated Next.js/TypeScript framework declaration
+file**. Next.js and TypeScript tooling rewrite it during local dev, build, or
+typecheck work. For ordinary canonical page tasks—page content, registry
+records, colocated messages, or page-local assets—it is **framework drift**,
+not page-owned work.
+
+Before opening review, inspect your diff and **drop accidental `next-env.d.ts`
+changes** when the task did not intentionally change Next.js or TypeScript
+framework contracts. Do not carry that shared root file into a routine page PR
+just because local tooling touched it.
+
+**Legitimate exception:** the work item explicitly changes Next.js or
+TypeScript framework contracts (for example `tsconfig.json`, Next config, or
+App Router type surfaces) and the PR explains why `next-env.d.ts` changed.
+
+**Why this matters now:** the planner drift watchdog recently flagged a concrete
+multi-lane hotspot while `useful-active=4`: both
+`activation-concept-current-main-page` and `normalization-concept-page` had
+dirty shared-path drift in `next-env.d.ts`. Multiple page lanes touching the
+same generated root file creates avoidable merge conflicts and reviewer noise.
+Keep routine page branches page-local; remove unrelated `next-env.d.ts` drift
+before review.
+
+Full contracts live in maintainer references—not duplicated here:
+
+- [content page generation workflow relevant files](../internal/processes/content-page-generation-workflow-relevant-files.md)
+- [derived page validation relevant files](../internal/processes/derived-page-validation-relevant-files.md)
+
+See [Local validation](#local-validation) for the complete fast content loop
+including `make linkcheck`.
+
+### Page-local scope versus shared hotspot work
+
+Ordinary canonical page branches should stay **page-local** unless the page
+behavior genuinely requires shared infrastructure changes. Do not hide shared
+helper edits, generated artifacts, shared tests, broad validators, or
+registry-manifest churn inside a routine page slice.
+
+When shared hotspot work is the real task—not an unavoidable narrow fix for one
+page—redirect to or create a broader throughput/conflict-reduction PRD. Run
+`bun run audit:canonical-page-surface` before review to classify the branch.
+
+Full three-lane budget and hotspot categories:
+[Routine canonical-page PR surface budget](#routine-canonical-page-pr-surface-budget).
+
+#### PR-head mergeability (process executors)
+
+When page PRD story work is otherwise complete but the current blocker is
+PR-head mergeability, autonomous process executors should follow the existing
+mergeability phase in
+[factory/workstations/process/AGENTS.md](../../factory/workstations/process/AGENTS.md)
+(rules 5.2.1–5.2.5)—not a second policy. Run
+`bun run watch:active-pr-mergeability` to diagnose active lane mergeability and
+attempt the smallest disciplined mergeability fix allowed by those rules before
+returning continue. Command routing and planner preflight:
+[content page generation workflow relevant files](../internal/processes/content-page-generation-workflow-relevant-files.md#pr-head-mergeability-for-page-branches-process-executors).
+
+## Routine canonical page policies
+
+Ordinary canonical page work should stay on the low-collision path defined by
+these two repository policies:
+
+1. **Derived page directory lookup** — When code or tests need a published page
+   bundle path, resolve it with `getDocsPageDir(section, slug)` from
+   `src/lib/content/content-paths.ts`. Do not add new page-specific
+   `*_PAGE_DIR` exports or hand-maintained content-path constants for a single
+   page. Shared roots and section helpers such as `getDocsRoot`,
+   `getDocsSectionRoot(section)`, and `getModulesDocsRoot` remain the right
+   surface for tree-wide or section-wide operations.
+
+2. **Scanner-backed ordinary page validation** — Content-only published page
+   bundles receive registry alignment, default-locale messages, route metadata,
+   tags, citations, and local asset checks through derived validation inside
+   `make validate-data`. Do not add a new per-page test that only re-checks
+   those relationships. See [Derived published-page validation](#derived-published-page-validation)
+   for valid exceptions.
+
+Maintainer references with the full contract:
+
+- [content page generation workflow relevant files](../internal/processes/content-page-generation-workflow-relevant-files.md)
+- [derived page validation relevant files](../internal/processes/derived-page-validation-relevant-files.md)
+
+## Ontology-first taxonomy contract
+
+Canonical authoring for **modules**, **concepts/glossary entries**,
+**training regimes**, and **systems** is moving to the ontology-backed shape:
+
+- `primaryClassificationId`
+- `secondaryClassificationIds`
+- `relationships`
+
+Use [the convergence plan](../temp/ontology-classification-topology-convergence-plan.md)
+as the source design for this staged deprecation.
+
+For this convergence slice, treat those ontology fields as the long-term
+contract you should author toward. Legacy typed taxonomy fields still exist in
+some compatibility paths, but they are no longer the preferred way to describe
+structure for new content.
+
+### Deprecation matrix
+
+The table below defines the staged role of each legacy taxonomy field at
+contributor touchpoints. "No longer generated" means starter templates and new
+authoring guidance must not tell contributors to fill that field for fresh
+pages. "Temporarily accepted with warnings" is the planned transition state for
+compatibility inputs. "Compatibility-only fallback" means the field may still
+exist in older records or downstream derivations, but it is not part of the
+preferred authoring contract.
+
+| Field | Record kinds | Deprecation state | Contributor guidance |
+| --- | --- | --- | --- |
+| `moduleType` | module | Temporarily accepted with warnings | Existing page-spec and registry flows may still read it, but new authoring should prefer classification membership and explicit relationships. |
+| `conceptType` | concept, glossary, training-regime, system | Temporarily accepted with warnings | Existing page-spec and registry flows may still read it, but new authoring should prefer classification membership and explicit relationships. |
+| `regimeType` | training-regime | Temporarily accepted with warnings | Existing page-spec and registry flows may still read it, but new authoring should prefer classification membership and explicit relationships. |
+| `systemType` | system | Temporarily accepted with warnings | Existing page-spec and registry flows may still read it, but new authoring should prefer classification membership and explicit relationships. |
+| `variantGroup` | module, training-regime, system | Compatibility-only fallback | Keep only when compatibility or derived grouping still needs it; do not use it as the primary way to express nearby variants for new pages. |
+| `moduleFamily` | module | Compatibility-only fallback | Keep only when compatibility or derived grouping still needs it; do not use it as the primary way to express structure for new pages. |
+| `sidebarGrouping` | concept, module, training-regime, system | No longer generated | Editorial navigation metadata only. Do not add it to new starter content unless a later workflow explicitly requires it. |
 
 Runtime registry lookups are derived automatically from the authoritative JSON
 records under `src/content/registry/`. Those registry JSON files are the
@@ -182,12 +311,20 @@ resolve to published records in `src/content/registry/tags/` (for example
 `attention` maps to `tag.attention`). Repeat the same slugs in frontmatter and in
 the registry record `tags` array.
 
-When using `generate:page-bundle`, set `conceptType` in the page spec for
-concept and glossary pages. Valid values are `architecture`, `math`, `training`,
-`inference`, `systems`, `evaluation`, and `general`. Optional spec fields
-(`tags`, `aliases`, `relatedIds`, `citationIds`) seed registry and frontmatter
-fields in one step. The legacy `scaffold:doc-page` CLI accepts the same values
-through `--concept-type` and comma-separated optional flags.
+When using `generate:page-bundle`, the checked-in page-spec validator now
+accepts ontology-first inputs for module, concept, glossary, training-regime,
+and system pages through `primaryClassificationId` plus optional
+`secondaryClassificationIds` and `relationships`. Legacy typed taxonomy fields
+such as `conceptType`, `moduleType`, `regimeType`, and `systemType` are still
+accepted as temporary compatibility inputs, but they are no longer required for
+those ontology-backed authoring paths. Model pages still require `family`,
+`sourceType`, and `modalities`, and paper pages still require `authors`,
+`publishedAt`, and `url`. Valid `conceptType` values remain `architecture`,
+`math`, `training`, `inference`, `systems`, `evaluation`, and `general` when a
+compatibility input is still needed. Optional spec fields (`tags`, `aliases`,
+`relatedIds`, `citationIds`) seed registry and frontmatter fields in one step.
+The legacy `scaffold:doc-page` CLI accepts the concept/glossary subset through
+`--concept-type` and comma-separated optional flags.
 
 ## Canonical content requirements
 
@@ -352,7 +489,7 @@ run these lightweight checks often:
 
 | Command | Equivalent Bun script | What it validates |
 | --- | --- | --- |
-| `make validate-data` | `bun ./scripts/validate-registry.ts` | Registry schema, frontmatter ↔ registry alignment, message keys referenced from MDX, asset ids, graph/table references, tag and citation resolution, and colocated `messages/` + `assets.json` bundles under `src/content/docs/` |
+| `make validate-data` | `bun ./scripts/validate-registry.ts` | Registry schema, frontmatter ↔ registry alignment, derived published-page bundle coverage for ordinary docs pages, message keys referenced from MDX, asset ids, graph/table references, tag and citation resolution, and colocated `messages/` + `assets.json` bundles under `src/content/docs/` |
 | `bun run audit:canonical-page-surface` | `bun ./scripts/audit-canonical-page-surface.ts` | Whether one canonical-page branch still fits the routine owned-file budget or has spilled into shared hotspot surfaces that need either a visible exception or a broader throughput lane |
 | `make linkcheck` | `bun ./scripts/validate-links.ts` | Internal links and `#section` anchors in published docs pages served through the Fumadocs catch-all route (`src/content/docs/**/page.mdx`) |
 
@@ -361,6 +498,7 @@ structural mistakes contributors make most often:
 
 - Missing or unknown `registryId`, tags, citations, or related record ids
 - Frontmatter `kind`, slug, or `aliases` out of sync with the registry record
+- Missing default-locale messages, route metadata, or declared local assets on ordinary published page bundles (derived scanner-backed coverage)
 - Message keys in MDX that do not exist in colocated `messages/<locale>.json`
 - `assetId` references missing from `assets.json` or graph/table registry records
 - Invalid or incomplete registry JSON under `src/content/registry/`
@@ -456,6 +594,72 @@ reader-visible contract. Examples include:
 If you keep a manual list in a test, document the behavior class it protects so
 future contributors can tell that it is curated on purpose rather than acting as
 hidden whole-site inventory.
+
+When you add or change discovery or navigation coverage, run the **focused
+touched tests** and other **cheap validation** targets for that surface before
+opening a pull request. Typical commands:
+
+```sh
+bun run pretest
+bun test src/lib/source.test.ts
+bun test src/lib/navigation/generated-docs-page-tree.test.ts
+bun test src/lib/content/phase-1-published-resources.test.ts
+bun run typecheck
+make validate-data
+```
+
+Run only the files you changed when that is enough to prove the behavior under
+review. Use `make ci` once before review when you need the full required GitHub
+**ci** check.
+
+If you skip broader checks such as `make ci`, `make test`, or integration
+build/export gates, say so in the PR description with a **concrete reason**
+(for example disk limits, unrelated failing checks on `main`, or a docs-only
+change that already passed the focused discovery tests above). Do not treat
+skipped broad checks as silent approval.
+
+### Derived published-page validation
+
+Ordinary content-only published page bundles receive standard validation from
+scanner-backed **derived published-page coverage** in
+`validateDerivedPublishedPageBundles`. The contract runs inside
+`make validate-data` through `validateRegistryContent` and discovers published
+docs pages from the same scanner source as runtime docs loading, not from a
+hand-maintained page list.
+
+For each ordinary published page, derived validation checks:
+
+- Valid frontmatter and route metadata
+- Default-locale `messages/en.json`
+- Resolvable `registryId` with page-kind alignment (including supported bridges
+  such as glossary → concept)
+- Declared frontmatter tags, registry-backed citations, and local assets when
+  present
+
+**Do not add a new per-page test** for an ordinary page bundle that only
+re-checks those relationships. Use `make validate-data` as validation evidence
+instead. When you change the derived contract itself, also run
+`bun test src/lib/content/validate-derived-published-page-bundles.test.ts`.
+
+Add or keep per-page tests only when the page introduces:
+
+- new rendering behavior or component contracts
+- search, sidebar, browse, tag, or taxonomy discovery wiring
+- graph/table asset registry runtime behavior
+- page-generation workflow validation
+- a focused regression guard that cannot be expressed as a derived bundle
+  invariant
+
+Fence retained per-page tests with a file- or describe-level comment that
+states why the coverage is special rather than routine page-bundle validation.
+
+This policy is process-focused: derived coverage does not require maintaining
+broad route inventories, docs link topology inventories, or asset-bundle
+internals unless those are the product behavior under test (see
+[Discovery and navigation test strategy](#discovery-and-navigation-test-strategy)).
+
+Maintainer reference:
+[derived page validation relevant files](../internal/processes/derived-page-validation-relevant-files.md).
 
 For a visual pass on a published page, start the dev server after installing
 dependencies:
@@ -639,7 +843,7 @@ convergence review. The checked-in scripts (`validate-registry.ts`,
 `validate-links.ts`, build verifiers inside `make build` / `make build-export`)
 are the supported validation surface.
 
-### After page generation, scaffolding, or template copy
+### After page generation or exceptional manual fallback
 
 When you add a new page with `generate:page-bundle`, the legacy
 `scaffold:doc-page` command, or by copying a template bundle:
@@ -719,8 +923,8 @@ Use direct authoring when you can implement the page yourself in a pull request:
 - The work fits an existing template or the current page-generation support
   boundary.
 
-For **glossary** and **concept** pages, start with the page-spec generator
-(see [Page generation for concept and glossary](#page-generation-for-concept-and-glossary)):
+For canonical page bundles, start with the page-spec generator
+(see [Page generation for canonical bundles](#page-generation-for-canonical-bundles)):
 
 ```sh
 bun run generate:page-bundle -- --help
@@ -733,8 +937,10 @@ bun run generate:page-bundle -- --spec page-specs/page-spec-workflow-sample.json
 ```
 
 For a new page, copy `page-specs/page-spec-workflow-sample.json`, adjust
-`kind`, `slug`, `title`, `summary`, and section bodies, then dry-run before
-writing files.
+`kind`, `slug`, `title`, `summary`, and the kind-specific required fields, then
+dry-run before writing files. For module, model, paper, and training-regime
+pages, this page-spec flow is the supported common path; template-copy work is
+for exceptional cases only.
 
 **Legacy scaffold** — when you need the older CLI-flag workflow, `scaffold:doc-page`
 still supports concept and glossary dry runs:
@@ -750,18 +956,17 @@ Equivalent Make entry:
 make scaffold ARGS='--kind glossary --slug my-term --title "My term" --concept-type general --dry-run'
 ```
 
-For **model**, **module**, **paper**, and **training-regime** pages, copy the
-matching template bundle from `docs/templates/` and create the registry record
-manually until page-spec or scaffold support expands.
-
 After generating, scaffolding, or copying a template bundle, replace placeholder copy in
 `messages/en.json`, add or update registry records the page references, and set
 `status` in `page.mdx` frontmatter when the page is ready for published checks.
 Use [Choosing slug, title, aliases, tags, and registryId](#choosing-slug-title-aliases-tags-and-registryid)
 to keep metadata aligned.
 
-Open a pull request with your page changes. Run the checks in
-[Local validation](#local-validation) before review.
+Open a pull request with your page changes. Before review, run
+`make validate-data` (primary derived bundle proof) and
+`bun run audit:canonical-page-surface` (owned-surface budget check). See
+[Review preflight before opening a page PR](#review-preflight-before-opening-a-page-pr)
+and [Local validation](#local-validation) for details.
 
 ### Request factory-driven work
 
@@ -773,19 +978,17 @@ pages.
 
 | Path | When to use it | What you deliver |
 | --- | --- | --- |
-| **Direct pull request** | One page (or a small, tightly related set) you can implement yourself with `generate:page-bundle`, template copy, or the legacy scaffold | MDX, registry records, messages, assets, and passing local checks in a PR |
-| **Factory request** | Generator-assisted page creation for kinds the page-spec workflow does not support yet, broad conversions across many pages, or coordinated multi-page batches | A clear **idea** work item (or batch of ideas) that maintainers can route through the factory pipeline |
+| **Direct pull request** | One page (or a small, tightly related set) you can implement yourself with `generate:page-bundle`, or the legacy scaffold when reproducing older concept/glossary-only flows | MDX, registry records, messages, assets, and passing local checks in a PR |
+| **Factory request** | Broad conversions across many pages, coordinated multi-page batches, or work that goes beyond the current checked-in generator/templates | A clear **idea** work item (or batch of ideas) that maintainers can route through the factory pipeline |
 
 Direct authoring ends in a normal GitHub pull request you can review page by page.
 Factory work ends in one or more executor pull requests produced after planning
 and batch submission. Do not mix the two paths casually: if you can land the page
-with `generate:page-bundle`, template copy, or legacy scaffold plus
-`make validate-data`, prefer a direct PR.
+with `generate:page-bundle` plus `make validate-data`, prefer a direct PR. Use
+the legacy scaffold only when reproducing the older concept/glossary-only flow.
 
 Examples of factory-appropriate requests:
 
-- Generator-assisted page creation for **model**, **module**, **paper**, or
-  **training-regime** kinds before scaffold support expands.
 - Broad content conversions that touch many registry records, templates, or
   message bundles at once.
 - Planned documentation batches tracked in
@@ -822,7 +1025,7 @@ Minimal request shape contributors and maintainers should recognize:
     {
       "name": "module-flash-attention-page",
       "workTypeName": "idea",
-      "payload": "Add a canonical module page for flash-attention: kind module, slug flash-attention, source paper and existing attention concept links, start from docs/templates/module.mdx because scaffold does not support module yet."
+      "payload": "Add a canonical module page for flash-attention: kind module, slug flash-attention, source paper and existing attention concept links, use generate:page-bundle with a page spec and keep the emitted page bundle, registry record, messages, assets, and graph record aligned."
     }
   ]
 }
@@ -854,8 +1057,9 @@ fields an `idea` payload needs:
 - **Page kind and slug** — for example `module` / `flash-attention`.
 - **Source material** — paper links, existing pages to align with, or draft
   outline.
-- **Starting path** — `generate:page-bundle` (concept/glossary), template sidecar
-  copy (other kinds), legacy scaffold, or generator-assisted creation.
+- **Starting path** — `generate:page-bundle` for canonical bundles in the
+  common case, legacy scaffold only for older concept/glossary flows, or a
+  broader factory transformation.
 - **Scope** — single page vs multi-page batch; whether registry or template
   changes are in scope.
 
@@ -869,8 +1073,8 @@ request reviewer-ready:
 
 1. Name the **page kind** and **slug** using the rules in
    [Choosing slug, title, aliases, tags, and registryId](#choosing-slug-title-aliases-tags-and-registryid).
-2. State whether **page-spec generation**, **template copy**, **legacy scaffold**,
-   or broader **generator-assisted** creation applies today.
+2. State whether **page-spec generation**, **legacy scaffold**, or a broader
+   **generator-assisted** transformation applies today.
 3. List **source references** (papers, upstream docs, related registry IDs).
 4. Call out **tags, citations, and related IDs** you already know.
 5. Say whether the work is **one page** or part of a **larger batch** listed in
@@ -942,6 +1146,8 @@ entrypoints and runs `make validate-data` against committed content. Run
 These files support factory planning and review. They are not the primary
 contributor contract, but they explain how large docs efforts are prioritized:
 
+- [content page generation workflow relevant files](../internal/processes/content-page-generation-workflow-relevant-files.md) — derived page directory lookup with `getDocsPageDir(section, slug)`
+- [derived page validation relevant files](../internal/processes/derived-page-validation-relevant-files.md) — scanner-backed ordinary page validation through `make validate-data`
 - [documentation site pages needed](../documentation-site-pages-needed.md)
 - [architectural checklist](../architectural-checklist.md)
 - [operations](../operations.md) — CI merge policy and deployment posture

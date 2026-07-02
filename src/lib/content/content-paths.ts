@@ -1,3 +1,14 @@
+/**
+ * Canonical filesystem paths for committed content and generated runtime artifacts.
+ *
+ * **Derived page directory contract.** Ordinary canonical docs pages live under
+ * `src/content/docs/<section>/<slug>`. Callers should resolve a page directory with
+ * {@link getDocsPageDir} from a {@link DocsSection} and slug instead of importing
+ * page-specific exported constants. Shared roots ({@link getDocsRoot},
+ * {@link getRegistryRoot}, {@link getMessagesRoot}, generated roots) and section
+ * roots ({@link getDocsSectionRoot}, `get*DocsRoot`) remain the stable surface for
+ * section-wide or tree-wide operations.
+ */
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -20,6 +31,7 @@ export function getDocsRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "docs");
 }
 
+/** Supported canonical docs sections under `src/content/docs`. */
 export const DOCS_SECTIONS = [
   "glossary",
   "concepts",
@@ -30,6 +42,7 @@ export const DOCS_SECTIONS = [
   "systems",
 ] as const;
 
+/** Canonical docs section identifier for derived page directory lookup. */
 export type DocsSection = (typeof DOCS_SECTIONS)[number];
 
 /** Supported docs sections keyed to the canonical content tree. */
@@ -51,7 +64,13 @@ export function getDocsSectionRoot(
   return join(docsRoot, docsSectionPaths[section]);
 }
 
-/** Docs page directory under `src/content/docs/<section>/<slug>`. */
+/**
+ * Derived docs page directory under `src/content/docs/<section>/<slug>`.
+ *
+ * Use this for ordinary canonical page bundles (model, concept, module, system,
+ * paper, training, or glossary). Do not add new page-specific exported constants
+ * for routine page additions; pass the section and slug here instead.
+ */
 export function getDocsPageDir(
   section: DocsSection,
   slug: string,
@@ -289,6 +308,9 @@ export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
   "hidden-size",
 );
+
+/** Prefill concept page directory. */
+export const PREFILL_CONCEPT_PAGE_DIR = join(CONCEPTS_DOCS_ROOT, "prefill");
 
 /** Vocabulary size glossary page directory. */
 export const VOCABULARY_SIZE_GLOSSARY_PAGE_DIR = join(

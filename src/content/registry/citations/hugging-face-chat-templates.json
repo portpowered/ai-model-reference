@@ -1,0 +1,23 @@
+{
+  "id": "citation.hugging-face-chat-templates",
+  "slug": "hugging-face-chat-templates",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Hugging Face chat templates blog",
+    "Chat Templates: An End to the Silent Performance Killer"
+  ],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["Matthew Carrigan"],
+  "title": "Chat Templates: An End to the Silent Performance Killer",
+  "year": 2023,
+  "url": "https://huggingface.co/blog/chat-templates",
+  "mla": "Carrigan, Matthew. \"Chat Templates: An End to the Silent Performance Killer.\" Hugging Face Blog, 3 Oct. 2023, https://huggingface.co/blog/chat-templates."
+}

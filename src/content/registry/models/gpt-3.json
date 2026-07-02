@@ -10,6 +10,7 @@
     "concept.tokenizers-overview",
     "concept.transformer-architecture",
     "concept.autoregressive-generation",
+    "training-regime.pretraining",
     "module.bpe",
     "module.multi-head-attention",
     "module.standard-ffn",
@@ -67,7 +68,7 @@
     "module.layer-norm",
     "module.learned-positional-embeddings"
   ],
-  "trainingRegimeIds": [],
+  "trainingRegimeIds": ["training-regime.pretraining"],
   "datasetIds": [],
   "paperIds": [],
   "releaseDate": "2020-05-28",

@@ -93,6 +93,14 @@ describe("published docs routing contract", () => {
       {
         label: "system",
         record: requireRecord(
+          getSystemById("system.deployment"),
+          "deployment system",
+        ),
+        href: "/docs/systems/deployment",
+      },
+      {
+        label: "system with typed subgroup",
+        record: requireRecord(
           getSystemById("system.on-disk-kv-cache"),
           "on-disk-kv-cache system",
         ),

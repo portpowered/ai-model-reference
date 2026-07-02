@@ -1,0 +1,69 @@
+{
+  "id": "graph.supervised-fine-tuning-training-flow",
+  "slug": "supervised-fine-tuning-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["SFT training flow", "supervised fine-tuning flow"],
+  "tags": ["alignment", "foundations"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.training-language-models-to-follow-instructions-with-human-feedback"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "subjectId": "training-regime.supervised-fine-tuning",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "examples",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "examples",
+      "labelKey": "graph.nodes.examples.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 230, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": ["objective"]
+    },
+    {
+      "id": "objective",
+      "labelKey": "graph.nodes.objective.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 118 },
+      "size": { "width": 210, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["adaptedModel"]
+    },
+    {
+      "id": "adaptedModel",
+      "labelKey": "graph.nodes.adaptedModel.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 252 },
+      "size": { "width": 210, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "examples-objective",
+      "source": "examples",
+      "target": "objective",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "objective-adapted",
+      "source": "objective",
+      "target": "adaptedModel",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

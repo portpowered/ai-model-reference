@@ -60,7 +60,7 @@ describe("Phase 3 RMSNorm module page (US-006)", () => {
     const normalization = items.find(
       (item) => item.registryId === "concept.normalization",
     );
-    expect(normalization?.href).toBe("/docs/glossary/normalization");
+    expect(normalization?.href).toBe("/docs/concepts/normalization");
     expect(normalization?.isPlanned).toBe(false);
   });
 
@@ -129,7 +129,7 @@ describe("Phase 3 RMSNorm module page (US-006)", () => {
       "keeps the scale correction but drops mean centering",
     );
     expect(html).toContain('href="/docs/modules/layer-norm"');
-    expect(html).toContain('href="/docs/glossary/normalization"');
+    expect(html).toContain('href="/docs/concepts/normalization"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');

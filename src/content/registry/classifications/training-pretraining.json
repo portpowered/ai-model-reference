@@ -1,0 +1,21 @@
+{
+  "id": "classification.training.pretraining",
+  "slug": "training-pretraining",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["base-model pretraining", "language model pretraining"],
+  "tags": ["foundations", "tokenization"],
+  "relatedIds": ["training-regime.pretraining"],
+  "citationIds": [
+    "citation.gpt-2-report",
+    "citation.brown-gpt-3",
+    "citation.kaplan-scaling-laws"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-22T00:00:00.000Z",
+  "updatedAt": "2026-06-22T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["training-regime"],
+  "parentClassificationId": "classification.training"
+}

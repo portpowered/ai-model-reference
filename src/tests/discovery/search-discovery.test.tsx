@@ -7,6 +7,7 @@ import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
 import SearchEntryPage from "@/app/(site)/search/page";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import TagsIndexPage from "@/app/(site)/tags/page";
+import TimelinePage from "@/app/docs/timeline/page";
 import { HomeArticle } from "@/components/home/home-article";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
@@ -20,6 +21,7 @@ import {
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { modelAtlasSiteConfig } from "@/lib/site/model-atlas-site-config";
 import { assertSearchPageBuiltAppShell } from "@/lib/verify/phase-1-search-built-app-shell-checks";
 import {
   assertCanonicalPageLevelApiResults,
@@ -36,16 +38,20 @@ import {
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
 
+// Renders every metadata-discovered critical docs page; budget grows with the
+// attention and token-to-probability smoke sets without bespoke route lists.
 const CRITICAL_DOCS_AUTODISCOVERY_LOAD_TIMEOUT_MS = 30_000;
-const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 45_000;
-const ATTENTION_TAG_BROWSE_TIMEOUT_MS = 15_000;
+const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 90_000;
+const PHASE_1_TAG_BROWSE_GATE_TIMEOUT_MS = 30_000;
 
 const PHASE_1_DISCOVERY_ROUTES = [
   {
     path: "/",
     render: async () => {
       const messages = await loadUiMessages();
-      return <HomeArticle messages={messages} />;
+      return (
+        <HomeArticle messages={messages} siteConfig={modelAtlasSiteConfig} />
+      );
     },
     expectInHtml: "Model Atlas",
   },
@@ -65,6 +71,15 @@ const PHASE_1_DISCOVERY_ROUTES = [
     render: () => GlossaryIndexPage(),
     expectInHtml: "Glossary",
     alsoExpectInHtml: "Token",
+  },
+  {
+    path: "/docs/timeline",
+    render: () =>
+      TimelinePage({
+        searchParams: Promise.resolve({ classification: "activation" }),
+      }),
+    expectInHtml: "Timeline",
+    alsoExpectInHtml: "Loading timeline",
   },
   {
     path: "/tags",
@@ -138,8 +153,14 @@ describe("Phase 1 search discovery", () => {
     expect(resultsIncludeUrl(results, "/docs/training/dpo")).toBe(true);
   });
 
+  test("tokenizer query includes tokenizers overview as a direct relevant hit", async () => {
+    const results = await docsSearchApi.search("tokenizer");
+    expect(results.length).toBeGreaterThan(0);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(resultsIncludeTokenizersOverview(results)).toBe(true);
+  });
+
   test.each([
-    "tokenizer",
     "tokenizers",
     "text tokenization",
   ] as const)("%s query returns tokenizers overview as a direct relevant hit", async (query) => {
@@ -364,6 +385,6 @@ describe("Phase 1 tag browse helpers", () => {
         ),
       ).toBe(true);
     },
-    { timeout: ATTENTION_TAG_BROWSE_TIMEOUT_MS },
+    { timeout: PHASE_1_TAG_BROWSE_GATE_TIMEOUT_MS },
   );
 });

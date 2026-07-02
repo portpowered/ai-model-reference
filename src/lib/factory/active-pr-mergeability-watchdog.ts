@@ -5,6 +5,7 @@ import {
   readWorktreeLaneMetadata,
   refreshWorktreeLaneMetadata,
   type WorktreeLaneMetadataLinkageField,
+  type WorktreeLaneMetadataPullRequest,
 } from "@/lib/factory/worktree-lane-metadata";
 
 export type QueueLaneState = "active" | "failed";
@@ -36,6 +37,13 @@ export type PlannerNextAction =
   | "refresh-branch"
   | "repair-token"
   | "open-follow-up-throughput-prd";
+export type PlannerLaneKind =
+  | "stale-clean-pr-mismatch"
+  | "merge-conflict"
+  | "checks-blocked"
+  | "metadata-unavailable"
+  | "active-page-implementation"
+  | "unclassified";
 export type PullRequestLookupFailureKind =
   | "not-found"
   | "auth"
@@ -69,6 +77,7 @@ export interface WorktreeLaneRecord {
   metadataStatus: "present" | "missing" | "incomplete" | "conflicting";
   metadataIssues: string[];
   metadataSessionId?: string | null;
+  metadataPullRequest?: WorktreeLaneMetadataPullRequest | null;
   metadataBranchLinkage?: WorktreeLaneMetadataLinkageField;
   metadataPullRequestLinkage?: WorktreeLaneMetadataLinkageField;
 }
@@ -87,6 +96,7 @@ export interface PullRequestLookupResult {
   pullRequest: PullRequestRecord | null;
   failureKind?: PullRequestLookupFailureKind;
   failureReason?: string;
+  resolvedBranchName?: string;
 }
 
 export interface BranchDriftRecord {
@@ -120,7 +130,10 @@ export interface LaneDiscoveryRecord {
   checkHealth?: CheckHealthStatus;
   mergeabilityClass?: MergeabilityClass;
   queueMismatchRisk?: QueueMismatchRisk;
+  plannerLaneKind?: PlannerLaneKind;
+  staleMismatchReason?: string;
   nextAction?: PlannerNextAction;
+  metadataRefreshHints?: string[];
   reasons: string[];
 }
 
@@ -519,6 +532,7 @@ export function discoverWorktreeLaneRecords(
         metadataStatus,
         metadataIssues,
         metadataSessionId,
+        metadataPullRequest: metadata?.pullRequest ?? null,
         metadataBranchLinkage: metadata?.linkage.branch,
         metadataPullRequestLinkage: metadata?.linkage.pullRequest,
       } satisfies WorktreeLaneRecord;
@@ -565,6 +579,104 @@ function toRefreshableBranchMetadataSource(
   source: WorktreeLaneRecord["branchMetadataSource"],
 ): "git" | "prd" | undefined {
   return source === "git" || source === "prd" ? source : undefined;
+}
+
+function hasCurrentStampedPullRequestEvidence(
+  worktree: WorktreeLaneRecord,
+): worktree is WorktreeLaneRecord & {
+  metadataPullRequest: WorktreeLaneMetadataPullRequest;
+} {
+  return (
+    typeof worktree.metadataPullRequest?.number === "number" &&
+    worktree.metadataPullRequestLinkage?.status === "current"
+  );
+}
+
+function pullRequestRecordFromMetadata(
+  metadataPullRequest: WorktreeLaneMetadataPullRequest,
+  branchName: string,
+): PullRequestRecord {
+  return {
+    number: metadataPullRequest.number,
+    url: metadataPullRequest.url,
+    headRefName: branchName,
+  };
+}
+
+function pushUniqueBranchCandidate(
+  candidates: string[],
+  branchName?: string,
+): void {
+  const normalized = branchName?.trim();
+  if (!normalized || candidates.includes(normalized)) {
+    return;
+  }
+  candidates.push(normalized);
+}
+
+export function collectWorktreeBranchCandidates(
+  worktree: WorktreeLaneRecord,
+): string[] {
+  const candidates: string[] = [];
+  pushUniqueBranchCandidate(candidates, worktree.branchName);
+  pushUniqueBranchCandidate(candidates, worktree.gitBranchName);
+  pushUniqueBranchCandidate(candidates, worktree.prdBranchName);
+  return candidates;
+}
+
+function shouldStopBranchLookupFallback(
+  failureKind?: PullRequestLookupFailureKind,
+): boolean {
+  return failureKind === "auth" || failureKind === "api";
+}
+
+export function resolvePullRequestEvidence(
+  worktree: WorktreeLaneRecord,
+  branchName: string,
+  lookupPullRequest: (
+    branchName: string,
+    runCommand: RunCommand,
+  ) => PullRequestLookupResult,
+  runCommand: RunCommand,
+): PullRequestLookupResult {
+  const branchCandidates = collectWorktreeBranchCandidates(worktree);
+  if (branchCandidates.length === 0) {
+    pushUniqueBranchCandidate(branchCandidates, branchName);
+  }
+
+  let lastLookupResult: PullRequestLookupResult = {
+    pullRequest: null,
+    failureKind: "not-found",
+    failureReason: `no open PR metadata found for branch ${branchName}`,
+  };
+
+  for (const candidateBranchName of branchCandidates) {
+    const lookupResult = lookupPullRequest(candidateBranchName, runCommand);
+    if (lookupResult.pullRequest) {
+      return {
+        ...lookupResult,
+        resolvedBranchName: candidateBranchName,
+      };
+    }
+
+    lastLookupResult = lookupResult;
+    if (shouldStopBranchLookupFallback(lookupResult.failureKind)) {
+      break;
+    }
+  }
+
+  if (hasCurrentStampedPullRequestEvidence(worktree)) {
+    const metadataBranchName = branchCandidates[0] ?? branchName;
+    return {
+      pullRequest: pullRequestRecordFromMetadata(
+        worktree.metadataPullRequest,
+        metadataBranchName,
+      ),
+      resolvedBranchName: metadataBranchName,
+    };
+  }
+
+  return lastLookupResult;
 }
 
 function parseIntegerPair(stdout: string): [number, number] | null {
@@ -721,7 +833,10 @@ export function classifyMergeability(
     return "mergeable";
   }
   if (state === "BLOCKED") {
-    return checkHealth === "passing" ? "unknown" : "check-blocked";
+    return checkHealth === "passing" ? "mergeable" : "check-blocked";
+  }
+  if (checkHealth === "passing") {
+    return "mergeable";
   }
   return "unknown";
 }
@@ -879,10 +994,146 @@ export function determineQueueMismatchRisk(
   if (lane.queueState === "failed" && lane.mergeabilityClass === "mergeable") {
     return "queue-stale";
   }
-  if (lane.mergeabilityClass === "unknown") {
+  if (
+    lane.mergeabilityClass === "unknown" &&
+    (lane.checkHealth === "unavailable" || lane.checkHealth === undefined)
+  ) {
     return "metadata-unavailable";
   }
   return "none";
+}
+
+export function classifyPlannerLaneKind(
+  lane: Pick<
+    LaneDiscoveryRecord,
+    | "status"
+    | "queueState"
+    | "queueMismatchRisk"
+    | "mergeabilityClass"
+    | "checkHealth"
+  >,
+): PlannerLaneKind {
+  switch (lane.queueMismatchRisk) {
+    case "queue-stale":
+      return "stale-clean-pr-mismatch";
+    case "conflict-drift":
+      return "merge-conflict";
+    case "checks-blocked":
+      return "checks-blocked";
+    case "metadata-unavailable":
+      return "metadata-unavailable";
+    default:
+      break;
+  }
+
+  if (lane.status === "pr-backed" && lane.queueState === "active") {
+    return "active-page-implementation";
+  }
+
+  return "unclassified";
+}
+
+export function formatStaleCleanPrMismatchReason(
+  lane: Pick<
+    LaneDiscoveryRecord,
+    | "prNumber"
+    | "queueState"
+    | "rawQueueState"
+    | "mergeabilityClass"
+    | "checkHealth"
+    | "workItemName"
+  >,
+): string {
+  const prLabel =
+    typeof lane.prNumber === "number" ? `pr=#${lane.prNumber}` : "pr=?";
+  return [
+    "clean-passing-open-pr-with-queue-failed",
+    prLabel,
+    `queue=${lane.queueState}(${lane.rawQueueState})`,
+    `mergeability=${lane.mergeabilityClass ?? "?"}`,
+    `checks=${lane.checkHealth ?? "?"}`,
+    `work-item=${lane.workItemName}`,
+  ].join(" ");
+}
+
+export function summarizePlannerLaneKinds(
+  lanes: Pick<LaneDiscoveryRecord, "plannerLaneKind">[],
+): Record<PlannerLaneKind, number> {
+  const counts: Record<PlannerLaneKind, number> = {
+    "stale-clean-pr-mismatch": 0,
+    "merge-conflict": 0,
+    "checks-blocked": 0,
+    "metadata-unavailable": 0,
+    "active-page-implementation": 0,
+    unclassified: 0,
+  };
+
+  for (const lane of lanes) {
+    const kind = lane.plannerLaneKind ?? "unclassified";
+    counts[kind] += 1;
+  }
+
+  return counts;
+}
+
+export function isStaleLinkageRefreshHint(reason: string): boolean {
+  return (
+    reason.startsWith("stamped branch linkage is stale") ||
+    reason.startsWith("stamped pull request linkage is stale")
+  );
+}
+
+export function partitionStaleLinkageRefreshHints(reasons: string[]): {
+  reasons: string[];
+  metadataRefreshHints: string[];
+} {
+  const metadataRefreshHints: string[] = [];
+  const remainingReasons: string[] = [];
+
+  for (const reason of reasons) {
+    if (isStaleLinkageRefreshHint(reason)) {
+      metadataRefreshHints.push(reason);
+      continue;
+    }
+    remainingReasons.push(reason);
+  }
+
+  return { reasons: remainingReasons, metadataRefreshHints };
+}
+
+function collectWorktreeStaleLinkageRefreshHints(
+  worktree: WorktreeLaneRecord,
+): string[] {
+  const hints: string[] = [];
+
+  if (worktree.metadataBranchLinkage?.status === "stale") {
+    hints.push(
+      worktree.metadataBranchLinkage.issue
+        ? `stamped branch linkage is stale: ${worktree.metadataBranchLinkage.issue}`
+        : "stamped branch linkage is stale and should be refreshed",
+    );
+  }
+  if (worktree.metadataPullRequestLinkage?.status === "stale") {
+    hints.push(
+      worktree.metadataPullRequestLinkage.issue
+        ? `stamped pull request linkage is stale: ${worktree.metadataPullRequestLinkage.issue}`
+        : "stamped pull request linkage is stale and should be refreshed",
+    );
+  }
+
+  return hints;
+}
+
+function mergeMetadataRefreshHints(...hintGroups: string[][]): string[] {
+  const merged: string[] = [];
+  for (const hints of hintGroups) {
+    for (const hint of hints) {
+      if (!merged.includes(hint)) {
+        merged.push(hint);
+      }
+    }
+  }
+  return merged;
 }
 
 export function recommendPlannerNextAction(
@@ -1040,15 +1291,22 @@ export function discoverActivePrLaneReport(
       );
     }
 
-    const drift = classifyBranchDrift(
+    const pullRequestLookup = resolvePullRequestEvidence(
+      worktree,
       branchName,
+      lookupPullRequest,
+      runCommand,
+    );
+    const pullRequest = pullRequestLookup.pullRequest;
+    const resolvedBranchName =
+      pullRequestLookup.resolvedBranchName ?? branchName;
+
+    const drift = classifyBranchDrift(
+      resolvedBranchName,
       runCommand,
       baseBranchName,
       options.repoRoot ?? worktree.worktreePath,
     );
-
-    const pullRequestLookup = lookupPullRequest(branchName, runCommand);
-    const pullRequest = pullRequestLookup.pullRequest;
     if (!pullRequest) {
       if (worktree.metadataPullRequestLinkage?.status === "stale") {
         pushUniqueReason(
@@ -1090,6 +1348,16 @@ export function discoverActivePrLaneReport(
           },
         });
       }
+      if (
+        worktree.metadataStatus === "incomplete" ||
+        worktree.metadataStatus === "missing"
+      ) {
+        pushUniqueReason(
+          reasons,
+          "missing pull request metadata for actionable task/review lane",
+        );
+      }
+
       return {
         status: "unclassified",
         workItemName: queueLane.workItemName,
@@ -1101,7 +1369,7 @@ export function discoverActivePrLaneReport(
           worktree.worktreePath,
           options.repoRoot,
         ),
-        branchName,
+        branchName: resolvedBranchName,
         workItemNameSource: worktree.workItemNameSource,
         branchMetadataSource: worktree.branchMetadataSource,
         metadataStatus: worktree.metadataStatus,
@@ -1135,6 +1403,16 @@ export function discoverActivePrLaneReport(
       checkHealth,
     );
 
+    if (
+      resolvedBranchName !== branchName &&
+      worktree.branchMetadataSource === "metadata"
+    ) {
+      pushUniqueReason(
+        reasons,
+        `PR resolved via worktree branch ${resolvedBranchName} after stamped branch ${branchName} had no open PR`,
+      );
+    }
+
     const laneRecord = {
       status: "pr-backed",
       workItemName: queueLane.workItemName,
@@ -1146,7 +1424,7 @@ export function discoverActivePrLaneReport(
         worktree.worktreePath,
         options.repoRoot,
       ),
-      branchName,
+      branchName: resolvedBranchName,
       workItemNameSource: worktree.workItemNameSource,
       branchMetadataSource: worktree.branchMetadataSource,
       metadataStatus: worktree.metadataStatus,
@@ -1176,7 +1454,7 @@ export function discoverActivePrLaneReport(
     if (options.refreshWorktreeMetadata) {
       refreshWorktreeLaneMetadata({
         worktreePath: worktree.worktreePath,
-        branchName,
+        branchName: resolvedBranchName,
         branchMetadataSource: toRefreshableBranchMetadataSource(
           worktree.branchMetadataSource,
         ),
@@ -1191,9 +1469,35 @@ export function discoverActivePrLaneReport(
     }
 
     const queueMismatchRisk = determineQueueMismatchRisk(laneRecord);
+    const partitionedReasons = partitionStaleLinkageRefreshHints(
+      laneRecord.reasons,
+    );
+    const metadataRefreshHints = mergeMetadataRefreshHints(
+      partitionedReasons.metadataRefreshHints,
+      collectWorktreeStaleLinkageRefreshHints(worktree),
+    );
+    const plannerLaneKind = classifyPlannerLaneKind({
+      status: laneRecord.status,
+      queueState: laneRecord.queueState,
+      queueMismatchRisk,
+      mergeabilityClass,
+      checkHealth,
+    });
+    const staleMismatchReason =
+      plannerLaneKind === "stale-clean-pr-mismatch"
+        ? formatStaleCleanPrMismatchReason({
+            ...laneRecord,
+            mergeabilityClass,
+            checkHealth,
+          })
+        : undefined;
     return {
       ...laneRecord,
+      reasons: partitionedReasons.reasons,
+      ...(metadataRefreshHints.length > 0 ? { metadataRefreshHints } : {}),
       queueMismatchRisk,
+      plannerLaneKind,
+      ...(staleMismatchReason ? { staleMismatchReason } : {}),
       nextAction: recommendPlannerNextAction({
         queueMismatchRisk,
         checkHealth,
@@ -1210,10 +1514,12 @@ export function formatActivePrLaneReport(report: LaneDiscoveryReport): string {
     (lane) => lane.status === "pr-backed",
   ).length;
   const unclassifiedCount = report.lanes.length - prBackedCount;
+  const laneKindCounts = summarizePlannerLaneKinds(report.lanes);
 
   const lines = [
     "Active PR Mergeability Watchdog",
     `lanes=${report.lanes.length} pr-backed=${prBackedCount} unclassified=${unclassifiedCount}`,
+    `classification active-page-implementation=${laneKindCounts["active-page-implementation"]} stale-clean-pr-mismatch=${laneKindCounts["stale-clean-pr-mismatch"]} merge-conflict=${laneKindCounts["merge-conflict"]} checks-blocked=${laneKindCounts["checks-blocked"]} metadata-unavailable=${laneKindCounts["metadata-unavailable"]} unclassified=${laneKindCounts.unclassified}`,
   ];
 
   if (report.issues.length > 0) {
@@ -1264,6 +1570,15 @@ export function formatActivePrLaneReport(report: LaneDiscoveryReport): string {
     }
     if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
       details.push(`risk=${lane.queueMismatchRisk}`);
+    }
+    if (lane.plannerLaneKind) {
+      details.push(`lane-kind=${lane.plannerLaneKind}`);
+    }
+    if (lane.staleMismatchReason) {
+      details.push(`mismatch-reason=${lane.staleMismatchReason}`);
+    }
+    if (lane.metadataRefreshHints && lane.metadataRefreshHints.length > 0) {
+      details.push(`metadata-refresh=${lane.metadataRefreshHints.join("; ")}`);
     }
     if (lane.nextAction) {
       details.push(`next-action=${lane.nextAction}`);

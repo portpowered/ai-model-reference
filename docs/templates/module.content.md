@@ -45,4 +45,16 @@ Do not define projections, grouping mechanics, or head-count concepts as math-bl
 
 ## Registry Expectations
 
-The module registry record should include `moduleType`, `moduleFamily`, `conceptType`, `variantGroup`, `optimizes`, `exampleModelIds`, `usedByModelIds`, `introducedByPaperIds`, tags, aliases, citations, and curated `relatedIds` only when derived relationships are insufficient.
+Canonical taxonomy authoring for modules should start with
+`primaryClassificationId`, optional `secondaryClassificationIds`, and
+`relationships`. Use [the ontology convergence plan](../temp/ontology-classification-topology-convergence-plan.md)
+for the staged deprecation matrix.
+
+Treat `moduleType`, `moduleFamily`, `conceptType`, and `variantGroup` as
+deprecated compatibility fields in this slice. Do not introduce them as the
+preferred path in new starter content unless a current compatibility workflow
+still requires them.
+
+The module registry record should still include `optimizes`, `exampleModelIds`,
+`usedByModelIds`, `introducedByPaperIds`, tags, aliases, citations, and curated
+`relatedIds` only when derived relationships are insufficient.

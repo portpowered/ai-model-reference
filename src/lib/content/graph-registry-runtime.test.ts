@@ -20,9 +20,24 @@ describe("graph-registry-runtime", () => {
     clearRegisteredGraphRecords();
   });
 
-  test("loads a bundled graph record by id", () => {
-    const graph = requireBundledGraph();
+  test("loads representative published graph records by id", () => {
+    const deploymentSystemFlow = getGraphById("graph.deployment-system-flow");
+    expect(deploymentSystemFlow?.id).toBe("graph.deployment-system-flow");
+    expect(deploymentSystemFlow?.subjectId).toBe("system.deployment");
+    expect(deploymentSystemFlow?.nodes.map((node) => node.id)).toEqual([
+      "package",
+      "fit",
+      "rollout",
+      "rollback",
+    ]);
+    const computeFlow = getGraphById(
+      "graph.grouped-query-attention-compute-flow",
+    );
+    expect(computeFlow?.id).toBe("graph.grouped-query-attention-compute-flow");
+    expect(computeFlow?.nodes.length).toBeGreaterThanOrEqual(4);
+    expect(computeFlow?.edges.length).toBeGreaterThanOrEqual(3);
 
+    const graph = requireBundledGraph();
     expect(graph.id).toBe(CANONICAL_GRAPH_ID);
     expect(graph.subjectId).toBe("model.gpt-3");
     expect(graph.supportedRenderers).toContain("react-flow");
@@ -35,19 +50,7 @@ describe("graph-registry-runtime", () => {
     expect(getGraphById(CANONICAL_GRAPH_ID)?.id).toBe(CANONICAL_GRAPH_ID);
   });
 
-  test("lists generated bundled graph records", () => {
-    const records = listGraphRecords();
-    const ids = records.map((record) => record.id);
-
-    expect(ids).toContain(CANONICAL_GRAPH_ID);
-    expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toContain("graph.inference-engine-system-flow");
-    expect(
-      records.find((record) => record.id === CANONICAL_GRAPH_ID)?.subjectId,
-    ).toBe("model.gpt-3");
-  });
-
-  test("uses registered records for lookup without adding override-only records to the bundled listing", () => {
+  test("lists bundled graph records without surfacing override-only registrations", () => {
     const rootRecord = requireBundledGraph();
     const overrideOnlyRecord = graphRecordSchema.parse({
       ...rootRecord,
@@ -55,6 +58,17 @@ describe("graph-registry-runtime", () => {
       slug: "runtime-override-only",
       subjectId: "concept.runtime-override-only",
     });
+
+    const bundledIds = listGraphRecords().map((record) => record.id);
+    expect(new Set(bundledIds).size).toBe(bundledIds.length);
+    expect(bundledIds).toContain(CANONICAL_GRAPH_ID);
+    expect(bundledIds).toContain("graph.batching-system-flow");
+    expect(bundledIds).toContain("graph.pretraining-training-flow");
+    expect(bundledIds).toContain("graph.deployment-system-flow");
+    expect(bundledIds).toContain("graph.gpt-2-report-contribution");
+    expect(bundledIds).toContain("graph.cross-attention-memory-pattern");
+    expect(bundledIds).toContain("graph.unigram-tokenizer-segmentation-flow");
+    expect(bundledIds).toContain("graph.tokenizer-mismatch-compute-flow");
 
     registerGraphRecords([overrideOnlyRecord]);
 
@@ -102,14 +116,5 @@ describe("graph-registry-runtime", () => {
     expect(
       getGraphById(CANONICAL_GRAPH_ID)?.nodes.map((node) => node.id),
     ).not.toContain("override-proof-node");
-  });
-
-  test("includes unigram tokenizer in the bundled graph registry", () => {
-    const records = listGraphRecords();
-
-    expect(records.length).toBeGreaterThan(0);
-    expect(records.map((record) => record.id)).toContain(
-      "graph.unigram-tokenizer-segmentation-flow",
-    );
   });
 });

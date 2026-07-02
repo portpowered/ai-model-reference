@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { access, mkdir, readFile, rm } from "node:fs/promises";
+import { access, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -20,7 +20,10 @@ import { loadGlossaryPageFromDisk } from "./glossary-page-load";
 import { type PageSpec, validatePageSpec } from "./page-spec";
 import { loadRegistry } from "./registry";
 import { readScaffoldedPageRegistryId } from "./scaffold-doc-page";
-import { validateGeneratedPageBundle } from "./validate-generated-page-bundle";
+import {
+  parseGeneratedRegistryRecord,
+  validateGeneratedPageBundle,
+} from "./validate-generated-page-bundle";
 
 async function pathExists(path: string): Promise<boolean> {
   try {
@@ -47,12 +50,47 @@ async function createTemplateFixtureRoot(): Promise<string> {
   return tempRoot;
 }
 
+async function copyRegistryFixture(
+  tempRoot: string,
+  input: {
+    kindDirectory:
+      | "classifications"
+      | "concepts"
+      | "modules"
+      | "systems"
+      | "models"
+      | "tags"
+      | "citations";
+    slug: string;
+  },
+): Promise<void> {
+  const sourcePath = join(
+    getProjectRoot(),
+    "src",
+    "content",
+    "registry",
+    input.kindDirectory,
+    `${input.slug}.json`,
+  );
+  const destinationPath = join(
+    tempRoot,
+    "src",
+    "content",
+    "registry",
+    input.kindDirectory,
+    `${input.slug}.json`,
+  );
+  await mkdir(join(destinationPath, ".."), { recursive: true });
+  await writeFile(destinationPath, await readFile(sourcePath, "utf8"));
+}
+
 async function prepareContentRoots(tempRoot: string): Promise<string> {
   const contentRoot = join(tempRoot, "src", "content");
   await mkdir(join(contentRoot, "registry", "concepts"), { recursive: true });
   await mkdir(join(contentRoot, "registry", "modules"), { recursive: true });
   await mkdir(join(contentRoot, "registry", "models"), { recursive: true });
   await mkdir(join(contentRoot, "registry", "papers"), { recursive: true });
+  await mkdir(join(contentRoot, "registry", "systems"), { recursive: true });
   await mkdir(join(contentRoot, "registry", "training-regimes"), {
     recursive: true,
   });
@@ -61,8 +99,32 @@ async function prepareContentRoots(tempRoot: string): Promise<string> {
   await mkdir(join(contentRoot, "docs", "modules"), { recursive: true });
   await mkdir(join(contentRoot, "docs", "models"), { recursive: true });
   await mkdir(join(contentRoot, "docs", "papers"), { recursive: true });
+  await mkdir(join(contentRoot, "docs", "systems"), { recursive: true });
   await mkdir(join(contentRoot, "docs", "training"), { recursive: true });
   return contentRoot;
+}
+
+async function seedCanonicalBundleValidationFixtures(
+  tempRoot: string,
+): Promise<void> {
+  const fixtures = [
+    { kindDirectory: "classifications", slug: "concept" },
+    { kindDirectory: "classifications", slug: "concept-architecture" },
+    {
+      kindDirectory: "classifications",
+      slug: "concept-architecture-activation",
+    },
+    { kindDirectory: "classifications", slug: "module" },
+    { kindDirectory: "classifications", slug: "attention-mechanisms" },
+    { kindDirectory: "classifications", slug: "training" },
+    { kindDirectory: "classifications", slug: "training-alignment" },
+    { kindDirectory: "classifications", slug: "system" },
+    { kindDirectory: "classifications", slug: "system-routing" },
+  ] as const;
+
+  for (const fixture of fixtures) {
+    await copyRegistryFixture(tempRoot, fixture);
+  }
 }
 
 const baseSpecFields = {
@@ -122,6 +184,8 @@ describe("generatePageBundle", () => {
     expect(result.registryId).toBe(`concept.${slug}`);
     expect(result.route).toBe(`/docs/concepts/${slug}`);
     expect(result.writtenFiles).toEqual([]);
+    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings[0]?.field).toBe("conceptType");
     expect(result.plannedFiles).toHaveLength(5);
     expect(
       result.plannedFiles.some((file) => file.label.includes("graph registry")),
@@ -132,6 +196,30 @@ describe("generatePageBundle", () => {
     }
 
     expect(formatGeneratePageBundlePlan(result)).toContain(result.route);
+    expect(formatGeneratePageBundlePlan(result)).toContain("Warnings:");
+  });
+
+  test("ontology-first dry-run avoids deprecated taxonomy warnings", async () => {
+    const slug = `ontology-first-${crypto.randomUUID()}`;
+    const result = await generatePageBundle({
+      spec: {
+        ...baseSpecFields,
+        slug,
+        kind: "module",
+        primaryClassificationId: "classification.module.attention",
+        relationships: [
+          {
+            relationshipType: "variant",
+            targetId: "module.multi-head-attention",
+          },
+        ],
+      },
+      dryRun: true,
+      projectRoot: getProjectRoot(),
+    });
+
+    expect(result.warnings).toEqual([]);
+    expect(formatGeneratePageBundlePlan(result)).not.toContain("Warnings:");
   });
 
   test("writes glossary bundle with substituted ids and page-spec messages", async () => {
@@ -465,104 +553,154 @@ describe("generatePageBundle", () => {
     }
   });
 
-  test("writes model, paper, and training-regime bundles to expected paths", async () => {
+  test("writes model, paper, and training-regime bundles with canonical artifacts and derived ids", async () => {
     const tempRoot = await createTemplateFixtureRoot();
     const contentRoot = await prepareContentRoots(tempRoot);
 
-    const modelSlug = "generated-model-term";
-    const paperSlug = "generated-paper-term";
-    const regimeSlug = "generated-training-regime";
-
-    const specs: PageSpec[] = [
-      validatePageSpec({
-        ...baseSpecFields,
-        slug: modelSlug,
-        kind: "model",
-        family: "gpt",
-        sourceType: "open-weights",
-        modalities: ["text"],
-        moduleIds: ["module.attention"],
-      }),
-      validatePageSpec({
-        ...baseSpecFields,
-        slug: paperSlug,
-        kind: "paper",
-        authors: ["A. Author"],
-        publishedAt: "2024-01-01",
-        url: "https://example.com/paper",
-        introducesIds: ["module.attention"],
-      }),
-      validatePageSpec({
-        ...baseSpecFields,
-        slug: regimeSlug,
-        kind: "training-regime",
-        regimeType: "pretraining",
-        relatedModuleIds: ["module.attention"],
-      }),
+    const cases: Array<{
+      spec: PageSpec;
+      docsSegments: string[];
+      registrySegments: string[];
+      expectedRegistryRecord: Record<string, unknown>;
+      expectedGraphRecord?: {
+        filename: string;
+        id: string;
+        subjectId: string;
+      };
+    }> = [
+      {
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-model-term",
+          kind: "model",
+          family: "gpt",
+          sourceType: "open-weights",
+          modalities: ["text"],
+          moduleIds: ["module.attention"],
+        }),
+        docsSegments: ["models", "generated-model-term"],
+        registrySegments: ["models", "generated-model-term.json"],
+        expectedRegistryRecord: {
+          id: "model.generated-model-term",
+          kind: "model",
+          family: "gpt",
+          moduleIds: ["module.attention"],
+        },
+        expectedGraphRecord: {
+          filename: "generated-model-term-architecture.json",
+          id: "graph.generated-model-term-architecture",
+          subjectId: "model.generated-model-term",
+        },
+      },
+      {
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-paper-term",
+          kind: "paper",
+          authors: ["A. Author"],
+          publishedAt: "2024-01-01",
+          url: "https://example.com/paper",
+          introducesIds: ["module.attention"],
+        }),
+        docsSegments: ["papers", "generated-paper-term"],
+        registrySegments: ["papers", "generated-paper-term.json"],
+        expectedRegistryRecord: {
+          id: "paper.generated-paper-term",
+          kind: "paper",
+          authors: ["A. Author"],
+          url: "https://example.com/paper",
+          introducesIds: ["module.attention"],
+        },
+        expectedGraphRecord: {
+          filename: "generated-paper-term-contribution.json",
+          id: "graph.generated-paper-term-contribution",
+          subjectId: "paper.generated-paper-term",
+        },
+      },
+      {
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-training-regime",
+          kind: "training-regime",
+          regimeType: "pretraining",
+          relatedModuleIds: ["module.attention"],
+        }),
+        docsSegments: ["training", "generated-training-regime"],
+        registrySegments: [
+          "training-regimes",
+          "generated-training-regime.json",
+        ],
+        expectedRegistryRecord: {
+          id: "training-regime.generated-training-regime",
+          kind: "training-regime",
+          regimeType: "pretraining",
+          relatedModuleIds: ["module.attention"],
+        },
+        expectedGraphRecord: {
+          filename: "generated-training-regime-training-flow.json",
+          id: "graph.generated-training-regime-training-flow",
+          subjectId: "training-regime.generated-training-regime",
+        },
+      },
     ];
 
-    for (const spec of specs) {
+    for (const testCase of cases) {
       const result = await generatePageBundle({
-        spec,
+        spec: testCase.spec,
         projectRoot: tempRoot,
       });
+
       expect(result.writtenFiles).toHaveLength(5);
+
+      const pageDir = join(contentRoot, "docs", ...testCase.docsSegments);
+      const registryPath = join(
+        contentRoot,
+        "registry",
+        ...testCase.registrySegments,
+      );
+      const pagePath = join(pageDir, "page.mdx");
+      const messagesPath = join(pageDir, "messages", "en.json");
+      const assetsPath = join(pageDir, "assets.json");
+
+      expect(await pathExists(pagePath)).toBe(true);
+      expect(await pathExists(messagesPath)).toBe(true);
+      expect(await pathExists(assetsPath)).toBe(true);
+      expect(await pathExists(registryPath)).toBe(true);
+
+      const pageRaw = await readFile(pagePath, "utf8");
+      const messages = JSON.parse(await readFile(messagesPath, "utf8")) as {
+        title: string;
+        description: string;
+      };
+      const registry = JSON.parse(
+        await readFile(registryPath, "utf8"),
+      ) as Record<string, unknown> & { id: string; kind: string };
+
+      expect(pageRaw).toContain(`registryId: "${registry.id}"`);
+      expect(pageRaw).toContain(`kind: "${testCase.spec.kind}"`);
+      expect(messages.title).toBe(baseSpecFields.title);
+      expect(messages.description).toBe(baseSpecFields.summary);
+      expect(registry).toMatchObject(testCase.expectedRegistryRecord);
+
+      if (testCase.expectedGraphRecord) {
+        const graphRecord = JSON.parse(
+          await readFile(
+            join(
+              contentRoot,
+              "registry",
+              "graphs",
+              testCase.expectedGraphRecord.filename,
+            ),
+            "utf8",
+          ),
+        ) as { id: string; subjectId: string };
+
+        expect(graphRecord.id).toBe(testCase.expectedGraphRecord.id);
+        expect(graphRecord.subjectId).toBe(
+          testCase.expectedGraphRecord.subjectId,
+        );
+      }
     }
-
-    expect(
-      await pathExists(
-        join(contentRoot, "docs", "models", modelSlug, "page.mdx"),
-      ),
-    ).toBe(true);
-    expect(
-      await pathExists(
-        join(contentRoot, "registry", "models", `${modelSlug}.json`),
-      ),
-    ).toBe(true);
-
-    const modelRegistry = JSON.parse(
-      await readFile(
-        join(contentRoot, "registry", "models", `${modelSlug}.json`),
-        "utf8",
-      ),
-    ) as { family: string; moduleIds: string[] };
-    expect(modelRegistry.family).toBe("gpt");
-    expect(modelRegistry.moduleIds).toEqual(["module.attention"]);
-
-    expect(
-      await pathExists(
-        join(contentRoot, "docs", "papers", paperSlug, "page.mdx"),
-      ),
-    ).toBe(true);
-    const paperPage = await readFile(
-      join(contentRoot, "docs", "papers", paperSlug, "page.mdx"),
-      "utf8",
-    );
-    expect(paperPage).toContain('registryId: "paper.generated-paper-term"');
-    expect(paperPage).not.toContain("paper.example-paper");
-
-    const paperRegistry = JSON.parse(
-      await readFile(
-        join(contentRoot, "registry", "papers", `${paperSlug}.json`),
-        "utf8",
-      ),
-    ) as { authors: string[]; url: string };
-    expect(paperRegistry.authors).toEqual(["A. Author"]);
-    expect(paperRegistry.url).toBe("https://example.com/paper");
-
-    expect(
-      await pathExists(
-        join(contentRoot, "docs", "training", regimeSlug, "page.mdx"),
-      ),
-    ).toBe(true);
-    const regimeRegistry = JSON.parse(
-      await readFile(
-        join(contentRoot, "registry", "training-regimes", `${regimeSlug}.json`),
-        "utf8",
-      ),
-    ) as { regimeType: string; relatedModuleIds: string[] };
-    expect(regimeRegistry.regimeType).toBe("pretraining");
-    expect(regimeRegistry.relatedModuleIds).toEqual(["module.attention"]);
 
     await rm(tempRoot, { recursive: true, force: true });
   });
@@ -621,6 +759,245 @@ describe("generatePageBundle", () => {
     await rm(tempRoot, { recursive: true, force: true });
   });
 
+  test("writes ontology-first registry records without deprecated typed taxonomy fields", async () => {
+    const tempRoot = await createTemplateFixtureRoot();
+    const contentRoot = await prepareContentRoots(tempRoot);
+
+    const cases: Array<{
+      kind: "concept" | "module" | "training-regime" | "system";
+      slug: string;
+      registrySegments: string[];
+      spec: PageSpec;
+      absentLegacyFields: string[];
+    }> = [
+      {
+        kind: "concept",
+        slug: "generated-ontology-first-concept",
+        registrySegments: ["concepts", "generated-ontology-first-concept.json"],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-ontology-first-concept",
+          kind: "concept",
+          primaryClassificationId: "classification.reference-workflows",
+          secondaryClassificationIds: ["classification.authoring-systems"],
+          relationships: [
+            {
+              relationshipType: "related",
+              targetId: "concept.token",
+            },
+          ],
+        }),
+        absentLegacyFields: ["conceptType", "sidebarGrouping"],
+      },
+      {
+        kind: "module",
+        slug: "generated-ontology-first-module",
+        registrySegments: ["modules", "generated-ontology-first-module.json"],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-ontology-first-module",
+          kind: "module",
+          primaryClassificationId: "classification.module.attention",
+          relationships: [
+            {
+              relationshipType: "related",
+              targetId: "module.grouped-query-attention",
+            },
+          ],
+        }),
+        absentLegacyFields: [
+          "moduleType",
+          "moduleFamily",
+          "variantGroup",
+          "sidebarGrouping",
+        ],
+      },
+      {
+        kind: "training-regime",
+        slug: "generated-ontology-first-training",
+        registrySegments: [
+          "training-regimes",
+          "generated-ontology-first-training.json",
+        ],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-ontology-first-training",
+          kind: "training-regime",
+          primaryClassificationId: "classification.training.alignment",
+          relationships: [
+            {
+              relationshipType: "used-by",
+              targetId: "model.gpt-2",
+            },
+          ],
+        }),
+        absentLegacyFields: ["regimeType", "variantGroup", "sidebarGrouping"],
+      },
+      {
+        kind: "system",
+        slug: "generated-ontology-first-system",
+        registrySegments: ["systems", "generated-ontology-first-system.json"],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-ontology-first-system",
+          kind: "system",
+          primaryClassificationId: "classification.system.routing",
+          relationships: [
+            {
+              relationshipType: "uses",
+              targetId: "module.kv-cache",
+            },
+          ],
+        }),
+        absentLegacyFields: ["systemType", "variantGroup", "sidebarGrouping"],
+      },
+    ];
+
+    try {
+      for (const testCase of cases) {
+        await generatePageBundle({
+          spec: testCase.spec,
+          projectRoot: tempRoot,
+        });
+
+        const registryPath = join(
+          contentRoot,
+          "registry",
+          ...testCase.registrySegments,
+        );
+        const registry = parseGeneratedRegistryRecord(
+          JSON.parse(await readFile(registryPath, "utf8")),
+        ) as Record<string, unknown>;
+
+        expect(registry.primaryClassificationId).toBeDefined();
+        expect(registry.secondaryClassificationIds ?? []).toEqual(
+          "secondaryClassificationIds" in testCase.spec
+            ? testCase.spec.secondaryClassificationIds
+            : [],
+        );
+        expect(registry.relationships ?? []).toEqual(
+          "relationships" in testCase.spec ? testCase.spec.relationships : [],
+        );
+
+        for (const field of testCase.absentLegacyFields) {
+          expect(registry).not.toHaveProperty(field);
+        }
+      }
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("validates generated canonical bundles for concept, module, training-regime, and system kinds", async () => {
+    const tempRoot = await createTemplateFixtureRoot();
+    const contentRoot = await prepareContentRoots(tempRoot);
+    await seedCanonicalBundleValidationFixtures(tempRoot);
+
+    const cases: Array<{
+      pageUrl: string;
+      pageDirectorySegments: string[];
+      registrySegments: string[];
+      spec: PageSpec;
+    }> = [
+      {
+        pageUrl: "/docs/concepts/generated-validated-concept",
+        pageDirectorySegments: ["concepts", "generated-validated-concept"],
+        registrySegments: ["concepts", "generated-validated-concept.json"],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-validated-concept",
+          kind: "concept",
+          primaryClassificationId: "classification.concept.architecture",
+          secondaryClassificationIds: [
+            "classification.concept.architecture.activation",
+          ],
+        }),
+      },
+      {
+        pageUrl: "/docs/modules/generated-validated-module",
+        pageDirectorySegments: ["modules", "generated-validated-module"],
+        registrySegments: ["modules", "generated-validated-module.json"],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-validated-module",
+          kind: "module",
+          primaryClassificationId: "classification.module.attention",
+          assets: {
+            comparisonTable: {
+              type: "graph",
+              graphId: "graph.generated-validated-module-compute-flow",
+              webRenderer: "react-flow",
+              printRenderer: "mermaid",
+            },
+          },
+        }),
+      },
+      {
+        pageUrl: "/docs/training/generated-validated-training",
+        pageDirectorySegments: ["training", "generated-validated-training"],
+        registrySegments: [
+          "training-regimes",
+          "generated-validated-training.json",
+        ],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-validated-training",
+          kind: "training-regime",
+          primaryClassificationId: "classification.training.alignment",
+        }),
+      },
+      {
+        pageUrl: "/docs/systems/generated-validated-system",
+        pageDirectorySegments: ["systems", "generated-validated-system"],
+        registrySegments: ["systems", "generated-validated-system.json"],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-validated-system",
+          kind: "system",
+          primaryClassificationId: "classification.system.routing",
+        }),
+      },
+    ];
+
+    try {
+      for (const testCase of cases) {
+        const result = await generatePageBundle({
+          spec: testCase.spec,
+          projectRoot: tempRoot,
+        });
+
+        expect(result.warnings).toEqual([]);
+      }
+
+      const registryRoot = join(contentRoot, "registry");
+      const docsRoot = join(contentRoot, "docs");
+      const indexes = await loadRegistry({ registryRoot });
+
+      for (const testCase of cases) {
+        const errors = await validateGeneratedPageBundle({
+          registryRoot,
+          docsRoot,
+          pageDirectory: join(
+            contentRoot,
+            "docs",
+            ...testCase.pageDirectorySegments,
+          ),
+          registryPath: join(
+            contentRoot,
+            "registry",
+            ...testCase.registrySegments,
+          ),
+          pageUrl: testCase.pageUrl,
+          indexes,
+        });
+
+        expect(errors).toEqual([]);
+      }
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   test("refuses to overwrite existing bundle files", async () => {
     const tempRoot = await createTemplateFixtureRoot();
     await prepareContentRoots(tempRoot);
@@ -637,6 +1014,33 @@ describe("generatePageBundle", () => {
 
     await expect(
       generatePageBundle({ spec, projectRoot: tempRoot }),
+    ).rejects.toThrow(GeneratePageBundleError);
+
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  test("refuses to write when a target registry artifact already exists", async () => {
+    const tempRoot = await createTemplateFixtureRoot();
+    const contentRoot = await prepareContentRoots(tempRoot);
+
+    const slug = "existing-registry-artifact";
+    await writeFile(
+      join(contentRoot, "registry", "models", `${slug}.json`),
+      JSON.stringify({ id: `model.${slug}` }),
+    );
+
+    await expect(
+      generatePageBundle({
+        spec: {
+          ...baseSpecFields,
+          slug,
+          kind: "model",
+          family: "gpt",
+          sourceType: "open-weights",
+          modalities: ["text"],
+        },
+        projectRoot: tempRoot,
+      }),
     ).rejects.toThrow(GeneratePageBundleError);
 
     await rm(tempRoot, { recursive: true, force: true });

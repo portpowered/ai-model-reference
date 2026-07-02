@@ -31,6 +31,8 @@
     "Jonathan H. Clark"
   ],
   "sourceId": "citation.gqa-paper",
+  "primaryClassificationId": "classification.module.attention.grouped-query",
+  "secondaryClassificationIds": ["classification.module.attention"],
   "moduleType": "attention",
   "moduleFamily": "attention",
   "conceptType": "attention-variant",

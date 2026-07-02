@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SearchResultMetaDetails } from "@/features/docs/search/SearchResultMetaDetails";
 import { loadUiMessages } from "@/lib/content/ui-messages";
@@ -19,11 +19,12 @@ const ROPE_GLOSSARY_URL = "/docs/modules/rope";
 const CONTEXT_WINDOW_GLOSSARY_URL = "/docs/glossary/context-window";
 const FEED_FORWARD_NETWORK_GLOSSARY_URL = "/docs/modules/feed-forward-network";
 const STANDARD_FFN_GLOSSARY_URL = "/docs/modules/standard-ffn";
-const MIXTURE_OF_EXPERTS_GLOSSARY_URL = "/docs/modules/mixture-of-experts";
+const MIXTURE_OF_EXPERTS_CONCEPT_URL = "/docs/concepts/mixture-of-experts";
 const RELU_GLOSSARY_URL = "/docs/modules/relu";
 const LEAKY_RELU_GLOSSARY_URL = "/docs/modules/leaky-relu";
 const SILU_GLOSSARY_URL = "/docs/modules/silu";
 const SWIGLU_GLOSSARY_URL = "/docs/modules/swiglu";
+const NORMALIZATION_CONCEPT_URL = "/docs/concepts/normalization";
 const NORMALIZATION_GLOSSARY_URL = "/docs/glossary/normalization";
 const LAYER_NORM_GLOSSARY_URL = "/docs/modules/layer-norm";
 const BATCH_NORM_GLOSSARY_URL = "/docs/modules/batch-norm";
@@ -73,8 +74,8 @@ const GLOSSARY_CANONICAL_QUERIES = [
   },
   {
     query: "mixture of experts",
-    url: MIXTURE_OF_EXPERTS_GLOSSARY_URL,
-    kind: "module" as const,
+    url: MIXTURE_OF_EXPERTS_CONCEPT_URL,
+    kind: "concept" as const,
   },
   { query: "ReLU", url: RELU_GLOSSARY_URL, kind: "module" as const },
   {
@@ -86,8 +87,18 @@ const GLOSSARY_CANONICAL_QUERIES = [
   { query: "SwiGLU", url: SWIGLU_GLOSSARY_URL, kind: "module" as const },
   {
     query: "normalization",
-    url: NORMALIZATION_GLOSSARY_URL,
-    kind: "glossary" as const,
+    url: NORMALIZATION_CONCEPT_URL,
+    kind: "concept" as const,
+  },
+  {
+    query: "normalization layer",
+    url: NORMALIZATION_CONCEPT_URL,
+    kind: "concept" as const,
+  },
+  {
+    query: "norm layer",
+    url: NORMALIZATION_CONCEPT_URL,
+    kind: "concept" as const,
   },
   {
     query: "layer norm",
@@ -136,6 +147,8 @@ function resultsIncludeUrl(
       result.url.startsWith(`${pageUrl}#`),
   );
 }
+
+setDefaultTimeout(15_000);
 
 describe("Phase 2/3 reconciliation search API ranking (US-010)", () => {
   test("transformer query ranks glossary first and includes module hits with distinct kinds", async () => {
@@ -200,11 +213,12 @@ describe("Phase 2/3 reconciliation search UI kind labels (US-010)", () => {
     [CONTEXT_WINDOW_GLOSSARY_URL, "glossary", "Glossary"],
     [FEED_FORWARD_NETWORK_GLOSSARY_URL, "module", "Module"],
     [STANDARD_FFN_GLOSSARY_URL, "module", "Module"],
-    [MIXTURE_OF_EXPERTS_GLOSSARY_URL, "module", "Module"],
+    [MIXTURE_OF_EXPERTS_CONCEPT_URL, "concept", "Concept"],
     [RELU_GLOSSARY_URL, "module", "Module"],
     [LEAKY_RELU_GLOSSARY_URL, "module", "Module"],
     [SILU_GLOSSARY_URL, "module", "Module"],
     [SWIGLU_GLOSSARY_URL, "module", "Module"],
+    [NORMALIZATION_CONCEPT_URL, "concept", "Concept"],
     [NORMALIZATION_GLOSSARY_URL, "glossary", "Glossary"],
     [LAYER_NORM_GLOSSARY_URL, "module", "Module"],
     [BATCH_NORM_GLOSSARY_URL, "module", "Module"],

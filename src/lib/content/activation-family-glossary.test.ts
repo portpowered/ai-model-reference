@@ -39,7 +39,7 @@ const PAGE_CASES = [
       "concept.silu",
     ],
     hrefs: [
-      "/docs/glossary/activation",
+      "/docs/concepts/activation",
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/relu",
@@ -68,7 +68,7 @@ const PAGE_CASES = [
       "concept.relu",
     ],
     hrefs: [
-      "/docs/glossary/activation",
+      "/docs/concepts/activation",
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/sigmoid",
@@ -98,7 +98,7 @@ const PAGE_CASES = [
       "concept.swiglu",
     ],
     hrefs: [
-      "/docs/glossary/activation",
+      "/docs/concepts/activation",
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/relu",
@@ -133,7 +133,7 @@ const PAGE_CASES = [
       "concept.silu",
     ],
     hrefs: [
-      "/docs/glossary/activation",
+      "/docs/concepts/activation",
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/leaky-relu",
@@ -165,7 +165,7 @@ const PAGE_CASES = [
       "concept.silu",
     ],
     hrefs: [
-      "/docs/glossary/activation",
+      "/docs/concepts/activation",
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/relu",
@@ -193,7 +193,7 @@ const PAGE_CASES = [
       "concept.swiglu",
     ],
     hrefs: [
-      "/docs/glossary/activation",
+      "/docs/concepts/activation",
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/relu",
@@ -225,7 +225,14 @@ const PAGE_CASES = [
       "/docs/modules/standard-ffn",
       "/docs/modules/mixture-of-experts",
       "/docs/modules/silu",
-      "/docs/glossary/activation",
+      "/docs/concepts/activation",
+    ],
+    curatedHrefs: [
+      "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/concepts/mixture-of-experts",
+      "/docs/modules/silu",
+      "/docs/concepts/activation",
     ],
     messageNeedles: ["gate", "silu", "mixture of experts"],
     renderNeedle: "input state enters two learned projections",
@@ -244,6 +251,7 @@ const PAGE_CASES = [
   aliases: readonly string[];
   relatedIds: readonly string[];
   hrefs: readonly string[];
+  curatedHrefs?: readonly string[];
   messageNeedles: readonly string[];
   renderNeedle: string;
   searchQuery: string;
@@ -275,7 +283,10 @@ describe("Phase 3 activation-family glossary pages", () => {
         PUBLISHED_DOCS_REGISTRY_IDS,
       );
 
-      for (const href of testCase.hrefs) {
+      const expectedHrefs =
+        "curatedHrefs" in testCase ? testCase.curatedHrefs : testCase.hrefs;
+
+      for (const href of expectedHrefs) {
         expect(
           items.some((item) => item.href === href && !item.isPlanned),
         ).toBe(true);

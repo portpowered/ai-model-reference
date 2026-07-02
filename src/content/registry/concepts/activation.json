@@ -6,7 +6,14 @@
   "defaultSummaryKey": "description",
   "aliases": ["activations", "hidden activation", "layer output"],
   "tags": ["token-to-probability-chain", "foundations"],
-  "relatedIds": ["concept.computational-graph", "concept.quantization"],
+  "relatedIds": [
+    "module.feed-forward-network",
+    "module.relu",
+    "module.leaky-relu",
+    "module.silu",
+    "module.swiglu",
+    "concept.computational-graph"
+  ],
   "citationIds": [
     "citation.goodfellow-deep-learning",
     "citation.rectified-linear-units-improve-restricted-boltzmann-machines",
@@ -15,21 +22,17 @@
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T23:00:00.000Z",
-  "primaryClassificationId": "classification.activation-functions",
+  "primaryClassificationId": "classification.concept.architecture.activation",
   "relationships": [
     {
       "relationshipType": "part-of",
-      "targetId": "classification.neural-network-components"
+      "targetId": "classification.concept.architecture"
     },
     {
       "relationshipType": "used-by",
       "targetId": "module.feed-forward-network"
     }
   ],
-  "conceptType": "architecture",
-  "sidebarGrouping": {
-    "glossary": "math-and-training"
-  },
   "prerequisiteIds": ["concept.parameter"],
   "explainsIds": []
 }

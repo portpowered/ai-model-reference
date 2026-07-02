@@ -35,8 +35,14 @@
   },
   "assets": {
     "trainingFlow": {
+      "title": "Direct Preference Optimization training flow",
       "alt": "A three-step DPO flow: prompt with preferred and rejected answers, direct preference objective against a reference model, then the updated aligned model.",
-      "caption": "DPO turns prompt-plus-preference pairs directly into policy updates instead of first training a separate reward model and PPO loop."
+      "caption": "DPO turns prompt-plus-preference pairs directly into policy updates instead of first training a separate reward model and PPO loop.",
+      "legend": {
+        "data-flow": {
+          "label": "Request and weight flow"
+        }
+      }
     }
   },
   "graph": {

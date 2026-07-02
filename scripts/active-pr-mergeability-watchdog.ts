@@ -11,6 +11,8 @@ import {
 } from "@/lib/factory/live-queue-snapshot";
 import {
   discoverQueueWorktreePrLinkageLedger,
+  formatLinkageNoiseSummaryRow,
+  partitionLinkageLanesForSummary,
   type QueueWorktreePrLinkageLane,
   sortPlannerWatchdogLanes,
 } from "@/lib/factory/queue-worktree-pr-linkage-ledger";
@@ -188,73 +190,6 @@ function buildPlannerActionQueue(
     });
 }
 
-function isQueueOnlyMissingLinkageLane(
-  lane: QueueWorktreePrLinkageLane,
-): boolean {
-  return (
-    !lane.pullRequest &&
-    !lane.worktreePath &&
-    lane.missingLinkageReasons.some((reason) =>
-      reason.includes("no matching worktree under .claude/worktrees"),
-    )
-  );
-}
-
-function isStaleFailedLoopbackLane(lane: QueueWorktreePrLinkageLane): boolean {
-  return (
-    lane.queueState === "failed" &&
-    !lane.pullRequest &&
-    lane.workTypeName === "thoughts" &&
-    lane.hasDependsOnRelation === true &&
-    lane.nextAction !== "repair-token" &&
-    !isQueueOnlyMissingLinkageLane(lane)
-  );
-}
-
-function formatNoiseWorkItems(lanes: QueueWorktreePrLinkageLane[]): string {
-  const workItems = lanes.map((lane) => lane.laneName);
-  if (workItems.length <= 3) {
-    return workItems.join(",");
-  }
-  return `${workItems.slice(0, 3).join(",")},+${workItems.length - 3} more`;
-}
-
-function formatNoiseEvidence(lanes: QueueWorktreePrLinkageLane[]): string {
-  const reasonCounts = new Map<string, number>();
-  for (const lane of lanes) {
-    for (const reason of new Set(lane.missingLinkageReasons)) {
-      reasonCounts.set(reason, (reasonCounts.get(reason) ?? 0) + 1);
-    }
-  }
-
-  return [...reasonCounts.entries()]
-    .sort((left, right) => {
-      if (right[1] !== left[1]) {
-        return right[1] - left[1];
-      }
-      return left[0].localeCompare(right[0]);
-    })
-    .slice(0, 2)
-    .map(([reason, count]) => `${count}x:${reason}`)
-    .join(" | ");
-}
-
-function formatNoiseSummaryRow(
-  noiseClass: string,
-  lanes: QueueWorktreePrLinkageLane[],
-): string {
-  const details = [
-    `noise=${noiseClass}`,
-    `count=${lanes.length}`,
-    `work-items=${formatNoiseWorkItems(lanes)}`,
-  ];
-  const evidence = formatNoiseEvidence(lanes);
-  if (evidence) {
-    details.push(`evidence=${evidence}`);
-  }
-  return `- ${details.join(" ")}`;
-}
-
 function formatLaneRow(lane: QueueWorktreePrLinkageLane): string {
   const details = [
     `status=${lane.pullRequest ? "pr-backed" : lane.linkageStatus}`,
@@ -286,6 +221,9 @@ function formatLaneRow(lane: QueueWorktreePrLinkageLane): string {
   if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
     details.push(`risk=${lane.queueMismatchRisk}`);
   }
+  if (lane.metadataRefreshHints && lane.metadataRefreshHints.length > 0) {
+    details.push(`metadata-refresh=${lane.metadataRefreshHints.join("; ")}`);
+  }
   if (lane.nextAction) {
     details.push(`next-action=${lane.nextAction}`);
   }
@@ -305,13 +243,20 @@ function formatWatchdogReportFromLedger(
 ): string {
   const orderedLanes = sortPlannerWatchdogLanes(lanes);
   const prBackedCount = lanes.filter((lane) => lane.pullRequest).length;
-  const linkedWithGapsCount = lanes.filter(
+  const {
+    actionableLanes,
+    queueOnlyMissingLinkageLanes,
+    staleFailedLoopbackLanes,
+  } = partitionLinkageLanesForSummary(lanes);
+  const actionableGapCount = actionableLanes.filter(
     (lane) => lane.linkageStatus === "linked-with-gaps",
   ).length;
+  const queueOnlyNoiseCount =
+    queueOnlyMissingLinkageLanes.length + staleFailedLoopbackLanes.length;
 
   const lines = [
     "Active PR Mergeability Watchdog",
-    `lanes=${lanes.length} pr-backed=${prBackedCount} linked-with-gaps=${linkedWithGapsCount}`,
+    `lanes=${lanes.length} pr-backed=${prBackedCount} actionable-gaps=${actionableGapCount} queue-only-noise=${queueOnlyNoiseCount}`,
   ];
 
   if (issues.length > 0) {
@@ -334,21 +279,9 @@ function formatWatchdogReportFromLedger(
     lines.push(...actionQueue);
   }
 
-  const queueOnlyMissingLinkageLanes = orderedLanes.filter(
-    isQueueOnlyMissingLinkageLane,
-  );
-  const staleFailedLoopbackLanes = orderedLanes.filter(
-    isStaleFailedLoopbackLane,
-  );
-  const detailedLanes = orderedLanes.filter(
-    (lane) =>
-      !queueOnlyMissingLinkageLanes.includes(lane) &&
-      !staleFailedLoopbackLanes.includes(lane),
-  );
-
-  if (detailedLanes.length > 0) {
+  if (actionableLanes.length > 0) {
     lines.push("");
-    for (const lane of detailedLanes) {
+    for (const lane of actionableLanes) {
       lines.push(formatLaneRow(lane));
     }
   }
@@ -361,7 +294,7 @@ function formatWatchdogReportFromLedger(
     lines.push("Noise Summary");
     if (staleFailedLoopbackLanes.length > 0) {
       lines.push(
-        formatNoiseSummaryRow(
+        formatLinkageNoiseSummaryRow(
           "stale-failed-loopbacks",
           staleFailedLoopbackLanes,
         ),
@@ -369,7 +302,7 @@ function formatWatchdogReportFromLedger(
     }
     if (queueOnlyMissingLinkageLanes.length > 0) {
       lines.push(
-        formatNoiseSummaryRow(
+        formatLinkageNoiseSummaryRow(
           "queue-only-missing-linkage",
           queueOnlyMissingLinkageLanes,
         ),

@@ -25,6 +25,7 @@ const validBaseFields = {
   status: "published" as const,
   createdAt: "2026-06-01T00:00:00.000Z",
   updatedAt: "2026-06-02T00:00:00.000Z",
+  sortOrder: 10,
 };
 
 describe("registry schemas", () => {
@@ -94,11 +95,13 @@ describe("registry schemas", () => {
   test("accepts a valid classification record", () => {
     const result = classificationRecordSchema.safeParse({
       ...validBaseFields,
-      id: "classification.activation-functions",
+      id: "classification.module.activation",
       slug: "activation-functions",
       kind: "classification",
       classificationType: "family",
-      classifiesKinds: ["module", "concept"],
+      classifiesKinds: ["module"],
+      parentClassificationId: "classification.module",
+      legacyIds: ["classification.activation-functions"],
     });
     expect(result.success).toBe(true);
   });
@@ -148,8 +151,8 @@ describe("registry schemas", () => {
       usedByModelIds: [],
       introducedByPaperIds: [],
       mathLevel: "none",
-      primaryClassificationId: "classification.activation-functions",
-      secondaryClassificationIds: ["classification.feed-forward-family"],
+      primaryClassificationId: "classification.module.activation",
+      secondaryClassificationIds: ["classification.module.feed-forward"],
       relationships: [
         {
           relationshipType: "uses",
@@ -186,7 +189,10 @@ describe("registry schemas", () => {
       "module",
       "module.grouped-query-attention",
       {
-        modules: "wrong-group" as never,
+        primaryClassificationId: "classification.module.attention",
+        sidebarGrouping: {
+          modules: "wrong-group" as never,
+        },
       },
     );
     expect(issues).toHaveLength(1);
@@ -199,12 +205,46 @@ describe("registry schemas", () => {
       "module",
       "module.grouped-query-attention",
       {
-        glossary: "model-taxonomy",
+        sidebarGrouping: {
+          glossary: "model-taxonomy",
+        },
       },
     );
     expect(issues).toHaveLength(1);
     expect(issues[0]?.message).toContain("module.grouped-query-attention");
     expect(issues[0]?.message).toContain("sidebarGrouping.glossary");
+  });
+
+  test("rejects redundant sidebar grouping overrides when ontology already resolves placement", () => {
+    const issues = validateSidebarGroupingForRecord(
+      "training-regime",
+      "training-regime.dpo",
+      {
+        primaryClassificationId: "classification.training.alignment",
+        sidebarGrouping: {
+          training: "alignment",
+        },
+      },
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0]?.message).toContain("training-regime.dpo");
+    expect(issues[0]?.message).toContain(
+      'sidebarGrouping.training = "alignment"',
+    );
+  });
+
+  test("allows explicit sidebar overrides only when ontology is still too coarse", () => {
+    const issues = validateSidebarGroupingForRecord(
+      "module",
+      "module.attention",
+      {
+        primaryClassificationId: "classification.module.attention",
+        sidebarGrouping: {
+          modules: "attention-foundations",
+        },
+      },
+    );
+    expect(issues).toHaveLength(0);
   });
 
   test("rejects tag records missing category and landingPage", () => {

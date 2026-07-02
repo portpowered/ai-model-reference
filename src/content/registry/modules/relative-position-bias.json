@@ -27,6 +27,7 @@
   "releaseDate": "2018-03-01",
   "authors": ["Peter Shaw", "Jakob Uszkoreit", "Ashish Vaswani"],
   "sourceId": "citation.self-attention-with-relative-position-representations",
+  "primaryClassificationId": "classification.module.positional-encoding",
   "moduleType": "position-encoding",
   "optimizes": ["distance-awareness"],
   "exampleModelIds": [],

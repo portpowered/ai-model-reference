@@ -1,0 +1,34 @@
+{
+  "id": "training-regime.distillation",
+  "slug": "distillation",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["distillation", "model distillation", "knowledge distillation"],
+  "tags": ["foundations"],
+  "relatedIds": ["training-regime.on-policy-distillation"],
+  "citationIds": ["citation.on-policy-distillation-of-language-models"],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "releaseDate": "2024-01-16",
+  "authors": [
+    "Rishabh Agarwal",
+    "Nino Vieillard",
+    "Yongchao Zhou",
+    "Piotr Stanczyk",
+    "Sabela Ramos Garea",
+    "Matthieu Geist",
+    "Olivier Bachem"
+  ],
+  "sourceId": "citation.on-policy-distillation-of-language-models",
+  "regimeType": "distillation",
+  "sidebarGrouping": {
+    "training": "distillation"
+  },
+  "usedByModelIds": [],
+  "relatedModuleIds": [],
+  "paperIds": [],
+  "conceptType": "training",
+  "variantGroup": "distillation-overview"
+}

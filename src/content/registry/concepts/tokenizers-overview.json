@@ -19,6 +19,8 @@
     "concept.transformer-architecture",
     "module.sentencepiece",
     "module.bpe",
+    "module.byte-level-tokenization",
+    "module.clip-image-tokenization",
     "module.unigram-tokenizer",
     "module.wordpiece",
     "model.gpt-3"
@@ -31,13 +33,13 @@
   "status": "published",
   "createdAt": "2026-06-18T20:45:43Z",
   "updatedAt": "2026-06-21T00:00:00Z",
+  "primaryClassificationId": "classification.concept.architecture",
   "conceptType": "architecture",
-  "sidebarGrouping": {
-    "concepts": "architecture"
-  },
   "prerequisiteIds": ["concept.token"],
   "explainsIds": [
     "module.bpe",
+    "module.byte-level-tokenization",
+    "module.clip-image-tokenization",
     "module.wordpiece",
     "module.sentencepiece",
     "module.unigram-tokenizer"

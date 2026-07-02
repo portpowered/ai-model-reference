@@ -1,0 +1,61 @@
+---
+title: "Continuous Batching"
+description: "A serving system that keeps an active decode set refilled as requests finish or become compatible, so accelerators spend less time waiting for a whole batch to turn over."
+kind: "system"
+registryId: "system.continuous-batching"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - kv-cache
+aliases:
+  - "continuous batching"
+  - "continuous decode batching"
+  - "decode refill"
+  - "static vs continuous batching"
+updatedAt: "2026-06-22"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { SystemAtAGlance } from "@/features/models/components/SystemAtAGlance";
+import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
+
+
+<SystemAtAGlance registryId="system.continuous-batching" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="where-it-sits" titleKey="sections.whereItSits.title">
+  <T k="sections.whereItSits.body" />
+</Section>
+
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+  <SystemFlowGraph registryId="system.continuous-batching" assetId="systemFlow" />
+</Section>
+
+<Section id="practical-impact" titleKey="sections.practicalImpact.title">
+  <T k="sections.practicalImpact.body" />
+  <BlockMath formula="\\text{throughput gain} \\approx \\frac{\\text{active decode slots kept busy}}{\\text{idle slots after request completion}}, \\quad \\text{latency risk} \\approx \\text{queue policy} + \\text{fairness overhead}" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <T k="sections.related.body" />
+  <RelatedDocs registryId="system.continuous-batching" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="system.continuous-batching" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="system.continuous-batching" />
+</Section>

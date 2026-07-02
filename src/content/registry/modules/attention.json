@@ -4,9 +4,10 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["attention", "self-attention"],
+  "aliases": ["attention"],
   "tags": ["attention"],
   "relatedIds": [
+    "concept.self-attention",
     "module.multi-head-attention",
     "module.multi-query-attention",
     "module.grouped-query-attention",
@@ -31,6 +32,7 @@
     "Illia Polosukhin"
   ],
   "sourceId": "citation.attention-is-all-you-need",
+  "primaryClassificationId": "classification.module.attention",
   "moduleType": "attention",
   "moduleFamily": "attention",
   "optimizes": ["context-mixing", "sequence-modeling"],

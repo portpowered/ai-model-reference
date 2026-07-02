@@ -16,6 +16,7 @@
     "concept.prefill",
     "concept.decode",
     "concept.kv-cache",
+    "system.batching",
     "concept.autoregressive-generation",
     "module.attention",
     "module.multi-query-attention",

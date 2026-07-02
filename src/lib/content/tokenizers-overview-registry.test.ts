@@ -34,12 +34,16 @@ describe("tokenizers overview registry", () => {
       "concept.transformer-architecture",
       "module.sentencepiece",
       "module.bpe",
+      "module.byte-level-tokenization",
+      "module.clip-image-tokenization",
       "module.unigram-tokenizer",
       "module.wordpiece",
       "model.gpt-3",
     ]);
     expect(record.explainsIds).toEqual([
       "module.bpe",
+      "module.byte-level-tokenization",
+      "module.clip-image-tokenization",
       "module.wordpiece",
       "module.sentencepiece",
       "module.unigram-tokenizer",

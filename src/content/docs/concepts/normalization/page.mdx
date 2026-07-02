@@ -1,0 +1,96 @@
+---
+title: Normalization
+description: Keeping activations on a predictable scale so deep model stacks stay trainable and their sublayers receive stable inputs.
+kind: "concept"
+registryId: "concept.normalization"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - "normalization"
+  - "foundations"
+aliases:
+  - "normalization layer"
+  - "norm layer"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section
+  id="when-to-open-a-variant-page"
+  titleKey="sections.whenToOpenAVariantPage.title"
+>
+  <T k="sections.whenToOpenAVariantPage.body" />
+
+  <ul className="mt-4 space-y-2 list-none pl-0">
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/layer-norm"
+      >
+        Layer norm
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/rmsnorm"
+      >
+        RMSNorm
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/batch-norm"
+      >
+        Batch norm
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/group-norm"
+      >
+        Group norm
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/qk-norm"
+      >
+        QK norm
+      </a>
+    </li>
+  </ul>
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="concept.normalization" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.normalization" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.normalization" />
+</Section>

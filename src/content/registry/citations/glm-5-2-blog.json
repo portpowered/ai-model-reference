@@ -1,0 +1,20 @@
+{
+  "id": "citation.glm-5-2-blog",
+  "slug": "glm-5-2-blog",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GLM-5.2 blog", "GLM-5.2 release post"],
+  "tags": ["foundations", "model-family", "context-window"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["Z.ai"],
+  "title": "GLM-5.2: Built for Long-Horizon Tasks",
+  "url": "https://huggingface.co/blog/zai-org/glm-52-blog",
+  "mla": "Z.ai. \"GLM-5.2: Built for Long-Horizon Tasks.\" Hugging Face blog, 2026.",
+  "year": 2026
+}

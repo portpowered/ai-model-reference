@@ -20,7 +20,7 @@ const FOOTER_CONTRACT_HTML = `
       <div class="inline-flex items-center gap-1.5 font-medium"><p>Scaling Law</p></div>
       <p class="text-fd-muted-foreground truncate">Previous Page</p>
     </a>
-    <a class="flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground text-end" href="/docs/glossary/embedding">
+    <a class="flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground text-end" href="/docs/concepts/embedding">
       <div class="inline-flex items-center gap-1.5 font-medium flex-row-reverse"><p>Embedding</p></div>
       <p class="text-fd-muted-foreground truncate">Next Page</p>
     </a>

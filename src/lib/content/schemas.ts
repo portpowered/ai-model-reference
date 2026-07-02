@@ -1,73 +1,29 @@
 import { z } from "zod";
+import {
+  baseRecordShape,
+  citationRecordSchema,
+  classificationRecordSchema,
+  ontologyMembershipShape,
+  registryStatusSchema,
+  tagRecordSchema,
+} from "./registry-core";
 import type { SidebarGrouping } from "./sidebar-grouping";
 
-export const registryKindSchema = z.enum([
-  "model",
-  "module",
-  "concept",
-  "classification",
-  "paper",
-  "training-regime",
-  "system",
-  "dataset",
-  "hardware",
-  "organization",
-  "citation",
-  "tag",
-  "graph",
-]);
-
-export const registryStatusSchema = z.enum(["draft", "published", "archived"]);
-
-export const ontologyParticipantKindSchema = z.enum([
-  "model",
-  "module",
-  "concept",
-  "paper",
-  "training-regime",
-  "system",
-  "dataset",
-]);
-
-export const ontologyRelationshipTypeSchema = z.enum([
-  "variant",
-  "part-of",
-  "uses",
-  "used-by",
-  "explains",
-  "prerequisite",
-  "related",
-]);
-
-export const ontologyRelationshipSchema = z.object({
-  relationshipType: ontologyRelationshipTypeSchema,
-  targetId: z.string().min(1),
-});
-
-const ontologyMembershipShape = {
-  primaryClassificationId: z.string().min(1).optional(),
-  secondaryClassificationIds: z.array(z.string().min(1)).optional(),
-  relationships: z.array(ontologyRelationshipSchema).optional(),
-};
-
-const baseRecordShape = {
-  id: z.string().min(1),
-  slug: z.string().min(1),
-  defaultTitleKey: z.string().min(1),
-  defaultSummaryKey: z.string().min(1),
-  aliases: z.array(z.string()),
-  tags: z.array(z.string()),
-  relatedIds: z.array(z.string()),
-  citationIds: z.array(z.string()),
-  status: registryStatusSchema,
-  createdAt: z.string().min(1),
-  updatedAt: z.string().min(1),
-};
-
-export const baseRecordSchema = z.object({
-  ...baseRecordShape,
-  kind: registryKindSchema,
-});
+export {
+  baseRecordSchema,
+  citationRecordSchema,
+  citationTypeSchema,
+  classificationRecordSchema,
+  classificationTypeSchema,
+  ontologyParticipantKindSchema,
+  ontologyRelationshipSchema,
+  ontologyRelationshipTypeSchema,
+  registryKindSchema,
+  registryStatusSchema,
+  tagCategorySchema,
+  tagLandingPageSchema,
+  tagRecordSchema,
+} from "./registry-core";
 
 export const moduleTypeSchema = z.enum([
   "attention",
@@ -108,7 +64,7 @@ export const moduleRecordSchema = z.object({
   kind: z.literal("module"),
   ...releaseMetadataShape,
   ...ontologyMembershipShape,
-  moduleType: moduleTypeSchema,
+  moduleType: moduleTypeSchema.optional(),
   optimizes: z.array(z.string()),
   exampleModelIds: z.array(z.string()),
   improvesOnIds: z.array(z.string()),
@@ -121,55 +77,6 @@ export const moduleRecordSchema = z.object({
   variantGroup: z.string().optional(),
   variantOf: z.string().optional(),
   sidebarGrouping: sidebarGroupingSchema,
-});
-
-export const tagCategorySchema = z.enum([
-  "architecture",
-  "module-type",
-  "training",
-  "inference",
-  "systems",
-  "modality",
-  "paper-topic",
-  "model-family",
-  "difficulty",
-]);
-
-export const tagLandingPageSchema = z.enum([
-  "search",
-  "generated-tag-page",
-  "custom-doc-page",
-]);
-
-export const tagRecordSchema = z.object({
-  ...baseRecordShape,
-  kind: z.literal("tag"),
-  category: tagCategorySchema,
-  landingPage: tagLandingPageSchema,
-  parentTagId: z.string().optional(),
-  searchBoost: z.number().optional(),
-  customPageId: z.string().optional(),
-});
-
-export const citationTypeSchema = z.enum([
-  "paper",
-  "blog",
-  "documentation",
-  "repository",
-  "dataset",
-  "other",
-]);
-
-export const citationRecordSchema = z.object({
-  ...baseRecordShape,
-  kind: z.literal("citation"),
-  citationType: citationTypeSchema,
-  authors: z.array(z.string()).min(1),
-  title: z.string().min(1),
-  url: z.string().url(),
-  mla: z.string().min(1),
-  year: z.number().int().optional(),
-  accessedAt: z.string().optional(),
 });
 
 export const conceptTypeSchema = z.enum([
@@ -187,26 +94,10 @@ export const conceptRecordSchema = z.object({
   kind: z.literal("concept"),
   ...releaseMetadataShape,
   ...ontologyMembershipShape,
-  conceptType: conceptTypeSchema,
+  conceptType: conceptTypeSchema.optional(),
   prerequisiteIds: z.array(z.string()),
   explainsIds: z.array(z.string()),
   sidebarGrouping: sidebarGroupingSchema,
-});
-
-export const classificationTypeSchema = z.enum([
-  "domain",
-  "family",
-  "mechanism",
-  "topology",
-  "behavior",
-]);
-
-export const classificationRecordSchema = z.object({
-  ...baseRecordShape,
-  kind: z.literal("classification"),
-  classificationType: classificationTypeSchema,
-  classifiesKinds: z.array(ontologyParticipantKindSchema).min(1),
-  parentClassificationId: z.string().min(1).optional(),
 });
 
 export const modelSourceTypeSchema = z.enum([
@@ -276,7 +167,7 @@ export const trainingRegimeRecordSchema = z.object({
   kind: z.literal("training-regime"),
   ...releaseMetadataShape,
   ...ontologyMembershipShape,
-  regimeType: trainingRegimeTypeSchema,
+  regimeType: trainingRegimeTypeSchema.optional(),
   usedByModelIds: z.array(z.string()),
   relatedModuleIds: z.array(z.string()),
   paperIds: z.array(z.string()),
@@ -300,7 +191,7 @@ export const systemRecordSchema = z.object({
   kind: z.literal("system"),
   ...releaseMetadataShape,
   ...ontologyMembershipShape,
-  systemType: systemTypeSchema,
+  systemType: systemTypeSchema.optional(),
   relatedModelIds: z.array(z.string()),
   relatedModuleIds: z.array(z.string()),
   relatedConceptIds: z.array(z.string()),
@@ -386,6 +277,7 @@ export const moduleGraphNodeKindSchema = z.enum([
 export const moduleGraphEdgeKindSchema = z.enum([
   "data-flow",
   "control-flow",
+  "depends-on",
   "residual",
   "conditioning",
   "cache-read",
@@ -429,6 +321,8 @@ export const moduleGraphNodeSchema = z.object({
   labelKey: z.string().min(1),
   summaryKey: z.string().optional(),
   registryId: z.string().optional(),
+  relatedRegistryId: z.string().optional(),
+  relatedHref: z.string().min(1).optional(),
   moduleKind: moduleGraphNodeKindSchema,
   position: z
     .object({
@@ -527,9 +421,15 @@ const pageAssetVariantLabelSchema = z.object({
   label: z.string().min(1),
 });
 
+const pageAssetLegendItemSchema = z.object({
+  label: z.string().min(1),
+});
+
 const pageAssetMessageSchema = z.object({
   alt: z.string().optional(),
   caption: z.string().optional(),
+  title: z.string().optional(),
+  legend: z.record(z.string(), pageAssetLegendItemSchema).optional(),
   variants: z.record(z.string(), pageAssetVariantLabelSchema).optional(),
 });
 
@@ -678,27 +578,28 @@ export const pageAssetSchema = z.discriminatedUnion("type", [
 
 export const pageAssetConfigSchema = z.record(z.string(), pageAssetSchema);
 
-export type RegistryKind = z.infer<typeof registryKindSchema>;
-export type RegistryStatus = z.infer<typeof registryStatusSchema>;
-export type BaseRecord = z.infer<typeof baseRecordSchema>;
+export type {
+  BaseRecord,
+  CitationRecord,
+  ClassificationRecord,
+  OntologyParticipantKind,
+  OntologyRelationship,
+  OntologyRelationshipType,
+  RegistryKind,
+  RegistryStatus,
+  TagRecord,
+} from "./registry-core";
 export type ModuleRecord = z.infer<typeof moduleRecordSchema>;
 export type ConceptRecord = z.infer<typeof conceptRecordSchema>;
-export type ClassificationRecord = z.infer<typeof classificationRecordSchema>;
 export type ModelRecord = z.infer<typeof modelRecordSchema>;
 export type PaperRecord = z.infer<typeof paperRecordSchema>;
 export type TrainingRegimeRecord = z.infer<typeof trainingRegimeRecordSchema>;
 export type SystemRecord = z.infer<typeof systemRecordSchema>;
 export type DatasetRecord = z.infer<typeof datasetRecordSchema>;
 export type OrganizationRecord = z.infer<typeof organizationRecordSchema>;
-export type OntologyParticipantKind = z.infer<
-  typeof ontologyParticipantKindSchema
->;
-export type OntologyRelationship = z.infer<typeof ontologyRelationshipSchema>;
 export type GeneratedPageBundleRegistryRecord = z.infer<
   typeof generatedPageBundleRegistryRecordSchema
 >;
-export type TagRecord = z.infer<typeof tagRecordSchema>;
-export type CitationRecord = z.infer<typeof citationRecordSchema>;
 export type GraphRecord = z.infer<typeof graphRecordSchema>;
 export type ModuleGraphNode = z.infer<typeof moduleGraphNodeSchema>;
 export type ModuleGraphEdge = z.infer<typeof moduleGraphEdgeSchema>;

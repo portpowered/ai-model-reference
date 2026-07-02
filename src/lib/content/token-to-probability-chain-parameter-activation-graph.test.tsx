@@ -51,7 +51,7 @@ describe("Phase 2 parameter, activation, and computational graph glossary pages 
 
     expect(html).toContain("Parameter");
     expect(html).toContain("What It Is");
-    expect(html).toContain('href="/docs/glossary/activation"');
+    expect(html).toContain('href="/docs/concepts/activation"');
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
   });
 

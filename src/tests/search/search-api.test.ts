@@ -28,6 +28,8 @@ import {
   TEST_DOCS_SEARCH_URL,
 } from "./route-fetch";
 
+const LIVE_SEARCH_API_GATE_TIMEOUT_MS = 15_000;
+
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
 const ACTIVATION_GLOSSARY_URL = "/docs/glossary/activation";
@@ -192,16 +194,20 @@ describe("live /api/search HTTP contract", () => {
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
-  test("GET accepts classification=activation without a query and returns activation-family results", async () => {
-    const response = await GET(
-      new Request("http://localhost/api/search?classification=activation"),
-    );
-    expect(response.ok).toBe(true);
+  test(
+    "GET accepts classification=activation without a query and returns activation-family results",
+    async () => {
+      const response = await GET(
+        new Request("http://localhost/api/search?classification=activation"),
+      );
+      expect(response.ok).toBe(true);
 
-    const results = (await response.json()) as Array<{ url: string }>;
-    const urls = results.map((result) => result.url);
-    expect(urls).toEqual(expect.arrayContaining([RELU_URL, LEAKY_RELU_URL]));
-  });
+      const results = (await response.json()) as Array<{ url: string }>;
+      const urls = results.map((result) => result.url);
+      expect(urls).toEqual(expect.arrayContaining([RELU_URL, LEAKY_RELU_URL]));
+    },
+    { timeout: LIVE_SEARCH_API_GATE_TIMEOUT_MS },
+  );
 
   test("GET accepts canonical classification IDs and combines query text with the classification scope", async () => {
     const response = await GET(
@@ -276,6 +282,16 @@ describe("docsSearchApi", () => {
     const results = await docsSearchApi.search("GQA");
     expect(results.length).toBeGreaterThan(0);
     expectUniqueCanonicalPageUrls(results.map((result) => result.url));
+  });
+
+  test("search ranks the canonical self-attention concept first for exact reader queries", async () => {
+    const hyphenatedResults = await docsSearchApi.search("self-attention");
+    const spacedResults = await docsSearchApi.search("self attention");
+
+    expect(hyphenatedResults.length).toBeGreaterThan(0);
+    expect(spacedResults.length).toBeGreaterThan(0);
+    expect(hyphenatedResults[0]?.url).toBe("/docs/concepts/self-attention");
+    expect(spacedResults[0]?.url).toBe("/docs/concepts/self-attention");
   });
 
   test.each([
@@ -497,6 +513,28 @@ describe("docs search static client", () => {
 
       expect(results.length).toBeGreaterThan(0);
       expect(results[0]?.url).toBe(SAMPLE_URL);
+    });
+  });
+
+  test("orama static client returns the canonical self-attention page for exact reader queries before app-level reranking", async () => {
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const hyphenatedResults = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "self-attention"),
+        (candidateResults) =>
+          candidateResults[0]?.url === "/docs/concepts/self-attention",
+      );
+      const spacedResults = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "self attention"),
+        (candidateResults) =>
+          resultsIncludeUrl(candidateResults, "/docs/concepts/self-attention"),
+      );
+
+      expect(hyphenatedResults.length).toBeGreaterThan(0);
+      expect(spacedResults.length).toBeGreaterThan(0);
+      expect(hyphenatedResults[0]?.url).toBe("/docs/concepts/self-attention");
+      expect(
+        resultsIncludeUrl(spacedResults, "/docs/concepts/self-attention"),
+      ).toBe(true);
     });
   });
 

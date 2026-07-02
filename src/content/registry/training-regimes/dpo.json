@@ -11,7 +11,7 @@
     "preference optimization"
   ],
   "tags": ["alignment", "foundations"],
-  "relatedIds": ["concept.alignment"],
+  "relatedIds": ["concept.alignment", "training-regime.grpo"],
   "citationIds": ["citation.direct-preference-optimization"],
   "status": "published",
   "createdAt": "2026-06-19T00:00:00.000Z",
@@ -26,13 +26,11 @@
     "Chelsea Finn"
   ],
   "sourceId": "citation.direct-preference-optimization",
+  "primaryClassificationId": "classification.training.alignment",
   "regimeType": "alignment",
   "usedByModelIds": [],
   "relatedModuleIds": [],
   "paperIds": [],
   "conceptType": "training",
-  "variantGroup": "alignment-preference-optimization",
-  "sidebarGrouping": {
-    "training": "alignment"
-  }
+  "variantGroup": "alignment-preference-optimization"
 }

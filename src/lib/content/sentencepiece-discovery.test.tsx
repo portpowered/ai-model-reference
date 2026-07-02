@@ -24,19 +24,38 @@ describe("sentencepiece tokenization discovery surfaces (sentencepiece-page-003)
       messages,
       "en",
     );
+    const modelGroup = groups.find((group) => group.kind === "model");
     const conceptGroup = groups.find((group) => group.kind === "concept");
     const moduleGroup = groups.find((group) => group.kind === "module");
+    const trainingGroup = groups.find(
+      (group) => group.kind === "training-regime",
+    );
 
     expect(context?.title).toBe("Tokenization");
     expect(context?.summary.length).toBeGreaterThan(0);
     expect(context?.categoryLabel).toBe("Module type");
     expect(groups.map((group) => group.kind)).toEqual([
+      "model",
       "module",
       "concept",
+      "paper",
+      "training-regime",
       "glossary",
     ]);
+    expect(modelGroup?.kindLabel).toBe("Model");
+    expect(modelGroup?.resources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "model",
+          slug: "qwen3-0-6b",
+          title: "Qwen3-0.6B",
+          url: "/docs/models/qwen3-0-6b",
+        }),
+      ]),
+    );
     expect(moduleGroup?.kindLabel).toBe("Module");
     expect(conceptGroup?.kindLabel).toBe("Concept");
+    expect(trainingGroup?.kindLabel).toBe("Training");
     expect(conceptGroup?.resources).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -54,6 +73,26 @@ describe("sentencepiece tokenization discovery surfaces (sentencepiece-page-003)
           slug: "sentencepiece",
           title: "SentencePiece",
           url: SENTENCEPIECE_URL,
+        }),
+      ]),
+    );
+    expect(trainingGroup?.resources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "training-regime",
+          slug: "pretraining",
+          title: "Pretraining",
+          url: "/docs/training/pretraining",
+        }),
+      ]),
+    );
+    expect(groups.find((group) => group.kind === "paper")?.resources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "paper",
+          slug: "gpt-2-report",
+          title: "GPT-2 Report",
+          url: "/docs/papers/gpt-2-report",
         }),
       ]),
     );

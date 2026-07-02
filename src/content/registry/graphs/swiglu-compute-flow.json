@@ -10,7 +10,7 @@
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
-  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
   "subjectId": "concept.swiglu",
   "graphType": "module-compute-flow",
   "rootNodeId": "input-state",
@@ -18,6 +18,17 @@
   "defaultExpandedDepth": 1,
   "supportedRenderers": ["react-flow", "mermaid"],
   "nodes": [
+    {
+      "id": "swiglu-module",
+      "labelKey": "graph.nodes.swigluModule.label",
+      "summaryKey": "graph.nodes.swigluModule.summary",
+      "registryId": "module.swiglu",
+      "moduleKind": "feed-forward",
+      "position": { "x": -10, "y": 18 },
+      "size": { "width": 150, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
     {
       "id": "input-state",
       "labelKey": "graph.nodes.inputState.label",
@@ -53,6 +64,8 @@
     {
       "id": "gate-activation",
       "labelKey": "graph.nodes.gateActivation.label",
+      "summaryKey": "graph.nodes.gateActivation.summary",
+      "registryId": "module.silu",
       "moduleKind": "operation",
       "position": { "x": 450, "y": 220 },
       "visualRole": "process-node",
@@ -61,6 +74,7 @@
     {
       "id": "gated-product",
       "labelKey": "graph.nodes.gatedProduct.label",
+      "summaryKey": "graph.nodes.gatedProduct.summary",
       "moduleKind": "feed-forward",
       "position": { "x": 250, "y": 330 },
       "visualRole": "process-node",
@@ -112,13 +126,13 @@
       "id": "value-branch-to-product",
       "source": "value-branch",
       "target": "gated-product",
-      "edgeKind": "data-flow"
+      "edgeKind": "depends-on"
     },
     {
       "id": "gate-activation-to-product",
       "source": "gate-activation",
       "target": "gated-product",
-      "edgeKind": "data-flow"
+      "edgeKind": "depends-on"
     },
     {
       "id": "product-to-project",
