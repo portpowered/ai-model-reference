@@ -1,4 +1,6 @@
 ## Codebase Patterns
+- Roofline explorer math lives in `src/features/roofline-throughput-explorer/roofline-throughput-calculation.ts`; use `computeRooflineScenario` for point scenarios and `sampleMaximumThroughputBoundarySeries` for chart boundaries. Registry-backed model sizes come from `getRooflineModelSizePresets()` in `src/lib/content/roofline-model-size-presets.ts` at build time, not inside the calculation module.
+- `RooflineThroughputExplorer` in `src/features/roofline-throughput-explorer/RooflineThroughputExplorer.tsx` builds chart state via `buildRooflineThroughputChartModel` and renders through `GraphFrame` + Recharts (`Line` boundary + `ReferenceDot` active scenario); reuse chart label constants from `roofline-throughput-chart.ts` in tests.
 - Concept registry ids route to `/docs/concepts/<slug>` only after adding to `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS` in `published-docs-registry-ids.ts`; until then glossary pages at `/docs/glossary/<slug>` remain the live surface.
 - Serving-path glossary concepts (`prefill`, `decode`, `kv-cache`, `prefill-decode-split`) share tags `foundations`, `attention`, and `kv-cache` for attention-tag discovery without new taxonomy tags.
 - Registry `relatedIds` on `concept.prefill-decode-split` should stay limited to serving foundations (`prefill`, `decode`, `kv-cache`, `autoregressive-generation`); attention modules and transformer links belong on inbound records, not on the split concept itself.
@@ -62,4 +64,24 @@
   - Keep `progress.txt` / `prd.json` local-only commits off the review branch; reset soft and recommit code-only fixes when a progress chore commit was pushed accidentally.
   - Long `await docsSearchApi.search(...)` assignments may need Biome line breaks even when tests otherwise pass.
   - When `main` migrates glossary pages to concepts in parallel, merge conflicts often duplicate `conceptGroup` assertions—merge into one `arrayContaining` block instead of redeclaring the variable.
+---
+
+## 2026-07-02T21:00:00Z - roofline-throughput-explorer-feature-001
+- Added local roofline calculation module at `src/features/roofline-throughput-explorer/roofline-throughput-calculation.ts` with `computeRooflineScenario`, `sampleMaximumThroughputBoundarySeries`, and shared `RooflineInvalidResult` typing for inline UI errors.
+- Implemented memory-bound throughput math from explicit `activeWeightSizeBillions`, `bytesPerParameter`, and `memoryBandwidthGbps` inputs with a default peak-compute ceiling; valid outputs are sanitized to finite non-negative values.
+- Added focused unit tests covering valid scenarios, invalid/incomplete inputs, boundary-series monotonicity, and active-weight-byte derivation.
+- **Learnings for future iterations:**
+  - Keep roofline math in `src/features/roofline-throughput-explorer/`; consume `getRooflineModelSizePresets()` only at the blog/page wrapper layer in later stories.
+  - Use `RooflineInvalidResult` field/reason pairs for component inline errors instead of throwing during render.
+  - Story 002 should wire `sampleMaximumThroughputBoundarySeries` into a Recharts chart via existing `LineGraph`/`GraphFrame` patterns under `src/features/graphs/components/`.
+---
+
+## 2026-07-02T21:25:00Z - roofline-throughput-explorer-feature-002
+- Added `RooflineThroughputExplorer` client component with `GraphFrame` + Recharts roofline chart: titled surface, memory-bandwidth X axis, compute FLOPs/s Y axis, legend for maximum-throughput boundary and active scenario, boundary line from `sampleMaximumThroughputBoundarySeries`, and active-scenario `ReferenceDot`.
+- Added `buildRooflineThroughputChartModel` and tick formatters in `roofline-throughput-chart.ts` so chart and tests share one chart-model contract; invalid inputs render an accessible `role="alert"` inline state instead of throwing.
+- Added component and chart-model tests for title/axis/legend presence, boundary line render, scenario recomputation on input changes, and invalid-input handling; production `bun run build` passes.
+- **Learnings for future iterations:**
+  - In the current simplified roofline math, memory-bound throughput at a fixed bandwidth is independent of active weight size (only bytes-per-parameter shifts the boundary); model-size knees appear only when peak compute caps the scenario inside the chart domain.
+  - `ReferenceDot` in this Recharts version does not accept `isFront`; rely on render order and chart margins instead.
+  - Story 003 should pass registry-derived presets as props and wire preset selection to initialize scenario inputs; browser route verification awaits first blog post integration.
 ---
