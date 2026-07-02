@@ -66,6 +66,10 @@ export {
   StructuralNode,
 } from "./RegistryGraphFlow";
 export {
+  isRooflineChartId,
+  RooflineTeachingChart,
+} from "./RooflineTeachingChart";
+export {
   buildRegistryGraphFlowNodeThemeStyle,
   REGISTRY_GRAPH_FLOW_INTERACTION,
   REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE,
