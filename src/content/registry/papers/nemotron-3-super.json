@@ -32,7 +32,10 @@
   ],
   "arguesAgainstIds": [],
   "modelIds": ["model.nemotron-3-super"],
-  "moduleIds": ["module.mixture-of-experts"],
+  "moduleIds": [
+    "module.mixture-of-experts",
+    "module.mamba-selective-state-space"
+  ],
   "conceptIds": [
     "concept.transformer-architecture",
     "concept.context-extension",
