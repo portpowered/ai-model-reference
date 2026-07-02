@@ -13,7 +13,7 @@
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "For each training prompt, the current model samples multiple candidate answers. A reward or preference signal scores those answers, and GRPO turns the scores into relative advantages inside the group: answers that beat the group average are reinforced, while weaker answers are discouraged. The policy update follows that grouped comparison rather than a single static pair."
+      "body": "For each training prompt, the current model samples several candidate answers from the same policy. A reward or preference signal scores every answer in that group. Group Relative Preference Optimization then compares those scores relative to one another: answers that beat the group average receive a positive training signal, while weaker answers are pushed down. The policy update follows that within-group ranking instead of a single fixed preferred-versus-rejected pair."
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
@@ -45,16 +45,44 @@
       }
     }
   },
+  "math": {
+    "groupedRelativeAdvantage": {
+      "label": "Grouped relative advantage",
+      "formula": "A_i \\approx \\frac{r_i - \\bar{r}_G}{\\sigma_G + \\epsilon}",
+      "variableDefinitions": {
+        "ai": {
+          "term": "A_i",
+          "definition": "relative advantage for sample i"
+        },
+        "ri": {
+          "term": "r_i",
+          "definition": "reward or preference score for sample i"
+        },
+        "rbar": {
+          "term": "\\bar{r}_G",
+          "definition": "mean score across the prompt group"
+        },
+        "sigma": {
+          "term": "\\sigma_G",
+          "definition": "standard deviation of scores in the group"
+        },
+        "epsilon": {
+          "term": "\\epsilon",
+          "definition": "small stabilizer constant"
+        }
+      }
+    }
+  },
   "graph": {
     "nodes": {
       "samples": {
-        "label": "Prompt + sampled answer group"
+        "label": "Prompt +\nsampled answers"
       },
       "relativeObjective": {
-        "label": "Grouped relative objective"
+        "label": "Within-group\nrelative advantage"
       },
       "updatedModel": {
-        "label": "Updated aligned model"
+        "label": "Policy-updated\nmodel"
       }
     }
   }

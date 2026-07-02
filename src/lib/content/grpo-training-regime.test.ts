@@ -1,7 +1,15 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { createElement } from "react";
 import { renderToReadableStream } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import {
+  parsePageAssetConfig,
+  validatePageAssetReferences,
+} from "@/lib/content/assets";
+import { getDocsPageDir } from "@/lib/content/content-paths";
+import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -11,12 +19,25 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { pageMessagesSchema } from "@/lib/content/schemas";
 import { loadTrainingRegimePage } from "@/lib/content/training-regime-page";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import { docsSearchApi } from "@/lib/search/search-server";
 
 const PAGE_URL = "/docs/training/grpo";
+
+function loadGrpoPageBundle() {
+  const pageDir = getDocsPageDir("training", "grpo");
+  return {
+    messages: pageMessagesSchema.parse(
+      JSON.parse(readFileSync(join(pageDir, "messages", "en.json"), "utf8")),
+    ),
+    assets: JSON.parse(readFileSync(join(pageDir, "assets.json"), "utf8")) as {
+      trainingFlow: { type: string; graphId: string };
+    },
+  };
+}
 
 async function renderHtml(
   element: ReturnType<typeof createElement>,
@@ -74,8 +95,18 @@ describe("GRPO training-regime page contracts", () => {
     expect(page.messages.description).toContain("groupwise alignment");
     expect(page.messages.openingSummary).toContain("usually shortened to GRPO");
     expect(page.messages.sections?.howItWorks.body).toContain(
-      "multiple candidate answers",
+      "samples several candidate answers",
     );
+    expect(page.messages.sections?.howItWorks.body).toContain(
+      "relative to one another",
+    );
+    expect(page.messages.math?.groupedRelativeAdvantage?.formula).toBe(
+      "A_i \\approx \\frac{r_i - \\bar{r}_G}{\\sigma_G + \\epsilon}",
+    );
+    expect(
+      page.messages.math?.groupedRelativeAdvantage?.variableDefinitions?.ri
+        ?.definition,
+    ).toBe("reward or preference score for sample i");
     expect(page.assets.trainingFlow).toMatchObject({
       type: "graph",
       graphId: "graph.grpo-training-flow",
@@ -150,6 +181,83 @@ describe("GRPO training-regime page contracts", () => {
     expect(html).toContain("grouped relative rankings");
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("on this page");
+  });
+
+  test("local asset config resolves the GRPO graph with message-backed references", () => {
+    const page = loadGrpoPageBundle();
+    const assets = parsePageAssetConfig(page.assets);
+
+    expect(assets.trainingFlow.type).toBe("graph");
+    if (assets.trainingFlow.type === "graph") {
+      expect(assets.trainingFlow.graphId).toBe("graph.grpo-training-flow");
+    }
+    expect(validatePageAssetReferences(assets, page.messages)).toEqual([]);
+    expect(page.messages.assets?.trainingFlow.title).toBe(
+      "Group Relative Preference Optimization training flow",
+    );
+    expect(page.messages.assets?.trainingFlow.alt).toContain("sampled answers");
+    expect(page.messages.assets?.trainingFlow.caption).toContain(
+      "compares sampled answers within each prompt group",
+    );
+    expect(page.messages.graph?.nodes?.samples?.label).toBe(
+      "Prompt +\nsampled answers",
+    );
+    expect(page.messages.graph?.nodes?.relativeObjective?.label).toBe(
+      "Within-group\nrelative advantage",
+    );
+    expect(page.messages.graph?.nodes?.updatedModel?.label).toBe(
+      "Policy-updated\nmodel",
+    );
+  });
+
+  test("graph registry record teaches the grouped relative optimization flow", () => {
+    const graph = getGraphById("graph.grpo-training-flow");
+    expect(graph?.subjectId).toBe("training-regime.grpo");
+    expect(graph?.nodes.map((node) => node.id)).toEqual([
+      "samples",
+      "relativeObjective",
+      "updatedModel",
+    ]);
+    expect(graph?.edges.map((edge) => edge.id)).toEqual([
+      "samples-relative",
+      "relative-updated",
+    ]);
+    expect(graph?.rootNodeId).toBe("samples");
+    expect(graph?.layout).toBe("vertical-expandable");
+  });
+
+  test("page renders the grouped optimization loop, training flow graph, and symbol definitions", async () => {
+    const page = await loadTrainingRegimePage("grpo");
+
+    const html = await renderHtml(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("How It Works");
+    expect(html).toContain("samples several candidate answers");
+    expect(html).toContain("within-group ranking");
+    expect(html).toContain('data-graph-title="graph.grpo-training-flow"');
+    expect(html).toContain('data-graph-legend="graph.grpo-training-flow"');
+    expect(html).toContain("Prompt");
+    expect(html).toContain("sampled answers");
+    expect(html).toContain("Within-group");
+    expect(html).toContain("relative advantage");
+    expect(html).toContain("Policy-updated");
+    expect(html).toContain(
+      "GRPO compares sampled answers within each prompt group before applying the policy update.",
+    );
+    expect(html).toContain('role="math"');
+    expect(html).toContain(
+      'data-page-math-variable-definitions="groupedRelativeAdvantage"',
+    );
+    expect(html).toContain('data-math-variable-definition="ri"');
+    expect(html).toContain("reward or preference score for sample i");
+    expect(html).toContain("mean score across the prompt group");
   });
 
   test("page renders alignment and nearby-regime links without reader-shortcut copy", async () => {
