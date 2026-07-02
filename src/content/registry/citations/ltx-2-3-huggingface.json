@@ -1,0 +1,23 @@
+{
+  "id": "citation.ltx-2-3-huggingface",
+  "slug": "ltx-2-3-huggingface",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Lightricks/LTX-2.3 Hugging Face model card",
+    "LTX-2.3 Hugging Face weights"
+  ],
+  "tags": ["model-family", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["Lightricks"],
+  "title": "Lightricks/LTX-2.3",
+  "url": "https://huggingface.co/Lightricks/LTX-2.3",
+  "mla": "Lightricks. \"Lightricks/LTX-2.3.\" Hugging Face, 2026.",
+  "year": 2026
+}

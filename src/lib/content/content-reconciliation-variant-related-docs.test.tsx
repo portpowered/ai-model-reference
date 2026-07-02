@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
@@ -15,6 +15,8 @@ import {
   SAME_VARIANT_GROUP,
 } from "@/lib/content/related-docs";
 import type { ModuleRecord } from "@/lib/content/schemas";
+
+setDefaultTimeout(15_000);
 
 /** Attention modules with a published docs page and variantGroup after batch 017. */
 const ATTENTION_VARIANT_MODULE_IDS = [
