@@ -165,10 +165,12 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   `duplicate-or-stale`) with duplicate-content guard table, and story 003 content
   PR handoffs for #271 (merge-ready), #290 (duplicate-or-stale close), and #251
   (blocked-owner) with browser verification on consumed #289 main surface and
-  merge-ready #271 owner worktree, and story 004 non-content repair handoffs for
+  merge-ready #271 owner worktree, story 004 non-content repair handoffs for
   #273 (blocked merge/queue recovery), #268 (merge-ready terminal-audit), and
   #294 (already-consumed generic conflict refresh) with dirty-root and
-  no-new-content scope guards.
+  no-new-content scope guards, and story 005 final planner drain report with
+  per-PR outcome table, planner action buckets (consume/review/blocked), scope
+  safety confirmation, and quality-gate evidence.
 * [merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files](./merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files.md)
   — merged PR drain evidence for PRs #274/#275/#276/#278/#280: live queue tokens
   on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata,

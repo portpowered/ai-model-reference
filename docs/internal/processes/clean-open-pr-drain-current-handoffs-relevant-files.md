@@ -284,9 +284,10 @@ consumed; #251 remains review-blocked.
 | **blocked-owner-handoff** | 2 | PR #273, PR #251 |
 | **duplicate-or-stale** | 1 | PR #290 |
 
-Stories 003–005 execute handoffs for merge-ready, blocked, and duplicate/stale
-targets respectively. This lane (`clean-open-pr-drain-current-handoffs`) remains
-in `to-complete` / PROCESSING until those handoffs finish.
+Stories 003–004 executed handoffs for merge-ready, blocked, and duplicate/stale
+targets. Story 005 emits the final planner drain report below. This lane
+(`clean-open-pr-drain-current-handoffs`) remains in `to-complete` / PROCESSING
+until the drain PR merges and the planner consumes the row.
 
 ### Duplicate-content guard (classification boundary)
 
@@ -589,3 +590,104 @@ bun run test
 ```
 
 Result: typecheck PASS (2026-07-02T22:06Z UTC); full test suite PASS — 3615 pass / 0 fail (2026-07-02T21:53Z UTC).
+
+## Story 005 — final planner drain report and quality evidence
+
+Captured 2026-07-02T22:55Z UTC. This story emits the consolidated planner-facing
+report for all six target PRs. Stories 001–004 evidence is unchanged except where
+live GitHub refresh below updates merge state on `origin/main` `9fa3fa8b`.
+
+### `origin/main` identity (final)
+
+| Field | Value |
+| --- | --- |
+| `origin/main` SHA | `9fa3fa8bed8febb6795d3001366b98bbc7b81fdf` |
+| Commit date | 2026-07-02 14:28:22 -0700 |
+| Subject | Merge pull request #301 from portpowered/root-main-lag-and-current-truth-reconciliation |
+
+### Final outcome table (each target PR exactly once)
+
+| PR | Work item | Outcome | Evidence summary | Existing row | Owner | Next operator action |
+| --- | --- | --- | --- | --- | --- | --- |
+| [#294](https://github.com/portpowered/ai-model-reference/pull/294) | `generic-pr277-pr279-conflict-refresh-handoff` | **already-consumed** | MERGED 2026-07-02T19:04:52Z at `209d1bd8`; merge commit is ancestor of `origin/main` `9fa3fa8b` | batch-073 idea/plan/review/task all `complete` / TERMINAL | batch 066 drain ideas for underlying PR #277/#279 shells | Consume batch-073 row if not already done; do not reopen generic conflict-refresh handoff |
+| [#290](https://github.com/portpowered/ai-model-reference/pull/290) | `byte-level-tokenization-pr289-conflict-refresh` | **duplicate-or-stale** | OPEN CONFLICTING (`mergeable=false`); content owner PR #289 merged 2026-07-02T18:18:04Z; page live on `main` | batch-073 handoff lane TERMINAL-complete | batch-064 content lane (`byte-level-tokenization-page`, PR #289 merged) | Close PR #290 or operator-refresh handoff branch for bookkeeping only — not content regeneration |
+| [#273](https://github.com/portpowered/ai-model-reference/pull/273) | `tokens-per-second-pr251-merge-handoff` | **blocked-owner-handoff** | OPEN CONFLICTING/DIRTY; CI SUCCESS on head `9a2bf86e`; stale base vs `9fa3fa8b` | queue-absent; handoff worktree PRD all `passes: true` | `tokens-per-second-pr251-merge-handoff` worktree | Conflict refresh on existing handoff branch only; recovery targets PR #251 after #251 clears BLOCKING review — not a new content lane |
+| [#271](https://github.com/portpowered/ai-model-reference/pull/271) | `relative-position-bias-concept-page` | **merge-ready-handoff** | OPEN `mergeable=true`; all 11 CI checks SUCCESS on head `956bacb2`; no unresolved BLOCKING conversation comments | queue-absent; content worktree PRD all stories `passes: true` | `relative-position-bias-concept-page` worktree | Maintainer review and merge PR #271; optional timed rebase if behind-main drift grows |
+| [#268](https://github.com/portpowered/ai-model-reference/pull/268) | `terminal-audit-root-staged-deletion-handoff` | **merge-ready-handoff** | OPEN MERGEABLE/CLEAN; all 11 CI checks SUCCESS on head `d6afe796`; prior BLOCKING addressed in PR conversation | queue-absent; handoff worktree PRD all `passes: true` | `terminal-audit-root-staged-deletion-handoff` worktree | Maintainer review and merge PR #268; root dirty-path ownership stays outside this drain lane |
+| [#251](https://github.com/portpowered/ai-model-reference/pull/251) | `tokens-per-second-serving-metric-page` | **blocked-owner-handoff** | OPEN CONFLICTING/DIRTY on refreshed `origin/main` `9fa3fa8b` (was MERGEABLE at story 004 capture); CI SUCCESS on head `381abe9a`; latest PR conversation **BLOCKING** (shared `prose-auto-link-runtime.ts` surface budget + incomplete browser QA) | batch-039 `idea:to-complete` + `work-task-155:failed` (session 404) | `tokens-per-second-serving-metric-page` content lane / `work-task-155` | Keep slice page-local or move throughput alias work to throughput/conflict-reduction lane; rerun audit and browser QA; recovery via PR #273 — do not merge or regenerate from this drain lane |
+
+### Planner action buckets
+
+| Bucket | Targets | Planner / operator action |
+| --- | --- | --- |
+| **Consume after merge** | PR #294 | Mark batch-073 generic conflict-refresh handoff consumed; underlying PR #277/#279 coordination stays with batch 066 drain lanes |
+| **Operator review or merge** | PR #271, PR #268 | Review and merge clean open PRs; no duplicate content lanes; browser proof recorded for #271 owner worktree (story 003) |
+| **Operator queue repair or close** | PR #290 | Close stale handoff PR or refresh for bookkeeping; byte-level tokenization content already on `main` via PR #289 |
+| **Remain blocked — owner lane must act** | PR #273, PR #251 | #273: conflict refresh on handoff branch before advancing PR #251 recovery. #251: resolve BLOCKING review (page-local surface + browser QA) and conflict drift vs current `main` before merge |
+
+### Outcome distribution (final)
+
+| Outcome | Count | Targets |
+| --- | ---: | --- |
+| **already-consumed** | 1 | PR #294 |
+| **merge-ready-handoff** | 2 | PR #271, PR #268 |
+| **review-consume-handoff** | 0 | — |
+| **blocked-owner-handoff** | 2 | PR #273, PR #251 |
+| **duplicate-or-stale** | 1 | PR #290 |
+
+### No-duplication and scope safety (final)
+
+| Guard | Status |
+| --- | --- |
+| Duplicate byte-level tokenization content lane | **not created** — PR #289 merged owns page |
+| Duplicate relative-position-bias concept lane | **not created** — PR #271 owns page |
+| Duplicate tokens-per-second content lane | **not created** — PR #251 blocked owner; recovery via #273 |
+| Generic PR #277/#279 conflict-refresh duplication | **not created** — PR #294 consumed |
+| Unrelated page, registry, route, or search edits | **not performed** |
+| Root dirty-path cleanup or restore | **not performed** |
+| Broad planner/factory refactor | **not introduced** |
+
+Branch diff vs `origin/main` is limited to handoff documentation:
+
+```bash
+git diff origin/main...HEAD --name-only
+```
+
+Observed (2026-07-02T22:55Z UTC):
+
+- `docs/internal/processes/clean-open-pr-drain-current-handoffs-relevant-files.md`
+- `docs/internal/processes/factory-linkage-relevant-files.md`
+
+No page content (`src/content/**`), registry content, generated runtime
+artifacts, root work, worktree files, or queue rows were modified by this lane.
+
+### Browser and focused verification (applicable outcomes)
+
+| Target | Verification | Result |
+| --- | --- | --- |
+| PR #289 / `main` byte-level tokenization | story 003 build + curl on port 3743 | PASS — `/docs/modules/byte-level-tokenization` HTTP 200 |
+| PR #271 relative-position-bias owner head | story 003 build + curl on port 3744 | PASS — `/docs/concepts/relative-position-bias` HTTP 200 |
+| PR #268 terminal-audit handoff | N/A | planner evidence only — no customer-facing docs route |
+| PR #251 blocked head | not rerun | latest BLOCKING supersedes prior within-budget evidence |
+| PR #273 / #294 | N/A | handoff / consumed — no visible docs change from this lane |
+
+### This lane queue row (completion)
+
+| Work id | Type | State | Next planner action |
+| --- | --- | --- | --- |
+| `batch-current-main-and-open-pr-convergence-batch-075-clean-open-pr-drain-current-handoffs` | idea | `to-complete` / PROCESSING | Consume after PR #297 review when operator accepts final report |
+| `work-plan-128` | plan | `complete` / TERMINAL | — |
+| `work-task-129` | task | `init` / PROCESSING | Close when drain PR merges |
+
+## Quality gate (story 005)
+
+Handoff-only final report; no page content, registry content, root work,
+worktree files, queue rows, staging area, or branch history were changed.
+
+```bash
+bun run typecheck
+bun run lint
+bun run test
+```
+
+Result: typecheck PASS (2026-07-02T22:58Z UTC); lint PASS (4 warnings, 0 errors); full test suite PASS — 3615 pass / 0 fail across 536 files (2026-07-02T23:18Z UTC).
