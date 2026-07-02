@@ -3,39 +3,13 @@ import {
   type DocsPageSource,
   loadPublishedDocsPagesSync,
 } from "@/lib/content/pages";
-import type {
-  DocsCollectionDefinition,
-  DocsCollectionId,
-} from "@/lib/docs/collection-definition-contract";
 import { listDocsCollectionDefinitions } from "@/lib/docs/docs-collection-definitions";
+import { listAiDocsShellSidebarDefinitions } from "@/lib/navigation/ai-docs-sidebar-adapter";
 import { buildGroupedSidebarNodes } from "@/lib/navigation/docs-sidebar-grouping-adapter";
 import {
   buildShellCollectionPageTree,
-  type ShellCollectionSidebarDefinition,
   type ShellSidebarGroupingResolver,
 } from "@/lib/navigation/shell-collection-page-tree";
-
-const SIDEBAR_FOLDER_TITLES: Record<DocsCollectionId, string> = {
-  glossary: "Glossary",
-  concepts: "Concepts",
-  modules: "Modules",
-  models: "Models",
-  papers: "Papers",
-  training: "Training",
-  systems: "Systems",
-};
-
-function toShellSidebarDefinition(
-  definition: DocsCollectionDefinition,
-): ShellCollectionSidebarDefinition {
-  return {
-    id: definition.id,
-    routeSlug: definition.routeSlug,
-    frontmatterKind: definition.frontmatterKind,
-    sidebarLabel: SIDEBAR_FOLDER_TITLES[definition.id],
-    sidebarGroupingResolverId: definition.sidebarGroupingResolverId,
-  };
-}
 
 const AI_SIDEBAR_GROUPING_RESOLVERS: Record<
   string,
@@ -59,7 +33,7 @@ export function buildGeneratedDocsPageTree(baseTree: Root): Root {
 
   return buildShellCollectionPageTree(baseTree, {
     pages,
-    definitions: collectionDefinitions.map(toShellSidebarDefinition),
+    definitions: listAiDocsShellSidebarDefinitions(),
     collectionIds: collectionDefinitions.map((definition) => definition.id),
     groupingResolvers: AI_SIDEBAR_GROUPING_RESOLVERS,
   });
