@@ -24,6 +24,12 @@ Derived validation contract and exceptions:
 Contributor-facing walkthrough:
 [CONTRIBUTING.md#review-preflight-before-opening-a-page-pr](../../contributors/CONTRIBUTING.md#review-preflight-before-opening-a-page-pr).
 
+## Routine review checklist for ordinary page PRs
+
+| When | Check |
+| --- | --- |
+| Ordinary page PR includes root `next-env.d.ts` changes unrelated to page behavior | Reject or request removal — see [review-standards.md#drop-accidental-next-envdts-drift](../../review-standards.md#drop-accidental-next-envdts-drift) |
+
 ## Page-local scope versus shared hotspot redirects
 
 Routine canonical page branches should stay page-local unless the requested
