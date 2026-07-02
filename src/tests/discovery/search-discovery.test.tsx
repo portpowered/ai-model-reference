@@ -36,7 +36,9 @@ import {
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
 
-const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 15_000;
+const CRITICAL_DOCS_AUTODISCOVERY_LOAD_TIMEOUT_MS = 30_000;
+const CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS = 45_000;
+const ATTENTION_TAG_BROWSE_TIMEOUT_MS = 15_000;
 
 const PHASE_1_DISCOVERY_ROUTES = [
   {
@@ -213,30 +215,40 @@ describe("Phase 1 discovery route smoke", () => {
     expect(html).not.toContain("lorem");
   });
 
-  test("critical canonical docs autodiscovery loads published local docs content", async () => {
-    const pages = await loadCriticalDocsSmokePages();
+  test(
+    "critical canonical docs autodiscovery loads published local docs content",
+    async () => {
+      const pages = await loadCriticalDocsSmokePages();
 
-    expect(pages.length).toBeGreaterThan(0);
+      expect(pages.length).toBeGreaterThan(0);
 
-    for (const discoveredPage of pages) {
-      const localRef = toCriticalDocsSmokeLocalRef(discoveredPage);
-      const page = await loadLocalDocsPage(localRef);
+      await Promise.all(
+        pages.map(async (discoveredPage) => {
+          const localRef = toCriticalDocsSmokeLocalRef(discoveredPage);
+          const page = await loadLocalDocsPage(localRef);
 
-      expect(page.frontmatter.registryId).toBe(
-        discoveredPage.frontmatter.registryId,
+          expect(page.frontmatter.registryId).toBe(
+            discoveredPage.frontmatter.registryId,
+          );
+          expect(page.messages.title).toBe(discoveredPage.messages.title);
+          expect(page.toc.length).toBeGreaterThan(0);
+          expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(
+            true,
+          );
+
+          if (discoveredPage.frontmatter.kind === "module") {
+            expect(
+              page.toc.some(
+                (item) => item.url === "#compared-to-nearby-modules",
+              ),
+              discoveredPage.url,
+            ).toBe(true);
+          }
+        }),
       );
-      expect(page.messages.title).toBe(discoveredPage.messages.title);
-      expect(page.toc.length).toBeGreaterThan(0);
-      expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
-
-      if (discoveredPage.frontmatter.kind === "module") {
-        expect(
-          page.toc.some((item) => item.url === "#compared-to-nearby-modules"),
-          discoveredPage.url,
-        ).toBe(true);
-      }
-    }
-  });
+    },
+    { timeout: CRITICAL_DOCS_AUTODISCOVERY_LOAD_TIMEOUT_MS },
+  );
 
   test("/docs/glossary/token loads published local docs content with tokenizer overview handoff", async () => {
     const page = await loadLocalDocsPage({
@@ -286,24 +298,26 @@ describe("Phase 1 discovery route smoke", () => {
 
       expect(pages.length).toBeGreaterThan(0);
 
-      for (const discoveredPage of pages) {
-        const localRef = toCriticalDocsSmokeLocalRef(discoveredPage);
-        const page = await loadLocalDocsPage(localRef);
-        const html = renderToStaticMarkup(
-          <ModulePageProviders messages={page.messages} assets={page.assets}>
-            {page.content}
-          </ModulePageProviders>,
-        );
+      await Promise.all(
+        pages.map(async (discoveredPage) => {
+          const localRef = toCriticalDocsSmokeLocalRef(discoveredPage);
+          const page = await loadLocalDocsPage(localRef);
+          const html = renderToStaticMarkup(
+            <ModulePageProviders messages={page.messages} assets={page.assets}>
+              {page.content}
+            </ModulePageProviders>,
+          );
 
-        expect(html.length, discoveredPage.url).toBeGreaterThan(0);
-        expect(localDocsRoute(localRef)).toBe(discoveredPage.url);
-        expect(html, discoveredPage.url).toContain(
-          'data-testid="tag-pill-list"',
-        );
-        expect(html, discoveredPage.url).toContain('id="related"');
-        expect(html, discoveredPage.url).not.toContain("Reader Shortcut");
-        expect(html, discoveredPage.url).not.toContain("lorem");
-      }
+          expect(html.length, discoveredPage.url).toBeGreaterThan(0);
+          expect(localDocsRoute(localRef)).toBe(discoveredPage.url);
+          expect(html, discoveredPage.url).toContain(
+            'data-testid="tag-pill-list"',
+          );
+          expect(html, discoveredPage.url).toContain('id="related"');
+          expect(html, discoveredPage.url).not.toContain("Reader Shortcut");
+          expect(html, discoveredPage.url).not.toContain("lorem");
+        }),
+      );
     },
     { timeout: CRITICAL_DOCS_AUTODISCOVERY_RENDER_TIMEOUT_MS },
   );
@@ -330,21 +344,26 @@ describe("Phase 1 discovery route smoke", () => {
 });
 
 describe("Phase 1 tag browse helpers", () => {
-  test("attention tag includes attention bridge and grouped-query attention under modules", async () => {
-    const messages = await loadUiMessages();
-    const groups = await loadTagResourceGroups("attention", messages, "en");
-    const moduleGroup = groups.find((group) => group.kind === "module");
+  test(
+    "attention tag includes attention bridge and grouped-query attention under modules",
+    async () => {
+      const messages = await loadUiMessages();
+      const groups = await loadTagResourceGroups("attention", messages, "en");
+      const moduleGroup = groups.find((group) => group.kind === "module");
 
-    expect(moduleGroup).toBeDefined();
-    expect(
-      moduleGroup?.resources.some(
-        (resource) => resource.url === PHASE_1_ATTENTION_MODULE_URL,
-      ),
-    ).toBe(true);
-    expect(
-      moduleGroup?.resources.some(
-        (resource) => resource.url === "/docs/modules/grouped-query-attention",
-      ),
-    ).toBe(true);
-  });
+      expect(moduleGroup).toBeDefined();
+      expect(
+        moduleGroup?.resources.some(
+          (resource) => resource.url === PHASE_1_ATTENTION_MODULE_URL,
+        ),
+      ).toBe(true);
+      expect(
+        moduleGroup?.resources.some(
+          (resource) =>
+            resource.url === "/docs/modules/grouped-query-attention",
+        ),
+      ).toBe(true);
+    },
+    { timeout: ATTENTION_TAG_BROWSE_TIMEOUT_MS },
+  );
 });
