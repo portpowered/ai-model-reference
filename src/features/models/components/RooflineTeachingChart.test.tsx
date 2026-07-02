@@ -44,7 +44,8 @@ describe("RooflineTeachingChart", () => {
     expect(container.textContent).toContain("Memory-bandwidth bound");
     expect(container.textContent).toContain("Compute bound");
     expect(container.querySelectorAll(".recharts-line-curve").length).toBe(1);
-    expect(container.querySelector(".recharts-scatter")).toBeTruthy();
+    expect(container.querySelectorAll(".recharts-scatter").length).toBe(2);
+    expect(container.querySelectorAll(".recharts-symbols").length).toBe(2);
     expect(container.textContent).toContain(
       "Generic illustrative values show the roofline bend",
     );

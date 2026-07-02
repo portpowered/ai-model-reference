@@ -38,34 +38,33 @@ type RooflineChartId = keyof typeof ROOFLINE_CHART_IDS;
 type RooflineDataPoint = {
   intensity: number;
   attainableThroughput: number;
-  lowIntensityWorkload?: number;
-  highIntensityWorkload?: number;
+};
+
+type WorkloadMarkerPoint = {
+  intensity: number;
+  throughput: number;
+};
+
+const LOW_INTENSITY_WORKLOAD = 3;
+const HIGH_INTENSITY_WORKLOAD = 14;
+
+const LOW_INTENSITY_WORKLOAD_MARKER: WorkloadMarkerPoint = {
+  intensity: LOW_INTENSITY_WORKLOAD,
+  throughput: attainableThroughputFor(LOW_INTENSITY_WORKLOAD),
+};
+
+const HIGH_INTENSITY_WORKLOAD_MARKER: WorkloadMarkerPoint = {
+  intensity: HIGH_INTENSITY_WORKLOAD,
+  throughput: attainableThroughputFor(HIGH_INTENSITY_WORKLOAD),
 };
 
 function buildRooflineData(): RooflineDataPoint[] {
   const intensities = [0, 2, 4, 6, 8, RIDGE_INTENSITY, 12, 14, X_AXIS_MAX];
-  const lowIntensity = 3;
-  const highIntensity = 14;
 
-  return intensities.map((intensity) => {
-    const attainableThroughput = Math.min(
-      PEAK_COMPUTE_GFLOPS,
-      MEMORY_BANDWIDTH_GBS * intensity,
-    );
-
-    return {
-      intensity,
-      attainableThroughput,
-      lowIntensityWorkload:
-        intensity === lowIntensity
-          ? attainableThroughputFor(lowIntensity)
-          : undefined,
-      highIntensityWorkload:
-        intensity === highIntensity
-          ? attainableThroughputFor(highIntensity)
-          : undefined,
-    };
-  });
+  return intensities.map((intensity) => ({
+    intensity,
+    attainableThroughput: attainableThroughputFor(intensity),
+  }));
 }
 
 function attainableThroughputFor(intensity: number): number {
@@ -266,12 +265,16 @@ export function RooflineTeachingChart({
                 }}
               />
               <Recharts.Scatter
-                dataKey="lowIntensityWorkload"
+                name="lowIntensityWorkload"
+                data={[LOW_INTENSITY_WORKLOAD_MARKER]}
+                dataKey="throughput"
                 fill={LOW_INTENSITY_COLOR}
                 shape="circle"
               />
               <Recharts.Scatter
-                dataKey="highIntensityWorkload"
+                name="highIntensityWorkload"
+                data={[HIGH_INTENSITY_WORKLOAD_MARKER]}
+                dataKey="throughput"
                 fill={HIGH_INTENSITY_COLOR}
                 shape="circle"
               />
