@@ -1,4 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   buildQueueWorktreePrLinkageLedger,
   discoverQueueWorktreePrLinkageLedger,
@@ -10,6 +13,22 @@ import {
   isStaleFailedLoopbackLane,
   sortPlannerWatchdogLanes,
 } from "@/lib/factory/queue-worktree-pr-linkage-ledger";
+
+function createWorktree(
+  worktreesRoot: string,
+  name: string,
+  branchName?: string,
+): string {
+  const worktreePath = join(worktreesRoot, name);
+  mkdirSync(worktreePath, { recursive: true });
+  if (branchName) {
+    writeFileSync(
+      join(worktreePath, "prd.json"),
+      JSON.stringify({ branchName }, null, 2),
+    );
+  }
+  return worktreePath;
+}
 
 describe("queue-worktree-pr-linkage-ledger", () => {
   test("keeps live-schema lanes visible through the shared linkage discovery path", () => {
@@ -58,6 +77,9 @@ describe("queue-worktree-pr-linkage-ledger", () => {
     expect(ledger.failedLaneCount).toBe(1);
     expect(ledger.linkedLaneCount).toBe(0);
     expect(ledger.linkedWithGapsLaneCount).toBe(2);
+    expect(ledger.prBackedLaneCount).toBe(0);
+    expect(ledger.actionableLinkageGapLaneCount).toBe(0);
+    expect(ledger.queueOnlyControlNoiseLaneCount).toBe(2);
     expect(ledger.lanes).toEqual([
       expect.objectContaining({
         laneName: "alpha",
@@ -368,6 +390,70 @@ describe("queue-worktree-pr-linkage-ledger", () => {
     expect(summary).toMatch(
       /Stale PR Mismatch Summary\n- lane=tokens-per-second-serving-metric-page[\s\S]*\n\n- lane=beta/,
     );
+  });
+
+  test("active-pr-watchdog-worktree-linkage-repair-002: discovery keeps worktree gaps actionable and missing worktrees as noise", () => {
+    const repoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-linkage-gap-"),
+    );
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+    createWorktree(worktreesRoot, "delta", "delta");
+    createWorktree(worktreesRoot, "planner-follow-up", "planner-follow-up");
+
+    const ledger = discoverQueueWorktreePrLinkageLedger({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [
+          { name: "delta", state: "failed" },
+          { name: "zeta", state: "active" },
+          {
+            name: "planner-follow-up",
+            state: "failed",
+            workTypeName: "thoughts",
+            relations: [
+              {
+                type: "DEPENDS_ON",
+                targetWorkId: "task-active",
+                targetWorkName: "zeta",
+                requiredState: "complete",
+              },
+            ],
+          },
+        ],
+      }),
+      worktreesDir: worktreesRoot,
+      lookupPullRequest: (branchName) => ({
+        pullRequest: null,
+        failureKind: "not-found",
+        failureReason: `no open PR metadata found for branch ${branchName}`,
+      }),
+    });
+
+    expect(ledger.prBackedLaneCount).toBe(0);
+    expect(ledger.actionableLinkageGapLaneCount).toBe(1);
+    expect(ledger.queueOnlyControlNoiseLaneCount).toBe(2);
+    expect(ledger.linkedWithGapsLaneCount).toBe(3);
+    expect(ledger.linkedLaneCount).toBe(0);
+    expect(
+      ledger.actionableLinkageGapLaneCount +
+        ledger.queueOnlyControlNoiseLaneCount +
+        ledger.staleCleanPrMismatchLaneCount +
+        ledger.prBackedLaneCount,
+    ).toBeLessThanOrEqual(ledger.laneCount);
+
+    const summary = formatQueueWorktreePrLinkageSummary(ledger);
+    expect(summary).toContain("lane=delta");
+    expect(summary).not.toContain("lane=zeta");
+    expect(summary).not.toContain("lane=planner-follow-up");
+    expect(summary).toContain(
+      "noise=queue-only-missing-linkage count=1 work-items=zeta",
+    );
+    expect(summary).toContain(
+      "noise=stale-failed-loopbacks count=1 work-items=planner-follow-up",
+    );
+
+    rmSync(repoRoot, { recursive: true, force: true });
   });
 
   test("sorts actionable PR-backed lanes ahead of waiting cases and linkage noise", () => {
