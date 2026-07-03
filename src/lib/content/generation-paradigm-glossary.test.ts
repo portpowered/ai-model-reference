@@ -166,7 +166,9 @@ describe("Phase 2 generation paradigm glossary pages (US-003)", () => {
       "classifier-free guidance",
     );
     expect(
-      conditioningResults.some((r) => r.url === "/docs/glossary/conditioning"),
+      conditioningResults.some(
+        (r) => r.url === "/docs/concepts/classifier-free-guidance",
+      ),
     ).toBe(true);
   });
 });
