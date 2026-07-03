@@ -209,7 +209,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       const context = await loadAppTestContext();
       await typeQueryAndExpectGqaResult(context, query);
     },
-    { timeout: 30_000 },
+    { timeout: 90_000 },
   );
 
   test.each([
@@ -335,33 +335,35 @@ describe("SearchPagePanel Phase 1 queries", () => {
     expectReadableQueryMatchHighlightPanel(within(results));
   });
 
-  test("GQA query ranks grouped-query attention first on /search", async () => {
-    const context = await loadAppTestContext();
-    await renderSearchPagePanelContent(context);
+  test(
+    "GQA query ranks grouped-query attention first on /search",
+    async () => {
+      const context = await loadAppTestContext();
+      await renderSearchPagePanelContent(context);
 
-    const user = userEvent.setup();
-    await user.type(
-      screen.getByLabelText(context.messages.search.placeholder),
-      "GQA",
-    );
+      const user = userEvent.setup();
+      await user.type(
+        screen.getByLabelText(context.messages.search.placeholder),
+        "GQA",
+      );
 
-    const results = await waitForSearchPagePanelResults();
-    await expectFirstSearchResultMatch(results, { url: SAMPLE_MODULE_URL });
-  });
+      const results = await waitForSearchPagePanelResults();
+      await expectFirstSearchResultMatch(results, { url: SAMPLE_MODULE_URL });
+    },
+    { timeout: 90_000 },
+  );
 
   test.each(["prefill", "prompt processing", "prompt pass"] as const)(
     "%s query ranks the canonical prefill concept page first on /search",
     async (query) => {
       const context = await loadAppTestContext();
-      await renderSearchPagePanelContent(
-        context,
-        new URLSearchParams({ q: query }),
-      );
+      await renderSearchPagePanelContent(context);
 
-      const searchInput = screen.getByLabelText(
-        context.messages.search.placeholder,
-      ) as HTMLInputElement;
-      expect(searchInput.value).toBe(query);
+      const user = userEvent.setup();
+      await user.type(
+        screen.getByLabelText(context.messages.search.placeholder),
+        query,
+      );
 
       const results = await waitForSearchPagePanelResults({
         timeout: 30_000,

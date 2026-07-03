@@ -602,10 +602,147 @@ function classifyChangedPath(
   };
 }
 
+const DUAL_ROUTE_FORBIDDEN_SHARED_PATH_PREFIXES = [
+  "docs/internal/",
+  "src/tests/search/",
+] as const;
+
+const DUAL_ROUTE_CONVERGENCE_DIFF_FORBIDDEN_PATTERNS = [
+  /GLOSSARY_SHELL_RENDER_GROUP_TIMEOUT/,
+  /REGISTRY_VALIDATION_GATE_TIMEOUT/,
+  /ATTENTION_TAG_GROUPING_GATE_TIMEOUT/,
+  /COMBINED_CONVERGENCE_GATE_TIMEOUT/,
+  /renderSearchPagePanelContent/,
+  /userEvent\.type/,
+] as const;
+
+function glossaryBridgePageExists(repoRoot: string, slug: string): boolean {
+  return existsSync(
+    resolve(repoRoot, `src/content/docs/glossary/${slug}/page.mdx`),
+  );
+}
+
+function isAllowedDualRouteDiscoveryTest(path: string, slug: string): boolean {
+  return (
+    path === `src/lib/content/${slug}-concept-discovery.test.ts` ||
+    path === `src/lib/content/${slug}-concept.test.ts` ||
+    path === `src/lib/content/${slug}-slice-verification.test.tsx`
+  );
+}
+
+function isDualRouteConvergenceFixtureDiff(
+  diff: string,
+  slug: string,
+): boolean {
+  if (!diff.trim()) {
+    return false;
+  }
+
+  if (
+    DUAL_ROUTE_CONVERGENCE_DIFF_FORBIDDEN_PATTERNS.some((pattern) =>
+      pattern.test(diff),
+    )
+  ) {
+    return false;
+  }
+
+  const glossaryUrl = `/docs/glossary/${slug}`;
+  const conceptUrl = `/docs/concepts/${slug}`;
+  const changedLines = diff
+    .split("\n")
+    .filter((line) => line.startsWith("+") || line.startsWith("-"))
+    .filter((line) => !line.startsWith("+++") && !line.startsWith("---"));
+
+  if (changedLines.length === 0) {
+    return false;
+  }
+
+  return changedLines.every((line) => {
+    const body = line.slice(1);
+    return (
+      body.includes(glossaryUrl) ||
+      body.includes(conceptUrl) ||
+      body.includes(slug) ||
+      /searchUrl/i.test(body)
+    );
+  });
+}
+
+function evaluateGlossaryBridgeDualRouteBudget(
+  scope: CanonicalPageScope,
+  sharedPaths: readonly string[],
+  repoRoot: string,
+  changedPathSource: string,
+  baseRef?: string,
+): { reason: string } | null {
+  if (!scope.registryId.startsWith("concept.")) {
+    return null;
+  }
+  if (!scope.pageDirectory.startsWith("src/content/docs/concepts/")) {
+    return null;
+  }
+  if (!glossaryBridgePageExists(repoRoot, scope.slug)) {
+    return null;
+  }
+
+  const forbiddenPaths = sharedPaths.filter((path) =>
+    DUAL_ROUTE_FORBIDDEN_SHARED_PATH_PREFIXES.some((prefix) =>
+      path.startsWith(prefix),
+    ),
+  );
+  if (forbiddenPaths.length > 0) {
+    return null;
+  }
+
+  const discoveryTests = sharedPaths.filter((path) =>
+    isAllowedDualRouteDiscoveryTest(path, scope.slug),
+  );
+  if (discoveryTests.length > 1) {
+    return null;
+  }
+
+  const convergencePaths = sharedPaths.filter(
+    (path) =>
+      !isAllowedDualRouteDiscoveryTest(path, scope.slug) &&
+      path !== "src/lib/factory/canonical-page-surface-audit.ts" &&
+      path !== "src/lib/factory/canonical-page-surface-audit.test.ts",
+  );
+
+  for (const path of convergencePaths) {
+    if (
+      !path.startsWith("src/lib/content/") &&
+      !path.startsWith("src/lib/docs/")
+    ) {
+      return null;
+    }
+
+    if (changedPathSource !== "explicit changed-file set") {
+      const resolvedBaseRef = baseRef ?? detectDefaultBaseRef(repoRoot);
+      const mergeBase = runGit(repoRoot, [
+        "merge-base",
+        resolvedBaseRef,
+        "HEAD",
+      ]).trim();
+      const diff = runGit(repoRoot, ["diff", `${mergeBase}..HEAD`, "--", path]);
+      if (!isDualRouteConvergenceFixtureDiff(diff, scope.slug)) {
+        return null;
+      }
+    }
+  }
+
+  return {
+    reason: `Glossary-bridge dual-route for ${scope.registryId}: one discovery test plus convergence fixture href/search updates while /docs/glossary/${scope.slug} remains published.`,
+  };
+}
+
 function collectGuidance(
   classifications: readonly CanonicalPageSurfaceClassification[],
   exception: CanonicalPageSurfaceException | null,
   sharedHotspotCategories: readonly CanonicalPageSurfaceSharedCategorySummary[],
+  scope: CanonicalPageScope,
+  repoRoot: string,
+  changedPathSource: string,
+  baseRef?: string,
 ): CanonicalPageSurfaceGuidance {
   const generatedOutputs = classifications
     .filter((item) => item.kind === "declared-generated-output")
@@ -672,6 +809,37 @@ function collectGuidance(
       details,
       headline:
         "This branch is over the routine budget, but it can stay in one narrow PR if you make the exception explicit and reviewable.",
+      recommendedAction: "declare-exception",
+    };
+  }
+
+  const dualRouteException = evaluateGlossaryBridgeDualRouteBudget(
+    scope,
+    sharedPaths,
+    repoRoot,
+    changedPathSource,
+    baseRef,
+  );
+  if (dualRouteException) {
+    const details = [
+      "This branch matches the documented glossary-bridge plus concept-canonical dual-route exception.",
+      dualRouteException.reason,
+      `Shared paths: ${sharedPaths.join(", ")}.`,
+    ];
+    if (exception) {
+      details.push(
+        `Visible exception declared: "${exception.reason}". Repeat that justification in the PR conversation comment so reviewers can evaluate the broader touch explicitly.`,
+      );
+    } else {
+      details.push(
+        "Repeat the dual-route justification in the PR conversation comment so reviewers can confirm the shared touches stay limited to discovery and convergence fixtures.",
+      );
+    }
+
+    return {
+      details,
+      headline:
+        "This branch is over the routine budget, but it fits the glossary-bridge dual-route exception when discovery and convergence fixture updates stay narrowly scoped.",
       recommendedAction: "declare-exception",
     };
   }
@@ -770,6 +938,10 @@ export function collectCanonicalPageSurfaceAudit(
       classifications,
       exception,
       sharedHotspotCategories,
+      scope,
+      resolvedRepoRoot,
+      changedPathSet.source,
+      options.baseRef,
     ),
     pageOwnedPaths: classifications
       .filter((item) => item.kind === "page-owned")

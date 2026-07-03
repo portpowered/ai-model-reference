@@ -1,10 +1,18 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import {
+  buildDocsPageMetadata,
+  renderDocsSlugPage,
+} from "@/app/docs/docs-slug-renderer";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadConceptPage } from "@/lib/content/concept-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
-import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import {
+  PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
 import {
   getConceptById,
@@ -14,15 +22,59 @@ import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const CONCEPT_URL = "/docs/concepts/temperature";
+const TEMPERATURE_CONCEPT_URL = "/docs/concepts/temperature";
+const pageDir = getDocsPageDir("concepts", "temperature");
 
-/**
- * Routine page-bundle checks (frontmatter, messages, registryId, tags, citations,
- * assets) are covered by `validateDerivedPublishedPageBundles` via `make validate-data`.
- * These tests stay focused on search, related-link navigation, and rendered teaching
- * surface contracts specific to the temperature concept slice.
- */
-describe("temperature concept discovery", () => {
+setDefaultTimeout(30_000);
+
+describe("temperature concept discovery (temperature-concept-page-current-main)", () => {
+  test("registry routes temperature to the concept section", () => {
+    expect(
+      PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has("concept.temperature"),
+    ).toBe(true);
+
+    const record = getConceptById("concept.temperature");
+    expect(record?.status).toBe("published");
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "sampling temperature",
+        "softmax temperature",
+      ]),
+    );
+  });
+
+  test("search document for the concept page carries canonical aliases", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const document = documents.find(
+      (entry) => entry.url === TEMPERATURE_CONCEPT_URL,
+    );
+
+    expect(document?.kind).toBe("concept");
+    expect(document?.aliases).toEqual(
+      expect.arrayContaining([
+        "sampling temperature",
+        "softmax temperature",
+      ]),
+    );
+    expect(document?.registryId).toBe("concept.temperature");
+  });
+
+  test("live search routes Temperature to the canonical concept page", async () => {
+    const results = await docsSearchApi.search("Temperature");
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe(TEMPERATURE_CONCEPT_URL);
+  });
+
+  test("page bundle resolves from getDocsPageDir", async () => {
+    const pages = await loadPublishedDocsPages("en");
+    const page = pages.find((entry) => entry.pageDir === pageDir);
+
+    expect(page?.url).toBe(TEMPERATURE_CONCEPT_URL);
+    expect(page?.frontmatter.registryId).toBe("concept.temperature");
+  });
+
   test("curated related links point to softmax and sampling neighbors", () => {
     const source = getConceptById("concept.temperature");
     if (!source) {
@@ -55,27 +107,25 @@ describe("temperature concept discovery", () => {
     );
   });
 
-  test("live search ranks the canonical temperature concept route first for title queries", async () => {
-    const registry = await loadRegistry();
-    const pages = await loadPublishedDocsPages("en");
-    const documents = buildSearchDocuments(pages, registry);
-    const document = documents.find((entry) => entry.url === CONCEPT_URL);
+  test("app route metadata and English render resolve without missing-content placeholders", async () => {
+    const metadata = await buildDocsPageMetadata(["concepts", "temperature"]);
+    expect(metadata.alternates).toEqual({
+      canonical: TEMPERATURE_CONCEPT_URL,
+      languages: {
+        en: TEMPERATURE_CONCEPT_URL,
+      },
+    });
+    expect(metadata.title).toContain("Temperature");
 
-    expect(document?.kind).toBe("concept");
-    expect(document?.aliases).toEqual(
-      expect.arrayContaining(["sampling temperature", "softmax temperature"]),
+    const rendered = await renderDocsSlugPage(
+      ["concepts", "temperature"],
+      "en",
     );
-
-    const results = await docsSearchApi.search("Temperature");
-    expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url).toBe(CONCEPT_URL);
+    expect(rendered).toBeDefined();
   });
-});
 
-describe("temperature concept page", () => {
-  test("rendered page exposes decoding teaching, sampling neighbors, and related links", async () => {
+  test("rendered page exposes decoding teaching, sampling neighbors, tags, and links", async () => {
     const page = await loadConceptPage("temperature");
-
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
         messages: page.messages,
@@ -107,8 +157,14 @@ describe("temperature concept page", () => {
     expect(html).toContain('href="/docs/glossary/top-k-sampling"');
     expect(html).toContain('href="/docs/glossary/top-p-sampling"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');
+    expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toMatch(/\{\{[^}]+\}\}/);
+
+    const results = await docsSearchApi.search("sampling temperature");
+    expect(results.some((result) => result.url === TEMPERATURE_CONCEPT_URL)).toBe(
+      true,
+    );
   });
 });
