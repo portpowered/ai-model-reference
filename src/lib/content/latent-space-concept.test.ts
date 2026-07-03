@@ -231,3 +231,42 @@ describe("latent-space compressed representation teaching (latent-space-concept-
     );
   });
 });
+
+describe("latent-space adjacent-term distinctions (latent-space-concept-page-004)", () => {
+  test("messages distinguish latent space from embedding, hidden state, and pixel space", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const body = messages.sections?.commonConfusions.body ?? "";
+
+    expect(body).toMatch(/not the same as an embedding/i);
+    expect(body).toMatch(/token id|lookup|discrete input/i);
+    expect(body).toMatch(/broader|coordinate system|compressed/i);
+    expect(body).toMatch(/not the same as a hidden state/i);
+    expect(body).toMatch(/activation|layer|step|depth/i);
+    expect(body).toMatch(/pixel space/i);
+    expect(body).toMatch(/visible|display|color|decoder/i);
+    expect(body).toMatch(/full resolution|smaller grid|compressed features/i);
+  });
+
+  test("rendered page surfaces embedding, hidden state, and pixel space contrasts", async () => {
+    const page = await loadConceptPage("latent-space");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html.toLowerCase()).toContain("not the same as an embedding");
+    expect(html.toLowerCase()).toContain("not the same as a hidden state");
+    expect(html.toLowerCase()).toContain("pixel space");
+    expect(html.toLowerCase()).toContain("hidden state");
+    expect(html).toMatch(/embedding|embeddings/i);
+    expect(html).toMatch(/decoder|decode/i);
+    expect(html).toContain('href="/docs/concepts/embedding"');
+  });
+});
