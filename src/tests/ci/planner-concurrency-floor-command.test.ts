@@ -203,7 +203,7 @@ describe("report-planner-concurrency-floor script", () => {
 
       expect(result.status).toBe(0);
       expect(result.stdout).toContain(
-        "summary useful-active=2 floor=2 status=at-target refill-needed=0 advisory-only=true",
+        "summary useful-active=1 floor=2 status=below-target refill-needed=1 advisory-only=true",
       );
       expect(result.stdout).toContain("Ignored Stale Noise (2)");
       expect(result.stdout).toContain("work-item=cron:though-retrigger");

@@ -1,11 +1,11 @@
 import {
-  parseQueueLaneRecords,
-  type QueueLaneRecord,
-} from "./active-pr-mergeability-watchdog";
-import {
+  buildQueueSessionIdByWorkId,
   discoverPlannerQueueHealthReport,
   type QueueHealthItem,
+  type QueueHealthReport,
 } from "./planner-queue-health";
+
+const USEFUL_ACTIVE_WORK_TYPES = new Set(["task", "review"]);
 
 const HOLD_SECTION_HEADING = /^##\s+holds\s*$/i;
 const MARKDOWN_HEADING = /^#\s+(.+?)\s*$/;
@@ -119,13 +119,41 @@ export interface PlannerConcurrencyFloorReport {
 }
 
 function summarizeUsefulActiveLane(
-  record: QueueLaneRecord,
+  item: QueueHealthItem,
+  sessionId?: string,
 ): PlannerUsefulActiveLane {
   return {
-    workItemName: record.workItemName,
-    rawState: record.rawState,
-    sessionId: record.sessionId,
+    workItemName: item.workItemName,
+    rawState: item.stateName,
+    sessionId,
   };
+}
+
+function isUsefulActiveTaskReviewOrProcessingLane(
+  item: QueueHealthItem,
+): boolean {
+  const workTypeName = item.workTypeName?.trim().toLowerCase();
+  if (workTypeName && USEFUL_ACTIVE_WORK_TYPES.has(workTypeName)) {
+    return true;
+  }
+
+  return !workTypeName && item.stateType === "PROCESSING";
+}
+
+function deriveUsefulActiveLanes(options: {
+  queueHealth: QueueHealthReport;
+  workListJsonText: string;
+}): PlannerUsefulActiveLane[] {
+  const sessionIdsByWorkId = buildQueueSessionIdByWorkId(
+    options.workListJsonText,
+  );
+
+  return options.queueHealth.activeWork.items
+    .filter(isUsefulActiveTaskReviewOrProcessingLane)
+    .map((item) =>
+      summarizeUsefulActiveLane(item, sessionIdsByWorkId.get(item.workId)),
+    )
+    .sort((left, right) => left.workItemName.localeCompare(right.workItemName));
 }
 
 function summarizeStaleNoise(item: QueueHealthItem): PlannerStaleNoiseEvidence {
@@ -542,10 +570,10 @@ export function discoverPlannerConcurrencyFloorReport(options: {
     sourceSession,
     workListJsonText: options.workListJsonText,
   });
-  const usefulActiveLanes = parseQueueLaneRecords(options.workListJsonText)
-    .filter((record) => record.queueState === "active")
-    .map(summarizeUsefulActiveLane)
-    .sort((left, right) => left.workItemName.localeCompare(right.workItemName));
+  const usefulActiveLanes = deriveUsefulActiveLanes({
+    queueHealth,
+    workListJsonText: options.workListJsonText,
+  });
   const usefulActiveLaneCount = usefulActiveLanes.length;
   const plannerOwnedBacklogCandidates = discoverPlannerOwnedBacklogCandidates({
     rootDirtyPaths: options.plannerRootDirtyPaths,

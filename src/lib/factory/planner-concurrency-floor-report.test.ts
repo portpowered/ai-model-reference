@@ -108,8 +108,9 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
       }),
     });
 
-    expect(report.usefulActiveLaneCount).toBe(2);
-    expect(report.floorStatus).toBe("above-target");
+    expect(report.usefulActiveLaneCount).toBe(1);
+    expect(report.floorStatus).toBe("at-target");
+    expect(report.lanesNeededToReachFloor).toBe(0);
     expect(report.ignoredStaleNoise.map((item) => item.workItemName)).toEqual([
       "cron:though-retrigger",
       "loopback-refill",
@@ -123,7 +124,81 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     });
   });
 
-  test("formats human-readable and machine-readable output from the same floor comparison", () => {
+  test("counts factory task, review, and processing lanes that queue-health already classifies as active", () => {
+    const workListJsonText = JSON.stringify({
+      results: [
+        {
+          workId: "task-process",
+          name: "alpha-page",
+          sessionId: "session-alpha",
+          workTypeName: "task",
+          state: { name: "init", type: "INITIAL" },
+        },
+        {
+          workId: "task-review",
+          name: "beta-page",
+          sessionId: "session-beta",
+          workTypeName: "task",
+          state: { name: "in-review", type: "PROCESSING" },
+        },
+        {
+          workId: "review-token",
+          name: "beta-page-review",
+          sessionId: "session-beta-review",
+          workTypeName: "review",
+          state: { name: "init", type: "INITIAL" },
+        },
+        {
+          workId: "task-complete",
+          name: "gamma-page",
+          sessionId: "session-gamma",
+          workTypeName: "task",
+          state: { name: "to-complete", type: "PROCESSING" },
+        },
+        {
+          workId: "idea-backlog",
+          name: "queued-idea",
+          workTypeName: "idea",
+          state: { name: "init", type: "INITIAL" },
+        },
+      ],
+    });
+    const report = discoverPlannerConcurrencyFloorReport({
+      concurrencyFloor: 5,
+      generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      plannerRootDirtyPaths: [],
+      plannerRootDirtyPathsAvailable: true,
+      taskFiles: [],
+      tempStateFiles: [],
+      workListJsonText,
+    });
+
+    expect(report.usefulActiveLaneCount).toBe(4);
+    expect(report.usefulActiveLanes).toEqual([
+      {
+        rawState: "init",
+        sessionId: "session-alpha",
+        workItemName: "alpha-page",
+      },
+      {
+        rawState: "in-review",
+        sessionId: "session-beta",
+        workItemName: "beta-page",
+      },
+      {
+        rawState: "init",
+        sessionId: "session-beta-review",
+        workItemName: "beta-page-review",
+      },
+      {
+        rawState: "to-complete",
+        sessionId: "session-gamma",
+        workItemName: "gamma-page",
+      },
+    ]);
+  });
+
+  test("aligns useful-active summary fields between human-readable and JSON output", () => {
     const report = discoverPlannerConcurrencyFloorReport({
       concurrencyFloor: 2,
       generatedAtUtc: "2026-06-21T00:00:00.000Z",

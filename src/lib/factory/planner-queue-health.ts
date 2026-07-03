@@ -71,6 +71,7 @@ interface ParsedQueueRecord {
   workItemName: string;
   workTypeName?: string;
   traceId?: string;
+  sessionId?: string;
   stateName: string;
   stateType: QueueHealthStateType;
   relations: QueueHealthDependency[];
@@ -226,6 +227,7 @@ function parseQueueRecord(item: Record<string, unknown>): ParsedQueueRecord {
         ? readStringField(item.tags, ["_work_type"])
         : undefined),
     traceId: readStringField(item, ["traceId", "currentChainingTraceId"]),
+    sessionId: readStringField(item, ["sessionId", "runtimeSessionId"]),
     stateName,
     stateType:
       explicitStateType === "UNKNOWN"
@@ -238,6 +240,20 @@ function parseQueueRecord(item: Record<string, unknown>): ParsedQueueRecord {
 function parseQueueRecords(jsonText: string): ParsedQueueRecord[] {
   const parsed = JSON.parse(jsonText) as unknown;
   return extractCandidateItemArray(parsed).map(parseQueueRecord);
+}
+
+export function buildQueueSessionIdByWorkId(
+  workListJsonText: string,
+): Map<string, string> {
+  const sessionIdsByWorkId = new Map<string, string>();
+
+  for (const record of parseQueueRecords(workListJsonText)) {
+    if (record.sessionId) {
+      sessionIdsByWorkId.set(record.workId, record.sessionId);
+    }
+  }
+
+  return sessionIdsByWorkId;
 }
 
 function isCompleteState(record: ParsedQueueRecord | undefined): boolean {

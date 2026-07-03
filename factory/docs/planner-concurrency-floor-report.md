@@ -42,7 +42,7 @@ summary useful-active=<count> floor=<count> status=<below-target|at-target|above
 
 Interpretation:
 
-* `useful-active` counts only live active lanes. Known stale cron noise and superseded historical loopbacks are excluded from that count.
+* `useful-active` counts live task and review queue lanes that queue-health already classifies as active work, including factory states such as `init`, `in-review`, and `to-complete`. Known stale cron noise and superseded historical loopbacks stay excluded from that count.
 * `status=below-target` means useful concurrency is under the configured floor, so the planner should review `Refill Candidates`.
 * `refill-needed` is the remaining lane count needed to reach the floor.
 * `Planner-Owned Backlog Candidates` shows the full scanned planner-owned task set with hold evidence and collision context.
