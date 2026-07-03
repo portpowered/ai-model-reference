@@ -6,6 +6,7 @@ export const REQUIRED_COMPONENT_NAMES = [
   "T",
   "TagPillList",
   "DerivedRelatedDocs",
+  "RelatedRegistryDocs",
   "SearchInlineResultItem",
   "SearchResultListItem",
   "SearchResultMetaDetails",
