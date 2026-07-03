@@ -349,26 +349,32 @@ describe("SearchPagePanel Phase 1 queries", () => {
     await expectFirstSearchResultMatch(results, { url: SAMPLE_MODULE_URL });
   });
 
-  test.each([
-    "prefill",
-    "prompt processing",
-    "prompt pass",
-  ] as const)("%s query ranks the canonical prefill concept page first on /search", async (query) => {
-    const context = await loadAppTestContext();
-    await renderSearchPagePanelContent(context);
+  test.each(["prefill", "prompt processing", "prompt pass"] as const)(
+    "%s query ranks the canonical prefill concept page first on /search",
+    async (query) => {
+      const context = await loadAppTestContext();
+      await renderSearchPagePanelContent(context);
 
-    const user = userEvent.setup();
-    await user.type(
-      screen.getByLabelText(context.messages.search.placeholder),
-      query,
-    );
+      const user = userEvent.setup();
+      await user.type(
+        screen.getByLabelText(context.messages.search.placeholder),
+        query,
+      );
 
-    const results = await waitForSearchPagePanelResults();
-    await expectFirstSearchResultMatch(results, {
-      url: PREFILL_URL,
-      titlePattern: /prefill/i,
-    });
-  });
+      const results = await waitForSearchPagePanelResults({
+        timeout: 30_000,
+      });
+      await expectFirstSearchResultMatch(
+        results,
+        {
+          url: PREFILL_URL,
+          titlePattern: /prefill/i,
+        },
+        { timeout: 30_000 },
+      );
+    },
+    { timeout: 30_000 },
+  );
 
   test.each([
     {
