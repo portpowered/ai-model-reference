@@ -6,6 +6,22 @@ import {
   type QueueHealthReport,
   type QueueHealthStateType,
 } from "./planner-queue-health";
+import {
+  isTableRegistryGeneratedArtifactPath,
+  PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD,
+} from "./planner-root-checkout-reconciliation";
+
+export const PLANNER_CONCURRENCY_FLOOR_ROOT_GENERATED_ARTIFACT_DRIFT_HOLD_GUIDANCE =
+  "Page refill is held because root generated-artifact drift is present; reconcile generated artifacts before adding page work.";
+
+const PAGE_ORIENTED_REPO_PATH_PREFIXES = [
+  "src/content/docs/",
+  "src/content/modules/",
+  "src/content/models/",
+  "src/content/papers/",
+  "src/content/concepts/",
+  "src/content/training/",
+] as const;
 
 const USEFUL_ACTIVE_WORK_TYPES = new Set(["task", "review"]);
 
@@ -135,6 +151,18 @@ export interface PlannerAdvisoryUncertaintyEvidence {
   taskPathHints: string[];
 }
 
+export interface PlannerRootGeneratedArtifactDriftPathEvidence {
+  path: string;
+  surface: string;
+}
+
+export interface PlannerRootGeneratedArtifactDriftHold {
+  pageRefillHold: boolean;
+  blockingPaths: PlannerRootGeneratedArtifactDriftPathEvidence[];
+  guidance?: string;
+  holdReason: string;
+}
+
 export interface PlannerConcurrencyFloorReport {
   contractVersion: "planner-concurrency-floor/v1";
   advisoryOnly: true;
@@ -151,7 +179,79 @@ export interface PlannerConcurrencyFloorReport {
   ignoredStaleNoise: PlannerStaleNoiseEvidence[];
   plannerOwnedBacklogCandidates: PlannerBacklogCandidate[];
   refillCandidates: PlannerBacklogCandidate[];
+  rootGeneratedArtifactDriftHold: PlannerRootGeneratedArtifactDriftHold;
   issues: string[];
+}
+
+export function isPageOrientedRepoPath(path: string): boolean {
+  const normalized = normalizeRepoPath(path);
+  return PAGE_ORIENTED_REPO_PATH_PREFIXES.some((prefix) =>
+    normalized.startsWith(prefix),
+  );
+}
+
+export function isPageOrientedBacklogCandidate(
+  candidate: Pick<PlannerBacklogCandidate, "taskPathHints">,
+): boolean {
+  return candidate.taskPathHints.some((hint) => isPageOrientedRepoPath(hint));
+}
+
+export function deriveRootGeneratedArtifactDriftHold(
+  dirtyPaths: PlannerRootDirtyPathEvidence[],
+): PlannerRootGeneratedArtifactDriftHold {
+  const blockingPaths = dirtyPaths
+    .filter((dirtyPath) => isTableRegistryGeneratedArtifactPath(dirtyPath.path))
+    .map((dirtyPath) => ({
+      path: dirtyPath.path,
+      surface: dirtyPath.surface,
+    }))
+    .sort((left, right) => left.path.localeCompare(right.path));
+
+  if (blockingPaths.length === 0) {
+    return {
+      blockingPaths: [],
+      holdReason: PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD,
+      pageRefillHold: false,
+    };
+  }
+
+  return {
+    blockingPaths,
+    guidance:
+      PLANNER_CONCURRENCY_FLOOR_ROOT_GENERATED_ARTIFACT_DRIFT_HOLD_GUIDANCE,
+    holdReason:
+      PLANNER_CONCURRENCY_FLOOR_ROOT_GENERATED_ARTIFACT_DRIFT_HOLD_GUIDANCE,
+    pageRefillHold: true,
+  };
+}
+
+function applyRootGeneratedArtifactDriftHoldToCandidates(
+  candidates: PlannerBacklogCandidate[],
+  hold: PlannerRootGeneratedArtifactDriftHold,
+): PlannerBacklogCandidate[] {
+  if (!hold.pageRefillHold) {
+    return candidates;
+  }
+
+  return candidates.map((candidate) => {
+    if (!isPageOrientedBacklogCandidate(candidate)) {
+      return candidate;
+    }
+
+    if (candidate.refillRecommendation === "hold") {
+      return candidate;
+    }
+
+    return {
+      ...candidate,
+      eligibleForRefill: false,
+      refillRecommendation: "hold",
+      recommendationReasons: [
+        hold.guidance ?? hold.holdReason,
+        ...candidate.recommendationReasons,
+      ],
+    };
+  });
 }
 
 function summarizeUsefulActiveLane(
@@ -683,13 +783,20 @@ export function discoverPlannerConcurrencyFloorReport(options: {
     workListJsonText: options.workListJsonText,
   });
   const usefulActiveLaneCount = usefulActiveLanes.length;
-  const plannerOwnedBacklogCandidates = discoverPlannerOwnedBacklogCandidates({
-    rootDirtyPaths: options.plannerRootDirtyPaths,
-    rootDirtyPathsAvailable: options.plannerRootDirtyPathsAvailable,
-    taskFiles: options.taskFiles ?? [],
-    tempStateFiles: options.tempStateFiles ?? [],
-    usefulActiveLanes,
-  });
+  const rootGeneratedArtifactDriftHold = deriveRootGeneratedArtifactDriftHold(
+    options.plannerRootDirtyPaths ?? [],
+  );
+  const plannerOwnedBacklogCandidates =
+    applyRootGeneratedArtifactDriftHoldToCandidates(
+      discoverPlannerOwnedBacklogCandidates({
+        rootDirtyPaths: options.plannerRootDirtyPaths,
+        rootDirtyPathsAvailable: options.plannerRootDirtyPathsAvailable,
+        taskFiles: options.taskFiles ?? [],
+        tempStateFiles: options.tempStateFiles ?? [],
+        usefulActiveLanes,
+      }),
+      rootGeneratedArtifactDriftHold,
+    );
   const blockedDependencyLanes = deriveBlockedDependencyLanes({
     queueHealth,
     workListJsonText: options.workListJsonText,
@@ -703,7 +810,11 @@ export function discoverPlannerConcurrencyFloorReport(options: {
   const refillCandidates =
     usefulActiveLaneCount < options.concurrencyFloor
       ? plannerOwnedBacklogCandidates
-          .filter((candidate) => candidate.eligibleForRefill)
+          .filter(
+            (candidate) =>
+              candidate.eligibleForRefill &&
+              candidate.refillRecommendation !== "hold",
+          )
           .sort((left, right) => {
             const recommendationOrder =
               rankRecommendation(left.refillRecommendation) -
@@ -759,6 +870,7 @@ export function discoverPlannerConcurrencyFloorReport(options: {
       queueHealth.ignorableStaleNoise.items.map(summarizeStaleNoise),
     plannerOwnedBacklogCandidates,
     refillCandidates,
+    rootGeneratedArtifactDriftHold,
     issues: [...queueHealth.issues],
   };
 }
@@ -963,6 +1075,33 @@ function formatPlannerOwnedBacklogCandidates(
   return lines;
 }
 
+function formatRootGeneratedArtifactDriftHold(
+  hold: PlannerRootGeneratedArtifactDriftHold,
+): string[] {
+  const lines = [
+    `Root Generated-Artifact Drift Hold (page-refill-hold=${hold.pageRefillHold})`,
+  ];
+
+  if (!hold.pageRefillHold) {
+    lines.push("- none");
+    return lines;
+  }
+
+  lines.push(`- guidance=${hold.guidance ?? hold.holdReason}`);
+  if (hold.blockingPaths.length > 0) {
+    lines.push(
+      `- blocking-paths=${hold.blockingPaths.map((pathEvidence) => pathEvidence.path).join(" | ")}`,
+    );
+    for (const pathEvidence of hold.blockingPaths) {
+      lines.push(
+        `  - path=${pathEvidence.path} surface=${pathEvidence.surface}`,
+      );
+    }
+  }
+
+  return lines;
+}
+
 function formatRefillCandidates(
   candidates: PlannerBacklogCandidate[],
 ): string[] {
@@ -987,7 +1126,7 @@ export function formatPlannerConcurrencyFloorReport(
   const lines = [
     "Planner concurrency-floor summary",
     `generated-at=${report.generatedAtUtc} session=${report.sourceSession}`,
-    `summary useful-active=${report.usefulActiveLaneCount} floor=${report.concurrencyFloor} status=${report.floorStatus} refill-needed=${report.lanesNeededToReachFloor} blocked-dependencies=${report.blockedDependencyLanes.length} held-backlog=${report.heldBacklogCandidates.length} advisory-uncertain=${report.advisoryUncertainties.length} advisory-only=${report.advisoryOnly}`,
+    `summary useful-active=${report.usefulActiveLaneCount} floor=${report.concurrencyFloor} status=${report.floorStatus} refill-needed=${report.lanesNeededToReachFloor} blocked-dependencies=${report.blockedDependencyLanes.length} held-backlog=${report.heldBacklogCandidates.length} advisory-uncertain=${report.advisoryUncertainties.length} page-refill-hold=${report.rootGeneratedArtifactDriftHold.pageRefillHold} advisory-only=${report.advisoryOnly}`,
     "",
     ...formatUsefulActiveLanes(report.usefulActiveLanes),
     "",
@@ -996,6 +1135,10 @@ export function formatPlannerConcurrencyFloorReport(
     ...formatHeldBacklogCandidates(report.heldBacklogCandidates),
     "",
     ...formatAdvisoryUncertainties(report.advisoryUncertainties),
+    "",
+    ...formatRootGeneratedArtifactDriftHold(
+      report.rootGeneratedArtifactDriftHold,
+    ),
     "",
     ...formatIgnoredStaleNoise(report.ignoredStaleNoise),
     "",

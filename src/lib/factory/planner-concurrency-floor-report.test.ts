@@ -6,7 +6,7 @@ import {
 } from "@/lib/factory/planner-concurrency-floor-report";
 
 const SUMMARY_SUFFIX =
-  " blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 advisory-only=true";
+  " blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 page-refill-hold=false advisory-only=true";
 
 describe("discoverPlannerConcurrencyFloorReport", () => {
   test("counts only live active queue lanes and compares them against the configured floor", () => {
@@ -461,15 +461,15 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
         ],
         taskId: "ideas-to-review/content/gamma-unclear",
       },
-      {
-        evidenceQuality: "partial",
-        recommendation: "hold",
-        reasons: [
-          "Task hints overlap current planner dirty path(s): src/lib/factory/planner-concurrency-floor-report.ts.",
-        ],
-        taskId: "ideas-to-review/content/beta-overlap",
-      },
     ]);
+    expect(
+      report.plannerOwnedBacklogCandidates.find(
+        (candidate) =>
+          candidate.taskId === "ideas-to-review/content/beta-overlap",
+      ),
+    ).toMatchObject({
+      refillRecommendation: "hold",
+    });
   });
 
   test("separates blocked dependencies, held backlog, and advisory uncertainty from useful active work", () => {
@@ -618,7 +618,7 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
       },
     ]);
     expect(reportText).toContain(
-      "summary useful-active=1 floor=4 status=below-target refill-needed=3 blocked-dependencies=1 held-backlog=1 advisory-uncertain=1 advisory-only=true",
+      "summary useful-active=1 floor=4 status=below-target refill-needed=3 blocked-dependencies=1 held-backlog=1 advisory-uncertain=1 page-refill-hold=false advisory-only=true",
     );
     expect(reportText).toContain("Blocked Dependency Lanes (1)");
     expect(reportText).toContain("work-item=blocked-loopback");
@@ -639,5 +639,117 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     expect(
       jsonReport.advisoryUncertainties.map((uncertainty) => uncertainty.taskId),
     ).toEqual(["ideas-to-review/content/uncertain-task"]);
+  });
+
+  test("suppresses page-oriented refill candidates when root generated-artifact drift is present", () => {
+    const workListJsonText = JSON.stringify({
+      results: [
+        {
+          workId: "task-active",
+          name: "active-lane",
+          sessionId: "session-active",
+          workTypeName: "task",
+          state: { name: "in-review", type: "PROCESSING" },
+        },
+      ],
+    });
+    const report = discoverPlannerConcurrencyFloorReport({
+      concurrencyFloor: 3,
+      generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      plannerRootDirtyPaths: [
+        {
+          path: "src/lib/content/generated/table-registry.generated.ts",
+          surface: "src/lib/content/generated",
+        },
+      ],
+      plannerRootDirtyPathsAvailable: true,
+      sourceSession: "~planner",
+      taskFiles: [
+        {
+          path: "tasks/ideas-to-review/content/page-refill.md",
+          text: [
+            "# Page Refill",
+            "",
+            "- Scope `src/content/docs/modules/example-page/page.mdx`.",
+          ].join("\n"),
+        },
+        {
+          path: "tasks/ideas-to-review/content/factory-refill.md",
+          text: [
+            "# Factory Refill",
+            "",
+            "- Scope `src/lib/factory/example-report.ts`.",
+          ].join("\n"),
+        },
+      ],
+      tempStateFiles: [],
+      workListJsonText,
+    });
+    const reportText = formatPlannerConcurrencyFloorReport(report);
+    const jsonReport = JSON.parse(
+      serializePlannerConcurrencyFloorReport(report),
+    ) as {
+      refillCandidates: Array<{ taskId: string; refillRecommendation: string }>;
+      rootGeneratedArtifactDriftHold: {
+        pageRefillHold: boolean;
+        blockingPaths: Array<{ path: string; surface: string }>;
+        guidance?: string;
+      };
+      plannerOwnedBacklogCandidates: Array<{
+        taskId: string;
+        refillRecommendation: string;
+        recommendationReasons: string[];
+      }>;
+    };
+
+    expect(report.rootGeneratedArtifactDriftHold).toEqual({
+      blockingPaths: [
+        {
+          path: "src/lib/content/generated/table-registry.generated.ts",
+          surface: "src/lib/content/generated",
+        },
+      ],
+      guidance:
+        "Page refill is held because root generated-artifact drift is present; reconcile generated artifacts before adding page work.",
+      holdReason:
+        "Page refill is held because root generated-artifact drift is present; reconcile generated artifacts before adding page work.",
+      pageRefillHold: true,
+    });
+    expect(
+      report.refillCandidates.map((candidate) => candidate.taskId),
+    ).toEqual(["ideas-to-review/content/factory-refill"]);
+    expect(
+      report.plannerOwnedBacklogCandidates.find(
+        (candidate) =>
+          candidate.taskId === "ideas-to-review/content/page-refill",
+      ),
+    ).toMatchObject({
+      eligibleForRefill: false,
+      refillRecommendation: "hold",
+    });
+    expect(reportText).toContain("page-refill-hold=true");
+    expect(reportText).toContain("Root Generated-Artifact Drift Hold");
+    expect(reportText).toContain(
+      "guidance=Page refill is held because root generated-artifact drift is present; reconcile generated artifacts before adding page work.",
+    );
+    expect(reportText).toContain(
+      "blocking-paths=src/lib/content/generated/table-registry.generated.ts",
+    );
+    expect(jsonReport.rootGeneratedArtifactDriftHold.pageRefillHold).toBe(true);
+    expect(jsonReport.rootGeneratedArtifactDriftHold.blockingPaths).toEqual([
+      {
+        path: "src/lib/content/generated/table-registry.generated.ts",
+        surface: "src/lib/content/generated",
+      },
+    ]);
+    expect(
+      jsonReport.plannerOwnedBacklogCandidates.find(
+        (candidate) =>
+          candidate.taskId === "ideas-to-review/content/page-refill",
+      )?.refillRecommendation,
+    ).toBe("hold");
+    expect(
+      jsonReport.refillCandidates.map((candidate) => candidate.taskId),
+    ).toEqual(["ideas-to-review/content/factory-refill"]);
   });
 });

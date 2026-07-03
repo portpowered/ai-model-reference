@@ -101,7 +101,7 @@ describe("report-planner-concurrency-floor script", () => {
       expect(jsonResult.status).toBe(0);
       expect(humanResult.stdout).toContain("Planner concurrency-floor summary");
       expect(humanResult.stdout).toContain(
-        "summary useful-active=2 floor=3 status=below-target refill-needed=1 blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 advisory-only=true",
+        "summary useful-active=2 floor=3 status=below-target refill-needed=1 blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 page-refill-hold=false advisory-only=true",
       );
       expect(humanResult.stdout).toContain("Useful Active Lanes (2)");
       expect(humanResult.stdout).toContain("Blocked Dependency Lanes (0)");
@@ -206,7 +206,7 @@ describe("report-planner-concurrency-floor script", () => {
 
       expect(result.status).toBe(0);
       expect(result.stdout).toContain(
-        "summary useful-active=1 floor=2 status=below-target refill-needed=1 blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 advisory-only=true",
+        "summary useful-active=1 floor=2 status=below-target refill-needed=1 blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 page-refill-hold=false advisory-only=true",
       );
       expect(result.stdout).toContain("Ignored Stale Noise (2)");
       expect(result.stdout).toContain("work-item=cron:though-retrigger");
@@ -486,7 +486,7 @@ describe("report-planner-concurrency-floor script", () => {
 
       expect(humanResult.status).toBe(0);
       expect(jsonResult.status).toBe(0);
-      expect(humanResult.stdout).toContain("Refill Candidates (3)");
+      expect(humanResult.stdout).toContain("Refill Candidates (2)");
       expect(humanResult.stdout).toContain("Advisory Uncertainties (1)");
 
       const jsonReport = JSON.parse(jsonResult.stdout) as {
@@ -511,7 +511,6 @@ describe("report-planner-concurrency-floor script", () => {
       ).toEqual([
         "ideas-to-review/content/alpha-safe",
         "ideas-to-review/content/gamma-unclear",
-        "ideas-to-review/content/beta-overlap",
       ]);
       expect(
         jsonReport.refillCandidates.map((candidate) => ({
@@ -526,10 +525,6 @@ describe("report-planner-concurrency-floor script", () => {
         {
           evidenceQuality: "missing",
           refillRecommendation: "uncertain",
-        },
-        {
-          evidenceQuality: "partial",
-          refillRecommendation: "hold",
         },
       ]);
     } finally {

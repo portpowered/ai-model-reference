@@ -37,7 +37,7 @@ For tests or offline inspection, replace live sources with:
 The summary line is the stable top-level contract for human output:
 
 ```txt
-summary useful-active=<count> floor=<count> status=<below-target|at-target|above-target> refill-needed=<count> blocked-dependencies=<count> held-backlog=<count> advisory-uncertain=<count> advisory-only=true
+summary useful-active=<count> floor=<count> status=<below-target|at-target|above-target> refill-needed=<count> blocked-dependencies=<count> held-backlog=<count> advisory-uncertain=<count> page-refill-hold=<true|false> advisory-only=true
 ```
 
 Interpretation:
@@ -51,6 +51,8 @@ Interpretation:
 * `Blocked Dependency Lanes` shows queue items waiting on unfinished dependencies with dependency and reason detail.
 * `Held Backlog Candidates` shows planner-owned tasks that are already active or explicitly held.
 * `Advisory Uncertainties` shows backlog tasks that need planner judgment before refill because evidence is incomplete or only partial.
+* `page-refill-hold=true` means explicit root generated-artifact drift is present and page-oriented refill candidates are suppressed until generated artifacts are reconciled.
+* `Root Generated-Artifact Drift Hold` shows blocking paths and guidance when page refill is held for generated-artifact drift.
 * `Planner-Owned Backlog Candidates` shows the full scanned planner-owned task set with hold evidence and collision context.
 * `Refill Candidates` shows only eligible candidates when the useful active lane count is below target.
 
@@ -58,7 +60,7 @@ Recommendation levels:
 
 * `recommendation=prefer` means grounded repo-path evidence with no active alias or current dirty-surface conflict.
 * `recommendation=uncertain` means evidence is incomplete or partial and needs planner judgment.
-* `recommendation=hold` means the candidate is already active, explicitly held in planner temp state, or overlaps current planner dirty paths closely enough to avoid dispatch.
+* `recommendation=hold` means the candidate is already active, explicitly held in planner temp state, overlaps current planner dirty paths closely enough to avoid dispatch, or page refill is held because root generated-artifact drift is present.
 
 The JSON output carries the same result as the human summary and is versioned with `contractVersion: "planner-concurrency-floor/v1"`.
 
