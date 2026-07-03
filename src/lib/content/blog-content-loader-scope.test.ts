@@ -25,14 +25,18 @@ function expectExportDefined(
 }
 
 describe("blog content loader lane isolation", () => {
-  test("committed published blog posts stay loader-owned without shell leakage", async () => {
+  test("production blog root lists committed published posts", async () => {
     const posts = await listPublishedBlogPosts();
-    for (const post of posts) {
-      expect(post.frontmatter.status).toBe("published");
-      expect(post.slug.length).toBeGreaterThan(0);
-    }
+    expect(posts.map((post) => post.slug)).toEqual([
+      "roofline-throughput-explorer",
+    ]);
     await expect(
-      getPublishedBlogPostBySlug("nonexistent-slug"),
+      getPublishedBlogPostBySlug("roofline-throughput-explorer"),
+    ).resolves.toMatchObject({
+      slug: "roofline-throughput-explorer",
+    });
+    await expect(
+      getPublishedBlogPostBySlug("example-post"),
     ).resolves.toBeNull();
   });
 
