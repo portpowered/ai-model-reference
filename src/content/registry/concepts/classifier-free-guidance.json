@@ -1,0 +1,38 @@
+{
+  "id": "concept.classifier-free-guidance",
+  "slug": "classifier-free-guidance",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Classifier-Free Guidance",
+    "classifier-free guidance",
+    "CFG",
+    "diffusion guidance",
+    "prompt guidance scale",
+    "guidance scale"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.conditioning",
+    "concept.diffusion-model",
+    "concept.denoising-generation",
+    "model.clip",
+    "paper.latent-diffusion"
+  ],
+  "citationIds": ["citation.classifier-free-diffusion-guidance"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.inference",
+  "conceptType": "inference",
+  "sidebarGrouping": {
+    "glossary": "generation-and-diffusion"
+  },
+  "prerequisiteIds": [
+    "concept.conditioning",
+    "concept.denoising-generation",
+    "concept.diffusion-model"
+  ],
+  "explainsIds": []
+}
