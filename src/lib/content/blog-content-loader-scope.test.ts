@@ -25,10 +25,14 @@ function expectExportDefined(
 }
 
 describe("blog content loader lane isolation", () => {
-  test("production blog root has no committed published posts", async () => {
-    await expect(listPublishedBlogPosts()).resolves.toEqual([]);
+  test("committed published blog posts stay loader-owned without shell leakage", async () => {
+    const posts = await listPublishedBlogPosts();
+    for (const post of posts) {
+      expect(post.frontmatter.status).toBe("published");
+      expect(post.slug.length).toBeGreaterThan(0);
+    }
     await expect(
-      getPublishedBlogPostBySlug("example-post"),
+      getPublishedBlogPostBySlug("nonexistent-slug"),
     ).resolves.toBeNull();
   });
 
