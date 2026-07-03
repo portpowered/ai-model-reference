@@ -67,6 +67,9 @@ describe("Phase 2 representation and latent glossary pages (US-001)", () => {
       expectGlossaryOmitsOpeningSummary(html);
       expect(html).toContain('href="/tags/foundations"');
       expect(html).toContain('href="/tags/taxonomy"');
+      if (slug === "latent-space") {
+        expect(html).toContain('href="/tags/model-family"');
+      }
       expectGlossaryOmitsWhereItAppears(html);
       expect(html).not.toContain("Draft placeholder");
     });
@@ -79,19 +82,21 @@ describe("Phase 2 representation and latent glossary pages (US-001)", () => {
     expect(html).toContain('href="/docs/glossary/modality"');
   });
 
-  test("latent-space links to published encoder and denoising generation", async () => {
+  test("latent-space links to diffusion, denoising, conditioning, and latent diffusion paper", async () => {
     const html = await renderGlossaryHtml("latent-space");
 
-    expect(html).toContain('href="/docs/glossary/encoder"');
+    expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/glossary/denoising-generation"');
+    expect(html).toContain('href="/docs/glossary/conditioning"');
+    expect(html).toContain('href="/docs/papers/latent-diffusion"');
     expect(html).toContain("Denoising");
   });
 
-  test("latent-space links backward to latent and generative model", async () => {
+  test("latent-space links to embedding and latent peers", async () => {
     const html = await renderGlossaryHtml("latent-space");
 
+    expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/glossary/latent"');
-    expect(html).toContain('href="/docs/glossary/generative-model"');
   });
 
   test("search finds patch, latent, and latent space by title and alias", async () => {
