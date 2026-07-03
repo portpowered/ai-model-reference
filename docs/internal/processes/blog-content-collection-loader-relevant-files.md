@@ -1,0 +1,47 @@
+# Blog Content Collection Loader — Relevant Files
+
+Use these files when extending the blog content loading foundation. This lane
+loads `src/content/blog/<slug>/page.mdx` posts for future route renderers without
+adding public blog routes, shell hardening, or committed real posts.
+
+## Blog-owned loader surface
+
+* `src/lib/content/blog-frontmatter.ts`
+  Typed frontmatter contract, calendar-date validation, and published visibility.
+* `src/lib/content/blog-post-messages.ts`
+  Blog-specific local message schema (`title`, `description`, `contextSentence`, `takeaway`).
+* `src/lib/content/blog-post-load.ts`
+  Sidecar loading for local `messages/<locale>.json` and optional `assets.json`.
+* `src/lib/content/blog-post-list.ts`
+  Published post discovery, draft filtering, and newest-first sorting.
+* `src/lib/content/blog-post-get.ts`
+  Single published post lookup by slug with typed not-found (`null`) behavior.
+
+## Shared path helper (minimum touch)
+
+* `src/lib/content/content-paths.ts`
+  `getBlogRoot()` and `BLOG_ROOT` only — do not add broader shell or browse helpers here.
+
+## Fixture and isolation tests
+
+* `src/lib/content/blog-frontmatter.test.ts`
+* `src/lib/content/blog-post-load.test.ts`
+* `src/lib/content/blog-post-list.test.ts`
+* `src/lib/content/blog-post-get.test.ts`
+* `src/lib/content/blog-content-loader-scope.test.ts`
+  Production-root emptiness, blog-owned import surfaces, and public shell catalog isolation.
+
+## Out of scope for this lane
+
+* Public `/blog` or `/blog/<slug>` routes under `src/app`
+* Blog navigation, sidebar entries, tag pages, or search integration
+* Real blog post content under `src/content/blog`
+* Generic shell hardening lanes (`shell-domain-relevant-files.md`, browse, sidebar, search enrichment)
+
+## Verification
+
+* `bun run typecheck`
+* `bun run lint`
+* `bun test src/lib/content/blog-`
+
+Canonical frontmatter reference: `docs/templates/blog-post.mdx`.

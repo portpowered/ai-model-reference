@@ -38,6 +38,7 @@ import swigluComparisonTableRecord from "@/content/registry/tables/swiglu-compar
 import tanhComparisonTableRecord from "@/content/registry/tables/tanh-comparison.json";
 import tokenizerMismatchComparisonTableRecord from "@/content/registry/tables/tokenizer-mismatch-comparison.json";
 import unigramTokenizerComparisonTableRecord from "@/content/registry/tables/unigram-tokenizer-comparison.json";
+import visualTokenizationRepresentationFormsComparisonTableRecord from "@/content/registry/tables/visual-tokenization-representation-forms-comparison.json";
 
 export const generatedTableRegistrySourceFiles = [
   "batch-norm-comparison.json",
@@ -77,6 +78,7 @@ export const generatedTableRegistrySourceFiles = [
   "tanh-comparison.json",
   "tokenizer-mismatch-comparison.json",
   "unigram-tokenizer-comparison.json",
+  "visual-tokenization-representation-forms-comparison.json",
 ] as const;
 
 export const generatedTableRegistryPayloads = [
@@ -117,4 +119,5 @@ export const generatedTableRegistryPayloads = [
   tanhComparisonTableRecord,
   tokenizerMismatchComparisonTableRecord,
   unigramTokenizerComparisonTableRecord,
+  visualTokenizationRepresentationFormsComparisonTableRecord,
 ] as const;

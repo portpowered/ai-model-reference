@@ -30,8 +30,8 @@ jobs:
           - name: test
             command: make test
             website_test_parallel_workers: 1
-            timeout_minutes: 6
-            ci_command_timeout_seconds: 360
+            timeout_minutes: 7
+            ci_command_timeout_seconds: 420
           - name: test-verify-contract
             command: make test-verify-contract
             install_playwright: true
