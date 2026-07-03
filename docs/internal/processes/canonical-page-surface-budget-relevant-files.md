@@ -137,6 +137,22 @@ the recommended next action in contributor terms:
   helper, shared test, or multi-page churn into a dedicated throughput or
   conflict-reduction lane.
 
+## Behavioral verification
+
+Focused representative coverage lives in
+`src/tests/ci/canonical-page-surface-audit-behavioral-verification.test.ts`.
+The suite uses temporary fixture repos (no real page payloads) and asserts
+observable CLI outcomes for:
+
+- a representative page-only path set that passes as in budget via `--files`
+- a representative shared-surface path set that is over budget with actionable
+  guidance via `--files`
+- explicit path-list input that classifies independently from git branch diff
+
+Unit and command tests in `canonical-page-surface-audit.test.ts` and
+`canonical-page-surface-audit-command.test.ts` cover exception lanes, hotspot
+evidence fallback, and branch-diff classification.
+
 ## Core implementation and docs
 
 - `src/lib/factory/canonical-page-surface-audit.ts` — branch diff and path-list
