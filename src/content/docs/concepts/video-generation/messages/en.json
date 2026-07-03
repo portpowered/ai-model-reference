@@ -1,0 +1,32 @@
+{
+  "title": "Video generation",
+  "description": "Models that produce moving visual sequences by generating or refining frames—or visual tokens arranged over time—while keeping motion, identity, and appearance coherent from one moment to the next.",
+  "openingSummary": "Video generation builds a sequence of visual states over time, so the hard problem is not only what each frame should look like but how those frames stay consistent as objects move, cameras shift, and lighting changes.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Video generation is the task of producing a moving visual sequence rather than a single still image. A system may output full frames, latent grids that decode into frames, or visual tokens that represent patches across space and time. The output is always ordered: frame one comes before frame two, and readers judge the result by whether the sequence feels like one continuous scene instead of unrelated pictures."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Image generation asks what one picture should contain. Video generation adds time as a hard modeling axis: the model must decide how visual state changes from moment to moment while keeping identity, motion, camera viewpoint, lighting, and style stable enough to watch. That temporal burden shows up in flicker, object drift, broken physics, and style shifts that a single-frame model never has to solve. Conditioning also runs across time—text, a reference image, prior frames, or motion controls can steer the whole clip, not just one snapshot."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A text-to-video model receives a prompt such as \"a red ball rolling across a wooden floor.\" It may denoise a stack of latent frames over many steps or predict visual tokens frame by frame, using the text embedding as guidance at each time step. A convincing clip keeps the ball red, round, and on the floor while its position changes smoothly; a weak one might change the ball's color, float it, or jump between unrelated backgrounds."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Video generation is not the same as generating a longer or higher-resolution image. More pixels do not by themselves create coherent motion. It is also not one fixed recipe: systems may use diffusion-style denoising, autoregressive token prediction, visual tokenization, or hybrids, and they differ in how they enforce consistency across frames. Conditioning types vary by model—text, images, layout, and motion controls are common, but no single system supports every signal."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
