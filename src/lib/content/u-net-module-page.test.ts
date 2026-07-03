@@ -234,3 +234,77 @@ describe("u-net U-shaped denoising teaching asset (u-net-module-page-003)", () =
     { timeout: 15_000 },
   );
 });
+
+describe("u-net denoising fit and adjacent comparisons (u-net-module-page-004)", () => {
+  test("explainer prose covers multiscale context, skip detail, conditioning, and architectural DiT contrast", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const why = messages.sections?.whyItExists.body ?? "";
+    const how = messages.sections?.howItWorks.body ?? "";
+    const compared = messages.sections?.comparedToNearbyModules.body ?? "";
+
+    expect(why).toMatch(/Downsampling widens/i);
+    expect(why).toMatch(/upsampling rebuilds full resolution/i);
+    expect(why).toMatch(/Skip connections/i);
+    expect(why).toMatch(/bottleneck alone/i);
+
+    expect(how).toMatch(/broader context across the image/i);
+    expect(how).toMatch(/doubles resolution stage by stage/i);
+    expect(how).toMatch(/skip connection/i);
+    expect(how).toMatch(/timestep embedding/i);
+    expect(how).toMatch(/conditioning embeddings/i);
+
+    expect(compared).toMatch(/convolutional image grid/i);
+    expect(compared).toMatch(/diffusion transformer block/i);
+    expect(compared).toMatch(/self-attention/i);
+    expect(compared).toMatch(/skip bridges/i);
+    expect(compared).not.toMatch(
+      /F1|BLEU|ImageNet score|leaderboard|benchmark/i,
+    );
+
+    expect(messages.tables?.comparison?.values?.uNet?.contextMixing).toMatch(
+      /Downsampling widens receptive field/i,
+    );
+    expect(
+      messages.tables?.comparison?.values?.uNet?.detailPreservation,
+    ).toMatch(/Skip connections fuse encoder features/i);
+    expect(
+      messages.tables?.comparison?.values?.ditBlock?.spatialRepresentation,
+    ).toMatch(/Patch or latent tokens/i);
+  });
+
+  test(
+    "rendered page exposes denoising-fit prose, comparison table, and diffusion transformer navigation without benchmark framing",
+    async () => {
+      const page = await loadModulePage("u-net");
+      const html = renderToStaticMarkup(
+        createElement(ModulePageProviders, {
+          messages: page.messages,
+          assets: page.assets,
+          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+          children: page.content,
+        }),
+      );
+
+      expect(html).toContain("broader context across the image");
+      expect(html).toContain("doubles resolution stage by stage");
+      expect(html).toContain("timestep embedding");
+      expect(html).toContain('href="/docs/glossary/conditioning"');
+      expect(html).toContain("explicit skip bridges");
+      expect(html).toContain(
+        "Convolutional feature maps on an image or latent grid",
+      );
+      expect(html).toContain("Patch or latent");
+      expect(html).toContain(
+        'data-comparison-cell="spatialRepresentation:module.diffusion-transformer-block"',
+      );
+      expect(html).toContain(
+        'href="/docs/modules/diffusion-transformer-block"',
+      );
+      expect(html).not.toMatch(/leaderboard|benchmark score|ImageNet score/i);
+    },
+    { timeout: 15_000 },
+  );
+});
