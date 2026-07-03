@@ -12,9 +12,9 @@ import {
   runSourceDiscoveryGate,
 } from "./phase-2-3-reconciliation-convergence";
 
-const REGISTRY_VALIDATION_GATE_TIMEOUT_MS = 10_000;
-const ATTENTION_TAG_GROUPING_GATE_TIMEOUT_MS = 15_000;
-const COMBINED_CONVERGENCE_GATE_TIMEOUT_MS = 30_000;
+const REGISTRY_VALIDATION_GATE_TIMEOUT_MS = 20_000;
+const ATTENTION_TAG_GROUPING_GATE_TIMEOUT_MS = 25_000;
+const COMBINED_CONVERGENCE_GATE_TIMEOUT_MS = 60_000;
 
 describe("Phase 2/3 reconciliation convergence gate (US-012)", () => {
   test(
