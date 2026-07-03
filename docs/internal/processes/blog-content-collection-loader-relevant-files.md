@@ -16,6 +16,9 @@ adding public blog routes, shell hardening, or committed real posts.
   Published post discovery, draft filtering, and newest-first sorting.
 * `src/lib/content/blog-post-get.ts`
   Single published post lookup by slug with typed not-found (`null`) behavior.
+* `src/lib/content/validate-blog-posts.ts`
+  Build-time validation for published blog metadata, controlled tags, related docs,
+  local messages, and local asset config. Wired into `validateRegistryContent`.
 
 ## Shared path helper (minimum touch)
 
@@ -30,6 +33,8 @@ adding public blog routes, shell hardening, or committed real posts.
 * `src/lib/content/blog-post-get.test.ts`
 * `src/lib/content/blog-content-loader-scope.test.ts`
   Production-root emptiness, blog-owned import surfaces, and public shell catalog isolation.
+* `src/lib/content/validate-blog-posts.test.ts`
+  Published blog metadata, tag, related-doc, message, and asset validation fixtures.
 
 ## Out of scope for this lane
 
