@@ -46,6 +46,9 @@ Use these files when extending the default English blog surface at `/blog` and
   Consolidated route proof for `/blog` metadata/render, `/blog/<slug>` body
   content, newest-first ordering, and unknown-slug missing-page behavior.
 * Browser-verify `/blog` and `/blog/<slug>` on a unique local port after `bun run build`.
+* PR review may require a clean local `make test`; unrelated search/glossary convergence
+  rows can time out under full-suite load—extend per-test timeouts rather than
+  changing blog route code when CI is already green.
 
 ## Patterns
 

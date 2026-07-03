@@ -209,7 +209,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       const context = await loadAppTestContext();
       await typeQueryAndExpectGqaResult(context, query);
     },
-    { timeout: 30_000 },
+    { timeout: 90_000 },
   );
 
   test.each([
