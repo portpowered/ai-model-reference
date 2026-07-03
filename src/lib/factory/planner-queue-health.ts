@@ -71,6 +71,7 @@ interface ParsedQueueRecord {
   workItemName: string;
   workTypeName?: string;
   traceId?: string;
+  sessionId?: string;
   stateName: string;
   stateType: QueueHealthStateType;
   relations: QueueHealthDependency[];
@@ -226,6 +227,7 @@ function parseQueueRecord(item: Record<string, unknown>): ParsedQueueRecord {
         ? readStringField(item.tags, ["_work_type"])
         : undefined),
     traceId: readStringField(item, ["traceId", "currentChainingTraceId"]),
+    sessionId: readStringField(item, ["sessionId", "runtimeSessionId"]),
     stateName,
     stateType:
       explicitStateType === "UNKNOWN"
@@ -238,6 +240,61 @@ function parseQueueRecord(item: Record<string, unknown>): ParsedQueueRecord {
 function parseQueueRecords(jsonText: string): ParsedQueueRecord[] {
   const parsed = JSON.parse(jsonText) as unknown;
   return extractCandidateItemArray(parsed).map(parseQueueRecord);
+}
+
+export function buildQueueSessionIdByWorkId(
+  workListJsonText: string,
+): Map<string, string> {
+  const sessionIdsByWorkId = new Map<string, string>();
+
+  for (const record of parseQueueRecords(workListJsonText)) {
+    if (record.sessionId) {
+      sessionIdsByWorkId.set(record.workId, record.sessionId);
+    }
+  }
+
+  return sessionIdsByWorkId;
+}
+
+export interface QueueTerminalCompleteAliasEvidence {
+  workId: string;
+  workItemName: string;
+  stateName: string;
+}
+
+function normalizeQueueWorkItemAlias(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\\/g, "/")
+    .replace(/\.md$/i, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export function buildQueueTerminalCompleteAliasMap(
+  workListJsonText: string,
+): Map<string, QueueTerminalCompleteAliasEvidence> {
+  const aliasMap = new Map<string, QueueTerminalCompleteAliasEvidence>();
+
+  for (const record of parseQueueRecords(workListJsonText)) {
+    if (!isCompleteState(record)) {
+      continue;
+    }
+
+    const alias = normalizeQueueWorkItemAlias(record.workItemName);
+    if (!alias) {
+      continue;
+    }
+
+    aliasMap.set(alias, {
+      workId: record.workId,
+      workItemName: record.workItemName,
+      stateName: record.stateName,
+    });
+  }
+
+  return aliasMap;
 }
 
 function isCompleteState(record: ParsedQueueRecord | undefined): boolean {

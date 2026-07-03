@@ -1,0 +1,10 @@
+{
+  "vectorFieldFlow": {
+    "type": "graph",
+    "graphId": "graph.flow-matching-vector-field-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.vectorFieldFlow.alt",
+    "captionKey": "assets.vectorFieldFlow.caption"
+  }
+}

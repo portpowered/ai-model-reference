@@ -1,0 +1,216 @@
+---
+title: Flow matching
+description: A generative training objective that teaches a model how samples should move from a simple or noisy starting state toward real data.
+kind: "concept"
+registryId: "concept.flow-matching"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - model-family
+aliases:
+  - "Flow matching"
+  - "flow matching"
+  - "rectified flow"
+  - "velocity prediction"
+  - "flow-matching objective"
+  - "diffusion vs flow matching"
+  - "flow matching video generation"
+updatedAt: "2026-07-03"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ConceptMap } from "@/features/models/components/ConceptMap";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section
+  id="vector-field-intuition"
+  titleKey="sections.vectorFieldIntuition.title"
+>
+  <T k="sections.vectorFieldIntuition.body" />
+  <ConceptMap
+    registryId="concept.flow-matching"
+    assetId="vectorFieldFlow"
+  />
+  <BlockMath formula="\\mathcal{L} = \\mathbb{E}_{t,\\,x_0,\\,x_1}\\left[\\left\\lVert v_\\theta(x_t, t) - (x_1 - x_0) \\right\\rVert^2\\right]" />
+  <div
+    className="rounded-lg border border-border bg-card p-4"
+    data-page-math-variable-definitions="velocityMatchingObjective"
+  >
+    <dl className="space-y-2">
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="theta"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>&theta;</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.velocityMatchingObjective.variableDefinitions.theta.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="x0"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            x<sub>0</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.velocityMatchingObjective.variableDefinitions.x0.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="x1"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            x<sub>1</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.velocityMatchingObjective.variableDefinitions.x1.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="t"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>t</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.velocityMatchingObjective.variableDefinitions.t.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="xt"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            x<sub>t</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.velocityMatchingObjective.variableDefinitions.xt.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="vtheta"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            v<sub>&theta;</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.velocityMatchingObjective.variableDefinitions.vtheta.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="targetvelocity"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            x<sub>1</sub> - x<sub>0</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.velocityMatchingObjective.variableDefinitions.targetvelocity.definition" />
+        </dd>
+      </div>
+    </dl>
+  </div>
+</Section>
+
+<Section
+  id="compared-to-diffusion-style-generation"
+  titleKey="sections.comparedToDiffusionStyleGeneration.title"
+>
+  <T k="sections.comparedToDiffusionStyleGeneration.body" />
+  <LocalizedLinkList
+    items={[
+      {
+        href: "/docs/training/diffusion-training-objective",
+        labelKey: "links.diffusionTrainingObjective",
+      },
+      {
+        href: "/docs/papers/latent-diffusion",
+        labelKey: "links.latentDiffusion",
+      },
+    ]}
+  />
+</Section>
+
+<Section
+  id="in-modern-image-and-video-systems"
+  titleKey="sections.inModernImageAndVideoSystems.title"
+>
+  <T k="sections.inModernImageAndVideoSystems.body" />
+  <LocalizedLinkList
+    items={[
+      {
+        href: "/docs/modules/diffusion-transformer-block",
+        labelKey: "links.diffusionTransformerBlock",
+      },
+      {
+        href: "/docs/models/ltx-23",
+        labelKey: "links.ltx23",
+      },
+      {
+        href: "/docs/concepts/video-generation",
+        labelKey: "links.videoGeneration",
+      },
+    ]}
+  />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.flow-matching"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.flow-matching" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.flow-matching" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.flow-matching" />
+</Section>
