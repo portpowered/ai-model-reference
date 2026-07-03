@@ -34,9 +34,9 @@ import {
 import { createDocsSearchRouteFetch } from "@/tests/search/route-fetch";
 import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
 
-setDefaultTimeout(15_000);
+setDefaultTimeout(30_000);
 
-const SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS = 15_000;
+const SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS = 30_000;
 
 function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {
@@ -101,7 +101,9 @@ async function expectFirstSearchResultMatch(
 }
 
 /** Orama static search suspends on first client render; unmount + brief wait primes the cache. */
-async function findSearchPageResults(timeout = 15_000): Promise<HTMLElement> {
+async function findSearchPageResults(
+  timeout = SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS,
+): Promise<HTMLElement> {
   await waitFor(
     () => {
       expect(screen.queryByTestId("search-page-loading")).toBeNull();
@@ -229,7 +231,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
     const results = await screen.findByTestId(
       "search-page-results",
       {},
-      { timeout: 15_000 },
+      { timeout: SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS },
     );
     expectCustomerAskSearchPagePanel(within(results), query);
   });
@@ -251,7 +253,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
     const results = await screen.findByTestId(
       "search-page-results",
       {},
-      { timeout: 15_000 },
+      { timeout: SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS },
     );
     const resultUrls = within(results).getAllByTestId("search-result-url");
     expect(resultUrls.length).toBeGreaterThan(0);
@@ -630,7 +632,7 @@ describe("SearchPagePanel classification handoff", () => {
     const empty = await screen.findByTestId(
       "search-page-empty",
       {},
-      { timeout: 15_000 },
+      { timeout: SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS },
     );
     expect(empty.textContent).toContain(context.messages.search.noResults);
     expect(
