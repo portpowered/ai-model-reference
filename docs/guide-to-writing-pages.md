@@ -49,6 +49,7 @@ folding it into a routine page PR.
 
 Full owned-surface contract (do not duplicate here):
 
+- [canonical-page-surface-budget-relevant-files](./internal/processes/canonical-page-surface-budget-relevant-files.md)
 - [CONTRIBUTING — routine canonical-page PR surface budget](./contributors/CONTRIBUTING.md#routine-canonical-page-pr-surface-budget)
 - [content-page-generation-workflow-relevant-files](./internal/processes/content-page-generation-workflow-relevant-files.md#page-local-scope-versus-shared-hotspot-redirects)
 

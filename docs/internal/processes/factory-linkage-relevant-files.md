@@ -5,6 +5,11 @@ watchdog summaries, or planner-facing linkage reports.
 
 ## Core classification and discovery
 
+* `src/lib/factory/repo-path-resolution.ts` — resolve main repository root and
+  default `.claude/worktrees` directory from nested git worktree checkouts via
+  `git rev-parse --git-common-dir`; planner watchdog and linkage scripts should
+  use these helpers instead of `join(import.meta.dir, "..")` when discovering
+  lane worktrees from factory worktrees.
 * `src/lib/factory/queue-worktree-pr-linkage-ledger.ts` — shared lane
   discovery, linkage status, noise partitioning, and summary formatters.
 * `src/lib/factory/active-pr-mergeability-watchdog.ts` — PR lookup, branch
@@ -43,6 +48,14 @@ watchdog summaries, or planner-facing linkage reports.
   outcomes for safe stale-drift restore vs operator handoff plus content-lane
   hold/release decisions. See
   [latent-diffusion-root-deletion-reconciliation-relevant-files](./latent-diffusion-root-deletion-reconciliation-relevant-files.md).
+* `src/lib/factory/ownerless-generated-table-registry-drift.ts` — read-only
+  evidence capture for the ownerless generated table registry drift priority
+  blocker: records root `HEAD`, `origin/main`, ahead/behind relationship,
+  scoped dirty status for
+  `src/lib/content/generated/table-registry.generated.ts`, and
+  `looped-transformers-comparison.json` import/source-list/payload observation.
+  See
+  [ownerless-generated-table-registry-drift-relevant-files](./ownerless-generated-table-registry-drift-relevant-files.md).
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 * `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` — read-only
@@ -74,6 +87,8 @@ watchdog summaries, or planner-facing linkage reports.
 | Terminal or near-terminal lane landing audit against main | `bun run report:terminal-lane-main-branch-landing-audit` |
 | Root checkout reconciliation against HEAD and origin/main | `bun run report:planner-root-checkout-reconciliation` |
 | Latent diffusion root deletion landed-evidence verification | `bun run report:planner-latent-diffusion-root-deletion-reconciliation` |
+| Ownerless generated table registry drift evidence capture | `bun run report:ownerless-generated-table-registry-drift` |
+| Merged PR drain row evidence for PRs #281/#282/#284/#286 | `bun run report:merged-pr-drain-rows-reconciliation` |
 
 Direct script paths remain supported for fixture-driven tests:
 
@@ -82,6 +97,7 @@ Direct script paths remain supported for fixture-driven tests:
 * `bun ./scripts/report-terminal-lane-main-branch-landing-audit.ts`
 * `bun ./scripts/report-planner-root-checkout-reconciliation.ts`
 * `bun ./scripts/report-planner-latent-diffusion-root-deletion-reconciliation.ts`
+* `bun ./scripts/report-merged-pr-drain-rows-reconciliation.ts`
 
 ## Classification contract
 
@@ -106,6 +122,11 @@ Direct script paths remain supported for fixture-driven tests:
   `lane-kind=stale-clean-pr-mismatch` with `mismatch-reason=` evidence in the
   active PR watchdog and linkage ledger `Stale PR Mismatch Summary` section,
   not counted as active page implementation depth.
+* Conflict-priority ordering for PR-backed actionable rows uses
+  `sortPlannerWatchdogLanes`: `conflict-drift` / `merge-conflict` first, then
+  failing checks, then pending/wait checks, then other PR-backed lanes; gap and
+  noise lanes sort after PR-backed rows. Watchdog and ledger scripts share the
+  same sorter via `partitionLinkageLanesForSummary`.
 
 Reuse `isQueueOnlyMissingLinkageLane`, `isStaleFailedLoopbackLane`,
 `isStaleCleanPrMismatchLane`, `isActionableLinkageGapLane`, and
@@ -126,6 +147,15 @@ inventory checks. Supported fixture flags:
   `manual-inspection-shared-edits-dirty-status.txt`,
   `table-registry-drift-dirty-status.txt`)
 * `--session` for live `you work list` discovery in integration-style tests
+
+Story 004 end-to-end fixture verification uses the shared representative
+fixture in `linkage-classifier-report-compatibility.test.ts` (PR-backed
+conflict-drift lane, actionable gap, stale loopback noise, and queue-only
+missing-linkage noise) plus per-script discovery tests under
+`src/tests/discovery/active-pr-mergeability-watchdog.test.ts` and
+`src/tests/discovery/queue-worktree-pr-linkage-ledger.test.ts`. Ledger rows
+surface stale stamped linkage in `metadata-refresh=` separately from primary
+`missing=` reasons.
 
 Representative regression coverage lives in
 `src/tests/discovery/linkage-classifier-report-compatibility.test.ts`,
@@ -155,6 +185,27 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata for both target
   branches, DIRTY/CONFLICTING GitHub state with passing CI, and non-mutating
   merge-tree conflict paths for story 002 classification.
+* [clean-open-pr-drain-current-handoffs-relevant-files](./clean-open-pr-drain-current-handoffs-relevant-files.md)
+  — live evidence for open/merged handoff PRs #294/#290/#273/#271/#268/#251:
+  queue row mapping on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, mergeability
+  and CI status, PR #294 merged/consumed proof, conflict-drift on #290/#273,
+  merge-ready #271/#268, queue-stale and review-blocked #251, read-only capture
+  boundary for story 001, story 002 per-PR convergence outcomes
+  (`already-consumed`, `merge-ready-handoff`, `blocked-owner-handoff`,
+  `duplicate-or-stale`) with duplicate-content guard table, and story 003 content
+  PR handoffs for #271 (merge-ready), #290 (duplicate-or-stale close), and #251
+  (blocked-owner) with browser verification on consumed #289 main surface and
+  merge-ready #271 owner worktree, story 004 non-content repair handoffs for
+  #273 (blocked merge/queue recovery), #268 (merge-ready terminal-audit), and
+  #294 (already-consumed generic conflict refresh) with dirty-root and
+  no-new-content scope guards, and story 005 final planner drain report with
+  per-PR outcome table, planner action buckets (consume/review/blocked), scope
+  safety confirmation, and quality-gate evidence.
+* [dirty-generic-pr277-pr279-conflict-refresh-relevant-files](./dirty-generic-pr277-pr279-conflict-refresh-relevant-files.md)
+  — batch 074 follow-up after completed batch 073 handoff: fresh DIRTY/CONFLICTING
+  state on heads `6a1530a0` / `e5defbc8`, batch 066 drain still `idea:init`,
+  expanded merge-tree conflict set on #277 (four paths), and PR conversation
+  blocking feedback status for story 002 classification.
 * [merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files](./merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files.md)
   — merged PR drain evidence for PRs #274/#275/#276/#278/#280: live queue tokens
   on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata,

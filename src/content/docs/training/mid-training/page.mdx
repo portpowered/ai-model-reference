@@ -1,0 +1,116 @@
+---
+title: "Mid-Training"
+description: "Continued training on a pretrained base checkpoint before final post-training, using targeted data or objectives to extend capability without yet shaping final assistant behavior."
+kind: "training-regime"
+registryId: "training-regime.mid-training"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+aliases:
+  - "Mid-Training"
+  - "mid-training"
+  - "continued training"
+  - "intermediate training"
+updatedAt: "2026-07-02"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
+
+
+<TrainingRegimeAtAGlance registryId="training-regime.mid-training" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
+</Section>
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+  <TrainingRegimeFlow
+    registryId="training-regime.mid-training"
+    assetId="trainingFlow"
+  />
+  <BlockMath formula="\\theta_{\\text{mid}} \\leftarrow \\text{Train}(\\theta_{\\text{pre}}, \\mathcal{D}_{\\text{mid}}, \\mathcal{L}_{\\text{mid}})" />
+  <div
+    className="rounded-lg border border-border bg-card p-4"
+    data-page-math-variable-definitions="continuedTrainingObjective"
+  >
+    <dl className="space-y-2">
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="thetapre"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>&theta;<sub>pre</sub></span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.continuedTrainingObjective.variableDefinitions.thetapre.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="dmid"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>&Dscr;<sub>mid</sub></span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.continuedTrainingObjective.variableDefinitions.dmid.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="lmid"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>&Lscr;<sub>mid</sub></span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.continuedTrainingObjective.variableDefinitions.lmid.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="thetamid"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>&theta;<sub>mid</sub></span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.continuedTrainingObjective.variableDefinitions.thetamid.definition" />
+        </dd>
+      </div>
+    </dl>
+  </div>
+</Section>
+<Section
+  id="compared-to-nearby-regimes"
+  titleKey="sections.comparedToNearbyRegimes.title"
+>
+  <T k="sections.comparedToNearbyRegimes.body" />
+</Section>
+<Section
+  id="limitations-and-failure-modes"
+  titleKey="sections.limitationsAndFailureModes.title"
+>
+  <T k="sections.limitationsAndFailureModes.body" />
+</Section>
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="training-regime.mid-training" />
+</Section>
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="training-regime.mid-training" showDescriptions />
+</Section>
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="training-regime.mid-training" />
+</Section>

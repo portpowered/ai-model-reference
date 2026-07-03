@@ -11,6 +11,10 @@ import {
 import { AttentionVariantComparisonGraph } from "@/features/models/components/AttentionVariantComparisonGraph";
 import { RegistryComparisonTable } from "@/features/models/components/RegistryComparisonTable";
 import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
+import {
+  isRooflineChartId,
+  RooflineTeachingChart,
+} from "@/features/models/components/RooflineTeachingChart";
 import { lookupAsset, resolveAssetText } from "@/lib/content/assets";
 import { lookupMessage } from "@/lib/content/messages";
 import type { PageAsset as PageAssetRecord } from "@/lib/content/schemas";
@@ -216,21 +220,32 @@ export function PageAsset({ assetId }: { assetId: string }) {
   }
 
   if (asset.type === "chart") {
-    if (!isActivationChartId(asset.chartId)) {
+    if (isActivationChartId(asset.chartId)) {
       return (
-        <StructuredAssetSlot
+        <ChartAssetSlot
           assetId={assetId}
           asset={asset}
+          alt={text.alt}
+          caption={text.caption}
+        />
+      );
+    }
+
+    if (isRooflineChartId(asset.chartId)) {
+      return (
+        <RooflineTeachingChart
+          assetId={assetId}
+          chartId={asset.chartId}
+          alt={text.alt}
           caption={text.caption}
         />
       );
     }
 
     return (
-      <ChartAssetSlot
+      <StructuredAssetSlot
         assetId={assetId}
         asset={asset}
-        alt={text.alt}
         caption={text.caption}
       />
     );
