@@ -5,6 +5,11 @@ watchdog summaries, or planner-facing linkage reports.
 
 ## Core classification and discovery
 
+* `src/lib/factory/repo-path-resolution.ts` — resolve main repository root and
+  default `.claude/worktrees` directory from nested git worktree checkouts via
+  `git rev-parse --git-common-dir`; planner watchdog and linkage scripts should
+  use these helpers instead of `join(import.meta.dir, "..")` when discovering
+  lane worktrees from factory worktrees.
 * `src/lib/factory/queue-worktree-pr-linkage-ledger.ts` — shared lane
   discovery, linkage status, noise partitioning, and summary formatters.
 * `src/lib/factory/active-pr-mergeability-watchdog.ts` — PR lookup, branch

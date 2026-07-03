@@ -1,10 +1,14 @@
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import type {
   CommandResult,
   RunCommand,
 } from "@/lib/factory/active-pr-mergeability-watchdog";
+import {
+  resolveDefaultWorktreesDir,
+  resolveMainRepoRoot,
+} from "@/lib/factory/repo-path-resolution";
 import { readWorktreeLaneMetadata } from "@/lib/factory/worktree-lane-metadata";
 
 export const MERGED_PR_DRAIN_ROWS_RECONCILIATION_HEADER =
@@ -217,44 +221,10 @@ function defaultRunCommand(
   };
 }
 
-export function resolveMainRepoRoot(
-  repoRoot: string,
-  runCommand: RunCommand = defaultRunCommand,
-): string {
-  const commonDirResult = runCommand(
-    "git",
-    ["rev-parse", "--git-common-dir"],
-    repoRoot,
-  );
-  if (commonDirResult.ok) {
-    const commonDir = commonDirResult.stdout.trim();
-    if (commonDir.length > 0 && commonDir !== ".git") {
-      return resolve(commonDir, "..");
-    }
-  }
-
-  return repoRoot;
-}
-
-export function resolveDefaultWorktreesDir(
-  repoRoot: string,
-  runCommand: RunCommand = defaultRunCommand,
-): string {
-  const commonDirResult = runCommand(
-    "git",
-    ["rev-parse", "--git-common-dir"],
-    repoRoot,
-  );
-  if (commonDirResult.ok) {
-    const commonDir = commonDirResult.stdout.trim();
-    if (commonDir.length > 0 && commonDir !== ".git") {
-      const mainRepoRoot = resolve(commonDir, "..");
-      return join(mainRepoRoot, ".claude", "worktrees");
-    }
-  }
-
-  return join(repoRoot, ".claude", "worktrees");
-}
+export {
+  resolveDefaultWorktreesDir,
+  resolveMainRepoRoot,
+} from "@/lib/factory/repo-path-resolution";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

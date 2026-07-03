@@ -16,8 +16,13 @@ import {
   type QueueWorktreePrLinkageLane,
   sortPlannerWatchdogLanes,
 } from "@/lib/factory/queue-worktree-pr-linkage-ledger";
+import {
+  resolveDefaultWorktreesDir,
+  resolveMainRepoRoot,
+} from "@/lib/factory/repo-path-resolution";
 
-const repoRoot = join(import.meta.dir, "..");
+const checkoutRoot = join(import.meta.dir, "..");
+const repoRoot = resolveMainRepoRoot(checkoutRoot);
 
 function readFlagValue(flag: string): string | undefined {
   const index = process.argv.indexOf(flag);
@@ -37,7 +42,7 @@ function readRequiredJsonFile(path: string, label: string): string {
 const workListPath = readFlagValue("--work-list-json");
 const sessionListPath = readFlagValue("--session-list-json");
 const worktreesDir =
-  readFlagValue("--worktrees-dir") ?? join(repoRoot, ".claude", "worktrees");
+  readFlagValue("--worktrees-dir") ?? resolveDefaultWorktreesDir(checkoutRoot);
 const prMapPath = readFlagValue("--pr-map-json");
 const plannerSession = readFlagValue("--session") ?? "~default";
 

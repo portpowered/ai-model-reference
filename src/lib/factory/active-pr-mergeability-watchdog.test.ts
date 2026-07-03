@@ -18,6 +18,10 @@ import {
   recommendPlannerNextAction,
   summarizeCheckHealth,
 } from "@/lib/factory/active-pr-mergeability-watchdog";
+import {
+  resolveDefaultWorktreesDir,
+  resolveMainRepoRoot,
+} from "@/lib/factory/repo-path-resolution";
 
 function createWorktree(
   root: string,
@@ -662,6 +666,112 @@ describe("active-pr-watchdog-worktree-linkage-repair-001", () => {
     ]);
 
     rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  test("discovers PR-backed lanes from main-repo worktrees when invoked from a nested checkout root", () => {
+    const mainRepoRoot = mkdtempSync(
+      join(tmpdir(), "active-pr-watchdog-nested-checkout-"),
+    );
+    const worktreesRoot = join(mainRepoRoot, ".claude", "worktrees");
+    const nestedCheckoutRoot = join(worktreesRoot, "alpha");
+    mkdirSync(nestedCheckoutRoot, { recursive: true });
+
+    writeFileSync(
+      join(nestedCheckoutRoot, "prd.json"),
+      JSON.stringify({ branchName: "alpha" }, null, 2),
+    );
+    writeLaneMetadata(nestedCheckoutRoot, {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: nestedCheckoutRoot,
+      sessionId: "sess-1",
+      pullRequest: {
+        number: 42,
+        url: "https://example.com/pull/42",
+      },
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+      linkage: {
+        branch: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+        pullRequest: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+      },
+    });
+
+    const runCommand: RunCommand = (binary, args, cwd) => {
+      if (
+        binary === "git" &&
+        args[0] === "rev-parse" &&
+        cwd === nestedCheckoutRoot
+      ) {
+        return {
+          ok: true,
+          stdout: `${join(mainRepoRoot, ".git")}\n`,
+          stderr: "",
+          exitCode: 0,
+        };
+      }
+      if (
+        binary === "git" &&
+        args[0] === "branch" &&
+        args[1] === "--show-current" &&
+        cwd === nestedCheckoutRoot
+      ) {
+        return {
+          ok: true,
+          stdout: "alpha\n",
+          stderr: "",
+          exitCode: 0,
+        };
+      }
+      return {
+        ok: false,
+        stdout: "",
+        stderr: "unsupported command",
+        exitCode: 1,
+      };
+    };
+
+    const repoRoot = resolveMainRepoRoot(nestedCheckoutRoot, runCommand);
+    const worktreesDir = resolveDefaultWorktreesDir(
+      nestedCheckoutRoot,
+      runCommand,
+    );
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "alpha", state: "active", sessionId: "sess-1" }],
+      }),
+      worktreesDir,
+      runCommand,
+      lookupPullRequest: () => ({
+        pullRequest: null,
+        failureKind: "not-found",
+        failureReason: "no open PR metadata found for branch alpha",
+      }),
+    });
+
+    expect(repoRoot).toBe(mainRepoRoot);
+    expect(worktreesDir).toBe(worktreesRoot);
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        workItemName: "alpha",
+        prNumber: 42,
+        prUrl: "https://example.com/pull/42",
+        worktreePath: ".claude/worktrees/alpha",
+      }),
+    ]);
+
+    rmSync(mainRepoRoot, { recursive: true, force: true });
   });
 
   test("keeps PR-backed classification on one lane when another lane lacks PR metadata", () => {
