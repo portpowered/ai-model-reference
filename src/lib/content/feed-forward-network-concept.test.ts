@@ -39,7 +39,9 @@ describe("feed-forward-network concept discovery", () => {
       "concept.transformer-architecture",
       "concept.standard-ffn",
       "concept.mixture-of-experts",
-      "concept.activation",
+      "concept.swiglu",
+      "concept.relu",
+      "concept.silu",
     ]);
     expect(
       PUBLISHED_DOCS_REGISTRY_IDS.has("concept.feed-forward-network"),
@@ -51,7 +53,7 @@ describe("feed-forward-network concept discovery", () => {
     ).toBe(true);
   });
 
-  test("curated related links transformer architecture, standard FFN, mixture of experts, and activation", () => {
+  test("curated related links resolve transformer architecture, standard FFN, mixture of experts, SwiGLU, ReLU, and SiLU", () => {
     const source = getConceptById("concept.feed-forward-network");
     if (!source) {
       throw new Error("expected concept.feed-forward-network in registry");
@@ -76,8 +78,14 @@ describe("feed-forward-network concept discovery", () => {
         ?.href,
     ).toBe("/docs/concepts/mixture-of-experts");
     expect(
-      items.find((item) => item.registryId === "concept.activation")?.href,
-    ).toBe("/docs/concepts/activation");
+      items.find((item) => item.registryId === "concept.swiglu")?.href,
+    ).toBe("/docs/modules/swiglu");
+    expect(items.find((item) => item.registryId === "concept.relu")?.href).toBe(
+      "/docs/modules/relu",
+    );
+    expect(items.find((item) => item.registryId === "concept.silu")?.href).toBe(
+      "/docs/modules/silu",
+    );
   });
 
   test("search index records feed-forward network with aliases and feed-forward tags", async () => {
@@ -148,14 +156,12 @@ describe("feed-forward-network concept page", () => {
     );
     expect(variants.toLowerCase()).toContain("standard feed-forward network");
     expect(variants.toLowerCase()).toContain("expand");
-    expect(variants.toLowerCase()).toContain("relu");
+    expect(variants.toLowerCase()).toContain("rectified linear unit");
     expect(variants.toLowerCase()).toContain("gelu");
     expect(variants.toLowerCase()).toContain("project");
     expect(variants.toLowerCase()).toContain("swiglu");
+    expect(variants.toLowerCase()).toContain("swish gated linear unit");
     expect(variants.toLowerCase()).toContain("sigmoid linear unit");
-    expect(variants.toLowerCase().indexOf("sigmoid linear unit")).toBeLessThan(
-      variants.toLowerCase().indexOf("silu"),
-    );
     expect(variants.toLowerCase()).toContain("gate");
     expect(variants.toLowerCase()).toContain("mixture of experts");
     expect(variants.toLowerCase()).toContain("router");
@@ -164,7 +170,7 @@ describe("feed-forward-network concept page", () => {
     expect(variants.toLowerCase()).not.toContain("on this page");
   });
 
-  test("page renders concept template sections without missing message values", async () => {
+  test("page renders concept template sections with registry-backed and inline neighbor links", async () => {
     const page = await loadConceptPage("feed-forward-network");
 
     expect(page.frontmatter.kind).toBe("concept");
@@ -195,11 +201,15 @@ describe("feed-forward-network concept page", () => {
     expect(html.toLowerCase()).toContain("mixture of experts");
     expect(html.toLowerCase()).toContain("router");
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');
     expect(html).toContain('href="/docs/concepts/mixture-of-experts"');
-    expect(html).toContain('href="/docs/concepts/activation"');
+    expect(html).toContain('href="/docs/modules/swiglu"');
+    expect(html).toContain('href="/docs/modules/relu"');
+    expect(html).toContain('href="/docs/modules/silu"');
     expect(html).toContain('href="/tags/feed-forward"');
+    expect(html).toContain('data-prose-auto-link="true"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("missing-content");
   });
