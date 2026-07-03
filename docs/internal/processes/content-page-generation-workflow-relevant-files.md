@@ -35,18 +35,31 @@ Contributor-facing walkthrough:
 Routine canonical page branches should stay page-local unless the requested
 behavior requires shared infrastructure changes.
 
+Full observable budget (page-owned, supported derived, shared hotspot, and
+review lanes):
+[canonical-page-surface-budget-relevant-files.md](./canonical-page-surface-budget-relevant-files.md).
+
 **Page-local (routine):**
 
-- Page bundle under `src/content/docs/<section>/<slug>/`
+- Page bundle under `src/content/docs/<section>/<slug>/` (`page.mdx`, messages,
+  `assets.json`, page-local media)
 - Matching primary registry record and page-specific supporting graph/table
   records
 
-**Shared hotspot (redirect):**
+**Supported derived (regenerate locally; keep out of routine commits):**
 
-- Shared helpers such as `src/lib/content` and `src/lib/search`
+- Outputs from `bun run prepare:content-runtime` such as
+  `src/lib/content/generated/*.generated.ts`
+
+**Shared hotspot (redirect or visible exception):**
+
+- **`src/lib/content`** runtime helpers, MDX components, and colocated content
+  tests — currently the hottest shared surface in maintained hotspot evidence
+- Shared test and verification files (`src/tests/ci`, `src/tests/search`,
+  `scripts/validate-*.ts`)
 - Generated runtime artifacts checked in as authored changes
-- Shared test suites and broad `validate-*.ts` churn
 - Registry-manifest rewrites beyond the page's primary record
+- Build, search, or tooling files unless the work item is explicitly broader
 
 Do not hide shared hotspot churn inside an ordinary page slice. When
 `bun run audit:canonical-page-surface` reports `redirect-to-throughput-prd`, or
