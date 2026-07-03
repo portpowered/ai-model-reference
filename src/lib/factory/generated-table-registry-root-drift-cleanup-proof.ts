@@ -1,8 +1,18 @@
 import { spawnSync } from "node:child_process";
-import { resolve } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { getRegistryCollectionRoot } from "@/lib/content/content-paths";
+import {
+  createTableRegistrySourceEntries,
+  renderGeneratedTableRegistryModule,
+} from "@/lib/content/table-registry-generation";
+import { verifyGeneratedTableRegistryState } from "@/lib/content/table-registry-verification";
 import { classifyBranchDrift } from "./active-pr-mergeability-watchdog";
 import { resolveMainRepoRoot } from "./merged-pr-drain-rows-reconciliation";
-import { detectDefaultRemoteBaseRef } from "./planner-root-checkout-reconciliation";
+import {
+  detectDefaultRemoteBaseRef,
+  pathExistsOnGitRef,
+} from "./planner-root-checkout-reconciliation";
 
 export const GENERATED_TABLE_REGISTRY_ROOT_DRIFT_CLEANUP_PROOF_HEADER =
   "Generated Table Registry Root Drift Cleanup Proof";
@@ -22,6 +32,22 @@ export const GENERATED_TABLE_REGISTRY_DRIFT_EVIDENCE_PRESERVE_POLICY =
 export const GENERATED_TABLE_REGISTRY_DRIFT_EVIDENCE_SCOPE_LIMIT =
   "Evidence capture is read-only; do not edit content page bundles, canonical source tables, or unrelated generated artifacts.";
 
+export const TABLE_REGISTRY_GENERATION_COMMAND =
+  "bun run generate:table-registry";
+
+export const TABLE_REGISTRY_VALIDATION_COMMAND =
+  "bun run verify:table-registry";
+
+export const LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH = `src/content/registry/tables/${LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME}`;
+
+export type CanonicalSourcePresenceStatus = "present" | "absent";
+
+export type GeneratedTableRegistryReproducibilityOutcome =
+  | "differs-from-deterministic-generation"
+  | "matches-deterministic-generation"
+  | "missing-canonical-source-table"
+  | "missing-generated-artifact";
+
 export type GeneratedTableRegistryArtifactCleanliness = "clean" | "dirty";
 
 export interface LoopedTransformersComparisonDiffHighlights {
@@ -30,6 +56,32 @@ export interface LoopedTransformersComparisonDiffHighlights {
   payloadEntryPresent: boolean;
   removedDiffHunks: string[];
   sourceEntryPresent: boolean;
+}
+
+export interface LoopedTransformersSourceTablePresence {
+  checkoutFilesystem: CanonicalSourcePresenceStatus;
+  originMain: CanonicalSourcePresenceStatus;
+  rootHead: CanonicalSourcePresenceStatus;
+}
+
+export interface GeneratedTableRegistryReproducibilityProof {
+  checkoutRepoPath: string;
+  currentGeneratedArtifactMatchesDryRun: boolean;
+  currentGeneratedModuleSource: string | null;
+  dryRunGeneratedModuleSource: string;
+  generatedAtUtc: string;
+  generationCommand: string;
+  loopedTransformersEntriesMatchDryRun: boolean;
+  loopedTransformersSourceTablePath: string;
+  loopedTransformersSourceTablePresence: LoopedTransformersSourceTablePresence;
+  missingCanonicalSourceTableFiles: string[];
+  originMainSha: string;
+  reproducibilityOutcome: GeneratedTableRegistryReproducibilityOutcome;
+  remoteBaseRef: string;
+  rootHeadSha: string;
+  rootRepoPath: string;
+  validationCommand: string;
+  validationProblems: string[];
 }
 
 export interface GeneratedTableRegistryRootDriftEvidence {
@@ -48,6 +100,17 @@ export interface GeneratedTableRegistryRootDriftEvidence {
   rootRepoPath: string;
   scopeLimit: string;
   shortBranchStatusOutput: string;
+}
+
+export interface ProveGeneratedTableRegistryReproducibilityOptions {
+  checkoutRepoPath?: string;
+  generatedAtUtc?: string;
+  pathExists?: (filePath: string) => boolean;
+  readDir?: (directoryPath: string) => string[];
+  readFile?: (filePath: string) => string;
+  remoteBaseRef?: string;
+  repoRoot?: string;
+  runGit?: RunGit;
 }
 
 export interface CaptureGeneratedTableRegistryRootDriftEvidenceOptions {
@@ -331,6 +394,326 @@ export function formatGeneratedTableRegistryRootDriftEvidence(
 
 export function serializeGeneratedTableRegistryRootDriftEvidence(
   report: GeneratedTableRegistryRootDriftEvidence,
+): string {
+  return JSON.stringify(report, null, 2);
+}
+
+function defaultReadDir(directoryPath: string): string[] {
+  return readdirSync(directoryPath);
+}
+
+function defaultReadFile(filePath: string): string {
+  return readFileSync(filePath, "utf8");
+}
+
+function fileExistsAtPath(filePath: string): boolean {
+  return existsSync(filePath);
+}
+
+export function extractLoopedTransformersGeneratedLines(
+  generatedModuleSource: string,
+): string[] {
+  return generatedModuleSource
+    .split("\n")
+    .filter(
+      (line) =>
+        line.includes(LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME) ||
+        line.includes(LOOPED_TRANSFORMERS_COMPARISON_IMPORT_MARKER),
+    );
+}
+
+export function buildDryRunGeneratedTableRegistryModuleSource(
+  checkoutRepoPath: string,
+  readDir: (directoryPath: string) => string[] = defaultReadDir,
+): string {
+  const tablesRegistryRoot = getRegistryCollectionRoot(
+    "tables",
+    join(checkoutRepoPath, "src/content/registry"),
+  );
+  const fileNames = readDir(tablesRegistryRoot);
+  const entries = createTableRegistrySourceEntries(fileNames);
+  return renderGeneratedTableRegistryModule(entries);
+}
+
+export function collectLoopedTransformersSourceTablePresence(input: {
+  checkoutRepoPath: string;
+  loopedTransformersSourceTablePath?: string;
+  pathExists?: (filePath: string) => boolean;
+  remoteBaseRef: string;
+  rootRepoPath: string;
+  runGit: RunGit;
+}): LoopedTransformersSourceTablePresence {
+  const sourceTablePath =
+    input.loopedTransformersSourceTablePath ??
+    LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH;
+  const pathExists = input.pathExists ?? fileExistsAtPath;
+
+  return {
+    checkoutFilesystem: pathExists(
+      join(input.checkoutRepoPath, sourceTablePath),
+    )
+      ? "present"
+      : "absent",
+    originMain: pathExistsOnGitRef(
+      input.rootRepoPath,
+      input.remoteBaseRef,
+      sourceTablePath,
+      input.runGit,
+    )
+      ? "present"
+      : "absent",
+    rootHead: pathExistsOnGitRef(
+      input.rootRepoPath,
+      "HEAD",
+      sourceTablePath,
+      input.runGit,
+    )
+      ? "present"
+      : "absent",
+  };
+}
+
+function extractGeneratedTableRegistrySourceFileNames(
+  generatedModuleSource: string,
+): string[] {
+  const match = generatedModuleSource.match(
+    /export const generatedTableRegistrySourceFiles = \[([\s\S]*?)\] as const;/,
+  );
+  if (!match) {
+    return [];
+  }
+
+  return [...match[1].matchAll(/"([^"]+\.json)"/g)].map((entry) => entry[1]);
+}
+
+function findMissingCanonicalSourceTableFiles(
+  checkoutRepoPath: string,
+  sourceFileNames: readonly string[],
+  pathExists: (filePath: string) => boolean = fileExistsAtPath,
+): string[] {
+  const tablesRegistryRoot = getRegistryCollectionRoot(
+    "tables",
+    join(checkoutRepoPath, "src/content/registry"),
+  );
+
+  return sourceFileNames.filter(
+    (fileName) => !pathExists(join(tablesRegistryRoot, fileName)),
+  );
+}
+
+function classifyGeneratedTableRegistryReproducibilityOutcome(input: {
+  currentGeneratedModuleSource: string | null;
+  currentGeneratedArtifactMatchesDryRun: boolean;
+  missingCanonicalSourceTableFiles: readonly string[];
+}): GeneratedTableRegistryReproducibilityOutcome {
+  if (input.currentGeneratedModuleSource === null) {
+    return "missing-generated-artifact";
+  }
+
+  if (input.missingCanonicalSourceTableFiles.length > 0) {
+    return "missing-canonical-source-table";
+  }
+
+  return input.currentGeneratedArtifactMatchesDryRun
+    ? "matches-deterministic-generation"
+    : "differs-from-deterministic-generation";
+}
+
+function loadSourceRecordsFromCheckout(
+  checkoutRepoPath: string,
+  readDir: (directoryPath: string) => string[],
+  readFile: (filePath: string) => string,
+) {
+  const tablesRegistryRoot = getRegistryCollectionRoot(
+    "tables",
+    join(checkoutRepoPath, "src/content/registry"),
+  );
+
+  return readDir(tablesRegistryRoot)
+    .filter((fileName) => fileName.endsWith(".json"))
+    .sort((left, right) => left.localeCompare(right))
+    .map((fileName) => ({
+      fileName,
+      record: JSON.parse(
+        readFile(join(tablesRegistryRoot, fileName)),
+      ) as unknown,
+    }));
+}
+
+export function proveGeneratedTableRegistryReproducibility(
+  options: ProveGeneratedTableRegistryReproducibilityOptions = {},
+): GeneratedTableRegistryReproducibilityProof {
+  const checkoutRepoPath = resolve(
+    options.checkoutRepoPath ?? options.repoRoot ?? process.cwd(),
+  );
+  const runGit = options.runGit ?? defaultRunGit;
+  const readDir = options.readDir ?? defaultReadDir;
+  const readFile = options.readFile ?? defaultReadFile;
+  const pathExists = options.pathExists ?? fileExistsAtPath;
+  const mainRepoRoot = resolveMainRepoRoot(
+    checkoutRepoPath,
+    (_binary, args, cwd) => {
+      const result = runGit(cwd ?? checkoutRepoPath, args);
+      return {
+        ok: result.status === 0,
+        stdout: result.stdout,
+        stderr: result.stderr,
+        exitCode: result.status,
+      };
+    },
+  );
+  const remoteBaseRef =
+    options.remoteBaseRef ?? detectDefaultRemoteBaseRef(mainRepoRoot, runGit);
+  const generatedArtifactPath = join(
+    checkoutRepoPath,
+    GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+  );
+  const currentGeneratedModuleSource = pathExists(generatedArtifactPath)
+    ? readFile(generatedArtifactPath)
+    : null;
+  const dryRunGeneratedModuleSource =
+    buildDryRunGeneratedTableRegistryModuleSource(checkoutRepoPath, readDir);
+  const currentGeneratedArtifactMatchesDryRun =
+    currentGeneratedModuleSource === dryRunGeneratedModuleSource;
+  const loopedTransformersEntriesMatchDryRun =
+    extractLoopedTransformersGeneratedLines(
+      currentGeneratedModuleSource ?? "",
+    ).join("\n") ===
+    extractLoopedTransformersGeneratedLines(dryRunGeneratedModuleSource).join(
+      "\n",
+    );
+  const loopedTransformersSourceTablePresence =
+    collectLoopedTransformersSourceTablePresence({
+      checkoutRepoPath,
+      pathExists,
+      remoteBaseRef,
+      rootRepoPath: mainRepoRoot,
+      runGit,
+    });
+  const missingCanonicalSourceTableFiles =
+    currentGeneratedModuleSource === null
+      ? []
+      : findMissingCanonicalSourceTableFiles(
+          checkoutRepoPath,
+          extractGeneratedTableRegistrySourceFileNames(
+            currentGeneratedModuleSource,
+          ),
+          pathExists,
+        );
+  const sourceRecords = loadSourceRecordsFromCheckout(
+    checkoutRepoPath,
+    readDir,
+    readFile,
+  );
+  const validationProblems: string[] = [];
+  if (currentGeneratedModuleSource === null) {
+    validationProblems.push(
+      "Missing generated table registry module at `src/lib/content/generated/table-registry.generated.ts`. Run `bun run generate:table-registry` and commit the result.",
+    );
+  } else if (currentGeneratedModuleSource !== dryRunGeneratedModuleSource) {
+    validationProblems.push(
+      "Generated table registry module is out of sync with `src/content/registry/tables`. Run `bun run generate:table-registry` and commit the updated file.",
+    );
+  } else {
+    try {
+      const runtimeValidationProblems = verifyGeneratedTableRegistryState({
+        sourceRecords,
+        generatedModuleSource: currentGeneratedModuleSource,
+        runtimeTableRecords: [],
+      }).filter(
+        (problem) =>
+          !problem.startsWith(
+            "Synchronous table runtime does not expose the same table ids",
+          ),
+      );
+      validationProblems.push(...runtimeValidationProblems);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      validationProblems.push(
+        `Table registry validation raised an error before reporting sync problems: ${message}`,
+      );
+    }
+  }
+
+  return {
+    checkoutRepoPath,
+    currentGeneratedArtifactMatchesDryRun,
+    currentGeneratedModuleSource,
+    dryRunGeneratedModuleSource,
+    generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
+    generationCommand: TABLE_REGISTRY_GENERATION_COMMAND,
+    loopedTransformersEntriesMatchDryRun,
+    loopedTransformersSourceTablePath:
+      LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH,
+    loopedTransformersSourceTablePresence,
+    missingCanonicalSourceTableFiles,
+    originMainSha: resolveGitRef(mainRepoRoot, remoteBaseRef, runGit),
+    reproducibilityOutcome:
+      classifyGeneratedTableRegistryReproducibilityOutcome({
+        currentGeneratedModuleSource,
+        currentGeneratedArtifactMatchesDryRun,
+        missingCanonicalSourceTableFiles,
+      }),
+    remoteBaseRef,
+    rootHeadSha: resolveGitRef(mainRepoRoot, "HEAD", runGit),
+    rootRepoPath: mainRepoRoot,
+    validationCommand: TABLE_REGISTRY_VALIDATION_COMMAND,
+    validationProblems,
+  };
+}
+
+export function formatGeneratedTableRegistryReproducibilityProof(
+  report: GeneratedTableRegistryReproducibilityProof,
+): string {
+  const presence = report.loopedTransformersSourceTablePresence;
+  const lines = [
+    `${GENERATED_TABLE_REGISTRY_ROOT_DRIFT_CLEANUP_PROOF_HEADER} — Reproducibility`,
+    `generated-at-utc=${report.generatedAtUtc}`,
+    `checkout-repo-path=${report.checkoutRepoPath}`,
+    `root-repo-path=${report.rootRepoPath}`,
+    `remote-base-ref=${report.remoteBaseRef}`,
+    `root-head-sha=${report.rootHeadSha}`,
+    `origin-main-sha=${report.originMainSha}`,
+    `generation-command=${report.generationCommand}`,
+    `validation-command=${report.validationCommand}`,
+    `looped-transformers-source-table-path=${report.loopedTransformersSourceTablePath}`,
+    `looped-transformers-present-on-origin-main=${presence.originMain}`,
+    `looped-transformers-present-on-root-head=${presence.rootHead}`,
+    `looped-transformers-present-on-checkout-filesystem=${presence.checkoutFilesystem}`,
+    `reproducibility-outcome=${report.reproducibilityOutcome}`,
+    `current-generated-artifact-matches-dry-run=${report.currentGeneratedArtifactMatchesDryRun}`,
+    `looped-transformers-entries-match-dry-run=${report.loopedTransformersEntriesMatchDryRun}`,
+    `missing-canonical-source-table-files=${report.missingCanonicalSourceTableFiles.length === 0 ? "(none)" : report.missingCanonicalSourceTableFiles.join(", ")}`,
+    `validation-problem-count=${report.validationProblems.length}`,
+  ];
+
+  if (report.validationProblems.length > 0) {
+    lines.push("", "validation-problems:");
+    for (const problem of report.validationProblems) {
+      lines.push(`  - ${problem}`);
+    }
+  }
+
+  lines.push(
+    "",
+    "looped-transformers-generated-lines-from-current-artifact:",
+    ...(report.currentGeneratedModuleSource === null
+      ? ["(missing generated artifact)"]
+      : extractLoopedTransformersGeneratedLines(
+          report.currentGeneratedModuleSource,
+        )),
+    "",
+    "looped-transformers-generated-lines-from-dry-run:",
+    ...extractLoopedTransformersGeneratedLines(
+      report.dryRunGeneratedModuleSource,
+    ),
+  );
+
+  return lines.join("\n");
+}
+
+export function serializeGeneratedTableRegistryReproducibilityProof(
+  report: GeneratedTableRegistryReproducibilityProof,
 ): string {
   return JSON.stringify(report, null, 2);
 }

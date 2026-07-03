@@ -2,7 +2,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   captureGeneratedTableRegistryRootDriftEvidence,
+  formatGeneratedTableRegistryReproducibilityProof,
   formatGeneratedTableRegistryRootDriftEvidence,
+  proveGeneratedTableRegistryReproducibility,
+  serializeGeneratedTableRegistryReproducibilityProof,
   serializeGeneratedTableRegistryRootDriftEvidence,
 } from "../src/lib/factory/generated-table-registry-root-drift-cleanup-proof";
 
@@ -31,6 +34,14 @@ function isJsonOutputRequested(argv: string[]): boolean {
   );
 }
 
+function isReproducibilityProofRequested(argv: string[]): boolean {
+  return argv.includes("--reproducibility") || argv.includes("--full-proof");
+}
+
+function isDriftEvidenceRequested(argv: string[]): boolean {
+  return !argv.includes("--reproducibility") || argv.includes("--full-proof");
+}
+
 const repoRoot = readFlagValue("--repo-root")
   ? resolve(readFlagValue("--repo-root") as string)
   : defaultRepoRoot;
@@ -44,17 +55,59 @@ const statusOutput = statusOutputPath
 const diffOutput = diffOutputPath
   ? readOptionalFile(diffOutputPath, "diff output")
   : undefined;
+const jsonOutput = isJsonOutputRequested(process.argv);
+const reproducibilityRequested = isReproducibilityProofRequested(process.argv);
+const driftEvidenceRequested = isDriftEvidenceRequested(process.argv);
 
-const report = captureGeneratedTableRegistryRootDriftEvidence({
-  diffOutput,
-  generatedAtUtc,
-  remoteBaseRef,
-  repoRoot,
-  statusOutput,
-});
+const report = driftEvidenceRequested
+  ? captureGeneratedTableRegistryRootDriftEvidence({
+      diffOutput,
+      generatedAtUtc,
+      remoteBaseRef,
+      repoRoot,
+      statusOutput,
+    })
+  : null;
 
-process.stdout.write(
-  isJsonOutputRequested(process.argv)
-    ? serializeGeneratedTableRegistryRootDriftEvidence(report)
-    : `${formatGeneratedTableRegistryRootDriftEvidence(report)}\n`,
-);
+const reproducibilityProof = reproducibilityRequested
+  ? proveGeneratedTableRegistryReproducibility({
+      checkoutRepoPath: repoRoot,
+      generatedAtUtc,
+      remoteBaseRef,
+      repoRoot,
+    })
+  : null;
+
+if (jsonOutput) {
+  if (report !== null && reproducibilityProof !== null) {
+    process.stdout.write(
+      `${JSON.stringify(
+        {
+          driftEvidence: report,
+          reproducibilityProof,
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  } else if (reproducibilityProof !== null) {
+    process.stdout.write(
+      `${serializeGeneratedTableRegistryReproducibilityProof(reproducibilityProof)}\n`,
+    );
+  } else if (report !== null) {
+    process.stdout.write(
+      `${serializeGeneratedTableRegistryRootDriftEvidence(report)}\n`,
+    );
+  }
+} else {
+  const outputSections: string[] = [];
+  if (report !== null) {
+    outputSections.push(formatGeneratedTableRegistryRootDriftEvidence(report));
+  }
+  if (reproducibilityProof !== null) {
+    outputSections.push(
+      formatGeneratedTableRegistryReproducibilityProof(reproducibilityProof),
+    );
+  }
+  process.stdout.write(`${outputSections.join("\n\n")}\n`);
+}

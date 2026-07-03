@@ -11,7 +11,10 @@ revert, stage, overwrite, or commit the root artifact during evidence capture.
   story 001 read-only root checkout evidence: `HEAD` and `origin/main` SHAs,
   ahead/behind counts, `git status --short --branch` for the generated artifact,
   full artifact diff, and looped-transformers-comparison import/source/payload
-  highlight extraction.
+  highlight extraction; story 002 reproducibility proof via dry-run generation
+  (`createTableRegistrySourceEntries` + `renderGeneratedTableRegistryModule`),
+  canonical source presence on `origin/main` / root `HEAD` / checkout filesystem,
+  and in-process `verifyGeneratedTableRegistryState` validation problems.
 * `src/lib/factory/generated-table-registry-root-drift-cleanup-proof.test.ts` —
   fixture diff/status tests plus temp-git-repo integration proving the report
   script does not mutate porcelain state.
@@ -34,8 +37,17 @@ revert, stage, overwrite, or commit the root artifact during evidence capture.
 | When | Command |
 | --- | --- |
 | Capture current root drift evidence (story 001) | `bun run report:generated-table-registry-root-drift-cleanup-proof` |
+| Prove generator reproducibility (story 002) | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --reproducibility` |
+| Capture drift evidence and reproducibility proof together | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof` |
 | Point at the planner root checkout explicitly | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --repo-root /path/to/root` |
 | Fixture-backed status/diff replay | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --repo-root /path/to/root --status-output /path/to/status.txt --diff-output /path/to/diff.txt` |
+
+Generation and validation commands recorded by the reproducibility proof:
+
+| When | Command |
+| --- | --- |
+| Regenerate table registry artifact | `bun run generate:table-registry` |
+| Verify generated table registry completeness | `bun run verify:table-registry` |
 
 ## Fixture-backed verification
 
@@ -69,6 +81,28 @@ dirty `table-registry.generated.ts` looped-transformers entries. Live capture
 shows the root checkout is now aligned with `origin/main` and the generated
 artifact is clean; story 002 must prove whether looped-transformers entries on
 `origin/main` are reproducible from canonical source tables.
+
+## Live reproducibility proof (2026-07-03 UTC)
+
+Captured via
+`bun run report:generated-table-registry-root-drift-cleanup-proof -- --reproducibility`
+from this worktree.
+
+| Field | Value |
+| --- | --- |
+| Generation command | `bun run generate:table-registry` |
+| Validation command | `bun run verify:table-registry` |
+| `looped-transformers-comparison.json` on `origin/main` | `present` |
+| `looped-transformers-comparison.json` on root `HEAD` | `present` |
+| `looped-transformers-comparison.json` on checkout filesystem | `present` |
+| Reproducibility outcome | `matches-deterministic-generation` |
+| Current artifact matches dry-run | `true` |
+| Looped-transformers entries match dry-run | `true` |
+
+Story 003 should land minimal expected generated output only if this proof
+remains `matches-deterministic-generation` while the generated artifact is
+dirty; when the artifact is already clean and aligned, no registry commit is
+required.
 
 ## Preserve policy
 
