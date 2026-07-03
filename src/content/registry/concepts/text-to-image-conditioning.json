@@ -15,15 +15,18 @@
     "concept.conditioning",
     "concept.denoising-generation",
     "concept.diffusion-model",
+    "concept.latent-space",
+    "model.clip",
     "paper.latent-diffusion"
   ],
   "citationIds": [
+    "citation.learning-transferable-visual-models-from-natural-language-supervision",
     "citation.latent-diffusion-models",
     "citation.classifier-free-diffusion-guidance"
   ],
   "status": "published",
   "createdAt": "2026-07-03T00:00:00.000Z",
-  "updatedAt": "2026-07-03T00:00:00.000Z",
+  "updatedAt": "2026-07-04T00:00:00.000Z",
   "primaryClassificationId": "classification.concept.architecture",
   "conceptType": "architecture",
   "sidebarGrouping": {
