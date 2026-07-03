@@ -5,12 +5,7 @@ import {
   validateBlogPostLinks,
 } from "@/lib/build/validate-links";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
-import {
-  isLocalPageAssetSrc,
-  parsePageAssetConfig,
-  resolveColocatedPageAssetSrcPath,
-  validatePageAssetReferences,
-} from "./assets";
+import { parsePageAssetConfig, validatePageAssetReferences } from "./assets";
 import {
   type BlogPostFrontmatter,
   isBlogPostPubliclyVisible,
@@ -19,6 +14,10 @@ import {
 import { discoverBlogPostSlugs } from "./blog-post-list";
 import { blogPostMessagesSchema } from "./blog-post-messages";
 import { BLOG_ROOT, getBlogPageDir } from "./content-paths";
+import {
+  isLocalPageAssetSrc,
+  resolveColocatedPageAssetSrcPath,
+} from "./page-asset-paths";
 import {
   getPublishedDocsHrefForRecord,
   PUBLISHED_DOCS_REGISTRY_IDS,

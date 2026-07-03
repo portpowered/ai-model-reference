@@ -16,7 +16,9 @@ adding public blog routes, shell hardening, or committed real posts.
   Published post discovery, draft filtering, and newest-first sorting.
 * `src/lib/content/blog-post-get.ts`
   Single published post lookup by slug with typed not-found (`null`) behavior.
-* `src/lib/content/validate-blog-posts.ts`
+* `src/lib/content/page-asset-paths.ts`
+  Build-time helpers for resolving colocated page asset filesystem paths; keep out of
+  `assets.ts` so client components do not bundle `node:path`.
   Build-time validation for published blog metadata, controlled tags, related docs,
   local messages, local asset files, asset message keys, MDX asset references, MDX links,
   and local asset config. Wired into `validateRegistryContent`.

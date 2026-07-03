@@ -4,16 +4,18 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   InvalidPageAssetConfigError,
-  isLocalPageAssetSrc,
   lookupAsset,
   MissingAssetIdError,
   parsePageAssetConfig,
   resolveAsset,
   resolveAssetText,
-  resolveColocatedPageAssetSrcPath,
   validatePageAssetReferences,
 } from "./assets";
 import { getDocsPageDir } from "./content-paths";
+import {
+  isLocalPageAssetSrc,
+  resolveColocatedPageAssetSrcPath,
+} from "./page-asset-paths";
 import {
   AssetLoadError,
   loadPageAssets,

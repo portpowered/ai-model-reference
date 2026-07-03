@@ -40,7 +40,7 @@
     "precoverage": "bun run prepare:content-runtime && fumadocs-mdx",
     "coverage": "bun ./scripts/component-coverage-gate.ts",
     "generate:published-docs-registry": "bun ./scripts/generate-published-docs-registry.ts",
-    "prevalidate-data": "bun run prepare:content-runtime",
+    "prevalidate-data": "bun run prepare:content-runtime && fumadocs-mdx",
     "validate-data": "bun ./scripts/validate-registry.ts",
     "watch:active-pr-mergeability": "bun ./scripts/active-pr-mergeability-watchdog.ts",
     "report:queue-worktree-pr-linkage-ledger": "bun ./scripts/report-queue-worktree-pr-linkage-ledger.ts",
