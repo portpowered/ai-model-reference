@@ -130,7 +130,7 @@ describe("diffusion transformer block discovery surfaces (diffusion-transformer-
       expect(html).toContain(
         'href="/docs/training/diffusion-training-objective"',
       );
-      expect(html).toContain('href="/docs/glossary/latent-space"');
+      expect(html).toContain('href="/docs/concepts/latent-space"');
       expect(html).toContain('href="/docs/glossary/conditioning"');
       expect(html).toContain('href="/docs/glossary/patch"');
       expect(html).toContain('href="/docs/papers/latent-diffusion"');

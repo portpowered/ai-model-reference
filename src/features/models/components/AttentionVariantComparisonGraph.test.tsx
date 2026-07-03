@@ -13,6 +13,7 @@ const groupedQueryAttentionPageDir = getDocsPageDir(
   "modules",
   "grouped-query-attention",
 );
+const gatedDeltaNetPageDir = getDocsPageDir("modules", "gated-deltanet");
 const mambaPageDir = getDocsPageDir("modules", "mamba-selective-state-space");
 
 const gqaMessages = pageMessagesSchema.parse(
@@ -61,6 +62,37 @@ function renderComparisonGraph() {
           defaultVariantId={defaultVariantId}
           alt={gqaMessages.assets?.computeFlow?.alt}
           caption={gqaMessages.assets?.computeFlow?.caption}
+        />
+      </PageAssetsProvider>
+    </PageMessagesProvider>,
+  );
+}
+
+function renderGatedDeltaNetComparisonGraph() {
+  const messages = pageMessagesSchema.parse(
+    JSON.parse(
+      readFileSync(join(gatedDeltaNetPageDir, "messages/en.json"), "utf8"),
+    ),
+  );
+  const assets = parsePageAssetConfig(
+    JSON.parse(readFileSync(join(gatedDeltaNetPageDir, "assets.json"), "utf8")),
+  );
+  const computeFlow = assets.computeFlow;
+  if (computeFlow?.type !== "attention-variant-graph") {
+    throw new Error(
+      "Expected gated-deltanet computeFlow attention-variant-graph asset",
+    );
+  }
+
+  return render(
+    <PageMessagesProvider messages={messages} isDev={false}>
+      <PageAssetsProvider assets={assets} isDev={false}>
+        <AttentionVariantComparisonGraph
+          assetId="computeFlow"
+          variants={computeFlow.variants}
+          defaultVariantId={computeFlow.defaultVariantId}
+          alt={messages.assets?.computeFlow?.alt}
+          caption={messages.assets?.computeFlow?.caption}
         />
       </PageAssetsProvider>
     </PageMessagesProvider>,
@@ -156,6 +188,23 @@ describe("AttentionVariantComparisonGraph", () => {
     expect(
       screen.getByRole("tab", { name: "Multi-head", selected: true }),
     ).toBeTruthy();
+  });
+
+  test("renders graph title and compute-flow legend when messages provide them", () => {
+    const { container } = renderGatedDeltaNetComparisonGraph();
+
+    expect(
+      container.querySelector(
+        '[data-graph-title="graph.gated-deltanet-gdn-comparison"]',
+      )?.textContent,
+    ).toContain("Gated DeltaNet compute path");
+    expect(
+      container.querySelector(
+        '[data-graph-legend="graph.gated-deltanet-gdn-comparison"]',
+      ),
+    ).toBeTruthy();
+    expect(container.textContent).toContain("Gate decay control");
+    expect(container.textContent).toContain("Projections, memory, and readout");
   });
 
   test("renders title and legend markers for Mamba state-flow comparison assets", () => {

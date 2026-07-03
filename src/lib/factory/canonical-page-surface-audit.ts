@@ -73,6 +73,17 @@ export type CanonicalPageSurfaceGuidance = {
   recommendedAction: CanonicalPageSurfaceRecommendedAction;
 };
 
+export type CanonicalPageSurfaceHotspotEvidence =
+  | {
+      fallbackReason: string;
+      kind: "static-path-fallback";
+      snapshot: null;
+    }
+  | {
+      kind: "maintained-snapshot";
+      snapshot: ConflictHotspotSnapshot;
+    };
+
 export type CanonicalPageSurfaceAuditResult = {
   budgetStatus: "over-budget" | "within-budget";
   changedPathSource: string;
@@ -80,6 +91,7 @@ export type CanonicalPageSurfaceAuditResult = {
   exception: CanonicalPageSurfaceException | null;
   generatedOutputs: readonly string[];
   guidance: CanonicalPageSurfaceGuidance;
+  hotspotEvidence: CanonicalPageSurfaceHotspotEvidence;
   pageOwnedPaths: readonly string[];
   pageScope: {
     docsSlug: string;
@@ -89,7 +101,6 @@ export type CanonicalPageSurfaceAuditResult = {
     supportRecordPaths: readonly string[];
   };
   sharedHotspotCategories: readonly CanonicalPageSurfaceSharedCategorySummary[];
-  snapshot: ConflictHotspotSnapshot;
 };
 
 export class CanonicalPageSurfaceAuditError extends Error {
@@ -481,9 +492,23 @@ function collectChangedPaths(
   return collectChangedPathsFromBranch(repoRoot, options.baseRef);
 }
 
+const sharedHotspotReviewerBuckets: ReadonlyArray<{
+  categories: readonly ConflictHotspotSurfaceCategory[];
+  label: string;
+}> = [
+  {
+    categories: ["shared-helper", "shared-registry", "authored-content"],
+    label: "Content runtime and helper surfaces",
+  },
+  {
+    categories: ["shared-test"],
+    label: "Shared test and verification surfaces",
+  },
+];
+
 function summarizeSharedHotspotCategories(
   classifications: readonly CanonicalPageSurfaceClassification[],
-  snapshot: ConflictHotspotSnapshot,
+  snapshot: ConflictHotspotSnapshot | null,
 ): readonly CanonicalPageSurfaceSharedCategorySummary[] {
   const grouped = new Map<
     ConflictHotspotSurfaceCategory,
@@ -504,13 +529,16 @@ function summarizeSharedHotspotCategories(
       continue;
     }
 
-    const evidenceSurfaces = snapshot.rankedSurfaces
-      .filter((surface) => surface.category === classification.category)
-      .slice(0, 3)
-      .map(
-        (surface: ConflictHotspotSurface) =>
-          `${surface.surface} (${surface.touches} touches)`,
-      );
+    const evidenceSurfaces =
+      snapshot === null
+        ? []
+        : snapshot.rankedSurfaces
+            .filter((surface) => surface.category === classification.category)
+            .slice(0, 3)
+            .map(
+              (surface: ConflictHotspotSurface) =>
+                `${surface.surface} (${surface.touches} touches)`,
+            );
 
     grouped.set(classification.category, {
       category: classification.category,
@@ -690,25 +718,31 @@ export function collectCanonicalPageSurfaceAudit(
     options.pageDirectory,
   );
 
-  const snapshot = options.snapshot;
-  if (!snapshot) {
+  let hotspotEvidence: CanonicalPageSurfaceHotspotEvidence;
+  if (options.snapshot) {
+    hotspotEvidence = {
+      kind: "maintained-snapshot",
+      snapshot: options.snapshot,
+    };
+  } else {
     try {
-      options.snapshot = collectConflictHotspotSnapshot(resolvedRepoRoot);
+      hotspotEvidence = {
+        kind: "maintained-snapshot",
+        snapshot: collectConflictHotspotSnapshot(resolvedRepoRoot),
+      };
     } catch (error) {
       if (error instanceof ConflictHotspotCollectionError) {
-        throw new CanonicalPageSurfaceAuditError(
-          `Unable to collect hotspot evidence for the PR-surface audit. ${error.message}`,
-        );
+        hotspotEvidence = {
+          fallbackReason: error.message,
+          kind: "static-path-fallback",
+          snapshot: null,
+        };
+      } else {
+        throw error;
       }
-      throw error;
     }
   }
-  const resolvedSnapshot = options.snapshot;
-  if (!resolvedSnapshot) {
-    throw new CanonicalPageSurfaceAuditError(
-      "Hotspot evidence was not available for the canonical page surface audit.",
-    );
-  }
+  const resolvedSnapshot = hotspotEvidence.snapshot;
 
   const classifications = changedPathSet.paths.map((path) =>
     classifyChangedPath(path, scope),
@@ -748,8 +782,39 @@ export function collectCanonicalPageSurfaceAudit(
       supportRecordPaths: scope.supportRecordPaths,
     },
     sharedHotspotCategories,
-    snapshot: resolvedSnapshot,
+    hotspotEvidence,
   };
+}
+
+function formatSharedHotspotSummaryByBucket(
+  sharedHotspotCategories: readonly CanonicalPageSurfaceSharedCategorySummary[],
+): string[] {
+  if (sharedHotspotCategories.length === 0) {
+    return ["- None."];
+  }
+
+  const lines: string[] = [];
+  for (const bucket of sharedHotspotReviewerBuckets) {
+    const bucketSummaries = sharedHotspotCategories.filter((summary) =>
+      bucket.categories.includes(summary.category),
+    );
+    lines.push("", bucket.label);
+    if (bucketSummaries.length === 0) {
+      lines.push("- None in this branch.");
+      continue;
+    }
+
+    for (const summary of bucketSummaries) {
+      lines.push(
+        `- ${summary.categoryLabel}: ${summary.paths.length} changed path(s); examples: ${summary.paths.slice(0, 3).join(", ")}`,
+      );
+      if (summary.evidenceSurfaces.length > 0) {
+        lines.push(`  Evidence: ${summary.evidenceSurfaces.join(", ")}`);
+      }
+    }
+  }
+
+  return lines;
 }
 
 export function formatCanonicalPageSurfaceAudit(
@@ -800,23 +865,27 @@ export function formatCanonicalPageSurfaceAudit(
   }
 
   lines.push("", "Hotspot evidence source");
-  lines.push(
-    `- Current snapshot: last ${result.snapshot.recentCommitLimit} commits generated at ${result.snapshot.generatedAtUtc}`,
-  );
-
-  if (result.sharedHotspotCategories.length === 0) {
-    lines.push("", "Shared hotspot summary", "- None.");
+  if (result.hotspotEvidence.kind === "maintained-snapshot") {
+    lines.push(
+      `- Maintained snapshot: last ${result.hotspotEvidence.snapshot.recentCommitLimit} commits generated at ${result.hotspotEvidence.snapshot.generatedAtUtc}`,
+    );
+    lines.push(
+      "- Classification uses the same hotspot contract as `bun run report:planner-conflict-hotspots`.",
+    );
   } else {
-    lines.push("", "Shared hotspot summary");
-    for (const summary of result.sharedHotspotCategories) {
-      lines.push(
-        `- ${summary.categoryLabel}: ${summary.paths.length} changed path(s); examples: ${summary.paths.slice(0, 3).join(", ")}`,
-      );
-      if (summary.evidenceSurfaces.length > 0) {
-        lines.push(`  Evidence: ${summary.evidenceSurfaces.join(", ")}`);
-      }
-    }
+    lines.push(
+      "- Fallback mode: static path classification only (maintained hotspot snapshot unavailable).",
+    );
+    lines.push(`- Fallback reason: ${result.hotspotEvidence.fallbackReason}`);
+    lines.push(
+      "- Re-run `bun run report:planner-conflict-hotspots` from a git checkout when ranked hotspot evidence is required.",
+    );
   }
+
+  lines.push("", "Shared hotspot summary");
+  lines.push(
+    ...formatSharedHotspotSummaryByBucket(result.sharedHotspotCategories),
+  );
 
   lines.push("", "Guidance");
   lines.push(`- ${result.guidance.headline}`);

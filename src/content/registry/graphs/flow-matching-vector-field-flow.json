@@ -1,0 +1,90 @@
+{
+  "id": "graph.flow-matching-vector-field-flow",
+  "slug": "flow-matching-vector-field-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "flow matching vector field flow",
+    "flow matching velocity training flow"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.flow-matching-for-generative-modeling",
+    "citation.rectified-flow"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-03T00:00:00.000Z",
+  "updatedAt": "2026-07-03T00:00:00.000Z",
+  "subjectId": "concept.flow-matching",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "dataPair",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "dataPair",
+      "labelKey": "graph.nodes.dataPair.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 240, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": ["currentState"]
+    },
+    {
+      "id": "currentState",
+      "labelKey": "graph.nodes.currentState.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 112 },
+      "size": { "width": 240, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["velocityPrediction"]
+    },
+    {
+      "id": "velocityPrediction",
+      "labelKey": "graph.nodes.velocityPrediction.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 244 },
+      "size": { "width": 240, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["flowSampling"]
+    },
+    {
+      "id": "flowSampling",
+      "labelKey": "graph.nodes.flowSampling.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 376 },
+      "size": { "width": 240, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "pair-to-current-state",
+      "source": "dataPair",
+      "target": "currentState",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "current-to-velocity",
+      "source": "currentState",
+      "target": "velocityPrediction",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "velocity-to-sampling",
+      "source": "velocityPrediction",
+      "target": "flowSampling",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "id": "citation.cosmos-3-model-card",
+  "slug": "cosmos-3-model-card",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Cosmos3-Super model card",
+    "nvidia/Cosmos3-Super",
+    "Cosmos 3 Super Hugging Face model card"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["paper.cosmos-3"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["NVIDIA"],
+  "title": "nvidia/Cosmos3-Super Model Card",
+  "url": "https://huggingface.co/nvidia/Cosmos3-Super",
+  "mla": "NVIDIA. \"nvidia/Cosmos3-Super Model Card.\" Hugging Face, 2026.",
+  "year": 2026
+}

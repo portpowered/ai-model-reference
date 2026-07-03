@@ -3,6 +3,16 @@ export {
   buildBaseSearchDocuments,
 } from "./build-base-document";
 export {
+  BLOG_SEARCH_DOCUMENT_KIND,
+  type BlogSearchPostSource,
+  buildBlogBaseSearchDocument,
+  buildBlogSearchDocument,
+  buildBlogSearchDocuments,
+  extractBlogMdxSearchText,
+  loadBlogSearchPostSources,
+  splitBlogPostMdxBody,
+} from "./build-blog-search-document";
+export {
   buildSearchDocument,
   buildSearchDocuments,
   buildSearchDocumentsForLocale,
@@ -11,6 +21,11 @@ export {
   enrichSearchDocument,
   enrichSearchDocuments,
 } from "./enrich-search-document";
+export type { SearchDocumentEnrichmentAdapter } from "./model-atlas-ai-search-enrichment-adapter";
+export {
+  enrichSearchDocumentsWithModelAtlasAiFacets,
+  enrichSearchDocumentWithModelAtlasAiFacets,
+} from "./model-atlas-ai-search-enrichment-adapter";
 export type { OramaSearchRecord, OramaSnapshotDocument } from "./orama-index";
 export {
   createOramaDatabase,

@@ -50,7 +50,7 @@ describe("ltx-23 model page", () => {
     );
 
     expect(html).toContain('href="/docs/glossary/conditioning"');
-    expect(html).toContain('href="/docs/glossary/latent-space"');
+    expect(html).toContain('href="/docs/concepts/latent-space"');
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/glossary/multimodal-model"');
     expect(html).toContain('data-page-asset="architectureGraph"');

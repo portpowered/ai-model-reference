@@ -4,14 +4,40 @@ import {
   bulletlessListClassName,
   docsResourceCardLinkClassName,
 } from "@/features/docs/components/list-decoration";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { formatCalendarMonthYear } from "@/lib/content/calendar-date";
 import type { TagResourceKindGroup } from "@/lib/content/tag-resources";
+import type { SiteLocale } from "@/lib/i18n/locale-routing";
 
 type TagResourceListProps = {
   groups: TagResourceKindGroup[];
   listLabel: string;
+  tagSlug?: string;
+  locale?: SiteLocale;
 };
 
-export function TagResourceList({ groups, listLabel }: TagResourceListProps) {
+function blogEntryTags(
+  tags: string[] | undefined,
+  tagSlug: string | undefined,
+) {
+  if (!tags || tags.length === 0) {
+    return [];
+  }
+
+  if (!tagSlug) {
+    return tags;
+  }
+
+  const filtered = tags.filter((slug) => slug !== tagSlug);
+  return filtered.length > 0 ? filtered : tags;
+}
+
+export function TagResourceList({
+  groups,
+  listLabel,
+  tagSlug,
+  locale = "en",
+}: TagResourceListProps) {
   return (
     <section className="flex flex-col gap-8" aria-label={listLabel}>
       {groups.map((group) => (
@@ -39,10 +65,20 @@ export function TagResourceList({ groups, listLabel }: TagResourceListProps) {
                       aria-hidden
                     />
                   </span>
+                  {resource.kind === "blog" && resource.publishedAt ? (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      <time dateTime={resource.publishedAt}>
+                        {formatCalendarMonthYear(resource.publishedAt, locale)}
+                      </time>
+                    </p>
+                  ) : null}
                   <p className="mt-1 text-sm text-muted-foreground">
                     {resource.summary}
                   </p>
                 </Link>
+                {resource.kind === "blog" ? (
+                  <TagPillList tags={blogEntryTags(resource.tags, tagSlug)} />
+                ) : null}
               </li>
             ))}
           </ul>

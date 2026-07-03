@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { PageAssetConfig, PageMessages } from "./schemas";
 import {
+  isBlogContentPath,
   shouldValidateCanonicalMdxProse,
   splitMdxFrontmatter,
   validateCanonicalMdxProse,
@@ -59,15 +60,17 @@ describe("validateCanonicalMdxProse", () => {
   });
 
   test("skips blog-post MDX even when it contains narrative prose", () => {
+    expect(isBlogContentPath("/blog/example")).toBe(true);
+    expect(isBlogContentPath("src/content/blog/example/page.mdx")).toBe(true);
     expect(
       shouldValidateCanonicalMdxProse({
-        pagePath: "/docs/blog/example/page.mdx",
+        pagePath: "src/content/blog/example/page.mdx",
         kind: undefined,
       }),
     ).toBe(false);
 
     const errors = validateCanonicalMdxProse({
-      pagePath: "/docs/blog/example/page.mdx",
+      pagePath: "src/content/blog/example/page.mdx",
       kind: undefined,
       mdxSource: blogPostMdx,
     });

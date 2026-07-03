@@ -1,0 +1,13 @@
+diff --git a/src/lib/content/generated/table-registry.generated.ts b/src/lib/content/generated/table-registry.generated.ts
+index 1111111..2222222 100644
+--- a/src/lib/content/generated/table-registry.generated.ts
++++ b/src/lib/content/generated/table-registry.generated.ts
+@@ -1,5 +1,6 @@
+ // generated
++import loopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison.json";
+ export const generatedTableRegistrySourceFiles = [
++  "looped-transformers-comparison.json",
+ ] as const;
+ export const generatedTableRegistryPayloads = [
++  loopedTransformersComparisonTableRecord,
+ ] as const;

@@ -1,0 +1,23 @@
+{
+  "id": "citation.cosmos-3-technical-report",
+  "slug": "cosmos-3-technical-report",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Cosmos 3 Technical Report",
+    "Cosmos 3: Omnimodal World Models for Physical AI"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["paper.cosmos-3"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["NVIDIA"],
+  "title": "Cosmos 3: Omnimodal World Models for Physical AI",
+  "url": "https://arxiv.org/abs/2606.02800",
+  "mla": "NVIDIA. \"Cosmos 3: Omnimodal World Models for Physical AI.\" arXiv:2606.02800, 2026.",
+  "year": 2026
+}

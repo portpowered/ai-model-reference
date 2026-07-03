@@ -8,7 +8,8 @@
     "CLIP",
     "CLIP paper",
     "Learning Transferable Visual Models From Natural Language Supervision",
-    "contrastive language-image pretraining"
+    "contrastive language-image pretraining",
+    "contrastive image text"
   ],
   "tags": ["foundations", "taxonomy"],
   "relatedIds": [
