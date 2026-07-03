@@ -12,6 +12,7 @@ export function GraphFrame({
   axisLabelY,
   body,
   chartLabel,
+  chartTitleId,
   legend,
   legendTestId,
 }: {
@@ -19,13 +20,17 @@ export function GraphFrame({
   axisLabelY: string;
   body: ReactNode;
   chartLabel: string;
+  chartTitleId?: string;
   legend: readonly GraphLegendItem[];
   legendTestId?: string;
 }) {
   return (
     <div>
       <div className="text-center">
-        <div className="text-[11px] font-semibold tracking-[0.16em] text-muted-foreground uppercase">
+        <div
+          className="text-[11px] font-semibold tracking-[0.16em] text-muted-foreground uppercase"
+          id={chartTitleId}
+        >
           {chartLabel}
         </div>
       </div>
@@ -46,23 +51,25 @@ export function GraphFrame({
           {body}
         </div>
 
-        <div
+        <ul
+          aria-label="Chart legend"
           className="flex flex-wrap items-center justify-center gap-6 bg-card/45 px-4 py-3"
           data-graph-legend={legendTestId ?? chartLabel}
         >
           {legend.map((item) => (
-            <div
+            <li
               key={item.label}
               className="flex items-center gap-2 text-sm text-foreground"
             >
               <span
+                aria-hidden="true"
                 className="size-2.5 shrink-0 rounded-full"
                 style={{ backgroundColor: item.color }}
               />
               <span>{item.label}</span>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </div>
   );
