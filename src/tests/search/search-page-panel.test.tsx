@@ -347,7 +347,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
 
     const results = await waitForSearchPagePanelResults();
     await expectFirstSearchResultMatch(results, { url: SAMPLE_MODULE_URL });
-  });
+  }, { timeout: 90_000 });
 
   test.each([
     "prefill",

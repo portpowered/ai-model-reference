@@ -52,6 +52,9 @@ Use these files when extending the default English blog surface at `/blog` and
 * Factory git subprocesses in planner modules must use `createIsolatedGitProcessEnv`
   so inherited `GIT_DIR` / `GIT_WORK_TREE` from nested worktrees do not redirect
   tmp fixture repos during full `make test` runs.
+* Search page panel GQA ranking rows without explicit per-test timeouts inherit
+  the 15s default and can fail under full-suite load; align them with the 90s GQA
+  `test.each` budget when CI is already green.
 
 ## Patterns
 
