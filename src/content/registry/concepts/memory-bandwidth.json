@@ -1,0 +1,41 @@
+{
+  "id": "concept.memory-bandwidth",
+  "slug": "memory-bandwidth",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "memory bandwidth",
+    "serving memory bandwidth",
+    "inference memory bandwidth",
+    "KV cache bandwidth",
+    "weight bandwidth",
+    "throughput ceiling"
+  ],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [
+    "concept.kv-cache",
+    "concept.quantization",
+    "concept.weight-only-quantization",
+    "concept.activation-quantization",
+    "concept.kv-cache-quantization",
+    "system.memory",
+    "system.inference-engine",
+    "system.batching",
+    "system.continuous-batching"
+  ],
+  "citationIds": [
+    "citation.orca-serving-system",
+    "citation.kivi-kv-cache-quantization"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T23:30:00.000Z",
+  "primaryClassificationId": "classification.concept.inference",
+  "conceptType": "inference",
+  "sidebarGrouping": {
+    "glossary": "sequence-and-attention"
+  },
+  "prerequisiteIds": ["concept.kv-cache", "concept.quantization"],
+  "explainsIds": []
+}

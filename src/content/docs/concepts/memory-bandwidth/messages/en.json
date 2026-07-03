@@ -1,0 +1,56 @@
+{
+  "title": "Memory bandwidth",
+  "description": "How quickly weights, activations, and KV cache bytes can move between memory and compute during model serving, and why that movement can cap useful throughput.",
+  "openingSummary": "Memory bandwidth is how fast bytes can move between memory and compute during model serving. Inference repeatedly reads model weights, intermediate activations, and KV cache entries; when those moves consume most of the available time, useful tokens per second can stall even when arithmetic units still have headroom.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Memory bandwidth measures how quickly a serving stack can transfer bytes between memory and the processors running matrix multiplies, attention, and other layer math. It is a movement rate, not a storage size. A machine may have enough memory capacity to hold a model and a long context window while still spending much of each step waiting for weights or cache state to arrive from memory."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Serving is not a one-time load. Each forward pass revisits stored weights, and autoregressive decode revisits a growing KV cache on every new token. When byte movement dominates wall-clock time, the service hits a throughput ceiling that arithmetic peak ratings alone do not explain."
+    },
+    "whichBytesMove": {
+      "title": "Which Bytes Move",
+      "body": "During serving, three byte streams recur on every forward pass. Model weights are read from memory into compute for each layer. Intermediate activations move between layers as the stack runs attention, feed-forward blocks, and other math. KV cache entries store prior keys and values; prefill writes them once for the prompt, and decode repeatedly reads the full cache and appends new entries for each generated token. Decode often stresses KV cache traffic most because every new token rereads all prior cache bytes while also touching the full weight set again."
+    },
+    "throughputCeiling": {
+      "title": "The Throughput Ceiling",
+      "body": "Useful tokens per second is roughly limited by how many bytes the memory system can move per second divided by how many bytes each useful token forces through that pipe: $T \\lesssim B_{\\mathrm{avail}} / B_{\\mathrm{token}}$. $T$ is useful tokens per second. $B_{\\mathrm{avail}}$ is available byte movement per second. $B_{\\mathrm{token}}$ is bytes moved per useful token. When $B_{\\mathrm{token}}$ is large, even a fast arithmetic unit cannot raise $T$ much until byte movement catches up or the bytes per token shrink."
+    },
+    "computeVsBandwidth": {
+      "title": "Compute-Bound vs Bandwidth-Bound",
+      "body": "A serving step is compute-bound when processors stay busy and more arithmetic throughput would raise useful output. It is bandwidth-bound when processors wait on memory and lowering bytes moved per token would help more than adding peak FLOPs on paper. Prefill on a short prompt may look compute-bound because many prompt tokens run in parallel. Decode on a long context often looks bandwidth-bound because each new token rereads a large KV cache and full weights while doing relatively little new math per byte moved. The same hardware can switch regimes as batch size, context length, or quantization change how many bytes each step needs."
+    },
+    "servingPhases": {
+      "title": "How Serving Phases Change Movement",
+      "body": "Prefill reads the full prompt once, builds the initial KV cache, and often processes many prompt tokens in parallel, so weight and activation traffic spike in a short burst. Decode generates one token at a time, rereads the growing KV cache on every step, and repeats full weight reads for each new token. Batching groups multiple requests or tokens into one forward pass, which multiplies bytes moved per step but can improve utilization when the memory system can sustain the larger transfer. Longer context lengthens KV cache reads and writes during decode, so byte movement per token rises even when the model size stays fixed. Continuous batching mixes arriving and finishing requests, which changes when bursts arrive but does not remove the underlying byte-movement budget."
+    },
+    "quantizationAndBandwidth": {
+      "title": "Quantization and Bandwidth",
+      "body": "Quantization stores weights, activations, or KV cache entries in fewer bits, which lowers the bytes moved per serving step when the runtime actually reads those compressed tensors. Weight-only quantization mainly shrinks parameter reads. Activation quantization can shrink live intermediate tensors as they move between layers. KV cache quantization shrinks the cached state that grows during decode. Smaller byte counts help most when serving is bandwidth-bound, because they directly lower bytes per token in the throughput ceiling. Halving bytes does not automatically double useful tokens per second. Dequantization work, kernel launch overhead, compute-bound layers, and batching limits can still dominate, so the payoff depends on which bottleneck is active."
+    },
+    "kvCacheCompression": {
+      "title": "KV Cache Compression and Bandwidth",
+      "body": "KV cache compression and KV cache quantization target the cached keys and values that decode rereads on every new token. That is narrower than general model quantization, which may leave the cache in full precision while shrinking only stored parameters. When long context makes KV cache traffic the main byte stream, compressing or quantizing the cache lowers decode memory movement without changing the full weight checkpoint format. General quantization pages explain bit-width tradeoffs across tensors; this page focuses on why shrinking cache bytes can raise the bandwidth ceiling during long-context decode. The same caveat applies: smaller cache tensors help when memory movement limits throughput, not when arithmetic or scheduling bottlenecks dominate."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a decode worker generating one token at a time for a large model with a long prior context. That step may need to read billions of weight bytes and reread a KV cache that grew with every earlier token. If the memory system cannot supply those bytes quickly enough, the worker idles on data transfers even though the compute units are not fully busy. The limit is the pipe for moving bytes, not whether the model fits in memory."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Memory bandwidth is not the same as memory capacity, peak FLOPs, or a hardware benchmark leaderboard. Capacity answers whether tensors fit; bandwidth answers how fast they can move during serving. This page explains the serving constraint in general terms and does not rank devices, quote prices, or prescribe hardware purchases."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
