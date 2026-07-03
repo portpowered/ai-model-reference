@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   type FileObject,
   printErrors,
@@ -6,6 +8,14 @@ import {
   type ValidateResult,
   validateFiles,
 } from "next-validate-link";
+import {
+  isBlogPostPubliclyVisible,
+  parseBlogPostFrontmatter,
+} from "@/lib/content/blog-frontmatter";
+import { discoverBlogPostSlugs } from "@/lib/content/blog-post-list";
+import { BLOG_ROOT } from "@/lib/content/content-paths";
+import type { RegistryIndexes } from "@/lib/content/registry";
+import { parseYamlFrontmatterBlock } from "@/lib/content/yaml-frontmatter";
 import { source } from "@/lib/source";
 
 /** MDX components whose `href` props are checked by next-validate-link. */
@@ -145,6 +155,182 @@ export async function buildDocumentationLinkScan(
 function fileHeadingHashes(files: FileObject[], url: string): string[] {
   const file = files.find((candidate) => candidate.url === url);
   return file ? extractPageHeadingHashes(file.content) : [];
+}
+
+/** Extracts `assetId="..."` references from MDX component tags. */
+export function extractMdxAssetIds(mdxBody: string): string[] {
+  const pattern = /\bassetId="([^"]+)"/g;
+  const values: string[] = [];
+  for (const match of mdxBody.matchAll(pattern)) {
+    if (match[1]) {
+      values.push(match[1]);
+    }
+  }
+  return values;
+}
+
+function splitBlogPostSource(source: string):
+  | {
+      frontmatterYaml: string;
+      mdxBody: string;
+    }
+  | undefined {
+  const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+  if (!match?.[1]) {
+    return undefined;
+  }
+
+  return {
+    frontmatterYaml: match[1],
+    mdxBody: match[2] ?? "",
+  };
+}
+
+function blogPostLinkFile(
+  slug: string,
+  mdxPath: string,
+  source: string,
+): FileObject {
+  return {
+    path: mdxPath,
+    content: source,
+    url: `/blog/${slug}`,
+  };
+}
+
+export type BuildBlogPostLinkScanOptions = {
+  blogRoot?: string;
+  docsFiles?: FileObject[];
+  indexes: RegistryIndexes;
+};
+
+/**
+ * Builds a strict internal URL scan for blog MDX link validation.
+ * Docs, published tag, and published blog routes are enumerated explicitly so
+ * unknown targets fail instead of matching permissive Next route fallbacks.
+ */
+export async function buildBlogPostLinkScan(
+  options: BuildBlogPostLinkScanOptions,
+): Promise<ScanResult> {
+  const blogRoot = options.blogRoot ?? BLOG_ROOT;
+  const docsFiles =
+    options.docsFiles ?? (await collectDocumentationLinkFiles());
+  const docsScanned = await buildDocumentationLinkScan(docsFiles);
+  const urls = new Map<string, { hashes?: string[] }>(docsScanned.urls);
+
+  for (const tag of options.indexes.tagsBySlug.values()) {
+    if (tag.status === "published") {
+      urls.set(`/tags/${tag.slug}`, {});
+    }
+  }
+
+  for (const slug of discoverBlogPostSlugs(blogRoot)) {
+    const mdxPath = join(blogRoot, slug, "page.mdx");
+    const source = readFileSync(mdxPath, "utf8");
+    const split = splitBlogPostSource(source);
+    if (!split) {
+      continue;
+    }
+
+    const frontmatter = parseBlogPostFrontmatter(
+      parseYamlFrontmatterBlock(split.frontmatterYaml),
+    );
+    if (!frontmatter.success || !isBlogPostPubliclyVisible(frontmatter.data)) {
+      continue;
+    }
+
+    urls.set(`/blog/${slug}`, {
+      hashes: extractPageHeadingHashes(split.mdxBody),
+    });
+  }
+
+  return {
+    urls,
+    fallbackUrls: [],
+  };
+}
+
+export type CollectPublishedBlogLinkFilesOptions = {
+  blogRoot?: string;
+};
+
+/** Collects published blog MDX files for reader-visible link validation. */
+export function collectPublishedBlogLinkFiles(
+  options: CollectPublishedBlogLinkFilesOptions = {},
+): FileObject[] {
+  const blogRoot = options.blogRoot ?? BLOG_ROOT;
+  const files: FileObject[] = [];
+
+  for (const slug of discoverBlogPostSlugs(blogRoot)) {
+    const mdxPath = join(blogRoot, slug, "page.mdx");
+    const source = readFileSync(mdxPath, "utf8");
+    const split = splitBlogPostSource(source);
+    if (!split) {
+      continue;
+    }
+
+    const frontmatter = parseBlogPostFrontmatter(
+      parseYamlFrontmatterBlock(split.frontmatterYaml),
+    );
+    if (!frontmatter.success || !isBlogPostPubliclyVisible(frontmatter.data)) {
+      continue;
+    }
+
+    files.push(blogPostLinkFile(slug, mdxPath, source));
+  }
+
+  return files;
+}
+
+export type ValidateBlogPostLinksOptions = {
+  blogRoot?: string;
+  docsFiles?: FileObject[];
+  files?: FileObject[];
+  indexes: RegistryIndexes;
+  scanned?: ScanResult;
+};
+
+/** Validates reader-visible links in published blog MDX files. */
+export async function validateBlogPostLinks(
+  options: ValidateBlogPostLinksOptions,
+): Promise<ValidateResult[]> {
+  const files =
+    options.files ??
+    collectPublishedBlogLinkFiles({ blogRoot: options.blogRoot });
+  const scanned =
+    options.scanned ??
+    (await buildBlogPostLinkScan({
+      blogRoot: options.blogRoot,
+      docsFiles: options.docsFiles,
+      indexes: options.indexes,
+    }));
+
+  const results: ValidateResult[] = [];
+
+  for (const file of files) {
+    const pageDirectory = join(file.path, "..");
+    const fileResults = await validateFiles([file], {
+      scanned,
+      baseDir: pageDirectory,
+      checkRelativePaths: "exists",
+      markdown: {
+        components: LINK_VALIDATION_MARKDOWN_COMPONENTS,
+      },
+    });
+    results.push(...fileResults);
+  }
+
+  return results;
+}
+
+export function formatLinkValidationReason(
+  reason: ValidateResult["errors"][number]["reason"],
+): string {
+  if (reason instanceof Error) {
+    return reason.message;
+  }
+
+  return reason;
 }
 
 export type ValidateDocumentationLinksOptions = {

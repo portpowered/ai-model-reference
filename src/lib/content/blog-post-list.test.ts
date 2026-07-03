@@ -139,6 +139,28 @@ describe("listPublishedBlogPosts", () => {
     ]);
   });
 
+  test("omits published posts that lack locale-specific messages", async () => {
+    await writeFixturePost({
+      slug: "english-only-post",
+      status: "published",
+      publishedAt: "2026-06-10",
+    });
+
+    const englishPosts = await listPublishedBlogPosts({
+      blogRoot: tempRoot,
+      locale: "en",
+    });
+    const localizedPosts = await listPublishedBlogPosts({
+      blogRoot: tempRoot,
+      locale: "ja",
+    });
+
+    expect(englishPosts.map((post) => post.slug)).toEqual([
+      "english-only-post",
+    ]);
+    expect(localizedPosts).toEqual([]);
+  });
+
   test("includes route-ready slug, frontmatter, and messages for index cards", async () => {
     const { slug } = await writeFixturePost({
       slug: "index-card-post",

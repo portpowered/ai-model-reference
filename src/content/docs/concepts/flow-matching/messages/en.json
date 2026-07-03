@@ -1,0 +1,115 @@
+{
+  "title": "Flow matching",
+  "description": "A generative training objective that teaches a model how samples should move from a simple or noisy starting state toward real data.",
+  "openingSummary": "Flow matching is a way to train a generative model to predict how samples should move from a simple or noisy starting distribution toward real data, so generation can follow learned update steps instead of relying only on classic denoising wording.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Flow matching is a generative training objective, not a single model architecture. Training pairs a current sample state—often a noisy or easy-to-draw starting point—with a target direction that points toward real data. The model learns to predict that direction at many intermediate states along the path from noise to data. At generation time, the system starts from a simple draw, applies the learned update rule repeatedly, and walks the sample toward a finished image, audio clip, or other output."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Modern image and video systems need a stable way to teach iterative generation without forcing every team to use the same denoising vocabulary. Flow matching gives a plain-language framing for velocity or transport-style training: the model learns how states should change, not only how to subtract noise at one fixed schedule. That makes it easier to compare papers and product pages that talk about rectified flow, velocity prediction, or flow-style samplers against older diffusion descriptions."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine training on images by starting each example as random noise and asking the network, at many points along the path back to the real photo, which small move would bring the current noisy canvas closer to the target. After training, generation begins from fresh noise and repeats those learned moves for a fixed number of steps. The finished sample is whatever state you reach when the schedule ends—similar in spirit to iterative diffusion sampling, but described as following a learned flow rather than only removing noise."
+    },
+    "vectorFieldIntuition": {
+      "title": "Vector Field Intuition",
+      "body": "A vector field is a learned direction-and-speed rule: at each current sample state, it answers which way to move next and how strongly. Picture many small arrows placed over possible states. Flow matching trains a network to output the arrow that matches the state it sees now.\n\nTraining builds pairs from a simple starting draw and a real data example. A time or noise level picks where you are along the transport path between them, producing a current state such as an interpolated blend. The training target is the velocity—the direction and speed that would move that current state toward data along the chosen path. The loss compares the model's predicted velocity to that target across many examples, starting draws, and times.\n\nAt generation time, the system draws a fresh simple start and repeatedly asks the model for the next small move, following the learned field step by step until the schedule ends. The diagram below shows that training loop, and the equation summarizes the velocity-matching objective in compact notation."
+    },
+    "comparedToDiffusionStyleGeneration": {
+      "title": "Compared To Diffusion-Style Generation",
+      "body": "Diffusion-style generation and flow matching both build samples by starting from a simple or noisy state and applying many learned update steps toward data. At inference, both can look like the same loop: draw a starting state, ask the network for the next correction, repeat until the schedule ends.\n\nThe difference is usually in training wording and target quantity, not in whether generation iterates. Classic denoising-diffusion descriptions often say the model predicts noise to remove or a denoised estimate at each noise level along a fixed schedule. Flow matching descriptions say the model predicts a velocity or vector field—the direction and speed that should move the current state along a transport path toward data.\n\nThose wordings are related but not interchangeable labels for one loss. Some diffusion trainers still optimize noise-prediction or score-matching objectives, while flow-matching trainers optimize velocity matching on constructed transport pairs. A paper headline may say diffusion while the implementation trains velocity targets, or the reverse. Flow matching is not merely a renamed diffusion loss, and not every diffusion system uses flow-matching training—even when both families share similar multi-step samplers.\n\nLatent diffusion systems often keep the same iterative pattern while operating in a compressed latent space rather than raw pixels. The links below point to the diffusion training objective explainer and the latent diffusion paper page for adjacent context on denoising-style training and latent-space generation."
+    },
+    "inModernImageAndVideoSystems": {
+      "title": "In Modern Image And Video Systems",
+      "body": "Modern image and video stacks often combine three ideas: iterative generation from a simple start, latent-space compression for tractable training, and transformer backbones that predict update steps at each schedule point. Flow-style objectives fit that setup because they teach a stable update direction—the velocity or transport rule—rather than tying every release to one denoising headline. Teams can pair velocity matching with latent encoders, diffusion transformer blocks, and multi-step samplers while keeping the same generation loop readers already recognize from diffusion-style systems.\n\nThat compatibility matters for sampling behavior. When training optimizes a vector field, generation can follow small learned moves step by step, similar to multi-step latent diffusion sampling, while describing each move as following a flow rather than only subtracting noise. The point is not to claim every modern image or video model switched objectives overnight, but to explain why flow matching appears beside latent diffusion and transformer-based denoisers when readers compare releases or search phrases like diffusion vs flow matching or flow matching video generation.\n\nDiffusion transformer blocks are a common backbone for patch-based update prediction in image models. Representative video systems such as LTX-2.3 show how the same iterative latent pattern extends to synchronized audio-video output with a diffusion-transformer backbone and public training materials framed around denoising updates. The links below lead to those adjacent module and model pages for architecture and modality context."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Flow matching is not the name of one product model or benchmark leaderboard. It is an objective family used inside many image and video stacks. Marketing copy can also blur labels: a page may say diffusion while the trainer optimizes velocity targets, or say flow while the sampler still uses classic noise-removal steps. Treat the stated training target and update rule as the reliable signal, not the headline term alone."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "vectorFieldFlow": {
+      "title": "Flow matching vector field training flow",
+      "alt": "A four-step flow matching training flow: pair a simple start with data, build a current state at time t, predict velocity, then follow the learned flow at generation.",
+      "caption": "Training pairs current states and times with target velocities toward data; generation starts from a fresh draw and follows the learned field.",
+      "legend": {
+        "data-flow": {
+          "label": "Training and sampling flow"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "dataPair": {
+        "label": "Simple start x₀ and data example x₁"
+      },
+      "currentState": {
+        "label": "Current state xₜ at time t"
+      },
+      "velocityPrediction": {
+        "label": "Model predicts velocity vθ(xₜ, t)"
+      },
+      "flowSampling": {
+        "label": "Generation follows the learned flow"
+      }
+    }
+  },
+  "links": {
+    "diffusionTrainingObjective": "Diffusion training objective",
+    "latentDiffusion": "Latent diffusion",
+    "diffusionTransformerBlock": "Diffusion transformer block",
+    "ltx23": "LTX-2.3",
+    "videoGeneration": "Video generation"
+  },
+  "math": {
+    "velocityMatchingObjective": {
+      "label": "Velocity matching objective",
+      "formula": "\\mathcal{L} = \\mathbb{E}_{t,\\,x_0,\\,x_1}\\left[\\left\\lVert v_\\theta(x_t, t) - (x_1 - x_0) \\right\\rVert^2\\right]",
+      "variableDefinitions": {
+        "theta": {
+          "term": "\\theta",
+          "definition": "model weights"
+        },
+        "x0": {
+          "term": "x_0",
+          "definition": "a simple starting draw such as noise"
+        },
+        "x1": {
+          "term": "x_1",
+          "definition": "a real data example"
+        },
+        "t": {
+          "term": "t",
+          "definition": "transport time along the path between start and data"
+        },
+        "xt": {
+          "term": "x_t",
+          "definition": "the current interpolated state at time t"
+        },
+        "vtheta": {
+          "term": "v_\\theta",
+          "definition": "the velocity the model predicts at state x_t and time t"
+        },
+        "targetvelocity": {
+          "term": "x_1 - x_0",
+          "definition": "the target velocity along the straight transport path"
+        }
+      }
+    }
+  }
+}

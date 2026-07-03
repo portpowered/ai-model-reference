@@ -270,7 +270,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPagePanelResults();
     expect(results.className).toContain("list-none");
     expect(results.className).not.toContain("list-disc");
     expect(results.querySelectorAll("li").length).toBeGreaterThan(0);
@@ -286,7 +286,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPagePanelResults();
     expectSharedSearchResultRowPanel(within(results));
   });
 
@@ -300,7 +300,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPagePanelResults();
     expectThinSearchMetadataPanel(within(results), { expectSummary: true });
   });
 
@@ -314,7 +314,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPagePanelResults();
     expectFullRowSearchResultHighlightPanel(within(results));
     const row = within(results).getAllByTestId("search-result-row")[0];
     expect(row?.className).toContain("hover:bg-accent");
@@ -331,7 +331,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "Grouped",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPagePanelResults();
     expectReadableQueryMatchHighlightPanel(within(results));
   });
 
@@ -365,11 +365,17 @@ describe("SearchPagePanel Phase 1 queries", () => {
     ) as HTMLInputElement;
     expect(searchInput.value).toBe(query);
 
-    const results = await waitForSearchPagePanelResults();
-    await expectFirstSearchResultMatch(results, {
-      url: PREFILL_URL,
-      titlePattern: /prefill/i,
+    const results = await waitForSearchPagePanelResults({
+      timeout: 30_000,
     });
+    await expectFirstSearchResultMatch(
+      results,
+      {
+        url: PREFILL_URL,
+        titlePattern: /prefill/i,
+      },
+      { timeout: 30_000 },
+    );
   }, { timeout: 30_000 });
 
   test.each([

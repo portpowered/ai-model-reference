@@ -179,6 +179,21 @@ export async function runAttentionTagGroupingGate(): Promise<Phase23Reconciliati
   const registry = await loadRegistry();
   const pages = await loadPublishedDocsPages("en");
   const pageByUrl = new Map(pages.map((page) => [page.url, page]));
+  const tagGroupsBySlug = new Map<
+    string,
+    Awaited<ReturnType<typeof loadTagResourceGroups>>
+  >();
+
+  async function tagGroupsForSlug(tagSlug: string) {
+    const cached = tagGroupsBySlug.get(tagSlug);
+    if (cached) {
+      return cached;
+    }
+
+    const groups = await loadTagResourceGroups(tagSlug, messages, "en");
+    tagGroupsBySlug.set(tagSlug, groups);
+    return groups;
+  }
 
   for (const contract of REPRESENTATIVE_DISCOVERY_CONTRACTS) {
     const page = pageByUrl.get(contract.pageUrl);
@@ -199,7 +214,7 @@ export async function runAttentionTagGroupingGate(): Promise<Phase23Reconciliati
         );
       }
 
-      const groups = await loadTagResourceGroups(tagSlug, messages, "en");
+      const groups = await tagGroupsForSlug(tagSlug);
       const expectedGroup = groups.find(
         (group) => group.kind === contract.expectedKind,
       );

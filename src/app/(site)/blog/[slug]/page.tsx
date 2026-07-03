@@ -4,16 +4,10 @@ import {
   DocsPage,
   DocsTitle,
 } from "fumadocs-ui/layouts/docs/page";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadBlogPost } from "@/lib/content/blog-page";
-import {
-  blogIndexHref,
-  blogPostHref,
-  listBlogSlugs,
-  listPublishedBlogPosts,
-} from "@/lib/content/blog-page-load";
+import { blogPostHref, listBlogSlugs } from "@/lib/content/blog-page-load";
 
 type BlogPostPageProps = {
   params: Promise<{ slug: string }>;

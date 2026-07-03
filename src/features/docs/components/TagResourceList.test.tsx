@@ -49,4 +49,64 @@ describe("TagResourceList", () => {
     expect(withoutNoUnderline).not.toMatch(/\bunderline\b/);
     expect(html).toContain("focus-visible:ring-2");
   });
+
+  test("renders blog published dates and supplemental tag pills", () => {
+    const html = renderToStaticMarkup(
+      <TagResourceList
+        groups={[
+          {
+            kind: "blog",
+            kindLabel: "Blog",
+            resources: [
+              {
+                title: "Why throughput follows a roofline",
+                summary: "Roofline explainer",
+                url: "/blog/roofline-throughput-explorer",
+                slug: "roofline-throughput-explorer",
+                kind: "blog",
+                publishedAt: "2026-07-02",
+                tags: ["foundations", "kv-cache"],
+              },
+            ],
+          },
+        ]}
+        listLabel="Resources"
+        tagSlug="kv-cache"
+        locale="en"
+      />,
+    );
+
+    expect(html).toContain('dateTime="2026-07-02"');
+    expect(html).toContain("July 2026");
+    expect(html).toContain('href="/tags/foundations"');
+    expect(html).not.toContain('href="/tags/kv-cache"');
+  });
+
+  test("keeps blog tag pills when every tag matches the active tag slug", () => {
+    const html = renderToStaticMarkup(
+      <TagResourceList
+        groups={[
+          {
+            kind: "blog",
+            kindLabel: "Blog",
+            resources: [
+              {
+                title: "Single-tag blog post",
+                summary: "Only one tag",
+                url: "/blog/single-tag",
+                slug: "single-tag",
+                kind: "blog",
+                publishedAt: "2026-06-01",
+                tags: ["foundations"],
+              },
+            ],
+          },
+        ]}
+        listLabel="Resources"
+        tagSlug="foundations"
+      />,
+    );
+
+    expect(html).toContain('href="/tags/foundations"');
+  });
 });

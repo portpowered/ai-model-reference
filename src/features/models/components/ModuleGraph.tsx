@@ -3,6 +3,7 @@
 import { PageAsset } from "@/features/docs/components/PageAsset";
 import { usePageAssets } from "@/features/docs/components/page-assets-context";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
+import { AttentionVariantComparisonGraph } from "@/features/models/components/AttentionVariantComparisonGraph";
 import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
 import { buildRegistryGraphLegend } from "@/features/models/components/registry-graph-legend";
 import { lookupAsset, resolveAssetText } from "@/lib/content/assets";
@@ -23,12 +24,24 @@ export function ModuleGraph({
   }
 
   const { asset } = lookup;
+  const text = resolveAssetText(messages, asset);
+  const assetMessages = messages.assets?.[assetId];
+
+  if (asset.type === "attention-variant-graph") {
+    return (
+      <AttentionVariantComparisonGraph
+        assetId={assetId}
+        variants={asset.variants}
+        defaultVariantId={asset.defaultVariantId}
+        alt={text.alt}
+        caption={text.caption}
+      />
+    );
+  }
+
   if (asset.type !== "graph" || asset.webRenderer !== "react-flow") {
     return <PageAsset assetId={assetId} />;
   }
-
-  const text = resolveAssetText(messages, asset);
-  const assetMessages = messages.assets?.[assetId];
 
   return (
     <RegistryGraphFlow
