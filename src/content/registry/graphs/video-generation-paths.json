@@ -1,0 +1,123 @@
+{
+  "id": "graph.video-generation-paths",
+  "slug": "video-generation-paths",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["taxonomy", "foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-04T00:00:00.000Z",
+  "updatedAt": "2026-07-04T00:00:00.000Z",
+  "subjectId": "concept.video-generation",
+  "graphType": "concept-map",
+  "rootNodeId": "video-clip",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "video-clip",
+      "labelKey": "graph.nodes.videoClip.label",
+      "summaryKey": "graph.nodes.videoClip.summary",
+      "moduleKind": "input",
+      "position": { "x": 290, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["frame-level", "visual-tokens"]
+    },
+    {
+      "id": "frame-level",
+      "labelKey": "graph.nodes.frameLevel.label",
+      "summaryKey": "graph.nodes.frameLevel.summary",
+      "moduleKind": "other",
+      "position": { "x": 20, "y": 120 },
+      "visualRole": "process-node",
+      "childNodeIds": ["frame-agreement", "frame-mechanisms"]
+    },
+    {
+      "id": "visual-tokens",
+      "labelKey": "graph.nodes.visualTokens.label",
+      "summaryKey": "graph.nodes.visualTokens.summary",
+      "moduleKind": "other",
+      "position": { "x": 520, "y": 120 },
+      "visualRole": "process-node",
+      "childNodeIds": ["token-space-time", "token-mechanisms"]
+    },
+    {
+      "id": "frame-agreement",
+      "labelKey": "graph.nodes.frameAgreement.label",
+      "summaryKey": "graph.nodes.frameAgreement.summary",
+      "moduleKind": "other",
+      "position": { "x": 0, "y": 240 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "frame-mechanisms",
+      "labelKey": "graph.nodes.frameMechanisms.label",
+      "summaryKey": "graph.nodes.frameMechanisms.summary",
+      "moduleKind": "other",
+      "position": { "x": 0, "y": 340 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "token-space-time",
+      "labelKey": "graph.nodes.tokenSpaceTime.label",
+      "summaryKey": "graph.nodes.tokenSpaceTime.summary",
+      "moduleKind": "other",
+      "position": { "x": 500, "y": 240 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "token-mechanisms",
+      "labelKey": "graph.nodes.tokenMechanisms.label",
+      "summaryKey": "graph.nodes.tokenMechanisms.summary",
+      "moduleKind": "other",
+      "position": { "x": 500, "y": 340 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "clip-to-frame",
+      "source": "video-clip",
+      "target": "frame-level",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "clip-to-tokens",
+      "source": "video-clip",
+      "target": "visual-tokens",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "frame-to-agreement",
+      "source": "frame-level",
+      "target": "frame-agreement",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "frame-to-mechanisms",
+      "source": "frame-level",
+      "target": "frame-mechanisms",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "tokens-to-space-time",
+      "source": "visual-tokens",
+      "target": "token-space-time",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "tokens-to-mechanisms",
+      "source": "visual-tokens",
+      "target": "token-mechanisms",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

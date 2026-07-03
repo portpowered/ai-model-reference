@@ -8,8 +8,13 @@ import {
   renderDocsSlugPage,
 } from "@/app/docs/docs-slug-renderer";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import {
+  parsePageAssetConfig,
+  validatePageAssetReferences,
+} from "@/lib/content/assets";
 import { loadConceptPage } from "@/lib/content/concept-page";
 import { getDocsPageDir } from "@/lib/content/content-paths";
+import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import {
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
@@ -27,8 +32,10 @@ import { docsSearchApi } from "@/lib/search/search-server";
 
 const REGISTRY_ID = "concept.video-generation";
 const CONCEPT_URL = "/docs/concepts/video-generation";
+const GENERATION_PATHS_GRAPH_ID = "graph.video-generation-paths";
 const pageDir = getDocsPageDir("concepts", "video-generation");
 const messagesPath = join(pageDir, "messages/en.json");
+const assetsPath = join(pageDir, "assets.json");
 
 describe("video-generation concept discovery (video-generation-concept-page-001)", () => {
   test("registry record is published with generation aliases, modality tags, and focused related ids", () => {
@@ -276,5 +283,74 @@ describe("video-generation temporal consistency and conditioning (video-generati
     expect(html.toLowerCase()).toContain("more pixels");
     expect(html).not.toContain("benchmark");
     expect(html).not.toContain("leaderboard");
+  });
+});
+
+describe("video-generation frame and token paths (video-generation-concept-page-004)", () => {
+  test("messages explain frame-level generation, visual tokens, and diffusion versus autoregressive paths", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const generationPaths =
+      messages.sections?.generationPaths.body?.toLowerCase() ?? "";
+
+    expect(generationPaths).toContain("frame-level generation");
+    expect(generationPaths).toContain("adjacent frames must agree");
+    expect(generationPaths).toContain("visual-token generation");
+    expect(generationPaths).toContain("discrete or continuous tokens");
+    expect(generationPaths).toContain("space and time");
+    expect(generationPaths).toContain("diffusion-style");
+    expect(generationPaths).toContain("autoregressive-style");
+    expect(generationPaths).not.toContain("leaderboard");
+    expect(generationPaths).not.toContain("benchmark");
+  });
+
+  test("generation paths graph asset, caption, and registry subject resolve for the bundle", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const assets = parsePageAssetConfig(
+      JSON.parse(readFileSync(assetsPath, "utf8")),
+    );
+
+    expect(assets.generationPathsMap).toMatchObject({
+      type: "graph",
+      graphId: GENERATION_PATHS_GRAPH_ID,
+      altKey: "assets.generationPathsMap.alt",
+      captionKey: "assets.generationPathsMap.caption",
+    });
+    expect(validatePageAssetReferences(assets, messages)).toEqual([]);
+    expect(getGraphById(GENERATION_PATHS_GRAPH_ID)?.subjectId).toBe(
+      REGISTRY_ID,
+    );
+    expect(messages.assets?.generationPathsMap?.alt).toContain(
+      "frame-level video generation",
+    );
+    expect(messages.graph?.nodes?.frameLevel?.label).toContain("Frame-level");
+    expect(messages.graph?.nodes?.visualTokens?.label).toContain(
+      "Visual-token",
+    );
+  });
+
+  test("rendered page surfaces generation-path prose and graph asset wiring", async () => {
+    const page = await loadConceptPage("video-generation");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("Frame And Token Generation Paths");
+    expect(html.toLowerCase()).toContain("frame-level generation");
+    expect(html.toLowerCase()).toContain("visual-token generation");
+    expect(html.toLowerCase()).toContain("adjacent frames must agree");
+    expect(html.toLowerCase()).toContain("diffusion-style");
+    expect(html.toLowerCase()).toContain("autoregressive-style");
+    expect(html).toContain('data-graph-id="graph.video-generation-paths"');
+    expect(html).not.toMatch(/\{\{[^}]+\}\}/);
   });
 });

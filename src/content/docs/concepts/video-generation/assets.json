@@ -1,1 +1,10 @@
-{}
+{
+  "generationPathsMap": {
+    "type": "graph",
+    "graphId": "graph.video-generation-paths",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.generationPathsMap.alt",
+    "captionKey": "assets.generationPathsMap.caption"
+  }
+}
