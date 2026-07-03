@@ -108,6 +108,35 @@ In-budget page-only work prints `Budget status: within-budget` with
 `Recommended action: keep-routine`. Over-budget work names each offending path,
 its category label, and the next review lane.
 
+### Over-budget and exception output
+
+The checker never silently converts shared-hotspot churn into routine page work.
+Reviewers can distinguish a clean in-budget pass from an exception lane or a
+redirect lane by these observable markers:
+
+| Marker | In-budget pass | Narrow exception | Split or redirect |
+| --- | --- | --- | --- |
+| `Budget status` | `within-budget` | `over-budget` | `over-budget` |
+| `Recommended action` | `keep-routine` | `declare-exception` | `split-to-page-owned-work` or `redirect-to-throughput-prd` |
+| `Visible exception` line | absent | present when `--exception-reason` is supplied | present only when declared; redirect lane may still reject the exception |
+| Offending path lines | none | `-> shared hotspot surface [category]` for each shared path | same, plus generated-output lines when applicable |
+| Guidance headline | routine page-owned wording | narrow exception wording | split-back or redirect wording |
+
+Representative over-budget output always names the specific offending paths and
+their categories under **Changed path classifications**, then groups shared
+paths under **Shared hotspot summary** buckets. The **Guidance** section states
+the recommended next action in contributor terms:
+
+- **Split page-owned work** (`split-to-page-owned-work`) — remove generated
+  runtime artifacts from the routine review commit and keep only page-owned
+  paths.
+- **Justify the exception** (`declare-exception`) — rerun with
+  `--exception-reason "..."` and repeat the same justification in the PR
+  conversation comment when one narrow shared touch is truly required.
+- **Move to a broader item** (`redirect-to-throughput-prd`) — split shared
+  helper, shared test, or multi-page churn into a dedicated throughput or
+  conflict-reduction lane.
+
 ## Core implementation and docs
 
 - `src/lib/factory/canonical-page-surface-audit.ts` — branch diff and path-list

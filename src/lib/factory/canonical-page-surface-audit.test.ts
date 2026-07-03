@@ -551,6 +551,124 @@ describe("canonical page surface audit", () => {
     }
   });
 
+  test("keeps in-budget, exception-lane, and redirect-lane formatted output distinguishable", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "canonical-page-surface-"));
+
+    try {
+      mkdirSync(
+        join(repoRoot, "src/content/docs/modules/example-page/messages"),
+        {
+          recursive: true,
+        },
+      );
+      mkdirSync(join(repoRoot, "src/content/registry/modules"), {
+        recursive: true,
+      });
+      mkdirSync(join(repoRoot, "src/lib/content"), {
+        recursive: true,
+      });
+      mkdirSync(join(repoRoot, "src/tests/ci"), {
+        recursive: true,
+      });
+
+      writeFileSync(
+        join(repoRoot, "src/content/docs/modules/example-page/page.mdx"),
+        `---\nkind: "module"\nregistryId: "module.example-page"\nmessageNamespace: "local"\nassetNamespace: "local"\nstatus: "published"\ntags:\n  - "attention"\nupdatedAt: "2026-06-20"\n---\n`,
+      );
+      writeJson(
+        join(repoRoot, "src/content/registry/modules/example-page.json"),
+        {
+          id: "module.example-page",
+        },
+      );
+
+      const snapshot: ConflictHotspotSnapshot = {
+        generatedAtUtc: "2026-06-20T12:00:00.000Z",
+        rankedSurfaces: [
+          {
+            category: "shared-helper",
+            distinctPaths: 1,
+            representativePaths: ["src/lib/content/slug-utils.ts"],
+            surface: "src/lib/content",
+            touches: 5,
+          },
+          {
+            category: "shared-test",
+            distinctPaths: 1,
+            representativePaths: ["src/tests/ci/example.test.ts"],
+            surface: "src/tests/ci",
+            touches: 3,
+          },
+        ],
+        recentCommitLimit: 40,
+        repoRoot,
+        topPaths: [],
+        worktrees: [],
+      };
+
+      const inBudget = collectCanonicalPageSurfaceAudit(repoRoot, {
+        changedPaths: ["src/content/docs/modules/example-page/page.mdx"],
+        pageDirectory: "src/content/docs/modules/example-page",
+        snapshot,
+      });
+      const exceptionLane = collectCanonicalPageSurfaceAudit(repoRoot, {
+        changedPaths: [
+          "src/content/docs/modules/example-page/page.mdx",
+          "src/lib/content/slug-utils.ts",
+        ],
+        exception: {
+          reason: "One shared helper update is required to publish the page.",
+        },
+        pageDirectory: "src/content/docs/modules/example-page",
+        snapshot,
+      });
+      const redirectLane = collectCanonicalPageSurfaceAudit(repoRoot, {
+        changedPaths: [
+          "src/content/docs/modules/example-page/page.mdx",
+          "src/tests/ci/example.test.ts",
+        ],
+        pageDirectory: "src/content/docs/modules/example-page",
+        snapshot,
+      });
+
+      const inBudgetOutput = formatCanonicalPageSurfaceAudit(inBudget);
+      const exceptionOutput = formatCanonicalPageSurfaceAudit(exceptionLane);
+      const redirectOutput = formatCanonicalPageSurfaceAudit(redirectLane);
+
+      expect(inBudgetOutput).toContain("Budget status: within-budget");
+      expect(inBudgetOutput).toContain("Recommended action: keep-routine");
+      expect(inBudgetOutput).not.toContain("Visible exception:");
+      expect(inBudgetOutput).not.toContain("shared hotspot surface");
+
+      expect(exceptionOutput).toContain("Budget status: over-budget");
+      expect(exceptionOutput).toContain(
+        "Recommended action: declare-exception",
+      );
+      expect(exceptionOutput).toContain(
+        "Visible exception: One shared helper update is required to publish the page.",
+      );
+      expect(exceptionOutput).toContain(
+        "src/lib/content/slug-utils.ts -> shared hotspot surface [shared helper]",
+      );
+      expect(exceptionOutput).toContain("Visible exception declared:");
+      expect(exceptionOutput).not.toContain("Recommended action: keep-routine");
+
+      expect(redirectOutput).toContain("Budget status: over-budget");
+      expect(redirectOutput).toContain(
+        "Recommended action: redirect-to-throughput-prd",
+      );
+      expect(redirectOutput).toContain(
+        "src/tests/ci/example.test.ts -> shared hotspot surface [shared test/verification]",
+      );
+      expect(redirectOutput).toContain(
+        "Split the broader work into a dedicated throughput PRD lane",
+      );
+      expect(redirectOutput).not.toContain("Visible exception:");
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
+
   test("treats generated outputs without shared hotspot paths as split-back work", () => {
     const repoRoot = mkdtempSync(join(tmpdir(), "canonical-page-surface-"));
 
