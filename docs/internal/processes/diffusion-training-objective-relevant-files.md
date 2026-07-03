@@ -31,7 +31,7 @@ Link only when these published records exist in the implementation branch:
 | --- | --- | --- |
 | `concept.diffusion-model` | Published | Glossary page at `/docs/glossary/diffusion-model` |
 | `concept.denoising-generation` | Published | Glossary page at `/docs/glossary/denoising-generation` |
-| `concept.latent-space` | Published | Glossary page at `/docs/glossary/latent-space` |
+| `concept.latent-space` | Published | Concept page at `/docs/concepts/latent-space` |
 | `concept.autoregressive-generation` | Published | Contrast target for autoregressive next-token pretraining |
 | `training-regime.pretraining` | Published | Nearby language-model pretraining regime for comparison |
 | `citation.denoising-diffusion-probabilistic-models` | Published | DDPM citation for diffusion objective claims |
