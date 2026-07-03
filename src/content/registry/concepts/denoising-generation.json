@@ -16,7 +16,8 @@
     "concept.latent-space",
     "concept.generative-model",
     "concept.autoregressive-generation",
-    "concept.conditioning"
+    "concept.conditioning",
+    "model.cosmos-3"
   ],
   "citationIds": [
     "citation.denoising-diffusion-probabilistic-models",
@@ -24,7 +25,7 @@
   ],
   "status": "published",
   "createdAt": "2026-06-04T12:00:00.000Z",
-  "updatedAt": "2026-06-04T12:50:00.000Z",
+  "updatedAt": "2026-07-03T02:45:00.000Z",
   "primaryClassificationId": "classification.concept.architecture",
   "conceptType": "architecture",
   "sidebarGrouping": {

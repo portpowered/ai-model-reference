@@ -26,7 +26,8 @@
     "concept.encoder-decoder",
     "concept.conditioning",
     "concept.denoising-generation",
-    "concept.quantization"
+    "concept.quantization",
+    "model.cosmos-3"
   ],
   "citationIds": [
     "citation.brown-gpt-3",
@@ -34,7 +35,7 @@
   ],
   "status": "published",
   "createdAt": "2026-06-04T12:30:00.000Z",
-  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-07-03T02:45:00.000Z",
   "primaryClassificationId": "classification.concept.model-type",
   "conceptType": "general",
   "sidebarGrouping": {
