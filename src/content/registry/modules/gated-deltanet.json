@@ -1,0 +1,51 @@
+{
+  "id": "module.gated-deltanet",
+  "slug": "gated-deltanet",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Gated DeltaNet",
+    "Gated Delta Network",
+    "gated delta nets",
+    "gated deltanet",
+    "gated delta network",
+    "GDN",
+    "gated delta rule"
+  ],
+  "tags": ["attention", "context-window"],
+  "relatedIds": [
+    "module.attention",
+    "module.linear-attention",
+    "module.sliding-window-attention",
+    "module.sparse-attention",
+    "module.multi-head-attention",
+    "concept.context-window",
+    "concept.why-long-context-is-hard",
+    "model.qwen3-5-0-8b"
+  ],
+  "citationIds": ["citation.gated-delta-networks-paper"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "releaseDate": "2024-12-09",
+  "authors": ["Songlin Yang", "Jan Kautz", "Ali Hatamizadeh"],
+  "sourceId": "citation.gated-delta-networks-paper",
+  "primaryClassificationId": "classification.module.attention",
+  "moduleType": "attention",
+  "moduleFamily": "attention",
+  "conceptType": "attention-variant",
+  "variantGroup": "subquadratic-attention",
+  "optimizes": [
+    "sequence-scaling",
+    "attention-compute",
+    "memory-bandwidth",
+    "long-context-inference"
+  ],
+  "exampleModelIds": ["model.qwen3-5-0-8b"],
+  "improvesOnIds": ["module.linear-attention"],
+  "tradeoffIds": [],
+  "usedByModelIds": ["model.qwen3-5-0-8b"],
+  "introducedByPaperIds": ["citation.gated-delta-networks-paper"],
+  "mathLevel": "light"
+}

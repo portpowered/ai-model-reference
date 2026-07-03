@@ -1,0 +1,70 @@
+{
+  "title": "Text-to-image conditioning",
+  "description": "Extra prompt-derived vectors that steer an image generator while the denoiser removes noise step by step.",
+  "openingSummary": "Text-to-image conditioning is extra information—usually prompt-derived vectors—that steers what image a generator produces while a separate denoising loop removes noise step by step.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Text-to-image conditioning is extra information supplied to an image generator so it knows what scene to build. A text encoder or text-image model maps the prompt into vectors, and the generator reads those vectors while it predicts denoising updates at each step. The conditioning signal is the guidance input: it states the target content. Denoising is the separate training and sampling task that teaches the network how to remove noise from latents."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Without conditioning, a denoiser could still run its noise-removal loop but would have no stable way to aim the result at a specific description. Conditioning links language to that loop so one fixed generator can serve many prompts at inference time. Keeping the conditioning signal separate from the denoising objective also clarifies what each part of the stack is responsible for."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A user enters \"a watercolor fox in a meadow.\" The text encoder turns that sentence into vectors. At every denoising step the generator receives the current noisy latent plus those same conditioning vectors through cross-attention or a similar fusion path. The model still predicts a noise update—the denoising task—but the conditioning vectors bias that update toward fox-shaped, meadow-colored structure. The diagram below shows how prompt encoding, conditioning vectors, denoising steps, and optional classifier-free guidance combine during image generation."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Early text-to-image diffusion systems leaned on CLIP-style representations: dual text and image towers trained with contrastive learning so captions and images land in a shared embedding space. That alignment made it practical to feed text vectors into a latent denoiser without retraining the whole image stack for every new prompt. Later pipelines kept the same conditioning pattern but swapped in other text encoders, pooled multimodal embeddings, or dedicated text-image models. Latent diffusion remains the common runtime shape—a text tower plus latent-space denoiser—even when the encoder is no longer CLIP."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Text-to-image conditioning is not prompt engineering, classifier-free guidance, CLIP itself, or the diffusion model objective. Prompt engineering changes the words you feed the encoder, not the conditioning mechanism. Classifier-free guidance is a sampling trick that mixes conditional and unconditional forward passes; it adjusts how strongly conditioning is applied but does not replace the denoising update. CLIP is one influential encoder family for building text vectors, not the definition of conditioning. The diffusion model objective still trains the network to predict noise or score; the prompt vectors are context the denoiser reads, not the loss function."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Diagram showing a text prompt flowing through a text encoder into conditioning vectors, then into a latent denoiser with classifier-free guidance as a sampling adjustment, and finally into a generated image.",
+      "caption": "How prompt encoding supplies conditioning vectors to the denoiser while classifier-free guidance adjusts sampling strength—not the denoising objective itself."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "prompt": {
+        "label": "Text prompt",
+        "summary": "The caption or description a user wants the image to match."
+      },
+      "textEncoder": {
+        "label": "Text / text-image encoder",
+        "summary": "Maps prompt tokens into vectors the generator can read."
+      },
+      "conditioningVectors": {
+        "label": "Conditioning vectors",
+        "summary": "The guidance input that steers what the denoiser should build."
+      },
+      "denoiser": {
+        "label": "Latent denoiser",
+        "summary": "Predicts noise updates step by step while reading conditioning vectors."
+      },
+      "classifierFreeGuidance": {
+        "label": "Classifier-free guidance",
+        "summary": "Sampling adjustment that scales how strongly conditioning is applied."
+      },
+      "generatedImage": {
+        "label": "Generated image",
+        "summary": "Decoded output after the denoising loop finishes."
+      }
+    }
+  }
+}
