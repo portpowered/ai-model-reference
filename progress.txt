@@ -14,6 +14,8 @@
 - When running planner reports from a nested git worktree, resolve main-repo paths via `resolveMainRepoRoot` / `resolveDefaultWorktreesDir` (`git rev-parse --git-common-dir`) so `.claude/worktrees` and root checkout evidence point at `/Users/abdifamily/work/learn-agent-factories`, not the nested worktree checkout.
 - Use `bun run report:ownerless-generated-table-registry-drift` for read-only evidence on root `HEAD`, `origin/main`, ahead/behind, scoped dirty status for `src/lib/content/generated/table-registry.generated.ts`, and `looped-transformers-comparison.json` import/source-list/payload observation; read worktree file content from disk (not `git show :path`) when the artifact is unstaged.
 - Classify generated table registry drift with `classifyGeneratedTableRegistryArtifactStatus` / `buildTableRegistryRegenerationProof`; `expected` requires deterministic regeneration proof from canonical `src/content/registry/tables`, `stale` requires canonical source plus a no-match proof, `owned` requires dirty drift plus lane ownership evidence, and `ownerless` records explicit evidence gaps.
+- Resolve planner next actions with `resolveGeneratedTableRegistryArtifactNextAction` / `buildOwnerlessGeneratedTableRegistryDriftPlannerReport`; default CLI output includes evidence, classification, and one `next-safe-action` per primary status.
+- Consolidated planner report (`formatOwnerlessGeneratedTableRegistryDriftPlannerReport`) surfaces `evidence-summary`, `classification-clarity` (`clear` vs `ambiguous` for ownerless drift), artifact path, table id, primary status, and next safe action in one `[planner-report]` section appended to unified CLI output.
 - Distinguish merged PR truth from queue completion truth explicitly; all four PRs can be MERGED while drain rows remain `init/INITIAL`.
 - Use `classifyMergedPrDrainRowOutcome` / `buildMergedPrDrainRowsClassificationReport` for per-row `consume` / `complete` / `no-op` outcomes; stale `init/INITIAL` drain rows with terminal-complete content lanes classify as `consume`, and rows without drain rows classify as `no-op` (`already-settled`).
 - Use `buildMergedPrDrainRowNoOpHandoff` / `buildMergedPrDrainRowsNoOpReport` for explicit no-op handoffs with `row-left-untouched=true`, `missing-evidence`, and `next-safe-owner-action` when blockers apply.
@@ -202,4 +204,23 @@
   - Live root evidence (2026-07-03T04:08:35Z UTC): artifact is `clean` with `looped-transformers-comparison.json` present on HEAD and worktree; regeneration proof matches canonical `src/content/registry/tables` catalog.
   - Classify `expected` from full-module regeneration proof first; `stale` requires canonical source present plus table-entry mismatch; `owned` applies only to dirty drift with lane ownership evidence.
   - Story 003 should emit the concrete planner next action from the classified status without broad report redesign.
+---
+
+## 2026-07-03T05:30:00Z - ownerless-generated-table-registry-drift-priority-unblock-003
+- Implemented planner next-action resolution and unified report emission for expected, stale, owned, and ownerless generated table registry classifications.
+- Added `resolveGeneratedTableRegistryArtifactNextAction`, `buildOwnerlessGeneratedTableRegistryDriftPlannerReport`, and next-action formatting/serialization; default CLI JSON now emits the full planner report.
+- Files changed: `src/lib/factory/ownerless-generated-table-registry-drift.ts`, `src/lib/factory/ownerless-generated-table-registry-drift.test.ts`, `scripts/report-ownerless-generated-table-registry-drift.ts`, `docs/internal/processes/ownerless-generated-table-registry-drift-relevant-files.md`
+- **Learnings for future iterations:**
+  - Next actions map one-to-one to primary status: `land-minimal-generated-registry-proof` (expected), `operator-cleanup-scoped-artifact` (stale), `wait-for-or-inspect-named-lane` (owned), `planner-hold-missing-evidence` (ownerless with explicit gaps in reason text).
+  - Story 004 is only needed if planner output still cannot clearly show artifact status and next action together; evaluate whether the unified report already satisfies that bar before adding ambiguous-report hardening.
+---
+
+## 2026-07-03T06:20:00Z - ownerless-generated-table-registry-drift-priority-unblock-004
+- Hardened consolidated planner report output with `evidence-summary`, `classification-clarity` (`clear` vs `ambiguous` for ownerless drift), and a dedicated `[planner-report]` section naming artifact path, observed table id, primary status, and next safe action.
+- Added focused tests for consolidated and unified report output across expected, stale, lane-owned, and ownerless classifications; extended CLI script assertions for planner-report fields.
+- Files changed: `src/lib/factory/ownerless-generated-table-registry-drift.ts`, `src/lib/factory/ownerless-generated-table-registry-drift.test.ts`, `docs/internal/processes/ownerless-generated-table-registry-drift-relevant-files.md`
+- **Learnings for future iterations:**
+  - Story 004 was needed because stories 001-003 spread status and next action across separate sections without a single evidence summary; the consolidated `[planner-report]` section closes that gap without changing classification logic.
+  - Treat `ownerless` primary status as `classification-clarity=ambiguous` so planner loops always get an explicit actionable hold rather than stalling without a named ambiguity signal.
+  - Unified CLI output now ends with the consolidated planner report after evidence, classification, and next-action sections for backward-compatible review.
 ---
