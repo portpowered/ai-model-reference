@@ -41,8 +41,11 @@ describe("temperature concept discovery", () => {
     expect(record?.prerequisiteIds).toEqual(["concept.softmax"]);
     expect(record?.relatedIds).toEqual([
       "concept.softmax",
+      "concept.entropy",
       "concept.sampling-overview",
       "concept.greedy-decoding",
+      "concept.top-k-sampling",
+      "concept.top-p-sampling",
     ]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.temperature")).toBe(true);
     expect(
@@ -62,16 +65,24 @@ describe("temperature concept discovery", () => {
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
 
-    expect(
-      items.find((item) => item.registryId === "concept.softmax")?.href,
-    ).toBe("/docs/glossary/softmax");
-    expect(
-      items.find((item) => item.registryId === "concept.sampling-overview")
-        ?.href,
-    ).toBe("/docs/glossary/sampling-overview");
-    expect(
-      items.find((item) => item.registryId === "concept.greedy-decoding")?.href,
-    ).toBe("/docs/glossary/greedy-decoding");
+    const hrefById = Object.fromEntries(
+      items.map((item) => [item.registryId, item.href]),
+    );
+
+    expect(hrefById["concept.softmax"]).toBe("/docs/glossary/softmax");
+    expect(hrefById["concept.entropy"]).toBe("/docs/glossary/entropy");
+    expect(hrefById["concept.sampling-overview"]).toBe(
+      "/docs/glossary/sampling-overview",
+    );
+    expect(hrefById["concept.greedy-decoding"]).toBe(
+      "/docs/glossary/greedy-decoding",
+    );
+    expect(hrefById["concept.top-k-sampling"]).toBe(
+      "/docs/glossary/top-k-sampling",
+    );
+    expect(hrefById["concept.top-p-sampling"]).toBe(
+      "/docs/glossary/top-p-sampling",
+    );
   });
 
   test("search index records temperature with aliases and chain tags", async () => {
@@ -164,6 +175,33 @@ describe("temperature concept page", () => {
     );
   });
 
+  test("messages teach sampling neighbor roles and decoding interaction order", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const body = messages.sections?.samplingNeighbors.body?.toLowerCase() ?? "";
+    expect(body).toContain("softmax");
+    expect(body).toContain("entropy");
+    expect(body).toContain("greedy decoding");
+    expect(body).toContain("top-k");
+    expect(body).toContain("top-p");
+    expect(body).toContain("reshapes scores first");
+    expect(body).toContain("truncation");
+    expect(
+      messages.relatedDocs?.["concept.softmax"]?.reason?.length,
+    ).toBeGreaterThan(0);
+    expect(
+      messages.relatedDocs?.["concept.entropy"]?.reason?.length,
+    ).toBeGreaterThan(0);
+    expect(
+      messages.relatedDocs?.["concept.top-k-sampling"]?.reason?.length,
+    ).toBeGreaterThan(0);
+    expect(
+      messages.relatedDocs?.["concept.top-p-sampling"]?.reason?.length,
+    ).toBeGreaterThan(0);
+  });
+
   test("page renders title, sections, opening summary, and related links", async () => {
     const page = await loadConceptPage("temperature");
 
@@ -186,10 +224,15 @@ describe("temperature concept page", () => {
     expect(html).toContain("Lower Temperature");
     expect(html).toContain("Higher Temperature");
     expect(html).toContain("Tradeoffs And Limits");
+    expect(html).toContain("Sampling Neighbors");
     expect(html).toContain("softmax(z / T)");
+    expect(html).toContain('href="/docs/glossary/temperature"');
     expect(html).toContain('href="/docs/glossary/softmax"');
+    expect(html).toContain('href="/docs/glossary/entropy"');
     expect(html).toContain('href="/docs/glossary/sampling-overview"');
     expect(html).toContain('href="/docs/glossary/greedy-decoding"');
+    expect(html).toContain('href="/docs/glossary/top-k-sampling"');
+    expect(html).toContain('href="/docs/glossary/top-p-sampling"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Reader Shortcut");

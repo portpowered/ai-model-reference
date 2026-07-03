@@ -31,9 +31,13 @@
       "title": "Tradeoffs And Limits",
       "body": "Temperature is a decoding-time control on next-token probabilities, not a change to trained weights, stored knowledge, or whether answers are factually correct. Lower settings can make replies feel more decisive because probabilities concentrate on top tokens, but that appearance of confidence comes only from sharper sampling—not from new evidence, better calibration, or updated training. Turning temperature down does not make the model inherently more truthful; turning it up does not inject new information. Pick lower values when you want steadier, more focused outputs and higher values when you accept more variation and occasional low-probability tokens."
     },
+    "samplingNeighbors": {
+      "title": "Sampling Neighbors",
+      "body": "Temperature is one step in a longer decoding chain. It rescales logits before softmax turns those scores into a next-token probability distribution. Entropy summarizes how spread out that distribution is—high entropy means many tokens look plausible, low entropy means one token dominates. Greedy decoding then picks the single highest-probability token, while top-k and top-p sampling keep only part of the distribution and draw from that smaller candidate set. In user-visible terms, temperature reshapes scores first; softmax converts them into probabilities; truncation rules such as top-k or top-p decide which tokens stay eligible; and the final choice rule—greedy or stochastic sampling—selects the next token. Use the pages below to compare this control with softmax, entropy, the sampling overview, greedy decoding, and the two common truncation methods."
+    },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Temperature is not the same as top-p or top-k filtering—those truncate or renormalize after probabilities exist. It is also not fine-tuning: weights stay fixed and temperature only reshapes decoding scores. A confident tone at low temperature reflects sharper probabilities, not proof that the model verified facts."
+      "body": "Temperature is not the same as top-p or top-k filtering—those methods work on probabilities after softmax and restrict which tokens can win the draw. It is also not fine-tuning: weights stay fixed and temperature only reshapes decoding scores. A confident tone at low temperature reflects sharper probabilities, not proof that the model verified facts."
     },
     "related": {
       "title": "Related Concepts And Modules"
@@ -43,6 +47,35 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "links": {
+    "glossaryTemperature": "Temperature glossary entry",
+    "softmax": "Softmax",
+    "entropy": "Entropy",
+    "samplingOverview": "Sampling overview",
+    "greedyDecoding": "Greedy decoding",
+    "topKSampling": "Top-k sampling",
+    "topPSampling": "Top-p sampling"
+  },
+  "relatedDocs": {
+    "concept.softmax": {
+      "reason": "Softmax converts temperature-rescaled logits into the next-token probability distribution."
+    },
+    "concept.entropy": {
+      "reason": "Entropy measures how uncertain or spread out that next-token distribution is after softmax."
+    },
+    "concept.sampling-overview": {
+      "reason": "The sampling overview explains how temperature fits into the full next-token decision path."
+    },
+    "concept.greedy-decoding": {
+      "reason": "Greedy decoding is the deterministic limit that always picks the highest-probability token."
+    },
+    "concept.top-k-sampling": {
+      "reason": "Top-k sampling keeps only the k highest-scoring tokens before drawing the next token."
+    },
+    "concept.top-p-sampling": {
+      "reason": "Top-p sampling keeps the smallest token set whose cumulative probability reaches a chosen threshold."
     }
   }
 }

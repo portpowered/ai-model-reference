@@ -12,11 +12,12 @@ tags:
 aliases:
   - "sampling temperature"
   - "softmax temperature"
-updatedAt: "2026-06-18"
+updatedAt: "2026-07-03"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -48,6 +49,33 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="tradeoffs" titleKey="sections.tradeoffs.title">
   <T k="sections.tradeoffs.body" />
+</Section>
+
+<Section id="sampling-neighbors" titleKey="sections.samplingNeighbors.title">
+  <T k="sections.samplingNeighbors.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/glossary/temperature", labelKey: "links.glossaryTemperature" },
+      { href: "/docs/glossary/softmax", labelKey: "links.softmax" },
+      { href: "/docs/glossary/entropy", labelKey: "links.entropy" },
+      {
+        href: "/docs/glossary/sampling-overview",
+        labelKey: "links.samplingOverview",
+      },
+      {
+        href: "/docs/glossary/greedy-decoding",
+        labelKey: "links.greedyDecoding",
+      },
+      {
+        href: "/docs/glossary/top-k-sampling",
+        labelKey: "links.topKSampling",
+      },
+      {
+        href: "/docs/glossary/top-p-sampling",
+        labelKey: "links.topPSampling",
+      },
+    ]}
+  />
 </Section>
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
