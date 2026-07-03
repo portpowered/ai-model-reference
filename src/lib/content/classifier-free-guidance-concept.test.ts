@@ -247,7 +247,9 @@ describe("classifier-free-guidance concept page", () => {
     expect(html).toContain('data-page-math-formula="guidedPrediction"');
     expect(html).toContain("Guided prediction blend");
     expect(html).toContain('data-page-asset="guidanceBlendMap"');
-    expect(html).toContain('data-graph-id="graph.classifier-free-guidance-blend"');
+    expect(html).toContain(
+      'data-graph-id="graph.classifier-free-guidance-blend"',
+    );
     expect(html).toContain("Guidance direction");
     expect(html).toContain('href="/docs/glossary/conditioning"');
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
