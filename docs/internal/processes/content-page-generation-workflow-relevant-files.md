@@ -300,14 +300,6 @@ Representative paired-slice verification:
   observable route/render/search assertions only; routine bundle alignment
   (registry fields, frontmatter, raw messages, tags, citations, assets) stays in
   `make validate-data`.
-* Serving-metric glossary lanes should not add separate `*-registry.test.ts` or
-  `*-glossary-page.test.tsx` message-substring suites when
-  `*-slice-verification.test.tsx` already proves route/render/search/related
-  behavior; reviewers treat those extra per-page tests as blocking meta coverage.
-* When `glossary-opening-convergence` shell-render groups exceed the 20s
-  per-test budget after new glossary pages land, reduce
-  `GLOSSARY_RENDER_GROUP_SIZE` (and bump the grouped test count headroom) before
-  raising timeouts.
 * When adding a page-local comparison table, commit only the new
   `flops-peak-achieved-comparison.json` entries in
   `table-registry.generated.ts`; do not carry unrelated stale generated

@@ -10,8 +10,7 @@ import {
 } from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 
-// Keep each grouped shell-render batch under the 20s per-test budget as glossary pages grow.
-const GLOSSARY_RENDER_GROUP_SIZE = 4;
+const GLOSSARY_RENDER_GROUP_SIZE = 12;
 
 describe("glossary opening convergence", () => {
   test("canonical glossary template omits GlossaryOpening and legacy blocks", () => {
@@ -55,7 +54,7 @@ describe("glossary opening convergence", () => {
 
   test.each(
     Array.from(
-      { length: Math.ceil(72 / GLOSSARY_RENDER_GROUP_SIZE) },
+      { length: Math.ceil(57 / GLOSSARY_RENDER_GROUP_SIZE) },
       (_, i) => i,
     ),
   )(
