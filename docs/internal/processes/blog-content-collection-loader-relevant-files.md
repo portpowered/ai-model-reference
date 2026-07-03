@@ -37,6 +37,12 @@ adding public blog routes, shell hardening, or committed real posts.
 * `src/lib/content/validate-blog-posts.test.ts`
   Published blog metadata, tag, related-doc, message, asset file, asset message key,
   MDX asset reference, and MDX link validation fixtures.
+* `src/lib/content/blog-prose-validation-boundaries.test.ts`
+  Behavioral proof that narrative blog MDX prose stays exempt from canonical docs prose
+  checks while canonical docs pages still reject raw reader-facing prose.
+* `src/lib/content/validate-canonical-mdx-prose.ts`
+  `isBlogContentPath` and `shouldValidateCanonicalMdxProse` keep blog routes and
+  `src/content/blog/*` bundles outside canonical MDX prose validation.
 
 ## Search indexing (story 003+)
 
