@@ -40,5 +40,9 @@ describe("training signal stacked chart blog integration", () => {
     );
     expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.pretrainingCorpus);
     expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.onPolicyDistillation);
+    expect(html).toContain('href="/tags/foundations"');
+    expect(html).toContain('href="/tags/alignment"');
+    expect(html).not.toContain('href="/tags/training"');
+    expect(html).not.toContain('href="/tags/post-training"');
   });
 });
