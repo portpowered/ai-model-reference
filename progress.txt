@@ -285,7 +285,17 @@
 - Files changed: `src/tests/search/search-page-panel.test.tsx`, `src/lib/content/content-reconciliation-convergence.test.ts`, `src/lib/content/phase-1-published-resources.test.ts`
 - **Learnings for future iterations:**
   - Keep main's `90_000` ms GQA page-panel timeout when tightening assertions; URL-node proofs are fine but must not shrink the per-test budget.
+- Prefill ranking `test.each` rows (`prefill`, `prompt processing`, `prompt pass`) also need `90_000` ms per-test with `30_000`/`45_000` nested waits; the default `15_000` ms file budget flakes under full `make test` load.
   - Combined reconciliation and representative discovery rows need headroom above `30_000` ms when the full website suite runs serially on slower hardware.
+---
+
+## 2026-07-03T13:50:00Z - mergeability follow-up (PR #326 BLOCKING)
+- Raised prefill ranking `test.each` timeouts in `search-page-panel.test.tsx` to `90_000` ms per-test with `30_000`/`45_000` nested waits so `prompt processing` no longer hits the default `15_000` ms cap under full `make test` load.
+- Local `make test` on `9bac71f7`: **4017 pass / 0 fail** across 592 files (~47 min). GitHub CI terminal green (11 passed).
+- Files changed: `src/tests/search/search-page-panel.test.tsx`
+- **Learnings for future iterations:**
+  - New search ranking rows should copy the GQA/MHA timeout pattern at authoring time; file-level `setDefaultTimeout(15_000)` is too low for typed-query search proofs in the full suite.
+  - Prefill alias queries (`prompt processing`, `prompt pass`) need the same headroom as GQA `attention` rows even when isolated runs finish in under 10s.
 ---
 - Hardened consolidated planner report output with `evidence-summary`, `classification-clarity` (`clear` vs `ambiguous` for ownerless drift), and a dedicated `[planner-report]` section naming artifact path, observed table id, primary status, and next safe action.
 - Added focused tests for consolidated and unified report output across expected, stale, lane-owned, and ownerless classifications; extended CLI script assertions for planner-report fields.
