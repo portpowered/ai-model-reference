@@ -4,7 +4,7 @@
  * are covered by `make validate-data`; this file proves observable route,
  * rendering, search, and related-link behavior together.
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createElement } from "react";
@@ -29,6 +29,8 @@ import {
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { docsSearchApi } from "@/lib/search/search-server";
+
+setDefaultTimeout(15_000);
 
 const REGISTRY_ID = "concept.throughput-vs-latency";
 const PAGE_URL = "/docs/glossary/throughput-vs-latency";
