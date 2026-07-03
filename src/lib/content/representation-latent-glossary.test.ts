@@ -14,11 +14,7 @@ import {
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const REPRESENTATION_LATENT_SLUGS = [
-  "patch",
-  "latent",
-  "latent-space",
-] as const;
+const REPRESENTATION_LATENT_SLUGS = ["patch", "latent"] as const;
 
 function renderGlossaryHtml(
   slug: (typeof REPRESENTATION_LATENT_SLUGS)[number],
@@ -79,22 +75,7 @@ describe("Phase 2 representation and latent glossary pages (US-001)", () => {
     expect(html).toContain('href="/docs/glossary/modality"');
   });
 
-  test("latent-space links to published encoder and denoising generation", async () => {
-    const html = await renderGlossaryHtml("latent-space");
-
-    expect(html).toContain('href="/docs/glossary/encoder"');
-    expect(html).toContain('href="/docs/glossary/denoising-generation"');
-    expect(html).toContain("Denoising");
-  });
-
-  test("latent-space links backward to latent and generative model", async () => {
-    const html = await renderGlossaryHtml("latent-space");
-
-    expect(html).toContain('href="/docs/glossary/latent"');
-    expect(html).toContain('href="/docs/glossary/generative-model"');
-  });
-
-  test("search finds patch, latent, and latent space by title and alias", async () => {
+  test("search finds patch and latent by title and alias", async () => {
     const patchResults = await docsSearchApi.search("Patch");
     expect(patchResults.some((r) => r.url === "/docs/glossary/patch")).toBe(
       true,
@@ -103,11 +84,6 @@ describe("Phase 2 representation and latent glossary pages (US-001)", () => {
     const latentCodeResults = await docsSearchApi.search("latent code");
     expect(
       latentCodeResults.some((r) => r.url === "/docs/glossary/latent"),
-    ).toBe(true);
-
-    const manifoldResults = await docsSearchApi.search("latent manifold");
-    expect(
-      manifoldResults.some((r) => r.url === "/docs/glossary/latent-space"),
     ).toBe(true);
   });
 });

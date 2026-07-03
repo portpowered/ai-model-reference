@@ -4,12 +4,7 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "Conditioning",
-    "conditional generation",
-    "control signal",
-    "classifier-free guidance"
-  ],
+  "aliases": ["Conditioning", "conditional generation", "control signal"],
   "tags": ["foundations", "taxonomy"],
   "relatedIds": [
     "concept.special-tokens",

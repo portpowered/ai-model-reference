@@ -1,0 +1,46 @@
+{
+  "id": "table.flops-peak-achieved-comparison",
+  "subjectId": "concept.flops",
+  "columns": [
+    {
+      "moduleId": "concept.flops",
+      "titleKey": "tables.peakAchieved.columns.peak.title"
+    },
+    {
+      "moduleId": "system.inference-engine",
+      "titleKey": "tables.peakAchieved.columns.achieved.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "whatItCounts",
+      "labelKey": "tables.peakAchieved.dimensions.whatItCounts"
+    },
+    {
+      "id": "typicalConditions",
+      "labelKey": "tables.peakAchieved.dimensions.typicalConditions"
+    },
+    {
+      "id": "commonSource",
+      "labelKey": "tables.peakAchieved.dimensions.commonSource"
+    },
+    {
+      "id": "servingReality",
+      "labelKey": "tables.peakAchieved.dimensions.servingReality"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "concept.flops": {
+      "whatItCounts": "tables.peakAchieved.values.peak.whatItCounts",
+      "typicalConditions": "tables.peakAchieved.values.peak.typicalConditions",
+      "commonSource": "tables.peakAchieved.values.peak.commonSource",
+      "servingReality": "tables.peakAchieved.values.peak.servingReality"
+    },
+    "system.inference-engine": {
+      "whatItCounts": "tables.peakAchieved.values.achieved.whatItCounts",
+      "typicalConditions": "tables.peakAchieved.values.achieved.typicalConditions",
+      "commonSource": "tables.peakAchieved.values.achieved.commonSource",
+      "servingReality": "tables.peakAchieved.values.achieved.servingReality"
+    }
+  }
+}

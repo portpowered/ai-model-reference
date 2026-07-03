@@ -1,14 +1,23 @@
 ## Codebase Patterns
-- Cosmos 3 story 001 follows the Nemotron release-identity slice: `page-specs/cosmos-3.json`, primary-source citation records, `paper.cosmos-3`, and `cosmos-3-release-identity.test.ts` before the model registry record or MDX bundle land in later stories.
-- Run `make validate-data` after adding registry citations/papers so `registry-runtime.generated.ts` exists before release-identity tests call `getCitationById` / `validateRegistryContent`.
+- Classifier-free guidance concept page lives at `/docs/concepts/classifier-free-guidance`; the `classifier-free guidance` alias belongs on `concept.classifier-free-guidance`, not on `concept.conditioning`.
+- Classifier-free guidance registry record uses `classification.concept.inference`, `conceptType: inference`, and `generation-and-diffusion` sidebar grouping; `relatedIds` should stay limited to conditioning, diffusion-model, denoising-generation, `model.clip`, and `paper.latent-diffusion`.
 - Concept registry ids route to `/docs/concepts/<slug>` only after adding to `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS` in `published-docs-registry-ids.ts`; until then glossary pages at `/docs/glossary/<slug>` remain the live surface.
 - Serving-path glossary concepts (`prefill`, `decode`, `kv-cache`, `prefill-decode-split`) share tags `foundations`, `attention`, and `kv-cache` for attention-tag discovery without new taxonomy tags.
 - Registry `relatedIds` on `concept.prefill-decode-split` should stay limited to serving foundations (`prefill`, `decode`, `kv-cache`, `autoregressive-generation`); attention modules and transformer links belong on inbound records, not on the split concept itself.
 - Inbound serving-path glossary pages (`prefill`, `decode`) link to `/docs/concepts/prefill-decode-split`; update hardcoded `LocalizedLinkList` hrefs when migrating a glossary concept to the concepts tree.
 - Concept page bundles require an `assets.json` file (even `{}`) because `loadConceptPageFromDisk` always reads it; run `bun run fumadocs-mdx` after adding or moving MDX so `.source` picks up the new route.
 - Migrating a glossary page to concepts removes it from glossary index counts/tests and surfaces it under the attention tag `concept` kind group instead of `glossary`.
-- Story 004 slice verification: add `*-slice-verification.test.tsx` with registry/message alignment, `renderDocsSlugPage` route proof, and rendered HTML/search assertions; routine bundle invariants stay in `make validate-data`; run `audit:canonical-page-surface` from the root repo with `--repo-root` pointing at the worktree when the script is absent locally.
+- Story 004 slice verification: add `classifier-free-guidance-slice-verification.test.tsx` with registry/message/asset alignment, `renderDocsSlugPage` route proof, rendered HTML/search assertions, and citation/graph asset checks; routine bundle invariants stay in `make validate-data`; run `audit:canonical-page-surface` from the root repo with `--repo-root` pointing at the worktree when the script is absent locally.
 - After merging `main`, regenerate published-docs manifests with `bun run generate:published-docs-registry` (or `make validate-data` / `prepare:content-runtime`) instead of hand-editing `published-docs-registry-ids.ts`.
+- CFG story 003 teaching: add `guidance-scale` and `tradeoffs` sections with `PageMathFormula` for the guided-prediction blend and `ConceptMap` wired to a new `graph.classifier-free-guidance-blend` record; run `bun run generate:graph-registry-runtime` after adding graph JSON under `src/content/registry/graphs/`.
+- Use `bun run report:merged-pr-drain-rows-reconciliation` to capture read-only queue/PR/worktree evidence for merged PR drain rows #281/#282/#284/#286; target session is `930b51a6-07ce-44e6-a639-7a6217f6e864`.
+- When running planner reports from a nested git worktree, resolve main-repo paths via `resolveMainRepoRoot` / `resolveDefaultWorktreesDir` (`git rev-parse --git-common-dir`) so `.claude/worktrees` and root checkout evidence point at `/Users/abdifamily/work/learn-agent-factories`, not the nested worktree checkout.
+- Distinguish merged PR truth from queue completion truth explicitly; all four PRs can be MERGED while drain rows remain `init/INITIAL`.
+- Use `classifyMergedPrDrainRowOutcome` / `buildMergedPrDrainRowsClassificationReport` for per-row `consume` / `complete` / `no-op` outcomes; stale `init/INITIAL` drain rows with terminal-complete content lanes classify as `consume`, and rows without drain rows classify as `no-op` (`already-settled`).
+- Use `buildMergedPrDrainRowNoOpHandoff` / `buildMergedPrDrainRowsNoOpReport` for explicit no-op handoffs with `row-left-untouched=true`, `missing-evidence`, and `next-safe-owner-action` when blockers apply.
+- Use `buildMergedPrDrainRowsFinalVerificationReport` for post-reconciliation root checkout, baseline-aware content safety (`observedDirtyPaths` on root/worktree evidence), and queue transition summaries; compare dirty paths with `findNewDirtyPaths` so pre-existing worktree drift does not fail verification.
+- Accepted consume operation for standalone merged drain idea rows is `manual-drain-row-move-to-complete` via `you work move <drain-work-id> complete --session 930b51a6-07ce-44e6-a639-7a6217f6e864`; the standard factory `consume` workstation does not apply without a paired task token.
+- Accepted complete operation for non-terminal drain rows is `manual-drain-row-terminal-completion` via the same `you work move <drain-work-id> complete --session <session>` command; `buildMergedPrDrainRowCompleteHandoff` reclassifies to no-op when unfinished implementation/review, PR mismatch, or missing metadata block the transition.
 
 ## 2026-07-01T00:00:00Z - prefill-decode-split-concept-page-001
 - Wired `concept.prefill-decode-split` discovery metadata: added `attention` tag, trimmed `relatedIds` to serving-path foundations, and bumped registry `updatedAt`.
@@ -66,13 +75,109 @@
   - When `main` migrates glossary pages to concepts in parallel, merge conflicts often duplicate `conceptGroup` assertions—merge into one `arrayContaining` block instead of redeclaring the variable.
 ---
 
-## 2026-07-03T02:35:00Z - cosmos-3-model-or-paper-page-001
-- Verified Cosmos 3 as a model-family page kind with draft `page-specs/cosmos-3.json` targeting `/docs/models/cosmos-3` and registry id `model.cosmos-3`.
-- Added primary-source citation records for the arXiv technical report, NVIDIA Cosmos Lab research page, Cosmos3-Super Hugging Face model card, `nvidia/cosmos` GitHub repository, and the Hugging Face Cosmos3 collection, plus `paper.cosmos-3`.
-- Added `cosmos-3-release-identity.test.ts` proving model kind, canonical route/registry id, source URLs, alias coverage, and registry validation for the touched slice without benchmark framing.
-- Files changed: `page-specs/cosmos-3.json`, `src/content/registry/citations/cosmos-3-*.json`, `src/content/registry/papers/cosmos-3.json`, `src/lib/content/cosmos-3-release-identity.test.ts`
+---
+
+## 2026-07-03T01:05:00Z - classifier-free-guidance-concept-page-001
+- Added published `concept.classifier-free-guidance` registry record with CFG aliases, inference classification, generation-and-diffusion sidebar grouping, and focused `relatedIds` to conditioning, diffusion-model, denoising-generation, CLIP, and latent diffusion.
+- Added `classifier-free-guidance-concept.test.ts` proving registry metadata, inference concept typing, unpublished-docs routing expectation, and curated related-link hrefs for diffusion foundations.
 - **Learnings for future iterations:**
-  - Story 002 should add `model.cosmos-3` registry record and wire `organization.nvidia` / `paper.cosmos-3` cross-links from the verified page spec.
-  - Keep `relatedIds` and `modelIds` empty on `paper.cosmos-3` until the model registry record exists, matching the Nemotron story 001 pattern.
-  - Omit benchmark or ranking language from page-spec summaries even when primary marketing pages mention leaderboard results.
+  - Story 002 should publish the concept bundle, add `concept.classifier-free-guidance` to `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS`, and retarget conditioning's `classifier-free guidance` alias once search should rank the canonical concept page first.
+  - `conditioning` still carries the `classifier-free guidance` alias until the concept page exists; `generation-paradigm-glossary.test.ts` still expects that search route.
+  - Curated related links for adjacent glossary concepts resolve to `/docs/glossary/*` while model.clip and paper.latent-diffusion resolve to `/docs/models/clip` and `/docs/papers/latent-diffusion`.
+---
+
+## 2026-07-03T01:20:00Z - classifier-free-guidance-concept-page-002
+- Published canonical concept bundle at `src/content/docs/concepts/classifier-free-guidance` with structural `page.mdx`, localized `messages/en.json`, and empty `assets.json`.
+- Taught conditional versus unconditional denoising predictions, their difference, guidance-scale blending, and latent-diffusion usage in isolation-first prose.
+- Removed the `classifier-free guidance` alias from conditioning so CFG search ranks the canonical concept route first.
+- Extended `classifier-free-guidance-concept.test.ts` with message, render, and search assertions; updated `generation-paradigm-glossary.test.ts` for the concept URL.
+- Ran `make validate-data`, typecheck, lint, focused tests, production build, and browser verification on port 3743.
+- **Learnings for future iterations:**
+  - Run `bun run fumadocs-mdx` and `make validate-data` after adding concept bundles so `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS` picks up the new route.
+  - Story 003 should add guidance-scale tradeoff teaching and any equation or diagram asset without restating the conditional/unconditional primer.
+  - Low disk space can break webpack cache during `bun run build`; clearing `.next` and `node_modules/.cache` may be required before production build verification.
+---
+
+## 2026-07-03T02:30:00Z - classifier-free-guidance-concept-page-003
+- Added `guidance-scale` and `tradeoffs` sections teaching low, moderate, and high guidance behavior, diversity loss, oversaturation, and unnatural textures without presenting guidance as a quality guarantee.
+- Published `PageMathFormula` for the guided-prediction blend with symbol-only variable definitions and a `ConceptMap` wired to new graph `graph.classifier-free-guidance-blend`.
+- Extended `classifier-free-guidance-concept.test.ts` with message, asset, graph, and render assertions for the new teaching surface.
+- Ran `make validate-data`, typecheck, focused tests, production build, and browser verification on port 3744.
+- **Learnings for future iterations:**
+  - Static render tests should assert `data-page-asset` and `data-graph-id` for `ConceptMap` graphs rather than a `concept-map` test id.
+  - Story 004 should add slice verification with `renderDocsSlugPage`, link validation, and consolidated route/browser proof similar to `prefill-decode-split-slice-verification.test.tsx`.
+  - Revert unrelated `prepare:content-runtime` churn such as `table-registry.generated.ts` when it is not part of the story diff.
+---
+
+## 2026-07-03T01:45:00Z - classifier-free-guidance-concept-page-004
+- Added consolidated `classifier-free-guidance-slice-verification.test.tsx` proving registry/message/asset alignment, English `renderDocsSlugPage` resolution, rendered tags/related links/teaching assets, and search alias discovery.
+- Fixed Biome line-wrap lint in `classifier-free-guidance-concept.test.ts` so `bun run lint` passes on the branch head.
+- Ran `make validate-data`, typecheck, lint, focused tests, production build (after clearing `.next` for disk space), and browser verification on port 3745 for title, sections, diffusion links, math formula, and guidance blend graph without missing-content placeholders.
+- **Learnings for future iterations:**
+  - Slice tests should assert citation ids resolve via registry record and `validatePageAssetReferences` for graph-backed `ConceptMap` assets.
+  - Low disk space can fail production builds with `ENOSPC`; clearing `.next` frees enough space for a full static export.
+  - Revert unrelated `table-registry.generated.ts` churn from `prepare:content-runtime` when it is not part of the story diff.
+---
+
+## 2026-07-02T19:18:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-001
+- Implemented read-only merged PR drain row evidence capture module, planner report script, unit tests, and process documentation for PRs #281, #282, #284, and #286.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `package.json`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`, `docs/internal/processes/factory-linkage-relevant-files.md`
+- **Learnings for future iterations:**
+  - Model-atlas content lane queue lives in session `930b51a6-07ce-44e6-a639-7a6217f6e864`; default `you work list` omits these rows.
+  - Drain rows `ltx-23-pr281-drain`, `mamba-pr282-drain`, and `glossary-decomposition-pr284-conflict-refresh` are `init/INITIAL` while content lanes are `complete/terminal`; `bpe-page` has no dedicated drain row.
+  - All four merge commits are in `origin/main` lineage at SHA `209d1bd8ced0cced5fd99992fe50f23296d126e8`.
+  - Use `gh pr view <number>` (not open-only `gh pr list`) for merged PR truth lookup.
+---
+
+## 2026-07-02T19:22:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-002
+- Implemented per-row `consume` / `complete` / `no-op` classification on top of the evidence report, extended the planner CLI to emit classification in text/JSON output, and documented live outcomes for all four rows.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Live classification (2026-07-02T19:21:11Z UTC): `ltx-23`/#281, `MAMBA`/#282, and `glossary-decomposition`/#284 → `consume`; `bpe-page`/#286 → `no-op` (`already-settled`, no drain row).
+  - Unavailable worktree metadata does not block classification when queue tokens and PR truth are sufficient; only stamped PR mismatch blocks via `row-pr-mismatch`.
+  - `complete` applies when content lane is terminal-complete but the drain row is non-terminal (not `init/INITIAL`).
+---
+
+## 2026-07-02T19:25:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-003
+- Implemented consume handoff builders/executors for merged drain rows, extended the planner CLI with `--execute-consume`, executed live consume moves for all three drain rows, and documented post-action queue state.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Standalone drain idea rows at `init/INITIAL` with merged PRs and terminal content lanes consume via `you work move <work-id> complete --session <session>`, not the paired `idea:to-complete` + `task:to-complete` factory consume workstation.
+  - Live consume execution (2026-07-02T19:24Z UTC): `ltx-23-pr281-drain`, `mamba-pr282-drain`, and `glossary-decomposition-pr284-conflict-refresh` all moved from `init/INITIAL` to `complete/TERMINAL`.
+  - After consume, classification correctly reclassifies those rows as `no-op` (`already-terminal`) with empty consume handoff sections.
+---
+
+## 2026-07-02T19:32:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-004
+- Implemented complete handoff builders/executors for non-terminal drain rows (`manual-drain-row-terminal-completion`), blocker reclassification to no-op, unified reconciliation output, CLI `--execute-complete`, and live verification showing zero rows need completion.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - `complete` differs from `consume`: it applies when drain rows are non-terminal but not `init/INITIAL`; both use `you work move <work-id> complete --session <session>`.
+  - Complete handoff building is stricter than classification — missing worktree metadata reclassifies to no-op even when queue/PR evidence suffices for classification.
+  - Live state (2026-07-02T19:31Z UTC): all four rows classify as `no-op`; three drain rows are `already-terminal` after story 003 consume; zero rows classified as `complete`.
+---
+
+## 2026-07-02T19:36:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-005
+- Implemented no-op handoff builders/reports with explicit `row-left-untouched`, `missing-evidence`, and `next-safe-owner-action` fields; extended unified reconciliation output and CLI text/JSON to include no-op handoff section.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Live no-op state (2026-07-02T19:35Z UTC): all four rows are `no-op` — three `already-terminal` post-consume drain rows plus `bpe-page` `already-settled`.
+  - No-op handoffs are read-only; they never mutate queue rows and surface owner actions only for unfinished implementation/review or PR/queue blockers.
+  - `buildMergedPrDrainRowsReconciliationOutput` now always includes `noOpReport` alongside consume and complete reports.
+---
+
+## 2026-07-02T19:45:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-006
+- Implemented final verification report with post-reconciliation root checkout evidence, baseline-aware content safety (`observedDirtyPaths` on root/worktree evidence), queue transition summaries, unified CLI/JSON output, and process documentation.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Do not `.trim()` git porcelain lines before `slice(3)` — trimming removes the leading status-column space and corrupts path extraction.
+  - Compare dirty-path baselines with `findNewDirtyPaths` so pre-existing worktree drift does not fail final verification; capture `observedDirtyPaths` during evidence gathering.
+  - Live final state (2026-07-02T19:45Z UTC): all four rows `left-untouched`; queue transitions occurred in story 003; read-only verification passes with content safety intact.
+---
+
+## 2026-07-02T21:15:00Z - mergeability follow-up
+- Merged `origin/main` to resolve PR #297 BLOCKING `progress.txt` add/add merge conflict; combined both branches' Codebase Patterns and chronologically ordered progress entries.
+- Files changed: `progress.txt` (conflict resolution only; merge brought in main-side content updates auto-merged elsewhere).
+- **Learnings for future iterations:**
+  - `progress.txt` add/add conflicts are expected when parallel worktrees each add their own progress log; merge by unioning Codebase Patterns and ordering story entries by timestamp.
+  - Prefer keeping `progress.txt` local-only off review branches when possible; when it is already on the branch, resolving the conflict is required for mergeability.
 ---
