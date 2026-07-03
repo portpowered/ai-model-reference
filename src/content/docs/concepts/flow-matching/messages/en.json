@@ -1,0 +1,32 @@
+{
+  "title": "Flow matching",
+  "description": "A generative training objective that teaches a model how samples should move from a simple or noisy starting state toward real data.",
+  "openingSummary": "Flow matching is a way to train a generative model to predict how samples should move from a simple or noisy starting distribution toward real data, so generation can follow learned update steps instead of relying only on classic denoising wording.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Flow matching is a generative training objective, not a single model architecture. Training pairs a current sample state—often a noisy or easy-to-draw starting point—with a target direction that points toward real data. The model learns to predict that direction at many intermediate states along the path from noise to data. At generation time, the system starts from a simple draw, applies the learned update rule repeatedly, and walks the sample toward a finished image, audio clip, or other output."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Modern image and video systems need a stable way to teach iterative generation without forcing every team to use the same denoising vocabulary. Flow matching gives a plain-language framing for velocity or transport-style training: the model learns how states should change, not only how to subtract noise at one fixed schedule. That makes it easier to compare papers and product pages that talk about rectified flow, velocity prediction, or flow-style samplers against older diffusion descriptions."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine training on images by starting each example as random noise and asking the network, at many points along the path back to the real photo, which small move would bring the current noisy canvas closer to the target. After training, generation begins from fresh noise and repeats those learned moves for a fixed number of steps. The finished sample is whatever state you reach when the schedule ends—similar in spirit to iterative diffusion sampling, but described as following a learned flow rather than only removing noise."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Flow matching is not the name of one product model or benchmark leaderboard. It is an objective family used inside many image and video stacks. It is also not identical to every diffusion system: some diffusion trainers still describe the network as predicting noise or a denoised sample, while flow matching usually describes predicting a velocity or transport direction. The two families can share similar sampling loops, but the training wording and target quantity are not always interchangeable."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

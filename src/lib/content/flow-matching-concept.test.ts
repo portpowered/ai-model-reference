@@ -1,13 +1,31 @@
 import { describe, expect, test } from "bun:test";
-import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { loadConceptPage } from "@/lib/content/concept-page";
+import { getDocsPageDir } from "@/lib/content/content-paths";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
+import {
+  PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
+import { loadRegistry } from "@/lib/content/registry";
 import {
   getCitationById,
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { pageMessagesSchema } from "@/lib/content/schemas";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const REGISTRY_ID = "concept.flow-matching";
+const CONCEPT_URL = "/docs/concepts/flow-matching";
+const pageDir = getDocsPageDir("concepts", "flow-matching");
+const messagesPath = join(pageDir, "messages/en.json");
 
 const EXPECTED_RELATED_IDS = [
   "training-regime.diffusion-training-objective",
@@ -44,7 +62,8 @@ describe("flow matching concept discovery (flow-matching-concept-page-001)", () 
       "citation.flow-matching-for-generative-modeling",
       "citation.rectified-flow",
     ]);
-    expect(PUBLISHED_DOCS_REGISTRY_IDS.has(REGISTRY_ID)).toBe(false);
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has(REGISTRY_ID)).toBe(true);
+    expect(PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has(REGISTRY_ID)).toBe(true);
   });
 
   test("citation records resolve for flow matching objective claims", () => {
@@ -98,5 +117,99 @@ describe("flow matching concept discovery (flow-matching-concept-page-001)", () 
     expect(
       items.some((item) => item.registryId.includes("video-generation")),
     ).toBe(false);
+  });
+});
+
+describe("flow matching concept page (flow-matching-concept-page-002)", () => {
+  test("messages define flow matching as movement from simple or noisy states toward data", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.title).toBe("Flow matching");
+    expect(messages.openingSummary?.toLowerCase()).toContain("simple");
+    expect(messages.openingSummary?.toLowerCase()).toContain("noisy");
+    expect(messages.openingSummary?.toLowerCase()).toContain("toward");
+    expect(messages.openingSummary?.toLowerCase()).toContain("data");
+    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
+      "generative training objective",
+    );
+    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
+      "starting point",
+    );
+    expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
+      "image",
+    );
+    expect(messages.sections?.simpleExample.body?.toLowerCase()).toContain(
+      "noise",
+    );
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "diffusion",
+    );
+  });
+
+  test("page renders title, opening summary, sections, tags, related docs, and references", async () => {
+    const page = await loadConceptPage("flow-matching");
+
+    expect(page.frontmatter.kind).toBe("concept");
+    expect(page.frontmatter.status).toBe("published");
+    expect(page.frontmatter.registryId).toBe(REGISTRY_ID);
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("What It Is");
+    expect(html).toContain("Why It Matters");
+    expect(html).toContain("generative training objective");
+    expect(html).toContain('href="/tags/foundations"');
+    expect(html).toContain('href="/tags/model-family"');
+    expect(html).toContain(
+      'href="/docs/training/diffusion-training-objective"',
+    );
+    expect(html).toContain('href="/docs/papers/latent-diffusion"');
+    expect(html).toContain('data-testid="derived-related-docs"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).not.toContain("Reader Shortcut");
+  });
+
+  test("search index and live search route flow matching aliases to the concept page", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const document = documents.find((entry) => entry.url === CONCEPT_URL);
+
+    expect(document?.kind).toBe("concept");
+    expect(document?.registryId).toBe(REGISTRY_ID);
+    expect(document?.aliases).toEqual(
+      expect.arrayContaining([
+        "flow matching",
+        "rectified flow",
+        "velocity prediction",
+      ]),
+    );
+
+    for (const query of [
+      "flow matching",
+      "rectified flow",
+      "velocity prediction",
+    ] as const) {
+      const results = await docsSearchApi.search(query);
+      expect(results.some((result) => result.url === CONCEPT_URL)).toBe(true);
+    }
+  });
+
+  test("page bundle resolves from getDocsPageDir", async () => {
+    const pages = await loadPublishedDocsPages("en");
+    const page = pages.find((entry) => entry.pageDir === pageDir);
+
+    expect(page?.url).toBe(CONCEPT_URL);
+    expect(page?.frontmatter.registryId).toBe(REGISTRY_ID);
   });
 });
