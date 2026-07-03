@@ -740,6 +740,9 @@ the authored surface centered on one page bundle and its directly paired
 structured data, and treat shared collision surfaces as an exception path rather
 than the routine case.
 
+Maintainer reference (full observable contract):
+[canonical-page-surface-budget-relevant-files](../internal/processes/canonical-page-surface-budget-relevant-files.md).
+
 ### What counts as page-owned work
 
 For one canonical page, the routine owned surface is:
@@ -751,13 +754,20 @@ For one canonical page, the routine owned surface is:
 - Page-specific supporting records that only exist to render that same page,
   such as a matching graph or table registry record when the page bundle
   declares one.
-- Generated outputs recreated by supported commands such as
-  `bun run prepare:content-runtime`, as long as you regenerate them locally and
-  leave generated runtime artifacts out of the routine commit.
 
 This is the narrow default reviewers should expect from ordinary page work:
 authored content, colocated messages/assets, the matching registry record, and
 no unrelated shared-surface churn.
+
+### What counts as supported derived output
+
+Supported derived outputs are artifacts recreated by maintained commands such as
+`bun run prepare:content-runtime` or `make validate-data` — for example
+`src/lib/content/generated/*.generated.ts`. They are expected locally but
+should not appear as authored changes in a routine page review commit unless the
+work item is explicitly broader than one page. When the branch diff includes
+generated runtime artifacts, split them out of the routine commit or move the
+work to a throughput lane.
 
 ### What counts as a shared hotspot surface
 
@@ -774,10 +784,13 @@ review-relevant categories:
 - `shared helper` such as `src/lib/content`, `src/lib/search`, `package.json`,
   and `Makefile`
 
-The current hotspot snapshot shows why these categories need separate handling:
-`src/lib/content` test files, `src/tests/search`, `src/tests/ci`, generated
-runtime artifacts, and broad registry/helper paths are touched more often than
-an individual page bundle.
+**Current evidence:** in the maintained hotspot snapshot,
+`src/lib/content` under shared test/verification is consistently hotter than any
+single authored page bundle — often 30+ touches across many paths in a 40-commit
+sample, while one page bundle under `src/content/docs/<section>/<slug>/` usually
+shows only a handful of touches. Shared runtime helpers and verification files
+therefore need separate handling from routine page-owned work even when the
+page task feels "done" only after touching them.
 
 ### Expected budget for routine page work
 

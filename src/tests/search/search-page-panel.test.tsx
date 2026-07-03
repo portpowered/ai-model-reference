@@ -165,14 +165,18 @@ async function typeQueryAndExpectGqaResult(
   );
   await user.type(searchInput, query);
 
-  const results = await waitForSearchPagePanelResults({
-    timeout: 30_000,
-  });
+  const results = await waitForSearchPagePanelResults();
   await waitFor(
     () => {
-      expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+      const resultUrls = within(results).queryAllByTestId("search-result-url");
+      expect(resultUrls.length).toBeGreaterThan(0);
+      expect(
+        resultUrls.some((node) =>
+          node.textContent?.includes(SAMPLE_MODULE_URL),
+        ),
+      ).toBe(true);
     },
-    { timeout: 30_000 },
+    { timeout: SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS },
   );
 }
 

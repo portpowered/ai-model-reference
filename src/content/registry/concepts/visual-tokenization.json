@@ -1,0 +1,43 @@
+{
+  "id": "concept.visual-tokenization",
+  "slug": "visual-tokenization",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Visual tokenization",
+    "visual tokenization",
+    "image tokenization",
+    "video tokenization",
+    "visual tokens",
+    "patch tokens",
+    "discrete visual codes",
+    "latent visual tokens"
+  ],
+  "tags": ["tokenization", "foundations", "taxonomy"],
+  "relatedIds": [
+    "module.clip-image-tokenization",
+    "concept.tokenizers-overview",
+    "concept.autoregressive-generation",
+    "concept.diffusion-model",
+    "model.ltx-23"
+  ],
+  "citationIds": [
+    "citation.image-is-worth-16x16-words",
+    "citation.learning-transferable-visual-models-from-natural-language-supervision",
+    "citation.neural-discrete-representation-learning",
+    "citation.latent-diffusion-models",
+    "citation.ltx-2-efficient-joint-audio-visual-foundation-model"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.architecture",
+  "conceptType": "architecture",
+  "prerequisiteIds": [
+    "concept.modality",
+    "concept.representation",
+    "concept.patch"
+  ],
+  "explainsIds": ["module.clip-image-tokenization"]
+}

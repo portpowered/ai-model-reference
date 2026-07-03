@@ -16,8 +16,13 @@ import {
   type QueueWorktreePrLinkageLane,
   sortPlannerWatchdogLanes,
 } from "@/lib/factory/queue-worktree-pr-linkage-ledger";
+import {
+  resolveDefaultWorktreesDir,
+  resolveMainRepoRoot,
+} from "@/lib/factory/repo-path-resolution";
 
-const repoRoot = join(import.meta.dir, "..");
+const checkoutRoot = join(import.meta.dir, "..");
+const repoRoot = resolveMainRepoRoot(checkoutRoot);
 
 function readFlagValue(flag: string): string | undefined {
   const index = process.argv.indexOf(flag);
@@ -37,7 +42,7 @@ function readRequiredJsonFile(path: string, label: string): string {
 const workListPath = readFlagValue("--work-list-json");
 const sessionListPath = readFlagValue("--session-list-json");
 const worktreesDir =
-  readFlagValue("--worktrees-dir") ?? join(repoRoot, ".claude", "worktrees");
+  readFlagValue("--worktrees-dir") ?? resolveDefaultWorktreesDir(checkoutRoot);
 const prMapPath = readFlagValue("--pr-map-json");
 const plannerSession = readFlagValue("--session") ?? "~default";
 
@@ -212,6 +217,9 @@ function formatLaneRow(lane: QueueWorktreePrLinkageLane): string {
   if (lane.sessionState) {
     details.push(`session-state=${lane.sessionState}`);
   }
+  if (lane.pullRequest?.url) {
+    details.push(`pr-url=${lane.pullRequest.url}`);
+  }
   if (lane.mergeabilityClass) {
     details.push(`mergeability=${lane.mergeabilityClass}`);
   }
@@ -220,6 +228,12 @@ function formatLaneRow(lane: QueueWorktreePrLinkageLane): string {
   }
   if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
     details.push(`risk=${lane.queueMismatchRisk}`);
+  }
+  if (lane.plannerLaneKind) {
+    details.push(`lane-kind=${lane.plannerLaneKind}`);
+  }
+  if (lane.staleMismatchReason) {
+    details.push(`mismatch-reason=${lane.staleMismatchReason}`);
   }
   if (lane.metadataRefreshHints && lane.metadataRefreshHints.length > 0) {
     details.push(`metadata-refresh=${lane.metadataRefreshHints.join("; ")}`);

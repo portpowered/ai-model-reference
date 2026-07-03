@@ -1,0 +1,20 @@
+{
+  "id": "citation.cosmos-3-research-page",
+  "slug": "cosmos-3-research-page",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["NVIDIA Cosmos 3 research page", "Cosmos Lab Cosmos 3"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["paper.cosmos-3"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["NVIDIA"],
+  "title": "Cosmos 3 — Cosmos Lab",
+  "url": "https://research.nvidia.com/labs/cosmos-lab/cosmos3",
+  "mla": "NVIDIA. \"Cosmos 3 — Cosmos Lab.\" NVIDIA Research, 2026.",
+  "year": 2026
+}
