@@ -11,11 +11,18 @@
     "intermediate training"
   ],
   "tags": ["foundations"],
-  "relatedIds": [],
+  "relatedIds": [
+    "training-regime.pretraining",
+    "training-regime.post-training",
+    "training-regime.supervised-fine-tuning",
+    "training-regime.distillation",
+    "model.gpt-3",
+    "model.llama-3"
+  ],
   "citationIds": ["citation.kaplan-scaling-laws"],
   "status": "published",
   "createdAt": "2026-07-02T00:00:00.000Z",
-  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-03T00:15:00.000Z",
   "releaseDate": "2020-01-23",
   "authors": [
     "Jared Kaplan",
