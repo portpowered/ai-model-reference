@@ -62,6 +62,19 @@ hotter than individual authored page bundles**:
 Re-run the hotspot report locally when evidence ages. The audit command reads
 the same snapshot contract when classifying branch diffs.
 
+When maintained hotspot evidence cannot be collected (for example outside a git
+checkout), the audit falls back to static path classification and prints an
+explicit **Fallback mode** section with the collection error. Path categories
+still apply, but ranked touch-count evidence is omitted until
+`report:planner-conflict-hotspots` succeeds again.
+
+Over-budget output groups shared paths into reviewer-readable buckets:
+
+- **Content runtime and helper surfaces** — `shared-helper`, `shared-registry`,
+  and `authored-content` touches such as `src/lib/content`
+- **Shared test and verification surfaces** — `shared-test` touches such as
+  `src/tests/ci` and `scripts/validate-*.ts`
+
 ## Three review lanes
 
 | Lane | When it applies | Contributor action |

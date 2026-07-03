@@ -5,6 +5,7 @@ import { join } from "node:path";
 import {
   type CanonicalPageSurfaceClassification,
   collectCanonicalPageSurfaceAudit,
+  formatCanonicalPageSurfaceAudit,
 } from "./canonical-page-surface-audit";
 import type { ConflictHotspotSnapshot } from "./conflict-hotspot-report";
 
@@ -380,6 +381,171 @@ describe("canonical page surface audit", () => {
       expect(audit.guidance.details.join("\n")).toContain(
         "still exceeds the narrow one-page exception lane",
       );
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
+
+  test("includes maintained hotspot evidence surfaces in grouped shared hotspot output", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "canonical-page-surface-"));
+
+    try {
+      mkdirSync(
+        join(repoRoot, "src/content/docs/modules/example-page/messages"),
+        {
+          recursive: true,
+        },
+      );
+      mkdirSync(join(repoRoot, "src/content/registry/modules"), {
+        recursive: true,
+      });
+      mkdirSync(join(repoRoot, "src/lib/content"), {
+        recursive: true,
+      });
+      mkdirSync(join(repoRoot, "src/tests/ci"), {
+        recursive: true,
+      });
+
+      writeFileSync(
+        join(repoRoot, "src/content/docs/modules/example-page/page.mdx"),
+        `---\nkind: "module"\nregistryId: "module.example-page"\nmessageNamespace: "local"\nassetNamespace: "local"\nstatus: "published"\ntags:\n  - "attention"\nupdatedAt: "2026-06-20"\n---\n`,
+      );
+      writeJson(
+        join(repoRoot, "src/content/registry/modules/example-page.json"),
+        {
+          id: "module.example-page",
+        },
+      );
+
+      const snapshot: ConflictHotspotSnapshot = {
+        generatedAtUtc: "2026-06-20T12:00:00.000Z",
+        rankedSurfaces: [
+          {
+            category: "shared-helper",
+            distinctPaths: 2,
+            representativePaths: [
+              "src/lib/content/slug-utils.ts",
+              "src/lib/content/content-paths.ts",
+            ],
+            surface: "src/lib/content",
+            touches: 12,
+          },
+          {
+            category: "shared-test",
+            distinctPaths: 1,
+            representativePaths: ["src/tests/ci/example.test.ts"],
+            surface: "src/tests/ci",
+            touches: 8,
+          },
+        ],
+        recentCommitLimit: 40,
+        repoRoot,
+        topPaths: [],
+        worktrees: [],
+      };
+
+      const audit = collectCanonicalPageSurfaceAudit(repoRoot, {
+        changedPaths: [
+          "src/content/docs/modules/example-page/page.mdx",
+          "src/lib/content/slug-utils.ts",
+          "src/tests/ci/example.test.ts",
+        ],
+        pageDirectory: "src/content/docs/modules/example-page",
+        snapshot,
+      });
+
+      expect(audit.hotspotEvidence.kind).toBe("maintained-snapshot");
+      expect(audit.sharedHotspotCategories).toEqual([
+        {
+          category: "shared-helper",
+          categoryLabel: "shared helper",
+          evidenceSurfaces: ["src/lib/content (12 touches)"],
+          paths: ["src/lib/content/slug-utils.ts"],
+        },
+        {
+          category: "shared-test",
+          categoryLabel: "shared test/verification",
+          evidenceSurfaces: ["src/tests/ci (8 touches)"],
+          paths: ["src/tests/ci/example.test.ts"],
+        },
+      ]);
+
+      const formatted = formatCanonicalPageSurfaceAudit(audit);
+      expect(formatted).toContain("Maintained snapshot:");
+      expect(formatted).toContain("report:planner-conflict-hotspots");
+      expect(formatted).toContain("Content runtime and helper surfaces");
+      expect(formatted).toContain("Shared test and verification surfaces");
+      expect(formatted).toContain("Evidence: src/lib/content (12 touches)");
+      expect(formatted).toContain("Evidence: src/tests/ci (8 touches)");
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
+
+  test("reports static path fallback when maintained hotspot evidence is unavailable", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "canonical-page-surface-"));
+
+    try {
+      mkdirSync(
+        join(repoRoot, "src/content/docs/modules/example-page/messages"),
+        {
+          recursive: true,
+        },
+      );
+      mkdirSync(join(repoRoot, "src/content/registry/modules"), {
+        recursive: true,
+      });
+      mkdirSync(join(repoRoot, "src/tests/ci"), {
+        recursive: true,
+      });
+
+      writeFileSync(
+        join(repoRoot, "src/content/docs/modules/example-page/page.mdx"),
+        `---\nkind: "module"\nregistryId: "module.example-page"\nmessageNamespace: "local"\nassetNamespace: "local"\nstatus: "published"\ntags:\n  - "attention"\nupdatedAt: "2026-06-20"\n---\n`,
+      );
+      writeJson(
+        join(repoRoot, "src/content/registry/modules/example-page.json"),
+        {
+          id: "module.example-page",
+        },
+      );
+      writeFileSync(
+        join(repoRoot, "src/tests/ci/example.test.ts"),
+        "export {};\n",
+      );
+
+      const audit = collectCanonicalPageSurfaceAudit(repoRoot, {
+        changedPaths: [
+          "src/content/docs/modules/example-page/page.mdx",
+          "src/tests/ci/example.test.ts",
+        ],
+        pageDirectory: "src/content/docs/modules/example-page",
+      });
+
+      expect(audit.hotspotEvidence.kind).toBe("static-path-fallback");
+      if (audit.hotspotEvidence.kind !== "static-path-fallback") {
+        throw new Error("Expected static-path-fallback hotspot evidence.");
+      }
+      expect(audit.hotspotEvidence.snapshot).toBeNull();
+      expect(audit.hotspotEvidence.fallbackReason).toContain(
+        "git rev-parse --show-toplevel",
+      );
+      expect(audit.sharedHotspotCategories).toEqual([
+        {
+          category: "shared-test",
+          categoryLabel: "shared test/verification",
+          evidenceSurfaces: [],
+          paths: ["src/tests/ci/example.test.ts"],
+        },
+      ]);
+
+      const formatted = formatCanonicalPageSurfaceAudit(audit);
+      expect(formatted).toContain(
+        "Fallback mode: static path classification only",
+      );
+      expect(formatted).toContain("Fallback reason:");
+      expect(formatted).toContain("Shared test and verification surfaces");
+      expect(formatted).not.toContain("Evidence:");
     } finally {
       rmSync(repoRoot, { force: true, recursive: true });
     }
