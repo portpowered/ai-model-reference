@@ -15,6 +15,7 @@ import {
 } from "@/lib/content/table-registry-generation";
 import {
   buildOwnerlessGeneratedTableRegistryDriftClassificationReport,
+  buildOwnerlessGeneratedTableRegistryDriftPlannerReport,
   buildTableRegistryRegenerationProof,
   captureGeneratedTableRegistryArtifactEvidence,
   captureOwnerlessGeneratedTableRegistryDriftEvidence,
@@ -32,9 +33,11 @@ import {
   OBSERVED_TABLE_ENTRY_ID,
   OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_CLASSIFICATION_HEADER,
   OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_HEADER,
+  OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_NEXT_ACTION_HEADER,
   OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_PRESERVE_POLICY,
   type OwnerlessGeneratedTableRegistryDriftEvidenceReport,
   renderExpectedTableRegistryModuleSource,
+  resolveGeneratedTableRegistryArtifactNextAction,
   serializeOwnerlessGeneratedTableRegistryDriftEvidenceReport,
   type TableRegistrySourceCatalog,
 } from "@/lib/factory/ownerless-generated-table-registry-drift";
@@ -669,7 +672,7 @@ export const generatedTableRegistryPayloads = [
     );
   });
 
-  test("formats unified report with evidence and classification sections", () => {
+  test("formats unified report with evidence, classification, and next-action sections", () => {
     const expectedSource = createExpectedModuleSourceForTableEntry(
       OBSERVED_TABLE_ENTRY_FILE_NAME,
     );
@@ -699,11 +702,157 @@ export const generatedTableRegistryPayloads = [
     expect(formatted).toContain(
       OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_CLASSIFICATION_HEADER,
     );
+    expect(formatted).toContain(
+      OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_NEXT_ACTION_HEADER,
+    );
     expect(formatted).toContain("primary-status=expected");
     expect(formatted).toContain(`table-entry-id=${OBSERVED_TABLE_ENTRY_ID}`);
     expect(formatted).toContain(
       "expected-proof=deterministic-table-registry-regeneration",
     );
+    expect(formatted).toContain(
+      "next-safe-action=land-minimal-generated-registry-proof",
+    );
+    expect(formatted).toContain(
+      `artifact-path=${GENERATED_TABLE_REGISTRY_ARTIFACT_PATH}`,
+    );
+  });
+
+  test("emits expected next action to land minimal generated registry proof", () => {
+    const expectedSource = createExpectedModuleSourceForTableEntry(
+      OBSERVED_TABLE_ENTRY_FILE_NAME,
+    );
+    const classification = classifyGeneratedTableRegistryArtifactStatus({
+      evidenceReport: createEvidenceReport({
+        dirtyStatus: "dirty",
+        headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+        observationKind: "added-in-diff",
+        worktreeSource: expectedSource,
+      }),
+      headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+      loadSourceCatalog: () =>
+        createSourceCatalog(OBSERVED_TABLE_ENTRY_FILE_NAME),
+      worktreeSource: expectedSource,
+    });
+
+    const nextAction =
+      resolveGeneratedTableRegistryArtifactNextAction(classification);
+
+    expect(nextAction.action).toBe("land-minimal-generated-registry-proof");
+    expect(nextAction.primaryStatus).toBe("expected");
+    expect(nextAction.reason).toContain(OBSERVED_TABLE_ENTRY_FILE_NAME);
+    expect(nextAction.reason).toContain("src/content/registry/tables");
+    expect(nextAction.missingEvidence).toEqual([]);
+  });
+
+  test("emits stale next action for operator-reviewed scoped cleanup", () => {
+    const staleSource = `import staleLoopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison-stale.json";
+export const generatedTableRegistrySourceFiles = [
+  "looped-transformers-comparison-stale.json",
+] as const;
+export const generatedTableRegistryPayloads = [
+  staleLoopedTransformersComparisonTableRecord,
+] as const;`;
+    const classification = classifyGeneratedTableRegistryArtifactStatus({
+      evidenceReport: createEvidenceReport({
+        dirtyStatus: "dirty",
+        headSource: staleSource,
+        worktreeSource: staleSource,
+      }),
+      headSource: staleSource,
+      loadSourceCatalog: () =>
+        createSourceCatalog(OBSERVED_TABLE_ENTRY_FILE_NAME),
+      worktreeSource: staleSource,
+    });
+
+    const nextAction =
+      resolveGeneratedTableRegistryArtifactNextAction(classification);
+
+    expect(nextAction.action).toBe("operator-cleanup-scoped-artifact");
+    expect(nextAction.primaryStatus).toBe("stale");
+    expect(nextAction.reason).toContain(GENERATED_TABLE_REGISTRY_ARTIFACT_PATH);
+    expect(nextAction.reason).toContain("operator-reviewed cleanup");
+  });
+
+  test("emits owned next action to wait for or inspect the named lane", () => {
+    const classification = classifyGeneratedTableRegistryArtifactStatus({
+      evidenceReport: createEvidenceReport({
+        dirtyStatus: "dirty",
+        headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+        observationKind: "added-in-diff",
+        worktreeSource: createExpectedModuleSourceForTableEntry(
+          OBSERVED_TABLE_ENTRY_FILE_NAME,
+        ),
+      }),
+      laneOwnership: createLaneOwnership("looped-transformers-page"),
+      loadSourceCatalog: () => null,
+    });
+
+    const nextAction =
+      resolveGeneratedTableRegistryArtifactNextAction(classification);
+
+    expect(nextAction.action).toBe("wait-for-or-inspect-named-lane");
+    expect(nextAction.primaryStatus).toBe("owned");
+    expect(nextAction.laneName).toBe("looped-transformers-page");
+    expect(nextAction.laneBranch).toBe("looped-transformers-page-branch");
+    expect(nextAction.reason).toContain("looped-transformers-page");
+    expect(nextAction.reason).toContain("instead of treating");
+  });
+
+  test("emits ownerless planner hold with exact missing evidence gaps", () => {
+    const classification = classifyGeneratedTableRegistryArtifactStatus({
+      evidenceReport: createEvidenceReport({
+        dirtyStatus: "dirty",
+        headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+        observationKind: "added-in-diff",
+        worktreeSource: `import loopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison.json";`,
+      }),
+      headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+      loadSourceCatalog: () => null,
+      worktreeSource: `import loopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison.json";`,
+    });
+
+    const nextAction =
+      resolveGeneratedTableRegistryArtifactNextAction(classification);
+
+    expect(nextAction.action).toBe("planner-hold-missing-evidence");
+    expect(nextAction.primaryStatus).toBe("ownerless");
+    expect(nextAction.missingEvidence.length).toBeGreaterThan(0);
+    expect(nextAction.reason).toContain("Hold priority refill");
+    for (const gap of classification.evidenceGaps) {
+      expect(nextAction.reason).toContain(gap);
+    }
+  });
+
+  test("builds planner report with one explicit next action", () => {
+    const expectedSource = createExpectedModuleSourceForTableEntry(
+      OBSERVED_TABLE_ENTRY_FILE_NAME,
+    );
+    const evidenceReport = createEvidenceReport({
+      dirtyStatus: "clean",
+      headSource: expectedSource,
+      worktreeSource: expectedSource,
+    });
+    const classificationReport =
+      buildOwnerlessGeneratedTableRegistryDriftClassificationReport({
+        evidenceReport,
+        generatedAtUtc: "2026-07-03T05:00:00.000Z",
+        headSource: expectedSource,
+        loadSourceCatalog: () =>
+          createSourceCatalog(OBSERVED_TABLE_ENTRY_FILE_NAME),
+        worktreeSource: expectedSource,
+      });
+    const plannerReport =
+      buildOwnerlessGeneratedTableRegistryDriftPlannerReport({
+        classificationReport,
+        evidenceReport,
+        generatedAtUtc: "2026-07-03T05:00:00.000Z",
+      });
+
+    expect(plannerReport.nextAction.action).toBe(
+      "land-minimal-generated-registry-proof",
+    );
+    expect(plannerReport.nextAction.tableEntryId).toBe(OBSERVED_TABLE_ENTRY_ID);
   });
 
   test("report script emits classification output without mutating git state", () => {
@@ -748,6 +897,12 @@ export const generatedTableRegistryPayloads = [
       );
       expect(result.stdout).toContain("primary-status=expected");
       expect(result.stdout).toContain(OBSERVED_TABLE_ENTRY_FILE_NAME);
+      expect(result.stdout).toContain(
+        OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_NEXT_ACTION_HEADER,
+      );
+      expect(result.stdout).toContain(
+        "next-safe-action=land-minimal-generated-registry-proof",
+      );
 
       const statusAfter = spawnSync(
         "git",

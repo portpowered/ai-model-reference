@@ -2,11 +2,12 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   buildOwnerlessGeneratedTableRegistryDriftClassificationReport,
+  buildOwnerlessGeneratedTableRegistryDriftPlannerReport,
   captureOwnerlessGeneratedTableRegistryDriftEvidence,
   formatOwnerlessGeneratedTableRegistryDriftEvidenceReport,
   formatOwnerlessGeneratedTableRegistryDriftUnifiedReport,
-  serializeOwnerlessGeneratedTableRegistryDriftClassificationReport,
   serializeOwnerlessGeneratedTableRegistryDriftEvidenceReport,
+  serializeOwnerlessGeneratedTableRegistryDriftPlannerReport,
 } from "../src/lib/factory/ownerless-generated-table-registry-drift";
 
 const defaultRepoRoot = resolve(import.meta.dir, "..");
@@ -63,14 +64,17 @@ const classificationReport =
     evidenceReport,
   });
 
+const plannerReport = buildOwnerlessGeneratedTableRegistryDriftPlannerReport({
+  classificationReport,
+  evidenceReport,
+});
+
 const output = isJsonOutputRequested(process.argv)
   ? isEvidenceOnlyRequested(process.argv)
     ? serializeOwnerlessGeneratedTableRegistryDriftEvidenceReport(
         evidenceReport,
       )
-    : serializeOwnerlessGeneratedTableRegistryDriftClassificationReport(
-        classificationReport,
-      )
+    : serializeOwnerlessGeneratedTableRegistryDriftPlannerReport(plannerReport)
   : isEvidenceOnlyRequested(process.argv)
     ? formatOwnerlessGeneratedTableRegistryDriftEvidenceReport(evidenceReport)
     : formatOwnerlessGeneratedTableRegistryDriftUnifiedReport({

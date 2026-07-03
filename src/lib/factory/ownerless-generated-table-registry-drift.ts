@@ -999,10 +999,155 @@ export function serializeOwnerlessGeneratedTableRegistryDriftClassificationRepor
   return `${JSON.stringify(report, null, 2)}\n`;
 }
 
+export const OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_NEXT_ACTION_HEADER =
+  "Ownerless Generated Table Registry Drift Next Action";
+
+export type GeneratedTableRegistryArtifactNextSafeAction =
+  | "land-minimal-generated-registry-proof"
+  | "operator-cleanup-scoped-artifact"
+  | "planner-hold-missing-evidence"
+  | "wait-for-or-inspect-named-lane";
+
+export interface GeneratedTableRegistryArtifactNextAction {
+  action: GeneratedTableRegistryArtifactNextSafeAction;
+  artifactPath: string;
+  laneBranch?: string;
+  laneName?: string;
+  missingEvidence: readonly string[];
+  primaryStatus: GeneratedTableRegistryArtifactPrimaryStatus;
+  reason: string;
+  tableEntryFileName: string;
+  tableEntryId: string;
+}
+
+export interface OwnerlessGeneratedTableRegistryDriftPlannerReport {
+  classificationReport: OwnerlessGeneratedTableRegistryDriftClassificationReport;
+  evidenceReport: OwnerlessGeneratedTableRegistryDriftEvidenceReport;
+  generatedAtUtc: string;
+  nextAction: GeneratedTableRegistryArtifactNextAction;
+}
+
+export function resolveGeneratedTableRegistryArtifactNextAction(
+  classification: GeneratedTableRegistryArtifactClassification,
+): GeneratedTableRegistryArtifactNextAction {
+  const base = {
+    artifactPath: classification.artifactPath,
+    missingEvidence: classification.evidenceGaps,
+    primaryStatus: classification.primaryStatus,
+    tableEntryFileName: classification.tableEntryFileName,
+    tableEntryId: classification.tableEntryId,
+  };
+
+  switch (classification.primaryStatus) {
+    case "expected":
+      return {
+        ...base,
+        action: "land-minimal-generated-registry-proof",
+        missingEvidence: [],
+        reason: `Land or hand off only the minimal generated registry proof for ${classification.tableEntryFileName} (${classification.tableEntryId}) and any required canonical table source under src/content/registry/tables; do not open broad content work or mutate unrelated generated artifacts.`,
+      };
+    case "stale":
+      return {
+        ...base,
+        action: "operator-cleanup-scoped-artifact",
+        missingEvidence: [],
+        reason: `Request operator-reviewed cleanup scoped only to ${classification.artifactPath}; preserve dirty files until review and do not revert, regenerate, or mutate unrelated generated artifacts.`,
+      };
+    case "owned": {
+      const laneName = classification.laneOwnership?.laneName ?? "unknown-lane";
+      const laneBranch = classification.laneOwnership?.branchName;
+      return {
+        ...base,
+        action: "wait-for-or-inspect-named-lane",
+        laneBranch,
+        laneName,
+        missingEvidence: [],
+        reason: `Wait for, refresh, or inspect lane ${laneName}${
+          laneBranch ? ` (${laneBranch})` : ""
+        } instead of treating ${classification.artifactPath} as ownerless.`,
+      };
+    }
+    case "ownerless": {
+      const missingEvidenceSummary =
+        classification.evidenceGaps.length > 0
+          ? classification.evidenceGaps.join(" ")
+          : "Table registry regeneration proof and lane ownership evidence are unavailable.";
+      return {
+        ...base,
+        action: "planner-hold-missing-evidence",
+        reason: `Hold priority refill for ${classification.artifactPath} until missing proof or ownership evidence is resolved: ${missingEvidenceSummary}`,
+      };
+    }
+  }
+}
+
+export function buildOwnerlessGeneratedTableRegistryDriftPlannerReport(input: {
+  classificationReport: OwnerlessGeneratedTableRegistryDriftClassificationReport;
+  evidenceReport: OwnerlessGeneratedTableRegistryDriftEvidenceReport;
+  generatedAtUtc?: string;
+}): OwnerlessGeneratedTableRegistryDriftPlannerReport {
+  const generatedAtUtc =
+    input.generatedAtUtc ??
+    input.classificationReport.generatedAtUtc ??
+    new Date().toISOString();
+
+  return {
+    classificationReport: input.classificationReport,
+    evidenceReport: input.evidenceReport,
+    generatedAtUtc,
+    nextAction: resolveGeneratedTableRegistryArtifactNextAction(
+      input.classificationReport.classification,
+    ),
+  };
+}
+
+export function formatOwnerlessGeneratedTableRegistryDriftNextActionReport(
+  report: OwnerlessGeneratedTableRegistryDriftPlannerReport,
+): string {
+  const nextAction = report.nextAction;
+  const lines = [
+    OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_NEXT_ACTION_HEADER,
+    `generated-at-utc=${report.generatedAtUtc}`,
+    "",
+    "[planner-next-action]",
+    `artifact-path=${nextAction.artifactPath}`,
+    `primary-status=${nextAction.primaryStatus}`,
+    `table-entry-file=${nextAction.tableEntryFileName}`,
+    `table-entry-id=${nextAction.tableEntryId}`,
+    `next-safe-action=${nextAction.action}`,
+    `next-safe-action-reason=${nextAction.reason}`,
+  ];
+
+  if (nextAction.laneName) {
+    lines.push(`owned-lane=${nextAction.laneName}`);
+  }
+  if (nextAction.laneBranch) {
+    lines.push(`owned-lane-branch=${nextAction.laneBranch}`);
+  }
+  if (nextAction.missingEvidence.length > 0) {
+    lines.push("", "[missing-evidence]");
+    for (const gap of nextAction.missingEvidence) {
+      lines.push(`  - ${gap}`);
+    }
+  }
+
+  return `${lines.join("\n")}\n`;
+}
+
+export function serializeOwnerlessGeneratedTableRegistryDriftPlannerReport(
+  report: OwnerlessGeneratedTableRegistryDriftPlannerReport,
+): string {
+  return `${JSON.stringify(report, null, 2)}\n`;
+}
+
 export function formatOwnerlessGeneratedTableRegistryDriftUnifiedReport(input: {
   classificationReport: OwnerlessGeneratedTableRegistryDriftClassificationReport;
   evidenceReport: OwnerlessGeneratedTableRegistryDriftEvidenceReport;
+  generatedAtUtc?: string;
 }): string {
+  const plannerReport =
+    buildOwnerlessGeneratedTableRegistryDriftPlannerReport(input);
+
   return [
     formatOwnerlessGeneratedTableRegistryDriftEvidenceReport(
       input.evidenceReport,
@@ -1010,6 +1155,10 @@ export function formatOwnerlessGeneratedTableRegistryDriftUnifiedReport(input: {
     "",
     formatOwnerlessGeneratedTableRegistryDriftClassificationReport(
       input.classificationReport,
+    ).trimEnd(),
+    "",
+    formatOwnerlessGeneratedTableRegistryDriftNextActionReport(
+      plannerReport,
     ).trimEnd(),
     "",
   ].join("\n");
