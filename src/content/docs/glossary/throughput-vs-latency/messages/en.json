@@ -48,6 +48,57 @@
     "prefill": "Prefill",
     "decode": "Decode",
     "kvCache": "KV cache",
-    "prefillDecodeSplit": "Prefill/decode split"
+    "prefillDecodeSplit": "Prefill/decode split",
+    "batching": "Batching",
+    "continuousBatching": "Continuous batching",
+    "dynamicBatching": "Dynamic batching",
+    "requestScheduling": "Request scheduling",
+    "memory": "Memory",
+    "deployment": "Deployment",
+    "inferenceEngine": "Inference engine"
+  },
+  "relatedDocs": {
+    "concept.time-to-first-token": {
+      "reason": "Time to first token isolates wait before streaming starts, which is one latency slice that can worsen even when aggregate throughput rises under concurrency."
+    },
+    "concept.inter-token-latency": {
+      "reason": "Inter-token latency tracks mid-stream gaps, so compare it with fleet throughput when capacity looks strong but one answer feels choppy."
+    },
+    "concept.tokens-per-second": {
+      "reason": "Tokens per second measures aggregate output rate, which is the throughput side of the tradeoff this page names against individual wait time."
+    },
+    "concept.prefill": {
+      "reason": "Prefill dominates prompt work before streaming, so a prefill-heavy mix can raise fleet utilization while stretching queue and start-up waits."
+    },
+    "concept.decode": {
+      "reason": "Decode is where repeated generation steps happen, so shared decode turns and cache reads set the baseline for both throughput and per-request gaps."
+    },
+    "concept.kv-cache": {
+      "reason": "KV cache growth raises memory movement each decode step, which often caps aggregate throughput before raw compute does."
+    },
+    "concept.prefill-decode-split": {
+      "reason": "Split deployments move cache state between workers, which can improve pool utilization while adding transfer delays that show up as longer waits."
+    },
+    "system.batching": {
+      "reason": "Batching decides how many requests share each accelerator step, which is a main lever for raising throughput while stretching some queue times."
+    },
+    "system.continuous-batching": {
+      "reason": "Continuous batching keeps decode slots filled as sequences finish, which can lift fleet throughput under steady streaming load."
+    },
+    "system.dynamic-batching": {
+      "reason": "Dynamic regrouping reshuffles which requests decode together, so throughput can rise while individual cadence wobbles under load."
+    },
+    "system.request-scheduling": {
+      "reason": "Request scheduling decides whose work runs next under contention, so fairness and queue order shape both utilization and individual waits."
+    },
+    "system.memory": {
+      "reason": "Memory bandwidth and residency limits how quickly weights and KV cache state move during decode-heavy bursts that stress both metrics."
+    },
+    "system.deployment": {
+      "reason": "Deployment layout—which pools handle decode and how replicas scale—sets the operating context where throughput and latency trade off."
+    },
+    "system.inference-engine": {
+      "reason": "The inference engine implements batching, scheduling, and the decode loop that turn hardware capacity into reported throughput and visible waits."
+    }
   }
 }
