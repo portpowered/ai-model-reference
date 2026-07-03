@@ -30,6 +30,7 @@ const GLOSSARY_SIDEBAR_BACKFILLS = [
   ["concept.conditioning", "generation-and-diffusion"],
   ["concept.denoising-generation", "generation-and-diffusion"],
   ["concept.diffusion-model", "generation-and-diffusion"],
+  ["concept.flow-matching", "generation-and-diffusion"],
 ] as const;
 
 const CONCEPT_SIDEBAR_BACKFILLS = [

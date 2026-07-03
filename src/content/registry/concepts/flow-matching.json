@@ -1,0 +1,39 @@
+{
+  "id": "concept.flow-matching",
+  "slug": "flow-matching",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Flow matching",
+    "flow matching",
+    "rectified flow",
+    "velocity prediction",
+    "flow-matching objective"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "training-regime.diffusion-training-objective",
+    "paper.latent-diffusion",
+    "module.diffusion-transformer-block",
+    "model.ltx-23"
+  ],
+  "citationIds": [
+    "citation.flow-matching-for-generative-modeling",
+    "citation.rectified-flow"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.training",
+  "conceptType": "training",
+  "sidebarGrouping": {
+    "glossary": "generation-and-diffusion"
+  },
+  "prerequisiteIds": [
+    "concept.generative-model",
+    "concept.denoising-generation",
+    "training-regime.diffusion-training-objective"
+  ],
+  "explainsIds": []
+}
