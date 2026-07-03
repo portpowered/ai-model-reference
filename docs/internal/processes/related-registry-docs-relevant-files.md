@@ -11,6 +11,11 @@ and the shared related-registry-docs component/blog wrapper.
   Preserves input order; not blog-specific.
 * `src/lib/content/related-registry-docs.test.ts`
   Focused resolver tests with injectable `getRecordById` / `publishedRegistryIds`.
+* `src/lib/content/related-registry-docs.test-fixtures.ts`
+  Shared resolver/component/blog test fixtures and `relatedRegistryDocsResolveOptions`.
+* `src/lib/content/related-registry-docs-behavior.test.tsx`
+  Consolidated story-004 acceptance tests across resolver, `RelatedRegistryDocs`, and
+  `BlogRelatedDocs` with explicit anchor-count and docs-page-less coverage.
 
 ## Shared linking primitives
 
@@ -57,6 +62,7 @@ and the shared related-registry-docs component/blog wrapper.
 ## Verification
 
 * `bun test src/lib/content/related-registry-docs.test.ts`
+* `bun test src/lib/content/related-registry-docs-behavior.test.tsx`
 * `bun test src/features/docs/components/RelatedRegistryDocs.test.tsx`
 * `bun test src/features/blog/components/BlogRelatedDocs.test.tsx`
 * `bun test src/features/blog/components/blog-related-docs-blog-integration.test.tsx`

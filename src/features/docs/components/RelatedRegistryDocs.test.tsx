@@ -8,66 +8,17 @@ import {
   DEFAULT_RELATED_REGISTRY_DOCS_PARTIAL_UNAVAILABLE_STATUS,
   RelatedRegistryDocs,
 } from "@/features/docs/components/RelatedRegistryDocs";
-import type { ModuleRecord } from "@/lib/content/schemas";
+import {
+  RELATED_REGISTRY_DOCS_MISSING_ID,
+  relatedRegistryDocsDraftModule,
+  relatedRegistryDocsGqa,
+  relatedRegistryDocsMqa,
+  relatedRegistryDocsResolveOptions,
+} from "@/lib/content/related-registry-docs.test-fixtures";
 
 const TEST_PAGE_MESSAGES = {
   title: "Test page",
   description: "Test description",
-};
-
-const publishedRegistryIds = new Set([
-  "module.grouped-query-attention",
-  "module.multi-query-attention",
-]);
-
-const gqa: ModuleRecord = {
-  id: "module.grouped-query-attention",
-  slug: "grouped-query-attention",
-  kind: "module",
-  defaultTitleKey: "title",
-  defaultSummaryKey: "description",
-  aliases: ["Grouped Query Attention"],
-  tags: ["attention"],
-  relatedIds: [],
-  citationIds: [],
-  status: "published",
-  createdAt: "2026-06-01T00:00:00.000Z",
-  updatedAt: "2026-06-02T00:00:00.000Z",
-  moduleType: "attention",
-  variantGroup: "attention-head-sharing",
-  optimizes: [],
-  exampleModelIds: [],
-  improvesOnIds: [],
-  tradeoffIds: [],
-  usedByModelIds: [],
-  introducedByPaperIds: [],
-  mathLevel: "light",
-};
-
-const mqa: ModuleRecord = {
-  ...gqa,
-  id: "module.multi-query-attention",
-  slug: "multi-query-attention",
-  aliases: ["Multi-Query Attention"],
-};
-
-const draftModule: ModuleRecord = {
-  ...gqa,
-  id: "module.draft-attention",
-  slug: "draft-attention",
-  aliases: ["Draft attention"],
-  status: "draft",
-};
-
-const recordsById = new Map<string, ModuleRecord>([
-  [gqa.id, gqa],
-  [mqa.id, mqa],
-  [draftModule.id, draftModule],
-]);
-
-const resolveOptions = {
-  publishedRegistryIds,
-  getRecordById: (registryId: string) => recordsById.get(registryId),
 };
 
 afterEach(() => {
@@ -78,8 +29,8 @@ describe("RelatedRegistryDocs", () => {
   test("renders compact published links with docs chrome styling", () => {
     const html = renderToStaticMarkup(
       <RelatedRegistryDocs
-        registryIds={[mqa.id, gqa.id]}
-        resolveOptions={resolveOptions}
+        registryIds={[relatedRegistryDocsMqa.id, relatedRegistryDocsGqa.id]}
+        resolveOptions={relatedRegistryDocsResolveOptions}
       />,
     );
 
@@ -90,7 +41,7 @@ describe("RelatedRegistryDocs", () => {
     expect(html).toContain("Grouped Query Attention");
     expect(html).toContain("no-underline");
     expect(html).toContain("focus-visible:ring-2");
-    expect(html).not.toContain("module.multi-query-attention");
+    expect(html).not.toContain(relatedRegistryDocsMqa.id);
   });
 
   test("renders configured empty fallback when input is empty", () => {
@@ -98,7 +49,7 @@ describe("RelatedRegistryDocs", () => {
       <RelatedRegistryDocs
         registryIds={[]}
         emptyFallback="No related docs configured."
-        resolveOptions={resolveOptions}
+        resolveOptions={relatedRegistryDocsResolveOptions}
       />,
     );
 
@@ -110,8 +61,11 @@ describe("RelatedRegistryDocs", () => {
   test("renders all-unavailable fallback without broken anchors", () => {
     const html = renderToStaticMarkup(
       <RelatedRegistryDocs
-        registryIds={["module.missing-runtime-record", draftModule.id]}
-        resolveOptions={resolveOptions}
+        registryIds={[
+          RELATED_REGISTRY_DOCS_MISSING_ID,
+          relatedRegistryDocsDraftModule.id,
+        ]}
+        resolveOptions={relatedRegistryDocsResolveOptions}
       />,
     );
 
@@ -120,14 +74,18 @@ describe("RelatedRegistryDocs", () => {
       DEFAULT_RELATED_REGISTRY_DOCS_ALL_UNAVAILABLE_FALLBACK,
     );
     expect(html).not.toContain("<a");
-    expect(html).not.toContain("module.missing-runtime-record");
+    expect(html).not.toContain(RELATED_REGISTRY_DOCS_MISSING_ID);
   });
 
   test("renders valid links and partial-unavailable status for mixed input", () => {
     const html = renderToStaticMarkup(
       <RelatedRegistryDocs
-        registryIds={["module.missing-runtime-record", gqa.id, draftModule.id]}
-        resolveOptions={resolveOptions}
+        registryIds={[
+          RELATED_REGISTRY_DOCS_MISSING_ID,
+          relatedRegistryDocsGqa.id,
+          relatedRegistryDocsDraftModule.id,
+        ]}
+        resolveOptions={relatedRegistryDocsResolveOptions}
       />,
     );
 
@@ -139,7 +97,7 @@ describe("RelatedRegistryDocs", () => {
     expect(html).toContain(
       DEFAULT_RELATED_REGISTRY_DOCS_PARTIAL_UNAVAILABLE_STATUS,
     );
-    expect(html).not.toContain("module.missing-runtime-record");
+    expect(html).not.toContain(RELATED_REGISTRY_DOCS_MISSING_ID);
     expect(html).not.toContain("Draft attention");
   });
 
@@ -151,8 +109,8 @@ describe("RelatedRegistryDocs", () => {
         isDev={false}
       >
         <RelatedRegistryDocs
-          registryIds={[gqa.id]}
-          resolveOptions={resolveOptions}
+          registryIds={[relatedRegistryDocsGqa.id]}
+          resolveOptions={relatedRegistryDocsResolveOptions}
         />
       </PageMessagesProvider>,
     );
@@ -163,8 +121,8 @@ describe("RelatedRegistryDocs", () => {
   test("exposes accessible list semantics for available links", () => {
     render(
       <RelatedRegistryDocs
-        registryIds={[mqa.id, gqa.id]}
-        resolveOptions={resolveOptions}
+        registryIds={[relatedRegistryDocsMqa.id, relatedRegistryDocsGqa.id]}
+        resolveOptions={relatedRegistryDocsResolveOptions}
       />,
     );
 
@@ -179,7 +137,10 @@ describe("RelatedRegistryDocs", () => {
 
   test("uses default empty fallback copy when none is configured", () => {
     const html = renderToStaticMarkup(
-      <RelatedRegistryDocs registryIds={[]} resolveOptions={resolveOptions} />,
+      <RelatedRegistryDocs
+        registryIds={[]}
+        resolveOptions={relatedRegistryDocsResolveOptions}
+      />,
     );
 
     expect(html).toContain(DEFAULT_RELATED_REGISTRY_DOCS_EMPTY_FALLBACK);
