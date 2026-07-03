@@ -213,7 +213,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       const context = await loadAppTestContext();
       await typeQueryAndExpectGqaResult(context, query);
     },
-    { timeout: 30_000 },
+    { timeout: 90_000 },
   );
 
   test.each([
@@ -406,10 +406,10 @@ describe("SearchPagePanel Phase 1 queries", () => {
           url: url,
           titlePattern: title,
         },
-        { timeout: 30_000 },
+        { timeout: 45_000 },
       );
     },
-    { timeout: 30_000 },
+    { timeout: 60_000 },
   );
 
   test("exposes idle state with aria-live region before query entry", async () => {

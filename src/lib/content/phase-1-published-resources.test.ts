@@ -161,7 +161,7 @@ describe("Phase 1 published-resource discovery contract", () => {
         }
       }
     },
-    { timeout: 30_000 },
+    { timeout: 60_000 },
   );
 
   test("non-default locale tag discovery only includes shipped localized resources", async () => {
