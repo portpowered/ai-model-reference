@@ -1,28 +1,30 @@
 ---
-title: "Conditioning"
-description: "Extra inputs—text prompts, class labels, images, or guidance weights—that steer a generative model without retraining the full parameter stack each time."
-kind: "glossary"
-registryId: "concept.conditioning"
+title: Classifier-Free Guidance
+description: A diffusion inference technique that steers denoising by comparing prompt-conditioned and prompt-free predictions, then blending them with a guidance scale.
+kind: "concept"
+registryId: "concept.classifier-free-guidance"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
-  - "foundations"
-  - "taxonomy"
+  - foundations
+  - taxonomy
 aliases:
-  - "Conditioning"
-  - "conditional generation"
-  - "control signal"
-updatedAt: "2026-06-04"
+  - "Classifier-Free Guidance"
+  - "classifier-free guidance"
+  - "CFG"
+  - "diffusion guidance"
+  - "prompt guidance scale"
+  - "guidance scale"
+updatedAt: "2026-07-03"
 ---
 
-
 import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
-
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
   <T k="sections.whatItIs.body" />
@@ -36,19 +38,31 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
   <T k="sections.simpleExample.body" />
 </Section>
 
+<Section id="where-it-appears" titleKey="sections.whereItAppears.title">
+  <T k="sections.whereItAppears.body" />
+</Section>
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
   <T k="sections.commonConfusions.body" />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
-  <RelatedDocs registryId="concept.conditioning" />
+  <DerivedRelatedDocs
+    registryId="concept.classifier-free-guidance"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.classifier-free-guidance" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList registryId="concept.conditioning" showDescriptions />
+  <TagPillList registryId="concept.classifier-free-guidance" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.conditioning" />
+  <CitationList registryId="concept.classifier-free-guidance" />
 </Section>

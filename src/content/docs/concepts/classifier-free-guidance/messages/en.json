@@ -1,0 +1,36 @@
+{
+  "title": "Classifier-Free Guidance",
+  "description": "A diffusion inference technique that steers denoising by comparing prompt-conditioned and prompt-free predictions, then blending them with a guidance scale.",
+  "openingSummary": "Classifier-free guidance steers diffusion denoising by comparing what the model predicts when a prompt is present against what it predicts when the prompt is dropped, then nudging each step along that difference.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "At each denoising step the model can emit two predictions over the same noisy state: a conditional prediction shaped by the prompt embedding or other control signal, and an unconditional prediction produced when that signal is replaced by a learned null or empty placeholder. Classifier-free guidance takes the gap between those two outputs—the direction the prompt pulls the update—and mixes it back with the unconditional baseline using a guidance scale. A scale of one returns only the conditional path; higher values push further along the prompt direction."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Prompt-driven diffusion models already learn to denoise with conditioning, but the conditional and unconditional paths can stay close during sampling. Classifier-free guidance amplifies how much each step follows the prompt without training a separate classifier network at inference time. That makes text prompts visibly steer image or latent updates in systems where users expect the output to track what they typed."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A latent diffusion image model encodes the text prompt \"a red bicycle\" into a CLIP-style embedding for the conditional pass. For the unconditional pass it feeds a learned empty-prompt token instead. At step twenty of fifty, the denoiser outputs both noise predictions on the same latent grid. Classifier-free guidance blends the unconditional prediction with the conditional-minus-unconditional gap scaled by the user guidance setting, then applies that guided update before the next denoising step."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Classifier-free guidance is a standard knob in prompt-driven diffusion systems, including latent diffusion text-to-image pipelines where denoising runs in a compressed latent space before a decoder returns pixels. Conditioning pages describe how prompts attach to each step; denoising generation and diffusion model pages describe the iterative loop that consumes these guided updates."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Classifier-free guidance is not the older classifier guidance method that required a separate image classifier to score each denoising step. The name reflects dropping that extra classifier while still steering generation. It is also not fine-tuning: weights stay fixed and the guidance scale is a runtime control. Turning guidance up can strengthen prompt adherence, but it is not a guarantee of higher image quality on every sample."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
