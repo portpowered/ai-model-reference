@@ -210,6 +210,9 @@ describe("training signal stacked chart behavioral verification (005)", () => {
         await chart.waitFor({ state: "visible" });
 
         const layout = await page.evaluate(() => {
+          const pageClientWidth = document.documentElement.clientWidth;
+          const pageScrollWidth = document.documentElement.scrollWidth;
+
           const figure = document.querySelector(
             '[data-training-signal-chart="ready"]',
           );
@@ -262,6 +265,10 @@ describe("training signal stacked chart behavioral verification (005)", () => {
           ).map((node, index) => readRect(node, `legend-item-${index}`));
 
           return {
+            page: {
+              clientWidth: pageClientWidth,
+              scrollWidth: pageScrollWidth,
+            },
             figure: {
               clientWidth: figure.clientWidth,
               scrollWidth: figure.scrollWidth,
@@ -276,6 +283,9 @@ describe("training signal stacked chart behavioral verification (005)", () => {
           };
         });
 
+        expect(layout.page.scrollWidth).toBeLessThanOrEqual(
+          layout.page.clientWidth + 1,
+        );
         expect(layout.figure.scrollWidth).toBeLessThanOrEqual(
           layout.figure.clientWidth + 1,
         );

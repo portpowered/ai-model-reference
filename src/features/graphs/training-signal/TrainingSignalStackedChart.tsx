@@ -88,7 +88,7 @@ export function TrainingSignalStackedChart({
     <figure
       aria-describedby={describedByIds}
       aria-labelledby={titleId}
-      className={className}
+      className={["relative", className].filter(Boolean).join(" ")}
       data-testid={dataTestId}
       data-training-signal-chart="ready"
       data-value-mode={metadata.valueMode}
@@ -120,34 +120,39 @@ export function TrainingSignalStackedChart({
           timeline={timeline}
         />
 
-        <table className="sr-only">
-          <caption>{labeling.accessibleName}</caption>
-          <thead>
-            <tr>
-              <th scope="col">Time</th>
-              {TRAINING_SIGNAL_BAND_KEYS.map((bandKey) => (
-                <th key={bandKey} scope="col">
-                  {TRAINING_SIGNAL_BAND_LABELS[bandKey]}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {timeline.map((point) => (
-              <tr key={point.timeKey}>
-                <th scope="row">{point.timeLabel}</th>
+        <div
+          className="fixed top-0 left-0 h-px w-px overflow-hidden [clip:rect(0,0,0,0)]"
+          data-training-signal-data-table="true"
+        >
+          <table>
+            <caption>{labeling.accessibleName}</caption>
+            <thead>
+              <tr>
+                <th scope="col">Time</th>
                 {TRAINING_SIGNAL_BAND_KEYS.map((bandKey) => (
-                  <td key={bandKey}>
-                    {formatTrainingSignalValue(
-                      point[bandKey],
-                      metadata.valueMode,
-                    )}
-                  </td>
+                  <th key={bandKey} scope="col">
+                    {TRAINING_SIGNAL_BAND_LABELS[bandKey]}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {timeline.map((point) => (
+                <tr key={point.timeKey}>
+                  <th scope="row">{point.timeLabel}</th>
+                  {TRAINING_SIGNAL_BAND_KEYS.map((bandKey) => (
+                    <td key={bandKey}>
+                      {formatTrainingSignalValue(
+                        point[bandKey],
+                        metadata.valueMode,
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {caption ? (

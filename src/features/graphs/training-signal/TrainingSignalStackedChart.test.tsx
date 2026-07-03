@@ -167,6 +167,16 @@ describe("TrainingSignalStackedChart", () => {
         TRAINING_SIGNAL_BAND_LABELS[bandKey],
       );
     }
+
+    const dataTable = container.querySelector(
+      '[data-training-signal-data-table="true"]',
+    );
+    expect(dataTable).toBeTruthy();
+    expect(dataTable?.querySelector("table caption")?.textContent).toBe(
+      "LLM training-signal shift chart",
+    );
+    expect(dataTable?.className).toContain("fixed");
+    expect(dataTable?.className).toContain("overflow-hidden");
   });
 
   test("names each band in the legend without relying on color alone", () => {
