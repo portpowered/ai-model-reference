@@ -1,0 +1,109 @@
+{
+  "id": "graph.cosmos-3-architecture",
+  "slug": "cosmos-3-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Cosmos 3 architecture graph", "Cosmos 3 world model flow"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "concept.world-model",
+    "concept.multimodal-model",
+    "concept.autoregressive-generation",
+    "concept.denoising-generation",
+    "concept.conditioning"
+  ],
+  "citationIds": [
+    "citation.cosmos-3-technical-report",
+    "citation.cosmos-3-research-page"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-03T00:00:00.000Z",
+  "updatedAt": "2026-07-03T00:00:00.000Z",
+  "subjectId": "model.cosmos-3",
+  "graphType": "model-architecture",
+  "rootNodeId": "multimodal-outputs",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "multimodal-outputs",
+      "labelKey": "graph.nodes.multimodalOutputs.label",
+      "summaryKey": "graph.nodes.multimodalOutputs.summary",
+      "registryId": "concept.multimodal-model",
+      "moduleKind": "output",
+      "position": { "x": 235, "y": 0 },
+      "size": { "width": 230, "height": 72 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "diffusion-generator",
+      "labelKey": "graph.nodes.diffusionGenerator.label",
+      "summaryKey": "graph.nodes.diffusionGenerator.summary",
+      "registryId": "concept.denoising-generation",
+      "moduleKind": "block",
+      "position": { "x": 120, "y": 130 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "autoregressive-reasoner",
+      "labelKey": "graph.nodes.autoregressiveReasoner.label",
+      "summaryKey": "graph.nodes.autoregressiveReasoner.summary",
+      "registryId": "concept.autoregressive-generation",
+      "moduleKind": "block",
+      "position": { "x": 380, "y": 130 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "conditioning-inputs",
+      "labelKey": "graph.nodes.conditioningInputs.label",
+      "summaryKey": "graph.nodes.conditioningInputs.summary",
+      "registryId": "concept.conditioning",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 260 },
+      "size": { "width": 200, "height": 62 },
+      "visualRole": "architecture-linear",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "diffusion-generator-to-multimodal-outputs",
+      "source": "diffusion-generator",
+      "target": "multimodal-outputs",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "autoregressive-reasoner-to-multimodal-outputs",
+      "source": "autoregressive-reasoner",
+      "target": "multimodal-outputs",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "conditioning-inputs-to-diffusion-generator",
+      "source": "conditioning-inputs",
+      "target": "diffusion-generator",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "conditioning-inputs-to-autoregressive-reasoner",
+      "source": "conditioning-inputs",
+      "target": "autoregressive-reasoner",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    }
+  ]
+}

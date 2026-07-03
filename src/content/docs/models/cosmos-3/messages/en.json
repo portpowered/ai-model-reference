@@ -1,0 +1,65 @@
+{
+  "title": "Cosmos 3",
+  "description": "Open omnimodal world model family from NVIDIA for physical AI, combining autoregressive reasoning with diffusion-based generation across text, image, video, audio, and action outputs through Nano and Super checkpoints.",
+  "openingSummary": "Cosmos 3 is NVIDIA's open-weights omnimodal world model family for physical AI. It couples autoregressive reasoning with diffusion-based generation so one model family can ground language in images and video, synthesize worlds with sight and sound, and plan robot actions from shared multimodal context.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Cosmos 3 is an open-weights omnimodal world model family from NVIDIA, released on 2026-05-31 with Nano and Super checkpoints described as 16-billion-parameter and 64-billion-parameter variants. NVIDIA frames it as a physical AI foundation model that connects understanding, generation, simulation, and action through one shared backbone rather than separate single-task models. Public materials position Cosmos 3 as a model family researchers can inspect, adapt, and deploy, not only a technical report title or a closed serving platform."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Cosmos 3 works across text, image, video, audio, and action-oriented tasks described in NVIDIA's release materials. Readers can condition the family on language prompts, still images, video clips, and audio references, then obtain text answers, generated images, video with synchronized audio, and robot trajectories or policy outputs depending on the selected capability. That multimodal span is the core idea: the same world-model backbone is meant to move between perception, generation, forward simulation, inverse dynamics, and manipulation planning instead of treating each modality as an isolated product surface."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "NVIDIA describes Cosmos 3 as pairing an autoregressive reasoning path with a diffusion-based generation path inside one omnimodal world model. The reasoner side grounds language in spatial layout, temporal cues, object state, and action evidence from images and video. The generator side denoises or synthesizes visual and audio outputs, while conditioning inputs steer both paths toward a requested scene, clip, or trajectory. The architecture graph below shows that split at a high level; the technical report and research page remain the authoritative sources for checkpoint-specific wiring."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Public Cosmos 3 materials emphasize architecture-level ideas—world modeling, multimodal conditioning, autoregressive reasoning, and diffusion generation—rather than a short list of named reusable modules on this site. The related concept pages below are the best anchors for those mechanisms until a future registry slice names Cosmos-specific modules explicitly."
+    },
+    "training": {
+      "title": "Training",
+      "body": "NVIDIA's technical report frames Cosmos 3 as an omnimodal world-model release trained to couple understanding and generation across modalities for physical AI workloads. The public sources summarize training at the family level and focus on what the checkpoints can do after training rather than publishing a step-by-step reproducible recipe on this page."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Cosmos 3 is useful to read as an open world-model family that unifies reasoning and generation for robotics, driving, smart-space, and audio-visual synthesis scenarios described in NVIDIA's release pages. The Nano and Super variants give builders a smaller and a larger checkpoint choice, while the GitHub repository and Hugging Face collection provide the practical entry points for weights and examples. Treat deployment, licensing, and availability details as release-channel facts to confirm in the linked primary sources rather than as fixed promises on this overview page."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Cosmos 3 architecture diagram showing multimodal conditioning inputs feeding an autoregressive reasoner path and a diffusion-based generator path that produce text, image, video, audio, and action outputs."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "multimodalOutputs": {
+        "label": "Text, Image,\nVideo, Audio,\nAction",
+        "summary": "Multimodal outputs the Cosmos 3 family can produce from shared world-model context"
+      },
+      "diffusionGenerator": {
+        "label": "Diffusion-Based\nGenerator",
+        "summary": "Synthesizes images, video, and audio through denoising-style generation"
+      },
+      "autoregressiveReasoner": {
+        "label": "Autoregressive\nReasoner",
+        "summary": "Grounds language in spatial, temporal, and action evidence from visual inputs"
+      },
+      "conditioningInputs": {
+        "label": "Multimodal\nConditioning",
+        "summary": "Text, image, video, and audio references that steer reasoning and generation"
+      }
+    }
+  }
+}
