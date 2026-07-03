@@ -13,6 +13,16 @@
 - Module graph registry nodes must use allowed `moduleKind` values (`block`, `operation`, `input`, `output`, etc.); `convolution` is not a valid enum and fails `generate:graph-registry-runtime`.
 - Story 002 module pages need `page.mdx`, `messages/en.json`, `assets.json`, matching `graph.*` and `table.*` registry records, plus `u-net-module-page.test.ts`-style render coverage; `prepare:content-runtime` auto-adds `module.u-net` to published-docs manifests when the MDX bundle exists.
 - Story 003 module graph slices should pair `buildRegistryFlowGraph` skip-edge assertions with `u-net-module-graph-viewport-http.ts` Playwright probes that require at least two `data-graph-edge-kind="residual"` edges and zero desktop node overlaps.
+- Story 005 module slice verification: use `renderDocsSlugPage` + `getPublishedDocsEntryByRegistryId` for route proof; module shells expose `data-testid="folded-summary"` (not `folded-opening-summary`); pair consolidated slice tests with production-build curl on a unique port.
+- When a new module uses `primaryClassificationId: "classification.module"` and shares `variantGroup: "diffusion-denoising-blocks"`, update `registry-runtime.test.ts` direct-member counts and `related-docs.test.ts` compatibility-peer allowlists to include the new peer.
+- Use `bun run report:merged-pr-drain-rows-reconciliation` to capture read-only queue/PR/worktree evidence for merged PR drain rows #281/#282/#284/#286; target session is `930b51a6-07ce-44e6-a639-7a6217f6e864`.
+- When running planner reports from a nested git worktree, resolve main-repo paths via `resolveMainRepoRoot` / `resolveDefaultWorktreesDir` (`git rev-parse --git-common-dir`) so `.claude/worktrees` and root checkout evidence point at `/Users/abdifamily/work/learn-agent-factories`, not the nested worktree checkout.
+- Distinguish merged PR truth from queue completion truth explicitly; all four PRs can be MERGED while drain rows remain `init/INITIAL`.
+- Use `classifyMergedPrDrainRowOutcome` / `buildMergedPrDrainRowsClassificationReport` for per-row `consume` / `complete` / `no-op` outcomes; stale `init/INITIAL` drain rows with terminal-complete content lanes classify as `consume`, and rows without drain rows classify as `no-op` (`already-settled`).
+- Use `buildMergedPrDrainRowNoOpHandoff` / `buildMergedPrDrainRowsNoOpReport` for explicit no-op handoffs with `row-left-untouched=true`, `missing-evidence`, and `next-safe-owner-action` when blockers apply.
+- Use `buildMergedPrDrainRowsFinalVerificationReport` for post-reconciliation root checkout, baseline-aware content safety (`observedDirtyPaths` on root/worktree evidence), and queue transition summaries; compare dirty paths with `findNewDirtyPaths` so pre-existing worktree drift does not fail verification.
+- Accepted consume operation for standalone merged drain idea rows is `manual-drain-row-move-to-complete` via `you work move <drain-work-id> complete --session 930b51a6-07ce-44e6-a639-7a6217f6e864`; the standard factory `consume` workstation does not apply without a paired task token.
+- Accepted complete operation for non-terminal drain rows is `manual-drain-row-terminal-completion` via the same `you work move <drain-work-id> complete --session <session>` command; `buildMergedPrDrainRowCompleteHandoff` reclassifies to no-op when unfinished implementation/review, PR mismatch, or missing metadata block the transition.
 
 ## 2026-07-01T00:00:00Z - prefill-decode-split-concept-page-001
 - Wired `concept.prefill-decode-split` discovery metadata: added `attention` tag, trimmed `relatedIds` to serving-path foundations, and bumped registry `updatedAt`.
@@ -70,6 +80,69 @@
   - When `main` migrates glossary pages to concepts in parallel, merge conflicts often duplicate `conceptGroup` assertions—merge into one `arrayContaining` block instead of redeclaring the variable.
 ---
 
+## 2026-07-02T19:18:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-001
+- Implemented read-only merged PR drain row evidence capture module, planner report script, unit tests, and process documentation for PRs #281, #282, #284, and #286.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `package.json`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`, `docs/internal/processes/factory-linkage-relevant-files.md`
+- **Learnings for future iterations:**
+  - Model-atlas content lane queue lives in session `930b51a6-07ce-44e6-a639-7a6217f6e864`; default `you work list` omits these rows.
+  - Drain rows `ltx-23-pr281-drain`, `mamba-pr282-drain`, and `glossary-decomposition-pr284-conflict-refresh` are `init/INITIAL` while content lanes are `complete/terminal`; `bpe-page` has no dedicated drain row.
+  - All four merge commits are in `origin/main` lineage at SHA `209d1bd8ced0cced5fd99992fe50f23296d126e8`.
+  - Use `gh pr view <number>` (not open-only `gh pr list`) for merged PR truth lookup.
+---
+
+## 2026-07-02T19:22:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-002
+- Implemented per-row `consume` / `complete` / `no-op` classification on top of the evidence report, extended the planner CLI to emit classification in text/JSON output, and documented live outcomes for all four rows.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Live classification (2026-07-02T19:21:11Z UTC): `ltx-23`/#281, `MAMBA`/#282, and `glossary-decomposition`/#284 → `consume`; `bpe-page`/#286 → `no-op` (`already-settled`, no drain row).
+  - Unavailable worktree metadata does not block classification when queue tokens and PR truth are sufficient; only stamped PR mismatch blocks via `row-pr-mismatch`.
+  - `complete` applies when content lane is terminal-complete but the drain row is non-terminal (not `init/INITIAL`).
+---
+
+## 2026-07-02T19:25:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-003
+- Implemented consume handoff builders/executors for merged drain rows, extended the planner CLI with `--execute-consume`, executed live consume moves for all three drain rows, and documented post-action queue state.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Standalone drain idea rows at `init/INITIAL` with merged PRs and terminal content lanes consume via `you work move <work-id> complete --session <session>`, not the paired `idea:to-complete` + `task:to-complete` factory consume workstation.
+  - Live consume execution (2026-07-02T19:24Z UTC): `ltx-23-pr281-drain`, `mamba-pr282-drain`, and `glossary-decomposition-pr284-conflict-refresh` all moved from `init/INITIAL` to `complete/TERMINAL`.
+  - After consume, classification correctly reclassifies those rows as `no-op` (`already-terminal`) with empty consume handoff sections.
+---
+
+## 2026-07-02T19:32:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-004
+- Implemented complete handoff builders/executors for non-terminal drain rows (`manual-drain-row-terminal-completion`), blocker reclassification to no-op, unified reconciliation output, CLI `--execute-complete`, and live verification showing zero rows need completion.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - `complete` differs from `consume`: it applies when drain rows are non-terminal but not `init/INITIAL`; both use `you work move <work-id> complete --session <session>`.
+  - Complete handoff building is stricter than classification — missing worktree metadata reclassifies to no-op even when queue/PR evidence suffices for classification.
+  - Live state (2026-07-02T19:31Z UTC): all four rows classify as `no-op`; three drain rows are `already-terminal` after story 003 consume; zero rows classified as `complete`.
+---
+
+## 2026-07-02T19:36:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-005
+- Implemented no-op handoff builders/reports with explicit `row-left-untouched`, `missing-evidence`, and `next-safe-owner-action` fields; extended unified reconciliation output and CLI text/JSON to include no-op handoff section.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Live no-op state (2026-07-02T19:35Z UTC): all four rows are `no-op` — three `already-terminal` post-consume drain rows plus `bpe-page` `already-settled`.
+  - No-op handoffs are read-only; they never mutate queue rows and surface owner actions only for unfinished implementation/review or PR/queue blockers.
+  - `buildMergedPrDrainRowsReconciliationOutput` now always includes `noOpReport` alongside consume and complete reports.
+---
+
+## 2026-07-02T19:45:00Z - merged-pr-drain-rows-281-282-284-286-reconciliation-006
+- Implemented final verification report with post-reconciliation root checkout evidence, baseline-aware content safety (`observedDirtyPaths` on root/worktree evidence), queue transition summaries, unified CLI/JSON output, and process documentation.
+- Files changed: `src/lib/factory/merged-pr-drain-rows-reconciliation.ts`, `src/lib/factory/merged-pr-drain-rows-reconciliation.test.ts`, `scripts/report-merged-pr-drain-rows-reconciliation.ts`, `docs/internal/processes/merged-pr-drain-rows-reconciliation-relevant-files.md`
+- **Learnings for future iterations:**
+  - Do not `.trim()` git porcelain lines before `slice(3)` — trimming removes the leading status-column space and corrupts path extraction.
+  - Compare dirty-path baselines with `findNewDirtyPaths` so pre-existing worktree drift does not fail final verification; capture `observedDirtyPaths` during evidence gathering.
+  - Live final state (2026-07-02T19:45Z UTC): all four rows `left-untouched`; queue transitions occurred in story 003; read-only verification passes with content safety intact.
+---
+
+## 2026-07-02T21:15:00Z - mergeability follow-up
+- Merged `origin/main` to resolve PR #297 BLOCKING `progress.txt` add/add merge conflict; combined both branches' Codebase Patterns and chronologically ordered progress entries.
+- Files changed: `progress.txt` (conflict resolution only; merge brought in main-side content updates auto-merged elsewhere).
+- **Learnings for future iterations:**
+  - `progress.txt` add/add conflicts are expected when parallel worktrees each add their own progress log; merge by unioning Codebase Patterns and ordering story entries by timestamp.
+  - Prefer keeping `progress.txt` local-only off review branches when possible; when it is already on the branch, resolving the conflict is required for mergeability.
+---
+
 ## 2026-07-03T00:16:00Z - u-net-module-page-001
 - Published `module.u-net` registry record with denoising-backbone metadata, diffusion aliases, controlled `foundations`/`model-family` tags, and citation links to the original U-Net paper plus DDPM.
 - Wired `relatedIds` to shipped diffusion objective, denoising generation, conditioning, latent space, latent diffusion paper, diffusion transformer block, and DDPM citation; omitted Stable Diffusion because no model record exists on the branch.
@@ -102,4 +175,33 @@
   - Align skip-connection source/target pairs on equal `position.y` values so residual edges read as horizontal bridges between encoder and decoder stages.
   - `renderModuleDocsShell` exposes skip edges in SSR via `data-graph-edge-kind="residual"` even when `<figcaption>` caption text is client-only.
   - Story 004 should expand prose for denoising fit and the brief diffusion-transformer comparison without duplicating graph work.
+---
+
+## 2026-07-03T04:30:00Z - u-net-module-page-004
+- Expanded denoising-fit prose in `whyItExists`, `howItWorks`, and `comparedToNearbyModules` for multiscale context, skip-fed detail preservation, timestep/conditioning steering, and architectural contrast with diffusion transformer blocks.
+- Added `u-net-module-page-004` message and render assertions covering comparison-table cells, DiT navigation, and absence of benchmark-framing language.
+- Ran focused tests, `make validate-data`, typecheck, lint, production build, and browser verification on port 3744 for denoising-fit sections and comparison table.
+- Files changed: `src/content/docs/modules/u-net/messages/en.json`, `src/lib/content/u-net-module-page.test.ts`
+- **Learnings for future iterations:**
+  - Prose auto-linking splits phrases like "conditioning embeddings" and "Patch or latent tokens"; slice tests should assert href targets, data-comparison-cell attributes, or partial phrases instead of contiguous message strings in SSR HTML.
+  - Story 005 should add consolidated slice verification with `renderDocsSlugPage` route proof and adjacent-link resolution checks.
+---
+
+## 2026-07-03T05:30:00Z - u-net-module-page-005
+- Added `u-net-module-slice-verification.test.tsx` consolidating published-docs route binding, `renderDocsSlugPage` metadata/render proof, curated related-link resolution (including Stable Diffusion omission), search alias discovery, tag landing, and full shell rendering for graph, table, tags, related docs, and citations.
+- Ran focused U-Net tests, `make validate-data`, typecheck, lint, production build, and browser verification on port 3745 for `/docs/modules/u-net` without missing-content placeholders.
+- Files changed: `src/lib/content/u-net-module-slice-verification.test.tsx`
+- **Learnings for future iterations:**
+  - Module `renderModuleDocsShell` uses `data-testid="folded-summary"` via `DocsFoldedSummary`; system pages use `folded-opening-summary` instead.
+  - Curated related links for diffusion transformer block may render behind a "Show more" control but remain in SSR HTML for href assertions.
+  - Run `bun run fumadocs-mdx` before slice tests that import `renderDocsSlugPage` because `prepare:content-runtime` can invalidate `.source`.
+---
+
+## 2026-07-03T01:52:00Z - mergeability follow-up (PR #314)
+- Addressed BLOCKING PR #314 feedback: updated `registry-runtime.test.ts` direct-member expectations for `module.u-net` under `classification.module` and extended `related-docs.test.ts` compatibility-peer allowlist for `diffusion-denoising-blocks` peers.
+- Merged `origin/main` to clear `mergeStateStatus: DIRTY` on PR #314.
+- Files changed: `src/lib/content/registry-runtime.test.ts`, `src/lib/content/related-docs.test.ts`, `progress.txt` (conflict resolution only).
+- **Learnings for future iterations:**
+  - Top-level `classification.module` direct members now include both `module.multi-token-prediction` and `module.u-net`; count assertions must track new root-level module records.
+  - Compatibility peer tests for `concept.transformer-architecture` need to allow every published module in the same `variantGroup` as `module.diffusion-transformer-block`.
 ---

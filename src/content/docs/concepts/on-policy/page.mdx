@@ -1,0 +1,85 @@
+---
+title: On-policy training
+description: Learning from examples or trajectories produced by the model or agent policy that is currently being updated.
+kind: "concept"
+registryId: "concept.on-policy"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - alignment
+aliases:
+  - "on-policy"
+  - "on-policy training"
+  - "current policy"
+  - "current-policy data"
+updatedAt: "2026-07-03T01:00:00Z"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section
+  id="current-policy-vs-static"
+  titleKey="sections.currentPolicyVsStatic.title"
+>
+  <T k="sections.currentPolicyVsStatic.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="nearby-regimes" titleKey="sections.nearbyRegimes.title">
+  <T k="sections.nearbyRegimes.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/training/rlhf", labelKey: "links.rlhf" },
+      { href: "/docs/training/rlvr", labelKey: "links.rlvr" },
+      {
+        href: "/docs/training/on-policy-distillation",
+        labelKey: "links.onPolicyDistillation",
+      },
+      { href: "/docs/training/distillation", labelKey: "links.distillation" },
+    ]}
+  />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.on-policy"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.on-policy" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.on-policy" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.on-policy" />
+</Section>
