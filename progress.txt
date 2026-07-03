@@ -20,6 +20,13 @@
 - Use `classifyMergedPrDrainRowOutcome` / `buildMergedPrDrainRowsClassificationReport` for per-row `consume` / `complete` / `no-op` outcomes; stale `init/INITIAL` drain rows with terminal-complete content lanes classify as `consume`, and rows without drain rows classify as `no-op` (`already-settled`).
 - Use `buildMergedPrDrainRowNoOpHandoff` / `buildMergedPrDrainRowsNoOpReport` for explicit no-op handoffs with `row-left-untouched=true`, `missing-evidence`, and `next-safe-owner-action` when blockers apply.
 - Use `buildMergedPrDrainRowsFinalVerificationReport` for post-reconciliation root checkout, baseline-aware content safety (`observedDirtyPaths` on root/worktree evidence), and queue transition summaries; compare dirty paths with `findNewDirtyPaths` so pre-existing worktree drift does not fail verification.
+- Blog index route: use `renderBlogIndexPage` in `site-renderers.tsx` with `listPublishedBlogPosts` from `blog-post-list.ts` (sidecar-only) instead of compiling MDX for every card on `/blog`.
+- Blog index cards live in `BlogIndexPostList`; reuse `DocsIndexEmptyState`, `docsResourceCardLinkClassName`, and `blogIndex` UI messages for docs-native chrome.
+- Static render tests for blog dates should assert React `dateTime` attributes, not lowercase `datetime`.
+- Assert newest-first blog index card order in route render tests with `indexOf` on `/blog/<slug>` href positions; loader tie-breaker coverage stays in `blog-post-list.test.ts`.
+- Blog post route: use `renderBlogPostPage` with `getPublishedBlogPostBySlug` gating before MDX load; optional `blogRoot` supports fixture tests.
+- Story 004 slice verification: add `blog-routes-slice-verification.test.tsx` for consolidated `/blog` metadata/render, `/blog/<slug>` body content, ordering, and unknown-slug missing-page proof; import route `generateMetadata`/`generateStaticParams` from `src/app/(site)/blog/**/page.tsx`.
+- `BlogPostMeta` shows published date, authors, and tags above the article body; disable `DocsPage` footer in blog render tests via `footer={{ enabled: false }}`.
 - Accepted consume operation for standalone merged drain idea rows is `manual-drain-row-move-to-complete` via `you work move <drain-work-id> complete --session 930b51a6-07ce-44e6-a639-7a6217f6e864`; the standard factory `consume` workstation does not apply without a paired task token.
 - Accepted complete operation for non-terminal drain rows is `manual-drain-row-terminal-completion` via the same `you work move <drain-work-id> complete --session <session>` command; `buildMergedPrDrainRowCompleteHandoff` reclassifies to no-op when unfinished implementation/review, PR mismatch, or missing metadata block the transition.
 
@@ -231,4 +238,65 @@
 - **Learnings for future iterations:**
   - Main can carry a committed published blog bundle (`roofline-throughput-explorer`) while shell isolation tests still pass; empty-list assertions on `listPublishedBlogPosts()` are stale after blog content landed.
   - Keep mergeability-only fixes scoped to the failing assertion and document them separately from PRD story work in progress notes and PR conversation.
+---
+
+## 2026-07-03T06:40:00Z - blog-routes-layout-index-001
+- Implemented documentation-native `/blog` index via `renderBlogIndexPage` with compact `BlogIndexPostList` cards showing title, description, published date, tags, and accessible post links.
+- Added `blogIndex` UI messages (en/ja/vi), `formatBlogPublishedDate`, route render tests with fixture `blogRoot` override and empty-state coverage, and process documentation.
+- Removed duplicate `getBlogRoot` export from `content-paths.ts` and switched the index loader to sidecar-only `blog-post-list.ts`.
+- Files changed: `src/app/(site)/blog/page.tsx`, `src/app/(site)/site-renderers.tsx`, `src/features/blog/components/BlogIndexPostList.tsx`, `src/lib/content/blog-published-date.ts`, `src/lib/content/content-paths.ts`, `src/lib/content/ui-messages.types.ts`, `src/content/messages/*/common.json`, `src/tests/content/blog-index.test.tsx`, `docs/internal/processes/blog-routes-layout-index-relevant-files.md`
+- **Learnings for future iterations:**
+  - Prefer `listPublishedBlogPosts` from `blog-post-list.ts` for `/blog`; `blog-page-load.listPublishedBlogPosts` compiles full MDX and is better reserved for post routes.
+  - React static markup uses `dateTime` on `<time>` elements; route tests should not assert lowercase `datetime`.
+  - Production `bun run build` can fail with `ENOSPC` on low disk; clearing `.next` may be insufficient when the volume is near full. Dev server may also fail with Turbopack workspace-root inference in nested worktrees.
+---
+
+## 2026-07-03T07:05:00Z - blog-routes-layout-index-002
+- Verified newest-first `/blog` ordering via existing `compareBlogPostsByPublishedAtNewestFirst` in `blog-post-list.ts` and added route render coverage proving newer fixture cards appear before older ones while draft posts stay hidden.
+- Documented href-position ordering assertions in `blog-routes-layout-index-relevant-files.md`.
+- Files changed: `src/tests/content/blog-index.test.tsx`, `docs/internal/processes/blog-routes-layout-index-relevant-files.md`
+- **Learnings for future iterations:**
+  - Story 001 already wired `listPublishedBlogPosts` sorting into `renderBlogIndexPage`; story 002 mainly needed route-level proof, not new sort logic.
+  - Use `blogPostHrefPosition` helpers mirroring `browse-index.test.tsx` when asserting card order in static HTML.
+  - Skip `bun run start` when verifying built output; `bun ./scripts/run-next.ts start` avoids redundant `prepare:content-runtime` and is ready faster on unique ports.
+---
+
+## 2026-07-03T07:20:00Z - blog-routes-layout-index-003
+- Implemented `renderBlogPostPage` with `BlogPostMeta` for published date, authors, and tags; delegated `/blog/[slug]` to the shared renderer with `getPublishedBlogPostBySlug` gating for draft and unknown slugs.
+- Extended `loadBlogPostFromDisk` with optional `blogRoot` and missing `assets.json` tolerance; added route render tests and browser verification on port 3746 for roofline post metadata/body and 404 on unknown slugs.
+- Files changed: `src/app/(site)/blog/[slug]/page.tsx`, `src/app/(site)/site-renderers.tsx`, `src/features/blog/components/BlogPostMeta.tsx`, `src/lib/content/blog-author-name.ts`, `src/lib/content/blog-author-name.test.ts`, `src/lib/content/blog-page-load.ts`, `src/lib/content/blog-page.ts`, `src/lib/content/blog-shell-render.tsx`, `src/tests/content/blog-post.test.tsx`, `docs/internal/processes/blog-routes-layout-index-relevant-files.md`
+- **Learnings for future iterations:**
+  - Gate blog post routes through `getPublishedBlogPostBySlug` before compiling MDX so unknown and draft slugs hit `notFound()` instead of filesystem throws.
+  - Static `renderBlogPostPage` tests need `footer={{ enabled: false }}` on `DocsPage` to avoid Fumadocs tree-context errors.
+  - `loadBlogPostFromDisk` should mirror sidecar loading and treat absent `assets.json` as `{}` for fixture posts.
+  - Use `bun ./scripts/run-next.ts start -p <port>` (not `start -- -p`) when serving built output from nested worktrees.
+---
+
+## 2026-07-03T07:35:00Z - blog-routes-layout-index-004
+- Added consolidated `blog-routes-slice-verification.test.tsx` proving English `/blog` route metadata, index render from post metadata, `/blog/<slug>` body content, newest-first ordering, and unknown-slug missing-page behavior through observable HTML and route handlers.
+- Documented the slice verification command in `blog-routes-layout-index-relevant-files.md`.
+- Files changed: `src/tests/content/blog-routes-slice-verification.test.tsx`, `docs/internal/processes/blog-routes-layout-index-relevant-files.md`
+- **Learnings for future iterations:**
+  - Story 004 consolidates route proof from stories 001–003; import `generateMetadata` and `generateStaticParams` from `src/app/(site)/blog/**/page.tsx` for app-route metadata coverage alongside `renderBlogIndexPage` / `renderBlogPostPage`.
+  - Unknown blog slugs return `{}` from `generateBlogPostMetadata` and throw `notFound()` from `renderBlogPostPage`; slice tests should cover both surfaces.
+  - Biome expects `[slug]` imports before `page` imports when organizing blog route test imports.
+---
+
+## 2026-07-03T07:45:00Z - mergeability follow-up
+- Merged `origin/main` into PR #327 and kept this branch's docs-shell blog route handlers when resolving conflicts in `src/app/(site)/blog/page.tsx` and `src/app/(site)/blog/[slug]/page.tsx` against main's interim blog stub pages.
+- Files changed: merge from `origin/main`; conflict resolution in blog route pages only.
+- **Learnings for future iterations:**
+- Main can land interim blog route stubs while a feature branch carries the full `renderBlogIndexPage` / `renderBlogPostPage` surface; always prefer the branch's renderer delegation during merge conflicts.
+- PR mergeability may show `CONFLICTING` before CI starts; merge main early once all PRD stories pass.
+- BLOCKING review on local `make test` timeouts is usually unrelated search/glossary convergence flakiness; extend per-test timeouts (glossary render groups to 60s, search panel GQA to 90s, a11y empty-results to 60s) rather than changing blog route code when CI is green.
+---
+
+## 2026-07-03T09:55:00Z - mergeability follow-up (BLOCKING make test)
+- Addressed PR #327 BLOCKING feedback: extended per-test timeouts for full-suite flakiness in `glossary-opening-convergence.test.tsx` (render groups 20s→60s), `search-page-panel.test.tsx` (GQA row 30s→90s), and `search-page-panel.a11y.test.tsx` (empty-results row 30s→60s).
+- Verified local `make test` at head `de6d83bc`: 3952 pass, 0 fail (~3371s, UTC 2026-07-03T09:51:03Z).
+- Files changed: `src/lib/content/glossary-opening-convergence.test.tsx`, `src/tests/search/search-page-panel.test.tsx`, `src/tests/a11y/search-page-panel.a11y.test.tsx`, `docs/internal/processes/blog-routes-layout-index-relevant-files.md`
+- **Learnings for future iterations:**
+  - Glossary render group 4 alone takes ~22s; the prior 20s per-group timeout fails under aggregate suite load even when CI stays green.
+  - Search panel GQA and a11y empty-results rows pass quickly in isolation but need higher per-test budgets when `run-website-functionality-tests.ts` runs the full website matrix.
+  - No blog route code changes were required; this was inherited convergence-test timeout pressure, not a blog regression.
 ---
