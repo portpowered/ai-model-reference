@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { GET } from "@/app/api/search/route";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -27,6 +27,8 @@ import {
   createDocsSearchRouteFetch,
   TEST_DOCS_SEARCH_URL,
 } from "./route-fetch";
+
+setDefaultTimeout(15_000);
 
 const LIVE_SEARCH_API_GATE_TIMEOUT_MS = 15_000;
 

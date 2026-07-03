@@ -30,6 +30,7 @@ import {
   textContainsRootMainLagStaleMarker,
   upsertRootMainLagCurrentTruthResolutionSection,
 } from "@/lib/factory/planner-root-main-lag-current-truth-reconciliation";
+import { createIsolatedGitProcessEnv } from "@/lib/factory/repo-path-resolution";
 
 const FIXTURE_DIR = join(
   import.meta.dir,
@@ -91,12 +92,16 @@ const MUTATING_GIT_COMMANDS = new Set([
 ]);
 
 function runGit(repoRoot: string, args: string[]): void {
-  const result = spawnSync("git", args, {
+  const result = spawnGitInFixture(repoRoot, args);
+  expect(result.status).toBe(0);
+}
+
+function spawnGitInFixture(repoRoot: string, args: string[]) {
+  return spawnSync("git", args, {
     cwd: repoRoot,
     encoding: "utf8",
+    env: createIsolatedGitProcessEnv(),
   });
-
-  expect(result.status).toBe(0);
 }
 
 function createFixtureRepo(): string {
@@ -160,17 +165,17 @@ describe("captureRootMainLagGitTruth", () => {
   test("records clean behind relationship when origin/main is ahead of HEAD", () => {
     const repoRoot = createFixtureRepo();
     try {
-      const behindHead = spawnSync("git", ["rev-parse", "HEAD"], {
-        cwd: repoRoot,
-        encoding: "utf8",
-      }).stdout.trim();
+      const behindHead = spawnGitInFixture(repoRoot, [
+        "rev-parse",
+        "HEAD",
+      ]).stdout.trim();
       writeFileSync(join(repoRoot, "ahead-on-remote.md"), "remote\n");
       runGit(repoRoot, ["add", "ahead-on-remote.md"]);
       runGit(repoRoot, ["commit", "-m", "ahead on remote"]);
-      const originMainSha = spawnSync("git", ["rev-parse", "HEAD"], {
-        cwd: repoRoot,
-        encoding: "utf8",
-      }).stdout.trim();
+      const originMainSha = spawnGitInFixture(repoRoot, [
+        "rev-parse",
+        "HEAD",
+      ]).stdout.trim();
       runGit(repoRoot, ["reset", "--hard", behindHead]);
       runGit(repoRoot, [
         "update-ref",
@@ -222,19 +227,19 @@ describe("captureRootMainLagGitTruth", () => {
       writeFileSync(join(repoRoot, "local.md"), "local\n");
       runGit(repoRoot, ["add", "local.md"]);
       runGit(repoRoot, ["commit", "-m", "local commit"]);
-      const localHead = spawnSync("git", ["rev-parse", "HEAD"], {
-        cwd: repoRoot,
-        encoding: "utf8",
-      }).stdout.trim();
+      const localHead = spawnGitInFixture(repoRoot, [
+        "rev-parse",
+        "HEAD",
+      ]).stdout.trim();
       runGit(repoRoot, ["checkout", "main"]);
       runGit(repoRoot, ["reset", "--hard", "HEAD~1"]);
       writeFileSync(join(repoRoot, "remote.md"), "remote\n");
       runGit(repoRoot, ["add", "remote.md"]);
       runGit(repoRoot, ["commit", "-m", "remote commit"]);
-      const originMainSha = spawnSync("git", ["rev-parse", "HEAD"], {
-        cwd: repoRoot,
-        encoding: "utf8",
-      }).stdout.trim();
+      const originMainSha = spawnGitInFixture(repoRoot, [
+        "rev-parse",
+        "HEAD",
+      ]).stdout.trim();
       runGit(repoRoot, ["checkout", localHead]);
       runGit(repoRoot, [
         "update-ref",
@@ -268,10 +273,7 @@ describe("captureRootMainLagGitTruth", () => {
         statusOutput: "",
         runGit: (_repoRoot, args) => {
           invokedGitCommands.push([...args]);
-          return spawnSync("git", [...args], {
-            cwd: repoRoot,
-            encoding: "utf8",
-          });
+          return spawnGitInFixture(repoRoot, [...args]);
         },
         runGitStatus: () => "",
       });
@@ -676,17 +678,17 @@ describe("performRootMainLagReconciliation", () => {
   test("fast-forwards a clean behind root and records before and after commit identities", () => {
     const repoRoot = createFixtureRepo();
     try {
-      const behindHead = spawnSync("git", ["rev-parse", "HEAD"], {
-        cwd: repoRoot,
-        encoding: "utf8",
-      }).stdout.trim();
+      const behindHead = spawnGitInFixture(repoRoot, [
+        "rev-parse",
+        "HEAD",
+      ]).stdout.trim();
       writeFileSync(join(repoRoot, "ahead-on-remote.md"), "remote\n");
       runGit(repoRoot, ["add", "ahead-on-remote.md"]);
       runGit(repoRoot, ["commit", "-m", "ahead on remote"]);
-      const originMainSha = spawnSync("git", ["rev-parse", "HEAD"], {
-        cwd: repoRoot,
-        encoding: "utf8",
-      }).stdout.trim();
+      const originMainSha = spawnGitInFixture(repoRoot, [
+        "rev-parse",
+        "HEAD",
+      ]).stdout.trim();
       runGit(repoRoot, ["reset", "--hard", behindHead]);
       runGit(repoRoot, [
         "update-ref",
@@ -709,6 +711,56 @@ describe("performRootMainLagReconciliation", () => {
       expect(handoff.gitTruth.headCommit.sha).toBe(originMainSha);
       expect(handoff.gitTruth.remoteRelationship).toBe("aligned");
     } finally {
+      rmSync(join(repoRoot, ".."), { recursive: true, force: true });
+    }
+  });
+
+  test("fast-forwards behind root when nested worktree git env pollutes process.env", () => {
+    const repoRoot = createFixtureRepo();
+    const previousGitDir = process.env.GIT_DIR;
+    const previousGitWorkTree = process.env.GIT_WORK_TREE;
+    process.env.GIT_DIR = join(process.cwd(), ".git");
+    process.env.GIT_WORK_TREE = process.cwd();
+    try {
+      const behindHead = spawnGitInFixture(repoRoot, [
+        "rev-parse",
+        "HEAD",
+      ]).stdout.trim();
+      writeFileSync(join(repoRoot, "ahead-on-remote.md"), "remote\n");
+      runGit(repoRoot, ["add", "ahead-on-remote.md"]);
+      runGit(repoRoot, ["commit", "-m", "ahead on remote"]);
+      const originMainSha = spawnGitInFixture(repoRoot, [
+        "rev-parse",
+        "HEAD",
+      ]).stdout.trim();
+      runGit(repoRoot, ["reset", "--hard", behindHead]);
+      runGit(repoRoot, [
+        "update-ref",
+        "refs/remotes/origin/main",
+        originMainSha,
+      ]);
+
+      const handoff = performRootMainLagReconciliation({
+        apply: true,
+        generatedAtUtc: "2026-07-02T21:00:00.000Z",
+        repoRoot,
+        remoteBaseRef: "origin/main",
+        statusOutput: "",
+      });
+
+      expect(handoff.outcome?.kind).toBe("root-sync-handoff");
+      expect(handoff.gitTruth.remoteRelationship).toBe("aligned");
+    } finally {
+      if (previousGitDir === undefined) {
+        delete process.env.GIT_DIR;
+      } else {
+        process.env.GIT_DIR = previousGitDir;
+      }
+      if (previousGitWorkTree === undefined) {
+        delete process.env.GIT_WORK_TREE;
+      } else {
+        process.env.GIT_WORK_TREE = previousGitWorkTree;
+      }
       rmSync(join(repoRoot, ".."), { recursive: true, force: true });
     }
   });
@@ -739,10 +791,7 @@ describe("performRootMainLagReconciliation", () => {
         statusOutput: "",
         runGit: (_root, args) => {
           invokedGitCommands.push([...args]);
-          return spawnSync("git", [...args], {
-            cwd: repoRoot,
-            encoding: "utf8",
-          });
+          return spawnGitInFixture(repoRoot, [...args]);
         },
       });
 

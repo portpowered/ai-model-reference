@@ -13,9 +13,12 @@ import {
   type TopologyDocsPageContentByRegistryId,
   TopologyPrototype,
 } from "@/features/ai/topology";
+import { BlogIndexPostList } from "@/features/blog/components/BlogIndexPostList";
+import { BlogPostMeta } from "@/features/blog/components/BlogPostMeta";
 import { BrowseAtlasPage } from "@/features/docs/components/BrowseAtlasPage";
 import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
 import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { StaticExportBrowsePage } from "@/features/docs/components/StaticExportBrowsePage";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import {
@@ -32,6 +35,12 @@ import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState"
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
+import {
+  blogPostHref,
+  loadBlogPostFromDisk,
+} from "@/lib/content/blog-page-load";
+import { getPublishedBlogPostBySlug } from "@/lib/content/blog-post-get";
+import { listPublishedBlogPosts } from "@/lib/content/blog-post-list";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import {
   loadPublishedDocsPages,
@@ -93,6 +102,98 @@ export type TimelinePageProps = SearchPageProps;
 export type TagLandingPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export type BlogIndexPageOptions = {
+  /** Blog content root override for fixture tests (defaults to production `BLOG_ROOT`). */
+  blogRoot?: string;
+};
+
+export type BlogPostPageOptions = {
+  /** Blog content root override for fixture tests (defaults to production `BLOG_ROOT`). */
+  blogRoot?: string;
+};
+
+export async function renderBlogPostPage(
+  slug: string,
+  locale: SiteLocale = defaultLocale,
+  options: BlogPostPageOptions = {},
+) {
+  const published = await getPublishedBlogPostBySlug(slug, {
+    blogRoot: options.blogRoot,
+    locale,
+  });
+
+  if (!published) {
+    notFound();
+  }
+
+  const post = await loadBlogPostFromDisk(slug, locale, {
+    blogRoot: options.blogRoot,
+  });
+
+  return (
+    <DocsPage
+      breadcrumb={{ enabled: false }}
+      footer={{ enabled: false }}
+      toc={post.toc}
+    >
+      <ModulePageProviders messages={post.messages} assets={post.assets}>
+        <DocsTitle>{post.messages.title}</DocsTitle>
+        <DocsDescription>{post.messages.description}</DocsDescription>
+        <BlogPostMeta
+          publishedAt={post.frontmatter.publishedAt}
+          authors={post.frontmatter.authors}
+          tags={post.frontmatter.tags}
+        />
+        <DocsBody>
+          <article data-blog-slug={post.slug}>{post.content}</article>
+        </DocsBody>
+      </ModulePageProviders>
+    </DocsPage>
+  );
+}
+
+export async function renderBlogIndexPage(
+  locale: SiteLocale = defaultLocale,
+  options: BlogIndexPageOptions = {},
+) {
+  const messages = await loadUiMessages(locale);
+  const posts = await listPublishedBlogPosts({
+    blogRoot: options.blogRoot,
+    locale,
+  });
+  const { blogIndex } = messages;
+
+  return (
+    <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+      <DocsTitle>{blogIndex.title}</DocsTitle>
+      <DocsDescription>{blogIndex.description}</DocsDescription>
+      <DocsBody>
+        {posts.length === 0 ? (
+          <DocsIndexEmptyState
+            title={blogIndex.emptyTitle}
+            description={blogIndex.emptyDescription}
+            homeLinkLabel={blogIndex.emptyHomeLink}
+            messages={messages}
+            locale={locale}
+          />
+        ) : (
+          <BlogIndexPostList
+            listLabel={blogIndex.listLabel}
+            posts={posts.map((post) => ({
+              slug: post.slug,
+              title: post.messages.title,
+              description: post.messages.description,
+              publishedAt: post.frontmatter.publishedAt,
+              tags: post.frontmatter.tags,
+              href: blogPostHref(post.slug, locale),
+            }))}
+          />
+        )}
+      </DocsBody>
+    </DocsPage>
+  );
+}
 
 export async function renderHomePage(locale: SiteLocale = defaultLocale) {
   const messages = await loadUiMessages(locale);
@@ -546,7 +647,12 @@ export async function renderTagLandingPage(
             locale={locale}
           />
         ) : (
-          <TagResourceList groups={groups} listLabel={tagLanding.listLabel} />
+          <TagResourceList
+            groups={groups}
+            listLabel={tagLanding.listLabel}
+            tagSlug={slug}
+            locale={locale}
+          />
         )}
       </DocsBody>
     </DocsPage>

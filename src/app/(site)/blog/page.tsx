@@ -1,50 +1,20 @@
-import {
-  DocsBody,
-  DocsDescription,
-  DocsPage,
-  DocsTitle,
-} from "fumadocs-ui/layouts/docs/page";
-import Link from "next/link";
-import {
-  blogPostHref,
-  listPublishedBlogPosts,
-} from "@/lib/content/blog-page-load";
+import type { Metadata } from "next";
+import { blogIndexHref } from "@/lib/content/blog-page-load";
+import { loadUiMessages } from "@/lib/content/ui-messages";
+import { renderBlogIndexPage } from "../site-renderers";
 
-export const metadata = {
-  title: "Blog",
-  description:
-    "Narrative posts that connect releases and model concepts back to canonical reference pages.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const messages = await loadUiMessages();
+
+  return {
+    title: messages.blogIndex.title,
+    description: messages.blogIndex.description,
+    alternates: {
+      canonical: blogIndexHref(),
+    },
+  };
+}
 
 export default async function BlogIndexPage() {
-  const posts = await listPublishedBlogPosts();
-
-  return (
-    <DocsPage breadcrumb={{ enabled: false }}>
-      <DocsTitle>Blog</DocsTitle>
-      <DocsDescription>
-        Narrative posts that connect releases and model concepts back to
-        canonical reference pages.
-      </DocsDescription>
-      <DocsBody>
-        <ul className="space-y-4">
-          {posts.map((post) => (
-            <li key={post.slug}>
-              <Link
-                href={blogPostHref(post.slug)}
-                className="block rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary"
-              >
-                <h2 className="text-lg font-semibold text-foreground">
-                  {post.messages.title}
-                </h2>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {post.messages.description}
-                </p>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </DocsBody>
-    </DocsPage>
-  );
+  return renderBlogIndexPage();
 }

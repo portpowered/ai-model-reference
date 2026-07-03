@@ -220,7 +220,7 @@ describe("enrichSearchDocument", () => {
     );
   });
 
-  test("adds classification, relationship, legacy taxonomy, and model or module facets", () => {
+  test("adds classification, relationship, and legacy taxonomy facets without AI-only model or module fields", () => {
     const moduleRoot = buildClassification({
       id: "classification.module",
       slug: "module",
@@ -268,10 +268,10 @@ describe("enrichSearchDocument", () => {
     expect(enriched.facets.legacyConceptType).toBe("attention-variant");
     expect(enriched.facets.legacyVariantGroup).toBe("attention-head-sharing");
     expect(enriched.facets.moduleType).toBe("attention");
-    expect(enriched.facets.optimizes).toEqual(["kv-cache"]);
+    expect(enriched.facets).not.toHaveProperty("optimizes");
   });
 
-  test("adds model-specific facets for model records", () => {
+  test("does not add AI-only model facets for model records", () => {
     const modelRecord = buildModel();
     const indexes = buildRegistryIndexes([modelRecord]);
     const base = buildSyntheticBase({
@@ -282,12 +282,10 @@ describe("enrichSearchDocument", () => {
 
     const enriched = enrichSearchDocument(base, indexes);
 
-    expect(enriched.facets.modelFamily).toBe("gpt");
-    expect(enriched.facets.sourceType).toBe("closed");
-    expect(enriched.facets.modalities).toEqual(["text"]);
-    expect(enriched.facets.trainingRegimeIds).toEqual([
-      "training-regime.pretraining",
-    ]);
+    expect(enriched.facets).not.toHaveProperty("modelFamily");
+    expect(enriched.facets).not.toHaveProperty("sourceType");
+    expect(enriched.facets).not.toHaveProperty("modalities");
+    expect(enriched.facets).not.toHaveProperty("trainingRegimeIds");
   });
 
   test("keeps topology terms searchable through structured data and Orama topology text", () => {

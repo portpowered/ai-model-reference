@@ -46,6 +46,7 @@ import {
   serializeOwnerlessGeneratedTableRegistryDriftEvidenceReport,
   type TableRegistrySourceCatalog,
 } from "@/lib/factory/ownerless-generated-table-registry-drift";
+import { createIsolatedGitProcessEnv } from "@/lib/factory/repo-path-resolution";
 
 const TABLE_REGISTRY_ARTIFACT_DIRTY_STATUS_FIXTURE = readFileSync(
   join(
@@ -82,12 +83,59 @@ const MUTATING_GIT_COMMANDS = new Set([
   "write-tree",
 ]);
 
-function runGit(repoRoot: string, args: string[]): void {
+function spawnIsolatedGit(
+  repoRoot: string,
+  args: string[],
+): { status: number | null; stdout: string; stderr: string } {
   const result = spawnSync("git", args, {
     cwd: repoRoot,
     encoding: "utf8",
+    env: createIsolatedGitProcessEnv(),
   });
+  return {
+    status: result.status,
+    stdout: result.stdout ?? "",
+    stderr: result.stderr ?? "",
+  };
+}
+
+function runGit(repoRoot: string, args: string[]): void {
+  const result = spawnIsolatedGit(repoRoot, args);
   expect(result.status).toBe(0);
+}
+
+function spawnScriptInFixtureRepo(
+  fixture: { mainRef: string; repoRoot: string },
+  extraArgs: string[] = [],
+  inheritedGitEnv: Record<string, string> = {},
+): ReturnType<typeof spawnSync> {
+  return spawnSync(
+    "bun",
+    [
+      "./scripts/report-ownerless-generated-table-registry-drift.ts",
+      "--repo-root",
+      fixture.repoRoot,
+      "--remote-base-ref",
+      fixture.mainRef,
+      ...extraArgs,
+    ],
+    {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      env: {
+        ...createIsolatedGitProcessEnv(),
+        ...inheritedGitEnv,
+      },
+    },
+  );
+}
+
+function readFixtureGitStatus(repoRoot: string): string {
+  return spawnIsolatedGit(repoRoot, [
+    "status",
+    "--porcelain=v1",
+    "--untracked-files=all",
+  ]).stdout;
 }
 
 function createFixtureRepo(): {
@@ -357,10 +405,7 @@ export const generatedTableRegistryPayloads = [
         remoteBaseRef: fixture.mainRef,
         repoRoot: fixture.repoRoot,
         runGit: (repoRoot, args) => {
-          const result = spawnSync("git", [...args], {
-            cwd: repoRoot,
-            encoding: "utf8",
-          });
+          const result = spawnIsolatedGit(repoRoot, [...args]);
           return {
             status: result.status,
             stdout: result.stdout ?? "",
@@ -385,23 +430,13 @@ export const generatedTableRegistryPayloads = [
   test("captures dirty artifact status and looped-transformers entry from fixture repo", () => {
     const fixture = createFixtureRepo();
     try {
-      const statusOutput = spawnSync(
-        "git",
-        ["status", "--porcelain=v1", "--untracked-files=all"],
-        {
-          cwd: fixture.repoRoot,
-          encoding: "utf8",
-        },
-      ).stdout;
+      const statusOutput = readFixtureGitStatus(fixture.repoRoot);
 
       const evidence = captureGeneratedTableRegistryArtifactEvidence({
         artifactPath: fixture.artifactPath,
         repoRoot: fixture.repoRoot,
         runGit: (repoRoot, args) => {
-          const result = spawnSync("git", [...args], {
-            cwd: repoRoot,
-            encoding: "utf8",
-          });
+          const result = spawnIsolatedGit(repoRoot, [...args]);
           return {
             status: result.status,
             stdout: result.stdout ?? "",
@@ -534,26 +569,12 @@ export const generatedTableRegistryPayloads = [
   test("report script reads fixture status without mutating git state", () => {
     const fixture = createFixtureRepo();
     try {
-      const statusBefore = spawnSync(
-        "git",
-        ["status", "--porcelain=v1", "--untracked-files=all"],
-        {
-          cwd: fixture.repoRoot,
-          encoding: "utf8",
-        },
-      ).stdout;
+      const statusBefore = readFixtureGitStatus(fixture.repoRoot);
 
-      const result = spawnSync(
-        "bun",
-        [
-          "./scripts/report-ownerless-generated-table-registry-drift.ts",
-          "--repo-root",
-          fixture.repoRoot,
-          "--remote-base-ref",
-          fixture.mainRef,
-        ],
-        { cwd: process.cwd(), encoding: "utf8" },
-      );
+      const result = spawnScriptInFixtureRepo(fixture, [], {
+        GIT_DIR: join(process.cwd(), ".git"),
+        GIT_WORK_TREE: process.cwd(),
+      });
 
       expect(result.status).toBe(0);
       expect(result.stdout).toContain(
@@ -563,14 +584,7 @@ export const generatedTableRegistryPayloads = [
       expect(result.stdout).toContain(OBSERVED_TABLE_ENTRY_FILE_NAME);
       expect(result.stdout).toContain("observation-kind=added-in-diff");
 
-      const statusAfter = spawnSync(
-        "git",
-        ["status", "--porcelain=v1", "--untracked-files=all"],
-        {
-          cwd: fixture.repoRoot,
-          encoding: "utf8",
-        },
-      ).stdout;
+      const statusAfter = readFixtureGitStatus(fixture.repoRoot);
       expect(statusAfter).toBe(statusBefore);
     } finally {
       fixture.cleanup();
@@ -1150,26 +1164,9 @@ export const generatedTableRegistryPayloads = [
         JSON.stringify({ id: OBSERVED_TABLE_ENTRY_ID }),
       );
 
-      const statusBefore = spawnSync(
-        "git",
-        ["status", "--porcelain=v1", "--untracked-files=all"],
-        {
-          cwd: fixture.repoRoot,
-          encoding: "utf8",
-        },
-      ).stdout;
+      const statusBefore = readFixtureGitStatus(fixture.repoRoot);
 
-      const result = spawnSync(
-        "bun",
-        [
-          "./scripts/report-ownerless-generated-table-registry-drift.ts",
-          "--repo-root",
-          fixture.repoRoot,
-          "--remote-base-ref",
-          fixture.mainRef,
-        ],
-        { cwd: process.cwd(), encoding: "utf8" },
-      );
+      const result = spawnScriptInFixtureRepo(fixture);
 
       expect(result.status).toBe(0);
       expect(result.stdout).toContain(
@@ -1189,14 +1186,7 @@ export const generatedTableRegistryPayloads = [
       expect(result.stdout).toContain("evidence-summary=");
       expect(result.stdout).toContain("classification-clarity=clear");
 
-      const statusAfter = spawnSync(
-        "git",
-        ["status", "--porcelain=v1", "--untracked-files=all"],
-        {
-          cwd: fixture.repoRoot,
-          encoding: "utf8",
-        },
-      ).stdout;
+      const statusAfter = readFixtureGitStatus(fixture.repoRoot);
       expect(statusAfter).toBe(statusBefore);
     } finally {
       fixture.cleanup();

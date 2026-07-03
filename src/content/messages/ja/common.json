@@ -232,6 +232,14 @@
     "emptyDescription": "公開されたアーキテクチャ概念ページと、architecture コンテンツ群のページがここに表示されます。それまではホームに戻るか検索を開いて、モジュールやタグを参照してください。",
     "emptyHomeLink": "ホームに戻る"
   },
+  "blogIndex": {
+    "title": "Blog",
+    "description": "リリースや serving の概念を正規リファレンスページへつなぐナラティブ投稿です。",
+    "listLabel": "ブログ投稿",
+    "emptyTitle": "ブログ投稿はまだありません",
+    "emptyDescription": "公開されたナラティブ投稿は、アトラスに追加されるとここに表示されます。それまではホームに戻るか検索を開いて、モデル、モジュール、概念を参照してください。",
+    "emptyHomeLink": "ホームに戻る"
+  },
   "topologyPrototype": {
     "title": "トポロジー",
     "description": "公開済みの classification、concept、module をまたぐトポロジー関係です。",

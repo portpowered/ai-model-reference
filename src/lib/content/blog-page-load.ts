@@ -57,18 +57,26 @@ export function listBlogSlugs(blogRoot = getBlogRoot()): string[] {
     .sort((left, right) => left.localeCompare(right));
 }
 
+export type LoadBlogPostFromDiskOptions = {
+  /** Blog content root override for fixture tests (defaults to production `BLOG_ROOT`). */
+  blogRoot?: string;
+};
+
 export async function loadBlogPostFromDisk(
   slug: string,
   locale: SiteLocale = defaultLocale,
+  options: LoadBlogPostFromDiskOptions = {},
 ): Promise<LoadedBlogPost> {
-  const pageDir = getBlogPageDir(slug);
+  const pageDir = getBlogPageDir(slug, options.blogRoot);
   const mdxPath = join(pageDir, "page.mdx");
   const assetsPath = join(pageDir, "assets.json");
   const route = blogPostHref(slug, locale);
 
   const source = readFileSync(mdxPath, "utf8");
   const messages = await loadPageMessages(pageDir, locale, { route });
-  const assets = parsePageAssetConfig(readJsonFile(assetsPath));
+  const assets = existsSync(assetsPath)
+    ? parsePageAssetConfig(readJsonFile(assetsPath))
+    : {};
 
   const { content, frontmatter } = await compileMDX<BlogPostFrontmatter>({
     source,
