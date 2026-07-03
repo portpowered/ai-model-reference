@@ -95,6 +95,41 @@ describe("audit-canonical-page-surface script", () => {
     expect(result.stdout ?? "").not.toContain("shared hotspot surface");
   });
 
+  test("classifies the branch diff against an explicit base ref", () => {
+    const repoRoot = initAuditFixtureRepo();
+
+    try {
+      const result = spawnSync(
+        "bun",
+        [
+          "./scripts/audit-canonical-page-surface.ts",
+          "--repo-root",
+          repoRoot,
+          "--base",
+          "main",
+        ],
+        {
+          cwd: process.cwd(),
+          encoding: "utf8",
+        },
+      );
+
+      expect(result.status).toBe(0);
+      expect(result.stdout ?? "").toContain(
+        "Changed paths: current branch vs main",
+      );
+      expect(result.stdout ?? "").toContain("Budget status: over-budget");
+      expect(result.stdout ?? "").toContain(
+        "src/lib/content/generated/runtime.generated.ts -> declared generated output (generated artifact/runtime churn)",
+      );
+      expect(result.stdout ?? "").toContain(
+        "src/tests/ci/example-surface.test.ts -> shared hotspot surface [shared test/verification]",
+      );
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
+
   test("audits the current branch against the inferred canonical page scope", () => {
     const repoRoot = initAuditFixtureRepo();
 

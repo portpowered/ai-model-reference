@@ -1,0 +1,166 @@
+# Canonical Page Surface Budget Relevant Files
+
+Use this reference when reviewing or authoring routine canonical-page pull
+requests. The budget keeps ordinary page work narrow so parallel page lanes
+do not collide on shared runtime, helper, and verification surfaces.
+
+## Observable budget categories
+
+The routine canonical-page PR budget classifies changed paths into four
+practical buckets. These are the same categories used by
+`bun run audit:canonical-page-surface`.
+
+| Category | Observable meaning | Routine page work |
+| --- | --- | --- |
+| **Page-owned** | One page bundle under `src/content/docs/<section>/<slug>/` (`page.mdx`, `messages/en.json`, `assets.json`, page-local media), the matching primary registry record at `src/content/registry/<kind>/<slug>.json`, and page-specific supporting graph/table/citation records declared by that bundle | Expected default |
+| **Supported derived** | Artifacts recreated by supported commands such as `bun run prepare:content-runtime` (for example `src/lib/content/generated/*.generated.ts`) | Regenerate locally; do not commit generated runtime artifacts in the routine review commit unless the work item is explicitly broader |
+| **Shared hotspot** | Shared helpers (`src/lib/content`, `src/lib/search`), shared test and verification files (`src/lib/content/*.test.ts`, `src/tests/ci`, `scripts/validate-*.ts`), broad registry or manifest edits beyond the page's primary record, build or tooling files | Avoid in ordinary page work; treat as exception or redirect |
+| **Unknown / broader** | Paths outside the owned page scope that do not fit the three lanes above | Requires human review; usually signals a throughput lane rather than routine page generation |
+
+This document stays focused on routine canonical-page behavior. It is not a full
+repository inventory.
+
+## Page-owned surfaces (routine default)
+
+For one canonical page, reviewers should expect:
+
+- The page bundle directory and its colocated files
+- The matching primary structured registry record for that page
+- Page-specific supporting records (graph, table, citation, or paper records
+  that exist only to render that same page)
+- No unrelated shared-surface churn
+
+## Shared hotspot surfaces (high risk for ordinary page work)
+
+Ordinary page branches should avoid touching:
+
+- **`src/lib/content`** — content runtime helpers, MDX components, generated
+  runtime manifests, and colocated content tests
+- **Shared test and verification files** — `src/lib/content/*.test.ts`,
+  `src/tests/ci`, `src/tests/search`, and `scripts/validate-*.ts`
+- **Shared registry or manifest sweeps** — broad edits under
+  `src/content/registry/` beyond the page's own primary record
+- **Build, search, factory, or repository tooling** — unless the work item is
+  explicitly broader than one page
+
+## Current hotspot evidence
+
+Maintained evidence comes from `bun run report:planner-conflict-hotspots`. The
+report samples recent commits and ranks collision-prone surfaces by touch count.
+
+In the current snapshot, **shared content runtime and verification surfaces are
+hotter than individual authored page bundles**:
+
+- `src/lib/content` under **shared test/verification** often leads the ranked
+  surfaces (for example 30+ touches across many paths in a 40-commit sample)
+- A single page bundle under `src/content/docs/<section>/<slug>/` typically
+  appears with only a handful of touches (often 3–4 per bundle in the same
+  sample)
+- Generated runtime artifacts under `src/lib/content/generated/` also recur as
+  **shared hotspot** churn separate from the authored page bundle
+
+Re-run the hotspot report locally when evidence ages. The audit command reads
+the same snapshot contract when classifying branch diffs.
+
+When maintained hotspot evidence cannot be collected (for example outside a git
+checkout), the audit falls back to static path classification and prints an
+explicit **Fallback mode** section with the collection error. Path categories
+still apply, but ranked touch-count evidence is omitted until
+`report:planner-conflict-hotspots` succeeds again.
+
+Over-budget output groups shared paths into reviewer-readable buckets:
+
+- **Content runtime and helper surfaces** — `shared-helper`, `shared-registry`,
+  and `authored-content` touches such as `src/lib/content`
+- **Shared test and verification surfaces** — `shared-test` touches such as
+  `src/tests/ci` and `scripts/validate-*.ts`
+
+## Three review lanes
+
+| Lane | When it applies | Contributor action |
+| --- | --- | --- |
+| **Default pass (`keep-routine`)** | Only page-owned paths changed | Open or update the routine page PR; no extra justification |
+| **Narrow exception (`declare-exception`)** | One small shared hotspot touch directly required to ship the page | Rerun the audit with `--exception-reason "..."` and repeat the same justification in the PR conversation comment |
+| **Split or redirect** | Generated outputs in the review commit (`split-to-page-owned-work`), multiple shared categories, shared test churn, or broad helper/runtime edits (`redirect-to-throughput-prd`) | Remove generated artifacts from the routine commit, split page-owned work from shared changes, or open a dedicated throughput/conflict-reduction PRD lane |
+
+## Local checker
+
+| When | Command |
+| --- | --- |
+| Classify the current branch diff | `bun run audit:canonical-page-surface -- --page-dir src/content/docs/<section>/<slug>` |
+| Classify the branch diff against a specific base ref | `bun run audit:canonical-page-surface -- --page-dir src/content/docs/<section>/<slug> --base origin/main` |
+| Classify an explicit path list | `bun run audit:canonical-page-surface -- --page-dir src/content/docs/<section>/<slug> --files <path...>` |
+| Refresh maintained hotspot evidence | `bun run report:planner-conflict-hotspots` |
+| Declare a visible shared-surface exception | `bun run audit:canonical-page-surface -- --page-dir ... --exception-reason "<why>"` |
+
+### Classifier output kinds
+
+The checker maps each changed path to one observable kind. These align with the
+budget buckets above:
+
+| Checker kind | Budget bucket | Example output |
+| --- | --- | --- |
+| `page-owned` | Page-owned | `page.mdx -> page-owned (matching page bundle)` |
+| `declared-generated-output` | Supported derived | `runtime.generated.ts -> declared generated output` |
+| `shared-hotspot-surface` | Shared hotspot (or unknown/broader when the path is outside page scope) | `slug-utils.ts -> shared hotspot surface [shared helper]` |
+
+In-budget page-only work prints `Budget status: within-budget` with
+`Recommended action: keep-routine`. Over-budget work names each offending path,
+its category label, and the next review lane.
+
+### Over-budget and exception output
+
+The checker never silently converts shared-hotspot churn into routine page work.
+Reviewers can distinguish a clean in-budget pass from an exception lane or a
+redirect lane by these observable markers:
+
+| Marker | In-budget pass | Narrow exception | Split or redirect |
+| --- | --- | --- | --- |
+| `Budget status` | `within-budget` | `over-budget` | `over-budget` |
+| `Recommended action` | `keep-routine` | `declare-exception` | `split-to-page-owned-work` or `redirect-to-throughput-prd` |
+| `Visible exception` line | absent | present when `--exception-reason` is supplied | present only when declared; redirect lane may still reject the exception |
+| Offending path lines | none | `-> shared hotspot surface [category]` for each shared path | same, plus generated-output lines when applicable |
+| Guidance headline | routine page-owned wording | narrow exception wording | split-back or redirect wording |
+
+Representative over-budget output always names the specific offending paths and
+their categories under **Changed path classifications**, then groups shared
+paths under **Shared hotspot summary** buckets. The **Guidance** section states
+the recommended next action in contributor terms:
+
+- **Split page-owned work** (`split-to-page-owned-work`) — remove generated
+  runtime artifacts from the routine review commit and keep only page-owned
+  paths.
+- **Justify the exception** (`declare-exception`) — rerun with
+  `--exception-reason "..."` and repeat the same justification in the PR
+  conversation comment when one narrow shared touch is truly required.
+- **Move to a broader item** (`redirect-to-throughput-prd`) — split shared
+  helper, shared test, or multi-page churn into a dedicated throughput or
+  conflict-reduction lane.
+
+## Behavioral verification
+
+Focused representative coverage lives in
+`src/tests/ci/canonical-page-surface-audit-behavioral-verification.test.ts`.
+The suite uses temporary fixture repos (no real page payloads) and asserts
+observable CLI outcomes for:
+
+- a representative page-only path set that passes as in budget via `--files`
+- a representative shared-surface path set that is over budget with actionable
+  guidance via `--files`
+- explicit path-list input that classifies independently from git branch diff
+
+Unit and command tests in `canonical-page-surface-audit.test.ts` and
+`canonical-page-surface-audit-command.test.ts` cover exception lanes, hotspot
+evidence fallback, and branch-diff classification.
+
+## Core implementation and docs
+
+- `src/lib/factory/canonical-page-surface-audit.ts` — branch diff and path-list
+  classifier; hotspot category grouping; guidance output
+- `src/lib/factory/conflict-hotspot-report.ts` — maintained hotspot snapshot
+  contract consumed by the audit
+- `scripts/audit-canonical-page-surface.ts` — CLI entrypoint
+- `scripts/report-planner-conflict-hotspots.ts` — hotspot evidence report
+- [CONTRIBUTING.md — routine canonical-page PR surface budget](../../contributors/CONTRIBUTING.md#routine-canonical-page-pr-surface-budget)
+- [content-page-generation-workflow-relevant-files.md](./content-page-generation-workflow-relevant-files.md#page-local-scope-versus-shared-hotspot-redirects)
+- [review-standards.md — routine canonical-page surface budget](../../review-standards.md#routine-canonical-page-surface-budget-reviewers)
