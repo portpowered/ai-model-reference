@@ -9,6 +9,7 @@ export const REQUIRED_COMPONENT_NAMES = [
   "SearchInlineResultItem",
   "SearchResultListItem",
   "SearchResultMetaDetails",
+  "GenerationEvolutionTimeline",
   "TrainingSignalStackedChart",
 ] as const;
 

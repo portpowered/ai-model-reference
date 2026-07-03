@@ -1,0 +1,3 @@
+work list --session planner-session-77 --json
+work list --session planner-session-77 --next-token cursor-page-2 --json
+session list --json
