@@ -13,6 +13,7 @@ import {
   type TopologyDocsPageContentByRegistryId,
   TopologyPrototype,
 } from "@/features/ai/topology";
+import { BlogIndexPostList } from "@/features/blog/components/BlogIndexPostList";
 import { BrowseAtlasPage } from "@/features/docs/components/BrowseAtlasPage";
 import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
 import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
@@ -32,6 +33,8 @@ import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState"
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
+import { blogPostHref } from "@/lib/content/blog-page-load";
+import { listPublishedBlogPosts } from "@/lib/content/blog-post-list";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import {
   loadPublishedDocsPages,
@@ -93,6 +96,53 @@ export type TimelinePageProps = SearchPageProps;
 export type TagLandingPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export type BlogIndexPageOptions = {
+  /** Blog content root override for fixture tests (defaults to production `BLOG_ROOT`). */
+  blogRoot?: string;
+};
+
+export async function renderBlogIndexPage(
+  locale: SiteLocale = defaultLocale,
+  options: BlogIndexPageOptions = {},
+) {
+  const messages = await loadUiMessages(locale);
+  const posts = await listPublishedBlogPosts({
+    blogRoot: options.blogRoot,
+    locale,
+  });
+  const { blogIndex } = messages;
+
+  return (
+    <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+      <DocsTitle>{blogIndex.title}</DocsTitle>
+      <DocsDescription>{blogIndex.description}</DocsDescription>
+      <DocsBody>
+        {posts.length === 0 ? (
+          <DocsIndexEmptyState
+            title={blogIndex.emptyTitle}
+            description={blogIndex.emptyDescription}
+            homeLinkLabel={blogIndex.emptyHomeLink}
+            messages={messages}
+            locale={locale}
+          />
+        ) : (
+          <BlogIndexPostList
+            listLabel={blogIndex.listLabel}
+            posts={posts.map((post) => ({
+              slug: post.slug,
+              title: post.messages.title,
+              description: post.messages.description,
+              publishedAt: post.frontmatter.publishedAt,
+              tags: post.frontmatter.tags,
+              href: blogPostHref(post.slug, locale),
+            }))}
+          />
+        )}
+      </DocsBody>
+    </DocsPage>
+  );
+}
 
 export async function renderHomePage(locale: SiteLocale = defaultLocale) {
   const messages = await loadUiMessages(locale);
