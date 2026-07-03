@@ -267,6 +267,16 @@ Representative paired-slice verification:
 
 ## Reviewer-facing verification
 
+* Canonical concept page slices should keep one `*-slice-verification` file with
+  observable route/render/search assertions only; routine bundle alignment
+  (registry fields, frontmatter, raw messages, tags, citations, assets) stays in
+  `make validate-data`.
+* When adding a page-local comparison table, commit only the new
+  `flops-peak-achieved-comparison.json` entries in
+  `table-registry.generated.ts`; do not carry unrelated stale generated
+  reconciliation from other lanes (for example `looped-transformers-comparison`)
+  because `prepare:content-runtime` regenerates the full table manifest at CI
+  time.
 * `bun test src/lib/content/content-paths.test.ts`
   Proves derived lookup across sections and rejects new ordinary page directory
   exports.

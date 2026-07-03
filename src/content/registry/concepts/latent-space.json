@@ -6,26 +6,37 @@
   "defaultSummaryKey": "description",
   "aliases": [
     "latent manifold",
+    "compressed representation",
     "compressed representation space",
-    "latent representation space"
+    "latent representation",
+    "latent representation space",
+    "latent diffusion"
   ],
-  "tags": ["foundations", "taxonomy"],
+  "tags": ["foundations", "taxonomy", "model-family"],
   "relatedIds": [
-    "concept.generative-model",
-    "concept.latent",
-    "concept.encoder",
-    "concept.denoising-generation"
+    "concept.diffusion-model",
+    "concept.denoising-generation",
+    "concept.conditioning",
+    "paper.latent-diffusion",
+    "concept.embedding",
+    "concept.latent"
   ],
-  "citationIds": ["citation.goodfellow-deep-learning"],
+  "citationIds": [
+    "citation.goodfellow-deep-learning",
+    "citation.latent-diffusion-models"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T11:31:47.947Z",
-  "updatedAt": "2026-06-04T12:00:00.000Z",
-  "primaryClassificationId": "classification.concept.math",
-  "conceptType": "general",
+  "updatedAt": "2026-07-03T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.architecture",
+  "conceptType": "architecture",
+  "sidebarGrouping": {
+    "glossary": "generation-and-diffusion"
+  },
   "prerequisiteIds": [
     "concept.latent",
     "concept.representation",
     "concept.modality"
   ],
-  "explainsIds": ["concept.encoder", "concept.denoising-generation"]
+  "explainsIds": ["concept.denoising-generation"]
 }

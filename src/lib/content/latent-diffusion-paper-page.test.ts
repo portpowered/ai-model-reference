@@ -84,7 +84,7 @@ describe("latent-diffusion paper page (latent-diffusion-paper-page-003)", () => 
     expect(html).toContain("Stable Diffusion");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('data-testid="tag-pill-list"');
-    expect(html).toContain('href="/docs/glossary/latent-space"');
+    expect(html).toContain('href="/docs/concepts/latent-space"');
     expect(html).toContain('href="/docs/glossary/conditioning"');
     expect(html).not.toContain("Draft placeholder");
     expect(html).not.toContain("Reader Shortcut");
@@ -155,7 +155,7 @@ describe("latent-diffusion paper page (latent-diffusion-paper-page-004)", () => 
 
     expect(html).toContain('data-prose-auto-link="true"');
     expect(html).toContain('href="/docs/glossary/conditioning"');
-    expect(html).toContain('href="/docs/glossary/latent-space"');
+    expect(html).toContain('href="/docs/concepts/latent-space"');
     expect(html).not.toMatch(/on this page|reader shortcut/i);
   });
 });
@@ -237,7 +237,6 @@ describe("latent-diffusion paper page (latent-diffusion-paper-page-005)", () => 
 describe("latent-diffusion paper page (latent-diffusion-paper-page-006)", () => {
   test.each([
     "Latent Diffusion Models",
-    "latent diffusion",
     "Stable Diffusion paper",
     "latent-space denoising",
   ] as const)("%s query surfaces the canonical paper page through search", async (query) => {
@@ -245,6 +244,13 @@ describe("latent-diffusion paper page (latent-diffusion-paper-page-006)", () => 
 
     expect(resultsIncludeUrl(searchResults, LATENT_DIFFUSION_URL)).toBe(true);
     expect(searchResults[0]?.url).toBe(LATENT_DIFFUSION_URL);
+  });
+
+  test("latent diffusion query surfaces the concept page first and still includes the paper", async () => {
+    const searchResults = await docsSearchApi.search("latent diffusion");
+
+    expect(searchResults[0]?.url).toBe("/docs/concepts/latent-space");
+    expect(resultsIncludeUrl(searchResults, LATENT_DIFFUSION_URL)).toBe(true);
   });
 
   test("paper registry record, citation, tags, and relationships resolve", () => {
@@ -302,7 +308,7 @@ describe("latent-diffusion paper page (latent-diffusion-paper-page-006)", () => 
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-page-asset="contributionGraph"');
     expect(html).toContain('id="references"');
-    expect(html).toContain('href="/docs/glossary/latent-space"');
+    expect(html).toContain('href="/docs/concepts/latent-space"');
     expect(html).toContain('href="/docs/glossary/conditioning"');
     expect(html).not.toMatch(/placeholder|coming later|todo/i);
   });
