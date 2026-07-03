@@ -249,7 +249,7 @@ describe("pretraining training-regime identity contracts", () => {
       "Data mixture matters because web text, books, code",
     );
     expect(html).toContain(
-      "Compute matters because hardware time, memory, and optimization budget",
+      'href="/docs/concepts/flops">Compute</a> matters because hardware time, memory, and optimization budget',
     );
     expect(html).toContain("GPT-2 is a useful historical bridge");
     expect(html).toContain("later chat-style");

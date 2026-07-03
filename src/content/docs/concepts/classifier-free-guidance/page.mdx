@@ -1,0 +1,83 @@
+---
+title: Classifier-Free Guidance
+description: A diffusion inference technique that steers denoising by comparing prompt-conditioned and prompt-free predictions, then blending them with a guidance scale.
+kind: "concept"
+registryId: "concept.classifier-free-guidance"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - taxonomy
+aliases:
+  - "Classifier-Free Guidance"
+  - "classifier-free guidance"
+  - "CFG"
+  - "diffusion guidance"
+  - "prompt guidance scale"
+  - "guidance scale"
+updatedAt: "2026-07-03"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { PageMathFormula } from "@/features/docs/components/PageMathFormula";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ConceptMap } from "@/features/models/components/ConceptMap";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="where-it-appears" titleKey="sections.whereItAppears.title">
+  <T k="sections.whereItAppears.body" />
+</Section>
+
+<Section id="guidance-scale" titleKey="sections.guidanceScale.title">
+  <T k="sections.guidanceScale.body" />
+  <PageMathFormula mathId="guidedPrediction" />
+</Section>
+
+<Section id="tradeoffs" titleKey="sections.tradeoffs.title">
+  <T k="sections.tradeoffs.body" />
+  <ConceptMap
+    registryId="concept.classifier-free-guidance"
+    assetId="guidanceBlendMap"
+  />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.classifier-free-guidance"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.classifier-free-guidance" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.classifier-free-guidance" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.classifier-free-guidance" />
+</Section>

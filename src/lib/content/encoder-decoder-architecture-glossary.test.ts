@@ -76,7 +76,7 @@ describe("Phase 2 encoder-decoder architecture glossary pages (US-002)", () => {
   test("encoder links to latent space and representation via curated related docs", async () => {
     const html = await renderGlossaryHtml("encoder");
 
-    expect(html).toContain('href="/docs/glossary/latent-space"');
+    expect(html).toContain('href="/docs/concepts/latent-space"');
     expect(html).toContain('href="/docs/glossary/representation"');
     expect(html).toContain('data-testid="curated-related-docs"');
   });
