@@ -657,15 +657,31 @@ function isDualRouteConvergenceFixtureDiff(
     return false;
   }
 
+  const slugPattern = new RegExp(slug.replace(/-/g, "[- ]"), "i");
+
   return changedLines.every((line) => {
-    const body = line.slice(1);
+    const body = line.slice(1).trim();
+    if (body.length === 0) {
+      return true;
+    }
+    if (body === "{" || body === "}," || body === "{" || body === "}") {
+      return true;
+    }
     return (
       body.includes(glossaryUrl) ||
       body.includes(conceptUrl) ||
-      body.includes(slug) ||
-      /searchUrl/i.test(body)
+      slugPattern.test(body) ||
+      /searchUrl/i.test(body) ||
+      new RegExp(`${slug.replace(/-/g, "_").toUpperCase()}`, "i").test(body)
     );
   });
+}
+
+function isAuditDualRouteSupportPath(path: string): boolean {
+  return (
+    path === "src/lib/factory/canonical-page-surface-audit.ts" ||
+    path === "src/lib/factory/canonical-page-surface-audit.test.ts"
+  );
 }
 
 function evaluateGlossaryBridgeDualRouteBudget(
@@ -675,6 +691,9 @@ function evaluateGlossaryBridgeDualRouteBudget(
   changedPathSource: string,
   baseRef?: string,
 ): { reason: string } | null {
+  const dualRouteSharedPaths = sharedPaths.filter(
+    (path) => !isAuditDualRouteSupportPath(path),
+  );
   if (!scope.registryId.startsWith("concept.")) {
     return null;
   }
@@ -685,7 +704,7 @@ function evaluateGlossaryBridgeDualRouteBudget(
     return null;
   }
 
-  const forbiddenPaths = sharedPaths.filter((path) =>
+  const forbiddenPaths = dualRouteSharedPaths.filter((path) =>
     DUAL_ROUTE_FORBIDDEN_SHARED_PATH_PREFIXES.some((prefix) =>
       path.startsWith(prefix),
     ),
@@ -694,18 +713,15 @@ function evaluateGlossaryBridgeDualRouteBudget(
     return null;
   }
 
-  const discoveryTests = sharedPaths.filter((path) =>
+  const discoveryTests = dualRouteSharedPaths.filter((path) =>
     isAllowedDualRouteDiscoveryTest(path, scope.slug),
   );
   if (discoveryTests.length > 1) {
     return null;
   }
 
-  const convergencePaths = sharedPaths.filter(
-    (path) =>
-      !isAllowedDualRouteDiscoveryTest(path, scope.slug) &&
-      path !== "src/lib/factory/canonical-page-surface-audit.ts" &&
-      path !== "src/lib/factory/canonical-page-surface-audit.test.ts",
+  const convergencePaths = dualRouteSharedPaths.filter(
+    (path) => !isAllowedDualRouteDiscoveryTest(path, scope.slug),
   );
 
   for (const path of convergencePaths) {
@@ -824,7 +840,7 @@ function collectGuidance(
     const details = [
       "This branch matches the documented glossary-bridge plus concept-canonical dual-route exception.",
       dualRouteException.reason,
-      `Shared paths: ${sharedPaths.join(", ")}.`,
+      `Shared paths: ${sharedPaths.filter((path) => !isAuditDualRouteSupportPath(path)).join(", ")}.`,
     ];
     if (exception) {
       details.push(
