@@ -38,7 +38,8 @@ Fixture flags:
 
 * `--repo-root`
 * `--remote-base-ref`
-* `--work-list-json`
+* `--session` (defaults to `930b51a6-07ce-44e6-a639-7a6217f6e864`)
+* `--work-list-json` (opt-in fixture/snapshot mode; default uses live `you work list` pagination)
 * `--pr320-pull-request-json`
 * `--evidence-only` (skip outcome classification; story 001 capture only)
 * `--json` or `--format json`
@@ -74,8 +75,8 @@ conflict-refresh classifier.
 | Outcome | When |
 | --- | --- |
 | `consumed-on-main` | All `PR320_PROOF_ON_MAIN_MARKER_PATHS` exist on `origin/main` |
-| `merge-ready` | PR mergeable, checks passing, merge-tree reports zero conflicts |
-| `operator-handoff` | merge-tree conflicts, failing checks, unavailable PR evidence, or GitHub/merge-tree mismatch |
+| `merge-ready` | PR mergeable, checks passing, merge-tree exit code 0 with zero conflicts |
+| `operator-handoff` | merge-tree conflicts, failing checks, unavailable PR evidence, non-zero merge-tree exit without verified clean result, or GitHub/merge-tree mismatch |
 
 Handoffs name each `conflictingFile=` path and a `operatorHandoffNextAction` that
 preserves generated-table-registry cleanup-proof intent in the original worktree.

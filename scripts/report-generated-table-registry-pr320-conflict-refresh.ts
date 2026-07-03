@@ -3,8 +3,10 @@ import { resolve } from "node:path";
 import {
   buildGeneratedTableRegistryPr320ConflictRefreshOutput,
   formatGeneratedTableRegistryPr320ConflictRefreshOutput,
+  PR320_CONFLICT_REFRESH_TARGET_SESSION_ID,
   serializeGeneratedTableRegistryPr320ConflictRefreshOutput,
 } from "../src/lib/factory/generated-table-registry-pr320-conflict-refresh";
+import { readCompleteLiveWorkListSnapshotJson } from "../src/lib/factory/live-queue-snapshot";
 
 const defaultRepoRoot = resolve(import.meta.dir, "..");
 
@@ -39,17 +41,18 @@ const repoRoot = readFlagValue("--repo-root")
   ? resolve(readFlagValue("--repo-root") as string)
   : defaultRepoRoot;
 const remoteBaseRef = readFlagValue("--remote-base-ref");
+const sourceSession =
+  readFlagValue("--session") ?? PR320_CONFLICT_REFRESH_TARGET_SESSION_ID;
 const workListJsonPath = readFlagValue("--work-list-json");
 const pr320PullRequestJsonPath = readFlagValue("--pr320-pull-request-json");
 const workListJsonText = workListJsonPath
   ? readRequiredFile(workListJsonPath, "work list JSON")
-  : readRequiredFile(
-      resolve(
-        repoRoot,
-        "src/tests/fixtures/generated-table-registry-pr320-conflict-refresh/work-list.json",
-      ),
-      "default work list JSON",
-    );
+  : readCompleteLiveWorkListSnapshotJson(repoRoot, [
+      "work",
+      "list",
+      "--session",
+      sourceSession,
+    ]);
 
 const output = buildGeneratedTableRegistryPr320ConflictRefreshOutput({
   classifyOutcome: !isEvidenceOnlyRequested(process.argv),

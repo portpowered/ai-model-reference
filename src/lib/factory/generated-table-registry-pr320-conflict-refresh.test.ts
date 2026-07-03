@@ -271,6 +271,7 @@ describe("generated-table-registry-pr320-conflict-refresh", () => {
 
     const classification = classifyPr320ConflictRefreshOutcome(evidence, {
       mergeTreeConflictPaths: [],
+      mergeTreeExitCode: 0,
       proofOnMain: {
         consumed: false,
         markerPaths: [
@@ -322,6 +323,44 @@ describe("generated-table-registry-pr320-conflict-refresh", () => {
     expect(classification.classificationEvidence).toContain(
       "merge-tree-conflict-paths=src/lib/content/generated/table-registry.generated.ts",
     );
+  });
+
+  test("classifyPr320ConflictRefreshOutcome selects operator-handoff when merge-tree fails without conflict paths", () => {
+    const evidence = captureGeneratedTableRegistryPr320ConflictRefreshEvidence({
+      pr320PullRequestJson: readFixture("pr320-pull-request.json"),
+      remoteBaseRef: "origin/main",
+      repoRoot: "/tmp/main-repo",
+      runCommand: buildRunCommand({}),
+      workListJsonText: readFixture("work-list.json"),
+      worktreesDir: "/tmp/worktrees",
+    });
+
+    const classification = classifyPr320ConflictRefreshOutcome(evidence, {
+      mergeTreeConflictPaths: [],
+      mergeTreeExitCode: 128,
+      mergeTreeOutputExcerpt:
+        "fatal: Not a valid object name origin/generated-table-registry-root-drift-cleanup-proof",
+      proofOnMain: {
+        consumed: false,
+        markerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        missingMarkerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        presentMarkerPaths: [],
+      },
+    });
+
+    expect(classification.outcome).toBe("operator-handoff");
+    expect(classification.unsafeReason).toBe("merge-tree-evidence-unavailable");
+    expect(classification.classificationEvidence).toContain(
+      "merge-tree-exit-code=128",
+    );
+    expect(classification.classificationEvidence).toContain(
+      "merge-tree-output-excerpt=fatal: Not a valid object name origin/generated-table-registry-root-drift-cleanup-proof",
+    );
+    expect(classification.nextSafeAction).toContain("merge-tree");
   });
 
   test("buildPr320ConflictRefreshOutcomeReport emits operator handoff with conflicting files", () => {

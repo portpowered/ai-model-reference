@@ -840,6 +840,7 @@ export type Pr320ConflictRefreshOutcome =
 export type Pr320ConflictRefreshUnsafeReason =
   | "checks-not-passing"
   | "merge-conflicts-detected"
+  | "merge-tree-evidence-unavailable"
   | "proof-evidence-unavailable"
   | "pull-request-unavailable";
 
@@ -999,16 +1000,19 @@ export function buildPr320ConflictRefreshOperatorHandoff(
   }
 
   const conflictingFiles = classification.mergeTreeConflicts.conflictPaths;
+  const mergeTreeEvidence = classification.mergeTreeConflicts;
   const unsafeCondition =
     classification.unsafeReason === "checks-not-passing"
       ? "Required checks are not passing on PR #320."
-      : classification.unsafeReason === "proof-evidence-unavailable"
-        ? "Proof-on-main or PR evidence is unavailable for a safe refresh decision."
-        : classification.unsafeReason === "pull-request-unavailable"
-          ? "PR #320 metadata is unavailable."
-          : conflictingFiles.length > 0
-            ? `Non-mutating merge-tree reports ${conflictingFiles.length} conflicting path(s) between origin/main and the PR branch.`
-            : "Automated conflict refresh is unsafe from current evidence.";
+      : classification.unsafeReason === "merge-tree-evidence-unavailable"
+        ? `git merge-tree failed with exit code ${mergeTreeEvidence.mergeTreeExitCode}; no verified clean merge-tree result is available. Output excerpt: ${mergeTreeEvidence.mergeTreeOutputExcerpt}`
+        : classification.unsafeReason === "proof-evidence-unavailable"
+          ? "Proof-on-main or PR evidence is unavailable for a safe refresh decision."
+          : classification.unsafeReason === "pull-request-unavailable"
+            ? "PR #320 metadata is unavailable."
+            : conflictingFiles.length > 0
+              ? `Non-mutating merge-tree reports ${conflictingFiles.length} conflicting path(s) between origin/main and the PR branch.`
+              : "Automated conflict refresh is unsafe from current evidence.";
 
   const nextOperatorAction =
     conflictingFiles.length > 0
@@ -1120,6 +1124,32 @@ export function classifyPr320ConflictRefreshOutcome(
       proofOnMain,
       refreshRecommended,
       unsafeReason: "merge-conflicts-detected",
+    };
+  }
+
+  classificationEvidence.push(
+    `merge-tree-exit-code=${mergeTreeConflicts.mergeTreeExitCode}`,
+  );
+
+  if (mergeTreeConflicts.mergeTreeExitCode !== 0) {
+    classificationEvidence.push(
+      `merge-tree-output-excerpt=${mergeTreeConflicts.mergeTreeOutputExcerpt}`,
+    );
+    return {
+      classificationEvidence,
+      mergeTreeConflicts,
+      nextSafeAction: buildOperatorHandoffNextSafeAction({
+        conflictingFiles: [],
+        nextOperatorAction:
+          "Restore git refs and rerun bun run report:generated-table-registry-pr320-conflict-refresh before choosing merge-ready.",
+        summary:
+          "git merge-tree did not return a verified clean result; automated merge-ready classification is blocked.",
+        unsafeCondition: `merge-tree exit code ${mergeTreeConflicts.mergeTreeExitCode}`,
+      }),
+      outcome: "operator-handoff",
+      proofOnMain,
+      refreshRecommended,
+      unsafeReason: "merge-tree-evidence-unavailable",
     };
   }
 
@@ -1283,6 +1313,7 @@ export function formatPr320ConflictRefreshOutcomeReport(
     `nextSafeAction=${classification.nextSafeAction}`,
     `proofOnMain=${classification.proofOnMain.consumed}`,
     `mergeTreeConflictCount=${classification.mergeTreeConflicts.conflictPaths.length}`,
+    `mergeTreeExitCode=${classification.mergeTreeConflicts.mergeTreeExitCode}`,
   ];
 
   if (classification.unsafeReason) {
