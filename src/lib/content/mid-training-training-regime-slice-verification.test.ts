@@ -34,7 +34,7 @@ const REGISTRY_ID = "training-regime.mid-training";
 const SLUG = "mid-training";
 const PAGE_URL = "/docs/training/mid-training";
 const GRAPH_ID = "graph.mid-training-training-flow";
-const KAPLAN_CITATION_ID = "citation.kaplan-scaling-laws";
+const LLAMA3_CITATION_ID = "citation.llama-3-herd-of-models";
 
 const pageDir = join(TRAINING_DOCS_ROOT, SLUG);
 const messagesPath = join(pageDir, "messages/en.json");
@@ -117,11 +117,9 @@ describe("mid-training training-regime slice verification (mid-training-regime-p
 
     const citations = resolveCitations(record.citationIds);
     expect(citations).toHaveLength(1);
-    expect(citations[0]?.id).toBe(KAPLAN_CITATION_ID);
+    expect(citations[0]?.id).toBe(LLAMA3_CITATION_ID);
     expect(citations[0]?.url).toContain("arxiv.org");
-    expect(citations[0]?.title).toContain(
-      "Scaling Laws for Neural Language Models",
-    );
+    expect(citations[0]?.title).toContain("The Llama 3 Herd of Models");
   });
 
   test("discovery metadata and live search resolve the canonical page for mid-training aliases", async () => {
@@ -252,7 +250,7 @@ describe("mid-training training-regime slice verification (mid-training-regime-p
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain('data-testid="curated-related-docs"');
-    expect(html).toContain("Scaling Laws for Neural Language Models");
+    expect(html).toContain("The Llama 3 Herd of Models");
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("missing-content");
   });
