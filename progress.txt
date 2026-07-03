@@ -1,4 +1,7 @@
 ## Codebase Patterns
+- Diffusion denoising backbone modules use `moduleFamily: "denoising-backbone"`, `variantGroup: "diffusion-denoising-blocks"`, and `primaryClassificationId: "classification.module"` when no narrower module classification exists; pair with `citation.u-net-convolutional-networks` plus `citation.denoising-diffusion-probabilistic-models` for DDPM-era diffusion links.
+- Omit `model.stable-diffusion` from `relatedIds` until a published Stable Diffusion model record exists; latent diffusion navigation can use `paper.latent-diffusion` instead.
+- Story 001 registry slices can assert `PUBLISHED_DOCS_REGISTRY_IDS.has("module.<slug>")` is false until story 002 publishes the MDX bundle.
 - Concept registry ids route to `/docs/concepts/<slug>` only after adding to `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS` in `published-docs-registry-ids.ts`; until then glossary pages at `/docs/glossary/<slug>` remain the live surface.
 - Serving-path glossary concepts (`prefill`, `decode`, `kv-cache`, `prefill-decode-split`) share tags `foundations`, `attention`, and `kv-cache` for attention-tag discovery without new taxonomy tags.
 - Registry `relatedIds` on `concept.prefill-decode-split` should stay limited to serving foundations (`prefill`, `decode`, `kv-cache`, `autoregressive-generation`); attention modules and transformer links belong on inbound records, not on the split concept itself.
@@ -7,6 +10,9 @@
 - Migrating a glossary page to concepts removes it from glossary index counts/tests and surfaces it under the attention tag `concept` kind group instead of `glossary`.
 - Story 004 slice verification: add `*-slice-verification.test.tsx` with registry/message alignment, `renderDocsSlugPage` route proof, and rendered HTML/search assertions; routine bundle invariants stay in `make validate-data`; run `audit:canonical-page-surface` from the root repo with `--repo-root` pointing at the worktree when the script is absent locally.
 - After merging `main`, regenerate published-docs manifests with `bun run generate:published-docs-registry` (or `make validate-data` / `prepare:content-runtime`) instead of hand-editing `published-docs-registry-ids.ts`.
+- Module graph registry nodes must use allowed `moduleKind` values (`block`, `operation`, `input`, `output`, etc.); `convolution` is not a valid enum and fails `generate:graph-registry-runtime`.
+- Story 002 module pages need `page.mdx`, `messages/en.json`, `assets.json`, matching `graph.*` and `table.*` registry records, plus `u-net-module-page.test.ts`-style render coverage; `prepare:content-runtime` auto-adds `module.u-net` to published-docs manifests when the MDX bundle exists.
+- Story 003 module graph slices should pair `buildRegistryFlowGraph` skip-edge assertions with `u-net-module-graph-viewport-http.ts` Playwright probes that require at least two `data-graph-edge-kind="residual"` edges and zero desktop node overlaps.
 
 ## 2026-07-01T00:00:00Z - prefill-decode-split-concept-page-001
 - Wired `concept.prefill-decode-split` discovery metadata: added `attention` tag, trimmed `relatedIds` to serving-path foundations, and bumped registry `updatedAt`.
@@ -62,4 +68,38 @@
   - Keep `progress.txt` / `prd.json` local-only commits off the review branch; reset soft and recommit code-only fixes when a progress chore commit was pushed accidentally.
   - Long `await docsSearchApi.search(...)` assignments may need Biome line breaks even when tests otherwise pass.
   - When `main` migrates glossary pages to concepts in parallel, merge conflicts often duplicate `conceptGroup` assertions—merge into one `arrayContaining` block instead of redeclaring the variable.
+---
+
+## 2026-07-03T00:16:00Z - u-net-module-page-001
+- Published `module.u-net` registry record with denoising-backbone metadata, diffusion aliases, controlled `foundations`/`model-family` tags, and citation links to the original U-Net paper plus DDPM.
+- Wired `relatedIds` to shipped diffusion objective, denoising generation, conditioning, latent space, latent diffusion paper, diffusion transformer block, and DDPM citation; omitted Stable Diffusion because no model record exists on the branch.
+- Added `u-net-module-registry.test.ts` covering schema validation, citation registration, Stable Diffusion omission, and curated related-doc href resolution.
+- Files changed: `src/content/registry/modules/u-net.json`, `src/content/registry/citations/u-net-convolutional-networks.json`, `src/lib/content/u-net-module-registry.test.ts`
+- **Learnings for future iterations:**
+  - Follow `multi-token-prediction` and `diffusion-transformer-block` registry slice tests as templates; story 001 does not require a docs bundle yet.
+  - Run `bun run prepare:content-runtime` before registry tests in a fresh worktree because generated published-docs manifests are gitignored.
+  - Story 002 should add `src/content/docs/modules/u-net` and flip the published-docs assertion to true in the registry slice test.
+---
+
+## 2026-07-03T01:30:00Z - u-net-module-page-002
+- Published canonical module bundle at `src/content/docs/modules/u-net` with structural `page.mdx`, English `messages/en.json`, and `assets.json` wired to `graph.u-net-compute-flow` and `table.u-net-comparison`.
+- Authored isolation-first prose for the U-shaped downsampling path, bottleneck, upsampling path, skip connections, and U-Net's iterative noise-prediction role in diffusion image systems.
+- Added registry-backed compute-flow graph and comparison table records plus `u-net-module-page.test.ts` render/message coverage; flipped `PUBLISHED_DOCS_REGISTRY_IDS.has("module.u-net")` to true in the registry slice test.
+- Files changed: `src/content/docs/modules/u-net/*`, `src/content/registry/graphs/u-net-compute-flow.json`, `src/content/registry/tables/u-net-comparison.json`, `src/lib/content/u-net-module-page.test.ts`, `src/lib/content/u-net-module-registry.test.ts`, `src/lib/content/generated/table-registry.generated.ts`
+- **Learnings for future iterations:**
+  - Graph node `moduleKind` must stay inside the schema enum; use `block` for convolutional down/up stages instead of `convolution`.
+  - `loadModulePage` plus `renderToStaticMarkup` gives strong page proof when disk pressure blocks a production `bun run start` smoke test.
+  - Story 003 should refine the U-shaped graph layout and skip-connection legibility for desktop/mobile viewports.
+---
+
+## 2026-07-03T02:45:00Z - u-net-module-page-003
+- Refined `graph.u-net-compute-flow` into a clearer U-shaped layout: noisy input at the top-left arm, denoised output at the top-right arm, wider horizontal spacing for skip bridges, and matching-resolution skip edges between downsampling and upsampling blocks.
+- Added `u-net-module-graph-viewport-http.ts` plus Playwright viewport probes for desktop/mobile visibility, width fit, and at least two residual skip edges without desktop node overlap.
+- Extended `u-net-module-page.test.ts` with graph-flow skip-connection alignment and SSR graph chrome assertions for residual edge markers, node count, and responsive shell classes.
+- Browser-verified `/docs/modules/u-net` on port 3743 renders graph title, skip legend, residual edges, and core node labels.
+- Files changed: `src/content/registry/graphs/u-net-compute-flow.json`, `src/lib/content/u-net-module-page.test.ts`, `src/lib/verify/u-net-module-graph-viewport-http.ts`, `src/lib/verify/u-net-module-graph-viewport-http.test.ts`
+- **Learnings for future iterations:**
+  - Align skip-connection source/target pairs on equal `position.y` values so residual edges read as horizontal bridges between encoder and decoder stages.
+  - `renderModuleDocsShell` exposes skip edges in SSR via `data-graph-edge-kind="residual"` even when `<figcaption>` caption text is client-only.
+  - Story 004 should expand prose for denoising fit and the brief diffusion-transformer comparison without duplicating graph work.
 ---
