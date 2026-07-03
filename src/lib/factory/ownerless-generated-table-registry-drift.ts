@@ -1002,6 +1002,11 @@ export function serializeOwnerlessGeneratedTableRegistryDriftClassificationRepor
 export const OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_NEXT_ACTION_HEADER =
   "Ownerless Generated Table Registry Drift Next Action";
 
+export const OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_PLANNER_REPORT_HEADER =
+  "Ownerless Generated Table Registry Drift Planner Report";
+
+export type GeneratedTableRegistryClassificationClarity = "clear" | "ambiguous";
+
 export type GeneratedTableRegistryArtifactNextSafeAction =
   | "land-minimal-generated-registry-proof"
   | "operator-cleanup-scoped-artifact"
@@ -1021,8 +1026,10 @@ export interface GeneratedTableRegistryArtifactNextAction {
 }
 
 export interface OwnerlessGeneratedTableRegistryDriftPlannerReport {
+  classificationClarity: GeneratedTableRegistryClassificationClarity;
   classificationReport: OwnerlessGeneratedTableRegistryDriftClassificationReport;
   evidenceReport: OwnerlessGeneratedTableRegistryDriftEvidenceReport;
+  evidenceSummary: string;
   generatedAtUtc: string;
   nextAction: GeneratedTableRegistryArtifactNextAction;
 }
@@ -1081,8 +1088,71 @@ export function resolveGeneratedTableRegistryArtifactNextAction(
   }
 }
 
+export function resolveGeneratedTableRegistryClassificationClarity(input: {
+  artifactPath: string;
+  classification: GeneratedTableRegistryArtifactClassification;
+  driftSnapshot?: PlannerWorktreeDriftSnapshot | null;
+}): GeneratedTableRegistryClassificationClarity {
+  if (input.classification.primaryStatus === "ownerless") {
+    return "ambiguous";
+  }
+
+  if (input.driftSnapshot) {
+    const matchingPath = input.driftSnapshot.root.dirtyPaths.find(
+      (dirtyPath) => dirtyPath.path === input.artifactPath,
+    );
+    if (matchingPath?.ownership.reasonCode === "ambiguous-shared-surface") {
+      return "ambiguous";
+    }
+  }
+
+  return "clear";
+}
+
+export function buildGeneratedTableRegistryArtifactEvidenceSummary(input: {
+  classification: GeneratedTableRegistryArtifactClassification;
+  evidenceReport: OwnerlessGeneratedTableRegistryDriftEvidenceReport;
+}): string {
+  const artifact = input.evidenceReport.generatedArtifact;
+  const classification = input.classification;
+  const entry = artifact.loopedTransformersComparisonEntry;
+  const parts = [
+    `dirty-status=${artifact.dirtyStatus}`,
+    `observation-kind=${entry.kind}`,
+    `regeneration-proof-kind=${classification.regenerationProof.kind}`,
+    `canonical-source-file-present=${classification.regenerationProof.canonicalSourceFilePresent}`,
+  ];
+
+  if (classification.laneOwnership) {
+    parts.push(
+      `lane=${classification.laneOwnership.laneName}`,
+      `ownership-kind=${classification.laneOwnership.ownershipKind}`,
+    );
+  }
+
+  if (classification.evidenceGaps.length > 0) {
+    parts.push(`evidence-gap-count=${classification.evidenceGaps.length}`);
+  }
+
+  if (classification.classificationEvidence.length > 0) {
+    const primaryProof = classification.classificationEvidence.find(
+      (evidence) =>
+        evidence.startsWith("expected-proof=") ||
+        evidence.startsWith("stale-proof=") ||
+        evidence.startsWith("ownerless-proof=") ||
+        evidence.startsWith("lane-name="),
+    );
+    if (primaryProof) {
+      parts.push(primaryProof);
+    }
+  }
+
+  return parts.join("; ");
+}
+
 export function buildOwnerlessGeneratedTableRegistryDriftPlannerReport(input: {
   classificationReport: OwnerlessGeneratedTableRegistryDriftClassificationReport;
+  driftSnapshot?: PlannerWorktreeDriftSnapshot | null;
   evidenceReport: OwnerlessGeneratedTableRegistryDriftEvidenceReport;
   generatedAtUtc?: string;
 }): OwnerlessGeneratedTableRegistryDriftPlannerReport {
@@ -1090,15 +1160,64 @@ export function buildOwnerlessGeneratedTableRegistryDriftPlannerReport(input: {
     input.generatedAtUtc ??
     input.classificationReport.generatedAtUtc ??
     new Date().toISOString();
+  const classification = input.classificationReport.classification;
+  const nextAction =
+    resolveGeneratedTableRegistryArtifactNextAction(classification);
 
   return {
+    classificationClarity: resolveGeneratedTableRegistryClassificationClarity({
+      artifactPath: classification.artifactPath,
+      classification,
+      driftSnapshot: input.driftSnapshot,
+    }),
     classificationReport: input.classificationReport,
     evidenceReport: input.evidenceReport,
+    evidenceSummary: buildGeneratedTableRegistryArtifactEvidenceSummary({
+      classification,
+      evidenceReport: input.evidenceReport,
+    }),
     generatedAtUtc,
-    nextAction: resolveGeneratedTableRegistryArtifactNextAction(
-      input.classificationReport.classification,
-    ),
+    nextAction,
   };
+}
+
+export function formatOwnerlessGeneratedTableRegistryDriftPlannerReport(
+  report: OwnerlessGeneratedTableRegistryDriftPlannerReport,
+): string {
+  const nextAction = report.nextAction;
+  const classification = report.classificationReport.classification;
+  const lines = [
+    OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_PLANNER_REPORT_HEADER,
+    `generated-at-utc=${report.generatedAtUtc}`,
+    "",
+    "[planner-report]",
+    `artifact-path=${nextAction.artifactPath}`,
+    `table-entry-file=${nextAction.tableEntryFileName}`,
+    `table-entry-id=${nextAction.tableEntryId}`,
+    `primary-status=${nextAction.primaryStatus}`,
+    `classification-clarity=${report.classificationClarity}`,
+    `evidence-summary=${report.evidenceSummary}`,
+    `next-safe-action=${nextAction.action}`,
+    `next-safe-action-reason=${nextAction.reason}`,
+  ];
+
+  if (classification.laneOwnership) {
+    lines.push(`owned-lane=${classification.laneOwnership.laneName}`);
+    if (classification.laneOwnership.branchName) {
+      lines.push(
+        `owned-lane-branch=${classification.laneOwnership.branchName}`,
+      );
+    }
+  }
+
+  if (nextAction.missingEvidence.length > 0) {
+    lines.push("", "[missing-evidence]");
+    for (const gap of nextAction.missingEvidence) {
+      lines.push(`  - ${gap}`);
+    }
+  }
+
+  return `${lines.join("\n")}\n`;
 }
 
 export function formatOwnerlessGeneratedTableRegistryDriftNextActionReport(
@@ -1142,6 +1261,7 @@ export function serializeOwnerlessGeneratedTableRegistryDriftPlannerReport(
 
 export function formatOwnerlessGeneratedTableRegistryDriftUnifiedReport(input: {
   classificationReport: OwnerlessGeneratedTableRegistryDriftClassificationReport;
+  driftSnapshot?: PlannerWorktreeDriftSnapshot | null;
   evidenceReport: OwnerlessGeneratedTableRegistryDriftEvidenceReport;
   generatedAtUtc?: string;
 }): string {
@@ -1158,6 +1278,10 @@ export function formatOwnerlessGeneratedTableRegistryDriftUnifiedReport(input: {
     ).trimEnd(),
     "",
     formatOwnerlessGeneratedTableRegistryDriftNextActionReport(
+      plannerReport,
+    ).trimEnd(),
+    "",
+    formatOwnerlessGeneratedTableRegistryDriftPlannerReport(
       plannerReport,
     ).trimEnd(),
     "",

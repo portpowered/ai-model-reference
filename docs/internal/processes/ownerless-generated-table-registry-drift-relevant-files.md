@@ -28,7 +28,11 @@ The observed table entry under investigation is
   registry regeneration proof and optional drift-snapshot lane ownership.
   Next-action helpers (`resolveGeneratedTableRegistryArtifactNextAction`,
   `buildOwnerlessGeneratedTableRegistryDriftPlannerReport`) emit one explicit
-  planner next action per classified status.
+  planner next action per classified status. Consolidated planner report
+  formatting (`formatOwnerlessGeneratedTableRegistryDriftPlannerReport`)
+  surfaces artifact path, observed table id, primary status,
+  `classification-clarity` (`clear` or `ambiguous` for ownerless drift),
+  `evidence-summary`, and `next-safe-action` in one planner-facing section.
 * `scripts/report-ownerless-generated-table-registry-drift.ts` — planner-facing
   CLI with fixture flags aligned to other factory reports. Default output
   includes evidence, classification, and next action; pass `--evidence-only` to
@@ -41,8 +45,10 @@ The observed table entry under investigation is
 | Capture read-only generated table registry drift evidence for the ownerless priority blocker | `bun run report:ownerless-generated-table-registry-drift` |
 
 Default output includes evidence, artifact classification, and one explicit
-planner next action. Use `--evidence-only` when a caller needs the story-001
-evidence surface only.
+planner next action. The consolidated `[planner-report]` section names artifact
+path, observed table id, primary status, evidence summary, classification
+clarity, and next safe action. Use `--evidence-only` when a caller needs the
+story-001 evidence surface only.
 
 Fixture flags:
 
@@ -61,9 +67,10 @@ fixtures in
 `src/tests/fixtures/ownerless-generated-table-registry-drift/`. Tests should
 assert observable emitted behavior (root git truth, artifact dirty status,
 table-entry observation kind, preserve policy, primary classification status,
-regeneration proof kind, lane ownership when present, and next-safe-action for
-each primary status) without meta inventories of routes, docs links, or command
-lists.
+regeneration proof kind, lane ownership when present, consolidated planner
+report fields (`evidence-summary`, `classification-clarity`), and
+next-safe-action for each primary status) without meta inventories of routes,
+docs links, or command lists.
 
 ## Related process docs
 

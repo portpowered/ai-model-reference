@@ -14,6 +14,7 @@ import {
   renderGeneratedTableRegistryModule,
 } from "@/lib/content/table-registry-generation";
 import {
+  buildGeneratedTableRegistryArtifactEvidenceSummary,
   buildOwnerlessGeneratedTableRegistryDriftClassificationReport,
   buildOwnerlessGeneratedTableRegistryDriftPlannerReport,
   buildTableRegistryRegenerationProof,
@@ -25,6 +26,7 @@ import {
   detectTableEntryPresenceInModuleSource,
   extractTableEntryDiffLines,
   formatOwnerlessGeneratedTableRegistryDriftEvidenceReport,
+  formatOwnerlessGeneratedTableRegistryDriftPlannerReport,
   formatOwnerlessGeneratedTableRegistryDriftUnifiedReport,
   GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
   type GeneratedTableRegistryLaneOwnershipEvidence,
@@ -34,10 +36,13 @@ import {
   OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_CLASSIFICATION_HEADER,
   OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_HEADER,
   OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_NEXT_ACTION_HEADER,
+  OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_PLANNER_REPORT_HEADER,
   OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_PRESERVE_POLICY,
   type OwnerlessGeneratedTableRegistryDriftEvidenceReport,
+  type OwnerlessGeneratedTableRegistryDriftPlannerReport,
   renderExpectedTableRegistryModuleSource,
   resolveGeneratedTableRegistryArtifactNextAction,
+  resolveGeneratedTableRegistryClassificationClarity,
   serializeOwnerlessGeneratedTableRegistryDriftEvidenceReport,
   type TableRegistrySourceCatalog,
 } from "@/lib/factory/ownerless-generated-table-registry-drift";
@@ -231,6 +236,67 @@ function createLaneOwnership(
     reason: `Dirty path was observed directly in active lane ${laneName}.`,
     reasonCode: "direct-worktree-match",
   };
+}
+
+function buildPlannerReportForClassification(input: {
+  dirtyStatus: "clean" | "dirty";
+  headSource: string;
+  laneOwnership?: GeneratedTableRegistryLaneOwnershipEvidence | null;
+  loadSourceCatalog?: (
+    repoRoot: string,
+    tableEntryFileName: string,
+  ) => TableRegistrySourceCatalog | null;
+  observationKind?:
+    | "present-in-worktree"
+    | "added-in-diff"
+    | "removed-in-diff"
+    | "modified-in-diff";
+  worktreeSource: string;
+}): OwnerlessGeneratedTableRegistryDriftPlannerReport {
+  const evidenceReport = createEvidenceReport({
+    dirtyStatus: input.dirtyStatus,
+    headSource: input.headSource,
+    observationKind: input.observationKind,
+    worktreeSource: input.worktreeSource,
+  });
+  const classificationReport =
+    buildOwnerlessGeneratedTableRegistryDriftClassificationReport({
+      evidenceReport,
+      generatedAtUtc: "2026-07-03T05:00:00.000Z",
+      headSource: input.headSource,
+      laneOwnership: input.laneOwnership,
+      loadSourceCatalog: input.loadSourceCatalog,
+      worktreeSource: input.worktreeSource,
+    });
+
+  return buildOwnerlessGeneratedTableRegistryDriftPlannerReport({
+    classificationReport,
+    evidenceReport,
+    generatedAtUtc: "2026-07-03T05:00:00.000Z",
+  });
+}
+
+function expectConsolidatedPlannerReportFields(
+  formatted: string,
+  expected: {
+    classificationClarity: "clear" | "ambiguous";
+    nextSafeAction: string;
+    primaryStatus: string;
+  },
+): void {
+  expect(formatted).toContain(
+    OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_PLANNER_REPORT_HEADER,
+  );
+  expect(formatted).toContain(
+    `artifact-path=${GENERATED_TABLE_REGISTRY_ARTIFACT_PATH}`,
+  );
+  expect(formatted).toContain(`table-entry-id=${OBSERVED_TABLE_ENTRY_ID}`);
+  expect(formatted).toContain(`primary-status=${expected.primaryStatus}`);
+  expect(formatted).toContain(
+    `classification-clarity=${expected.classificationClarity}`,
+  );
+  expect(formatted).toContain("evidence-summary=");
+  expect(formatted).toContain(`next-safe-action=${expected.nextSafeAction}`);
 }
 
 describe("ownerless-generated-table-registry-drift", () => {
@@ -716,6 +782,220 @@ export const generatedTableRegistryPayloads = [
     expect(formatted).toContain(
       `artifact-path=${GENERATED_TABLE_REGISTRY_ARTIFACT_PATH}`,
     );
+    expectConsolidatedPlannerReportFields(formatted, {
+      classificationClarity: "clear",
+      nextSafeAction: "land-minimal-generated-registry-proof",
+      primaryStatus: "expected",
+    });
+  });
+
+  test("formats consolidated planner report for expected classification", () => {
+    const expectedSource = createExpectedModuleSourceForTableEntry(
+      OBSERVED_TABLE_ENTRY_FILE_NAME,
+    );
+    const plannerReport = buildPlannerReportForClassification({
+      dirtyStatus: "clean",
+      headSource: expectedSource,
+      loadSourceCatalog: () =>
+        createSourceCatalog(OBSERVED_TABLE_ENTRY_FILE_NAME),
+      worktreeSource: expectedSource,
+    });
+
+    const formatted =
+      formatOwnerlessGeneratedTableRegistryDriftPlannerReport(plannerReport);
+
+    expectConsolidatedPlannerReportFields(formatted, {
+      classificationClarity: "clear",
+      nextSafeAction: "land-minimal-generated-registry-proof",
+      primaryStatus: "expected",
+    });
+    expect(plannerReport.evidenceSummary).toContain("dirty-status=clean");
+    expect(plannerReport.evidenceSummary).toContain(
+      "regeneration-proof-kind=full-module-match",
+    );
+  });
+
+  test("formats consolidated planner report for stale classification", () => {
+    const staleSource = `import staleLoopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison-stale.json";
+export const generatedTableRegistrySourceFiles = [
+  "looped-transformers-comparison-stale.json",
+] as const;
+export const generatedTableRegistryPayloads = [
+  staleLoopedTransformersComparisonTableRecord,
+] as const;`;
+    const plannerReport = buildPlannerReportForClassification({
+      dirtyStatus: "dirty",
+      headSource: staleSource,
+      loadSourceCatalog: () =>
+        createSourceCatalog(OBSERVED_TABLE_ENTRY_FILE_NAME),
+      worktreeSource: staleSource,
+    });
+
+    const formatted =
+      formatOwnerlessGeneratedTableRegistryDriftPlannerReport(plannerReport);
+
+    expectConsolidatedPlannerReportFields(formatted, {
+      classificationClarity: "clear",
+      nextSafeAction: "operator-cleanup-scoped-artifact",
+      primaryStatus: "stale",
+    });
+    expect(plannerReport.evidenceSummary).toContain(
+      "stale-proof=generated-entry-not-reproducible-from-canonical-source",
+    );
+  });
+
+  test("formats consolidated planner report for lane-owned classification", () => {
+    const expectedSource = createExpectedModuleSourceForTableEntry(
+      OBSERVED_TABLE_ENTRY_FILE_NAME,
+    );
+    const plannerReport = buildPlannerReportForClassification({
+      dirtyStatus: "dirty",
+      headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+      laneOwnership: createLaneOwnership("looped-transformers-page"),
+      loadSourceCatalog: () => null,
+      observationKind: "added-in-diff",
+      worktreeSource: expectedSource,
+    });
+
+    const formatted =
+      formatOwnerlessGeneratedTableRegistryDriftPlannerReport(plannerReport);
+
+    expectConsolidatedPlannerReportFields(formatted, {
+      classificationClarity: "clear",
+      nextSafeAction: "wait-for-or-inspect-named-lane",
+      primaryStatus: "owned",
+    });
+    expect(formatted).toContain("owned-lane=looped-transformers-page");
+    expect(plannerReport.evidenceSummary).toContain(
+      "lane=looped-transformers-page",
+    );
+  });
+
+  test("formats consolidated planner report for ownerless classification with ambiguous clarity", () => {
+    const plannerReport = buildPlannerReportForClassification({
+      dirtyStatus: "dirty",
+      headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+      loadSourceCatalog: () => null,
+      observationKind: "added-in-diff",
+      worktreeSource: `import loopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison.json";`,
+    });
+
+    const formatted =
+      formatOwnerlessGeneratedTableRegistryDriftPlannerReport(plannerReport);
+
+    expectConsolidatedPlannerReportFields(formatted, {
+      classificationClarity: "ambiguous",
+      nextSafeAction: "planner-hold-missing-evidence",
+      primaryStatus: "ownerless",
+    });
+    expect(formatted).toContain("[missing-evidence]");
+    expect(
+      resolveGeneratedTableRegistryClassificationClarity({
+        artifactPath: GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+        classification: plannerReport.classificationReport.classification,
+      }),
+    ).toBe("ambiguous");
+    expect(
+      buildGeneratedTableRegistryArtifactEvidenceSummary({
+        classification: plannerReport.classificationReport.classification,
+        evidenceReport: plannerReport.evidenceReport,
+      }),
+    ).toContain("evidence-gap-count=");
+  });
+
+  test("formats unified report for stale, owned, and ownerless classifications", () => {
+    const staleSource = `import staleLoopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison-stale.json";
+export const generatedTableRegistrySourceFiles = [
+  "looped-transformers-comparison-stale.json",
+] as const;
+export const generatedTableRegistryPayloads = [
+  staleLoopedTransformersComparisonTableRecord,
+] as const;`;
+    const expectedSource = createExpectedModuleSourceForTableEntry(
+      OBSERVED_TABLE_ENTRY_FILE_NAME,
+    );
+
+    const staleReport = formatOwnerlessGeneratedTableRegistryDriftUnifiedReport(
+      {
+        classificationReport:
+          buildOwnerlessGeneratedTableRegistryDriftClassificationReport({
+            evidenceReport: createEvidenceReport({
+              dirtyStatus: "dirty",
+              headSource: staleSource,
+              worktreeSource: staleSource,
+            }),
+            headSource: staleSource,
+            loadSourceCatalog: () =>
+              createSourceCatalog(OBSERVED_TABLE_ENTRY_FILE_NAME),
+            worktreeSource: staleSource,
+          }),
+        evidenceReport: createEvidenceReport({
+          dirtyStatus: "dirty",
+          headSource: staleSource,
+          worktreeSource: staleSource,
+        }),
+      },
+    );
+    expectConsolidatedPlannerReportFields(staleReport, {
+      classificationClarity: "clear",
+      nextSafeAction: "operator-cleanup-scoped-artifact",
+      primaryStatus: "stale",
+    });
+
+    const ownedReport = formatOwnerlessGeneratedTableRegistryDriftUnifiedReport(
+      {
+        classificationReport:
+          buildOwnerlessGeneratedTableRegistryDriftClassificationReport({
+            evidenceReport: createEvidenceReport({
+              dirtyStatus: "dirty",
+              headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+              observationKind: "added-in-diff",
+              worktreeSource: expectedSource,
+            }),
+            laneOwnership: createLaneOwnership("looped-transformers-page"),
+            loadSourceCatalog: () => null,
+            worktreeSource: expectedSource,
+          }),
+        evidenceReport: createEvidenceReport({
+          dirtyStatus: "dirty",
+          headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+          observationKind: "added-in-diff",
+          worktreeSource: expectedSource,
+        }),
+      },
+    );
+    expectConsolidatedPlannerReportFields(ownedReport, {
+      classificationClarity: "clear",
+      nextSafeAction: "wait-for-or-inspect-named-lane",
+      primaryStatus: "owned",
+    });
+
+    const ownerlessReport =
+      formatOwnerlessGeneratedTableRegistryDriftUnifiedReport({
+        classificationReport:
+          buildOwnerlessGeneratedTableRegistryDriftClassificationReport({
+            evidenceReport: createEvidenceReport({
+              dirtyStatus: "dirty",
+              headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+              observationKind: "added-in-diff",
+              worktreeSource: `import loopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison.json";`,
+            }),
+            headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+            loadSourceCatalog: () => null,
+            worktreeSource: `import loopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison.json";`,
+          }),
+        evidenceReport: createEvidenceReport({
+          dirtyStatus: "dirty",
+          headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+          observationKind: "added-in-diff",
+          worktreeSource: `import loopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison.json";`,
+        }),
+      });
+    expectConsolidatedPlannerReportFields(ownerlessReport, {
+      classificationClarity: "ambiguous",
+      nextSafeAction: "planner-hold-missing-evidence",
+      primaryStatus: "ownerless",
+    });
   });
 
   test("emits expected next action to land minimal generated registry proof", () => {
@@ -903,6 +1183,11 @@ export const generatedTableRegistryPayloads = [
       expect(result.stdout).toContain(
         "next-safe-action=land-minimal-generated-registry-proof",
       );
+      expect(result.stdout).toContain(
+        OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_PLANNER_REPORT_HEADER,
+      );
+      expect(result.stdout).toContain("evidence-summary=");
+      expect(result.stdout).toContain("classification-clarity=clear");
 
       const statusAfter = spawnSync(
         "git",
