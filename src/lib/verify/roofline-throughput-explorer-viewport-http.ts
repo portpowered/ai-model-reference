@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Browser, Page } from "playwright";
-import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import {
   closePlaywrightBrowserWithTimeout,
   launchPlaywrightBrowser,
@@ -139,25 +138,23 @@ export async function verifyRooflineThroughputExplorerViewports(
     viewports?: readonly RenderedQualityViewport[];
   } = {},
 ): Promise<string | null> {
-  return withExportIntegrationProbeLock(async () => {
-    const viewports = options.viewports ?? RENDERED_QUALITY_VIEWPORTS;
-    for (const viewport of viewports) {
-      const probe = await probeRooflineThroughputExplorerAtViewport(
-        bodyHtml,
-        {
-          width: viewport.width,
-          height: viewport.height,
-        },
-        options,
-      );
-      const failure = formatRooflineThroughputExplorerViewportProbeFailure(
-        viewport,
-        probe,
-      );
-      if (failure) {
-        return failure;
-      }
+  const viewports = options.viewports ?? RENDERED_QUALITY_VIEWPORTS;
+  for (const viewport of viewports) {
+    const probe = await probeRooflineThroughputExplorerAtViewport(
+      bodyHtml,
+      {
+        width: viewport.width,
+        height: viewport.height,
+      },
+      options,
+    );
+    const failure = formatRooflineThroughputExplorerViewportProbeFailure(
+      viewport,
+      probe,
+    );
+    if (failure) {
+      return failure;
     }
-    return null;
-  });
+  }
+  return null;
 }

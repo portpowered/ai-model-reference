@@ -35,18 +35,31 @@ Contributor-facing walkthrough:
 Routine canonical page branches should stay page-local unless the requested
 behavior requires shared infrastructure changes.
 
+Full observable budget (page-owned, supported derived, shared hotspot, and
+review lanes):
+[canonical-page-surface-budget-relevant-files.md](./canonical-page-surface-budget-relevant-files.md).
+
 **Page-local (routine):**
 
-- Page bundle under `src/content/docs/<section>/<slug>/`
+- Page bundle under `src/content/docs/<section>/<slug>/` (`page.mdx`, messages,
+  `assets.json`, page-local media)
 - Matching primary registry record and page-specific supporting graph/table
   records
 
-**Shared hotspot (redirect):**
+**Supported derived (regenerate locally; keep out of routine commits):**
 
-- Shared helpers such as `src/lib/content` and `src/lib/search`
+- Outputs from `bun run prepare:content-runtime` such as
+  `src/lib/content/generated/*.generated.ts`
+
+**Shared hotspot (redirect or visible exception):**
+
+- **`src/lib/content`** runtime helpers, MDX components, and colocated content
+  tests — currently the hottest shared surface in maintained hotspot evidence
+- Shared test and verification files (`src/tests/ci`, `src/tests/search`,
+  `scripts/validate-*.ts`)
 - Generated runtime artifacts checked in as authored changes
-- Shared test suites and broad `validate-*.ts` churn
 - Registry-manifest rewrites beyond the page's primary record
+- Build, search, or tooling files unless the work item is explicitly broader
 
 Do not hide shared hotspot churn inside an ordinary page slice. When
 `bun run audit:canonical-page-surface` reports `redirect-to-throughput-prd`, or
@@ -109,6 +122,12 @@ routes:
   align `conceptType` with `classification.concept.architecture`, and rely on ontology
   sidebar resolution for math/training/evaluation before editorial `sidebarGrouping`
   fallbacks for generation-and-diffusion or sequence-and-attention subgroups.
+- Concepts-section `sidebarGrouping.concepts` only allows `long-context`,
+  `inference`, `architecture`, and `reference-samples`; `generation-and-diffusion`
+  is glossary-only until a concepts generation subgroup exists.
+- Registry `relatedIds` should omit records without published docs pages; for
+  example `paper.ltx-2` can stay in model/paper metadata but must not appear in
+  concept `relatedIds` until `/docs/papers/ltx-2` ships.
 - `validatePublishedGlossaryClassification` in `validate-glossary-classification.ts`
   blocks published glossary pages that lack `primaryClassificationId` unless
   `sidebarGrouping.glossary` provides an explicit editorial fallback; wired through
@@ -200,6 +219,10 @@ from a `*_PAGE_DIR` import or `join(sectionRoot, slug)` to the derived lookup.
 * `src/content/docs/<section>/<slug>/`
   Canonical page bundle layout (`page.mdx`, `messages/`, `assets.json`, graphs,
   and related colocated files).
+* Concept teaching graphs wired through `<ConceptMap />` must define message-backed
+  `assets.<assetId>.title` and `assets.<assetId>.legend` entries (same shape as
+  `<ModuleGraph />`); `ConceptMap` delegates to `RegistryGraphFlow` via
+  `buildRegistryGraphLegend`.
 * `src/content/registry/`
   Registry JSON records that connect published pages to taxonomy, graphs, and
   runtime loaders.

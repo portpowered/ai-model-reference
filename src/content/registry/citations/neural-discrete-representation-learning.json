@@ -1,0 +1,24 @@
+{
+  "id": "citation.neural-discrete-representation-learning",
+  "slug": "neural-discrete-representation-learning",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "VQ-VAE paper",
+    "vector quantized variational autoencoder paper",
+    "discrete visual representation paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Aaron van den Oord", "Oriol Vinyals", "Koray Kavukcuoglu"],
+  "title": "Neural Discrete Representation Learning",
+  "year": 2017,
+  "url": "https://arxiv.org/abs/1711.00937",
+  "mla": "van den Oord, Aaron, Oriol Vinyals, and Koray Kavukcuoglu. \"Neural Discrete Representation Learning.\" arXiv, 2017, https://arxiv.org/abs/1711.00937."
+}

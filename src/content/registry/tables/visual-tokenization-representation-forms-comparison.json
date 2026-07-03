@@ -1,0 +1,56 @@
+{
+  "id": "table.visual-tokenization-representation-forms-comparison",
+  "subjectId": "concept.visual-tokenization",
+  "columns": [
+    {
+      "moduleId": "module.clip-image-tokenization",
+      "titleKey": "tables.representationForms.columns.patchTokens.title"
+    },
+    {
+      "moduleId": "concept.autoregressive-generation",
+      "titleKey": "tables.representationForms.columns.discreteCodes.title"
+    },
+    {
+      "moduleId": "concept.diffusion-model",
+      "titleKey": "tables.representationForms.columns.latentTokens.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "sourceData",
+      "labelKey": "tables.representationForms.dimensions.sourceData"
+    },
+    {
+      "id": "tokenForm",
+      "labelKey": "tables.representationForms.dimensions.tokenForm"
+    },
+    {
+      "id": "commonModelUse",
+      "labelKey": "tables.representationForms.dimensions.commonModelUse"
+    },
+    {
+      "id": "mainTradeoff",
+      "labelKey": "tables.representationForms.dimensions.mainTradeoff"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.clip-image-tokenization": {
+      "sourceData": "tables.representationForms.values.patchTokens.sourceData",
+      "tokenForm": "tables.representationForms.values.patchTokens.tokenForm",
+      "commonModelUse": "tables.representationForms.values.patchTokens.commonModelUse",
+      "mainTradeoff": "tables.representationForms.values.patchTokens.mainTradeoff"
+    },
+    "concept.autoregressive-generation": {
+      "sourceData": "tables.representationForms.values.discreteCodes.sourceData",
+      "tokenForm": "tables.representationForms.values.discreteCodes.tokenForm",
+      "commonModelUse": "tables.representationForms.values.discreteCodes.commonModelUse",
+      "mainTradeoff": "tables.representationForms.values.discreteCodes.mainTradeoff"
+    },
+    "concept.diffusion-model": {
+      "sourceData": "tables.representationForms.values.latentTokens.sourceData",
+      "tokenForm": "tables.representationForms.values.latentTokens.tokenForm",
+      "commonModelUse": "tables.representationForms.values.latentTokens.commonModelUse",
+      "mainTradeoff": "tables.representationForms.values.latentTokens.mainTradeoff"
+    }
+  }
+}

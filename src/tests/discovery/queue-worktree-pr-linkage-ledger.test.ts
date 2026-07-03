@@ -375,7 +375,10 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
     expect(result.stdout).toContain("metadata=present");
     expect(result.stdout).toContain("linkage=linked-with-gaps");
     expect(result.stdout).toContain(
-      "missing=stamped branch linkage is stale: git branch inspection failed during the last refresh; stamped pull request linkage is stale: pull request lookup API returned 502; no open PR metadata found for branch alpha",
+      "metadata-refresh=stamped branch linkage is stale: git branch inspection failed during the last refresh; stamped pull request linkage is stale: pull request lookup API returned 502",
+    );
+    expect(result.stdout).toContain(
+      "missing=no open PR metadata found for branch alpha",
     );
 
     rmSync(dir, { recursive: true, force: true });
