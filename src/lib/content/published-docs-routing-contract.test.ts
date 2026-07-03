@@ -134,9 +134,9 @@ describe("published docs routing contract", () => {
   });
 
   test("presence, related-doc hrefs, and prose auto-links stay aligned for representative concept routes", () => {
-    const feedForwardNetwork = requireRecord(
-      getConceptById("concept.feed-forward-network"),
-      "feed-forward-network concept",
+    const relu = requireRecord(
+      getConceptById("concept.relu"),
+      "relu concept",
     );
     const quantization = requireRecord(
       getConceptById("concept.quantization"),
@@ -149,9 +149,9 @@ describe("published docs routing contract", () => {
 
     const representativeConcepts = [
       {
-        alias: "FFN",
-        href: "/docs/modules/feed-forward-network",
-        record: feedForwardNetwork,
+        alias: "rectified linear unit",
+        href: "/docs/modules/relu",
+        record: relu,
       },
       {
         alias: "low-bit inference",
@@ -191,49 +191,35 @@ describe("published docs routing contract", () => {
   });
 
   test("module-backed concepts keep stable membership and href behavior for runtime callers", () => {
-    const feedForwardNetwork = requireRecord(
-      getConceptById("concept.feed-forward-network"),
-      "feed-forward-network concept",
-    );
+    const relu = requireRecord(getConceptById("concept.relu"), "relu concept");
     const publishedModuleEntry = requireRecord(
-      getPublishedDocsEntryByRegistryId("module.feed-forward-network"),
-      "feed-forward-network module entry",
+      getPublishedDocsEntryByRegistryId("module.relu"),
+      "relu module entry",
     );
     const source = {
       ...requireRecord(getModelById("model.gpt-3"), "gpt-3 model"),
-      relatedIds: [feedForwardNetwork.id],
+      relatedIds: [relu.id],
     };
     const [relatedItem] = deriveCuratedRelatedItems(
       source,
-      [feedForwardNetwork],
+      [relu],
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
 
-    expect(getPublishedDocsEntryByRegistryId(feedForwardNetwork.id)).toBe(
-      undefined,
-    );
-    expect(getPublishedDocsEntriesBySlug(feedForwardNetwork.slug)).toEqual([
+    expect(getPublishedDocsEntryByRegistryId(relu.id)).toBe(undefined);
+    expect(getPublishedDocsEntriesBySlug(relu.slug)).toEqual([
       publishedModuleEntry,
     ]);
-    expect(MODULE_BACKED_CONCEPT_REGISTRY_IDS.has(feedForwardNetwork.id)).toBe(
-      true,
-    );
+    expect(MODULE_BACKED_CONCEPT_REGISTRY_IDS.has(relu.id)).toBe(true);
     expect(
-      hasPublishedDocsPageForRecord(
-        feedForwardNetwork,
-        PUBLISHED_DOCS_REGISTRY_IDS,
-      ),
+      hasPublishedDocsPageForRecord(relu, PUBLISHED_DOCS_REGISTRY_IDS),
     ).toBe(true);
-    expect(getPublishedDocsHrefForRecord(feedForwardNetwork)).toBe(
-      "/docs/modules/feed-forward-network",
-    );
-    expect(registryRecordHref(feedForwardNetwork)).toBe(
-      "/docs/modules/feed-forward-network",
-    );
+    expect(getPublishedDocsHrefForRecord(relu)).toBe("/docs/modules/relu");
+    expect(registryRecordHref(relu)).toBe("/docs/modules/relu");
     expect(relatedItem).toEqual(
       expect.objectContaining({
-        registryId: feedForwardNetwork.id,
-        href: "/docs/modules/feed-forward-network",
+        registryId: relu.id,
+        href: "/docs/modules/relu",
         isPlanned: false,
       }),
     );
