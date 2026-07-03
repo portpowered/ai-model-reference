@@ -23,6 +23,7 @@
 - Use `buildMergedPrDrainRowsFinalVerificationReport` for post-reconciliation root checkout, baseline-aware content safety (`observedDirtyPaths` on root/worktree evidence), and queue transition summaries; compare dirty paths with `findNewDirtyPaths` so pre-existing worktree drift does not fail verification.
 - Accepted consume operation for standalone merged drain idea rows is `manual-drain-row-move-to-complete` via `you work move <drain-work-id> complete --session 930b51a6-07ce-44e6-a639-7a6217f6e864`; the standard factory `consume` workstation does not apply without a paired task token.
 - Accepted complete operation for non-terminal drain rows is `manual-drain-row-terminal-completion` via the same `you work move <drain-work-id> complete --session <session>` command; `buildMergedPrDrainRowCompleteHandoff` reclassifies to no-op when unfinished implementation/review, PR mismatch, or missing metadata block the transition.
+- Serving-metric story 002 slice verification: add `<slug>-glossary-page.test.tsx` with message/render assertions for metric definitions, tradeoff prose, and serving-path links; browser-verify on a unique port after production build.
 
 ## 2026-07-01T00:00:00Z - prefill-decode-split-concept-page-001
 - Wired `concept.prefill-decode-split` discovery metadata: added `attention` tag, trimmed `relatedIds` to serving-path foundations, and bumped registry `updatedAt`.
@@ -243,4 +244,14 @@
   - `serving throughput` currently overlaps on both `concept.tokens-per-second` and `concept.throughput-vs-latency`; story 004 or a throughput/conflict-reduction lane may need alias narrowing on tokens-per-second.
   - Story 002 should expand reader-facing prose and metric definitions without restating the identity contract; story 003 adds serving-pressure mechanics.
   - Run `bun run fumadocs-mdx` before page render tests after adding glossary bundles.
+---
+
+## 2026-07-03T10:05:00Z - throughput-vs-latency-serving-metric-page-002
+- Verified reader-facing explainer prose in `messages/en.json` defines throughput as aggregate completed work and latency as one request's wait, and explains how higher concurrency can raise fleet throughput while worsening individual waits.
+- Added `throughput-vs-latency-glossary-page.test.tsx` with message and static-render assertions for tradeoff teaching, serving-metric distinctions, and serving-path links.
+- Ran `make validate-data`, typecheck, lint, focused tests, production build, and browser verification on port 3756 for title, definitions, concurrency tradeoff copy, related docs, and zero missing-content placeholders.
+- **Learnings for future iterations:**
+  - Story 001 already published the glossary bundle prose; story 002 mainly adds glossary-page render tests and built-route verification similar to `time-to-first-token-glossary-page.test.tsx`.
+  - Static render assertions should match message casing (`Serving more concurrent work`, not lowercase) because `expectHtmlToContainProse` is case-sensitive after tag stripping.
+  - Story 003 should add serving-pressure sections (queueing, batching, memory bandwidth, serving cost) without repeating the throughput-vs-latency primer from `whatItIs`/`simpleExample`.
 ---
