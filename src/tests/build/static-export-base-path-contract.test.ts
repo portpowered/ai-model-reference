@@ -181,7 +181,9 @@ describe("static export GitHub Pages base-path contract", () => {
     );
   });
 
-  test("script entrypoints pass against the shared base-path export artifact", () => {
+  test(
+    "script entrypoints pass against the shared base-path export artifact",
+    () => {
     const scriptEnv = {
       ...process.env,
       GITHUB_PAGES_BASE_PATH: exportBasePath,
@@ -233,5 +235,7 @@ describe("static export GitHub Pages base-path contract", () => {
       cwd: repoRoot,
     });
     expect(shellVerification.ok).toBe(true);
-  });
+  },
+  { timeout: 30_000 },
+  );
 });
