@@ -1,1 +1,0 @@
-{"alpha":{"number":42,"headRefName":"alpha","mergeStateStatus":"DIRTY","statusCheckRollup":[{"conclusion":"SUCCESS"}]},"beta":{"number":43,"headRefName":"beta","mergeStateStatus":"BLOCKED","statusCheckRollup":[{"status":"IN_PROGRESS"}]},"gamma":{"pullRequest":null,"failureKind":"auth","failureReason":"gh auth token is expired"}}

@@ -1,1 +1,0 @@
-{"alpha":{"number":42,"headRefName":"alpha","mergeStateStatus":"CLEAN","statusCheckRollup":[{"conclusion":"SUCCESS"}],"url":"https://example.com/pr/42"},"beta":{"pullRequest":null,"failureKind":"not-found","failureReason":"no open PR metadata found for branch beta"}}
