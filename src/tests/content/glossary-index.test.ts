@@ -65,7 +65,6 @@ describe("loadPublishedGlossaryEntries", () => {
       ["/docs/glossary/kv-cache", "KV cache"],
       ["/docs/glossary/special-tokens", "Special Tokens"],
       ["/docs/glossary/decode", "Decode"],
-      ["/docs/glossary/prefill-decode-split", "Prefill/decode split"],
       ["/docs/glossary/transformer", "Transformer"],
       ["/docs/glossary/vector", "Vector"],
       ["/docs/glossary/vocabulary-size", "Vocabulary Size"],

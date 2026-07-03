@@ -10,8 +10,14 @@ const messages = {
   description: "Token glossary page.",
   assets: {
     conceptMap: {
+      title: "Token flow concept map",
       alt: "Diagram showing text flowing through a tokenizer into token IDs and embeddings",
       caption: "How raw text becomes token IDs before the transformer stack",
+      legend: {
+        "data-flow": {
+          label: "Token computation path",
+        },
+      },
     },
   },
 } satisfies PageMessages;
@@ -28,7 +34,7 @@ const assets = {
 } satisfies PageAssetConfig;
 
 describe("ConceptMap", () => {
-  test("renders the concept map graph asset with message-backed alt and caption", () => {
+  test("renders the concept map graph asset with message-backed title, legend, alt, and caption", () => {
     const html = renderToStaticMarkup(
       <PageMessagesProvider messages={messages} isDev={false}>
         <PageAssetsProvider assets={assets} isDev={false}>
@@ -37,8 +43,11 @@ describe("ConceptMap", () => {
       </PageMessagesProvider>,
     );
 
-    expect(html).toContain('data-page-asset="conceptMap"');
     expect(html).toContain('data-graph-id="graph.token-concept-map"');
+    expect(html).toContain('data-graph-title="graph.token-concept-map"');
+    expect(html).toContain("Token flow concept map");
+    expect(html).toContain('data-graph-legend="graph.token-concept-map"');
+    expect(html).toContain("Token computation path");
     expect(html).toContain(
       "Diagram showing text flowing through a tokenizer into token IDs and embeddings",
     );

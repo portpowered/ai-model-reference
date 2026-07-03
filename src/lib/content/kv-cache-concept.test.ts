@@ -64,7 +64,7 @@ describe("KV-cache concept page (kv-cache-concept-page-001)", () => {
     expect(
       items.find((item) => item.registryId === "concept.prefill-decode-split")
         ?.href,
-    ).toBe("/docs/glossary/prefill-decode-split");
+    ).toBe("/docs/concepts/prefill-decode-split");
     expect(
       items.find(
         (item) => item.registryId === "concept.autoregressive-generation",

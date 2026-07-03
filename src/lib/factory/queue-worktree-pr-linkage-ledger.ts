@@ -482,13 +482,17 @@ function formatLinkageLaneDetailRow(lane: QueueWorktreePrLinkageLane): string {
 
 function rankPlannerWatchdogLane(lane: QueueWorktreePrLinkageLane): number {
   if (lane.pullRequest) {
-    if (lane.nextAction === "refresh-branch") {
+    if (
+      lane.queueMismatchRisk === "conflict-drift" ||
+      lane.plannerLaneKind === "merge-conflict" ||
+      lane.nextAction === "refresh-branch"
+    ) {
       return 0;
     }
     if (lane.checkHealth === "failing") {
       return 1;
     }
-    if (lane.nextAction === "wait") {
+    if (lane.checkHealth === "pending" || lane.nextAction === "wait") {
       return 2;
     }
     return 3;

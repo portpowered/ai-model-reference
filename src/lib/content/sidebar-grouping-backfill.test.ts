@@ -30,6 +30,7 @@ const GLOSSARY_SIDEBAR_BACKFILLS = [
   ["concept.conditioning", "generation-and-diffusion"],
   ["concept.denoising-generation", "generation-and-diffusion"],
   ["concept.diffusion-model", "generation-and-diffusion"],
+  ["concept.flow-matching", "generation-and-diffusion"],
 ] as const;
 
 const CONCEPT_SIDEBAR_BACKFILLS = [
@@ -37,6 +38,7 @@ const CONCEPT_SIDEBAR_BACKFILLS = [
   ["concept.positional-encodings", "long-context"],
   ["concept.why-long-context-is-hard", "long-context"],
   ["concept.page-spec-workflow-sample", "reference-samples"],
+  ["concept.video-generation", "architecture"],
 ] as const;
 
 const MODULE_SIDEBAR_BACKFILLS = [

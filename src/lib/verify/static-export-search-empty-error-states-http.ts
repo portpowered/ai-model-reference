@@ -294,8 +294,12 @@ async function typeSearchPageQuery(
     return `search input did not hydrate on /search within ${timeoutMs}ms`;
   }
 
-  await input.focus();
-  await input.pressSequentially(query, { delay: 30 });
+  try {
+    await input.focus();
+    await input.pressSequentially(query, { delay: 30 });
+  } catch {
+    return `search input did not hydrate on /search within ${timeoutMs}ms`;
+  }
   return null;
 }
 

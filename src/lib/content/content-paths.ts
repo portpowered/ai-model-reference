@@ -31,6 +31,16 @@ export function getDocsRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "docs");
 }
 
+/** Narrative blog posts under `src/content/blog`. */
+export function getBlogRoot(contentRoot = getContentRoot()): string {
+  return join(contentRoot, "blog");
+}
+
+/** Blog post bundle under `src/content/blog/<slug>`. */
+export function getBlogPageDir(slug: string, blogRoot = getBlogRoot()): string {
+  return join(blogRoot, slug);
+}
+
 /** Supported canonical docs sections under `src/content/docs`. */
 export const DOCS_SECTIONS = [
   "glossary",
@@ -173,6 +183,9 @@ const contentRoot = getContentRoot();
 
 /** Default `src/content` root for production loaders. */
 export const CONTENT_ROOT = contentRoot;
+
+/** Default `src/content/blog` root. */
+export const BLOG_ROOT = getBlogRoot(contentRoot);
 
 /** Default `src/content/docs` root for page discovery. */
 export const DOCS_ROOT = getDocsRoot(contentRoot);
@@ -431,12 +444,6 @@ export const PREFILL_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "prefill");
 
 /** Phase 5 decode glossary page directory. */
 export const DECODE_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "decode");
-
-/** Phase 5 prefill/decode split glossary page directory. */
-export const PREFILL_DECODE_SPLIT_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
-  "prefill-decode-split",
-);
 
 /** Phase 5 sampling overview glossary page directory. */
 export const SAMPLING_OVERVIEW_GLOSSARY_PAGE_DIR = join(

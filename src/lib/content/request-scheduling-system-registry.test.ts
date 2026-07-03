@@ -86,7 +86,7 @@ describe("request scheduling system registry", () => {
     expect(
       items.find((item) => item.registryId === "concept.prefill-decode-split")
         ?.href,
-    ).toBe("/docs/glossary/prefill-decode-split");
+    ).toBe("/docs/concepts/prefill-decode-split");
     expect(
       items.find((item) => item.registryId === "system.batching")?.href,
     ).toBe("/docs/systems/batching");

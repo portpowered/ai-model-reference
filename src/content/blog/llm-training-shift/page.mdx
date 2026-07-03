@@ -1,0 +1,60 @@
+---
+messageNamespace: "local"
+assetNamespace: "local"
+publishedAt: "2026-07-02"
+updatedAt: "2026-07-02"
+authors:
+  - site-team
+tags:
+  - foundations
+  - alignment
+relatedDocIds:
+  - training-regime.pretraining
+  - training-regime.instruction-tuning
+  - training-regime.rlhf
+  - training-regime.post-training
+  - training-regime.distillation
+status: "published"
+---
+
+import { BlogRelatedDocs } from "@/features/blog/components/BlogRelatedDocs";
+import { Callout } from "@/features/docs/components/Callout";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingSignalStackedChartFromDefault } from "@/features/graphs/training-signal/TrainingSignalStackedChartFromDefault";
+
+# <T k="title" />
+
+<T k="contextSentence" />
+
+<TagPillList tags={["foundations", "alignment"]} />
+
+## Summary
+
+<T k="takeaway" />
+
+## Why the training mix changed
+
+Early large language models were mostly characterized by one dominant signal: a broad pretraining corpus scraped from text on the open web. That corpus still matters, but the models readers use today are shaped by additional supervision and feedback loops that arrive after pretraining.
+
+Instruction and supervised examples teach format-following behavior. Preference comparisons steer style and safety. Verifiable reinforcement-learning tasks reward outcomes that can be checked automatically. Synthetic and model-generated traces expand coverage when human labels are scarce. On-policy distillation and self-distillation recycle the model's own outputs back into training.
+
+Prose can list these signals, but a stacked timeline makes it easier to compare how their relative presence grows across eras without implying false precision.
+
+## Training-signal mix over time
+
+The chart below is a **conceptual illustration**. Band heights show illustrative relative emphasis, not measured dataset percentages or published benchmarks.
+
+<TrainingSignalStackedChartFromDefault caption="Illustrative training-signal mix across three eras. Values are conceptual, not sourced measurements." />
+
+<Callout type="note" titleKey="callouts.conceptualChart.title">
+  <T k="callouts.conceptualChart.body" />
+</Callout>
+
+## What to read next
+
+For stable definitions of each training stage, use the reference pages linked below instead of treating this post as a canonical spec.
+
+## Related reference pages
+
+<BlogRelatedDocs relatedDocIds={["training-regime.pretraining", "training-regime.instruction-tuning", "training-regime.rlhf", "training-regime.post-training", "training-regime.distillation"]} />

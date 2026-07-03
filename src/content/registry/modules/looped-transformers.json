@@ -1,0 +1,57 @@
+{
+  "id": "module.looped-transformers",
+  "slug": "looped-transformers",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "looped transformers",
+    "looped transformer",
+    "learning learning algorithms",
+    "iterative transformer",
+    "iterative in-context learning",
+    "Looped Transformers are Better at Learning Learning Algorithms",
+    "weight-shared looped transformer",
+    "looped transformer block"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "concept.transformer-architecture",
+    "concept.self-attention",
+    "module.attention",
+    "module.feed-forward-network",
+    "paper.looped-transformers-learning-learning-algorithms",
+    "citation.looped-transformers-iclr-2024"
+  ],
+  "citationIds": ["citation.looped-transformers-iclr-2024"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "releaseDate": "2024-05-07",
+  "authors": [
+    "Liu Yang",
+    "Kangwook Lee",
+    "Robert D. Nowak",
+    "Dimitris Papailiopoulos"
+  ],
+  "sourceId": "paper.looped-transformers-learning-learning-algorithms",
+  "primaryClassificationId": "classification.module.transformer-block",
+  "secondaryClassificationIds": ["classification.module"],
+  "moduleType": "other",
+  "moduleFamily": "transformer-block",
+  "conceptType": "looped-transformer-architecture",
+  "variantGroup": "looped-transformer-architecture",
+  "optimizes": [
+    "parameter-efficiency",
+    "iterative-inference",
+    "in-context-learning"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [
+    "paper.looped-transformers-learning-learning-algorithms"
+  ],
+  "mathLevel": "light"
+}

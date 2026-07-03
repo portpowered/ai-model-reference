@@ -103,6 +103,13 @@ describe("Phase 5 decode glossary page (US-003)", () => {
           item.href === "/docs/modules/sliding-window-attention",
       ),
     ).toBe(true);
+    expect(
+      items.some(
+        (item) =>
+          item.registryId === "concept.prefill-decode-split" &&
+          item.href === "/docs/concepts/prefill-decode-split",
+      ),
+    ).toBe(true);
   });
 
   test("messages teach next-token generation, inter-token latency, and serving tradeoffs", () => {
@@ -153,7 +160,7 @@ describe("Phase 5 decode glossary page (US-003)", () => {
     expectHtmlToContainProse(html, "memory bandwidth");
     expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/concepts/prefill"');
-    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
+    expect(html).toContain('href="/docs/concepts/prefill-decode-split"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');

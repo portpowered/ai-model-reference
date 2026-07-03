@@ -53,6 +53,7 @@ import {
   loadUiMessagesFromDisk,
   UiMessagesLoadError,
 } from "./ui-messages-load";
+import { validatePublishedBlogPosts } from "./validate-blog-posts";
 import { validateDerivedPublishedPageBundles } from "./validate-derived-published-page-bundles";
 import {
   validateGeneratedAssetRules,
@@ -308,6 +309,7 @@ export const phase1PageDirectories = [
 export type ValidateRegistryContentOptions = {
   registryRoot?: string;
   docsRoot?: string;
+  blogRoot?: string;
   messagesRoot?: string;
   /** Override Phase 1 page directories (for tests). */
   phase1PageDirectories?: readonly string[];
@@ -1454,6 +1456,12 @@ export async function validateRegistryContent(
     ...(await validateDerivedPublishedPageBundles({
       docsRoot,
       registryRoot,
+      indexes,
+    })),
+  );
+  errors.push(
+    ...(await validatePublishedBlogPosts({
+      blogRoot: options.blogRoot,
       indexes,
     })),
   );

@@ -30,6 +30,7 @@ const websiteVerifierPatterns = [
   /linear-attention-module-convergence\.test\.ts$/,
   /multi-head-latent-attention-module-convergence\.test\.ts$/,
   /multi-token-prediction-module-graph-viewport-http\.test\.ts$/,
+  /roofline-throughput-explorer-viewport-http\.test\.tsx$/,
   /reader-convergence-http\.test\.ts$/,
   /reader-route-checks\.test\.ts$/,
   /reader-route-content-convergence(-http)?\.test\.ts$/,

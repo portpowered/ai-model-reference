@@ -80,6 +80,7 @@ export type BaseSearchDocument = {
   kind: string;
   title: string;
   description: string;
+  publishedAt?: string;
   bodyText: string;
   headings: string[];
   directAliases: string[];
@@ -97,6 +98,7 @@ export type SearchDocument = {
   kind: string;
   title: string;
   description: string;
+  publishedAt?: string;
   bodyText: string;
   headings: string[];
   directAliases: string[];

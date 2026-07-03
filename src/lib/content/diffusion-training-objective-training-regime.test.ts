@@ -198,7 +198,7 @@ describe("diffusion training objective training-regime identity contracts", () =
     ).toBe("/docs/glossary/denoising-generation");
     expect(
       items.find((item) => item.registryId === "concept.latent-space")?.href,
-    ).toBe("/docs/glossary/latent-space");
+    ).toBe("/docs/concepts/latent-space");
     expect(
       items.find(
         (item) => item.registryId === "concept.autoregressive-generation",
@@ -242,7 +242,7 @@ describe("diffusion training objective training-regime identity contracts", () =
     expect(html).toContain('href="/docs/training/pretraining"');
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/glossary/denoising-generation"');
-    expect(html).toContain('href="/docs/glossary/latent-space"');
+    expect(html).toContain('href="/docs/concepts/latent-space"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('data-testid="tag-pill-list"');
