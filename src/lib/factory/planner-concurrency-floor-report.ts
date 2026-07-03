@@ -1,8 +1,10 @@
 import {
   buildQueueSessionIdByWorkId,
   discoverPlannerQueueHealthReport,
+  type QueueHealthDependency,
   type QueueHealthItem,
   type QueueHealthReport,
+  type QueueHealthStateType,
 } from "./planner-queue-health";
 
 const USEFUL_ACTIVE_WORK_TYPES = new Set(["task", "review"]);
@@ -63,6 +65,17 @@ export interface PlannerStaleNoiseEvidence {
   occurrenceCount?: number;
 }
 
+export interface PlannerBlockedDependencyEvidence {
+  workId: string;
+  workItemName: string;
+  workTypeName?: string;
+  stateName: string;
+  stateType: QueueHealthStateType;
+  reasons: string[];
+  dependencies: QueueHealthDependency[];
+  sessionId?: string;
+}
+
 export type PlannerBacklogCandidateStatus = "ready" | "held" | "already-active";
 
 export interface PlannerBacklogTaskFile {
@@ -102,6 +115,26 @@ export interface PlannerBacklogCandidate {
   recommendationReasons: string[];
 }
 
+export interface PlannerHeldBacklogEvidence {
+  taskPath: string;
+  taskId: string;
+  title: string;
+  status: Extract<PlannerBacklogCandidateStatus, "held" | "already-active">;
+  holdReasons: string[];
+  activeLaneName?: string;
+  recommendationReasons: string[];
+}
+
+export interface PlannerAdvisoryUncertaintyEvidence {
+  taskPath: string;
+  taskId: string;
+  title: string;
+  evidenceQuality: PlannerCollisionEvidenceQuality;
+  uncertaintyReasons: string[];
+  overlappingDirtySurfaces: string[];
+  taskPathHints: string[];
+}
+
 export interface PlannerConcurrencyFloorReport {
   contractVersion: "planner-concurrency-floor/v1";
   advisoryOnly: true;
@@ -112,6 +145,9 @@ export interface PlannerConcurrencyFloorReport {
   floorStatus: PlannerConcurrencyFloorStatus;
   lanesNeededToReachFloor: number;
   usefulActiveLanes: PlannerUsefulActiveLane[];
+  blockedDependencyLanes: PlannerBlockedDependencyEvidence[];
+  heldBacklogCandidates: PlannerHeldBacklogEvidence[];
+  advisoryUncertainties: PlannerAdvisoryUncertaintyEvidence[];
   ignoredStaleNoise: PlannerStaleNoiseEvidence[];
   plannerOwnedBacklogCandidates: PlannerBacklogCandidate[];
   refillCandidates: PlannerBacklogCandidate[];
@@ -166,6 +202,78 @@ function summarizeStaleNoise(item: QueueHealthItem): PlannerStaleNoiseEvidence {
     reasons: [...item.reasons],
     occurrenceCount: item.occurrenceCount,
   };
+}
+
+function summarizeBlockedDependency(
+  item: QueueHealthItem,
+  sessionId?: string,
+): PlannerBlockedDependencyEvidence {
+  return {
+    workId: item.workId,
+    workItemName: item.workItemName,
+    workTypeName: item.workTypeName,
+    stateName: item.stateName,
+    stateType: item.stateType,
+    reasons: [...item.reasons],
+    dependencies: item.dependencies.map((dependency) => ({ ...dependency })),
+    sessionId,
+  };
+}
+
+function deriveBlockedDependencyLanes(options: {
+  queueHealth: QueueHealthReport;
+  workListJsonText: string;
+}): PlannerBlockedDependencyEvidence[] {
+  const sessionIdsByWorkId = buildQueueSessionIdByWorkId(
+    options.workListJsonText,
+  );
+
+  return options.queueHealth.expectedBlockedItems.items
+    .map((item) =>
+      summarizeBlockedDependency(item, sessionIdsByWorkId.get(item.workId)),
+    )
+    .sort((left, right) => left.workItemName.localeCompare(right.workItemName));
+}
+
+function deriveHeldBacklogCandidates(
+  candidates: PlannerBacklogCandidate[],
+): PlannerHeldBacklogEvidence[] {
+  return candidates
+    .filter(
+      (
+        candidate,
+      ): candidate is PlannerBacklogCandidate & {
+        status: Extract<
+          PlannerBacklogCandidateStatus,
+          "held" | "already-active"
+        >;
+      } => candidate.status === "held" || candidate.status === "already-active",
+    )
+    .map((candidate) => ({
+      taskPath: candidate.taskPath,
+      taskId: candidate.taskId,
+      title: candidate.title,
+      status: candidate.status,
+      holdReasons: [...candidate.holdReasons],
+      activeLaneName: candidate.activeLaneName,
+      recommendationReasons: [...candidate.recommendationReasons],
+    }));
+}
+
+function deriveAdvisoryUncertainties(
+  candidates: PlannerBacklogCandidate[],
+): PlannerAdvisoryUncertaintyEvidence[] {
+  return candidates
+    .filter((candidate) => candidate.refillRecommendation === "uncertain")
+    .map((candidate) => ({
+      taskPath: candidate.taskPath,
+      taskId: candidate.taskId,
+      title: candidate.title,
+      evidenceQuality: candidate.evidenceQuality,
+      uncertaintyReasons: [...candidate.recommendationReasons],
+      overlappingDirtySurfaces: [...candidate.overlappingDirtySurfaces],
+      taskPathHints: [...candidate.taskPathHints],
+    }));
 }
 
 function classifyFloorStatus(
@@ -582,6 +690,16 @@ export function discoverPlannerConcurrencyFloorReport(options: {
     tempStateFiles: options.tempStateFiles ?? [],
     usefulActiveLanes,
   });
+  const blockedDependencyLanes = deriveBlockedDependencyLanes({
+    queueHealth,
+    workListJsonText: options.workListJsonText,
+  });
+  const heldBacklogCandidates = deriveHeldBacklogCandidates(
+    plannerOwnedBacklogCandidates,
+  );
+  const advisoryUncertainties = deriveAdvisoryUncertainties(
+    plannerOwnedBacklogCandidates,
+  );
   const refillCandidates =
     usefulActiveLaneCount < options.concurrencyFloor
       ? plannerOwnedBacklogCandidates
@@ -634,6 +752,9 @@ export function discoverPlannerConcurrencyFloorReport(options: {
       0,
     ),
     usefulActiveLanes,
+    blockedDependencyLanes,
+    heldBacklogCandidates,
+    advisoryUncertainties,
     ignoredStaleNoise:
       queueHealth.ignorableStaleNoise.items.map(summarizeStaleNoise),
     plannerOwnedBacklogCandidates,
@@ -686,6 +807,115 @@ function formatIgnoredStaleNoise(
       fields.push(`occurrences=${item.occurrenceCount}`);
     }
     fields.push(`reason=${item.reasons.join("; ")}`);
+    lines.push(`- ${fields.join(" ")}`);
+  }
+  return lines;
+}
+
+function formatDependencyEvidence(
+  dependencies: QueueHealthDependency[],
+): string {
+  if (dependencies.length === 0) {
+    return "none";
+  }
+
+  return dependencies
+    .map((dependency) => {
+      const fields = [
+        `depends-on=${dependency.targetWorkName}`,
+        `relation=${dependency.relationType}`,
+      ];
+      if (dependency.targetWorkId) {
+        fields.push(`target-work-id=${dependency.targetWorkId}`);
+      }
+      if (dependency.requiredState) {
+        fields.push(`required-state=${dependency.requiredState}`);
+      }
+      return fields.join(" ");
+    })
+    .join(" | ");
+}
+
+function formatBlockedDependencyLanes(
+  blockedDependencyLanes: PlannerBlockedDependencyEvidence[],
+): string[] {
+  const lines = [`Blocked Dependency Lanes (${blockedDependencyLanes.length})`];
+  if (blockedDependencyLanes.length === 0) {
+    lines.push("- none");
+    return lines;
+  }
+
+  for (const lane of blockedDependencyLanes) {
+    const fields = [
+      `work-item=${lane.workItemName}`,
+      `state=${lane.stateName}/${lane.stateType.toLowerCase()}`,
+      `work-id=${lane.workId}`,
+    ];
+    if (lane.workTypeName) {
+      fields.push(`type=${lane.workTypeName}`);
+    }
+    if (lane.sessionId) {
+      fields.push(`session=${lane.sessionId}`);
+    }
+    fields.push(`dependencies=${formatDependencyEvidence(lane.dependencies)}`);
+    fields.push(`reason=${lane.reasons.join("; ")}`);
+    lines.push(`- ${fields.join(" ")}`);
+  }
+  return lines;
+}
+
+function formatHeldBacklogCandidates(
+  heldBacklogCandidates: PlannerHeldBacklogEvidence[],
+): string[] {
+  const lines = [`Held Backlog Candidates (${heldBacklogCandidates.length})`];
+  if (heldBacklogCandidates.length === 0) {
+    lines.push("- none");
+    return lines;
+  }
+
+  for (const candidate of heldBacklogCandidates) {
+    const fields = [
+      `task=${candidate.taskId}`,
+      `status=${candidate.status}`,
+      `path=${candidate.taskPath}`,
+    ];
+    if (candidate.activeLaneName) {
+      fields.push(`active-lane=${candidate.activeLaneName}`);
+    }
+    if (candidate.holdReasons.length > 0) {
+      fields.push(`hold=${candidate.holdReasons.join(" | ")}`);
+    }
+    fields.push(`reason=${candidate.recommendationReasons.join(" | ")}`);
+    lines.push(`- ${fields.join(" ")}`);
+  }
+  return lines;
+}
+
+function formatAdvisoryUncertainties(
+  advisoryUncertainties: PlannerAdvisoryUncertaintyEvidence[],
+): string[] {
+  const lines = [`Advisory Uncertainties (${advisoryUncertainties.length})`];
+  if (advisoryUncertainties.length === 0) {
+    lines.push("- none");
+    return lines;
+  }
+
+  for (const uncertainty of advisoryUncertainties) {
+    const fields = [
+      `task=${uncertainty.taskId}`,
+      `title=${uncertainty.title}`,
+      `evidence=${uncertainty.evidenceQuality}`,
+      `path=${uncertainty.taskPath}`,
+    ];
+    if (uncertainty.taskPathHints.length > 0) {
+      fields.push(`path-hints=${uncertainty.taskPathHints.join(" | ")}`);
+    }
+    if (uncertainty.overlappingDirtySurfaces.length > 0) {
+      fields.push(
+        `dirty-surfaces=${uncertainty.overlappingDirtySurfaces.join(" | ")}`,
+      );
+    }
+    fields.push(`reason=${uncertainty.uncertaintyReasons.join(" | ")}`);
     lines.push(`- ${fields.join(" ")}`);
   }
   return lines;
@@ -757,9 +987,15 @@ export function formatPlannerConcurrencyFloorReport(
   const lines = [
     "Planner concurrency-floor summary",
     `generated-at=${report.generatedAtUtc} session=${report.sourceSession}`,
-    `summary useful-active=${report.usefulActiveLaneCount} floor=${report.concurrencyFloor} status=${report.floorStatus} refill-needed=${report.lanesNeededToReachFloor} advisory-only=${report.advisoryOnly}`,
+    `summary useful-active=${report.usefulActiveLaneCount} floor=${report.concurrencyFloor} status=${report.floorStatus} refill-needed=${report.lanesNeededToReachFloor} blocked-dependencies=${report.blockedDependencyLanes.length} held-backlog=${report.heldBacklogCandidates.length} advisory-uncertain=${report.advisoryUncertainties.length} advisory-only=${report.advisoryOnly}`,
     "",
     ...formatUsefulActiveLanes(report.usefulActiveLanes),
+    "",
+    ...formatBlockedDependencyLanes(report.blockedDependencyLanes),
+    "",
+    ...formatHeldBacklogCandidates(report.heldBacklogCandidates),
+    "",
+    ...formatAdvisoryUncertainties(report.advisoryUncertainties),
     "",
     ...formatIgnoredStaleNoise(report.ignoredStaleNoise),
     "",

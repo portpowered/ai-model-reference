@@ -5,6 +5,9 @@ import {
   serializePlannerConcurrencyFloorReport,
 } from "@/lib/factory/planner-concurrency-floor-report";
 
+const SUMMARY_SUFFIX =
+  " blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 advisory-only=true";
+
 describe("discoverPlannerConcurrencyFloorReport", () => {
   test("counts only live active queue lanes and compares them against the configured floor", () => {
     const report = discoverPlannerConcurrencyFloorReport({
@@ -233,13 +236,19 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
       concurrencyFloor: number;
       floorStatus: string;
       lanesNeededToReachFloor: number;
+      blockedDependencyLanes: unknown[];
+      heldBacklogCandidates: unknown[];
+      advisoryUncertainties: unknown[];
       ignoredStaleNoise: Array<{ workItemName: string }>;
     };
 
     expect(reportText).toContain("Planner concurrency-floor summary");
     expect(reportText).toContain(
-      "summary useful-active=1 floor=2 status=below-target refill-needed=1 advisory-only=true",
+      `summary useful-active=1 floor=2 status=below-target refill-needed=1${SUMMARY_SUFFIX}`,
     );
+    expect(reportText).toContain("Blocked Dependency Lanes (0)");
+    expect(reportText).toContain("Held Backlog Candidates (0)");
+    expect(reportText).toContain("Advisory Uncertainties (0)");
     expect(reportText).toContain("Useful Active Lanes (1)");
     expect(reportText).toContain(
       "- work-item=alpha raw-state=in-review session=session-alpha",
@@ -253,6 +262,9 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
       concurrencyFloor: 2,
       floorStatus: "below-target",
       lanesNeededToReachFloor: 1,
+      blockedDependencyLanes: [],
+      heldBacklogCandidates: [],
+      advisoryUncertainties: [],
     });
     expect(jsonReport.ignoredStaleNoise).toEqual([]);
   });
@@ -458,5 +470,174 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
         taskId: "ideas-to-review/content/beta-overlap",
       },
     ]);
+  });
+
+  test("separates blocked dependencies, held backlog, and advisory uncertainty from useful active work", () => {
+    const workListJsonText = JSON.stringify({
+      results: [
+        {
+          workId: "task-active",
+          name: "active-task",
+          sessionId: "session-active",
+          workTypeName: "task",
+          state: { name: "in-review", type: "PROCESSING" },
+        },
+        {
+          workId: "loopback-blocked",
+          name: "blocked-loopback",
+          sessionId: "session-blocked",
+          traceId: "trace-blocked",
+          workTypeName: "thoughts",
+          state: { name: "init", type: "INITIAL" },
+          relations: [
+            {
+              type: "DEPENDS_ON",
+              targetWorkId: "task-active",
+              targetWorkName: "active-task",
+              requiredState: "complete",
+            },
+          ],
+        },
+      ],
+    });
+    const report = discoverPlannerConcurrencyFloorReport({
+      concurrencyFloor: 4,
+      generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      plannerRootDirtyPaths: [
+        {
+          path: "src/lib/content/registry-runtime.ts",
+          surface: "src/lib/content",
+        },
+      ],
+      plannerRootDirtyPathsAvailable: true,
+      sourceSession: "~planner",
+      taskFiles: [
+        {
+          path: "tasks/ideas-to-review/content/held-task.md",
+          text: "# Held Task\n",
+        },
+        {
+          path: "tasks/ideas-to-review/content/uncertain-task.md",
+          text: "# Uncertain Task\n",
+        },
+        {
+          path: "tasks/ideas-to-review/content/surface-overlap.md",
+          text: [
+            "# Surface Overlap",
+            "",
+            "- Touches `src/lib/content/registry-runtime.ts`.",
+          ].join("\n"),
+        },
+      ],
+      tempStateFiles: [
+        {
+          path: "checklist.md",
+          text: [
+            "# Planner Checklist",
+            "",
+            "## Holds",
+            "- held-task blocked by dependency on registry cleanup",
+          ].join("\n"),
+        },
+      ],
+      workListJsonText,
+    });
+    const reportText = formatPlannerConcurrencyFloorReport(report);
+    const jsonReport = JSON.parse(
+      serializePlannerConcurrencyFloorReport(report),
+    ) as {
+      usefulActiveLaneCount: number;
+      blockedDependencyLanes: Array<{
+        workItemName: string;
+        reasons: string[];
+      }>;
+      heldBacklogCandidates: Array<{
+        status: string;
+        taskId: string;
+        holdReasons: string[];
+      }>;
+      advisoryUncertainties: Array<{
+        taskId: string;
+        uncertaintyReasons: string[];
+      }>;
+    };
+
+    expect(report.usefulActiveLaneCount).toBe(1);
+    expect(report.usefulActiveLanes).toEqual([
+      {
+        rawState: "in-review",
+        sessionId: "session-active",
+        workItemName: "active-task",
+      },
+    ]);
+    expect(report.blockedDependencyLanes).toEqual([
+      {
+        dependencies: [
+          {
+            relationType: "DEPENDS_ON",
+            requiredState: "complete",
+            targetWorkId: "task-active",
+            targetWorkName: "active-task",
+          },
+        ],
+        reasons: ["waiting on active-task (in-review/processing)"],
+        sessionId: "session-blocked",
+        stateName: "init",
+        stateType: "INITIAL",
+        workId: "loopback-blocked",
+        workItemName: "blocked-loopback",
+        workTypeName: "thoughts",
+      },
+    ]);
+    expect(report.heldBacklogCandidates).toEqual([
+      {
+        activeLaneName: undefined,
+        holdReasons: [
+          "checklist.md: - held-task blocked by dependency on registry cleanup",
+        ],
+        recommendationReasons: [
+          "Explicit hold evidence exists in planner temp-state notes.",
+        ],
+        status: "held",
+        taskId: "ideas-to-review/content/held-task",
+        taskPath: "tasks/ideas-to-review/content/held-task.md",
+        title: "Held Task",
+      },
+    ]);
+    expect(report.advisoryUncertainties).toEqual([
+      {
+        evidenceQuality: "missing",
+        overlappingDirtySurfaces: [],
+        taskId: "ideas-to-review/content/uncertain-task",
+        taskPath: "tasks/ideas-to-review/content/uncertain-task.md",
+        taskPathHints: [],
+        title: "Uncertain Task",
+        uncertaintyReasons: [
+          "Task file does not name repo-local paths, so collision evidence is incomplete.",
+        ],
+      },
+    ]);
+    expect(reportText).toContain(
+      "summary useful-active=1 floor=4 status=below-target refill-needed=3 blocked-dependencies=1 held-backlog=1 advisory-uncertain=1 advisory-only=true",
+    );
+    expect(reportText).toContain("Blocked Dependency Lanes (1)");
+    expect(reportText).toContain("work-item=blocked-loopback");
+    expect(reportText).toContain(
+      "reason=waiting on active-task (in-review/processing)",
+    );
+    expect(reportText).toContain("Held Backlog Candidates (1)");
+    expect(reportText).toContain("task=ideas-to-review/content/held-task");
+    expect(reportText).toContain("Advisory Uncertainties (1)");
+    expect(reportText).toContain("task=ideas-to-review/content/uncertain-task");
+    expect(jsonReport.usefulActiveLaneCount).toBe(1);
+    expect(
+      jsonReport.blockedDependencyLanes.map((lane) => lane.workItemName),
+    ).toEqual(["blocked-loopback"]);
+    expect(
+      jsonReport.heldBacklogCandidates.map((candidate) => candidate.taskId),
+    ).toEqual(["ideas-to-review/content/held-task"]);
+    expect(
+      jsonReport.advisoryUncertainties.map((uncertainty) => uncertainty.taskId),
+    ).toEqual(["ideas-to-review/content/uncertain-task"]);
   });
 });

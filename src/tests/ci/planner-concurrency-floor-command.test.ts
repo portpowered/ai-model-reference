@@ -101,9 +101,12 @@ describe("report-planner-concurrency-floor script", () => {
       expect(jsonResult.status).toBe(0);
       expect(humanResult.stdout).toContain("Planner concurrency-floor summary");
       expect(humanResult.stdout).toContain(
-        "summary useful-active=2 floor=3 status=below-target refill-needed=1 advisory-only=true",
+        "summary useful-active=2 floor=3 status=below-target refill-needed=1 blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 advisory-only=true",
       );
       expect(humanResult.stdout).toContain("Useful Active Lanes (2)");
+      expect(humanResult.stdout).toContain("Blocked Dependency Lanes (0)");
+      expect(humanResult.stdout).toContain("Held Backlog Candidates (0)");
+      expect(humanResult.stdout).toContain("Advisory Uncertainties (0)");
       expect(humanResult.stdout).toContain("Ignored Stale Noise (0)");
 
       const jsonReport = JSON.parse(jsonResult.stdout) as {
@@ -203,7 +206,7 @@ describe("report-planner-concurrency-floor script", () => {
 
       expect(result.status).toBe(0);
       expect(result.stdout).toContain(
-        "summary useful-active=1 floor=2 status=below-target refill-needed=1 advisory-only=true",
+        "summary useful-active=1 floor=2 status=below-target refill-needed=1 blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 advisory-only=true",
       );
       expect(result.stdout).toContain("Ignored Stale Noise (2)");
       expect(result.stdout).toContain("work-item=cron:though-retrigger");
@@ -312,6 +315,7 @@ describe("report-planner-concurrency-floor script", () => {
       expect(humanResult.stdout).toContain(
         "task=ideas-to-review/content/active-lane status=already-active eligible=false recommendation=hold",
       );
+      expect(humanResult.stdout).toContain("Held Backlog Candidates (2)");
       expect(humanResult.stdout).toContain("Refill Candidates (1)");
       expect(humanResult.stdout).toContain(
         "task=ideas-to-review/content/alpha-refill title=Alpha Refill recommendation=prefer evidence=grounded",
@@ -323,6 +327,13 @@ describe("report-planner-concurrency-floor script", () => {
           taskId: string;
           status: string;
           eligibleForRefill: boolean;
+        }>;
+        heldBacklogCandidates: Array<{
+          status: string;
+          taskId: string;
+        }>;
+        advisoryUncertainties: Array<{
+          taskId: string;
         }>;
         refillCandidates: Array<{
           refillRecommendation: string;
@@ -357,6 +368,22 @@ describe("report-planner-concurrency-floor script", () => {
           taskId: "ideas-to-review/content/beta-held",
         },
       ]);
+      expect(
+        jsonReport.heldBacklogCandidates.map((candidate) => ({
+          status: candidate.status,
+          taskId: candidate.taskId,
+        })),
+      ).toEqual([
+        {
+          status: "already-active",
+          taskId: "ideas-to-review/content/active-lane",
+        },
+        {
+          status: "held",
+          taskId: "ideas-to-review/content/beta-held",
+        },
+      ]);
+      expect(jsonReport.advisoryUncertainties).toEqual([]);
       expect(
         jsonReport.refillCandidates.map((candidate) => ({
           recommendation: candidate.refillRecommendation,
@@ -460,14 +487,24 @@ describe("report-planner-concurrency-floor script", () => {
       expect(humanResult.status).toBe(0);
       expect(jsonResult.status).toBe(0);
       expect(humanResult.stdout).toContain("Refill Candidates (3)");
+      expect(humanResult.stdout).toContain("Advisory Uncertainties (1)");
 
       const jsonReport = JSON.parse(jsonResult.stdout) as {
+        advisoryUncertainties: Array<{
+          taskId: string;
+        }>;
         refillCandidates: Array<{
           evidenceQuality: string;
           refillRecommendation: string;
           taskId: string;
         }>;
       };
+
+      expect(
+        jsonReport.advisoryUncertainties.map(
+          (uncertainty) => uncertainty.taskId,
+        ),
+      ).toEqual(["ideas-to-review/content/gamma-unclear"]);
 
       expect(
         jsonReport.refillCandidates.map((candidate) => candidate.taskId),
