@@ -6,8 +6,12 @@ import { GenerationEvolutionTimeline } from "@/features/generation-evolution/Gen
 import {
   DEFAULT_GENERATION_EVOLUTION_BLOG_DATA,
   GENERATION_EVOLUTION_STAGE_ORDER,
+  GENERATION_EVOLUTION_VISUAL_ACCESSIBLE_NAME,
 } from "@/features/generation-evolution/generation-evolution-data";
-import { GENERATION_EVOLUTION_SURFACE } from "@/features/generation-evolution/generation-evolution-surface";
+import {
+  GENERATION_EVOLUTION_MANUAL_VISIBILITY_EVIDENCE,
+  GENERATION_EVOLUTION_SURFACE,
+} from "@/features/generation-evolution/generation-evolution-surface";
 
 describe("GenerationEvolutionTimeline", () => {
   afterEach(() => {
@@ -86,7 +90,7 @@ describe("GenerationEvolutionTimeline", () => {
 
     expect(
       screen.getByRole("region", {
-        name: "Generation evolution visual unavailable",
+        name: `${GENERATION_EVOLUTION_VISUAL_ACCESSIBLE_NAME} unavailable`,
       }),
     ).toBeTruthy();
     expect(
@@ -115,12 +119,78 @@ describe("GenerationEvolutionTimeline", () => {
 
     expect(
       screen.getByRole("alert", {
-        name: "Generation evolution visual unavailable",
+        name: `${GENERATION_EVOLUTION_VISUAL_ACCESSIBLE_NAME} unavailable`,
       }),
     ).toBeTruthy();
     expect(
       document.querySelector('[data-generation-evolution-state="error"]'),
     ).toBeTruthy();
+  });
+});
+
+describe("GenerationEvolutionTimeline accessibility and responsiveness", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  test("exposes a generation-evolution accessible name and stage headings", () => {
+    render(<GenerationEvolutionTimeline />);
+
+    expect(
+      screen.getByRole("region", {
+        name: GENERATION_EVOLUTION_VISUAL_ACCESSIBLE_NAME,
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: DEFAULT_GENERATION_EVOLUTION_BLOG_DATA.title,
+      }),
+    ).toBeTruthy();
+
+    for (const stage of DEFAULT_GENERATION_EVOLUTION_BLOG_DATA.stages) {
+      expect(
+        screen.getByRole("heading", { level: 3, name: stage.label }),
+      ).toBeTruthy();
+      expect(screen.getByText(stage.descriptor)).toBeTruthy();
+    }
+  });
+
+  test("keeps responsive containment classes and avoids horizontal scroll shells", () => {
+    const html = renderToStaticMarkup(<GenerationEvolutionTimeline />);
+
+    expect(html).toContain("min-w-0");
+    expect(html).toContain("max-w-full");
+    expect(html).toContain("overflow-x-hidden");
+    expect(html).toContain("break-words");
+    expect(html).not.toContain("overflow-x-auto");
+  });
+
+  test("uses theme tokens and non-color change-kind labels for reviewer evidence", () => {
+    const html = renderToStaticMarkup(<GenerationEvolutionTimeline />);
+
+    expect(html).toContain("bg-primary/15 text-primary");
+    expect(html).toContain("bg-secondary text-secondary-foreground");
+    expect(html).toContain("bg-muted text-muted-foreground");
+    expect(html).toContain(
+      `data-manual-visibility-evidence="${GENERATION_EVOLUTION_MANUAL_VISIBILITY_EVIDENCE}"`,
+    );
+    expect(html).toContain(
+      'data-generation-evolution-theme-token="architecture"',
+    );
+    expect(html).toContain('data-generation-evolution-theme-token="objective"');
+    expect(html).toContain('data-generation-evolution-theme-token="domain"');
+
+    for (const stage of DEFAULT_GENERATION_EVOLUTION_BLOG_DATA.stages) {
+      const stageNode = document.createElement("div");
+      stageNode.innerHTML = html;
+      const badge = stageNode.querySelector(
+        `[data-generation-evolution-stage="${stage.id}"] [data-generation-evolution-change-kind="${stage.changeKind}"]`,
+      );
+      expect(badge?.textContent).toBe(
+        DEFAULT_GENERATION_EVOLUTION_BLOG_DATA.legend[stage.changeKind],
+      );
+    }
   });
 });
 
@@ -133,7 +203,7 @@ describe("GenerationEvolutionBlogVisual", () => {
     render(<GenerationEvolutionBlogVisual />);
 
     const section = screen.getByRole("region", {
-      name: DEFAULT_GENERATION_EVOLUTION_BLOG_DATA.title,
+      name: GENERATION_EVOLUTION_VISUAL_ACCESSIBLE_NAME,
     });
     expect(section).toBeTruthy();
     expect(

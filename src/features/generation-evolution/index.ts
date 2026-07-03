@@ -3,6 +3,7 @@ export { GenerationEvolutionTimeline } from "@/features/generation-evolution/Gen
 export {
   DEFAULT_GENERATION_EVOLUTION_BLOG_DATA,
   GENERATION_EVOLUTION_STAGE_ORDER,
+  GENERATION_EVOLUTION_VISUAL_ACCESSIBLE_NAME,
   type GenerationEvolutionChangeKind,
   type GenerationEvolutionLegend,
   type GenerationEvolutionStage,
@@ -12,6 +13,7 @@ export {
   validateGenerationEvolutionStages,
 } from "@/features/generation-evolution/generation-evolution-data";
 export {
+  GENERATION_EVOLUTION_MANUAL_VISIBILITY_EVIDENCE,
   GENERATION_EVOLUTION_SURFACE,
   type GenerationEvolutionSurface,
 } from "@/features/generation-evolution/generation-evolution-surface";

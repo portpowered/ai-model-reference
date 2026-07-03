@@ -15,3 +15,7 @@ export const GENERATION_EVOLUTION_SURFACE =
   "generation-evolution-timeline" as const;
 
 export type GenerationEvolutionSurface = typeof GENERATION_EVOLUTION_SURFACE;
+
+/** Reviewer-verifiable marker that change-kind meaning is carried by labels, not color alone. */
+export const GENERATION_EVOLUTION_MANUAL_VISIBILITY_EVIDENCE =
+  "generation-evolution-change-kind-labels" as const;

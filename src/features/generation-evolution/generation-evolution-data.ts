@@ -1,5 +1,8 @@
 import type { GenerationEvolutionSurface } from "@/features/generation-evolution/generation-evolution-surface";
 
+export const GENERATION_EVOLUTION_VISUAL_ACCESSIBLE_NAME =
+  "Diffusion generation architecture evolution visual";
+
 export const GENERATION_EVOLUTION_STAGE_ORDER = [
   "unet-denoising",
   "diffusion-transformer-denoising",
