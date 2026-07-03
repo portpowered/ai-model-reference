@@ -1,0 +1,88 @@
+---
+title: Gated DeltaNet
+description: How Gated Delta Networks combine input-dependent gating with delta-rule memory updates to mix sequences through a compact recurrent state instead of a full attention matrix.
+kind: "module"
+registryId: "module.gated-deltanet"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - attention
+  - context-window
+aliases:
+  - "Gated DeltaNet"
+  - "Gated Delta Network"
+  - "gated delta nets"
+  - "gated deltanet"
+  - "gated delta network"
+  - "GDN"
+  - "gated delta rule"
+updatedAt: "2026-07-02"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
+import { ModuleGraph } from "@/features/models/components/ModuleGraph";
+import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
+import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
+import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
+
+
+<ModuleAtAGlance registryId="module.gated-deltanet" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
+</Section>
+
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+
+  <ModuleGraph registryId="module.gated-deltanet" assetId="computeFlow" />
+</Section>
+
+<Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
+  <T k="sections.mathOrComputeSchema.body" />
+  <ModuleAttentionSchemaComparison schemaIds={["mha", "gdn"]} />
+</Section>
+
+<Section id="compared-to-nearby-modules" titleKey="sections.comparedToNearbyModules.title">
+  <T k="sections.comparedToNearbyModules.body" />
+
+  <ModuleComparisonTable
+    registryId="module.gated-deltanet"
+    assetId="comparisonTable"
+  />
+</Section>
+
+<Section id="example-architectures" titleKey="sections.exampleArchitectures.title">
+  <T k="sections.exampleArchitectures.body" />
+  <ModelsUsingModule registryId="module.gated-deltanet" />
+</Section>
+
+<Section id="limitations-and-tradeoffs" titleKey="sections.limitationsAndTradeoffs.title">
+  <T k="sections.limitationsAndTradeoffs.body" />
+</Section>
+
+<Section id="why-it-still-matters" titleKey="sections.whyItStillMatters.title">
+  <T k="sections.whyItStillMatters.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="module.gated-deltanet" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="module.gated-deltanet" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="module.gated-deltanet" />
+</Section>
