@@ -15,9 +15,13 @@
       "title": "Simple Example",
       "body": "After a self-attention layer lets every token read context from other tokens, the feed-forward network handles each position separately. Token five might represent the word \"river\": its vector expands to a wider hidden state, passes through an activation function such as GELU (Gaussian Error Linear Unit), and compresses back to model width before the next sublayer. Token six runs the same weight matrices on its own vector values, without mixing activations across positions."
     },
+    "denseAndSparseVariants": {
+      "title": "Dense And Sparse Variants",
+      "body": "Most transformer blocks still reserve one feed-forward slot after attention, but the internal wiring inside that slot varies. The standard feed-forward network is the dense baseline: it expands each token vector to a wider hidden size, applies a pointwise activation such as ReLU or a GELU-family function where appropriate, and projects back to model width on the same shared path for every token.\n\nSwiGLU (swish gated linear unit) keeps that dense shape but adds a gate branch. The gate passes through the sigmoid linear unit (SiLU) activation and multiplies the value branch element by element, so the layer can control which transformed features pass forward instead of treating every hidden unit the same way.\n\nMixture of experts is the sparse feed-forward-family variant. A router scores a pool of expert feed-forward networks for each token and sends the token through only the selected experts, merging their outputs instead of activating one identical dense block on every position. That pattern trades routing complexity for extra total capacity without paying full dense compute on every token.\n\nThese three families cover the usual dense-versus-sparse split readers meet in model cards. They modify the same token-wise role rather than replacing attention, and this page stops at that comparison instead of cataloging every later feed-forward tweak."
+    },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "A transformer feed-forward network is not the same thing as the entire transformer. It is one sublayer inside each block, paired with attention and usually wrapped by residual connections and normalization. It is also not recurrent: during the forward pass it does not send activations back into earlier positions. Dense standard FFN, gated SwiGLU blocks, and sparse mixture-of-experts variants all play this same position-wise role with different internal wiring."
+      "body": "A transformer feed-forward network is not the same thing as the entire transformer. It is one sublayer inside each block, paired with attention and usually wrapped by residual connections and normalization. It is also not recurrent: during the forward pass it does not send activations back into earlier positions."
     },
     "related": {
       "title": "Related Concepts And Modules"

@@ -136,6 +136,34 @@ describe("feed-forward-network concept page", () => {
     expect(commonConfusions.toLowerCase()).not.toContain("benchmark");
   });
 
+  test("messages compare dense standard FFN, SwiGLU, and sparse mixture of experts", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const variants = messages.sections?.denseAndSparseVariants.body ?? "";
+
+    expect(messages.sections?.denseAndSparseVariants.title).toBe(
+      "Dense And Sparse Variants",
+    );
+    expect(variants.toLowerCase()).toContain("standard feed-forward network");
+    expect(variants.toLowerCase()).toContain("expand");
+    expect(variants.toLowerCase()).toContain("relu");
+    expect(variants.toLowerCase()).toContain("gelu");
+    expect(variants.toLowerCase()).toContain("project");
+    expect(variants.toLowerCase()).toContain("swiglu");
+    expect(variants.toLowerCase()).toContain("sigmoid linear unit");
+    expect(variants.toLowerCase().indexOf("sigmoid linear unit")).toBeLessThan(
+      variants.toLowerCase().indexOf("silu"),
+    );
+    expect(variants.toLowerCase()).toContain("gate");
+    expect(variants.toLowerCase()).toContain("mixture of experts");
+    expect(variants.toLowerCase()).toContain("router");
+    expect(variants.toLowerCase()).toContain("expert");
+    expect(variants.toLowerCase()).not.toContain("benchmark");
+    expect(variants.toLowerCase()).not.toContain("on this page");
+  });
+
   test("page renders concept template sections without missing message values", async () => {
     const page = await loadConceptPage("feed-forward-network");
 
@@ -158,10 +186,14 @@ describe("feed-forward-network concept page", () => {
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
     expect(html).toContain("Simple Example");
+    expect(html).toContain("Dense And Sparse Variants");
     expect(html).toContain("Common Confusions");
     expect(html).toContain("token-wise");
     expect(html).toContain("Gaussian Error Linear Unit");
     expect(html).toContain("independently");
+    expect(html.toLowerCase()).toContain("standard feed-forward network");
+    expect(html.toLowerCase()).toContain("mixture of experts");
+    expect(html.toLowerCase()).toContain("router");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');

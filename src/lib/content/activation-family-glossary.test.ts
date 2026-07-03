@@ -326,8 +326,7 @@ describe("Phase 3 activation-family glossary pages", () => {
         PUBLISHED_DOCS_REGISTRY_IDS,
       );
 
-      const expectedHrefs =
-        "curatedHrefs" in testCase ? testCase.curatedHrefs : testCase.hrefs;
+      const expectedHrefs = testCase.curatedHrefs ?? testCase.hrefs;
 
       for (const href of expectedHrefs) {
         expect(
