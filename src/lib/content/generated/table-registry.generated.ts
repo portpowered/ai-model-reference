@@ -18,6 +18,7 @@ import layerNormComparisonTableRecord from "@/content/registry/tables/layer-norm
 import leakyReluComparisonTableRecord from "@/content/registry/tables/leaky-relu-comparison.json";
 import linearAttentionComparisonTableRecord from "@/content/registry/tables/linear-attention-comparison.json";
 import localAttentionComparisonTableRecord from "@/content/registry/tables/local-attention-comparison.json";
+import loopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison.json";
 import mambaSelectiveStateSpaceComparisonTableRecord from "@/content/registry/tables/mamba-selective-state-space-comparison.json";
 import mixtureOfExpertsComparisonTableRecord from "@/content/registry/tables/mixture-of-experts-comparison.json";
 import multiHeadAttentionComparisonTableRecord from "@/content/registry/tables/multi-head-attention-comparison.json";
@@ -35,6 +36,7 @@ import standardFfnComparisonTableRecord from "@/content/registry/tables/standard
 import swigluComparisonTableRecord from "@/content/registry/tables/swiglu-comparison.json";
 import tanhComparisonTableRecord from "@/content/registry/tables/tanh-comparison.json";
 import tokenizerMismatchComparisonTableRecord from "@/content/registry/tables/tokenizer-mismatch-comparison.json";
+import uNetComparisonTableRecord from "@/content/registry/tables/u-net-comparison.json";
 import unigramTokenizerComparisonTableRecord from "@/content/registry/tables/unigram-tokenizer-comparison.json";
 
 export const generatedTableRegistrySourceFiles = [
@@ -55,6 +57,7 @@ export const generatedTableRegistrySourceFiles = [
   "leaky-relu-comparison.json",
   "linear-attention-comparison.json",
   "local-attention-comparison.json",
+  "looped-transformers-comparison.json",
   "mamba-selective-state-space-comparison.json",
   "mixture-of-experts-comparison.json",
   "multi-head-attention-comparison.json",
@@ -72,6 +75,7 @@ export const generatedTableRegistrySourceFiles = [
   "swiglu-comparison.json",
   "tanh-comparison.json",
   "tokenizer-mismatch-comparison.json",
+  "u-net-comparison.json",
   "unigram-tokenizer-comparison.json",
 ] as const;
 
@@ -93,6 +97,7 @@ export const generatedTableRegistryPayloads = [
   leakyReluComparisonTableRecord,
   linearAttentionComparisonTableRecord,
   localAttentionComparisonTableRecord,
+  loopedTransformersComparisonTableRecord,
   mambaSelectiveStateSpaceComparisonTableRecord,
   mixtureOfExpertsComparisonTableRecord,
   multiHeadAttentionComparisonTableRecord,
@@ -110,5 +115,6 @@ export const generatedTableRegistryPayloads = [
   swigluComparisonTableRecord,
   tanhComparisonTableRecord,
   tokenizerMismatchComparisonTableRecord,
+  uNetComparisonTableRecord,
   unigramTokenizerComparisonTableRecord,
 ] as const;

@@ -1,0 +1,159 @@
+{
+  "id": "graph.u-net-compute-flow",
+  "slug": "u-net-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["module.u-net"],
+  "citationIds": [
+    "citation.u-net-convolutional-networks",
+    "citation.denoising-diffusion-probabilistic-models"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "subjectId": "module.u-net",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "noisy-image",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "noisy-image",
+      "labelKey": "graph.nodes.noisyImage.label",
+      "moduleKind": "input",
+      "position": { "x": 200, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["downsample-one"]
+    },
+    {
+      "id": "downsample-one",
+      "labelKey": "graph.nodes.downsampleOne.label",
+      "moduleKind": "block",
+      "position": { "x": 80, "y": 100 },
+      "visualRole": "process-node",
+      "childNodeIds": ["downsample-two"]
+    },
+    {
+      "id": "downsample-two",
+      "labelKey": "graph.nodes.downsampleTwo.label",
+      "moduleKind": "block",
+      "position": { "x": 80, "y": 210 },
+      "visualRole": "process-node",
+      "childNodeIds": ["bottleneck"]
+    },
+    {
+      "id": "bottleneck",
+      "labelKey": "graph.nodes.bottleneck.label",
+      "moduleKind": "other",
+      "position": { "x": 200, "y": 320 },
+      "visualRole": "process-node",
+      "childNodeIds": ["upsample-one"]
+    },
+    {
+      "id": "upsample-one",
+      "labelKey": "graph.nodes.upsampleOne.label",
+      "moduleKind": "block",
+      "position": { "x": 320, "y": 210 },
+      "visualRole": "process-node",
+      "childNodeIds": ["upsample-two"]
+    },
+    {
+      "id": "upsample-two",
+      "labelKey": "graph.nodes.upsampleTwo.label",
+      "moduleKind": "block",
+      "position": { "x": 320, "y": 100 },
+      "visualRole": "process-node",
+      "childNodeIds": ["denoised-output"]
+    },
+    {
+      "id": "denoised-output",
+      "labelKey": "graph.nodes.denoisedOutput.label",
+      "moduleKind": "output",
+      "position": { "x": 200, "y": 430 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "timestep-signal",
+      "labelKey": "graph.nodes.timestepSignal.label",
+      "moduleKind": "diffusion-step",
+      "position": { "x": 20, "y": 320 },
+      "visualRole": "architecture-io",
+      "childNodeIds": ["bottleneck"]
+    },
+    {
+      "id": "conditioning-signal",
+      "labelKey": "graph.nodes.conditioningSignal.label",
+      "moduleKind": "embedding",
+      "position": { "x": 380, "y": 320 },
+      "visualRole": "architecture-io",
+      "childNodeIds": ["bottleneck"]
+    }
+  ],
+  "edges": [
+    {
+      "id": "input-to-down-one",
+      "source": "noisy-image",
+      "target": "downsample-one",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "down-one-to-down-two",
+      "source": "downsample-one",
+      "target": "downsample-two",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "down-two-to-bottleneck",
+      "source": "downsample-two",
+      "target": "bottleneck",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "bottleneck-to-up-one",
+      "source": "bottleneck",
+      "target": "upsample-one",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "up-one-to-up-two",
+      "source": "upsample-one",
+      "target": "upsample-two",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "up-two-to-output",
+      "source": "upsample-two",
+      "target": "denoised-output",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "skip-down-one-up-two",
+      "source": "downsample-one",
+      "target": "upsample-two",
+      "edgeKind": "residual"
+    },
+    {
+      "id": "skip-down-two-up-one",
+      "source": "downsample-two",
+      "target": "upsample-one",
+      "edgeKind": "residual"
+    },
+    {
+      "id": "timestep-to-bottleneck",
+      "source": "timestep-signal",
+      "target": "bottleneck",
+      "edgeKind": "conditioning"
+    },
+    {
+      "id": "conditioning-to-bottleneck",
+      "source": "conditioning-signal",
+      "target": "bottleneck",
+      "edgeKind": "conditioning"
+    }
+  ]
+}

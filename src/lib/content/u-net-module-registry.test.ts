@@ -138,6 +138,6 @@ describe("u-net module registry slice (u-net-module-page-001)", () => {
         (item) => item.registryId === "module.diffusion-transformer-block",
       )?.href,
     ).toBe("/docs/modules/diffusion-transformer-block");
-    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("module.u-net")).toBe(false);
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("module.u-net")).toBe(true);
   });
 });
