@@ -1189,6 +1189,8 @@ export function buildPr320ConflictRefreshOutcomeReport(
 export function buildGeneratedTableRegistryPr320ConflictRefreshOutput(
   options: CaptureGeneratedTableRegistryPr320ConflictRefreshEvidenceOptions & {
     classifyOutcome?: boolean;
+    finalVerificationReport?: Pr320ConflictRefreshFinalVerificationReport;
+    includeFinalVerification?: boolean;
     mergeTreeConflictPaths?: string[];
     mergeTreeExitCode?: number;
     mergeTreeOutputExcerpt?: string;
@@ -1197,6 +1199,7 @@ export function buildGeneratedTableRegistryPr320ConflictRefreshOutput(
   },
 ): {
   evidenceReport: GeneratedTableRegistryPr320ConflictRefreshEvidenceReport;
+  finalVerificationReport?: Pr320ConflictRefreshFinalVerificationReport;
   outcomeReport?: Pr320ConflictRefreshOutcomeReport;
   scopeProof?: Pr320ConflictRefreshScopeProof;
 } {
@@ -1251,10 +1254,21 @@ export function buildGeneratedTableRegistryPr320ConflictRefreshOutput(
     scopeProof,
   });
 
-  return {
+  const partialOutput = {
     evidenceReport,
     outcomeReport,
     scopeProof,
+  };
+
+  const finalVerificationReport =
+    options.finalVerificationReport ??
+    (options.includeFinalVerification === false
+      ? undefined
+      : buildPr320ConflictRefreshFinalVerificationReport(partialOutput));
+
+  return {
+    ...partialOutput,
+    finalVerificationReport,
   };
 }
 
@@ -1312,6 +1326,14 @@ export function formatGeneratedTableRegistryPr320ConflictRefreshOutput(
   if (output.scopeProof) {
     sections.push("", formatPr320ConflictRefreshScopeProof(output.scopeProof));
   }
+  if (output.finalVerificationReport) {
+    sections.push(
+      "",
+      formatPr320ConflictRefreshFinalVerificationReport(
+        output.finalVerificationReport,
+      ),
+    );
+  }
   return sections.join("\n");
 }
 
@@ -1321,4 +1343,285 @@ export function serializeGeneratedTableRegistryPr320ConflictRefreshOutput(
   >,
 ): string {
   return JSON.stringify(output, null, 2);
+}
+
+export const PR320_CONFLICT_REFRESH_FINAL_VERIFICATION_HEADER =
+  "Generated Table Registry PR320 Conflict Refresh — Final Verification";
+
+export const PR320_CONFLICT_REFRESH_FINAL_VERIFICATION_COMMANDS = [
+  "bun run typecheck",
+  "bun run lint",
+  "bun test src/lib/factory/generated-table-registry-pr320-conflict-refresh.test.ts",
+] as const;
+
+export type Pr320ConflictRefreshFinalOutcomeStatus =
+  | "mergeable"
+  | "consumed-closed"
+  | "blocked-handoff";
+
+export type Pr320VerificationCommandAvailability = "available" | "unavailable";
+
+export interface Pr320VerificationCommandEvidence {
+  availability: Pr320VerificationCommandAvailability;
+  command: string;
+  passed?: boolean;
+  unavailableReason?: string;
+}
+
+export interface Pr320PlannerLinkageEvidence {
+  consistent: boolean;
+  conflictingNotes: string[];
+  evidenceSentences: string[];
+}
+
+export interface Pr320ConflictRefreshFinalVerificationReport {
+  finalOutcomeSentence: string;
+  finalOutcomeStatus: Pr320ConflictRefreshFinalOutcomeStatus;
+  generatedAtUtc: string;
+  operatorHandoffConcise?: string;
+  plannerLinkage: Pr320PlannerLinkageEvidence;
+  pr320CheckHealth?: CheckHealthStatus;
+  pr320HeadSha?: string;
+  pr320MergeStateStatus?: string;
+  pr320MergeabilityClass?: MergeabilityClass;
+  queueTokenSummary: Array<{
+    state: string;
+    token: string;
+    workItemName: string;
+  }>;
+  scopePreserved: boolean;
+  verificationCommands: Pr320VerificationCommandEvidence[];
+}
+
+function mapPr320OutcomeToFinalStatus(
+  outcome: Pr320ConflictRefreshOutcome,
+): Pr320ConflictRefreshFinalOutcomeStatus {
+  switch (outcome) {
+    case "merge-ready":
+      return "mergeable";
+    case "consumed-on-main":
+      return "consumed-closed";
+    case "operator-handoff":
+      return "blocked-handoff";
+  }
+}
+
+function buildDefaultPr320VerificationCommandEvidence(): Pr320VerificationCommandEvidence[] {
+  return PR320_CONFLICT_REFRESH_FINAL_VERIFICATION_COMMANDS.map((command) => ({
+    availability: "available" as const,
+    command,
+  }));
+}
+
+export function buildPr320ConflictRefreshPlannerLinkageEvidence(
+  output: Pick<
+    ReturnType<typeof buildGeneratedTableRegistryPr320ConflictRefreshOutput>,
+    "evidenceReport" | "outcomeReport"
+  >,
+): Pr320PlannerLinkageEvidence {
+  const evidenceSentences: string[] = [];
+  const conflictingNotes: string[] = [];
+  const { evidenceReport, outcomeReport } = output;
+  const pullRequest = evidenceReport.pullRequest;
+  const originalWorktree = evidenceReport.originalWorktree.worktreeMetadata;
+  const selectedOutcome = outcomeReport?.classification.outcome;
+
+  if (pullRequest.availability === "present") {
+    evidenceSentences.push(
+      `PR #${pullRequest.pullRequestNumber} is ${pullRequest.state ?? "unknown"} with mergeability=${pullRequest.mergeabilityClass ?? "unknown"} and check-health=${pullRequest.checkHealth ?? "unknown"}.`,
+    );
+  } else {
+    conflictingNotes.push(
+      "PR #320 evidence is unavailable for linkage verification.",
+    );
+  }
+
+  if (originalWorktree.availability === "present") {
+    evidenceSentences.push(
+      `Original worktree stamps PR #${originalWorktree.pullRequestNumber ?? "none"} with linkage=${originalWorktree.pullRequestLinkageStatus ?? "unknown"}.`,
+    );
+    if (
+      pullRequest.availability === "present" &&
+      pullRequest.state === "OPEN" &&
+      selectedOutcome !== "consumed-on-main" &&
+      originalWorktree.pullRequestNumber !== PR320_TARGET_PULL_REQUEST_NUMBER
+    ) {
+      conflictingNotes.push(
+        "Original worktree PR stamp does not match PR #320 while the PR remains open.",
+      );
+    }
+    if (
+      pullRequest.availability === "present" &&
+      pullRequest.state === "OPEN" &&
+      selectedOutcome !== "consumed-on-main" &&
+      originalWorktree.pullRequestLinkageStatus !== "current"
+    ) {
+      conflictingNotes.push(
+        "Original worktree pull-request linkage is not current for an open PR #320.",
+      );
+    }
+  } else {
+    conflictingNotes.push(
+      "Original worktree metadata is unavailable for PR #320 linkage verification.",
+    );
+  }
+
+  if (
+    selectedOutcome === "merge-ready" &&
+    pullRequest.availability === "present" &&
+    pullRequest.mergeabilityClass === "conflicting"
+  ) {
+    conflictingNotes.push(
+      "Outcome is merge-ready but GitHub mergeability is conflicting.",
+    );
+  }
+
+  if (
+    selectedOutcome === "operator-handoff" &&
+    pullRequest.availability === "present" &&
+    pullRequest.mergeabilityClass === "mergeable" &&
+    pullRequest.checkHealth === "passing"
+  ) {
+    conflictingNotes.push(
+      "Outcome is operator-handoff while GitHub reports mergeable checks passing without merge-tree conflicts.",
+    );
+  }
+
+  const conflictRefreshWorktree =
+    evidenceReport.conflictRefreshWorktree.worktreeMetadata;
+  if (conflictRefreshWorktree.availability === "present") {
+    evidenceSentences.push(
+      `Conflict-refresh worktree has pull-request linkage=${conflictRefreshWorktree.pullRequestLinkageStatus ?? "unknown"} (expected missing for this lane).`,
+    );
+  }
+
+  return {
+    consistent: conflictingNotes.length === 0,
+    conflictingNotes,
+    evidenceSentences,
+  };
+}
+
+export function buildPr320ConflictRefreshFinalVerificationReport(
+  output: ReturnType<
+    typeof buildGeneratedTableRegistryPr320ConflictRefreshOutput
+  >,
+  options?: {
+    generatedAtUtc?: string;
+    verificationCommands?: Pr320VerificationCommandEvidence[];
+  },
+): Pr320ConflictRefreshFinalVerificationReport {
+  const outcomeReport = output.outcomeReport;
+  const evidenceReport = output.evidenceReport;
+  const pullRequest = evidenceReport.pullRequest;
+  const selectedOutcome =
+    outcomeReport?.classification.outcome ?? "operator-handoff";
+  const finalOutcomeStatus = mapPr320OutcomeToFinalStatus(selectedOutcome);
+  const scopePreserved = output.scopeProof?.preserved ?? false;
+  const plannerLinkage =
+    buildPr320ConflictRefreshPlannerLinkageEvidence(output);
+
+  const queueTokenSummary = [
+    ...evidenceReport.originalLane.queueTokens,
+    ...evidenceReport.conflictRefreshLane.queueTokens,
+  ].map((token) => ({
+    state: `${token.stateName ?? "unknown"}/${token.stateType ?? "unknown"}`,
+    token: token.workTypeName ?? token.workId ?? "unknown",
+    workItemName: token.workItemName,
+  }));
+
+  let finalOutcomeSentence: string;
+  let operatorHandoffConcise: string | undefined;
+
+  switch (finalOutcomeStatus) {
+    case "mergeable":
+      finalOutcomeSentence =
+        "PR #320 is mergeable with required checks passing and cleanup-proof scope preserved.";
+      break;
+    case "consumed-closed":
+      finalOutcomeSentence =
+        "PR #320 proof is already on origin/main; close or consume the PR without duplicating proof work.";
+      break;
+    case "blocked-handoff":
+      finalOutcomeSentence =
+        outcomeReport?.operatorHandoff?.summary ??
+        "PR #320 requires operator conflict resolution before merge.";
+      operatorHandoffConcise =
+        outcomeReport?.operatorHandoff?.nextOperatorAction ??
+        "Resolve listed conflicts in the original worktree and rerun the conflict-refresh report.";
+      break;
+  }
+
+  return {
+    finalOutcomeSentence,
+    finalOutcomeStatus,
+    generatedAtUtc: options?.generatedAtUtc ?? new Date().toISOString(),
+    operatorHandoffConcise,
+    plannerLinkage,
+    pr320CheckHealth: pullRequest.checkHealth,
+    pr320HeadSha: pullRequest.headRefOid,
+    pr320MergeStateStatus: pullRequest.mergeStateStatus,
+    pr320MergeabilityClass: pullRequest.mergeabilityClass,
+    queueTokenSummary,
+    scopePreserved,
+    verificationCommands:
+      options?.verificationCommands ??
+      buildDefaultPr320VerificationCommandEvidence(),
+  };
+}
+
+export function formatPr320ConflictRefreshFinalVerificationReport(
+  report: Pr320ConflictRefreshFinalVerificationReport,
+): string {
+  const lines = [
+    `[final-verification]`,
+    `generated-at=${report.generatedAtUtc}`,
+    `final-outcome-status=${report.finalOutcomeStatus}`,
+    `final-outcome-sentence=${report.finalOutcomeSentence}`,
+    `pr320-head-sha=${report.pr320HeadSha ?? "unavailable"}`,
+    `pr320-mergeability=${report.pr320MergeabilityClass ?? "unavailable"}`,
+    `pr320-merge-state=${report.pr320MergeStateStatus ?? "unavailable"}`,
+    `pr320-check-health=${report.pr320CheckHealth ?? "unavailable"}`,
+    `scope-preserved=${report.scopePreserved}`,
+    `planner-linkage-consistent=${report.plannerLinkage.consistent}`,
+  ];
+
+  for (const sentence of report.plannerLinkage.evidenceSentences) {
+    lines.push(`planner-linkage-evidence=${sentence}`);
+  }
+  for (const note of report.plannerLinkage.conflictingNotes) {
+    lines.push(`planner-linkage-conflict=${note}`);
+  }
+
+  if (report.operatorHandoffConcise) {
+    lines.push(`operator-handoff-concise=${report.operatorHandoffConcise}`);
+  }
+
+  lines.push("", "Queue token summary");
+  if (report.queueTokenSummary.length === 0) {
+    lines.push("- none");
+  } else {
+    for (const token of report.queueTokenSummary) {
+      lines.push(
+        `- work-item=${token.workItemName} token=${token.token} state=${token.state}`,
+      );
+    }
+  }
+
+  lines.push("", "Verification commands");
+  for (const command of report.verificationCommands) {
+    lines.push(
+      `- command=${command.command} availability=${command.availability}${
+        command.passed === undefined ? "" : ` passed=${command.passed}`
+      }${command.unavailableReason ? ` unavailable-reason=${command.unavailableReason}` : ""}`,
+    );
+  }
+
+  return lines.join("\n");
+}
+
+export function serializePr320ConflictRefreshFinalVerificationReport(
+  report: Pr320ConflictRefreshFinalVerificationReport,
+): string {
+  return JSON.stringify(report, null, 2);
 }

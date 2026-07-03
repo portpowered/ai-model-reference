@@ -117,6 +117,33 @@ no adjacent page content, and no broad generated registry runtime edits in the r
 section with `preserved=`, `changedPath=`, `prohibitedPath=`, and `outOfScopePath=` lines
 from `capturePr320ConflictRefreshScopeProof` / `buildPr320ConflictRefreshScopeProof`.
 
+## Story 004 — Final verification and planner linkage (2026-07-03T14:30:00Z UTC)
+
+`buildPr320ConflictRefreshFinalVerificationReport` / `formatPr320ConflictRefreshFinalVerificationReport`
+emit a `[final-verification]` section on the default CLI output with:
+
+| Field | Meaning |
+| --- | --- |
+| `final-outcome-status` | `mergeable`, `consumed-closed`, or `blocked-handoff` |
+| `planner-linkage-consistent` | whether PR #320 worktree stamps and GitHub mergeability align with the selected outcome |
+| `scope-preserved` | whether the refreshed PR branch diff stays within cleanup-proof allowlists |
+| `operator-handoff-concise` | one-line next action when status is `blocked-handoff` |
+| Queue token summary | idea/task/plan tokens for both the original proof lane and this conflict-refresh lane |
+| Verification commands | `bun run typecheck`, `bun run lint`, focused conflict-refresh tests |
+
+### Post-refresh PR #320 final state (2026-07-03T14:24:00Z UTC)
+
+| Field | Value |
+| --- | --- |
+| Head SHA | `42e46ba1` (second merge-refresh against `origin/main`) |
+| Merge state | `MERGEABLE` / `UNSTABLE` while CI reruns |
+| Conflict resolution | `factory-linkage-relevant-files.md` — unioned proof CLI row with planner-concurrency-floor from `origin/main` |
+| Scope proof | `preserved=true` (8 cleanup-proof paths only) |
+| Final outcome | **mergeable** — conflict drift cleared; original review lane retains PR #320 ownership |
+
+Mergeability-only follow-up: when `origin/main` advances after story 003, rerun merge-refresh
+in the owner worktree and union planner-facing command tables rather than dropping either lane's entries.
+
 ## Live evidence snapshot (2026-07-03T12:05:51Z UTC)
 
 Captured with `bun run report:generated-table-registry-pr320-conflict-refresh`

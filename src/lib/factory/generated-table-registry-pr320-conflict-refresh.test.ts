@@ -4,7 +4,9 @@ import { join } from "node:path";
 import type { CommandResult } from "@/lib/factory/active-pr-mergeability-watchdog";
 import {
   buildGeneratedTableRegistryPr320ConflictRefreshOutput,
+  buildPr320ConflictRefreshFinalVerificationReport,
   buildPr320ConflictRefreshOutcomeReport,
+  buildPr320ConflictRefreshPlannerLinkageEvidence,
   buildPr320ConflictRefreshScopeProof,
   captureGeneratedTableRegistryPr320ConflictRefreshEvidence,
   classifyPr320ConflictRefreshOutcome,
@@ -12,6 +14,7 @@ import {
   findQueueTokensForWorkItemName,
   formatGeneratedTableRegistryPr320ConflictRefreshEvidenceReport,
   formatGeneratedTableRegistryPr320ConflictRefreshOutput,
+  formatPr320ConflictRefreshFinalVerificationReport,
   formatPr320ConflictRefreshScopeProof,
   isPr320CleanupProofAllowedPath,
   isPr320CleanupProofProhibitedPath,
@@ -22,6 +25,7 @@ import {
   PR320_TARGET_BRANCH_NAME,
   PR320_TARGET_PULL_REQUEST_NUMBER,
   serializeGeneratedTableRegistryPr320ConflictRefreshEvidenceReport,
+  serializePr320ConflictRefreshFinalVerificationReport,
 } from "@/lib/factory/generated-table-registry-pr320-conflict-refresh";
 
 const FIXTURE_DIR = join(
@@ -479,5 +483,190 @@ describe("generated-table-registry-pr320-conflict-refresh", () => {
       formatGeneratedTableRegistryPr320ConflictRefreshOutput(output);
     expect(formatted).toContain("[scope]");
     expect(formatted).toContain("preserved=true");
+  });
+});
+
+describe("buildPr320ConflictRefreshFinalVerificationReport", () => {
+  test("records mergeable final state with planner linkage gaps when worktrees are unavailable", () => {
+    const output = buildGeneratedTableRegistryPr320ConflictRefreshOutput({
+      classifyOutcome: true,
+      mergeTreeConflictPaths: [],
+      pr320PullRequestJson: readFixture("pr320-pull-request.json"),
+      remoteBaseRef: "origin/main",
+      repoRoot: "/tmp/main-repo",
+      runCommand: buildRunCommand({}),
+      proofOnMain: {
+        consumed: false,
+        markerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        missingMarkerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        presentMarkerPaths: [],
+      },
+      scopeProof: buildPr320ConflictRefreshScopeProof({
+        changedPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+      }),
+      workListJsonText: readFixture("work-list.json"),
+      worktreesDir: "/tmp/worktrees",
+    });
+
+    const report = output.finalVerificationReport;
+    expect(report).toBeDefined();
+    expect(report?.finalOutcomeStatus).toBe("mergeable");
+    expect(report?.scopePreserved).toBe(true);
+    expect(report?.plannerLinkage.consistent).toBe(false);
+    expect(report?.plannerLinkage.conflictingNotes).toContain(
+      "Original worktree metadata is unavailable for PR #320 linkage verification.",
+    );
+    expect(report?.queueTokenSummary.length).toBeGreaterThan(0);
+    expect(report?.verificationCommands.length).toBe(3);
+
+    const formatted = formatPr320ConflictRefreshFinalVerificationReport(
+      report as NonNullable<typeof report>,
+    );
+    expect(formatted).toContain("[final-verification]");
+    expect(formatted).toContain("final-outcome-status=mergeable");
+    expect(formatted).toContain("planner-linkage-consistent=false");
+    expect(formatted).toContain("scope-preserved=true");
+
+    const serialized = JSON.parse(
+      serializePr320ConflictRefreshFinalVerificationReport(
+        report as NonNullable<typeof report>,
+      ),
+    ) as { finalOutcomeStatus: string };
+    expect(serialized.finalOutcomeStatus).toBe("mergeable");
+  });
+
+  test("flags inconsistent planner linkage for merge-ready vs conflicting GitHub state", () => {
+    const output = buildGeneratedTableRegistryPr320ConflictRefreshOutput({
+      classifyOutcome: true,
+      mergeTreeConflictPaths: [],
+      pr320PullRequestJson: readFixture("pr320-pull-request.json"),
+      remoteBaseRef: "origin/main",
+      repoRoot: "/tmp/main-repo",
+      runCommand: buildRunCommand({}),
+      proofOnMain: {
+        consumed: false,
+        markerPaths: [],
+        missingMarkerPaths: [],
+        presentMarkerPaths: [],
+      },
+      scopeProof: buildPr320ConflictRefreshScopeProof({
+        changedPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+      }),
+      workListJsonText: readFixture("work-list.json"),
+      worktreesDir: "/tmp/worktrees",
+    });
+
+    const inconsistentOutput = {
+      ...output,
+      evidenceReport: {
+        ...output.evidenceReport,
+        pullRequest: {
+          ...output.evidenceReport.pullRequest,
+          mergeabilityClass: "conflicting" as const,
+        },
+      },
+    };
+
+    const linkage =
+      buildPr320ConflictRefreshPlannerLinkageEvidence(inconsistentOutput);
+    expect(linkage.consistent).toBe(false);
+    expect(linkage.conflictingNotes).toContain(
+      "Outcome is merge-ready but GitHub mergeability is conflicting.",
+    );
+
+    const report = buildPr320ConflictRefreshFinalVerificationReport(
+      inconsistentOutput,
+      {
+        generatedAtUtc: "2026-07-03T14:30:00.000Z",
+      },
+    );
+    expect(report.finalOutcomeStatus).toBe("mergeable");
+    expect(report.plannerLinkage.consistent).toBe(false);
+  });
+
+  test("records consistent planner linkage when original worktree stamps PR #320 current", () => {
+    const output = buildGeneratedTableRegistryPr320ConflictRefreshOutput({
+      classifyOutcome: true,
+      mergeTreeConflictPaths: [],
+      pr320PullRequestJson: readFixture("pr320-pull-request.json"),
+      remoteBaseRef: "origin/main",
+      repoRoot: "/tmp/main-repo",
+      runCommand: buildRunCommand({}),
+      proofOnMain: {
+        consumed: false,
+        markerPaths: [],
+        missingMarkerPaths: [],
+        presentMarkerPaths: [],
+      },
+      scopeProof: buildPr320ConflictRefreshScopeProof({
+        changedPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+      }),
+      workListJsonText: readFixture("work-list.json"),
+      worktreesDir: "/tmp/worktrees",
+    });
+
+    const linkedOutput = {
+      ...output,
+      evidenceReport: {
+        ...output.evidenceReport,
+        originalWorktree: {
+          workItemName: PR320_ORIGINAL_WORK_ITEM_NAME,
+          worktreeMetadata: {
+            availability: "present" as const,
+            branchHeadSha: "42e46ba1a61e6f065ee7d4cf2383afc0acd12f19",
+            branchLinkageStatus: "current",
+            branchName: PR320_TARGET_BRANCH_NAME,
+            pullRequestLinkageStatus: "current",
+            pullRequestNumber: PR320_TARGET_PULL_REQUEST_NUMBER,
+            worktreePath:
+              "/tmp/worktrees/generated-table-registry-root-drift-cleanup-proof",
+          },
+        },
+      },
+    };
+
+    const linkage =
+      buildPr320ConflictRefreshPlannerLinkageEvidence(linkedOutput);
+    expect(linkage.consistent).toBe(true);
+    expect(linkage.conflictingNotes).toHaveLength(0);
+  });
+
+  test("formatGeneratedTableRegistryPr320ConflictRefreshOutput includes final verification", () => {
+    const output = buildGeneratedTableRegistryPr320ConflictRefreshOutput({
+      classifyOutcome: true,
+      mergeTreeConflictPaths: [],
+      pr320PullRequestJson: readFixture("pr320-pull-request.json"),
+      remoteBaseRef: "origin/main",
+      repoRoot: "/tmp/main-repo",
+      runCommand: buildRunCommand({}),
+      proofOnMain: {
+        consumed: false,
+        markerPaths: [],
+        missingMarkerPaths: [],
+        presentMarkerPaths: [],
+      },
+      scopeProof: buildPr320ConflictRefreshScopeProof({
+        changedPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+      }),
+      workListJsonText: readFixture("work-list.json"),
+      worktreesDir: "/tmp/worktrees",
+    });
+
+    const formatted =
+      formatGeneratedTableRegistryPr320ConflictRefreshOutput(output);
+    expect(formatted).toContain("[final-verification]");
+    expect(formatted).toContain("final-outcome-status=mergeable");
   });
 });
