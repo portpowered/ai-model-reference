@@ -1,4 +1,6 @@
 ## Codebase Patterns
+- Classifier-free guidance concept page lives at `/docs/concepts/classifier-free-guidance`; the `classifier-free guidance` alias belongs on `concept.classifier-free-guidance`, not on `concept.conditioning`.
+- Classifier-free guidance registry record uses `classification.concept.inference`, `conceptType: inference`, and `generation-and-diffusion` sidebar grouping; `relatedIds` should stay limited to conditioning, diffusion-model, denoising-generation, `model.clip`, and `paper.latent-diffusion`.
 - Concept registry ids route to `/docs/concepts/<slug>` only after adding to `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS` in `published-docs-registry-ids.ts`; until then glossary pages at `/docs/glossary/<slug>` remain the live surface.
 - Serving-path glossary concepts (`prefill`, `decode`, `kv-cache`, `prefill-decode-split`) share tags `foundations`, `attention`, and `kv-cache` for attention-tag discovery without new taxonomy tags.
 - Registry `relatedIds` on `concept.prefill-decode-split` should stay limited to serving foundations (`prefill`, `decode`, `kv-cache`, `autoregressive-generation`); attention modules and transformer links belong on inbound records, not on the split concept itself.
@@ -7,6 +9,7 @@
 - Migrating a glossary page to concepts removes it from glossary index counts/tests and surfaces it under the attention tag `concept` kind group instead of `glossary`.
 - Story 004 slice verification: add `*-slice-verification.test.tsx` with registry/message alignment, `renderDocsSlugPage` route proof, and rendered HTML/search assertions; routine bundle invariants stay in `make validate-data`; run `audit:canonical-page-surface` from the root repo with `--repo-root` pointing at the worktree when the script is absent locally.
 - After merging `main`, regenerate published-docs manifests with `bun run generate:published-docs-registry` (or `make validate-data` / `prepare:content-runtime`) instead of hand-editing `published-docs-registry-ids.ts`.
+- CFG story 003 teaching: add `guidance-scale` and `tradeoffs` sections with `PageMathFormula` for the guided-prediction blend and `ConceptMap` wired to a new `graph.classifier-free-guidance-blend` record; run `bun run generate:graph-registry-runtime` after adding graph JSON under `src/content/registry/graphs/`.
 
 ## 2026-07-01T00:00:00Z - prefill-decode-split-concept-page-001
 - Wired `concept.prefill-decode-split` discovery metadata: added `attention` tag, trimmed `relatedIds` to serving-path foundations, and bumped registry `updatedAt`.
@@ -62,4 +65,36 @@
   - Keep `progress.txt` / `prd.json` local-only commits off the review branch; reset soft and recommit code-only fixes when a progress chore commit was pushed accidentally.
   - Long `await docsSearchApi.search(...)` assignments may need Biome line breaks even when tests otherwise pass.
   - When `main` migrates glossary pages to concepts in parallel, merge conflicts often duplicate `conceptGroup` assertions—merge into one `arrayContaining` block instead of redeclaring the variable.
+---
+
+## 2026-07-03T01:05:00Z - classifier-free-guidance-concept-page-001
+- Added published `concept.classifier-free-guidance` registry record with CFG aliases, inference classification, generation-and-diffusion sidebar grouping, and focused `relatedIds` to conditioning, diffusion-model, denoising-generation, CLIP, and latent diffusion.
+- Added `classifier-free-guidance-concept.test.ts` proving registry metadata, inference concept typing, unpublished-docs routing expectation, and curated related-link hrefs for diffusion foundations.
+- **Learnings for future iterations:**
+  - Story 002 should publish the concept bundle, add `concept.classifier-free-guidance` to `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS`, and retarget conditioning's `classifier-free guidance` alias once search should rank the canonical concept page first.
+  - `conditioning` still carries the `classifier-free guidance` alias until the concept page exists; `generation-paradigm-glossary.test.ts` still expects that search route.
+  - Curated related links for adjacent glossary concepts resolve to `/docs/glossary/*` while model.clip and paper.latent-diffusion resolve to `/docs/models/clip` and `/docs/papers/latent-diffusion`.
+---
+
+## 2026-07-03T01:20:00Z - classifier-free-guidance-concept-page-002
+- Published canonical concept bundle at `src/content/docs/concepts/classifier-free-guidance` with structural `page.mdx`, localized `messages/en.json`, and empty `assets.json`.
+- Taught conditional versus unconditional denoising predictions, their difference, guidance-scale blending, and latent-diffusion usage in isolation-first prose.
+- Removed the `classifier-free guidance` alias from conditioning so CFG search ranks the canonical concept route first.
+- Extended `classifier-free-guidance-concept.test.ts` with message, render, and search assertions; updated `generation-paradigm-glossary.test.ts` for the concept URL.
+- Ran `make validate-data`, typecheck, lint, focused tests, production build, and browser verification on port 3743.
+- **Learnings for future iterations:**
+  - Run `bun run fumadocs-mdx` and `make validate-data` after adding concept bundles so `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS` picks up the new route.
+  - Story 003 should add guidance-scale tradeoff teaching and any equation or diagram asset without restating the conditional/unconditional primer.
+  - Low disk space can break webpack cache during `bun run build`; clearing `.next` and `node_modules/.cache` may be required before production build verification.
+---
+
+## 2026-07-03T02:30:00Z - classifier-free-guidance-concept-page-003
+- Added `guidance-scale` and `tradeoffs` sections teaching low, moderate, and high guidance behavior, diversity loss, oversaturation, and unnatural textures without presenting guidance as a quality guarantee.
+- Published `PageMathFormula` for the guided-prediction blend with symbol-only variable definitions and a `ConceptMap` wired to new graph `graph.classifier-free-guidance-blend`.
+- Extended `classifier-free-guidance-concept.test.ts` with message, asset, graph, and render assertions for the new teaching surface.
+- Ran `make validate-data`, typecheck, focused tests, production build, and browser verification on port 3744.
+- **Learnings for future iterations:**
+  - Static render tests should assert `data-page-asset` and `data-graph-id` for `ConceptMap` graphs rather than a `concept-map` test id.
+  - Story 004 should add slice verification with `renderDocsSlugPage`, link validation, and consolidated route/browser proof similar to `prefill-decode-split-slice-verification.test.tsx`.
+  - Revert unrelated `prepare:content-runtime` churn such as `table-registry.generated.ts` when it is not part of the story diff.
 ---
