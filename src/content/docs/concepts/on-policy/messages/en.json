@@ -19,9 +19,13 @@
       "title": "Simple Example",
       "body": "Imagine a chat model that keeps giving overconfident math answers. A fixed correction dataset might not include the exact wrong proofs the model writes after the latest fine-tune. An on-policy loop samples fresh answers from the current weights, scores them, and updates on those new mistakes. The trainer sees the failure modes the deployed policy would show today, not only errors that appeared in an older log file."
     },
+    "nearbyRegimes": {
+      "title": "Nearby Training Regimes",
+      "body": "On-policy names where training data comes from, not a single optimizer or product recipe. These nearby regimes often use current-policy data in different ways.\n\nReinforcement learning loops commonly work on-policy: the policy samples actions or answers, receives feedback as reward or preference signal, and the optimizer updates from that fresh behavior. Reinforcement learning from human feedback is a familiar language-model example where rollouts from the current weights feed reward-model training and policy updates.\n\nReinforcement Learning with Verifiable Rewards can also run on-policy when candidate answers are sampled from the current model and scored by checkable verifiers such as unit tests or exact-answer graders. The verifier outcome becomes the reward, but the data still comes from what the live policy produces now.\n\nOn-policy distillation shares the same current-policy-data idea: the student refreshes supervision from trajectories its own weights generate rather than replaying one frozen offline set. That page covers the distillation-specific filtering and teacher loop—here the shared point is only that data tracks the policy being updated.\n\nSelf-distillation is a nearby pattern where a model or family of related checkpoints supervises later behavior—think of an earlier checkpoint or a larger sibling model teaching a student from generated traces. It can reuse on-policy sampling when supervision is refreshed from the current student, but full self-distillation recipes vary by team. Treat it as related context rather than a duplicate of this page."
+    },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "On-policy training is not the same as any single recipe. Reinforcement learning from human feedback, verifiable-reward training, and on-policy distillation can all use on-policy data, but on-policy names the data source—not the optimizer or loss function. A static supervised dataset is not automatically off-policy either: if the examples still match the behavior of the weights being updated, the data source can still be on-policy for that step."
+      "body": "On-policy training is not the same as any single recipe named above. It describes the data source—the current policy—not the optimizer, loss function, or deployment product. A static supervised dataset is not automatically off-policy either: if the examples still match the behavior of the weights being updated, the data source can still be on-policy for that step."
     },
     "related": {
       "title": "Related Concepts And Modules"
@@ -32,5 +36,11 @@
     "references": {
       "title": "References"
     }
+  },
+  "links": {
+    "rlhf": "Reinforcement learning from human feedback",
+    "rlvr": "Reinforcement Learning with Verifiable Rewards",
+    "onPolicyDistillation": "On-policy distillation",
+    "distillation": "Distillation"
   }
 }

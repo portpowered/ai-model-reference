@@ -14,11 +14,12 @@ aliases:
   - "on-policy training"
   - "current policy"
   - "current-policy data"
-updatedAt: "2026-07-03"
+updatedAt: "2026-07-03T01:00:00Z"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -41,6 +42,21 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="simple-example" titleKey="sections.simpleExample.title">
   <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="nearby-regimes" titleKey="sections.nearbyRegimes.title">
+  <T k="sections.nearbyRegimes.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/training/rlhf", labelKey: "links.rlhf" },
+      { href: "/docs/training/rlvr", labelKey: "links.rlvr" },
+      {
+        href: "/docs/training/on-policy-distillation",
+        labelKey: "links.onPolicyDistillation",
+      },
+      { href: "/docs/training/distillation", labelKey: "links.distillation" },
+    ]}
+  />
 </Section>
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">

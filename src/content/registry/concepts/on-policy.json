@@ -15,7 +15,8 @@
     "concept.alignment",
     "training-regime.rlhf",
     "training-regime.rlvr",
-    "training-regime.on-policy-distillation"
+    "training-regime.on-policy-distillation",
+    "training-regime.distillation"
   ],
   "citationIds": [
     "citation.on-policy-distillation-of-language-models",
@@ -23,7 +24,7 @@
   ],
   "status": "published",
   "createdAt": "2026-07-02T00:00:00.000Z",
-  "updatedAt": "2026-07-03T00:00:00.000Z",
+  "updatedAt": "2026-07-03T01:00:00.000Z",
   "primaryClassificationId": "classification.concept.training",
   "conceptType": "training",
   "prerequisiteIds": ["concept.alignment"],
