@@ -10,9 +10,13 @@ Use these files when extending the default English blog surface at `/blog` and
 * `src/app/(site)/blog/[slug]/page.tsx`
   English blog post route (story 003).
 * `src/app/(site)/site-renderers.tsx`
-  `renderBlogIndexPage` loads published posts and renders docs-shell index chrome.
+  `renderBlogIndexPage` and `renderBlogPostPage` for docs-shell blog surfaces.
 * `src/features/blog/components/BlogIndexPostList.tsx`
   Compact index cards with title, description, published date, tags, and accessible post links.
+* `src/features/blog/components/BlogPostMeta.tsx`
+  Post metadata row with published date, authors, and tags above the article body.
+* `src/lib/content/blog-author-name.ts`
+  Human-readable author labels for post metadata rows.
 * `src/lib/content/blog-published-date.ts`
   UTC calendar-date formatting for index metadata rows.
 
@@ -37,7 +41,8 @@ Use these files when extending the default English blog surface at `/blog` and
 * `bun run typecheck`
 * `bun run lint`
 * `bun test src/tests/content/blog-index.test.tsx`
-* Browser-verify `/blog` on a unique local port after `bun run build`.
+* `bun test src/tests/content/blog-post.test.tsx`
+* Browser-verify `/blog` and `/blog/<slug>` on a unique local port after `bun run build`.
 
 ## Patterns
 
@@ -49,3 +54,5 @@ Use these files when extending the default English blog surface at `/blog` and
   `datetime`, when checking published-date markup.
 * Assert newest-first card order in route render tests with `indexOf` on
   `/blog/<slug>` hrefs; loader ordering stays in `blog-post-list.test.ts`.
+* Use `renderBlogPostPage` with optional `blogRoot` for post-route fixture tests;
+  gate unknown and draft slugs through `getPublishedBlogPostBySlug` before MDX load.

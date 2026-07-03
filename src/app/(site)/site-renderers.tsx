@@ -14,9 +14,11 @@ import {
   TopologyPrototype,
 } from "@/features/ai/topology";
 import { BlogIndexPostList } from "@/features/blog/components/BlogIndexPostList";
+import { BlogPostMeta } from "@/features/blog/components/BlogPostMeta";
 import { BrowseAtlasPage } from "@/features/docs/components/BrowseAtlasPage";
 import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
 import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { StaticExportBrowsePage } from "@/features/docs/components/StaticExportBrowsePage";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import {
@@ -33,7 +35,11 @@ import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState"
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
-import { blogPostHref } from "@/lib/content/blog-page-load";
+import {
+  blogPostHref,
+  loadBlogPostFromDisk,
+} from "@/lib/content/blog-page-load";
+import { getPublishedBlogPostBySlug } from "@/lib/content/blog-post-get";
 import { listPublishedBlogPosts } from "@/lib/content/blog-post-list";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import {
@@ -101,6 +107,51 @@ export type BlogIndexPageOptions = {
   /** Blog content root override for fixture tests (defaults to production `BLOG_ROOT`). */
   blogRoot?: string;
 };
+
+export type BlogPostPageOptions = {
+  /** Blog content root override for fixture tests (defaults to production `BLOG_ROOT`). */
+  blogRoot?: string;
+};
+
+export async function renderBlogPostPage(
+  slug: string,
+  locale: SiteLocale = defaultLocale,
+  options: BlogPostPageOptions = {},
+) {
+  const published = await getPublishedBlogPostBySlug(slug, {
+    blogRoot: options.blogRoot,
+    locale,
+  });
+
+  if (!published) {
+    notFound();
+  }
+
+  const post = await loadBlogPostFromDisk(slug, locale, {
+    blogRoot: options.blogRoot,
+  });
+
+  return (
+    <DocsPage
+      breadcrumb={{ enabled: false }}
+      footer={{ enabled: false }}
+      toc={post.toc}
+    >
+      <ModulePageProviders messages={post.messages} assets={post.assets}>
+        <DocsTitle>{post.messages.title}</DocsTitle>
+        <DocsDescription>{post.messages.description}</DocsDescription>
+        <BlogPostMeta
+          publishedAt={post.frontmatter.publishedAt}
+          authors={post.frontmatter.authors}
+          tags={post.frontmatter.tags}
+        />
+        <DocsBody>
+          <article data-blog-slug={post.slug}>{post.content}</article>
+        </DocsBody>
+      </ModulePageProviders>
+    </DocsPage>
+  );
+}
 
 export async function renderBlogIndexPage(
   locale: SiteLocale = defaultLocale,
