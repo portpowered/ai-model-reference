@@ -287,9 +287,9 @@ describe("production blog tag landing", () => {
     const foundationsBlogGroup = foundationsGroups.find(
       (group) => group.kind === "blog",
     );
-    expect(foundationsBlogGroup?.resources.map((resource) => resource.slug)).toEqual(
-      ["llm-training-shift", "roofline-throughput-explorer"],
-    );
+    expect(
+      foundationsBlogGroup?.resources.map((resource) => resource.slug),
+    ).toEqual(["llm-training-shift", "roofline-throughput-explorer"]);
   });
 
   it("keeps attention tag groups unchanged without a blog section", async () => {
