@@ -898,3 +898,129 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     ).toHaveLength(28);
   });
 });
+
+describe("planner concurrency-floor report contract", () => {
+  test("exposes stable JSON contract fields with human/JSON parity for corrected classifications", () => {
+    const workListJsonText = JSON.stringify({
+      results: [
+        {
+          workId: "task-process",
+          name: "alpha-page",
+          sessionId: "session-alpha",
+          workTypeName: "task",
+          state: { name: "init", type: "INITIAL" },
+        },
+        {
+          workId: "review-token",
+          name: "beta-page-review",
+          sessionId: "session-beta-review",
+          workTypeName: "review",
+          state: { name: "init", type: "INITIAL" },
+        },
+        {
+          workId: "task-complete-page",
+          name: "completed-page",
+          workTypeName: "task",
+          state: { name: "complete", type: "TERMINAL" },
+        },
+      ],
+    });
+    const report = discoverPlannerConcurrencyFloorReport({
+      concurrencyFloor: 4,
+      generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      plannerRootDirtyPaths: [
+        {
+          path: "src/lib/content/generated/table-registry.generated.ts",
+          surface: "src/lib/content/generated",
+        },
+      ],
+      plannerRootDirtyPathsAvailable: true,
+      sourceSession: "~planner",
+      taskFiles: [
+        {
+          path: "tasks/ideas-to-review/content/completed-page.md",
+          text: "# Completed Page\n",
+        },
+        {
+          path: "tasks/ideas-to-review/content/page-refill.md",
+          text: [
+            "# Page Refill",
+            "",
+            "- Scope `src/content/docs/modules/example-page/page.mdx`.",
+          ].join("\n"),
+        },
+        {
+          path: "tasks/ideas-to-review/content/factory-refill.md",
+          text: [
+            "# Factory Refill",
+            "",
+            "- Scope `src/lib/factory/example-report.ts`.",
+          ].join("\n"),
+        },
+      ],
+      tempStateFiles: [],
+      workListJsonText,
+    });
+    const reportText = formatPlannerConcurrencyFloorReport(report);
+    const jsonReport = JSON.parse(
+      serializePlannerConcurrencyFloorReport(report),
+    ) as Record<string, unknown>;
+
+    expect(jsonReport).toMatchObject({
+      advisoryOnly: true,
+      contractVersion: "planner-concurrency-floor/v1",
+      usefulActiveLaneCount: 2,
+      floorStatus: "below-target",
+      lanesNeededToReachFloor: 2,
+    });
+    expect(Object.keys(jsonReport).sort()).toEqual([
+      "advisoryOnly",
+      "advisoryUncertainties",
+      "blockedDependencyLanes",
+      "concurrencyFloor",
+      "contractVersion",
+      "floorStatus",
+      "generatedAtUtc",
+      "heldBacklogCandidates",
+      "ignoredStaleNoise",
+      "issues",
+      "lanesNeededToReachFloor",
+      "plannerOwnedBacklogCandidates",
+      "refillCandidates",
+      "rootGeneratedArtifactDriftHold",
+      "sourceSession",
+      "staleBacklogCandidates",
+      "usefulActiveLaneCount",
+      "usefulActiveLanes",
+    ]);
+    expect(reportText).toContain(
+      "summary useful-active=2 floor=4 status=below-target refill-needed=2 blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 stale-backlog=1 page-refill-hold=true advisory-only=true",
+    );
+    expect(
+      (jsonReport.refillCandidates as Array<{ taskId: string }>).map(
+        (candidate) => candidate.taskId,
+      ),
+    ).toEqual(["ideas-to-review/content/factory-refill"]);
+    expect(
+      (jsonReport.staleBacklogCandidates as Array<{ taskId: string }>).map(
+        (candidate) => candidate.taskId,
+      ),
+    ).toEqual(["ideas-to-review/content/completed-page"]);
+    expect(
+      (
+        jsonReport.plannerOwnedBacklogCandidates as Array<{
+          taskId: string;
+          refillRecommendation: string;
+        }>
+      ).find(
+        (candidate) =>
+          candidate.taskId === "ideas-to-review/content/page-refill",
+      )?.refillRecommendation,
+    ).toBe("hold");
+    expect(
+      jsonReport.rootGeneratedArtifactDriftHold as { pageRefillHold: boolean },
+    ).toMatchObject({
+      pageRefillHold: true,
+    });
+  });
+});

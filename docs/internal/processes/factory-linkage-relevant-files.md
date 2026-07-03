@@ -75,6 +75,7 @@ watchdog summaries, or planner-facing linkage reports.
 | Root checkout reconciliation against HEAD and origin/main | `bun run report:planner-root-checkout-reconciliation` |
 | Latent diffusion root deletion landed-evidence verification | `bun run report:planner-latent-diffusion-root-deletion-reconciliation` |
 | Merged PR drain row evidence for PRs #281/#282/#284/#286 | `bun run report:merged-pr-drain-rows-reconciliation` |
+| Planner concurrency floor: useful active lanes, refill guidance, and hold/stale classifications | `bun run report:planner-concurrency-floor` |
 
 Direct script paths remain supported for fixture-driven tests:
 
@@ -84,6 +85,10 @@ Direct script paths remain supported for fixture-driven tests:
 * `bun ./scripts/report-planner-root-checkout-reconciliation.ts`
 * `bun ./scripts/report-planner-latent-diffusion-root-deletion-reconciliation.ts`
 * `bun ./scripts/report-merged-pr-drain-rows-reconciliation.ts`
+* `bun ./scripts/report-planner-concurrency-floor.ts`
+
+Concurrency-floor report contract details:
+[planner-concurrency-floor-signal-reconciliation-relevant-files](./planner-concurrency-floor-signal-reconciliation-relevant-files.md).
 
 ## Classification contract
 

@@ -531,4 +531,234 @@ describe("report-planner-concurrency-floor script", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  test("suppresses page-oriented refill candidates when root generated-artifact drift is present", () => {
+    const dir = mkdtempSync(join(tmpdir(), "planner-concurrency-floor-"));
+    const workListPath = join(dir, "work-list.json");
+    const rootStatusPath = join(dir, "root-status.txt");
+    const tasksRoot = join(dir, "tasks");
+    const tempRoot = join(dir, "docs", "temp");
+
+    writeFileSync(
+      workListPath,
+      JSON.stringify({
+        results: [
+          {
+            workId: "task-active",
+            name: "active-lane",
+            sessionId: "session-active",
+            workTypeName: "task",
+            state: { name: "in-review", type: "PROCESSING" },
+          },
+        ],
+      }),
+    );
+    writeFileSync(
+      rootStatusPath,
+      " M src/lib/content/generated/table-registry.generated.ts\n",
+    );
+    mkdirSync(join(tasksRoot, "ideas-to-review", "content"), {
+      recursive: true,
+    });
+    mkdirSync(tempRoot, { recursive: true });
+    writeFileSync(
+      join(tasksRoot, "ideas-to-review", "content", "page-refill.md"),
+      [
+        "# Page Refill",
+        "",
+        "- Scope `src/content/docs/modules/example-page/page.mdx`.",
+      ].join("\n"),
+    );
+    writeFileSync(
+      join(tasksRoot, "ideas-to-review", "content", "factory-refill.md"),
+      [
+        "# Factory Refill",
+        "",
+        "- Scope `src/lib/factory/example-report.ts`.",
+      ].join("\n"),
+    );
+
+    try {
+      const humanResult = spawnSync(
+        "bun",
+        [
+          "./scripts/report-planner-concurrency-floor.ts",
+          "--root-git-status-file",
+          rootStatusPath,
+          "--work-list-json",
+          workListPath,
+          "--tasks-root",
+          tasksRoot,
+          "--temp-root",
+          tempRoot,
+          "--floor",
+          "3",
+        ],
+        { cwd: process.cwd(), encoding: "utf8" },
+      );
+      const jsonResult = spawnSync(
+        "bun",
+        [
+          "./scripts/report-planner-concurrency-floor.ts",
+          "--root-git-status-file",
+          rootStatusPath,
+          "--work-list-json",
+          workListPath,
+          "--tasks-root",
+          tasksRoot,
+          "--temp-root",
+          tempRoot,
+          "--floor",
+          "3",
+          "--json",
+        ],
+        { cwd: process.cwd(), encoding: "utf8" },
+      );
+
+      expect(humanResult.status).toBe(0);
+      expect(jsonResult.status).toBe(0);
+      expect(humanResult.stdout).toContain("page-refill-hold=true");
+      expect(humanResult.stdout).toContain(
+        "Root Generated-Artifact Drift Hold",
+      );
+      expect(humanResult.stdout).toContain(
+        "task=ideas-to-review/content/factory-refill title=Factory Refill recommendation=prefer",
+      );
+      expect(humanResult.stdout).not.toContain(
+        "task=ideas-to-review/content/page-refill title=Page Refill recommendation=prefer",
+      );
+
+      const jsonReport = JSON.parse(jsonResult.stdout) as {
+        refillCandidates: Array<{ taskId: string }>;
+        rootGeneratedArtifactDriftHold: { pageRefillHold: boolean };
+        plannerOwnedBacklogCandidates: Array<{
+          taskId: string;
+          refillRecommendation: string;
+        }>;
+      };
+
+      expect(jsonReport.rootGeneratedArtifactDriftHold.pageRefillHold).toBe(
+        true,
+      );
+      expect(
+        jsonReport.refillCandidates.map((candidate) => candidate.taskId),
+      ).toEqual(["ideas-to-review/content/factory-refill"]);
+      expect(
+        jsonReport.plannerOwnedBacklogCandidates.find(
+          (candidate) =>
+            candidate.taskId === "ideas-to-review/content/page-refill",
+        )?.refillRecommendation,
+      ).toBe("hold");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("lists stale backlog candidates separately without treating them as preferred refill work", () => {
+    const dir = mkdtempSync(join(tmpdir(), "planner-concurrency-floor-"));
+    const workListPath = join(dir, "work-list.json");
+    const rootStatusPath = join(dir, "root-status.txt");
+    const tasksRoot = join(dir, "tasks");
+    const tempRoot = join(dir, "docs", "temp");
+
+    writeFileSync(
+      workListPath,
+      JSON.stringify({
+        results: [
+          {
+            workId: "task-active",
+            name: "active-lane",
+            sessionId: "session-active",
+            workTypeName: "task",
+            state: { name: "in-review", type: "PROCESSING" },
+          },
+          {
+            workId: "task-complete-page",
+            name: "completed-page",
+            workTypeName: "task",
+            state: { name: "complete", type: "TERMINAL" },
+          },
+        ],
+      }),
+    );
+    writeFileSync(rootStatusPath, "");
+    mkdirSync(join(tasksRoot, "ideas-to-review", "content"), {
+      recursive: true,
+    });
+    mkdirSync(tempRoot, { recursive: true });
+    writeFileSync(
+      join(tasksRoot, "ideas-to-review", "content", "completed-page.md"),
+      "# Completed Page\n",
+    );
+    writeFileSync(
+      join(tasksRoot, "ideas-to-review", "content", "fresh-refill.md"),
+      ["# Fresh Refill", "", "- Scope `src/features/docs/search`."].join("\n"),
+    );
+
+    try {
+      const humanResult = spawnSync(
+        "bun",
+        [
+          "./scripts/report-planner-concurrency-floor.ts",
+          "--root-git-status-file",
+          rootStatusPath,
+          "--work-list-json",
+          workListPath,
+          "--tasks-root",
+          tasksRoot,
+          "--temp-root",
+          tempRoot,
+          "--floor",
+          "3",
+        ],
+        { cwd: process.cwd(), encoding: "utf8" },
+      );
+      const jsonResult = spawnSync(
+        "bun",
+        [
+          "./scripts/report-planner-concurrency-floor.ts",
+          "--root-git-status-file",
+          rootStatusPath,
+          "--work-list-json",
+          workListPath,
+          "--tasks-root",
+          tasksRoot,
+          "--temp-root",
+          tempRoot,
+          "--floor",
+          "3",
+          "--json",
+        ],
+        { cwd: process.cwd(), encoding: "utf8" },
+      );
+
+      expect(humanResult.status).toBe(0);
+      expect(jsonResult.status).toBe(0);
+      expect(humanResult.stdout).toContain("stale-backlog=1");
+      expect(humanResult.stdout).toContain("Stale Backlog Candidates (1)");
+      expect(humanResult.stdout).toContain(
+        "task=ideas-to-review/content/completed-page",
+      );
+      expect(humanResult.stdout).toContain("Refill Candidates (1)");
+      expect(humanResult.stdout).toContain(
+        "task=ideas-to-review/content/fresh-refill title=Fresh Refill recommendation=prefer",
+      );
+
+      const jsonReport = JSON.parse(jsonResult.stdout) as {
+        lanesNeededToReachFloor: number;
+        staleBacklogCandidates: Array<{ taskId: string }>;
+        refillCandidates: Array<{ taskId: string }>;
+      };
+
+      expect(jsonReport.lanesNeededToReachFloor).toBe(2);
+      expect(
+        jsonReport.staleBacklogCandidates.map((item) => item.taskId),
+      ).toEqual(["ideas-to-review/content/completed-page"]);
+      expect(jsonReport.refillCandidates.map((item) => item.taskId)).toEqual([
+        "ideas-to-review/content/fresh-refill",
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });

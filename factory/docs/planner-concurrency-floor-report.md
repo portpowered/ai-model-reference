@@ -66,6 +66,64 @@ Recommendation levels:
 
 The JSON output carries the same result as the human summary and is versioned with `contractVersion: "planner-concurrency-floor/v1"`.
 
+## Report Contract
+
+Human and JSON output share one advisory contract. The summary line counts are derived from the same arrays that appear in the sectioned body and JSON payload.
+
+### Classification buckets
+
+| Bucket | Source | Counted in `useful-active` | Affects `refill-needed` | Preferred refill |
+| --- | --- | --- | --- | --- |
+| Useful active lanes | Queue-health `activeWork` filtered to `task`, `review`, and untyped `PROCESSING` lanes | yes | reduces gap | n/a |
+| Blocked dependency lanes | Queue-health `expectedBlockedItems` | no | no | no |
+| Held backlog candidates | Temp-state holds and already-active alias collisions | no | no | no |
+| Advisory uncertainties | Backlog tasks with `refillRecommendation=uncertain` | no | no | no |
+| Stale backlog candidates | Terminal-complete alias matches or explicit stale markers | no | no | no |
+| Ignored stale noise | Superseded loopbacks and cron failure noise | no | no | no |
+| Root generated-artifact drift hold | Dirty `table-registry.generated.ts` on planner root | no | no | suppresses page-oriented refill |
+
+Useful active counting aligns with queue-health rather than keyword-only queue-state parsing. Factory states such as `init`, `in-review`, and `to-complete` count when the lane is active task, review, or processing work.
+
+### JSON fields
+
+Top-level JSON fields mirror the human summary and sectioned output:
+
+* `contractVersion` — always `"planner-concurrency-floor/v1"`.
+* `advisoryOnly` — always `true`.
+* `usefulActiveLaneCount`, `concurrencyFloor`, `floorStatus`, `lanesNeededToReachFloor` — summary counts.
+* `usefulActiveLanes` — active task, review, and processing lanes with `workItemName`, `rawState`, and optional `sessionId`.
+* `blockedDependencyLanes` — dependency blockers with `dependencies`, `reasons`, and queue identity fields.
+* `heldBacklogCandidates` — held or already-active backlog tasks with `holdReasons` and `status`.
+* `advisoryUncertainties` — uncertain backlog tasks with `uncertaintyReasons` and evidence quality.
+* `staleBacklogCandidates` — stale backlog tasks with `staleReasons` and terminal alias evidence when present.
+* `ignoredStaleNoise` — grouped cron and superseded loopback noise excluded from useful-active counts.
+* `plannerOwnedBacklogCandidates` — full scanned backlog set with refill recommendation, hold reasons, and collision context.
+* `refillCandidates` — eligible preferred refill work when below floor; excludes `hold`, `stale`, and ineligible rows.
+* `rootGeneratedArtifactDriftHold` — `pageRefillHold`, `blockingPaths`, and human-readable `guidance` when page refill is held.
+* `issues` — queue-health collection issues, if any.
+
+When `rootGeneratedArtifactDriftHold.pageRefillHold=true`, page-oriented backlog tasks downgrade to `recommendation=hold` and are omitted from `refillCandidates`. Non-page factory backlog tasks may still appear as refill candidates.
+
+Stale backlog candidates remain in `staleBacklogCandidates` and JSON for planner awareness but never increase `refill-needed` or appear under `Refill Candidates`. Human output bounds the stale section to `STALE_BACKLOG_CANDIDATE_HUMAN_DISPLAY_LIMIT` rows while JSON retains the full list.
+
+## Verification
+
+Focused contract tests live beside the report implementation:
+
+```sh
+bun test src/lib/factory/planner-concurrency-floor-report.test.ts
+bun test src/tests/ci/planner-concurrency-floor-command.test.ts
+```
+
+Fixture coverage map:
+
+* queue-health-style active `task`, `review`, and `processing` lanes produce a nonzero `usefulActiveLaneCount` and matching human/JSON summary fields
+* blocked dependencies, held backlog, and advisory uncertainty stay separate from useful-active counts
+* root generated-artifact drift suppresses page-oriented refill recommendations while keeping factory backlog candidates eligible
+* stale backlog candidates stay visible without becoming preferred refill work or increasing `refill-needed`
+
+Process executors should also read [planner-concurrency-floor-signal-reconciliation-relevant-files](../../docs/internal/processes/planner-concurrency-floor-signal-reconciliation-relevant-files.md) for file ownership and queue-health alignment notes.
+
 ## Safety
 
 This report is advisory only. It does not submit work, mutate queue state, or resolve holds automatically.
