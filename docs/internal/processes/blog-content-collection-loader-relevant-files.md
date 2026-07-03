@@ -38,12 +38,24 @@ adding public blog routes, shell hardening, or committed real posts.
   Published blog metadata, tag, related-doc, message, asset file, asset message key,
   MDX asset reference, and MDX link validation fixtures.
 
+## Search indexing (story 003+)
+
+* `src/lib/search/build-blog-search-document.ts`
+  Published blog search document builder: local messages, MDX prose, controlled tag terms,
+  `publishedAt`, and distinct `blog` kind.
+* `src/lib/search/build-blog-search-document.test.ts`
+  Fixture indexing, draft exclusion, MDX prose extraction, and search API discovery.
+* `src/lib/search/build-documents.ts`
+  `buildSearchDocumentsForLocale` accepts optional published blog post sources.
+* `src/lib/search/search-server.ts`
+  Loads published blog posts into the live search catalog.
+
 ## Out of scope for this lane
 
 * Public `/blog` or `/blog/<slug>` routes under `src/app`
-* Blog navigation, sidebar entries, tag pages, or search integration
+* Blog navigation, sidebar entries, or tag landing page grouping (story 004)
 * Real blog post content under `src/content/blog`
-* Generic shell hardening lanes (`shell-domain-relevant-files.md`, browse, sidebar, search enrichment)
+* Generic shell hardening lanes (`shell-domain-relevant-files.md`, browse, sidebar, search enrichment beyond blog indexing)
 
 ## Verification
 
