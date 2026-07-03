@@ -98,6 +98,7 @@ Fence retained tests with a file- or describe-level comment explaining why the c
 - `src/lib/content/mamba-selective-state-space-page-contract.test.ts` — consolidated review-facing proof for the Mamba selective state-space module slice: route/registry alignment, graph/table/citation resolution, alias search, curated-related hrefs, convergence markers, and Playwright desktop/mobile browser probes; routine bundle invariants stay on `validateDerivedPublishedPageBundles`.
 - `src/lib/content/clip-model-page.test.tsx`, `clip-model-record.test.ts`, `clip-model-discovery.test.tsx` — focused CLIP model landing proof: architecture graph render surface, reconciled registry relationships, representative search ranking, and curated related navigation; routine bundle invariants stay on `validateDerivedPublishedPageBundles`.
 - `src/lib/content/page-template-conformance.ts` — system pages may add optional `#how-it-differs` between `#how-it-works` and `#practical-impact` for serving-boundary teaching without a template exception list entry.
+- `src/lib/content/temperature-slice-verification.test.tsx` — consolidated review-facing proof for the temperature concept slice: route/registry alignment, citation resolution, alias search, sampling-neighbor links, and rendered concept surface; routine bundle invariants stay on `temperature-concept.test.ts` plus `validateDerivedPublishedPageBundles`.
 
 ## Contributor and factory entrypoints
 
