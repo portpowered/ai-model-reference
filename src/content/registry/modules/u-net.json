@@ -1,0 +1,55 @@
+{
+  "id": "module.u-net",
+  "slug": "u-net",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "U-Net",
+    "UNet",
+    "U Net",
+    "u-net",
+    "diffusion U-Net",
+    "convolutional denoising network",
+    "image denoising backbone",
+    "U-shaped denoising network",
+    "skip-connection denoiser"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "concept.denoising-generation",
+    "training-regime.diffusion-training-objective",
+    "concept.conditioning",
+    "concept.latent-space",
+    "paper.latent-diffusion",
+    "module.diffusion-transformer-block",
+    "citation.denoising-diffusion-probabilistic-models"
+  ],
+  "citationIds": [
+    "citation.u-net-convolutional-networks",
+    "citation.denoising-diffusion-probabilistic-models"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "releaseDate": "2015-05-18",
+  "authors": ["Olaf Ronneberger", "Philipp Fischer", "Thomas Brox"],
+  "sourceId": "citation.u-net-convolutional-networks",
+  "primaryClassificationId": "classification.module",
+  "moduleType": "other",
+  "moduleFamily": "denoising-backbone",
+  "conceptType": "architecture",
+  "variantGroup": "diffusion-denoising-blocks",
+  "optimizes": [
+    "multiscale-image-context",
+    "spatial-detail-preservation",
+    "timestep-conditioned-denoising",
+    "image-grid-denoising"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}
