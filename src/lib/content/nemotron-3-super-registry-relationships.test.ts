@@ -74,9 +74,9 @@ describe("nemotron 3 super registry relationships", () => {
     expect(getPaperById("paper.nemotron-3-super")?.modelIds).toEqual([
       MODEL_ID,
     ]);
-    expect(getOrganizationById("organization.nvidia")?.modelIds).toEqual([
+    expect(getOrganizationById("organization.nvidia")?.modelIds).toContain(
       MODEL_ID,
-    ]);
+    );
     expect(getOrganizationById("organization.nvidia")?.systemIds).toEqual([
       "system.inference-engine",
       "system.deployment",

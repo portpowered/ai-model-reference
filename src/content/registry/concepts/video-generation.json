@@ -1,0 +1,44 @@
+{
+  "id": "concept.video-generation",
+  "slug": "video-generation",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "video generation",
+    "text to video",
+    "text-to-video",
+    "generated video",
+    "video synthesis",
+    "temporal consistency",
+    "visual token generation"
+  ],
+  "tags": ["taxonomy", "foundations", "model-family"],
+  "relatedIds": [
+    "concept.diffusion-model",
+    "concept.autoregressive-generation",
+    "concept.conditioning",
+    "concept.generative-model",
+    "concept.modality",
+    "model.ltx-23"
+  ],
+  "citationIds": [
+    "citation.ltx-2-efficient-joint-audio-visual-foundation-model",
+    "citation.denoising-diffusion-probabilistic-models"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.model-type",
+  "conceptType": "general",
+  "sidebarGrouping": {
+    "concepts": "architecture"
+  },
+  "prerequisiteIds": [
+    "concept.generative-model",
+    "concept.modality",
+    "concept.diffusion-model",
+    "concept.autoregressive-generation"
+  ],
+  "explainsIds": []
+}

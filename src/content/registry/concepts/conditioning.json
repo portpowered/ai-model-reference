@@ -9,7 +9,8 @@
   "relatedIds": [
     "concept.special-tokens",
     "concept.autoregressive-generation",
-    "concept.denoising-generation"
+    "concept.denoising-generation",
+    "model.cosmos-3"
   ],
   "citationIds": [
     "citation.classifier-free-diffusion-guidance",
@@ -17,7 +18,7 @@
   ],
   "status": "published",
   "createdAt": "2026-06-04T11:46:45.985Z",
-  "updatedAt": "2026-06-04T12:50:00.000Z",
+  "updatedAt": "2026-07-03T02:45:00.000Z",
   "primaryClassificationId": "classification.concept.architecture",
   "conceptType": "architecture",
   "sidebarGrouping": {

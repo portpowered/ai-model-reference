@@ -31,6 +31,11 @@ describe("blog content loader lane isolation", () => {
       "roofline-throughput-explorer",
     ]);
     await expect(
+      getPublishedBlogPostBySlug("roofline-throughput-explorer"),
+    ).resolves.toMatchObject({
+      slug: "roofline-throughput-explorer",
+    });
+    await expect(
       getPublishedBlogPostBySlug("example-post"),
     ).resolves.toBeNull();
   });

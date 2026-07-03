@@ -1,0 +1,50 @@
+{
+  "id": "paper.cosmos-3",
+  "slug": "cosmos-3",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Cosmos 3",
+    "Cosmos 3 Technical Report",
+    "Cosmos 3: Omnimodal World Models for Physical AI",
+    "NVIDIA Cosmos 3"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["model.cosmos-3"],
+  "citationIds": [
+    "citation.cosmos-3-technical-report",
+    "citation.cosmos-3-research-page",
+    "citation.cosmos-3-model-card",
+    "citation.cosmos-3-github-repository",
+    "citation.cosmos-3-huggingface-collection"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-03T02:45:00.000Z",
+  "authors": ["NVIDIA"],
+  "publishedAt": "2026-05-31",
+  "url": "https://arxiv.org/abs/2606.02800",
+  "arxivId": "2606.02800",
+  "introducesIds": [],
+  "supportsIds": [
+    "concept.world-model",
+    "concept.multimodal-model",
+    "concept.autoregressive-generation",
+    "concept.denoising-generation",
+    "concept.diffusion-model",
+    "concept.conditioning"
+  ],
+  "arguesAgainstIds": [],
+  "modelIds": ["model.cosmos-3"],
+  "moduleIds": [],
+  "conceptIds": [
+    "concept.world-model",
+    "concept.multimodal-model",
+    "concept.autoregressive-generation",
+    "concept.denoising-generation",
+    "concept.diffusion-model",
+    "concept.conditioning"
+  ],
+  "venue": "Technical report"
+}
