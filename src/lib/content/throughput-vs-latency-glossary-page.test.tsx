@@ -56,7 +56,31 @@ describe("throughput vs latency glossary page (throughput-vs-latency-serving-met
     );
   });
 
-  test("page renders throughput-vs-latency explainer prose and serving-path links without reader-shortcut copy", async () => {
+  test("messages explain serving pressure mechanics and distinguish metric pages", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const metricComparison =
+      messages.sections?.metricComparison?.body?.toLowerCase() ?? "";
+    expect(metricComparison).toContain("time to first token");
+    expect(metricComparison).toContain("inter-token latency");
+    expect(metricComparison).toContain("tokens per second");
+    expect(metricComparison).toContain("fleet-level");
+
+    const runtimePressures =
+      messages.sections?.runtimePressures?.body?.toLowerCase() ?? "";
+    expect(runtimePressures).toContain("queueing");
+    expect(runtimePressures).toContain("active request");
+    expect(runtimePressures).toContain("batch");
+    expect(runtimePressures).toContain("scheduler");
+    expect(runtimePressures).toContain("memory bandwidth");
+    expect(runtimePressures).toContain("key-value cache");
+    expect(runtimePressures).toContain("cost per completed");
+    expect(runtimePressures).toContain("user experience");
+  });
+
+  test("page renders serving pressure prose without reader-shortcut copy", async () => {
     const page = await loadGlossaryPage("throughput-vs-latency");
 
     expect(page.frontmatter.kind).toBe("glossary");
@@ -81,6 +105,10 @@ describe("throughput vs latency glossary page (throughput-vs-latency-serving-met
     expectHtmlToContainProse(html, "time to first token");
     expectHtmlToContainProse(html, "inter-token latency");
     expectHtmlToContainProse(html, "tokens per second");
+    expectHtmlToContainProse(html, "Concurrency pressure");
+    expectHtmlToContainProse(html, "Batching and scheduling pressure");
+    expectHtmlToContainProse(html, "Memory bandwidth pressure");
+    expectHtmlToContainProse(html, "Serving cost");
     expect(html).toContain('href="/docs/glossary/time-to-first-token"');
     expect(html).toContain('href="/docs/glossary/inter-token-latency"');
     expect(html).toContain('href="/docs/glossary/tokens-per-second"');
