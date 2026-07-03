@@ -167,3 +167,32 @@ When reviewing scope, confirm routine page PRs stayed page-local unless a narrow
 shared touch was visible and justified. Reject hidden shared hotspot churn that
 should have been redirected to a throughput lane. See
 [CONTRIBUTING — routine canonical-page PR surface budget](./contributors/CONTRIBUTING.md#routine-canonical-page-pr-surface-budget).
+
+### Routine canonical-page surface budget (reviewers)
+
+Use the observable four-bucket budget when reviewing ordinary page PRs:
+
+| Bucket | Reviewer expectation |
+| --- | --- |
+| **Page-owned** | Page bundle, matching primary registry record, page-specific graph/table assets |
+| **Supported derived** | Regenerated locally; should not appear as authored churn in routine page commits |
+| **Shared hotspot** | `src/lib/content`, shared tests/verification, broad registry or helper edits — high collision risk |
+| **Broader / unknown** | Usually belongs in a throughput lane, not a routine page PR |
+
+**Evidence:** maintained hotspot snapshots show `src/lib/content` shared
+test/verification surfaces are touched far more often than any single authored
+page bundle. Treat incidental edits there as over-budget unless the author
+declared a visible exception.
+
+**Actions when over-budget:**
+
+| Audit recommendation | Reviewer action |
+| --- | --- |
+| `keep-routine` | Proceed with normal page review |
+| `declare-exception` | Confirm the PR conversation comment repeats the stated `--exception-reason` |
+| `split-to-page-owned-work` | Request removal of generated runtime artifacts from the routine commit |
+| `redirect-to-throughput-prd` | Request split or redirect to a broader throughput/conflict-reduction lane |
+
+Run `bun run audit:canonical-page-surface -- --page-dir src/content/docs/<section>/<slug>`
+on the branch when scope is unclear. Full contract:
+[canonical-page-surface-budget-relevant-files](./internal/processes/canonical-page-surface-budget-relevant-files.md).
