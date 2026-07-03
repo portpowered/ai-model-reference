@@ -1,0 +1,46 @@
+{
+  "results": [
+    {
+      "name": "generated-table-registry-root-drift-cleanup-proof",
+      "workId": "batch-generated-table-registry-drift-cleanup-proof-batch-076-generated-table-registry-root-drift-cleanup-proof",
+      "workTypeName": "idea",
+      "state": { "name": "to-complete", "type": "PROCESSING" },
+      "traceId": "trace-generated-table-registry-drift-cleanup-proof-batch-076"
+    },
+    {
+      "name": "generated-table-registry-root-drift-cleanup-proof",
+      "workId": "work-task-214",
+      "workTypeName": "task",
+      "state": { "name": "failed", "type": "FAILED" },
+      "traceId": "trace-generated-table-registry-drift-cleanup-proof-batch-076"
+    },
+    {
+      "name": "generated-table-registry-root-drift-cleanup-proof",
+      "workId": "work-plan-213",
+      "workTypeName": "plan",
+      "state": { "name": "complete", "type": "TERMINAL" },
+      "traceId": "trace-generated-table-registry-drift-cleanup-proof-batch-076"
+    },
+    {
+      "name": "generated-table-registry-pr320-conflict-refresh",
+      "workId": "batch-generated-table-registry-pr320-conflict-refresh-batch-079-generated-table-registry-pr320-conflict-refresh",
+      "workTypeName": "idea",
+      "state": { "name": "to-complete", "type": "PROCESSING" },
+      "traceId": "trace-generated-table-registry-pr320-conflict-refresh-batch-079"
+    },
+    {
+      "name": "generated-table-registry-pr320-conflict-refresh",
+      "workId": "work-task-262",
+      "workTypeName": "task",
+      "state": { "name": "init", "type": "PROCESSING" },
+      "traceId": "trace-generated-table-registry-pr320-conflict-refresh-batch-079"
+    },
+    {
+      "name": "generated-table-registry-pr320-conflict-refresh",
+      "workId": "work-plan-261",
+      "workTypeName": "plan",
+      "state": { "name": "complete", "type": "TERMINAL" },
+      "traceId": "trace-generated-table-registry-pr320-conflict-refresh-batch-079"
+    }
+  ]
+}
