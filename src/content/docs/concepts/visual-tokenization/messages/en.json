@@ -13,7 +13,7 @@
     },
     "representationForms": {
       "title": "Main Representation Forms",
-      "body": "Patch tokenization splits an image or frame into a grid of spatial regions and projects each region into an embedding that becomes one position in a sequence. Discrete-code tokenization maps visual content into learned codebook IDs so autoregressive systems can predict the next visual symbol the same way they predict text tokens. Latent-token approaches represent compressed image or video features that diffusion and transformer systems can update more cheaply than raw pixels, often after an encoder shrinks the visual field into a lower-resolution latent grid."
+      "body": "Patch tokenization splits an image or frame into a grid of spatial regions and projects each region into an embedding that becomes one position in a sequence. Discrete-code tokenization maps visual content into learned codebook IDs so autoregressive systems can predict the next visual symbol the same way they predict text tokens. Latent-token approaches represent compressed image or video features that diffusion and transformer systems can update more cheaply than raw pixels, often after an encoder shrinks the visual field into a lower-resolution latent grid.\n\nThe comparison table below contrasts the three families by what visual data they start from, what each token looks like, where models typically use them, and the main tradeoff each choice introduces."
     },
     "simpleExample": {
       "title": "Simple Example",
@@ -31,6 +31,52 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "assets": {
+    "representationFormsComparison": {
+      "caption": "How patch tokens, discrete visual codes, and latent visual tokens differ by source data, token form, common model use, and tradeoff."
+    }
+  },
+  "tables": {
+    "representationForms": {
+      "columns": {
+        "patchTokens": {
+          "title": "Patch tokens"
+        },
+        "discreteCodes": {
+          "title": "Discrete visual codes"
+        },
+        "latentTokens": {
+          "title": "Latent visual tokens"
+        }
+      },
+      "dimensions": {
+        "sourceData": "Source data",
+        "tokenForm": "Token form",
+        "commonModelUse": "Common model use",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "patchTokens": {
+          "sourceData": "Image or video-frame pixels divided into a spatial grid of regions",
+          "tokenForm": "Continuous embedding vector per patch region",
+          "commonModelUse": "Vision transformers, CLIP-style image encoders, and multimodal understanding stacks",
+          "mainTradeoff": "Keeps local spatial structure visible to attention, but sequence length grows with image resolution"
+        },
+        "discreteCodes": {
+          "sourceData": "Image or frame content after encoder quantization into a learned codebook",
+          "tokenForm": "Integer codebook ID per visual unit, read as a symbol sequence",
+          "commonModelUse": "Autoregressive visual generation that predicts the next visual code like text tokens",
+          "mainTradeoff": "Compresses visuals into a compact symbol stream, but reconstruction detail depends on codebook size and training"
+        },
+        "latentTokens": {
+          "sourceData": "Encoder-compressed image or video features rather than raw pixels",
+          "tokenForm": "Lower-resolution latent feature map positions updated as tokens",
+          "commonModelUse": "Latent diffusion and denoising transformers that iterate on visual latents instead of full-resolution pixels",
+          "mainTradeoff": "Makes iterative generation cheaper than pixel-space edits, but fine detail depends on the encoder and decoder pair"
+        }
+      }
     }
   }
 }

@@ -1,1 +1,7 @@
-{}
+{
+  "representationFormsComparison": {
+    "type": "table",
+    "tableId": "table.visual-tokenization-representation-forms-comparison",
+    "captionKey": "assets.representationFormsComparison.caption"
+  }
+}

@@ -199,3 +199,66 @@ describe("visual-tokenization concept page (visual-tokenization-concept-page-002
     expect(html).not.toContain("Reader Shortcut");
   });
 });
+
+describe("visual-tokenization representation comparison (visual-tokenization-concept-page-003)", () => {
+  test("assets wire a message-backed comparison table for patch, discrete, and latent forms", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.assets?.representationFormsComparison?.caption).toContain(
+      "patch tokens",
+    );
+    expect(messages.tables?.representationForms?.dimensions?.sourceData).toBe(
+      "Source data",
+    );
+    expect(
+      messages.tables?.representationForms?.values?.patchTokens?.tokenForm,
+    ).toContain("embedding");
+    expect(
+      messages.tables?.representationForms?.values?.discreteCodes?.tokenForm,
+    ).toContain("codebook");
+    expect(
+      messages.tables?.representationForms?.values?.latentTokens
+        ?.commonModelUse,
+    ).toContain("diffusion");
+  });
+
+  test("page renders the representation-forms comparison table with accessible labels", async () => {
+    const page = await loadConceptPage("visual-tokenization");
+    const comparisonAsset = page.assets.representationFormsComparison;
+
+    expect(comparisonAsset?.type).toBe("table");
+    if (comparisonAsset?.type !== "table") {
+      throw new Error("expected representationFormsComparison table asset");
+    }
+    expect(comparisonAsset.tableId).toBe(
+      "table.visual-tokenization-representation-forms-comparison",
+    );
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('data-registry-comparison-table="true"');
+    expect(html).toContain(
+      'data-table-id="table.visual-tokenization-representation-forms-comparison"',
+    );
+    expect(html).toContain("Patch tokens");
+    expect(html).toContain("Discrete visual codes");
+    expect(html).toContain("Latent visual tokens");
+    expect(html).toContain("Source data");
+    expect(html).toContain("Token form");
+    expect(html).toContain("Common model use");
+    expect(html).toContain("Main tradeoff");
+    expect(html).toContain('href="/docs/modules/clip-image-tokenization"');
+    expect(html).toContain(
+      "How patch tokens, discrete visual codes, and latent visual tokens differ",
+    );
+  });
+});
