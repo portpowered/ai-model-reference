@@ -1,8 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { GLOSSARY_DOCS_ROOT, CONCEPTS_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadConceptPage } from "@/lib/content/concept-page";
+import {
+  CONCEPTS_DOCS_ROOT,
+  GLOSSARY_DOCS_ROOT,
+} from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
