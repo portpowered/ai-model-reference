@@ -14,20 +14,27 @@ import {
   renderGeneratedTableRegistryModule,
 } from "@/lib/content/table-registry-generation";
 import {
+  applyGeneratedTableRegistryExpectedOutput,
+  buildGeneratedTableRegistryExpectedOutputOutcome,
   captureGeneratedTableRegistryRootDriftEvidence,
+  classifyGeneratedTableRegistryExpectedOutputKind,
   extractLoopedTransformersComparisonDiffHighlights,
   extractLoopedTransformersGeneratedLines,
+  formatGeneratedTableRegistryExpectedOutputOutcome,
   formatGeneratedTableRegistryReproducibilityProof,
   formatGeneratedTableRegistryRootDriftEvidence,
   GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
   GENERATED_TABLE_REGISTRY_DRIFT_EVIDENCE_PRESERVE_POLICY,
+  GENERATED_TABLE_REGISTRY_EXPECTED_OUTPUT_UNRELATED_PATHS_NOTE,
   GENERATED_TABLE_REGISTRY_ROOT_DRIFT_CLEANUP_PROOF_HEADER,
   LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
   LOOPED_TRANSFORMERS_COMPARISON_IMPORT_MARKER,
   LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH,
+  LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID,
   proveGeneratedTableRegistryReproducibility,
   TABLE_REGISTRY_GENERATION_COMMAND,
   TABLE_REGISTRY_VALIDATION_COMMAND,
+  verifyLoopedTransformersTableRegistryDiscoverability,
 } from "@/lib/factory/generated-table-registry-root-drift-cleanup-proof";
 
 const FIXTURE_DIR = join(
@@ -651,6 +658,298 @@ describe("reproducibility report script integration", () => {
     expect(result.stdout).toContain(
       `generation-command=${TABLE_REGISTRY_GENERATION_COMMAND}`,
     );
+
+    const statusAfter = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+    expect(statusAfter).toBe(statusBefore);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+});
+
+describe("classifyGeneratedTableRegistryExpectedOutputKind", () => {
+  test("returns not-applicable when reproducibility is not deterministic", () => {
+    expect(
+      classifyGeneratedTableRegistryExpectedOutputKind({
+        generatedArtifactCleanliness: "dirty",
+        reproducibilityOutcome: "differs-from-deterministic-generation",
+      }),
+    ).toBe("not-applicable");
+  });
+
+  test("returns already-aligned-no-commit when artifact is clean and reproducible", () => {
+    expect(
+      classifyGeneratedTableRegistryExpectedOutputKind({
+        generatedArtifactCleanliness: "clean",
+        reproducibilityOutcome: "matches-deterministic-generation",
+      }),
+    ).toBe("already-aligned-no-commit");
+  });
+
+  test("returns land-minimal-expected-output-required when artifact is dirty and reproducible", () => {
+    expect(
+      classifyGeneratedTableRegistryExpectedOutputKind({
+        generatedArtifactCleanliness: "dirty",
+        reproducibilityOutcome: "matches-deterministic-generation",
+      }),
+    ).toBe("land-minimal-expected-output-required");
+  });
+});
+
+describe("verifyLoopedTransformersTableRegistryDiscoverability", () => {
+  test("discovers looped-transformers table id and source through generated registry", () => {
+    const discoverability =
+      verifyLoopedTransformersTableRegistryDiscoverability();
+
+    expect(discoverability.loopedTransformersTableId).toBe(
+      LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID,
+    );
+    expect(discoverability.loopedTransformersTableDiscoverable).toBe(true);
+    expect(discoverability.loopedTransformersSourceDiscoverable).toBe(true);
+  });
+});
+
+describe("buildGeneratedTableRegistryExpectedOutputOutcome", () => {
+  test("records already-aligned-no-commit when root artifact is clean and reproducible", () => {
+    const generatedModuleSource = renderGeneratedTableRegistryModule(
+      createTableRegistrySourceEntries([
+        LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
+      ]),
+    );
+    const sourceTableRecord = createMinimalTableRecord(
+      LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID,
+      "module.looped-transformers",
+    );
+    const existingPaths = new Set([
+      "/checkout/src/lib/content/generated/table-registry.generated.ts",
+      `/checkout/${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+    ]);
+
+    const outcome = buildGeneratedTableRegistryExpectedOutputOutcome({
+      checkoutRepoPath: "/checkout",
+      generatedAtUtc: "2026-07-03T05:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      driftEvidence: captureGeneratedTableRegistryRootDriftEvidence({
+        generatedAtUtc: "2026-07-03T05:00:00.000Z",
+        repoRoot: "/checkout",
+        remoteBaseRef: "origin/main",
+        statusOutput: "## main...origin/main\n",
+        diffOutput: "",
+        runGit: createMockGitRunner({
+          presentPaths: new Set([
+            `origin/main:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+            `HEAD:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+          ]),
+        }),
+      }),
+      pathExists: (filePath) => existingPaths.has(filePath),
+      runGit: createMockGitRunner({
+        presentPaths: new Set([
+          `origin/main:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+          `HEAD:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+        ]),
+      }),
+      readDir: () => [LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME],
+      readFile: (filePath) => {
+        if (filePath.endsWith(LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME)) {
+          return sourceTableRecord;
+        }
+        if (filePath.endsWith("table-registry.generated.ts")) {
+          return generatedModuleSource;
+        }
+        throw new Error(`Unexpected read: ${filePath}`);
+      },
+    });
+
+    expect(outcome.kind).toBe("already-aligned-no-commit");
+    expect(outcome.applicable).toBe(true);
+    expect(outcome.validationPassed).toBe(true);
+    expect(outcome.changedPaths).toEqual([]);
+    expect(outcome.unrelatedPathsNote).toBe(
+      GENERATED_TABLE_REGISTRY_EXPECTED_OUTPUT_UNRELATED_PATHS_NOTE,
+    );
+    expect(outcome.operationalSummary).toContain(
+      "no registry commit is required",
+    );
+  });
+
+  test("records land-minimal-expected-output-required when root artifact is dirty and reproducible", () => {
+    const generatedModuleSource = renderGeneratedTableRegistryModule(
+      createTableRegistrySourceEntries([
+        LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
+      ]),
+    );
+    const sourceTableRecord = createMinimalTableRecord(
+      LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID,
+      "module.looped-transformers",
+    );
+    const existingPaths = new Set([
+      "/checkout/src/lib/content/generated/table-registry.generated.ts",
+      `/checkout/${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+    ]);
+
+    const outcome = buildGeneratedTableRegistryExpectedOutputOutcome({
+      checkoutRepoPath: "/checkout",
+      generatedAtUtc: "2026-07-03T05:01:00.000Z",
+      remoteBaseRef: "origin/main",
+      driftEvidence: captureGeneratedTableRegistryRootDriftEvidence({
+        generatedAtUtc: "2026-07-03T05:01:00.000Z",
+        repoRoot: "/checkout",
+        remoteBaseRef: "origin/main",
+        statusOutput: readFixture("dirty-table-registry-status.txt"),
+        diffOutput: readFixture("looped-transformers-table-registry.diff"),
+        runGit: createMockGitRunner({
+          presentPaths: new Set([
+            `origin/main:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+            `HEAD:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+          ]),
+        }),
+      }),
+      pathExists: (filePath) => existingPaths.has(filePath),
+      runGit: createMockGitRunner({
+        presentPaths: new Set([
+          `origin/main:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+          `HEAD:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+        ]),
+      }),
+      readDir: () => [LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME],
+      readFile: (filePath) => {
+        if (filePath.endsWith(LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME)) {
+          return sourceTableRecord;
+        }
+        if (filePath.endsWith("table-registry.generated.ts")) {
+          return generatedModuleSource;
+        }
+        throw new Error(`Unexpected read: ${filePath}`);
+      },
+    });
+
+    expect(outcome.kind).toBe("land-minimal-expected-output-required");
+    expect(outcome.rootGeneratedArtifactCleanliness).toBe("dirty");
+    expect(outcome.operationalSummary).toContain(
+      TABLE_REGISTRY_GENERATION_COMMAND,
+    );
+  });
+
+  test("formats expected-output outcome with validation and discoverability fields", () => {
+    const outcome = buildGeneratedTableRegistryExpectedOutputOutcome({
+      checkoutRepoPath: process.cwd(),
+      generatedAtUtc: "2026-07-03T05:02:00.000Z",
+    });
+    const text = formatGeneratedTableRegistryExpectedOutputOutcome(outcome);
+
+    expect(text).toContain("Expected Output");
+    expect(text).toContain(
+      `validation-command=${TABLE_REGISTRY_VALIDATION_COMMAND}`,
+    );
+    expect(text).toContain(
+      `looped-transformers-table-id=${LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID}`,
+    );
+    expect(text).toContain(
+      `unrelated-paths-note=${GENERATED_TABLE_REGISTRY_EXPECTED_OUTPUT_UNRELATED_PATHS_NOTE}`,
+    );
+  });
+});
+
+describe("applyGeneratedTableRegistryExpectedOutput", () => {
+  test("writes only the generated artifact when dirty reproducible drift requires landing", () => {
+    const dryRunSource = "// deterministic generated output\n";
+    const writes: Array<{ filePath: string; contents: string }> = [];
+
+    const result = applyGeneratedTableRegistryExpectedOutput({
+      checkoutRepoPath: "/checkout",
+      dryRunGeneratedModuleSource: dryRunSource,
+      kind: "land-minimal-expected-output-required",
+      writeFile: (filePath, contents) => {
+        writes.push({ filePath, contents });
+      },
+    });
+
+    expect(result.applyStatus).toBe("applied");
+    expect(result.changedPaths).toEqual([
+      GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+    ]);
+    expect(writes).toHaveLength(1);
+    expect(writes[0]?.filePath).toBe(
+      `/checkout/${GENERATED_TABLE_REGISTRY_ARTIFACT_PATH}`,
+    );
+    expect(writes[0]?.contents).toBe(dryRunSource);
+  });
+
+  test("skips apply when story 003 outcome is already aligned", () => {
+    const result = applyGeneratedTableRegistryExpectedOutput({
+      checkoutRepoPath: "/checkout",
+      dryRunGeneratedModuleSource: "// deterministic generated output\n",
+      kind: "already-aligned-no-commit",
+    });
+
+    expect(result.applyStatus).toBe("skipped");
+    expect(result.changedPaths).toEqual([]);
+  });
+});
+
+describe("expected-output report script integration", () => {
+  test("emits expected-output outcome without mutating git state", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "generated-table-registry-root-drift-expected-output-"),
+    );
+    const repoRoot = join(dir, "repo");
+    const tablesDir = join(repoRoot, "src/content/registry/tables");
+    const artifactPath = join(repoRoot, GENERATED_TABLE_REGISTRY_ARTIFACT_PATH);
+    const sourceTablePath = join(
+      tablesDir,
+      LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
+    );
+
+    mkdirSync(tablesDir, { recursive: true });
+    writeFileSync(
+      sourceTablePath,
+      createMinimalTableRecord(
+        LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID,
+        "module.looped-transformers",
+      ),
+    );
+
+    const generatedModuleSource = renderGeneratedTableRegistryModule(
+      createTableRegistrySourceEntries([
+        LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
+      ]),
+    );
+    mkdirSync(join(artifactPath, ".."), { recursive: true });
+    writeFileSync(artifactPath, generatedModuleSource);
+
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+    runGit(repoRoot, ["add", "."]);
+    runGit(repoRoot, ["commit", "-m", "initial"]);
+    runGit(repoRoot, ["branch", "origin-main"]);
+    runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "origin-main"]);
+
+    const statusBefore = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-generated-table-registry-root-drift-cleanup-proof.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+        "--expected-output",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("Expected Output");
+    expect(result.stdout).toContain("kind=already-aligned-no-commit");
+    expect(result.stdout).toContain("validation-passed=true");
 
     const statusAfter = spawnSync("git", ["status", "--porcelain"], {
       cwd: repoRoot,

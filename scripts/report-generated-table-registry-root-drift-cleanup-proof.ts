@@ -1,10 +1,13 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
+  buildGeneratedTableRegistryExpectedOutputOutcome,
   captureGeneratedTableRegistryRootDriftEvidence,
+  formatGeneratedTableRegistryExpectedOutputOutcome,
   formatGeneratedTableRegistryReproducibilityProof,
   formatGeneratedTableRegistryRootDriftEvidence,
   proveGeneratedTableRegistryReproducibility,
+  serializeGeneratedTableRegistryExpectedOutputOutcome,
   serializeGeneratedTableRegistryReproducibilityProof,
   serializeGeneratedTableRegistryRootDriftEvidence,
 } from "../src/lib/factory/generated-table-registry-root-drift-cleanup-proof";
@@ -35,11 +38,23 @@ function isJsonOutputRequested(argv: string[]): boolean {
 }
 
 function isReproducibilityProofRequested(argv: string[]): boolean {
-  return argv.includes("--reproducibility") || argv.includes("--full-proof");
+  return (
+    argv.includes("--reproducibility") ||
+    argv.includes("--full-proof") ||
+    argv.includes("--expected-output")
+  );
 }
 
 function isDriftEvidenceRequested(argv: string[]): boolean {
-  return !argv.includes("--reproducibility") || argv.includes("--full-proof");
+  return (
+    !argv.includes("--reproducibility") ||
+    argv.includes("--full-proof") ||
+    argv.includes("--expected-output")
+  );
+}
+
+function isExpectedOutputRequested(argv: string[]): boolean {
+  return argv.includes("--expected-output") || argv.includes("--full-proof");
 }
 
 const repoRoot = readFlagValue("--repo-root")
@@ -58,6 +73,8 @@ const diffOutput = diffOutputPath
 const jsonOutput = isJsonOutputRequested(process.argv);
 const reproducibilityRequested = isReproducibilityProofRequested(process.argv);
 const driftEvidenceRequested = isDriftEvidenceRequested(process.argv);
+const expectedOutputRequested = isExpectedOutputRequested(process.argv);
+const applyExpectedOutput = process.argv.includes("--apply");
 
 const report = driftEvidenceRequested
   ? captureGeneratedTableRegistryRootDriftEvidence({
@@ -78,8 +95,46 @@ const reproducibilityProof = reproducibilityRequested
     })
   : null;
 
+const expectedOutputOutcome = expectedOutputRequested
+  ? buildGeneratedTableRegistryExpectedOutputOutcome({
+      apply: applyExpectedOutput,
+      checkoutRepoPath: repoRoot,
+      driftEvidence: report ?? undefined,
+      generatedAtUtc,
+      remoteBaseRef,
+      repoRoot,
+    })
+  : null;
+
 if (jsonOutput) {
-  if (report !== null && reproducibilityProof !== null) {
+  if (
+    report !== null &&
+    reproducibilityProof !== null &&
+    expectedOutputOutcome !== null
+  ) {
+    process.stdout.write(
+      `${JSON.stringify(
+        {
+          driftEvidence: report,
+          expectedOutputOutcome,
+          reproducibilityProof,
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  } else if (expectedOutputOutcome !== null && reproducibilityProof !== null) {
+    process.stdout.write(
+      `${JSON.stringify(
+        {
+          expectedOutputOutcome,
+          reproducibilityProof,
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  } else if (report !== null && reproducibilityProof !== null) {
     process.stdout.write(
       `${JSON.stringify(
         {
@@ -89,6 +144,10 @@ if (jsonOutput) {
         null,
         2,
       )}\n`,
+    );
+  } else if (expectedOutputOutcome !== null) {
+    process.stdout.write(
+      `${serializeGeneratedTableRegistryExpectedOutputOutcome(expectedOutputOutcome)}\n`,
     );
   } else if (reproducibilityProof !== null) {
     process.stdout.write(
@@ -107,6 +166,11 @@ if (jsonOutput) {
   if (reproducibilityProof !== null) {
     outputSections.push(
       formatGeneratedTableRegistryReproducibilityProof(reproducibilityProof),
+    );
+  }
+  if (expectedOutputOutcome !== null) {
+    outputSections.push(
+      formatGeneratedTableRegistryExpectedOutputOutcome(expectedOutputOutcome),
     );
   }
   process.stdout.write(`${outputSections.join("\n\n")}\n`);

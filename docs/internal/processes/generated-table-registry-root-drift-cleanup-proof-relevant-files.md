@@ -11,10 +11,14 @@ revert, stage, overwrite, or commit the root artifact during evidence capture.
   story 001 read-only root checkout evidence: `HEAD` and `origin/main` SHAs,
   ahead/behind counts, `git status --short --branch` for the generated artifact,
   full artifact diff, and looped-transformers-comparison import/source/payload
-  highlight extraction; story 002 reproducibility proof via dry-run generation
+  highlight extraction;   story 002 reproducibility proof via dry-run generation
   (`createTableRegistrySourceEntries` + `renderGeneratedTableRegistryModule`),
   canonical source presence on `origin/main` / root `HEAD` / checkout filesystem,
-  and in-process `verifyGeneratedTableRegistryState` validation problems.
+  and in-process `verifyGeneratedTableRegistryState` validation problems; story 003
+  expected-output classification (`already-aligned-no-commit` vs
+  `land-minimal-expected-output-required`), looped-transformers table/source
+  discoverability via `getTableById` and `generatedTableRegistrySourceFiles`, and
+  optional `--apply` write of only `table-registry.generated.ts`.
 * `src/lib/factory/generated-table-registry-root-drift-cleanup-proof.test.ts` —
   fixture diff/status tests plus temp-git-repo integration proving the report
   script does not mutate porcelain state.
@@ -38,6 +42,8 @@ revert, stage, overwrite, or commit the root artifact during evidence capture.
 | --- | --- |
 | Capture current root drift evidence (story 001) | `bun run report:generated-table-registry-root-drift-cleanup-proof` |
 | Prove generator reproducibility (story 002) | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --reproducibility` |
+| Classify expected generated output lane (story 003) | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --expected-output` |
+| Apply minimal generated artifact when dirty and reproducible (story 003) | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --expected-output --apply` |
 | Capture drift evidence and reproducibility proof together | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof` |
 | Point at the planner root checkout explicitly | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --repo-root /path/to/root` |
 | Fixture-backed status/diff replay | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --repo-root /path/to/root --status-output /path/to/status.txt --diff-output /path/to/diff.txt` |
@@ -103,6 +109,27 @@ Story 003 should land minimal expected generated output only if this proof
 remains `matches-deterministic-generation` while the generated artifact is
 dirty; when the artifact is already clean and aligned, no registry commit is
 required.
+
+## Live expected-output outcome (2026-07-03 UTC)
+
+Captured via
+`bun run report:generated-table-registry-root-drift-cleanup-proof -- --expected-output`
+from this worktree.
+
+| Field | Value |
+| --- | --- |
+| Outcome kind | `already-aligned-no-commit` |
+| Reproducibility outcome | `matches-deterministic-generation` |
+| Root generated artifact cleanliness | `clean` |
+| Validation command | `bun run verify:table-registry` |
+| Looped-transformers table discoverable | `true` (`table.looped-transformers-comparison`) |
+| Looped-transformers source discoverable | `true` (`looped-transformers-comparison.json`) |
+| Changed paths | none |
+| Unrelated paths note | No unrelated dirty root paths were modified, reverted, staged, overwritten, or deleted. |
+| Operational summary | Expected looped-transformers generated entries are already on `origin/main`; no registry commit required. |
+
+Stories 004–005 apply only when reproducibility is **not**
+`matches-deterministic-generation` or when drift belongs to an active PR lane.
 
 ## Preserve policy
 
