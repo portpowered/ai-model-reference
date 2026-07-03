@@ -36,6 +36,9 @@ describe("blog content loader lane isolation", () => {
       getPublishedBlogPostBySlug("llm-training-shift"),
     ).resolves.toMatchObject({ slug: "llm-training-shift" });
     await expect(
+      getPublishedBlogPostBySlug("roofline-throughput-explorer"),
+    ).resolves.toMatchObject({ slug: "roofline-throughput-explorer" });
+    await expect(
       getPublishedBlogPostBySlug("example-post"),
     ).resolves.toBeNull();
   });
