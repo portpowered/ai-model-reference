@@ -113,6 +113,11 @@ Direct script paths remain supported for fixture-driven tests:
   `lane-kind=stale-clean-pr-mismatch` with `mismatch-reason=` evidence in the
   active PR watchdog and linkage ledger `Stale PR Mismatch Summary` section,
   not counted as active page implementation depth.
+* Conflict-priority ordering for PR-backed actionable rows uses
+  `sortPlannerWatchdogLanes`: `conflict-drift` / `merge-conflict` first, then
+  failing checks, then pending/wait checks, then other PR-backed lanes; gap and
+  noise lanes sort after PR-backed rows. Watchdog and ledger scripts share the
+  same sorter via `partitionLinkageLanesForSummary`.
 
 Reuse `isQueueOnlyMissingLinkageLane`, `isStaleFailedLoopbackLane`,
 `isStaleCleanPrMismatchLane`, `isActionableLinkageGapLane`, and

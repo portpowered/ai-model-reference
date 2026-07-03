@@ -217,6 +217,9 @@ function formatLaneRow(lane: QueueWorktreePrLinkageLane): string {
   if (lane.sessionState) {
     details.push(`session-state=${lane.sessionState}`);
   }
+  if (lane.pullRequest?.url) {
+    details.push(`pr-url=${lane.pullRequest.url}`);
+  }
   if (lane.mergeabilityClass) {
     details.push(`mergeability=${lane.mergeabilityClass}`);
   }
@@ -225,6 +228,12 @@ function formatLaneRow(lane: QueueWorktreePrLinkageLane): string {
   }
   if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
     details.push(`risk=${lane.queueMismatchRisk}`);
+  }
+  if (lane.plannerLaneKind) {
+    details.push(`lane-kind=${lane.plannerLaneKind}`);
+  }
+  if (lane.staleMismatchReason) {
+    details.push(`mismatch-reason=${lane.staleMismatchReason}`);
   }
   if (lane.metadataRefreshHints && lane.metadataRefreshHints.length > 0) {
     details.push(`metadata-refresh=${lane.metadataRefreshHints.join("; ")}`);

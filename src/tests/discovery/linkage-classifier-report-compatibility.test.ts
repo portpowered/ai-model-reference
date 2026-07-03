@@ -166,6 +166,8 @@ function assertRepresentativeLinkageSummary(stdout: string): void {
   expect(stdout).toContain("actionable-gaps=1");
   expect(stdout).toContain("queue-only-noise=3");
   expect(stdout).toContain("pr=#42");
+  expect(stdout).toContain("pr-url=https://example.com/pr/42");
+  expect(stdout).toContain("lane-kind=merge-conflict");
   expect(stdout).toContain("Noise Summary");
   expect(stdout).toContain(
     "noise=stale-failed-loopbacks count=1 work-items=beta",

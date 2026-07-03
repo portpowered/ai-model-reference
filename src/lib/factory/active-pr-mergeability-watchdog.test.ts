@@ -534,11 +534,11 @@ describe("discoverActivePrLaneReport", () => {
           "GitHub CLI returned 502 while refreshing PR metadata",
         queueMismatchRisk: "metadata-unavailable",
         nextAction: "repair-token",
-        reasons: [
+        metadataRefreshHints: [
           "stamped branch linkage is stale: git branch inspection failed during the last refresh",
           "stamped pull request linkage is stale: pull request lookup API returned 502",
-          "GitHub CLI returned 502 while refreshing PR metadata",
         ],
+        reasons: ["GitHub CLI returned 502 while refreshing PR metadata"],
       }),
     ]);
 
