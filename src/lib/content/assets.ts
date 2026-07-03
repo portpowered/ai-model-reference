@@ -1,4 +1,6 @@
+import { join } from "node:path";
 import type { z } from "zod";
+import { getProjectRoot } from "./content-paths";
 import { lookupMessage } from "./messages";
 import {
   type PageAsset,
@@ -145,4 +147,22 @@ export function formatMissingAssetId(
 ): string {
   const detail = reason === "invalid" ? " (invalid config)" : "";
   return `Missing asset ID: ${assetId}${detail}`;
+}
+
+/** Returns true when an asset src should resolve to a local filesystem path. */
+export function isLocalPageAssetSrc(src: string): boolean {
+  return !src.startsWith("http://") && !src.startsWith("https://");
+}
+
+/** Resolves a page asset src to a local filesystem path for build-time validation. */
+export function resolveColocatedPageAssetSrcPath(
+  pageDirectory: string,
+  src: string,
+  projectRoot = getProjectRoot(),
+): string {
+  if (src.startsWith("/")) {
+    return join(projectRoot, "public", src.slice(1));
+  }
+
+  return join(pageDirectory, src);
 }

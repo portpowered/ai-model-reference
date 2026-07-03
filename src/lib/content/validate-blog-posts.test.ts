@@ -281,6 +281,123 @@ describe("validatePublishedBlogPosts", () => {
 
     expect(errors).toEqual([]);
   });
+
+  test("rejects missing local image files referenced in assets.json", async () => {
+    const { blogRoot } = await writeFixturePost({
+      slug: "missing-image-file",
+      includeAssets: true,
+      assets: {
+        hero: {
+          type: "image",
+          src: "./assets/hero.png",
+          altKey: "assets.hero.alt",
+        },
+      },
+      messages: {
+        ...validMessages,
+        assets: {
+          hero: {
+            alt: "Fixture hero image",
+          },
+        },
+      },
+    });
+    const indexes = await loadRegistry();
+
+    const errors = await validatePublishedBlogPosts({ blogRoot, indexes });
+
+    expect(errors).toEqual([
+      expect.objectContaining({
+        code: "missing-blog-asset-file",
+        message: expect.stringContaining("/blog/missing-image-file"),
+      }),
+    ]);
+  });
+
+  test("rejects missing altKey and captionKey message references for blog assets", async () => {
+    const { blogRoot } = await writeFixturePost({
+      slug: "missing-asset-message-keys",
+      includeAssets: true,
+      assets: {
+        hero: {
+          type: "image",
+          src: "/images/blog/example.png",
+          altKey: "assets.hero.alt",
+          captionKey: "assets.hero.caption",
+        },
+      },
+    });
+    const indexes = await loadRegistry();
+
+    const errors = await validatePublishedBlogPosts({ blogRoot, indexes });
+
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing-blog-asset-message-key",
+          message: expect.stringContaining('alt key "assets.hero.alt"'),
+        }),
+        expect.objectContaining({
+          code: "missing-blog-asset-message-key",
+          message: expect.stringContaining('caption key "assets.hero.caption"'),
+        }),
+      ]),
+    );
+  });
+
+  test("rejects unknown MDX assetId references", async () => {
+    const { blogRoot, pageDir } = await writeFixturePost({
+      slug: "unknown-mdx-asset",
+      includeAssets: true,
+      assets: {},
+    });
+    const indexes = await loadRegistry();
+    const mdxPath = join(pageDir, "page.mdx");
+    const existing = await Bun.file(mdxPath).text();
+    await writeFile(mdxPath, `${existing}\n<PageAsset assetId="hero" />\n`);
+
+    const errors = await validatePublishedBlogPosts({ blogRoot, indexes });
+
+    expect(errors).toEqual([
+      expect.objectContaining({
+        code: "unknown-blog-mdx-asset-id",
+        message: expect.stringContaining("/blog/unknown-mdx-asset"),
+      }),
+    ]);
+  });
+
+  test("rejects broken reader-visible MDX links with source route context", async () => {
+    const { blogRoot, pageDir } = await writeFixturePost({
+      slug: "broken-mdx-links",
+      includeAssets: false,
+    });
+    const indexes = await loadRegistry();
+    const mdxPath = join(pageDir, "page.mdx");
+    const existing = await Bun.file(mdxPath).text();
+    await writeFile(
+      mdxPath,
+      `${existing}\n[Missing docs](/docs/concepts/missing-target) [Missing tag](/tags/missing-target)\n`,
+    );
+
+    const errors = await validatePublishedBlogPosts({ blogRoot, indexes });
+
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "broken-blog-mdx-link",
+          message: expect.stringContaining("/blog/broken-mdx-links"),
+        }),
+        expect.objectContaining({
+          code: "broken-blog-mdx-link",
+          message: expect.stringContaining("/docs/concepts/missing-target"),
+        }),
+        expect.objectContaining({
+          code: "broken-blog-mdx-link",
+          message: expect.stringContaining("/tags/missing-target"),
+        }),
+      ]),
+    );
+  });
 });
 
 describe("validateRegistryContent blog integration", () => {

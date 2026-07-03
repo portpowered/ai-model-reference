@@ -1,7 +1,16 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  formatLinkValidationReason,
+  validateBlogPostLinks,
+} from "@/lib/build/validate-links";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
-import { parsePageAssetConfig } from "./assets";
+import {
+  isLocalPageAssetSrc,
+  parsePageAssetConfig,
+  resolveColocatedPageAssetSrcPath,
+  validatePageAssetReferences,
+} from "./assets";
 import {
   type BlogPostFrontmatter,
   isBlogPostPubliclyVisible,
@@ -15,8 +24,25 @@ import {
   PUBLISHED_DOCS_REGISTRY_IDS,
 } from "./published-docs-registry-ids";
 import type { RegistryIndexes, RegistryRecord } from "./registry";
+import type { PageAssetConfig, PageMessages } from "./schemas";
 import type { ValidationError } from "./validate-registry";
 import { parseYamlFrontmatterBlock } from "./yaml-frontmatter";
+
+function extractMdxAssetIds(mdxBody: string): string[] {
+  const pattern = /\bassetId="([^"]+)"/g;
+  const values: string[] = [];
+  for (const match of mdxBody.matchAll(pattern)) {
+    if (match[1]) {
+      values.push(match[1]);
+    }
+  }
+  return values;
+}
+
+function extractMdxBody(source: string): string {
+  const match = source.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n([\s\S]*)$/);
+  return match?.[1] ?? "";
+}
 
 export type ValidatePublishedBlogPostsOptions = {
   blogRoot?: string;
@@ -250,16 +276,16 @@ function validatePublishedBlogMessages(
   return errors;
 }
 
-function validatePublishedBlogAssets(
+function loadPublishedBlogAssetsConfig(
   slug: string,
   pageDir: string,
-): ValidationError[] {
+): { assets: PageAssetConfig; errors: ValidationError[] } {
   const route = blogRouteHref(slug);
   const assetsPath = join(pageDir, "assets.json");
   const errors: ValidationError[] = [];
 
   if (!existsSync(assetsPath)) {
-    return errors;
+    return { assets: {}, errors };
   }
 
   let json: unknown;
@@ -272,11 +298,11 @@ function validatePublishedBlogAssets(
       message: `${route}: invalid JSON in local assets ${assetsPath}: ${message}`,
       path: assetsPath,
     });
-    return errors;
+    return { assets: {}, errors };
   }
 
   try {
-    parsePageAssetConfig(json);
+    return { assets: parsePageAssetConfig(json), errors };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     errors.push({
@@ -284,9 +310,126 @@ function validatePublishedBlogAssets(
       message: `${route}: local asset config failed validation at ${assetsPath}: ${message}`,
       path: assetsPath,
     });
+    return { assets: {}, errors };
+  }
+}
+
+function validatePublishedBlogAssetMessageKeys(
+  slug: string,
+  pageDir: string,
+  assets: PageAssetConfig,
+  messages: PageMessages,
+  locale: SiteLocale,
+): ValidationError[] {
+  const route = blogRouteHref(slug);
+  const messagesPath = join(pageDir, "messages", `${locale}.json`);
+  const errors: ValidationError[] = [];
+
+  for (const issue of validatePageAssetReferences(assets, messages)) {
+    errors.push({
+      code: "missing-blog-asset-message-key",
+      message: `${route}: locale "${locale}" ${issue.message}`,
+      path: messagesPath,
+    });
   }
 
   return errors;
+}
+
+function validatePublishedBlogAssetFiles(
+  slug: string,
+  pageDir: string,
+  assets: PageAssetConfig,
+): ValidationError[] {
+  const route = blogRouteHref(slug);
+  const assetsPath = join(pageDir, "assets.json");
+  const errors: ValidationError[] = [];
+
+  for (const [assetId, asset] of Object.entries(assets)) {
+    if (asset.type !== "image") {
+      continue;
+    }
+
+    if (!isLocalPageAssetSrc(asset.src)) {
+      continue;
+    }
+
+    const resolvedPath = resolveColocatedPageAssetSrcPath(pageDir, asset.src);
+    if (!existsSync(resolvedPath)) {
+      errors.push({
+        code: "missing-blog-asset-file",
+        message: `${route}: asset "${assetId}" references missing local file "${asset.src}"`,
+        path: assetsPath,
+      });
+    }
+  }
+
+  return errors;
+}
+
+function validatePublishedBlogMdxAssetReferences(
+  slug: string,
+  mdxPath: string,
+  mdxBody: string,
+  assets: PageAssetConfig,
+): ValidationError[] {
+  const route = blogRouteHref(slug);
+  const errors: ValidationError[] = [];
+
+  for (const assetId of extractMdxAssetIds(mdxBody)) {
+    if (!assets[assetId]) {
+      errors.push({
+        code: "unknown-blog-mdx-asset-id",
+        message: `${route}: MDX references unknown asset id "${assetId}"`,
+        path: mdxPath,
+      });
+    }
+  }
+
+  return errors;
+}
+
+function validatePublishedBlogMdxLinks(
+  slug: string,
+  mdxPath: string,
+  linkResults: Awaited<ReturnType<typeof validateBlogPostLinks>>,
+): ValidationError[] {
+  const route = blogRouteHref(slug);
+  const errors: ValidationError[] = [];
+
+  for (const result of linkResults) {
+    if (result.file !== mdxPath) {
+      continue;
+    }
+
+    for (const error of result.errors) {
+      errors.push({
+        code: "broken-blog-mdx-link",
+        message: `${route}: broken MDX link "${error.url}" (${formatLinkValidationReason(error.reason)})`,
+        path: mdxPath,
+      });
+    }
+  }
+
+  return errors;
+}
+
+function loadPublishedBlogMessages(
+  slug: string,
+  pageDir: string,
+  locale: SiteLocale,
+): { messages?: PageMessages; errors: ValidationError[] } {
+  const existingErrors = validatePublishedBlogMessages(slug, pageDir, locale);
+  if (existingErrors.length > 0) {
+    return { errors: existingErrors };
+  }
+
+  const messagesPath = join(pageDir, "messages", `${locale}.json`);
+  const messages = JSON.parse(
+    readFileSync(messagesPath, "utf8"),
+  ) as PageMessages;
+
+  return { messages, errors: [] };
 }
 
 export async function validatePublishedBlogPosts(
@@ -299,6 +442,13 @@ export async function validatePublishedBlogPosts(
   if (!existsSync(blogRoot)) {
     return errors;
   }
+
+  const publishedPosts: Array<{
+    slug: string;
+    pageDir: string;
+    mdxPath: string;
+    mdxBody: string;
+  }> = [];
 
   for (const slug of discoverBlogPostSlugs(blogRoot)) {
     const pageDir = getBlogPageDir(slug, blogRoot);
@@ -324,6 +474,14 @@ export async function validatePublishedBlogPosts(
       continue;
     }
 
+    const mdxBody = extractMdxBody(sourceResult.source);
+    publishedPosts.push({
+      slug,
+      pageDir,
+      mdxPath,
+      mdxBody,
+    });
+
     errors.push(
       ...validatePublishedBlogFrontmatter(slug, mdxPath, frontmatter),
       ...validatePublishedBlogTags(slug, mdxPath, frontmatter, options.indexes),
@@ -333,8 +491,51 @@ export async function validatePublishedBlogPosts(
         frontmatter,
         options.indexes,
       ),
-      ...validatePublishedBlogMessages(slug, pageDir, locale),
-      ...validatePublishedBlogAssets(slug, pageDir),
+    );
+
+    const messageResult = loadPublishedBlogMessages(slug, pageDir, locale);
+    errors.push(...messageResult.errors);
+
+    const assetResult = loadPublishedBlogAssetsConfig(slug, pageDir);
+    errors.push(...assetResult.errors);
+
+    if (messageResult.messages) {
+      errors.push(
+        ...validatePublishedBlogAssetMessageKeys(
+          slug,
+          pageDir,
+          assetResult.assets,
+          messageResult.messages,
+          locale,
+        ),
+      );
+    }
+
+    if (assetResult.errors.length === 0) {
+      errors.push(
+        ...validatePublishedBlogAssetFiles(slug, pageDir, assetResult.assets),
+        ...validatePublishedBlogMdxAssetReferences(
+          slug,
+          mdxPath,
+          mdxBody,
+          assetResult.assets,
+        ),
+      );
+    }
+  }
+
+  if (publishedPosts.length === 0) {
+    return errors;
+  }
+
+  const linkResults = await validateBlogPostLinks({
+    blogRoot,
+    indexes: options.indexes,
+  });
+
+  for (const post of publishedPosts) {
+    errors.push(
+      ...validatePublishedBlogMdxLinks(post.slug, post.mdxPath, linkResults),
     );
   }
 

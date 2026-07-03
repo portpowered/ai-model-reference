@@ -4,11 +4,13 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   InvalidPageAssetConfigError,
+  isLocalPageAssetSrc,
   lookupAsset,
   MissingAssetIdError,
   parsePageAssetConfig,
   resolveAsset,
   resolveAssetText,
+  resolveColocatedPageAssetSrcPath,
   validatePageAssetReferences,
 } from "./assets";
 import { getDocsPageDir } from "./content-paths";
@@ -417,5 +419,32 @@ describe("validatePageAssetReferences", () => {
     const issues = validatePageAssetReferences(syncAssets, sparseMessages);
     expect(issues.length).toBeGreaterThan(0);
     expect(issues.some((issue) => issue.field === "altKey")).toBe(true);
+  });
+});
+
+describe("resolveColocatedPageAssetSrcPath", () => {
+  test("resolves colocated relative and public asset paths", () => {
+    const pageDir = "/tmp/blog/example-post";
+    const projectRoot = "/tmp/project";
+
+    expect(
+      resolveColocatedPageAssetSrcPath(
+        pageDir,
+        "./assets/hero.png",
+        projectRoot,
+      ),
+    ).toBe("/tmp/blog/example-post/assets/hero.png");
+    expect(
+      resolveColocatedPageAssetSrcPath(
+        pageDir,
+        "/images/blog/hero.png",
+        projectRoot,
+      ),
+    ).toBe("/tmp/project/public/images/blog/hero.png");
+  });
+
+  test("detects remote asset src values", () => {
+    expect(isLocalPageAssetSrc("https://example.com/image.png")).toBe(false);
+    expect(isLocalPageAssetSrc("./assets/hero.png")).toBe(true);
   });
 });
