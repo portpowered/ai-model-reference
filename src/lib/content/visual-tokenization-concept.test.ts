@@ -127,13 +127,13 @@ describe("visual-tokenization concept page (visual-tokenization-concept-page-002
     ).toContain("codebook");
     expect(
       messages.sections?.representationForms.body?.toLowerCase(),
-    ).toContain("autoregressive");
+    ).toContain("autoregressive generation");
     expect(
       messages.sections?.representationForms.body?.toLowerCase(),
-    ).toContain("latent-token");
+    ).toContain("clip image tokenization");
     expect(
       messages.sections?.representationForms.body?.toLowerCase(),
-    ).toContain("diffusion");
+    ).toContain("diffusion models");
     expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
       "text tokenization",
     );
@@ -192,8 +192,11 @@ describe("visual-tokenization concept page (visual-tokenization-concept-page-002
     expect(html).toContain("Main Representation Forms");
     expect(html).toContain("Patch tokenization splits");
     expect(html).toContain("Discrete-code tokenization maps");
-    expect(html).toContain("diffusion and transformer systems");
+    expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/modules/clip-image-tokenization"');
+    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/glossary/diffusion-model"');
+    expect(html).toContain('href="/docs/models/ltx-23"');
     expect(html).toContain('href="/tags/tokenization"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Reader Shortcut");
@@ -260,5 +263,58 @@ describe("visual-tokenization representation comparison (visual-tokenization-con
     expect(html).toContain(
       "How patch tokens, discrete visual codes, and latent visual tokens differ",
     );
+  });
+});
+
+describe("visual-tokenization journey links (visual-tokenization-concept-page-004)", () => {
+  test("messages name nearby CLIP, autoregressive, diffusion, and video paths in prose", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.sections?.nearbySystems.body?.toLowerCase()).toContain(
+      "clip image tokenization",
+    );
+    expect(messages.sections?.nearbySystems.body?.toLowerCase()).toContain(
+      "autoregressive generation",
+    );
+    expect(messages.sections?.nearbySystems.body?.toLowerCase()).toContain(
+      "diffusion models",
+    );
+    expect(messages.sections?.nearbySystems.body?.toLowerCase()).toContain(
+      "ltx-2.3",
+    );
+    expect(
+      messages.relatedDocs?.["module.clip-image-tokenization"]?.reason,
+    ).toContain("patch-token");
+    expect(
+      messages.relatedDocs?.["concept.autoregressive-generation"]?.reason,
+    ).toContain("discrete");
+    expect(messages.relatedDocs?.["concept.diffusion-model"]?.reason).toContain(
+      "latent",
+    );
+    expect(messages.relatedDocs?.["model.ltx-23"]?.reason).toContain("video");
+  });
+
+  test("page renders in-page and curated links to CLIP, autoregressive, diffusion, and video paths", async () => {
+    const page = await loadConceptPage("visual-tokenization");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("Nearby Encoding And Generation Paths");
+    expect(html).toContain('data-prose-auto-link="true"');
+    expect(html).toContain('href="/docs/modules/clip-image-tokenization"');
+    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/glossary/diffusion-model"');
+    expect(html).toContain('href="/docs/models/ltx-23"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain("patch-token");
+    expect(html).toContain("symbol by symbol");
   });
 });

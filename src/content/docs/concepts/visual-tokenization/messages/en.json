@@ -9,15 +9,19 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "The representation choice shapes compute cost, memory use, and what kinds of generation are practical. Patch tokens keep local spatial structure visible to attention but grow with image resolution. Discrete codes compress visuals into symbol sequences that autoregressive models can predict token by token. Latent tokens trade spatial detail for a smaller working space where diffusion or transformer updates are cheaper than editing every pixel. Video adds time, so frame, tubelet, or latent temporal tokens decide how motion is packed into the same sequence machinery."
+      "body": "The representation choice shapes compute cost, memory use, and what kinds of generation are practical. Patch tokens keep local spatial structure visible to attention but grow with image resolution. Discrete codes compress visuals into symbol sequences that autoregressive generation can predict token by token. Latent tokens trade spatial detail for a smaller working space where diffusion models or transformer updates are cheaper than editing every pixel. Video adds time, so frame, tubelet, or latent temporal tokens decide how motion is packed into the same sequence machinery that image and video generation systems use."
     },
     "representationForms": {
       "title": "Main Representation Forms",
-      "body": "Patch tokenization splits an image or frame into a grid of spatial regions and projects each region into an embedding that becomes one position in a sequence. Discrete-code tokenization maps visual content into learned codebook IDs so autoregressive systems can predict the next visual symbol the same way they predict text tokens. Latent-token approaches represent compressed image or video features that diffusion and transformer systems can update more cheaply than raw pixels, often after an encoder shrinks the visual field into a lower-resolution latent grid.\n\nThe comparison table below contrasts the three families by what visual data they start from, what each token looks like, where models typically use them, and the main tradeoff each choice introduces."
+      "body": "Patch tokenization splits an image or frame into a grid of spatial regions and projects each region into an embedding that becomes one position in a sequence. CLIP image tokenization is a concrete patch-token example: it turns each image region into a sequence position that multimodal encoders can align with text. Discrete-code tokenization maps visual content into learned codebook IDs so autoregressive generation can predict the next visual symbol the same way it predicts text tokens. Latent-token approaches represent compressed image or video features that diffusion models and transformer systems can update more cheaply than raw pixels, often after an encoder shrinks the visual field into a lower-resolution latent grid.\n\nThe comparison table below contrasts the three families by what visual data they start from, what each token looks like, where models typically use them, and the main tradeoff each choice introduces."
+    },
+    "nearbySystems": {
+      "title": "Nearby Encoding And Generation Paths",
+      "body": "Each representation family has a nearby page that shows the idea in a concrete system. Patch-token readers can follow CLIP image tokenization for a fixed-grid vision encoder. Discrete-code readers can follow autoregressive generation for symbol-by-symbol prediction. Latent-token readers can follow diffusion models for denoising over compressed visual features. Video readers can follow LTX-2.3 for frame and temporal tokenization in an audio-video diffusion transformer."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "Take one photograph of a street scene. A patch tokenizer might cut the frame into a 16×16 grid of small squares, turn each square into one embedding vector, and feed a 256-position sequence to a vision transformer. A discrete-code model might instead encode the same scene into a shorter string of codebook IDs and ask an autoregressive head to predict the next ID. A latent diffusion setup might compress the image into a coarse latent map and run many small denoising updates there instead of on full-resolution pixels."
+      "body": "Take one photograph of a street scene. CLIP image tokenization might cut the frame into a 16×16 grid of small squares, turn each square into one embedding vector, and feed a 256-position sequence to a vision transformer. A discrete-code model tied to autoregressive generation might instead encode the same scene into a shorter string of codebook IDs and predict the next ID symbol by symbol. A diffusion model working in latent space might compress the image into a coarse latent map and run many small denoising updates there instead of on full-resolution pixels."
     },
     "commonConfusions": {
       "title": "Common Confusions",
@@ -31,6 +35,29 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "links": {
+    "clipImageTokenization": "CLIP image tokenization",
+    "autoregressiveGeneration": "Autoregressive generation",
+    "diffusionModel": "Diffusion model",
+    "ltxVideoModel": "LTX-2.3 video model"
+  },
+  "relatedDocs": {
+    "module.clip-image-tokenization": {
+      "reason": "CLIP image tokenization is the concrete patch-token path for fixed-grid vision encoders and multimodal alignment."
+    },
+    "concept.tokenizers-overview": {
+      "reason": "Tokenizers overview explains how discrete units are chosen before embeddings and sequence models begin."
+    },
+    "concept.autoregressive-generation": {
+      "reason": "Autoregressive generation is the nearby path for discrete visual codes predicted symbol by symbol."
+    },
+    "concept.diffusion-model": {
+      "reason": "Diffusion models are the nearby path for latent visual tokens updated through iterative denoising."
+    },
+    "model.ltx-23": {
+      "reason": "LTX-2.3 is the closest published video-generation model page for frame and temporal visual tokenization."
     }
   },
   "assets": {

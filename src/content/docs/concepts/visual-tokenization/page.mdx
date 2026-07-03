@@ -24,6 +24,7 @@ updatedAt: "2026-07-03"
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { PageAsset } from "@/features/docs/components/PageAsset";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
@@ -41,6 +42,27 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 <Section id="representation-forms" titleKey="sections.representationForms.title">
   <T k="sections.representationForms.body" />
   <PageAsset assetId="representationFormsComparison" />
+</Section>
+
+<Section id="nearby-systems" titleKey="sections.nearbySystems.title">
+  <T k="sections.nearbySystems.body" />
+  <LocalizedLinkList
+    items={[
+      {
+        href: "/docs/modules/clip-image-tokenization",
+        labelKey: "links.clipImageTokenization",
+      },
+      {
+        href: "/docs/glossary/autoregressive-generation",
+        labelKey: "links.autoregressiveGeneration",
+      },
+      {
+        href: "/docs/glossary/diffusion-model",
+        labelKey: "links.diffusionModel",
+      },
+      { href: "/docs/models/ltx-23", labelKey: "links.ltxVideoModel" },
+    ]}
+  />
 </Section>
 
 <Section id="simple-example" titleKey="sections.simpleExample.title">
