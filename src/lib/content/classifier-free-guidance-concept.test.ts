@@ -4,8 +4,13 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import {
+  parsePageAssetConfig,
+  validatePageAssetReferences,
+} from "@/lib/content/assets";
 import { loadConceptPage } from "@/lib/content/concept-page";
 import { getDocsPageDir } from "@/lib/content/content-paths";
+import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import {
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
@@ -23,7 +28,9 @@ import { docsSearchApi } from "@/lib/search/search-server";
 
 const pageDir = getDocsPageDir("concepts", "classifier-free-guidance");
 const messagesPath = join(pageDir, "messages/en.json");
+const assetsPath = join(pageDir, "assets.json");
 const CONCEPT_URL = "/docs/concepts/classifier-free-guidance";
+const GUIDANCE_BLEND_GRAPH_ID = "graph.classifier-free-guidance-blend";
 
 describe("classifier-free-guidance concept discovery", () => {
   test("registry record stays published with guidance aliases, generation tags, and focused related ids", () => {
@@ -167,6 +174,51 @@ describe("classifier-free-guidance concept page", () => {
     );
   });
 
+  test("messages teach guidance-scale ranges and diversity or artifact tradeoffs", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.sections?.guidanceScale.body?.toLowerCase()).toContain(
+      "low values",
+    );
+    expect(messages.sections?.guidanceScale.body?.toLowerCase()).toContain(
+      "moderate values",
+    );
+    expect(messages.sections?.guidanceScale.body?.toLowerCase()).toContain(
+      "high values",
+    );
+    expect(messages.sections?.tradeoffs.body?.toLowerCase()).toContain(
+      "diversity",
+    );
+    expect(messages.sections?.tradeoffs.body?.toLowerCase()).toContain(
+      "oversaturated",
+    );
+    expect(messages.sections?.tradeoffs.body?.toLowerCase()).toContain(
+      "unnatural textures",
+    );
+    expect(messages.math?.guidedPrediction?.formula).toContain(
+      "\\hat{\\epsilon}_\\theta",
+    );
+    expect(
+      messages.math?.guidedPrediction?.variableDefinitions?.w?.definition,
+    ).toContain("guidance scale");
+  });
+
+  test("guidance blend asset resolves to the published graph record", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const assets = parsePageAssetConfig(
+      JSON.parse(readFileSync(assetsPath, "utf8")),
+    );
+    const graph = getGraphById(GUIDANCE_BLEND_GRAPH_ID);
+
+    expect(graph?.status).toBe("published");
+    expect(graph?.subjectId).toBe("concept.classifier-free-guidance");
+    expect(validatePageAssetReferences(assets, messages)).toEqual([]);
+  });
+
   test("page renders title, sections, opening summary, and diffusion related links", async () => {
     const page = await loadConceptPage("classifier-free-guidance");
 
@@ -188,8 +240,15 @@ describe("classifier-free-guidance concept page", () => {
 
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
+    expect(html).toContain("Guidance Scale");
+    expect(html).toContain("Tradeoffs");
     expect(html).toContain("conditional prediction");
     expect(html).toContain("guidance scale");
+    expect(html).toContain('data-page-math-formula="guidedPrediction"');
+    expect(html).toContain("Guided prediction blend");
+    expect(html).toContain('data-page-asset="guidanceBlendMap"');
+    expect(html).toContain('data-graph-id="graph.classifier-free-guidance-blend"');
+    expect(html).toContain("Guidance direction");
     expect(html).toContain('href="/docs/glossary/conditioning"');
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/glossary/denoising-generation"');

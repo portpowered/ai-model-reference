@@ -1,1 +1,10 @@
-{}
+{
+  "guidanceBlendMap": {
+    "type": "graph",
+    "graphId": "graph.classifier-free-guidance-blend",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.guidanceBlendMap.alt",
+    "captionKey": "assets.guidanceBlendMap.caption"
+  }
+}

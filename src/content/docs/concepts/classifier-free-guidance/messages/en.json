@@ -19,6 +19,14 @@
       "title": "Where It Appears",
       "body": "Classifier-free guidance is a standard knob in prompt-driven diffusion systems, including latent diffusion text-to-image pipelines where denoising runs in a compressed latent space before a decoder returns pixels. Conditioning pages describe how prompts attach to each step; denoising generation and diffusion model pages describe the iterative loop that consumes these guided updates."
     },
+    "guidanceScale": {
+      "title": "Guidance Scale",
+      "body": "The guidance scale sets how far each denoising step moves along the prompt direction. At low values near one, the guided update stays close to the conditional path, so prompt steering is weak and outputs may drift from what was typed. Moderate values—often in the single digits to low teens in common image settings—usually strengthen prompt adherence without pushing every step to an extreme. High values amplify the conditional-minus-unconditional gap, which can make layouts and objects track the prompt more tightly but also increases the risk that the sampler overcommits to prompt features. The blend below names the symbols used at each step."
+    },
+    "tradeoffs": {
+      "title": "Tradeoffs",
+      "body": "Guidance scale is a steering control, not a quality dial. Turning it up can make repeated samples look more alike because each step is pulled harder toward the same prompt features, which reduces visible diversity across runs. Very high settings can also produce oversaturated colors, harsh contrast, or unnatural textures when the model is forced past the range it saw during training. Moderate guidance often improves prompt adherence on the first try, but the best value depends on the model, scheduler, and how much variety you want. The diagram below shows how unconditional and conditional predictions combine into one guided update."
+    },
     "commonConfusions": {
       "title": "Common Confusions",
       "body": "Classifier-free guidance is not the older classifier guidance method that required a separate image classifier to score each denoising step. The name reflects dropping that extra classifier while still steering generation. It is also not fine-tuning: weights stay fixed and the guidance scale is a runtime control. Turning guidance up can strengthen prompt adherence, but it is not a guarantee of higher image quality on every sample."
@@ -31,6 +39,63 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "assets": {
+    "guidanceBlendMap": {
+      "alt": "Diagram showing unconditional prediction, conditional prediction, guidance direction, and the guided prediction used at one denoising step.",
+      "caption": "Classifier-free guidance compares prompt-free and prompt-conditioned predictions, forms a guidance direction from their difference, and blends it with the unconditional baseline using the guidance scale."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "noisyState": {
+        "label": "Noisy state x_t"
+      },
+      "unconditionalPrediction": {
+        "label": "Unconditional prediction"
+      },
+      "conditionalPrediction": {
+        "label": "Conditional prediction"
+      },
+      "guidanceDirection": {
+        "label": "Guidance direction"
+      },
+      "guidedPrediction": {
+        "label": "Guided prediction"
+      }
+    }
+  },
+  "math": {
+    "guidedPrediction": {
+      "label": "Guided prediction blend",
+      "formula": "\\hat{\\epsilon}_\\theta = \\epsilon_\\theta(x_t, \\varnothing) + w \\cdot \\left(\\epsilon_\\theta(x_t, c) - \\epsilon_\\theta(x_t, \\varnothing)\\right)",
+      "variableDefinitions": {
+        "epshat": {
+          "term": "\\hat{\\epsilon}_\\theta",
+          "definition": "guided noise prediction applied at this denoising step"
+        },
+        "epsuncond": {
+          "term": "\\epsilon_\\theta(x_t, \\varnothing)",
+          "definition": "unconditional prediction with the prompt replaced by an empty placeholder"
+        },
+        "epscond": {
+          "term": "\\epsilon_\\theta(x_t, c)",
+          "definition": "conditional prediction shaped by the prompt or control signal"
+        },
+        "w": {
+          "term": "w",
+          "definition": "guidance scale that sets how far the update moves along the prompt direction"
+        },
+        "xt": {
+          "term": "x_t",
+          "definition": "noisy latent or pixel state at denoising step t"
+        },
+        "c": {
+          "term": "c",
+          "definition": "prompt conditioning such as a text embedding"
+        }
+      }
     }
   }
 }

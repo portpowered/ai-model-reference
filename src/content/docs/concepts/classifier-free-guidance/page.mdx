@@ -21,10 +21,12 @@ updatedAt: "2026-07-03"
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { PageMathFormula } from "@/features/docs/components/PageMathFormula";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ConceptMap } from "@/features/models/components/ConceptMap";
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
   <T k="sections.whatItIs.body" />
@@ -40,6 +42,19 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="where-it-appears" titleKey="sections.whereItAppears.title">
   <T k="sections.whereItAppears.body" />
+</Section>
+
+<Section id="guidance-scale" titleKey="sections.guidanceScale.title">
+  <T k="sections.guidanceScale.body" />
+  <PageMathFormula mathId="guidedPrediction" />
+</Section>
+
+<Section id="tradeoffs" titleKey="sections.tradeoffs.title">
+  <T k="sections.tradeoffs.body" />
+  <ConceptMap
+    registryId="concept.classifier-free-guidance"
+    assetId="guidanceBlendMap"
+  />
 </Section>
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
