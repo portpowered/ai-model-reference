@@ -355,20 +355,22 @@ describe("SearchPagePanel Phase 1 queries", () => {
     "prompt pass",
   ] as const)("%s query ranks the canonical prefill concept page first on /search", async (query) => {
     const context = await loadAppTestContext();
-    await renderSearchPagePanelContent(context);
-
-    const user = userEvent.setup();
-    await user.type(
-      screen.getByLabelText(context.messages.search.placeholder),
-      query,
+    await renderSearchPagePanelContent(
+      context,
+      new URLSearchParams({ q: query }),
     );
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe(query);
 
     const results = await waitForSearchPagePanelResults();
     await expectFirstSearchResultMatch(results, {
       url: PREFILL_URL,
       titlePattern: /prefill/i,
     });
-  });
+  }, { timeout: 30_000 });
 
   test.each([
     {

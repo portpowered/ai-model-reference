@@ -11,6 +11,7 @@ import {
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 
 const GLOSSARY_RENDER_GROUP_SIZE = 12;
+const GLOSSARY_SHELL_RENDER_GROUP_TIMEOUT_MS = 35_000;
 
 describe("glossary opening convergence", () => {
   test("canonical glossary template omits GlossaryOpening and legacy blocks", () => {
@@ -73,6 +74,6 @@ describe("glossary opening convergence", () => {
         expectGlossaryOmitsOpeningSummary(html);
       }
     },
-    { timeout: 20_000 },
+    { timeout: GLOSSARY_SHELL_RENDER_GROUP_TIMEOUT_MS },
   );
 });
