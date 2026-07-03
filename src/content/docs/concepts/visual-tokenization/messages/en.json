@@ -1,0 +1,36 @@
+{
+  "title": "Visual tokenization",
+  "description": "How images and video frames become patches, discrete codes, or latent tokens so sequence-based models can read visual data.",
+  "openingSummary": "Visual tokenization turns raw pixels from an image or video frame into a sequence of units a transformer, autoregressive, diffusion, or video model can process, and the main design choice is whether those units are spatial patches, discrete codebook symbols, or compressed latent features.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Visual tokenization is the step that converts image or video-frame pixels into a sequence of model-readable units. Text models start from tokenizer output; visual models need an equivalent bridge because attention and autoregressive heads expect sequences, not raw raster grids. The output can be patch embeddings, discrete visual codes, or latent feature tokens, but the shared job is the same: turn a two- or three-dimensional visual field into an ordered list the rest of the stack can mix, predict, or denoise."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "The representation choice shapes compute cost, memory use, and what kinds of generation are practical. Patch tokens keep local spatial structure visible to attention but grow with image resolution. Discrete codes compress visuals into symbol sequences that autoregressive models can predict token by token. Latent tokens trade spatial detail for a smaller working space where diffusion or transformer updates are cheaper than editing every pixel. Video adds time, so frame, tubelet, or latent temporal tokens decide how motion is packed into the same sequence machinery."
+    },
+    "representationForms": {
+      "title": "Main Representation Forms",
+      "body": "Patch tokenization splits an image or frame into a grid of spatial regions and projects each region into an embedding that becomes one position in a sequence. Discrete-code tokenization maps visual content into learned codebook IDs so autoregressive systems can predict the next visual symbol the same way they predict text tokens. Latent-token approaches represent compressed image or video features that diffusion and transformer systems can update more cheaply than raw pixels, often after an encoder shrinks the visual field into a lower-resolution latent grid."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Take one photograph of a street scene. A patch tokenizer might cut the frame into a 16×16 grid of small squares, turn each square into one embedding vector, and feed a 256-position sequence to a vision transformer. A discrete-code model might instead encode the same scene into a shorter string of codebook IDs and ask an autoregressive head to predict the next ID. A latent diffusion setup might compress the image into a coarse latent map and run many small denoising updates there instead of on full-resolution pixels."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Visual tokenization is not the same as text tokenization: both produce sequences, but visual methods must preserve spatial or compressed visual structure rather than word boundaries. Patch tokens are not the same as discrete visual codes; patches are continuous embeddings per region, while discrete codes are symbolic IDs from a learned vocabulary. Latent tokens are also not automatically smaller patch tokens; they usually come from a trained encoder that decides what detail to keep. Finally, one image can pass through more than one representation over a full system, such as patch encoding for understanding and latent tokens for generation."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
