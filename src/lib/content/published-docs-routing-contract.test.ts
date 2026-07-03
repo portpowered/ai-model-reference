@@ -150,8 +150,9 @@ describe("published docs routing contract", () => {
     const representativeConcepts = [
       {
         alias: "FFN",
-        href: "/docs/modules/feed-forward-network",
+        href: "/docs/concepts/feed-forward-network",
         record: feedForwardNetwork,
+        skipAutoLink: true,
       },
       {
         alias: "low-bit inference",
@@ -178,7 +179,8 @@ describe("published docs routing contract", () => {
       relatedItems.map((item) => [item.registryId, item.href]),
     );
 
-    for (const { alias, href, record } of representativeConcepts) {
+    for (const representativeConcept of representativeConcepts) {
+      const { alias, href, record } = representativeConcept;
       expect(
         hasPublishedDocsPageForRecord(record, PUBLISHED_DOCS_REGISTRY_IDS),
         record.id,
@@ -186,14 +188,23 @@ describe("published docs routing contract", () => {
       expect(getPublishedDocsHrefForRecord(record), record.id).toBe(href);
       expect(registryRecordHref(record), record.id).toBe(href);
       expect(relatedHrefsById.get(record.id), record.id).toBe(href);
-      expect(resolvePhraseHref(alias), alias).toBe(href);
+      if (
+        !("skipAutoLink" in representativeConcept) ||
+        !representativeConcept.skipAutoLink
+      ) {
+        expect(resolvePhraseHref(alias), alias).toBe(href);
+      }
     }
   });
 
-  test("module-backed concepts keep stable membership and href behavior for runtime callers", () => {
+  test("module-backed concepts with concept-section pages resolve to the concept route", () => {
     const feedForwardNetwork = requireRecord(
       getConceptById("concept.feed-forward-network"),
       "feed-forward-network concept",
+    );
+    const publishedConceptEntry = requireRecord(
+      getPublishedDocsEntryByRegistryId("concept.feed-forward-network"),
+      "feed-forward-network concept entry",
     );
     const publishedModuleEntry = requireRecord(
       getPublishedDocsEntryByRegistryId("module.feed-forward-network"),
@@ -209,12 +220,12 @@ describe("published docs routing contract", () => {
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
 
-    expect(getPublishedDocsEntryByRegistryId(feedForwardNetwork.id)).toBe(
-      undefined,
+    expect(getPublishedDocsEntryByRegistryId(feedForwardNetwork.id)).toEqual(
+      publishedConceptEntry,
     );
-    expect(getPublishedDocsEntriesBySlug(feedForwardNetwork.slug)).toEqual([
-      publishedModuleEntry,
-    ]);
+    expect(getPublishedDocsEntriesBySlug(feedForwardNetwork.slug)).toEqual(
+      expect.arrayContaining([publishedConceptEntry, publishedModuleEntry]),
+    );
     expect(MODULE_BACKED_CONCEPT_REGISTRY_IDS.has(feedForwardNetwork.id)).toBe(
       true,
     );
@@ -225,15 +236,15 @@ describe("published docs routing contract", () => {
       ),
     ).toBe(true);
     expect(getPublishedDocsHrefForRecord(feedForwardNetwork)).toBe(
-      "/docs/modules/feed-forward-network",
+      "/docs/concepts/feed-forward-network",
     );
     expect(registryRecordHref(feedForwardNetwork)).toBe(
-      "/docs/modules/feed-forward-network",
+      "/docs/concepts/feed-forward-network",
     );
     expect(relatedItem).toEqual(
       expect.objectContaining({
         registryId: feedForwardNetwork.id,
-        href: "/docs/modules/feed-forward-network",
+        href: "/docs/concepts/feed-forward-network",
         isPlanned: false,
       }),
     );

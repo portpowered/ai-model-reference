@@ -1,0 +1,32 @@
+{
+  "title": "Feed-Forward Network",
+  "description": "The token-wise transformation block inside transformer layers that refines each position after attention without mixing information across tokens.",
+  "openingSummary": "A feed-forward network in a transformer block applies the same learned transformation independently to every token position after attention has mixed context across the sequence.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A feed-forward network is a stack of learned linear projections and nonlinear activation steps that maps one vector to another. Inside a transformer block it runs position-wise: each token vector is transformed on its own without looking at neighboring positions. The block is often called a feed-forward network or FFN for short."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Attention lets token positions exchange context, but the feed-forward network is where the model reshapes each position's representation after that mixing step. It expands hidden width, applies a nonlinear activation, and projects back so the block can compute richer per-token features. Without this block, attention alone would mostly rearrange information rather than build new features at each position."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "After a self-attention layer updates every token in a sentence, the feed-forward network runs the same two-layer pattern on each token vector separately. Token five might represent the word \"river\" with a wider hidden state, pass through an activation such as GELU, and return to model width before the next sublayer. Token six follows the same pattern with its own values, without sharing weights across positions beyond using the same learned matrices."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A transformer feed-forward network is not the same thing as the entire transformer. It is one sublayer inside each block, paired with attention and usually wrapped by residual connections and normalization. It is also not recurrent: during the forward pass it does not send activations back into earlier positions. Dense standard FFN, gated SwiGLU blocks, and sparse mixture-of-experts variants all play this same position-wise role with different internal wiring."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

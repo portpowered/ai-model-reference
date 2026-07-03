@@ -53,7 +53,7 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
     const feedForward = items.find(
       (item) => item.registryId === "concept.feed-forward-network",
     );
-    expect(feedForward?.href).toBe("/docs/modules/feed-forward-network");
+    expect(feedForward?.href).toBe("/docs/concepts/feed-forward-network");
     expect(feedForward?.isPlanned).toBe(false);
 
     const residual = items.find(
@@ -104,7 +104,7 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
     expect(html).not.toContain('data-testid="folded-summary"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
-    expect(html).toContain('href="/docs/modules/feed-forward-network"');
+    expect(html).toContain('href="/docs/concepts/feed-forward-network"');
     expect(html).toContain('href="/docs/concepts/normalization"');
     expect(html).toContain('href="/docs/glossary/residual-connection"');
     expect(html).toContain('href="/docs/concepts/positional-encodings"');

@@ -15,7 +15,7 @@ describe("Phase 2/3 reconciliation foundational tag page render (US-006)", () =>
     expect(html).toContain("Concept");
     expect(html).toContain('href="/docs/modules/rope"');
     expect(html).toContain('href="/docs/glossary/context-window"');
-    expect(html).toContain('href="/docs/modules/feed-forward-network"');
+    expect(html).toContain('href="/docs/concepts/feed-forward-network"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');
     expect(html).toContain('href="/docs/glossary/normalization"');
     expect(html).toContain('href="/docs/glossary/skip-connection"');

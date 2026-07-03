@@ -125,7 +125,7 @@ describe("diffusion transformer block discovery surfaces (diffusion-transformer-
       expect(html).toContain('href="/docs/concepts/transformer-architecture"');
       expect(html).toContain('href="/docs/concepts/self-attention"');
       expect(html).toContain('href="/docs/modules/attention"');
-      expect(html).toContain('href="/docs/modules/feed-forward-network"');
+      expect(html).toContain('href="/docs/concepts/feed-forward-network"');
       expect(html).toContain('href="/docs/glossary/denoising-generation"');
       expect(html).toContain(
         'href="/docs/training/diffusion-training-objective"',
