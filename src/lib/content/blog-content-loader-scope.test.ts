@@ -25,7 +25,7 @@ function expectExportDefined(
 }
 
 describe("blog content loader lane isolation", () => {
-  test("production blog root exposes committed published posts through loader APIs", async () => {
+  test("production blog root exposes committed published posts through loader APIs while unknown slugs stay null", async () => {
     const published = await listPublishedBlogPosts();
     const slugs = published.map((post) => post.slug).sort();
 
