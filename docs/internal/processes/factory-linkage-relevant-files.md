@@ -90,6 +90,7 @@ watchdog summaries, or planner-facing linkage reports.
 | Ownerless generated table registry drift evidence capture | `bun run report:ownerless-generated-table-registry-drift` |
 | Merged PR drain row evidence for PRs #281/#282/#284/#286 | `bun run report:merged-pr-drain-rows-reconciliation` |
 | Generated table registry root drift cleanup proof | `bun run report:generated-table-registry-root-drift-cleanup-proof` |
+| Planner concurrency floor: useful active lanes, refill guidance, and hold/stale classifications | `bun run report:planner-concurrency-floor` |
 
 Direct script paths remain supported for fixture-driven tests:
 
@@ -100,6 +101,10 @@ Direct script paths remain supported for fixture-driven tests:
 * `bun ./scripts/report-planner-latent-diffusion-root-deletion-reconciliation.ts`
 * `bun ./scripts/report-merged-pr-drain-rows-reconciliation.ts`
 * `bun ./scripts/report-generated-table-registry-root-drift-cleanup-proof.ts`
+* `bun ./scripts/report-planner-concurrency-floor.ts`
+
+Concurrency-floor report contract details:
+[planner-concurrency-floor-signal-reconciliation-relevant-files](./planner-concurrency-floor-signal-reconciliation-relevant-files.md).
 
 ## Classification contract
 
