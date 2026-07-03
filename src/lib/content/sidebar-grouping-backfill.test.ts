@@ -37,6 +37,7 @@ const CONCEPT_SIDEBAR_BACKFILLS = [
   ["concept.positional-encodings", "long-context"],
   ["concept.why-long-context-is-hard", "long-context"],
   ["concept.page-spec-workflow-sample", "reference-samples"],
+  ["concept.video-generation", "architecture"],
 ] as const;
 
 const MODULE_SIDEBAR_BACKFILLS = [

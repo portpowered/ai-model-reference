@@ -13,7 +13,7 @@ import {
 export const metadata = {
   title: "Blog",
   description:
-    "Narrative posts that connect releases and serving concepts back to canonical reference pages.",
+    "Narrative posts that connect releases and model concepts back to canonical reference pages.",
 };
 
 export default async function BlogIndexPage() {
@@ -23,7 +23,7 @@ export default async function BlogIndexPage() {
     <DocsPage breadcrumb={{ enabled: false }}>
       <DocsTitle>Blog</DocsTitle>
       <DocsDescription>
-        Narrative posts that connect releases and serving concepts back to
+        Narrative posts that connect releases and model concepts back to
         canonical reference pages.
       </DocsDescription>
       <DocsBody>

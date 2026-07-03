@@ -1249,6 +1249,11 @@ export function discoverActivePrLaneReport(
           branchIssue: reasons[0],
         });
       }
+      const partitionedReasons = partitionStaleLinkageRefreshHints(reasons);
+      const metadataRefreshHints = mergeMetadataRefreshHints(
+        partitionedReasons.metadataRefreshHints,
+        collectWorktreeStaleLinkageRefreshHints(worktree),
+      );
       return {
         status: "unclassified",
         workItemName: queueLane.workItemName,
@@ -1277,7 +1282,8 @@ export function discoverActivePrLaneReport(
               : undefined,
         sessionState: session?.rawState,
         driftStatus: "unknown",
-        reasons,
+        reasons: partitionedReasons.reasons,
+        ...(metadataRefreshHints.length > 0 ? { metadataRefreshHints } : {}),
       } satisfies LaneDiscoveryRecord;
     }
 
@@ -1358,6 +1364,12 @@ export function discoverActivePrLaneReport(
         );
       }
 
+      const partitionedReasons = partitionStaleLinkageRefreshHints(reasons);
+      const metadataRefreshHints = mergeMetadataRefreshHints(
+        partitionedReasons.metadataRefreshHints,
+        collectWorktreeStaleLinkageRefreshHints(worktree),
+      );
+
       return {
         status: "unclassified",
         workItemName: queueLane.workItemName,
@@ -1393,7 +1405,8 @@ export function discoverActivePrLaneReport(
         commitsBehindMain: drift.commitsBehindMain,
         queueMismatchRisk,
         nextAction,
-        reasons,
+        reasons: partitionedReasons.reasons,
+        ...(metadataRefreshHints.length > 0 ? { metadataRefreshHints } : {}),
       } satisfies LaneDiscoveryRecord;
     }
 

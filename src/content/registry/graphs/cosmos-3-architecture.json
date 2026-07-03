@@ -1,0 +1,261 @@
+{
+  "id": "graph.cosmos-3-architecture",
+  "slug": "cosmos-3-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Cosmos 3 architecture graph", "Cosmos 3 world model flow"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "concept.world-model",
+    "concept.multimodal-model",
+    "concept.autoregressive-generation",
+    "concept.denoising-generation",
+    "concept.conditioning"
+  ],
+  "citationIds": [
+    "citation.cosmos-3-technical-report",
+    "citation.cosmos-3-research-page"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-03T00:00:00.000Z",
+  "updatedAt": "2026-07-03T08:00:00.000Z",
+  "subjectId": "model.cosmos-3",
+  "graphType": "model-architecture",
+  "rootNodeId": "video-output",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "text-output",
+      "labelKey": "graph.nodes.textOutput.label",
+      "summaryKey": "graph.nodes.textOutput.summary",
+      "registryId": "concept.autoregressive-generation",
+      "moduleKind": "output",
+      "position": { "x": 0, "y": 0 },
+      "size": { "width": 120, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "image-output",
+      "labelKey": "graph.nodes.imageOutput.label",
+      "summaryKey": "graph.nodes.imageOutput.summary",
+      "registryId": "concept.representation",
+      "moduleKind": "output",
+      "position": { "x": 130, "y": 0 },
+      "size": { "width": 120, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "video-output",
+      "labelKey": "graph.nodes.videoOutput.label",
+      "summaryKey": "graph.nodes.videoOutput.summary",
+      "registryId": "concept.modality",
+      "moduleKind": "output",
+      "position": { "x": 260, "y": 0 },
+      "size": { "width": 120, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "audio-output",
+      "labelKey": "graph.nodes.audioOutput.label",
+      "summaryKey": "graph.nodes.audioOutput.summary",
+      "registryId": "concept.modality",
+      "moduleKind": "output",
+      "position": { "x": 390, "y": 0 },
+      "size": { "width": 120, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "action-output",
+      "labelKey": "graph.nodes.actionOutput.label",
+      "summaryKey": "graph.nodes.actionOutput.summary",
+      "registryId": "concept.world-model",
+      "moduleKind": "output",
+      "position": { "x": 520, "y": 0 },
+      "size": { "width": 120, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "diffusion-generator",
+      "labelKey": "graph.nodes.diffusionGenerator.label",
+      "summaryKey": "graph.nodes.diffusionGenerator.summary",
+      "registryId": "concept.denoising-generation",
+      "moduleKind": "block",
+      "position": { "x": 100, "y": 130 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "autoregressive-reasoner",
+      "labelKey": "graph.nodes.autoregressiveReasoner.label",
+      "summaryKey": "graph.nodes.autoregressiveReasoner.summary",
+      "registryId": "concept.autoregressive-generation",
+      "moduleKind": "block",
+      "position": { "x": 360, "y": 130 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "multimodal-conditioning",
+      "labelKey": "graph.nodes.multimodalConditioning.label",
+      "summaryKey": "graph.nodes.multimodalConditioning.summary",
+      "registryId": "concept.conditioning",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 270 },
+      "size": { "width": 210, "height": 62 },
+      "visualRole": "architecture-linear",
+      "childNodeIds": []
+    },
+    {
+      "id": "text-prompt",
+      "labelKey": "graph.nodes.textPrompt.label",
+      "summaryKey": "graph.nodes.textPrompt.summary",
+      "registryId": "concept.token",
+      "moduleKind": "input",
+      "position": { "x": 50, "y": 400 },
+      "size": { "width": 140, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "image-input",
+      "labelKey": "graph.nodes.imageInput.label",
+      "summaryKey": "graph.nodes.imageInput.summary",
+      "registryId": "concept.representation",
+      "moduleKind": "input",
+      "position": { "x": 210, "y": 400 },
+      "size": { "width": 140, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "video-input",
+      "labelKey": "graph.nodes.videoInput.label",
+      "summaryKey": "graph.nodes.videoInput.summary",
+      "registryId": "concept.modality",
+      "moduleKind": "input",
+      "position": { "x": 370, "y": 400 },
+      "size": { "width": 140, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "audio-input",
+      "labelKey": "graph.nodes.audioInput.label",
+      "summaryKey": "graph.nodes.audioInput.summary",
+      "registryId": "concept.modality",
+      "moduleKind": "input",
+      "position": { "x": 530, "y": 400 },
+      "size": { "width": 140, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "autoregressive-reasoner-to-text-output",
+      "source": "autoregressive-reasoner",
+      "target": "text-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "autoregressive-reasoner-to-action-output",
+      "source": "autoregressive-reasoner",
+      "target": "action-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "diffusion-generator-to-image-output",
+      "source": "diffusion-generator",
+      "target": "image-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "diffusion-generator-to-video-output",
+      "source": "diffusion-generator",
+      "target": "video-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "diffusion-generator-to-audio-output",
+      "source": "diffusion-generator",
+      "target": "audio-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "autoregressive-reasoner-to-diffusion-generator",
+      "source": "autoregressive-reasoner",
+      "target": "diffusion-generator",
+      "edgeKind": "conditioning",
+      "sourceHandleSide": "left",
+      "targetHandleSide": "right"
+    },
+    {
+      "id": "multimodal-conditioning-to-diffusion-generator",
+      "source": "multimodal-conditioning",
+      "target": "diffusion-generator",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "multimodal-conditioning-to-autoregressive-reasoner",
+      "source": "multimodal-conditioning",
+      "target": "autoregressive-reasoner",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "text-prompt-to-multimodal-conditioning",
+      "source": "text-prompt",
+      "target": "multimodal-conditioning",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "image-input-to-multimodal-conditioning",
+      "source": "image-input",
+      "target": "multimodal-conditioning",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "video-input-to-multimodal-conditioning",
+      "source": "video-input",
+      "target": "multimodal-conditioning",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "audio-input-to-multimodal-conditioning",
+      "source": "audio-input",
+      "target": "multimodal-conditioning",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    }
+  ]
+}

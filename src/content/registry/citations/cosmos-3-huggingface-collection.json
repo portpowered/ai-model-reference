@@ -1,0 +1,24 @@
+{
+  "id": "citation.cosmos-3-huggingface-collection",
+  "slug": "cosmos-3-huggingface-collection",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "NVIDIA Cosmos3 collection",
+    "Cosmos 3 Hugging Face collection",
+    "nvidia/cosmos3 collection"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["paper.cosmos-3"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["NVIDIA"],
+  "title": "Cosmos3 — NVIDIA Collection on Hugging Face",
+  "url": "https://huggingface.co/collections/nvidia/cosmos3",
+  "mla": "NVIDIA. \"Cosmos3 Collection.\" Hugging Face, 2026.",
+  "year": 2026
+}
