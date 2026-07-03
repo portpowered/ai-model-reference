@@ -1,0 +1,47 @@
+{
+  "kind": "model",
+  "slug": "cosmos-3",
+  "title": "Cosmos 3",
+  "summary": "Open omnimodal world model family from NVIDIA for physical AI, combining autoregressive reasoning with diffusion-based generation across text, image, video, audio, and action outputs through Nano and Super checkpoints.",
+  "status": "draft",
+  "aliases": [
+    "Cosmos 3",
+    "NVIDIA Cosmos 3",
+    "Cosmos3",
+    "Cosmos 3 Super",
+    "Cosmos 3 Nano",
+    "Cosmos3-Super",
+    "Cosmos3-Nano",
+    "omnimodal world model",
+    "physical AI world model"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.cosmos-3-technical-report",
+    "citation.cosmos-3-research-page",
+    "citation.cosmos-3-model-card",
+    "citation.cosmos-3-github-repository",
+    "citation.cosmos-3-huggingface-collection"
+  ],
+  "authors": ["NVIDIA"],
+  "sourceId": "citation.cosmos-3-technical-report",
+  "family": "cosmos",
+  "sourceType": "open-weights",
+  "modalities": ["text", "image", "video", "audio", "multimodal"],
+  "organizationId": "organization.nvidia",
+  "architectureIds": [
+    "concept.world-model",
+    "concept.multimodal-model",
+    "concept.autoregressive-generation",
+    "concept.denoising-generation",
+    "concept.diffusion-model",
+    "concept.conditioning"
+  ],
+  "moduleIds": [],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": ["paper.cosmos-3"],
+  "releaseDate": "2026-05-31",
+  "parameterCount": "16B Nano and 64B Super family variants"
+}
