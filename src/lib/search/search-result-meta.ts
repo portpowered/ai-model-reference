@@ -1,6 +1,7 @@
 import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
+import { loadBlogSearchPostSources } from "./build-blog-search-document";
 import { buildSearchDocumentsForLocale } from "./build-documents";
 import type { SearchDocument, SearchDocumentTopology } from "./types";
 
@@ -42,7 +43,15 @@ export async function loadSearchResultMetaMap(
   locale: SiteLocale = defaultLocale,
 ): Promise<Map<string, SearchResultMeta>> {
   const indexes = await loadRegistry();
-  const pages = await loadShippedLocalizedDocsPages(locale);
-  const documents = buildSearchDocumentsForLocale(locale, indexes, pages);
+  const [pages, blogPosts] = await Promise.all([
+    loadShippedLocalizedDocsPages(locale),
+    loadBlogSearchPostSources({ locale }),
+  ]);
+  const documents = buildSearchDocumentsForLocale(
+    locale,
+    indexes,
+    pages,
+    blogPosts,
+  );
   return buildSearchResultMetaMap(documents);
 }

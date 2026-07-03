@@ -1,7 +1,9 @@
+import type { PublishedBlogPostRecord } from "@/lib/content/blog-post-list";
 import { publishedResourceMatchesTag } from "@/lib/content/phase-1-published-resources";
 import {
   buildLocalizedRoute,
   defaultLocale,
+  localizePath,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
 import type { DocsPageSource } from "./pages";
@@ -26,6 +28,13 @@ export type TagResourceEntry = {
   url: string;
   slug: string;
   kind: string;
+  publishedAt?: string;
+  tags?: string[];
+};
+
+export type LoadTagResourceEntriesOptions = {
+  /** Blog content root override for fixture tests (defaults to production `BLOG_ROOT`). */
+  blogRoot?: string;
 };
 
 export type TagResourceKindGroup = {
@@ -59,6 +68,28 @@ export function toTagResourceEntry(page: DocsPageSource): TagResourceEntry {
   };
 }
 
+export function toBlogTagResourceEntry(
+  post: PublishedBlogPostRecord,
+  locale: SiteLocale = defaultLocale,
+): TagResourceEntry {
+  return {
+    title: post.messages.title,
+    summary: post.messages.description,
+    url: localizePath(`/blog/${post.slug}`, locale),
+    slug: post.slug,
+    kind: "blog",
+    publishedAt: post.frontmatter.publishedAt,
+    tags: post.frontmatter.tags,
+  };
+}
+
+export function publishedBlogPostMatchesTag(
+  post: PublishedBlogPostRecord,
+  tagSlug: string,
+): boolean {
+  return post.frontmatter.tags.includes(tagSlug);
+}
+
 export function sortTagResourceEntriesByTitle(
   entries: TagResourceEntry[],
   locale: SiteLocale = defaultLocale,
@@ -66,6 +97,29 @@ export function sortTagResourceEntriesByTitle(
   return [...entries].sort((a, b) =>
     a.title.localeCompare(b.title, locale, { sensitivity: "base" }),
   );
+}
+
+export function sortTagResourceEntriesForKind(
+  entries: TagResourceEntry[],
+  kind: string,
+  locale: SiteLocale = defaultLocale,
+): TagResourceEntry[] {
+  if (kind === "blog") {
+    return [...entries].sort((left, right) => {
+      const dateCompare = (right.publishedAt ?? "").localeCompare(
+        left.publishedAt ?? "",
+      );
+      if (dateCompare !== 0) {
+        return dateCompare;
+      }
+
+      return left.title.localeCompare(right.title, locale, {
+        sensitivity: "base",
+      });
+    });
+  }
+
+  return sortTagResourceEntriesByTitle(entries, locale);
 }
 
 function isPublishedTagRecord(record: TagRecord): boolean {
@@ -87,14 +141,23 @@ export async function loadPublishedTagRecord(
 export async function loadTagResourceEntries(
   tagSlug: string,
   locale: SiteLocale = defaultLocale,
+  options: LoadTagResourceEntriesOptions = {},
 ): Promise<TagResourceEntry[]> {
   const { loadRegistry } = await import("./registry");
   const { loadShippedLocalizedDocsPages } = await import("./pages");
+  const { listPublishedBlogPosts } = await import("./blog-post-list");
   const indexes = await loadRegistry();
   const pages = (await loadShippedLocalizedDocsPages(locale)).filter((page) =>
     publishedResourceMatchesTag(page, tagSlug, indexes),
   );
-  return sortTagResourceEntriesByTitle(pages.map(toTagResourceEntry), locale);
+  const docsEntries = pages.map(toTagResourceEntry);
+  const blogEntries = (
+    await listPublishedBlogPosts({ blogRoot: options.blogRoot, locale })
+  )
+    .filter((post) => publishedBlogPostMatchesTag(post, tagSlug))
+    .map((post) => toBlogTagResourceEntry(post, locale));
+
+  return [...docsEntries, ...blogEntries];
 }
 
 export function groupTagResourceEntriesByKind(
@@ -119,7 +182,7 @@ export function groupTagResourceEntriesByKind(
     .map(([kind, resources]) => ({
       kind,
       kindLabel: formatPageKind(messages, kind),
-      resources: sortTagResourceEntriesByTitle(resources, locale),
+      resources: sortTagResourceEntriesForKind(resources, kind, locale),
     }));
 }
 
@@ -127,8 +190,9 @@ export async function loadTagResourceGroups(
   tagSlug: string,
   messages: UiMessages,
   locale: SiteLocale = defaultLocale,
+  options: LoadTagResourceEntriesOptions = {},
 ): Promise<TagResourceKindGroup[]> {
-  const entries = await loadTagResourceEntries(tagSlug, locale);
+  const entries = await loadTagResourceEntries(tagSlug, locale, options);
   return groupTagResourceEntriesByKind(entries, messages, locale);
 }
 

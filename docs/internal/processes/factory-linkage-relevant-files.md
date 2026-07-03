@@ -5,6 +5,11 @@ watchdog summaries, or planner-facing linkage reports.
 
 ## Core classification and discovery
 
+* `src/lib/factory/repo-path-resolution.ts` — resolve main repository root and
+  default `.claude/worktrees` directory from nested git worktree checkouts via
+  `git rev-parse --git-common-dir`; planner watchdog and linkage scripts should
+  use these helpers instead of `join(import.meta.dir, "..")` when discovering
+  lane worktrees from factory worktrees.
 * `src/lib/factory/queue-worktree-pr-linkage-ledger.ts` — shared lane
   discovery, linkage status, noise partitioning, and summary formatters.
 * `src/lib/factory/active-pr-mergeability-watchdog.ts` — PR lookup, branch
@@ -43,6 +48,14 @@ watchdog summaries, or planner-facing linkage reports.
   outcomes for safe stale-drift restore vs operator handoff plus content-lane
   hold/release decisions. See
   [latent-diffusion-root-deletion-reconciliation-relevant-files](./latent-diffusion-root-deletion-reconciliation-relevant-files.md).
+* `src/lib/factory/ownerless-generated-table-registry-drift.ts` — read-only
+  evidence capture for the ownerless generated table registry drift priority
+  blocker: records root `HEAD`, `origin/main`, ahead/behind relationship,
+  scoped dirty status for
+  `src/lib/content/generated/table-registry.generated.ts`, and
+  `looped-transformers-comparison.json` import/source-list/payload observation.
+  See
+  [ownerless-generated-table-registry-drift-relevant-files](./ownerless-generated-table-registry-drift-relevant-files.md).
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 * `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` — read-only
@@ -74,6 +87,7 @@ watchdog summaries, or planner-facing linkage reports.
 | Terminal or near-terminal lane landing audit against main | `bun run report:terminal-lane-main-branch-landing-audit` |
 | Root checkout reconciliation against HEAD and origin/main | `bun run report:planner-root-checkout-reconciliation` |
 | Latent diffusion root deletion landed-evidence verification | `bun run report:planner-latent-diffusion-root-deletion-reconciliation` |
+| Ownerless generated table registry drift evidence capture | `bun run report:ownerless-generated-table-registry-drift` |
 | Merged PR drain row evidence for PRs #281/#282/#284/#286 | `bun run report:merged-pr-drain-rows-reconciliation` |
 | Generated table registry root drift cleanup proof | `bun run report:generated-table-registry-root-drift-cleanup-proof` |
 
@@ -110,6 +124,11 @@ Direct script paths remain supported for fixture-driven tests:
   `lane-kind=stale-clean-pr-mismatch` with `mismatch-reason=` evidence in the
   active PR watchdog and linkage ledger `Stale PR Mismatch Summary` section,
   not counted as active page implementation depth.
+* Conflict-priority ordering for PR-backed actionable rows uses
+  `sortPlannerWatchdogLanes`: `conflict-drift` / `merge-conflict` first, then
+  failing checks, then pending/wait checks, then other PR-backed lanes; gap and
+  noise lanes sort after PR-backed rows. Watchdog and ledger scripts share the
+  same sorter via `partitionLinkageLanesForSummary`.
 
 Reuse `isQueueOnlyMissingLinkageLane`, `isStaleFailedLoopbackLane`,
 `isStaleCleanPrMismatchLane`, `isActionableLinkageGapLane`, and
@@ -130,6 +149,15 @@ inventory checks. Supported fixture flags:
   `manual-inspection-shared-edits-dirty-status.txt`,
   `table-registry-drift-dirty-status.txt`)
 * `--session` for live `you work list` discovery in integration-style tests
+
+Story 004 end-to-end fixture verification uses the shared representative
+fixture in `linkage-classifier-report-compatibility.test.ts` (PR-backed
+conflict-drift lane, actionable gap, stale loopback noise, and queue-only
+missing-linkage noise) plus per-script discovery tests under
+`src/tests/discovery/active-pr-mergeability-watchdog.test.ts` and
+`src/tests/discovery/queue-worktree-pr-linkage-ledger.test.ts`. Ledger rows
+surface stale stamped linkage in `metadata-refresh=` separately from primary
+`missing=` reasons.
 
 Representative regression coverage lives in
 `src/tests/discovery/linkage-classifier-report-compatibility.test.ts`,
