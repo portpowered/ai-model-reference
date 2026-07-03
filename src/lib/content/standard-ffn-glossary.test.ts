@@ -54,7 +54,7 @@ describe("Phase 3 standard FFN module page (US-001)", () => {
     const feedForward = items.find(
       (item) => item.registryId === "concept.feed-forward-network",
     );
-    expect(feedForward?.href).toBe("/docs/concepts/feed-forward-network");
+    expect(feedForward?.href).toBe("/docs/modules/feed-forward-network");
     expect(feedForward?.isPlanned).toBe(false);
 
     const moe = items.find(

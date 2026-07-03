@@ -159,7 +159,7 @@ describe("rerankSearchResults", () => {
   });
 
   test("uses direct aliases instead of broad tag aliases for exact page boosts", () => {
-    const canonicalUrl = "/docs/concepts/feed-forward-network";
+    const canonicalUrl = "/docs/modules/feed-forward-network";
     const taggedUrl = "/docs/systems/expert-parallel-overlap";
     const documentsByUrl = new Map<string, SearchDocument>([
       [

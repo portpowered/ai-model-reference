@@ -25,11 +25,11 @@ describe("prose auto-link", () => {
 
   test("buildProseAutoLinkPhraseIndex prefers canonical docs routes over tag routes when the tag is the only collision", () => {
     const index = buildProseAutoLinkPhraseIndex([
-      { phrase: "FFN", href: "/docs/concepts/feed-forward-network" },
+      { phrase: "FFN", href: "/docs/modules/feed-forward-network" },
       { phrase: "ffn", href: "/tags/feed-forward" },
     ]);
 
-    expect(index.get("ffn")).toBe("/docs/concepts/feed-forward-network");
+    expect(index.get("ffn")).toBe("/docs/modules/feed-forward-network");
   });
 
   test("buildProseAutoLinkPhraseIndex keeps unambiguous phrases", () => {

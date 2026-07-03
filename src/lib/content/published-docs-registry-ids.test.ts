@@ -239,11 +239,6 @@ describe("published-docs-registry-ids", () => {
       PUBLISHED_DOCS_REGISTRY_IDS.has("concept.feed-forward-network"),
     ).toBe(true);
     expect(
-      PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has(
-        "concept.feed-forward-network",
-      ),
-    ).toBe(true);
-    expect(
       PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has("concept.quantization"),
     ).toBe(true);
     expect(
@@ -269,7 +264,7 @@ describe("published-docs-registry-ids", () => {
         slug: "feed-forward-network",
         kind: "concept",
       }),
-    ).toBe("/docs/concepts/feed-forward-network");
+    ).toBe("/docs/modules/feed-forward-network");
     expect(
       getPublishedDocsHrefForRecord({
         id: "concept.quantization",

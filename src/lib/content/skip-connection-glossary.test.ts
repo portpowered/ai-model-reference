@@ -67,7 +67,7 @@ describe("Phase 3 skip connection glossary page (US-011)", () => {
     expect(
       items.find((item) => item.registryId === "concept.feed-forward-network")
         ?.href,
-    ).toBe("/docs/concepts/feed-forward-network");
+    ).toBe("/docs/modules/feed-forward-network");
     expect(
       items.find(
         (item) => item.registryId === "concept.transformer-architecture",
@@ -120,7 +120,7 @@ describe("Phase 3 skip connection glossary page (US-011)", () => {
     expectHtmlToContainProse(html, "Residual connections");
     expect(html).toContain('href="/docs/glossary/residual-connection"');
     expect(html).toContain('href="/docs/concepts/normalization"');
-    expect(html).toContain('href="/docs/concepts/feed-forward-network"');
+    expect(html).toContain('href="/docs/modules/feed-forward-network"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');

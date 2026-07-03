@@ -17,7 +17,7 @@ describe("registry-linking", () => {
     }
 
     expect(registryRecordHref(moduleBackedConcept)).toBe(
-      "/docs/concepts/feed-forward-network",
+      "/docs/modules/feed-forward-network",
     );
     expect(registryRecordHref(conceptSectionConcept)).toBe(
       "/docs/concepts/quantization",

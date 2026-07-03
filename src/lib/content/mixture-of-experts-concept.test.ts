@@ -54,7 +54,7 @@ describe("Mixture of experts concept page", () => {
     expect(html).toContain("Load Balancing");
     expect(html).toContain("Serving Behavior");
     expect(html).toContain("top-k");
-    expect(html).toContain('href="/docs/concepts/feed-forward-network"');
+    expect(html).toContain('href="/docs/modules/feed-forward-network"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');
     expect(html).toContain('href="/docs/modules/mixture-of-experts"');
     expect(html).toContain('href="/docs/modules/deepseekmoe"');
@@ -94,7 +94,7 @@ describe("Mixture of experts concept page", () => {
       relatedItems.find(
         (item) => item.registryId === "concept.feed-forward-network",
       )?.href,
-    ).toBe("/docs/concepts/feed-forward-network");
+    ).toBe("/docs/modules/feed-forward-network");
     expect(
       relatedItems.find((item) => item.registryId === "concept.standard-ffn")
         ?.href,
