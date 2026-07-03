@@ -6,8 +6,8 @@ import {
   renderDocsSlugPage,
 } from "@/app/docs/docs-slug-renderer";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadConceptPage } from "@/lib/content/concept-page";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import {
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
@@ -36,10 +36,7 @@ describe("temperature concept discovery (temperature-concept-page-current-main)"
     const record = getConceptById("concept.temperature");
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual(
-      expect.arrayContaining([
-        "sampling temperature",
-        "softmax temperature",
-      ]),
+      expect.arrayContaining(["sampling temperature", "softmax temperature"]),
     );
   });
 
@@ -53,10 +50,7 @@ describe("temperature concept discovery (temperature-concept-page-current-main)"
 
     expect(document?.kind).toBe("concept");
     expect(document?.aliases).toEqual(
-      expect.arrayContaining([
-        "sampling temperature",
-        "softmax temperature",
-      ]),
+      expect.arrayContaining(["sampling temperature", "softmax temperature"]),
     );
     expect(document?.registryId).toBe("concept.temperature");
   });
@@ -163,8 +157,8 @@ describe("temperature concept discovery (temperature-concept-page-current-main)"
     expect(html).not.toMatch(/\{\{[^}]+\}\}/);
 
     const results = await docsSearchApi.search("sampling temperature");
-    expect(results.some((result) => result.url === TEMPERATURE_CONCEPT_URL)).toBe(
-      true,
-    );
+    expect(
+      results.some((result) => result.url === TEMPERATURE_CONCEPT_URL),
+    ).toBe(true);
   });
 });
