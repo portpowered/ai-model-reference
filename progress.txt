@@ -224,3 +224,11 @@
   - Treat `ownerless` primary status as `classification-clarity=ambiguous` so planner loops always get an explicit actionable hold rather than stalling without a named ambiguity signal.
   - Unified CLI output now ends with the consolidated planner report after evidence, classification, and next-action sections for backward-compatible review.
 ---
+
+## 2026-07-03T06:35:00Z - mergeability follow-up
+- Merged `origin/main` into the PR branch and fixed inherited CI failure in `blog-content-loader-scope.test.ts` by asserting loader-owned published bundles stay isolated from browse/sidebar/search rather than requiring an empty production blog root.
+- Files changed: merge from `origin/main`; `src/lib/content/blog-content-loader-scope.test.ts`
+- **Learnings for future iterations:**
+  - Main can carry a committed published blog bundle (`roofline-throughput-explorer`) while shell isolation tests still pass; empty-list assertions on `listPublishedBlogPosts()` are stale after blog content landed.
+  - Keep mergeability-only fixes scoped to the failing assertion and document them separately from PRD story work in progress notes and PR conversation.
+---
