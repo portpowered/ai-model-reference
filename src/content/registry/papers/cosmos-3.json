@@ -11,7 +11,7 @@
     "NVIDIA Cosmos 3"
   ],
   "tags": ["foundations", "model-family"],
-  "relatedIds": [],
+  "relatedIds": ["model.cosmos-3"],
   "citationIds": [
     "citation.cosmos-3-technical-report",
     "citation.cosmos-3-research-page",
@@ -21,7 +21,7 @@
   ],
   "status": "published",
   "createdAt": "2026-07-02T00:00:00.000Z",
-  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-03T02:45:00.000Z",
   "authors": ["NVIDIA"],
   "publishedAt": "2026-05-31",
   "url": "https://arxiv.org/abs/2606.02800",
@@ -36,7 +36,7 @@
     "concept.conditioning"
   ],
   "arguesAgainstIds": [],
-  "modelIds": [],
+  "modelIds": ["model.cosmos-3"],
   "moduleIds": [],
   "conceptIds": [
     "concept.world-model",

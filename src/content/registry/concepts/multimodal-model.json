@@ -15,7 +15,8 @@
     "concept.modality",
     "concept.patch",
     "concept.representation",
-    "concept.generative-model"
+    "concept.generative-model",
+    "model.cosmos-3"
   ],
   "citationIds": [
     "citation.learning-transferable-visual-models-from-natural-language-supervision",
@@ -23,7 +24,7 @@
   ],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
-  "updatedAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-07-03T02:45:00.000Z",
   "primaryClassificationId": "classification.concept.model-type",
   "conceptType": "architecture",
   "prerequisiteIds": [
