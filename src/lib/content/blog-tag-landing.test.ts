@@ -260,7 +260,7 @@ describe("blog tag landing resources", () => {
 });
 
 describe("production blog tag landing", () => {
-  it("lists the roofline post on foundations and kv-cache tag pages", async () => {
+  it("lists published blog posts on foundations and kv-cache tag pages", async () => {
     const messages = await loadUiMessages();
     for (const tagSlug of ["foundations", "kv-cache"] as const) {
       const groups = await loadTagResourceGroups(tagSlug, messages, "en");
@@ -268,14 +268,28 @@ describe("production blog tag landing", () => {
 
       expect(blogGroup).toBeDefined();
       expect(blogGroup?.kindLabel).toBe("Blog");
-      expect(blogGroup?.resources).toEqual([
-        expect.objectContaining({
-          title: "Why throughput follows a roofline",
-          url: "/blog/roofline-throughput-explorer",
-          publishedAt: "2026-07-02",
-        }),
-      ]);
+      expect(blogGroup?.resources).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            title: "Why throughput follows a roofline",
+            url: "/blog/roofline-throughput-explorer",
+            publishedAt: "2026-07-02",
+          }),
+        ]),
+      );
     }
+
+    const foundationsGroups = await loadTagResourceGroups(
+      "foundations",
+      messages,
+      "en",
+    );
+    const foundationsBlogGroup = foundationsGroups.find(
+      (group) => group.kind === "blog",
+    );
+    expect(foundationsBlogGroup?.resources.map((resource) => resource.slug)).toEqual(
+      ["llm-training-shift", "roofline-throughput-explorer"],
+    );
   });
 
   it("keeps attention tag groups unchanged without a blog section", async () => {

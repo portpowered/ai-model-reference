@@ -393,6 +393,17 @@ export const pageKindSchema = z.enum([
   "glossary",
 ]);
 
+export const blogPostFrontmatterSchema = z.object({
+  messageNamespace: z.union([z.literal("local"), z.string().min(1)]),
+  assetNamespace: z.union([z.literal("local"), z.string().min(1)]),
+  publishedAt: z.string().min(1),
+  updatedAt: z.string().min(1),
+  authors: z.array(z.string().min(1)).min(1),
+  tags: z.array(z.string()),
+  relatedDocIds: z.array(z.string()),
+  status: registryStatusSchema,
+});
+
 export const pageFrontmatterSchema = z.object({
   kind: pageKindSchema,
   registryId: z.string().min(1),
@@ -468,17 +479,6 @@ export const pageMathMessagesSchema = z.record(
   z.string(),
   pageMathFormulaSchema,
 );
-
-export const blogPostFrontmatterSchema = z.object({
-  messageNamespace: z.union([z.literal("local"), z.string().min(1)]),
-  assetNamespace: z.union([z.literal("local"), z.string().min(1)]),
-  publishedAt: z.string().min(1),
-  updatedAt: z.string().min(1),
-  authors: z.array(z.string().min(1)).min(1),
-  tags: z.array(z.string()),
-  relatedDocIds: z.array(z.string()),
-  status: registryStatusSchema,
-});
 
 export const pageMessagesSchema = z.object({
   title: z.string().min(1),

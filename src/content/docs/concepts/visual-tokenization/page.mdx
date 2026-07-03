@@ -1,0 +1,95 @@
+---
+title: Visual tokenization
+description: How images and video frames become patches, discrete codes, or latent tokens so sequence-based models can read visual data.
+kind: "concept"
+registryId: "concept.visual-tokenization"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - tokenization
+  - foundations
+  - taxonomy
+aliases:
+  - "Visual tokenization"
+  - "visual tokenization"
+  - "image tokenization"
+  - "video tokenization"
+  - "visual tokens"
+  - "patch tokens"
+  - "discrete visual codes"
+  - "latent visual tokens"
+updatedAt: "2026-07-03"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { PageAsset } from "@/features/docs/components/PageAsset";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="representation-forms" titleKey="sections.representationForms.title">
+  <T k="sections.representationForms.body" />
+  <PageAsset assetId="representationFormsComparison" />
+</Section>
+
+<Section id="nearby-systems" titleKey="sections.nearbySystems.title">
+  <T k="sections.nearbySystems.body" />
+  <LocalizedLinkList
+    items={[
+      {
+        href: "/docs/modules/clip-image-tokenization",
+        labelKey: "links.clipImageTokenization",
+      },
+      {
+        href: "/docs/glossary/autoregressive-generation",
+        labelKey: "links.autoregressiveGeneration",
+      },
+      {
+        href: "/docs/glossary/diffusion-model",
+        labelKey: "links.diffusionModel",
+      },
+      { href: "/docs/models/ltx-23", labelKey: "links.ltxVideoModel" },
+    ]}
+  />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.visual-tokenization"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.visual-tokenization" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.visual-tokenization" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.visual-tokenization" />
+</Section>

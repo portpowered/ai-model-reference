@@ -7,10 +7,7 @@ import {
 import { notFound } from "next/navigation";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadBlogPost } from "@/lib/content/blog-page";
-import {
-  blogPostHref,
-  listBlogSlugs,
-} from "@/lib/content/blog-page-load";
+import { blogPostHref, listBlogSlugs } from "@/lib/content/blog-page-load";
 
 type BlogPostPageProps = {
   params: Promise<{ slug: string }>;

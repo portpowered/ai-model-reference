@@ -1,0 +1,26 @@
+{
+  "id": "citation.rectified-flow",
+  "slug": "rectified-flow",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Rectified Flow",
+    "rectified flow paper",
+    "Liu rectified flow",
+    "2209.03003",
+    "arxiv:2209.03003"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Xingchao Liu", "Chengyue Gong", "Qiang Liu"],
+  "title": "Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow",
+  "year": 2023,
+  "url": "https://arxiv.org/abs/2209.03003",
+  "mla": "Liu, Xingchao, Chengyue Gong, and Qiang Liu. \"Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow.\" arXiv, 2023, https://arxiv.org/abs/2209.03003."
+}
