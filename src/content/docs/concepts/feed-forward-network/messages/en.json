@@ -5,15 +5,15 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "A feed-forward network is a stack of learned linear projections and nonlinear activation steps that maps one vector to another. Inside a transformer block it runs position-wise: each token vector is transformed on its own without looking at neighboring positions. The block is often called a feed-forward network or FFN for short."
+      "body": "A feed-forward network is a stack of learned linear projections and nonlinear activation steps that maps one vector to another. Inside a transformer block it runs token-wise: each token vector is transformed on its own without reading neighboring positions. Papers and model cards refer to the same block as a feed-forward network; once that full name is clear, they often shorten it to FFN."
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Attention lets token positions exchange context, but the feed-forward network is where the model reshapes each position's representation after that mixing step. It expands hidden width, applies a nonlinear activation, and projects back so the block can compute richer per-token features. Without this block, attention alone would mostly rearrange information rather than build new features at each position."
+      "body": "Attention lets token positions exchange context across the sequence, but the feed-forward network is the step that follows. It applies the same learned transformation independently to every position after that mixing. The block expands each token vector into a wider hidden size, passes it through a nonlinear activation function, and projects back to model width so the stack can compute richer per-token features. Without this step, attention would mostly rearrange information between positions rather than reshape what each position represents."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "After a self-attention layer updates every token in a sentence, the feed-forward network runs the same two-layer pattern on each token vector separately. Token five might represent the word \"river\" with a wider hidden state, pass through an activation such as GELU, and return to model width before the next sublayer. Token six follows the same pattern with its own values, without sharing weights across positions beyond using the same learned matrices."
+      "body": "After a self-attention layer lets every token read context from other tokens, the feed-forward network handles each position separately. Token five might represent the word \"river\": its vector expands to a wider hidden state, passes through an activation function such as GELU (Gaussian Error Linear Unit), and compresses back to model width before the next sublayer. Token six runs the same weight matrices on its own vector values, without mixing activations across positions."
     },
     "commonConfusions": {
       "title": "Common Confusions",

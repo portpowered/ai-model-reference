@@ -104,26 +104,36 @@ describe("feed-forward-network concept discovery", () => {
 });
 
 describe("feed-forward-network concept page", () => {
-  test("messages provide title, description, opening summary, and concept sections", () => {
+  test("messages teach token-wise transformer role with defined terms before shorthand", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
+    const whatItIs = messages.sections?.whatItIs.body ?? "";
+    const whyItMatters = messages.sections?.whyItMatters.body ?? "";
+    const simpleExample = messages.sections?.simpleExample.body ?? "";
+    const commonConfusions = messages.sections?.commonConfusions.body ?? "";
+
     expect(messages.title).toBe("Feed-Forward Network");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.description?.toLowerCase()).toContain("token-wise");
-    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "position-wise",
+    expect(whatItIs.toLowerCase()).toContain("token-wise");
+    expect(whatItIs.toLowerCase().indexOf("feed-forward network")).toBeLessThan(
+      whatItIs.indexOf("FFN"),
     );
-    expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "attention",
-    );
-    expect(messages.sections?.simpleExample.body?.toLowerCase()).toContain(
-      "self-attention",
-    );
-    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
-      "transformer",
-    );
+    expect(whyItMatters.toLowerCase()).toContain("attention");
+    expect(whyItMatters.toLowerCase()).toContain("independently");
+    expect(whyItMatters.toLowerCase()).toContain("expand");
+    expect(whyItMatters.toLowerCase()).toContain("nonlinear activation");
+    expect(whyItMatters.toLowerCase()).toContain("project");
+    expect(simpleExample.toLowerCase()).toContain("self-attention");
+    expect(simpleExample.toLowerCase()).toContain("activation function");
+    expect(
+      simpleExample.toLowerCase().indexOf("activation function"),
+    ).toBeLessThan(simpleExample.indexOf("GELU"));
+    expect(commonConfusions.toLowerCase()).toContain("transformer");
+    expect(commonConfusions.toLowerCase()).not.toContain("on this page");
+    expect(commonConfusions.toLowerCase()).not.toContain("benchmark");
   });
 
   test("page renders concept template sections without missing message values", async () => {
@@ -149,7 +159,9 @@ describe("feed-forward-network concept page", () => {
     expect(html).toContain("Why It Matters");
     expect(html).toContain("Simple Example");
     expect(html).toContain("Common Confusions");
-    expect(html).toContain("position-wise");
+    expect(html).toContain("token-wise");
+    expect(html).toContain("Gaussian Error Linear Unit");
+    expect(html).toContain("independently");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');
