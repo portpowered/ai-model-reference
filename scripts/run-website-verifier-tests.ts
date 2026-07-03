@@ -16,11 +16,14 @@ if (prepareResult.status !== 0) {
 
 const websiteVerifierPatterns = [
   /customer-ask-.*convergence(-http)?\.test\.ts$/,
+  /diffusion-transformer-block-module-convergence\.test\.ts$/,
+  /diffusion-transformer-block-module-graph-viewport-http\.test\.ts$/,
   /docs-footer-hover-checks\.test\.ts$/,
   /docs-shell-convergence(-http)?\.test\.ts$/,
   /export-search-ux-checks\.test\.ts$/,
   /github-pages-static-regression(-http)?\.test\.ts$/,
   /glossary-page-convergence(-http)?\.test\.ts$/,
+  /gated-deltanet-module-graph-viewport-http\.test\.ts$/,
   /gqa-module.*convergence(-http)?\.test\.ts$/,
   /grouped-query-attention-module-convergence\.test\.ts$/,
   /home-search-entry-convergence(-http)?\.test\.ts$/,
@@ -28,8 +31,6 @@ const websiteVerifierPatterns = [
   /multi-head-latent-attention-module-convergence\.test\.ts$/,
   /multi-token-prediction-module-graph-viewport-http\.test\.ts$/,
   /roofline-throughput-explorer-viewport-http\.test\.tsx$/,
-  /diffusion-transformer-block-module-convergence\.test\.ts$/,
-  /diffusion-transformer-block-module-graph-viewport-http\.test\.ts$/,
   /reader-convergence-http\.test\.ts$/,
   /reader-route-checks\.test\.ts$/,
   /reader-route-content-convergence(-http)?\.test\.ts$/,

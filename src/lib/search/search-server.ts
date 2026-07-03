@@ -6,6 +6,7 @@ import {
   resolveLocale,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
+import { loadBlogSearchPostSources } from "./build-blog-search-document";
 import { buildSearchDocumentsForLocale } from "./build-documents";
 import {
   resolveClassificationSearchQuery,
@@ -27,8 +28,16 @@ const searchCatalogs = new Map<SiteLocale, Promise<SearchCatalog>>();
 
 async function loadSearchCatalog(locale: SiteLocale): Promise<SearchCatalog> {
   const indexes = await loadRegistry();
-  const pages = await loadShippedLocalizedDocsPages(locale);
-  const documents = buildSearchDocumentsForLocale(locale, indexes, pages);
+  const [pages, blogPosts] = await Promise.all([
+    loadShippedLocalizedDocsPages(locale),
+    loadBlogSearchPostSources({ locale }),
+  ]);
+  const documents = buildSearchDocumentsForLocale(
+    locale,
+    indexes,
+    pages,
+    blogPosts,
+  );
 
   return {
     searchServer: initAdvancedSearch({

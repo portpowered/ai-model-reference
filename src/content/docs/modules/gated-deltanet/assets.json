@@ -1,0 +1,26 @@
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "gdn",
+    "variants": [
+      {
+        "variantId": "mha",
+        "graphId": "graph.multi-head-attention-mha-comparison",
+        "labelKey": "assets.computeFlow.variants.mha.label"
+      },
+      {
+        "variantId": "gdn",
+        "graphId": "graph.gated-deltanet-gdn-comparison",
+        "labelKey": "assets.computeFlow.variants.gdn.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.gated-deltanet-comparison"
+  }
+}
