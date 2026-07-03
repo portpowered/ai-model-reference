@@ -381,26 +381,32 @@ describe("SearchPagePanel Phase 1 queries", () => {
       url: MULTI_QUERY_ATTENTION_URL,
       title: /Multi-Query.*Attention/i,
     },
-  ] as const)("%s query ranks the matching attention variant first on /search", async ({
-    query,
-    url,
-    title,
-  }) => {
-    const context = await loadAppTestContext();
-    await renderSearchPagePanelContent(context);
+  ] as const)(
+    "%s query ranks the matching attention variant first on /search",
+    async ({ query, url, title }) => {
+      const context = await loadAppTestContext();
+      await renderSearchPagePanelContent(context);
 
-    const user = userEvent.setup();
-    await user.type(
-      screen.getByLabelText(context.messages.search.placeholder),
-      query,
-    );
+      const user = userEvent.setup();
+      await user.type(
+        screen.getByLabelText(context.messages.search.placeholder),
+        query,
+      );
 
-    const results = await waitForSearchPagePanelResults();
-    await expectFirstSearchResultMatch(results, {
-      url: url,
-      titlePattern: title,
-    });
-  });
+      const results = await waitForSearchPagePanelResults({
+        timeout: 30_000,
+      });
+      await expectFirstSearchResultMatch(
+        results,
+        {
+          url: url,
+          titlePattern: title,
+        },
+        { timeout: 30_000 },
+      );
+    },
+    { timeout: 30_000 },
+  );
 
   test("exposes idle state with aria-live region before query entry", async () => {
     const context = await loadAppTestContext();

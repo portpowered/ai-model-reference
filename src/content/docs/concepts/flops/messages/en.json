@@ -1,0 +1,77 @@
+{
+  "title": "FLOPs",
+  "description": "Floating-point operations counted to estimate how much arithmetic work a model needs during inference, before teams compare serving cost, throughput plans, or hardware capability.",
+  "openingSummary": "A floating-point operation is one arithmetic step on real-number values stored in floating-point format. Engineers count these operations—written as FLOPs—to estimate how much compute a model needs during inference before they compare serving plans, hardware headlines, or per-request cost.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "One floating-point operation is one arithmetic action on floating-point numbers, such as a multiply or add inside a larger matrix calculation. FLOPs is the shorthand count of those operations. Inference estimates often total the floating-point work in large matrix multiplies and attention score calculations so teams can reason about compute demand without running every workload on every chip first."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Serving capacity planning, throughput targets, and hardware comparisons often start with a FLOPs estimate because it names how much arithmetic a model asks for on each forward pass. Wider matrices, deeper stacks, longer prompts, and more generated tokens usually raise that count. The estimate helps teams spot when compute might dominate a serving budget, but it is only a starting point: real stacks can complete less floating-point work per second than a headline hardware rate once memory movement, batch shape, and runtime scheduling enter the picture."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine multiplying two large tables of numbers where each inner step combines one pair of values. One matrix multiply between those tables performs millions of floating-point operations inside a single accelerated kernel. Inference planners often count similar work inside attention scoring blocks and dense matrix layers when they estimate total FLOPs for one forward pass through a model."
+    },
+    "peakVersusAchieved": {
+      "title": "Peak Versus Achieved Compute",
+      "body": "Peak FLOPs is an advertised or theoretical maximum hardware rate under idealized conditions such as dense matrix math at a vendor-chosen precision with minimal data movement. Achieved compute is the floating-point work a serving stack actually completes per second for a concrete model, precision, batch shape, sequence length, and runtime configuration. The gap between them is normal. Memory bandwidth limits how fast weights and activations can reach the arithmetic units. Data movement between host memory, device memory, and on-chip caches adds time that peak-rate marketing does not count. Kernel efficiency changes when fused paths, custom operators, or fallback implementations replace the idealized math loop. Batching shape and sequence length change how much work each launch amortizes across tokens. Cache reads, writes, synchronization, and scheduler or runtime overhead can leave arithmetic units idle even while the system stays busy. When achieved compute is the bottleneck, throughput-bound reasoning compares how much floating-point work the model needs against how much the stack can deliver. Some inference paths are memory-bound, communication-bound, or latency-bound instead, so a high FLOPs estimate does not by itself prove that every workload is compute-bound."
+    },
+    "architectureAndPrecision": {
+      "title": "Architecture And Precision Effects",
+      "body": "Model architecture sets how much floating-point work each forward pass needs before runtime efficiency enters the picture. A dense transformer repeats large matrix operations in attention scoring, feed-forward layers, and output projections on every generated token. Wider hidden sizes, deeper stacks, longer prompts, and more generated tokens usually raise the FLOPs count because each step touches more values. Mixture-of-experts designs can keep a very large total parameter pool while activating only a routed subset of expert feed-forward paths per token. That means total parameter count can overstate active compute: two models with similar headline parameter totals can ask for different floating-point work if one is dense and the other routes sparsely. Quantization and lower-precision execution change the compute side of the throughput bound in a second way. Fewer bits per weight or activation can shrink the bytes moved on each step and let hardware use narrower arithmetic paths, but achieved speed still depends on whether the serving stack has kernels, fused paths, and runtime support for those formats. A quantized checkpoint is not automatically a lower-FLOPs model in every accounting method, and a lower-bit plan can still spend time on dequantization or fallback math when the fast path is missing. FLOPs estimates answer how much arithmetic the model structure implies. Parameter count names stored weights. Memory footprint names bytes resident during serving. Tokens per second, time to first token, and inter-token latency measure end-to-end delivery speed. Those metrics can move together on a friendly workload, but they are not interchangeable when architecture, precision, batching, or routing change what the stack actually executes."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "FLOPs count arithmetic work implied by the model path, not how many weights are stored, how many bytes sit in device memory, or how fast tokens leave the server. Parameter count and checkpoint size can rise without the same rise in per-token floating-point work when routing stays sparse. Quantization can cut memory footprint first while compute savings appear only where lower-precision kernels actually run. Tokens per second summarizes sustained throughput, time to first token captures prefill and scheduling delay before the first answer token appears, and inter-token latency measures the gap between later generated tokens; none of those latency metrics replace a FLOPs estimate, and a high FLOPs total does not by itself predict any one of them. Peak hardware FLOPs and achieved inference compute remain different headline numbers; the peak-versus-achieved section above explains why marketing peaks diverge from serving reality."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "peakAchievedComparison": {
+      "caption": "Peak hardware FLOPs versus achieved inference compute during serving"
+    }
+  },
+  "tables": {
+    "peakAchieved": {
+      "columns": {
+        "peak": {
+          "title": "Peak hardware FLOPs"
+        },
+        "achieved": {
+          "title": "Achieved inference compute"
+        }
+      },
+      "dimensions": {
+        "whatItCounts": "What the rate counts",
+        "typicalConditions": "Typical measurement conditions",
+        "commonSource": "Where teams usually see it",
+        "servingReality": "What real serving can leave out"
+      },
+      "values": {
+        "peak": {
+          "whatItCounts": "A theoretical maximum count of floating-point operations the chip could perform per second under idealized dense math.",
+          "typicalConditions": "Vendor benchmarks with tuned kernels, fixed precision, and shapes chosen to maximize arithmetic intensity.",
+          "commonSource": "Hardware datasheets, accelerator marketing sheets, and peak-rate comparison tables.",
+          "servingReality": "Ignores model-specific memory traffic, batching limits, kernel gaps, and runtime scheduling that reduce delivered work."
+        },
+        "achieved": {
+          "whatItCounts": "Floating-point operations the inference stack actually completes per second for one model and serving configuration.",
+          "typicalConditions": "Concrete precision, batch size, prompt length, generated token count, and the kernels the runtime can launch.",
+          "commonSource": "Profiler traces, serving benchmarks, and capacity tests on the target stack.",
+          "servingReality": "Includes memory bandwidth stalls, data movement, cache effects, synchronization, and scheduler overhead that shrink usable compute."
+        }
+      }
+    }
+  }
+}

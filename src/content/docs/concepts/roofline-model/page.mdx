@@ -1,0 +1,105 @@
+---
+title: Roofline model
+description: A throughput-ceiling chart that shows when memory movement or arithmetic compute limits attainable performance, using arithmetic intensity to explain which bound is active.
+kind: "concept"
+registryId: "concept.roofline-model"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - kv-cache
+aliases:
+  - "roofline model"
+  - "roofline"
+  - "memory bound"
+  - "compute bound"
+  - "memory-bandwidth bound"
+  - "arithmetic intensity"
+updatedAt: "2026-07-02"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+
+  <PageAsset assetId="rooflineChart" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section
+  id="memory-bandwidth-bound"
+  titleKey="sections.memoryBandwidthBound.title"
+>
+  <T k="sections.memoryBandwidthBound.body" />
+</Section>
+
+<Section id="compute-bound" titleKey="sections.computeBound.title">
+  <T k="sections.computeBound.body" />
+</Section>
+
+<Section id="arithmetic-intensity" titleKey="sections.arithmeticIntensity.title">
+  <T k="sections.arithmeticIntensity.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section
+  id="throughput-connections"
+  titleKey="sections.throughputConnections.title"
+>
+  <T k="sections.throughputConnections.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/systems/memory", labelKey: "links.memoryBandwidth" },
+      { href: "/docs/glossary/hidden-size", labelKey: "links.flops" },
+      {
+        href: "/docs/glossary/inter-token-latency",
+        labelKey: "links.tokensPerSecond",
+      },
+      {
+        href: "/docs/systems/inference-engine",
+        labelKey: "links.inferenceEngine",
+      },
+      { href: "/docs/concepts/quantization", labelKey: "links.quantization" },
+    ]}
+  />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.roofline-model"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "used-by-models",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.roofline-model" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.roofline-model" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.roofline-model" />
+</Section>

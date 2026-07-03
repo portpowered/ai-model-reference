@@ -1,0 +1,94 @@
+{
+  "id": "graph.classifier-free-guidance-blend",
+  "slug": "classifier-free-guidance-blend",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-03T00:00:00.000Z",
+  "updatedAt": "2026-07-03T00:00:00.000Z",
+  "subjectId": "concept.classifier-free-guidance",
+  "graphType": "concept-map",
+  "rootNodeId": "noisy-state",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "noisy-state",
+      "labelKey": "graph.nodes.noisyState.label",
+      "moduleKind": "input",
+      "position": { "x": 280, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["unconditional-prediction", "conditional-prediction"]
+    },
+    {
+      "id": "unconditional-prediction",
+      "labelKey": "graph.nodes.unconditionalPrediction.label",
+      "moduleKind": "other",
+      "position": { "x": 40, "y": 110 },
+      "visualRole": "process-node",
+      "childNodeIds": ["guidance-direction"]
+    },
+    {
+      "id": "conditional-prediction",
+      "labelKey": "graph.nodes.conditionalPrediction.label",
+      "moduleKind": "other",
+      "position": { "x": 520, "y": 110 },
+      "visualRole": "process-node",
+      "childNodeIds": ["guidance-direction"]
+    },
+    {
+      "id": "guidance-direction",
+      "labelKey": "graph.nodes.guidanceDirection.label",
+      "moduleKind": "other",
+      "position": { "x": 280, "y": 220 },
+      "visualRole": "process-node",
+      "childNodeIds": ["guided-prediction"]
+    },
+    {
+      "id": "guided-prediction",
+      "labelKey": "graph.nodes.guidedPrediction.label",
+      "moduleKind": "output",
+      "position": { "x": 280, "y": 330 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "noisy-to-unconditional",
+      "source": "noisy-state",
+      "target": "unconditional-prediction",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "noisy-to-conditional",
+      "source": "noisy-state",
+      "target": "conditional-prediction",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "unconditional-to-direction",
+      "source": "unconditional-prediction",
+      "target": "guidance-direction",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "conditional-to-direction",
+      "source": "conditional-prediction",
+      "target": "guidance-direction",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "direction-to-guided",
+      "source": "guidance-direction",
+      "target": "guided-prediction",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "title": "Roofline model",
+  "description": "A throughput-ceiling chart that shows when memory movement or arithmetic compute limits attainable performance, using arithmetic intensity to explain which bound is active.",
+  "openingSummary": "The roofline model estimates the best practical throughput you can reach once both memory movement speed and arithmetic compute speed are considered, so you can see whether a workload is waiting on bytes to move or on math units to finish useful work.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "The roofline model is a ceiling chart for attainable throughput. It compares how fast data can move through memory with how fast arithmetic units can complete operations, then uses arithmetic intensity to show which limit is currently in control. On the left, throughput rises along a memory-bandwidth-bound slope; on the right, it flattens at a compute-bound ceiling where math throughput sets the cap."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Serving and training discussions often mention memory bandwidth, FLOPs, and tokens per second without explaining why one change helps in one workload but not another. The roofline model connects those ideas through one general framework. It does not rank models or hardware; it explains which physical limit is currently capping throughput so you can reason about bytes moved, operations available, and observed generation rate without turning the page into a vendor comparison."
+    },
+    "memoryBandwidthBound": {
+      "title": "Memory-Bandwidth Bound",
+      "body": "A workload is memory-bandwidth bound when throughput rises mainly with how fast weights, activations, or cache data can move through memory. Arithmetic units may sit idle while they wait for the next tile of parameters or the next chunk of KV-cache state to arrive. In that sloped region of the roofline, buying more raw compute does little until each byte moved carries more useful work."
+    },
+    "computeBound": {
+      "title": "Compute Bound",
+      "body": "A workload is compute-bound when arithmetic units stay fully occupied and throughput flattens near the hardware compute ceiling. Enough useful operations are available per byte moved that memory delivery keeps up with the math. In that flat region, faster memory bandwidth rarely helps because compute throughput, not byte movement, is setting the ceiling."
+    },
+    "arithmeticIntensity": {
+      "title": "Arithmetic Intensity",
+      "body": "Arithmetic intensity measures useful operations per byte moved from memory. Low intensity keeps a workload on the memory-bandwidth slope because each byte brings little math, so attainable throughput tracks bytes per second. Higher intensity pushes the operating point toward the compute-bound region because each byte justifies more work before the next fetch is needed."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine loading a small matrix and applying one multiply per element. The bytes moved dominate, so throughput climbs with memory bandwidth along the sloped roofline region. Now imagine a much larger matrix multiply where each loaded weight participates in many operations. Arithmetic intensity rises, the operating point slides right, and throughput approaches the flat compute ceiling instead of staying on the memory slope."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "The roofline model is a teaching ceiling, not a benchmark leaderboard. It explains memory-bound and compute-bound regions in plain language; it does not pick the best chip, model, or vendor. A point on the chart illustrates limits for one workload and one hardware profile, not a universal ranking of products."
+    },
+    "throughputConnections": {
+      "title": "Throughput Connections",
+      "body": "The roofline model is a ceiling chart, but serving discussions name the ingredients that set that ceiling. Use the links below to move from the general bound framework into the pages that explain bytes moved, operations available, observed generation rate, runtime scheduling, and bytes per parameter."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "rooflineChart": {
+      "title": "Illustrative Roofline Ceiling",
+      "alt": "Roofline chart with a memory-bandwidth-bound sloped region, a compute-bound flat ceiling, and two illustrative workloads at different arithmetic intensities",
+      "caption": "Generic illustrative values show the roofline bend where memory movement and compute throughput meet; the chart teaches bounds, not hardware rankings.",
+      "legend": {
+        "attainableThroughput": {
+          "label": "Attainable throughput"
+        },
+        "memoryBoundRegion": {
+          "label": "Memory-bandwidth bound"
+        },
+        "computeBoundRegion": {
+          "label": "Compute bound"
+        },
+        "lowIntensityWorkload": {
+          "label": "Low-intensity workload"
+        },
+        "highIntensityWorkload": {
+          "label": "High-intensity workload"
+        },
+        "axisX": {
+          "label": "Arithmetic intensity (ops per byte)"
+        },
+        "axisY": {
+          "label": "Attainable throughput (GFLOP/s)"
+        }
+      }
+    }
+  },
+  "links": {
+    "memoryBandwidth": "Memory — how fast weights, activations, and cache state move sets the memory-bandwidth slope",
+    "flops": "Hidden size — model width scales operation counts that feed the compute-bound ceiling",
+    "tokensPerSecond": "Inter-token latency — per-token gaps connect to observed generation rate and aggregate throughput",
+    "inferenceEngine": "Inference engine — runtime scheduling maps work to accelerators under both bounds",
+    "quantization": "Quantization — fewer bytes per parameter shifts arithmetic intensity and memory pressure"
+  },
+  "relatedDocs": {
+    "system.memory": {
+      "reason": "Serving memory pages explain how fast bytes can move through weights, activations, and KV-cache state—the ingredient that sets the sloped roofline region."
+    },
+    "concept.hidden-size": {
+      "reason": "Hidden size shows how model width scales operation counts and memory per token, which feeds the compute ceiling and arithmetic-intensity axis."
+    },
+    "concept.inter-token-latency": {
+      "reason": "Inter-token latency connects per-token decode gaps to the generation rate readers observe once streaming begins."
+    },
+    "system.inference-engine": {
+      "reason": "Inference engines schedule prefill and decode work onto accelerators, so runtime layout affects which bound shows up in practice."
+    },
+    "concept.quantization": {
+      "reason": "Quantization reduces bytes per parameter, which can shift a workload toward higher arithmetic intensity and lower memory pressure."
+    }
+  }
+}
