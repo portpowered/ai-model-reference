@@ -5,12 +5,16 @@ import type { CommandResult } from "@/lib/factory/active-pr-mergeability-watchdo
 import {
   buildGeneratedTableRegistryPr320ConflictRefreshOutput,
   buildPr320ConflictRefreshOutcomeReport,
+  buildPr320ConflictRefreshScopeProof,
   captureGeneratedTableRegistryPr320ConflictRefreshEvidence,
   classifyPr320ConflictRefreshOutcome,
   extractMergeTreeConflictPaths,
   findQueueTokensForWorkItemName,
   formatGeneratedTableRegistryPr320ConflictRefreshEvidenceReport,
   formatGeneratedTableRegistryPr320ConflictRefreshOutput,
+  formatPr320ConflictRefreshScopeProof,
+  isPr320CleanupProofAllowedPath,
+  isPr320CleanupProofProhibitedPath,
   PR320_CONFLICT_REFRESH_CAPTURE_POLICY,
   PR320_CONFLICT_REFRESH_TARGET_SESSION_ID,
   PR320_CONFLICT_REFRESH_WORK_ITEM_NAME,
@@ -368,5 +372,112 @@ describe("generated-table-registry-pr320-conflict-refresh", () => {
     expect(formatted).toContain("[outcome]");
     expect(formatted).toContain("selectedOutcome=merge-ready");
     expect(formatted).toContain("mergeTreeConflictCount=0");
+  });
+
+  test("buildPr320ConflictRefreshScopeProof preserves cleanup-proof-only diff", () => {
+    const scopeProof = buildPr320ConflictRefreshScopeProof({
+      changedPaths: [
+        "docs/internal/processes/generated-table-registry-root-drift-cleanup-proof-relevant-files.md",
+        "docs/internal/processes/factory-linkage-relevant-files.md",
+        "package.json",
+        "scripts/report-generated-table-registry-root-drift-cleanup-proof.ts",
+        "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.test.ts",
+        "src/tests/fixtures/generated-table-registry-root-drift-cleanup-proof/dirty-table-registry-status.txt",
+        "src/tests/fixtures/generated-table-registry-root-drift-cleanup-proof/looped-transformers-table-registry.diff",
+      ],
+    });
+
+    expect(scopeProof.preserved).toBe(true);
+    expect(scopeProof.prohibitedPaths).toEqual([]);
+    expect(scopeProof.outOfScopePaths).toEqual([]);
+    expect(scopeProof.allowedPaths).toHaveLength(8);
+  });
+
+  test("buildPr320ConflictRefreshScopeProof flags prohibited page content paths", () => {
+    const scopeProof = buildPr320ConflictRefreshScopeProof({
+      changedPaths: [
+        "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        "src/content/docs/concepts/flow-matching/page.mdx",
+        "src/lib/content/generated/table-registry.generated.ts",
+      ],
+    });
+
+    expect(scopeProof.preserved).toBe(false);
+    expect(scopeProof.prohibitedPaths).toEqual([
+      "src/content/docs/concepts/flow-matching/page.mdx",
+      "src/lib/content/generated/table-registry.generated.ts",
+    ]);
+    expect(scopeProof.outOfScopePaths).toEqual([
+      "src/content/docs/concepts/flow-matching/page.mdx",
+      "src/lib/content/generated/table-registry.generated.ts",
+    ]);
+  });
+
+  test("isPr320CleanupProofAllowedPath and isPr320CleanupProofProhibitedPath classify paths", () => {
+    expect(
+      isPr320CleanupProofAllowedPath(
+        "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.test.ts",
+      ),
+    ).toBe(true);
+    expect(
+      isPr320CleanupProofProhibitedPath(
+        "src/content/docs/concepts/flow-matching/page.mdx",
+      ),
+    ).toBe(true);
+    expect(
+      isPr320CleanupProofProhibitedPath(
+        "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+      ),
+    ).toBe(false);
+  });
+
+  test("formatPr320ConflictRefreshScopeProof emits preserved scope evidence", () => {
+    const formatted = formatPr320ConflictRefreshScopeProof(
+      buildPr320ConflictRefreshScopeProof({
+        changedPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+      }),
+    );
+
+    expect(formatted).toContain("[scope]");
+    expect(formatted).toContain("preserved=true");
+    expect(formatted).toContain(
+      "changedPath=src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+    );
+  });
+
+  test("formatGeneratedTableRegistryPr320ConflictRefreshOutput includes scope section", () => {
+    const output = buildGeneratedTableRegistryPr320ConflictRefreshOutput({
+      classifyOutcome: true,
+      mergeTreeConflictPaths: [],
+      pr320PullRequestJson: readFixture("pr320-pull-request.json"),
+      remoteBaseRef: "origin/main",
+      repoRoot: "/tmp/main-repo",
+      runCommand: buildRunCommand({}),
+      proofOnMain: {
+        consumed: false,
+        markerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        missingMarkerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        presentMarkerPaths: [],
+      },
+      scopeProof: buildPr320ConflictRefreshScopeProof({
+        changedPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+      }),
+      workListJsonText: readFixture("work-list.json"),
+      worktreesDir: "/tmp/worktrees",
+    });
+
+    const formatted =
+      formatGeneratedTableRegistryPr320ConflictRefreshOutput(output);
+    expect(formatted).toContain("[scope]");
+    expect(formatted).toContain("preserved=true");
   });
 });

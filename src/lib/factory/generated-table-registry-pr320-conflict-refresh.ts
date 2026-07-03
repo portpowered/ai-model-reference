@@ -678,6 +678,160 @@ export const PR320_PROOF_ON_MAIN_MARKER_PATHS = [
   "scripts/report-generated-table-registry-root-drift-cleanup-proof.ts",
 ] as const;
 
+export const PR320_CLEANUP_PROOF_SCOPE_PRESERVE_POLICY =
+  "Preserve generated-table-registry cleanup-proof intent: limit refreshed PR #320 diff to proof module, CLI script, fixtures, minimum planner linkage, and conflict-resolution edits only.";
+
+export const PR320_CLEANUP_PROOF_SCOPE_LIMIT =
+  "No adjacent page content, broad generated registry runtime behavior, or unrelated planner-report rewrites beyond minimum linkage updates.";
+
+export const PR320_CLEANUP_PROOF_ALLOWED_PATH_PREFIXES = [
+  "docs/internal/processes/generated-table-registry-root-drift-cleanup-proof-relevant-files.md",
+  "docs/internal/processes/factory-linkage-relevant-files.md",
+  "package.json",
+  "scripts/report-generated-table-registry-root-drift-cleanup-proof.ts",
+  "src/lib/factory/generated-table-registry-root-drift-cleanup-proof",
+  "src/tests/fixtures/generated-table-registry-root-drift-cleanup-proof/",
+] as const;
+
+export const PR320_CLEANUP_PROOF_PROHIBITED_PATH_PREFIXES = [
+  "src/content/",
+  "src/content/registry/tables/",
+  "src/lib/content/generated/",
+] as const;
+
+export interface Pr320ConflictRefreshScopeBoundaries {
+  preservePolicy: string;
+  scopeLimit: string;
+}
+
+export interface Pr320ConflictRefreshScopeProof {
+  allowedPaths: string[];
+  boundaries: Pr320ConflictRefreshScopeBoundaries;
+  changedPaths: string[];
+  outOfScopePaths: string[];
+  preserveEvidence: string[];
+  preserved: boolean;
+  prohibitedPaths: string[];
+}
+
+export function buildPr320ConflictRefreshScopeBoundaries(): Pr320ConflictRefreshScopeBoundaries {
+  return {
+    preservePolicy: PR320_CLEANUP_PROOF_SCOPE_PRESERVE_POLICY,
+    scopeLimit: PR320_CLEANUP_PROOF_SCOPE_LIMIT,
+  };
+}
+
+export function isPr320CleanupProofAllowedPath(path: string): boolean {
+  return PR320_CLEANUP_PROOF_ALLOWED_PATH_PREFIXES.some(
+    (prefix) => path === prefix || path.startsWith(prefix),
+  );
+}
+
+export function isPr320CleanupProofProhibitedPath(path: string): boolean {
+  return PR320_CLEANUP_PROOF_PROHIBITED_PATH_PREFIXES.some(
+    (prefix) => path === prefix || path.startsWith(prefix),
+  );
+}
+
+export function listPr320TargetBranchChangedPaths(options: {
+  remoteBaseRef?: string;
+  repoRoot: string;
+  runCommand?: RunCommand;
+  targetBranchRef?: string;
+}): string[] {
+  const remoteBaseRef = options.remoteBaseRef ?? "origin/main";
+  const targetBranchRef =
+    options.targetBranchRef ?? `origin/${PR320_TARGET_BRANCH_NAME}`;
+  const runCommand = options.runCommand ?? defaultRunCommand;
+  const result = runCommand(
+    "git",
+    ["diff", "--name-only", `${remoteBaseRef}...${targetBranchRef}`],
+    options.repoRoot,
+  );
+
+  if (result.exitCode !== 0) {
+    return [];
+  }
+
+  return result.stdout
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .sort();
+}
+
+export function buildPr320ConflictRefreshScopeProof(options: {
+  changedPaths: string[];
+}): Pr320ConflictRefreshScopeProof {
+  const boundaries = buildPr320ConflictRefreshScopeBoundaries();
+  const changedPaths = [...options.changedPaths].sort();
+  const allowedPaths = changedPaths.filter(isPr320CleanupProofAllowedPath);
+  const prohibitedPaths = changedPaths.filter(
+    isPr320CleanupProofProhibitedPath,
+  );
+  const outOfScopePaths = changedPaths.filter(
+    (path) => !isPr320CleanupProofAllowedPath(path),
+  );
+  const preserved =
+    prohibitedPaths.length === 0 && outOfScopePaths.length === 0;
+  const preserveEvidence = [
+    `changed-path-count=${changedPaths.length}`,
+    `allowed-path-count=${allowedPaths.length}`,
+    `prohibited-path-count=${prohibitedPaths.length}`,
+    `out-of-scope-path-count=${outOfScopePaths.length}`,
+    `preserved=${preserved}`,
+  ];
+
+  return {
+    allowedPaths,
+    boundaries,
+    changedPaths,
+    outOfScopePaths,
+    preserveEvidence,
+    preserved,
+    prohibitedPaths,
+  };
+}
+
+export function capturePr320ConflictRefreshScopeProof(options: {
+  remoteBaseRef?: string;
+  repoRoot: string;
+  runCommand?: RunCommand;
+  targetBranchRef?: string;
+}): Pr320ConflictRefreshScopeProof {
+  const changedPaths = listPr320TargetBranchChangedPaths(options);
+  return buildPr320ConflictRefreshScopeProof({ changedPaths });
+}
+
+export function formatPr320ConflictRefreshScopeProof(
+  scopeProof: Pr320ConflictRefreshScopeProof,
+): string {
+  const lines = [
+    "[scope]",
+    `preserved=${scopeProof.preserved}`,
+    `preserve-policy=${scopeProof.boundaries.preservePolicy}`,
+    `scope-limit=${scopeProof.boundaries.scopeLimit}`,
+  ];
+
+  for (const evidence of scopeProof.preserveEvidence) {
+    lines.push(`preserveEvidence=${evidence}`);
+  }
+
+  for (const path of scopeProof.changedPaths) {
+    lines.push(`changedPath=${path}`);
+  }
+
+  for (const path of scopeProof.prohibitedPaths) {
+    lines.push(`prohibitedPath=${path}`);
+  }
+
+  for (const path of scopeProof.outOfScopePaths) {
+    lines.push(`outOfScopePath=${path}`);
+  }
+
+  return lines.join("\n");
+}
+
 export type Pr320ConflictRefreshOutcome =
   | "merge-ready"
   | "consumed-on-main"
@@ -724,6 +878,7 @@ export interface Pr320ConflictRefreshOutcomeReport {
   classification: Pr320ConflictRefreshOutcomeClassification;
   evidenceReport: GeneratedTableRegistryPr320ConflictRefreshEvidenceReport;
   operatorHandoff: Pr320ConflictRefreshOperatorHandoff | null;
+  scopeProof?: Pr320ConflictRefreshScopeProof;
 }
 
 export interface ClassifyPr320ConflictRefreshOutcomeOptions {
@@ -1015,7 +1170,9 @@ export function classifyPr320ConflictRefreshOutcome(
 
 export function buildPr320ConflictRefreshOutcomeReport(
   evidenceReport: GeneratedTableRegistryPr320ConflictRefreshEvidenceReport,
-  options?: ClassifyPr320ConflictRefreshOutcomeOptions,
+  options?: ClassifyPr320ConflictRefreshOutcomeOptions & {
+    scopeProof?: Pr320ConflictRefreshScopeProof;
+  },
 ): Pr320ConflictRefreshOutcomeReport {
   const classification = classifyPr320ConflictRefreshOutcome(
     evidenceReport,
@@ -1025,6 +1182,7 @@ export function buildPr320ConflictRefreshOutcomeReport(
     classification,
     evidenceReport,
     operatorHandoff: buildPr320ConflictRefreshOperatorHandoff(classification),
+    scopeProof: options?.scopeProof,
   };
 }
 
@@ -1035,10 +1193,12 @@ export function buildGeneratedTableRegistryPr320ConflictRefreshOutput(
     mergeTreeExitCode?: number;
     mergeTreeOutputExcerpt?: string;
     proofOnMain?: Pr320ProofOnMainEvidence;
+    scopeProof?: Pr320ConflictRefreshScopeProof;
   },
 ): {
   evidenceReport: GeneratedTableRegistryPr320ConflictRefreshEvidenceReport;
   outcomeReport?: Pr320ConflictRefreshOutcomeReport;
+  scopeProof?: Pr320ConflictRefreshScopeProof;
 } {
   const evidenceReport =
     captureGeneratedTableRegistryPr320ConflictRefreshEvidence(options);
@@ -1074,16 +1234,27 @@ export function buildGeneratedTableRegistryPr320ConflictRefreshOutput(
           targetBranchRef,
         });
 
+  const scopeProof =
+    options.scopeProof ??
+    capturePr320ConflictRefreshScopeProof({
+      remoteBaseRef,
+      repoRoot,
+      runCommand,
+      targetBranchRef,
+    });
+
   const outcomeReport = buildPr320ConflictRefreshOutcomeReport(evidenceReport, {
     mergeTreeConflictPaths: mergeTreeConflicts.conflictPaths,
     mergeTreeExitCode: mergeTreeConflicts.mergeTreeExitCode,
     mergeTreeOutputExcerpt: mergeTreeConflicts.mergeTreeOutputExcerpt,
     proofOnMain,
+    scopeProof,
   });
 
   return {
     evidenceReport,
     outcomeReport,
+    scopeProof,
   };
 }
 
@@ -1137,6 +1308,9 @@ export function formatGeneratedTableRegistryPr320ConflictRefreshOutput(
       "",
       formatPr320ConflictRefreshOutcomeReport(output.outcomeReport),
     );
+  }
+  if (output.scopeProof) {
+    sections.push("", formatPr320ConflictRefreshScopeProof(output.scopeProof));
   }
   return sections.join("\n");
 }

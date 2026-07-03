@@ -43,6 +43,8 @@ Fixture flags:
 * `--evidence-only` (skip outcome classification; story 001 capture only)
 * `--json` or `--format json`
 
+Default CLI output includes `[scope]` when outcome classification runs (story 003).
+
 ## Story 002 — Selected outcome (2026-07-03T12:15:00Z UTC)
 
 Live classification from `bun run report:generated-table-registry-pr320-conflict-refresh`
@@ -77,6 +79,43 @@ conflict-refresh classifier.
 
 Handoffs name each `conflictingFile=` path and a `operatorHandoffNextAction` that
 preserves generated-table-registry cleanup-proof intent in the original worktree.
+
+## Story 003 — Scope-preserving merge refresh (2026-07-03T12:35:00Z UTC)
+
+Merged `origin/main` (`89a395a9`) into `generated-table-registry-root-drift-cleanup-proof`
+in the owner worktree. `factory-linkage-relevant-files.md` and `package.json` auto-merged;
+no manual conflict edits were required.
+
+### Post-refresh PR #320 branch diff (`origin/main...HEAD`)
+
+| Path | Category |
+| --- | --- |
+| `docs/internal/processes/generated-table-registry-root-drift-cleanup-proof-relevant-files.md` | proof planner doc |
+| `docs/internal/processes/factory-linkage-relevant-files.md` | minimum planner linkage |
+| `package.json` | proof CLI script entry |
+| `scripts/report-generated-table-registry-root-drift-cleanup-proof.ts` | proof CLI |
+| `src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts` | proof module |
+| `src/lib/factory/generated-table-registry-root-drift-cleanup-proof.test.ts` | proof tests |
+| `src/tests/fixtures/generated-table-registry-root-drift-cleanup-proof/*` | proof fixtures |
+
+Scope proof: `preserved=true` — no `src/content/**`, no `src/lib/content/generated/**`,
+no adjacent page content, and no broad generated registry runtime edits in the refreshed diff.
+
+### Post-refresh PR #320 state
+
+| Field | Value |
+| --- | --- |
+| Head SHA | `2ac49388` (merge commit) |
+| Merge state | `CLEAN` |
+| Branch drift vs `origin/main` | 0 behind (10 ahead with proof commits) |
+| Local `make test` a11y smoke | pass — empty-results test completed in ~2.1s (was BLOCKING timeout on `87538e37`) |
+| Proof tests | 35 pass |
+
+### Scope verification command
+
+`bun run report:generated-table-registry-pr320-conflict-refresh` now emits a `[scope]`
+section with `preserved=`, `changedPath=`, `prohibitedPath=`, and `outOfScopePath=` lines
+from `capturePr320ConflictRefreshScopeProof` / `buildPr320ConflictRefreshScopeProof`.
 
 ## Live evidence snapshot (2026-07-03T12:05:51Z UTC)
 
