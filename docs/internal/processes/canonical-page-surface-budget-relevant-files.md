@@ -75,9 +75,25 @@ the same snapshot contract when classifying branch diffs.
 | When | Command |
 | --- | --- |
 | Classify the current branch diff | `bun run audit:canonical-page-surface -- --page-dir src/content/docs/<section>/<slug>` |
+| Classify the branch diff against a specific base ref | `bun run audit:canonical-page-surface -- --page-dir src/content/docs/<section>/<slug> --base origin/main` |
 | Classify an explicit path list | `bun run audit:canonical-page-surface -- --page-dir src/content/docs/<section>/<slug> --files <path...>` |
 | Refresh maintained hotspot evidence | `bun run report:planner-conflict-hotspots` |
 | Declare a visible shared-surface exception | `bun run audit:canonical-page-surface -- --page-dir ... --exception-reason "<why>"` |
+
+### Classifier output kinds
+
+The checker maps each changed path to one observable kind. These align with the
+budget buckets above:
+
+| Checker kind | Budget bucket | Example output |
+| --- | --- | --- |
+| `page-owned` | Page-owned | `page.mdx -> page-owned (matching page bundle)` |
+| `declared-generated-output` | Supported derived | `runtime.generated.ts -> declared generated output` |
+| `shared-hotspot-surface` | Shared hotspot (or unknown/broader when the path is outside page scope) | `slug-utils.ts -> shared hotspot surface [shared helper]` |
+
+In-budget page-only work prints `Budget status: within-budget` with
+`Recommended action: keep-routine`. Over-budget work names each offending path,
+its category label, and the next review lane.
 
 ## Core implementation and docs
 
