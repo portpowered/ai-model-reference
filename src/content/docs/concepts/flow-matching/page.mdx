@@ -20,6 +20,7 @@ updatedAt: "2026-07-03"
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { BlockMath } from "@/features/docs/components/Math";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
@@ -143,6 +144,25 @@ import { ConceptMap } from "@/features/models/components/ConceptMap";
       </div>
     </dl>
   </div>
+</Section>
+
+<Section
+  id="compared-to-diffusion-style-generation"
+  titleKey="sections.comparedToDiffusionStyleGeneration.title"
+>
+  <T k="sections.comparedToDiffusionStyleGeneration.body" />
+  <LocalizedLinkList
+    items={[
+      {
+        href: "/docs/training/diffusion-training-objective",
+        labelKey: "links.diffusionTrainingObjective",
+      },
+      {
+        href: "/docs/papers/latent-diffusion",
+        labelKey: "links.latentDiffusion",
+      },
+    ]}
+  />
 </Section>
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">

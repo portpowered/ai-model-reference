@@ -267,3 +267,46 @@ describe("flow matching vector field intuition (flow-matching-concept-page-003)"
     expect(html).toContain("Training pairs current states");
   });
 });
+
+describe("flow matching diffusion comparison (flow-matching-concept-page-004)", () => {
+  test("messages compare diffusion-style and flow matching generation without overclaiming equivalence", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const body = messages.sections?.comparedToDiffusionStyleGeneration.body ?? "";
+    expect(body.toLowerCase()).toContain("simple");
+    expect(body.toLowerCase()).toContain("noisy");
+    expect(body.toLowerCase()).toContain("update steps");
+    expect(body.toLowerCase()).toContain("noise");
+    expect(body.toLowerCase()).toContain("denoised");
+    expect(body.toLowerCase()).toContain("velocity");
+    expect(body.toLowerCase()).toContain("vector field");
+    expect(body.toLowerCase()).toContain("not merely a renamed");
+    expect(body.toLowerCase()).toContain("not every diffusion system");
+  });
+
+  test("page renders diffusion comparison section with resolving adjacent links", async () => {
+    const page = await loadConceptPage("flow-matching");
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("Compared To Diffusion-Style Generation");
+    expect(html).toContain("denoising-diffusion");
+    expect(html).toContain("velocity or");
+    expect(html).toContain("not merely a renamed");
+    expect(html).toContain(
+      'href="/docs/training/diffusion-training-objective"',
+    );
+    expect(html).toContain('href="/docs/papers/latent-diffusion"');
+    expect(html).not.toContain('href="/docs/concepts/cosmos"');
+    expect(html).not.toContain('href="/docs/concepts/video-generation"');
+  });
+});

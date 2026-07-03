@@ -19,9 +19,13 @@
       "title": "Vector Field Intuition",
       "body": "A vector field is a learned direction-and-speed rule: at each current sample state, it answers which way to move next and how strongly. Picture many small arrows placed over possible states. Flow matching trains a network to output the arrow that matches the state it sees now.\n\nTraining builds pairs from a simple starting draw and a real data example. A time or noise level picks where you are along the transport path between them, producing a current state such as an interpolated blend. The training target is the velocity—the direction and speed that would move that current state toward data along the chosen path. The loss compares the model's predicted velocity to that target across many examples, starting draws, and times.\n\nAt generation time, the system draws a fresh simple start and repeatedly asks the model for the next small move, following the learned field step by step until the schedule ends. The diagram below shows that training loop, and the equation summarizes the velocity-matching objective in compact notation."
     },
+    "comparedToDiffusionStyleGeneration": {
+      "title": "Compared To Diffusion-Style Generation",
+      "body": "Diffusion-style generation and flow matching both build samples by starting from a simple or noisy state and applying many learned update steps toward data. At inference, both can look like the same loop: draw a starting state, ask the network for the next correction, repeat until the schedule ends.\n\nThe difference is usually in training wording and target quantity, not in whether generation iterates. Classic denoising-diffusion descriptions often say the model predicts noise to remove or a denoised estimate at each noise level along a fixed schedule. Flow matching descriptions say the model predicts a velocity or vector field—the direction and speed that should move the current state along a transport path toward data.\n\nThose wordings are related but not interchangeable labels for one loss. Some diffusion trainers still optimize noise-prediction or score-matching objectives, while flow-matching trainers optimize velocity matching on constructed transport pairs. A paper headline may say diffusion while the implementation trains velocity targets, or the reverse. Flow matching is not merely a renamed diffusion loss, and not every diffusion system uses flow-matching training—even when both families share similar multi-step samplers.\n\nLatent diffusion systems often keep the same iterative pattern while operating in a compressed latent space rather than raw pixels. The links below point to the diffusion training objective explainer and the latent diffusion paper page for adjacent context on denoising-style training and latent-space generation."
+    },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Flow matching is not the name of one product model or benchmark leaderboard. It is an objective family used inside many image and video stacks. It is also not identical to every diffusion system: some diffusion trainers still describe the network as predicting noise or a denoised sample, while flow matching usually describes predicting a velocity or transport direction. The two families can share similar sampling loops, but the training wording and target quantity are not always interchangeable."
+      "body": "Flow matching is not the name of one product model or benchmark leaderboard. It is an objective family used inside many image and video stacks. Marketing copy can also blur labels: a page may say diffusion while the trainer optimizes velocity targets, or say flow while the sampler still uses classic noise-removal steps. Treat the stated training target and update rule as the reliable signal, not the headline term alone."
     },
     "related": {
       "title": "Related Concepts And Modules"
@@ -60,6 +64,10 @@
         "label": "Generation follows the learned flow"
       }
     }
+  },
+  "links": {
+    "diffusionTrainingObjective": "Diffusion training objective",
+    "latentDiffusion": "Latent diffusion"
   },
   "math": {
     "velocityMatchingObjective": {
