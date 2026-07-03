@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
+import { GLOSSARY_DOCS_ROOT, CONCEPTS_DOCS_ROOT } from "@/lib/content/content-paths";
+import { loadConceptPage } from "@/lib/content/concept-page";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
@@ -12,7 +13,6 @@ import {
 } from "@/lib/content/registry-runtime";
 import {
   CLASSIFICATION_SIBLINGS,
-  COMPATIBILITY_SAME_CONCEPT_TYPE,
   CURATED_RELATED,
   DERIVED_RELATED_DOC_GROUP_LABELS,
   type DerivedRelatedDocGroupId,
@@ -51,9 +51,21 @@ const FOUNDATION_CHAIN_SLUGS = [
   "emergent-behavior",
 ] as const;
 
-const FOUNDATION_CHAIN_URLS = FOUNDATION_CHAIN_SLUGS.map(
-  (slug) => `/docs/glossary/${slug}`,
-) as `/docs/glossary/${(typeof FOUNDATION_CHAIN_SLUGS)[number]}`[];
+const FOUNDATION_CONCEPT_SECTION_SLUGS = new Set<
+  (typeof FOUNDATION_CHAIN_SLUGS)[number]
+>(["latent-space"]);
+
+function getFoundationPageUrl(
+  slug: (typeof FOUNDATION_CHAIN_SLUGS)[number],
+): string {
+  return FOUNDATION_CONCEPT_SECTION_SLUGS.has(slug)
+    ? `/docs/concepts/${slug}`
+    : `/docs/glossary/${slug}`;
+}
+
+const FOUNDATION_CHAIN_URLS = FOUNDATION_CHAIN_SLUGS.map((slug) =>
+  getFoundationPageUrl(slug),
+);
 
 const FOUNDATION_CHAIN_CONCEPT_IDS = FOUNDATION_CHAIN_SLUGS.map(
   (slug) => `concept.${slug}`,
@@ -212,9 +224,14 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
 
     test("each foundation slug has MDX content and a Fumadocs source entry", () => {
       for (const slug of FOUNDATION_CHAIN_SLUGS) {
-        const pageMdx = join(GLOSSARY_DOCS_ROOT, slug, "page.mdx");
+        const section = FOUNDATION_CONCEPT_SECTION_SLUGS.has(slug)
+          ? "concepts"
+          : "glossary";
+        const pageRoot =
+          section === "concepts" ? CONCEPTS_DOCS_ROOT : GLOSSARY_DOCS_ROOT;
+        const pageMdx = join(pageRoot, slug, "page.mdx");
         expect(existsSync(pageMdx)).toBe(true);
-        expect(source.getPage(["glossary", slug])).toBeDefined();
+        expect(source.getPage([section, slug])).toBeDefined();
       }
     });
   });
@@ -297,13 +314,21 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
   describe("localized messages", () => {
     for (const slug of FOUNDATION_CHAIN_SLUGS) {
       test(`${slug} colocated messages resolve required concept template keys`, async () => {
-        const messagesPath = join(GLOSSARY_DOCS_ROOT, slug, "messages/en.json");
+        const section = FOUNDATION_CONCEPT_SECTION_SLUGS.has(slug)
+          ? "concepts"
+          : "glossary";
+        const pageRoot =
+          section === "concepts" ? CONCEPTS_DOCS_ROOT : GLOSSARY_DOCS_ROOT;
+        const messagesPath = join(pageRoot, slug, "messages/en.json");
         const messages = pageMessagesSchema.parse(
           JSON.parse(readFileSync(messagesPath, "utf8")),
         );
         assertConceptTemplateMessages(messages);
 
-        const page = await loadGlossaryPage(slug);
+        const page =
+          section === "concepts"
+            ? await loadConceptPage(slug)
+            : await loadGlossaryPage(slug);
         expect(page.messages.title).toBe(messages.title);
         expect(page.frontmatter.registryId).toBe(`concept.${slug}`);
       });
@@ -339,14 +364,19 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
       };
 
       for (const slug of FOUNDATION_CHAIN_SLUGS) {
-        const url = `/docs/glossary/${slug}`;
+        const url = getFoundationPageUrl(slug);
         const document = documents.find((entry) => entry.url === url);
-        const page = await loadGlossaryPage(slug);
+        const page = FOUNDATION_CONCEPT_SECTION_SLUGS.has(slug)
+          ? await loadConceptPage(slug)
+          : await loadGlossaryPage(slug);
+        const expectedKind = FOUNDATION_CONCEPT_SECTION_SLUGS.has(slug)
+          ? "concept"
+          : "glossary";
 
         expect(document).toBeDefined();
         expect(document?.title).toBe(page.messages.title);
-        expect(document?.kind).toBe("glossary");
-        expect(document?.facets.kind).toBe("glossary");
+        expect(document?.kind).toBe(expectedKind);
+        expect(document?.facets.kind).toBe(expectedKind);
         expect(document?.url).toBe(url);
         expect(document?.registryId).toBe(`concept.${slug}`);
         expect(document?.tags).toEqual(
