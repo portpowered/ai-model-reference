@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createElement } from "react";
@@ -24,8 +24,11 @@ import { docsSearchApi } from "@/lib/search/search-server";
 
 const REGISTRY_ID = "concept.flow-matching";
 const CONCEPT_URL = "/docs/concepts/flow-matching";
+const VECTOR_FIELD_GRAPH_ID = "graph.flow-matching-vector-field-flow";
 const pageDir = getDocsPageDir("concepts", "flow-matching");
 const messagesPath = join(pageDir, "messages/en.json");
+
+setDefaultTimeout(15_000);
 
 const EXPECTED_RELATED_IDS = [
   "training-regime.diffusion-training-objective",
@@ -211,5 +214,56 @@ describe("flow matching concept page (flow-matching-concept-page-002)", () => {
 
     expect(page?.url).toBe(CONCEPT_URL);
     expect(page?.frontmatter.registryId).toBe(REGISTRY_ID);
+  });
+});
+
+describe("flow matching vector field intuition (flow-matching-concept-page-003)", () => {
+  test("messages teach vector fields as direction-and-speed rules with training pairs before math", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const body = messages.sections?.vectorFieldIntuition.body ?? "";
+    expect(body.toLowerCase()).toContain("vector field");
+    expect(body.toLowerCase()).toContain("direction");
+    expect(body.toLowerCase()).toContain("speed");
+    expect(body.toLowerCase()).toContain("current");
+    expect(body.toLowerCase()).toContain("time");
+    expect(body.toLowerCase()).toContain("velocity");
+    expect(body.toLowerCase()).toContain("target");
+    expect(
+      messages.math?.velocityMatchingObjective?.variableDefinitions?.vtheta
+        ?.definition,
+    ).toContain("velocity");
+    expect(
+      messages.assets?.vectorFieldFlow?.legend?.["data-flow"]?.label,
+    ).toBeTruthy();
+  });
+
+  test("page renders vector field section, training flow graph, and velocity objective math", async () => {
+    const page = await loadConceptPage("flow-matching");
+    const vectorFieldAsset = page.assets.vectorFieldFlow;
+    expect(vectorFieldAsset?.type).toBe("graph");
+    if (vectorFieldAsset?.type === "graph") {
+      expect(vectorFieldAsset.graphId).toBe(VECTOR_FIELD_GRAPH_ID);
+    }
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("Vector Field Intuition");
+    expect(html).toContain("direction-and-speed");
+    expect(html).toContain("data-page-math-variable-definitions");
+    expect(html).toContain('data-math-variable-definition="vtheta"');
+    expect(html).toContain('data-math-variable-definition="targetvelocity"');
+    expect(html).toContain("katex");
+    expect(html).toContain(`data-graph-id="${VECTOR_FIELD_GRAPH_ID}"`);
+    expect(html).toContain("Training pairs current states");
   });
 });
