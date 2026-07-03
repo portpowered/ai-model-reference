@@ -134,10 +134,7 @@ describe("published docs routing contract", () => {
   });
 
   test("presence, related-doc hrefs, and prose auto-links stay aligned for representative concept routes", () => {
-    const relu = requireRecord(
-      getConceptById("concept.relu"),
-      "relu concept",
-    );
+    const relu = requireRecord(getConceptById("concept.relu"), "relu concept");
     const quantization = requireRecord(
       getConceptById("concept.quantization"),
       "quantization concept",

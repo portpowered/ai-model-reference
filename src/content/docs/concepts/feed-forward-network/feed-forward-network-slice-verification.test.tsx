@@ -17,7 +17,16 @@ import { ModulePageProviders } from "@/features/docs/components/ModulePageProvid
 import { loadConceptPage } from "@/lib/content/concept-page";
 import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
-import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import {
+  getPublishedDocsEntriesBySlug,
+  getPublishedDocsEntryByRegistryId,
+  getPublishedDocsHrefForRecord,
+  hasPublishedDocsPageForRecord,
+  MODULE_BACKED_CONCEPT_REGISTRY_IDS,
+  PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
+import { registryRecordHref } from "@/lib/content/registry-linking";
 import {
   getConceptById,
   listRelatedRegistryRecords,
@@ -45,6 +54,31 @@ async function renderFeedForwardNetworkPageHtml(): Promise<string> {
 }
 
 describe("feed-forward network slice verification (feed-forward-network-concept-page-current-main-005)", () => {
+  test("published concept-section routing resolves ahead of the module-backed slug", () => {
+    const record = getConceptById(REGISTRY_ID);
+    if (!record) {
+      throw new Error("expected concept.feed-forward-network in registry");
+    }
+
+    const publishedConceptEntry =
+      getPublishedDocsEntryByRegistryId(REGISTRY_ID);
+    const publishedModuleEntry = getPublishedDocsEntryByRegistryId(
+      "module.feed-forward-network",
+    );
+
+    expect(PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has(REGISTRY_ID)).toBe(true);
+    expect(hasPublishedDocsPageForRecord(record)).toBe(true);
+    expect(getPublishedDocsEntryByRegistryId(REGISTRY_ID)).toEqual(
+      publishedConceptEntry,
+    );
+    expect(getPublishedDocsEntriesBySlug(record.slug)).toEqual(
+      expect.arrayContaining([publishedConceptEntry, publishedModuleEntry]),
+    );
+    expect(MODULE_BACKED_CONCEPT_REGISTRY_IDS.has(REGISTRY_ID)).toBe(true);
+    expect(getPublishedDocsHrefForRecord(record)).toBe(PAGE_URL);
+    expect(registryRecordHref(record)).toBe(PAGE_URL);
+  });
+
   test("published route, registry record, bundled messages, and assets stay aligned", async () => {
     const record = getConceptById(REGISTRY_ID);
     const page = await loadLocalDocsPage({
