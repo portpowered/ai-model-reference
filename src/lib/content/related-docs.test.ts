@@ -854,11 +854,15 @@ describe("related-docs", () => {
         "module.diffusion-transformer-block",
       );
     }
+    if (getRegistryRecordById("module.u-net")) {
+      expect(compatibilityPeerIds).toContain("module.u-net");
+    }
     expect(
       compatibilityPeerIds.every((registryId) =>
         [
           "module.manifold-constrained-hyper-connections",
           "module.diffusion-transformer-block",
+          "module.u-net",
         ].includes(registryId),
       ),
     ).toBe(true);

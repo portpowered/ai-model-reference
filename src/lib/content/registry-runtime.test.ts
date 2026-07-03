@@ -569,7 +569,7 @@ describe("registry-runtime", () => {
     ).toEqual([
       {
         id: "classification.module",
-        directMemberCount: 1,
+        directMemberCount: 2,
         totalMemberCount: expect.any(Number),
         childClassificationIds: [
           "classification.module.activation",
@@ -581,7 +581,7 @@ describe("registry-runtime", () => {
           "classification.module.tokenization",
           "classification.module.transformer-block",
         ],
-        childRecordIds: ["module.multi-token-prediction"],
+        childRecordIds: ["module.multi-token-prediction", "module.u-net"],
       },
     ]);
 
