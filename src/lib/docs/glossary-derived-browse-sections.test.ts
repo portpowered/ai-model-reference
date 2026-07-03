@@ -319,7 +319,7 @@ describe("glossary derived browse sections", () => {
   });
 
   test.each([
-    { query: "temperature", url: "/docs/glossary/temperature" },
+    { query: "temperature", url: "/docs/concepts/temperature" },
     { query: "KV cache", url: "/docs/glossary/kv-cache" },
     { query: "quantization", url: "/docs/concepts/quantization" },
     { query: "prefill", url: "/docs/concepts/prefill" },
