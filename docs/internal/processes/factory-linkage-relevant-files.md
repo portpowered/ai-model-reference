@@ -43,6 +43,14 @@ watchdog summaries, or planner-facing linkage reports.
   outcomes for safe stale-drift restore vs operator handoff plus content-lane
   hold/release decisions. See
   [latent-diffusion-root-deletion-reconciliation-relevant-files](./latent-diffusion-root-deletion-reconciliation-relevant-files.md).
+* `src/lib/factory/ownerless-generated-table-registry-drift.ts` — read-only
+  evidence capture for the ownerless generated table registry drift priority
+  blocker: records root `HEAD`, `origin/main`, ahead/behind relationship,
+  scoped dirty status for
+  `src/lib/content/generated/table-registry.generated.ts`, and
+  `looped-transformers-comparison.json` import/source-list/payload observation.
+  See
+  [ownerless-generated-table-registry-drift-relevant-files](./ownerless-generated-table-registry-drift-relevant-files.md).
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 * `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` — read-only
@@ -74,6 +82,7 @@ watchdog summaries, or planner-facing linkage reports.
 | Terminal or near-terminal lane landing audit against main | `bun run report:terminal-lane-main-branch-landing-audit` |
 | Root checkout reconciliation against HEAD and origin/main | `bun run report:planner-root-checkout-reconciliation` |
 | Latent diffusion root deletion landed-evidence verification | `bun run report:planner-latent-diffusion-root-deletion-reconciliation` |
+| Ownerless generated table registry drift evidence capture | `bun run report:ownerless-generated-table-registry-drift` |
 | Merged PR drain row evidence for PRs #281/#282/#284/#286 | `bun run report:merged-pr-drain-rows-reconciliation` |
 
 Direct script paths remain supported for fixture-driven tests:

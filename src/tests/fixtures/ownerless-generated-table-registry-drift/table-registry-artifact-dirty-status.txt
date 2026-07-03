@@ -1,0 +1,1 @@
+ M src/lib/content/generated/table-registry.generated.ts
