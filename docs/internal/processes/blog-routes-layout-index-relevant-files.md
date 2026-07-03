@@ -47,3 +47,5 @@ Use these files when extending the default English blog surface at `/blog` and
   so the blog index stays documentation-native rather than a marketing landing page.
 * Static render tests should assert React `dateTime` attributes, not lowercase
   `datetime`, when checking published-date markup.
+* Assert newest-first card order in route render tests with `indexOf` on
+  `/blog/<slug>` hrefs; loader ordering stays in `blog-post-list.test.ts`.

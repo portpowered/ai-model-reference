@@ -38,6 +38,12 @@ const validMessages = {
   takeaway: "Published posts appear on the blog index.",
 };
 
+function blogPostHrefPosition(html: string, slug: string): number {
+  const position = html.indexOf(`href="/blog/${slug}"`);
+  expect(position).toBeGreaterThanOrEqual(0);
+  return position;
+}
+
 describe("blog index messages", () => {
   it("loads localized copy for the blog index page", async () => {
     const messages = await loadUiMessages();
@@ -124,6 +130,35 @@ describe("blog index page render", () => {
     expect(html).toContain('dateTime="2026-06-10"');
     expect(html).toContain("Attention");
     expect(html).toContain("Kv Cache");
+  });
+
+  it("orders index cards newest-first by publishedAt", async () => {
+    await writeFixturePost({
+      slug: "older-fixture-post",
+      status: "published",
+      publishedAt: "2026-05-01",
+      title: "Older Fixture Post",
+    });
+    await writeFixturePost({
+      slug: "newer-fixture-post",
+      status: "published",
+      publishedAt: "2026-06-15",
+      title: "Newer Fixture Post",
+    });
+    await writeFixturePost({
+      slug: "hidden-newer-draft",
+      status: "draft",
+      publishedAt: "2026-07-01",
+      title: "Hidden Newer Draft",
+    });
+
+    const page = await renderBlogIndexPage("en", { blogRoot: tempRoot });
+    const html = renderToStaticMarkup(page);
+
+    expect(blogPostHrefPosition(html, "newer-fixture-post")).toBeLessThan(
+      blogPostHrefPosition(html, "older-fixture-post"),
+    );
+    expect(html).not.toContain('href="/blog/hidden-newer-draft"');
   });
 
   it("renders a clear empty state when no published posts are visible", async () => {
