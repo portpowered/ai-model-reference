@@ -49,6 +49,9 @@ Use these files when extending the default English blog surface at `/blog` and
 * PR review may require a clean local `make test`; unrelated search/glossary convergence
   rows can time out under full-suite load—extend per-test timeouts rather than
   changing blog route code when CI is already green.
+* Factory git subprocesses in planner modules must use `createIsolatedGitProcessEnv`
+  so inherited `GIT_DIR` / `GIT_WORK_TREE` from nested worktrees do not redirect
+  tmp fixture repos during full `make test` runs.
 
 ## Patterns
 
