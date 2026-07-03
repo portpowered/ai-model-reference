@@ -1,0 +1,45 @@
+{
+  "title": "Throughput Vs Latency",
+  "description": "The serving tradeoff between aggregate completed work over time and the wait one request experiences under load.",
+  "openingSummary": "Throughput vs latency is the serving tradeoff between how much work a deployment completes over time and how long one request waits. Higher concurrency can raise aggregate throughput while making an individual answer feel slower.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Throughput vs latency names the tension between fleet-level capacity and one reader's wait. Throughput measures aggregate completed work over time—tokens generated, requests finished, or jobs cleared across many active streams. Latency measures the delay one request experiences, from queue admission through streaming gaps to the final token. The same deployment can report strong throughput while one answer still waits longer in line or between tokens."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Operators optimize for utilization and cost per completed unit, while readers judge responsiveness from their own wait. Serving more concurrent work can improve aggregate throughput without shortening any single response. Confusing the two metrics leads teams to celebrate headline capacity while users still see slow starts, uneven streaming, or long queue times."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine one accelerator finishing ten short answers in parallel versus one answer alone. The batched window may complete more total tokens per second across the fleet, but each reader may wait longer before streaming starts or see wider gaps between tokens. The throughput figure rises because more work shares each step; the latency each reader feels can still worsen."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Throughput vs latency is not the same as time to first token, inter-token latency, or tokens per second alone. Those metrics each isolate one slice of the wait or output rate. This page explains why aggregate throughput and individual latency can move in opposite directions under concurrency, batching, and shared serving resources."
+    },
+    "servingPath": {
+      "title": "Go Deeper Into Serving",
+      "body": "The sections above name the tradeoff in plain terms. Follow the links below to the serving pages that explain the latency metrics, throughput rate, and execution stages behind the tension."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "timeToFirstToken": "Time to first token",
+    "interTokenLatency": "Inter-token latency",
+    "tokensPerSecond": "Tokens per second",
+    "prefill": "Prefill",
+    "decode": "Decode",
+    "kvCache": "KV cache",
+    "prefillDecodeSplit": "Prefill/decode split"
+  }
+}
