@@ -139,6 +139,15 @@ inventory checks. Supported fixture flags:
   `table-registry-drift-dirty-status.txt`)
 * `--session` for live `you work list` discovery in integration-style tests
 
+Story 004 end-to-end fixture verification uses the shared representative
+fixture in `linkage-classifier-report-compatibility.test.ts` (PR-backed
+conflict-drift lane, actionable gap, stale loopback noise, and queue-only
+missing-linkage noise) plus per-script discovery tests under
+`src/tests/discovery/active-pr-mergeability-watchdog.test.ts` and
+`src/tests/discovery/queue-worktree-pr-linkage-ledger.test.ts`. Ledger rows
+surface stale stamped linkage in `metadata-refresh=` separately from primary
+`missing=` reasons.
+
 Representative regression coverage lives in
 `src/tests/discovery/linkage-classifier-report-compatibility.test.ts`,
 `src/tests/discovery/tokens-per-second-stale-pr-follow-up-compatibility.test.ts`
