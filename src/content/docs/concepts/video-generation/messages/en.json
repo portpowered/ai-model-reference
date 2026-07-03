@@ -35,8 +35,20 @@
   },
   "assets": {
     "generationPathsMap": {
+      "title": "Frame-level and visual-token generation paths",
       "alt": "Diagram contrasting frame-level video generation, where adjacent frames must agree, with visual-token generation, where patches are predicted across space and time.",
-      "caption": "Two common output shapes for video generation: full frames or latents decoded over time, versus visual tokens predicted across space and time."
+      "caption": "Two common output shapes for video generation: full frames or latents decoded over time, versus visual tokens predicted across space and time.",
+      "legend": {
+        "data-flow": {
+          "label": "Generation path over time"
+        },
+        "process-node": {
+          "label": "Output shape or time axis"
+        },
+        "annotation": {
+          "label": "Consistency or mechanism detail"
+        }
+      }
     }
   },
   "graph": {

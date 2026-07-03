@@ -206,6 +206,10 @@ from a `*_PAGE_DIR` import or `join(sectionRoot, slug)` to the derived lookup.
 * `src/content/docs/<section>/<slug>/`
   Canonical page bundle layout (`page.mdx`, `messages/`, `assets.json`, graphs,
   and related colocated files).
+* Concept teaching graphs wired through `<ConceptMap />` must define message-backed
+  `assets.<assetId>.title` and `assets.<assetId>.legend` entries (same shape as
+  `<ModuleGraph />`); `ConceptMap` delegates to `RegistryGraphFlow` via
+  `buildRegistryGraphLegend`.
 * `src/content/registry/`
   Registry JSON records that connect published pages to taxonomy, graphs, and
   runtime loaders.

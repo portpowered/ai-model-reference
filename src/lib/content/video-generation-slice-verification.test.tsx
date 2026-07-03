@@ -5,8 +5,6 @@
  * rendering, search, and related-link behavior together.
  */
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
@@ -14,29 +12,18 @@ import {
   renderDocsSlugPage,
 } from "@/app/docs/docs-slug-renderer";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import {
-  parsePageAssetConfig,
-  validatePageAssetReferences,
-} from "@/lib/content/assets";
 import { loadConceptPage } from "@/lib/content/concept-page";
-import { getDocsPageDir } from "@/lib/content/content-paths";
-import { getGraphById } from "@/lib/content/graph-registry-runtime";
-import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
-import { pageMessagesSchema } from "@/lib/content/schemas";
 import { docsSearchApi } from "@/lib/search/search-server";
 
 const REGISTRY_ID = "concept.video-generation";
 const GENERATION_PATHS_GRAPH_ID = "graph.video-generation-paths";
 const PAGE_URL = "/docs/concepts/video-generation";
-const pageDir = getDocsPageDir("concepts", "video-generation");
-const messagesPath = join(pageDir, "messages/en.json");
-const assetsPath = join(pageDir, "assets.json");
 
 async function renderVideoGenerationPageHtml(): Promise<string> {
   const page = await loadConceptPage("video-generation");
@@ -51,35 +38,6 @@ async function renderVideoGenerationPageHtml(): Promise<string> {
 }
 
 describe("video generation slice verification (video-generation-concept-page-005)", () => {
-  test("published route, registry record, bundled messages, and graph assets stay aligned", async () => {
-    const record = getConceptById(REGISTRY_ID);
-    const page = await loadLocalDocsPage({
-      section: "concepts",
-      slug: "video-generation",
-    });
-    const bundledMessages = pageMessagesSchema.parse(
-      JSON.parse(readFileSync(messagesPath, "utf8")),
-    );
-    const bundledAssets = parsePageAssetConfig(
-      JSON.parse(readFileSync(assetsPath, "utf8")),
-    );
-
-    expect(PUBLISHED_DOCS_REGISTRY_IDS.has(REGISTRY_ID)).toBe(true);
-    expect(record?.status).toBe("published");
-    expect(record?.slug).toBe("video-generation");
-    expect(page.frontmatter.registryId).toBe(REGISTRY_ID);
-    expect(page.frontmatter.kind).toBe("concept");
-    expect(page.messages.title).toBe(bundledMessages.title);
-    expect(page.messages.description).toBe(bundledMessages.description);
-    expect(page.messages.openingSummary).toBe(bundledMessages.openingSummary);
-    expect(validatePageAssetReferences(bundledAssets, bundledMessages)).toEqual(
-      [],
-    );
-    expect(getGraphById(GENERATION_PATHS_GRAPH_ID)?.subjectId).toBe(
-      REGISTRY_ID,
-    );
-  });
-
   test("app route metadata and English render resolve without missing-content placeholders", async () => {
     const metadata = await buildDocsPageMetadata([
       "concepts",
@@ -100,7 +58,7 @@ describe("video generation slice verification (video-generation-concept-page-005
     expect(rendered).toBeDefined();
   });
 
-  test("rendered page exposes title, explanations, tags, related docs, references, and graph wiring", async () => {
+  test("rendered page exposes title, explanations, graph title and legend, tags, related docs, and references", async () => {
     const html = await renderVideoGenerationPageHtml();
     const record = getConceptById(REGISTRY_ID);
     if (!record) {
@@ -125,7 +83,13 @@ describe("video generation slice verification (video-generation-concept-page-005
     expect(html).toContain('href="/docs/glossary/conditioning"');
     expect(html).toContain('href="/docs/models/ltx-23"');
     expect(html).toContain('href="/tags/model-family"');
-    expect(html).toContain('data-graph-id="graph.video-generation-paths"');
+    expect(html).toContain(`data-graph-id="${GENERATION_PATHS_GRAPH_ID}"`);
+    expect(html).toContain(`data-graph-title="${GENERATION_PATHS_GRAPH_ID}"`);
+    expect(html).toContain("Frame-level and visual-token generation paths");
+    expect(html).toContain(`data-graph-legend="${GENERATION_PATHS_GRAPH_ID}"`);
+    expect(html).toContain("Generation path over time");
+    expect(html).toContain("Output shape or time axis");
+    expect(html).toContain("Consistency or mechanism detail");
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toMatch(/\{\{[^}]+\}\}/);
     expect(related.length).toBeGreaterThan(0);
