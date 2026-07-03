@@ -237,7 +237,7 @@ describe("graph-flow", () => {
       resolvedSummary:
         "Per-token dense transformation inside each decoder block",
       hasCanonicalPage: true,
-      canonicalPageHref: "/docs/concepts/feed-forward-network",
+      canonicalPageHref: "/docs/modules/feed-forward-network",
     });
     expect(decoderStackNode?.data.semantic).toMatchObject({
       registryId: "concept.transformer-architecture",

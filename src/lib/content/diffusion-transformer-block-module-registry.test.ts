@@ -131,7 +131,7 @@ describe("diffusion transformer block module registry slice (diffusion-transform
     expect(
       items.find((item) => item.registryId === "module.feed-forward-network")
         ?.href,
-    ).toBe("/docs/concepts/feed-forward-network");
+    ).toBe("/docs/modules/feed-forward-network");
     expect(
       items.find((item) => item.registryId === "concept.denoising-generation")
         ?.href,

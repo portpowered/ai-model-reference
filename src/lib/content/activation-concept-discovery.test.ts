@@ -16,7 +16,7 @@ const DISCOVERY_HREFS = [
   "/docs/modules/leaky-relu",
   "/docs/modules/silu",
   "/docs/modules/swiglu",
-  "/docs/concepts/feed-forward-network",
+  "/docs/modules/feed-forward-network",
 ] as const;
 
 describe("Activation concept page discovery (activation-concept-current-main-page-003)", () => {
@@ -48,7 +48,7 @@ describe("Activation concept page discovery (activation-concept-current-main-pag
     expect(
       items.find((item) => item.registryId === "module.feed-forward-network")
         ?.href,
-    ).toBe("/docs/concepts/feed-forward-network");
+    ).toBe("/docs/modules/feed-forward-network");
     expect(items.find((item) => item.registryId === "module.relu")?.href).toBe(
       "/docs/modules/relu",
     );

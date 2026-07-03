@@ -35,14 +35,16 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
       "concept.transformer-architecture",
       "concept.standard-ffn",
       "concept.mixture-of-experts",
-      "concept.activation",
+      "concept.swiglu",
+      "concept.relu",
+      "concept.silu",
     ]);
     expect(
       PUBLISHED_DOCS_REGISTRY_IDS.has("concept.feed-forward-network"),
     ).toBe(true);
   });
 
-  test("curated related links transformer architecture, standard FFN, mixture of experts, and activation", () => {
+  test("curated related links resolve transformer architecture, standard FFN, mixture of experts, SwiGLU, ReLU, and SiLU", () => {
     const source = getConceptById("concept.feed-forward-network");
     if (!source) {
       throw new Error("expected concept.feed-forward-network in registry");
@@ -72,11 +74,17 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
     expect(moe?.href).toBe("/docs/concepts/mixture-of-experts");
     expect(moe?.isPlanned).toBe(false);
 
-    const activation = items.find(
-      (item) => item.registryId === "concept.activation",
-    );
-    expect(activation?.href).toBe("/docs/concepts/activation");
-    expect(activation?.isPlanned).toBe(false);
+    const swiglu = items.find((item) => item.registryId === "concept.swiglu");
+    expect(swiglu?.href).toBe("/docs/modules/swiglu");
+    expect(swiglu?.isPlanned).toBe(false);
+
+    const relu = items.find((item) => item.registryId === "concept.relu");
+    expect(relu?.href).toBe("/docs/modules/relu");
+    expect(relu?.isPlanned).toBe(false);
+
+    const silu = items.find((item) => item.registryId === "concept.silu");
+    expect(silu?.href).toBe("/docs/modules/silu");
+    expect(silu?.isPlanned).toBe(false);
   });
 
   test("messages describe the FFN family using module-template sections", () => {

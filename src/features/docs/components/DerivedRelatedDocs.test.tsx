@@ -36,7 +36,7 @@ describe("DerivedRelatedDocs", () => {
     expect(html).not.toContain(
       'data-related-group="compatibility-same-variant-group"',
     );
-    expect(html).toContain('href="/docs/concepts/feed-forward-network"');
+    expect(html).toContain('href="/docs/modules/feed-forward-network"');
     expect(html).toContain('href="/docs/modules/swiglu"');
     expect(html).toContain('href="/docs/modules/relu"');
     expect(html).toContain("Direct variant relationship");
@@ -54,7 +54,7 @@ describe("DerivedRelatedDocs", () => {
 
     expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-related-group="direct-relationships"');
-    expect(html).toContain('href="/docs/concepts/feed-forward-network"');
+    expect(html).toContain('href="/docs/modules/feed-forward-network"');
     expect(html).toContain('href="/docs/concepts/activation"');
     expect(html).toContain("Direct variant relationship");
     expect(html).toContain("Uses this topic");

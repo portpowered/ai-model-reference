@@ -25,7 +25,7 @@ const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 const TRANSFORMER_ARCHITECTURE_URL = "/docs/concepts/transformer-architecture";
 const PAGE_SPEC_WORKFLOW_SAMPLE_URL =
   "/docs/concepts/page-spec-workflow-sample";
-const FEED_FORWARD_NETWORK_URL = "/docs/concepts/feed-forward-network";
+const FEED_FORWARD_NETWORK_URL = "/docs/modules/feed-forward-network";
 const STANDARD_FFN_URL = "/docs/modules/standard-ffn";
 const NORMALIZATION_URL = "/docs/glossary/normalization";
 const LAYER_NORM_URL = "/docs/modules/layer-norm";
