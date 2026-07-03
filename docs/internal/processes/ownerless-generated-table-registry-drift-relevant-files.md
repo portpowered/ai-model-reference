@@ -21,7 +21,12 @@ The observed table entry under investigation is
   scoped dirty status for the generated artifact, and
   `looped-transformers-comparison.json` import/source-list/payload observation
   from HEAD, worktree, and scoped diff excerpts. Resolves the main repo root
-  from nested worktrees via `resolveMainRepoRoot`. Classification helpers
+  from nested worktrees via `resolveMainRepoRoot`. Git subprocesses use
+  `createIsolatedGitProcessEnv` so inherited `GIT_DIR` / `GIT_WORK_TREE`
+  values from nested worktrees do not redirect fixture-repo evidence capture.
+  Classification helpers
+  (`classifyGeneratedTableRegistryArtifactStatus`,
+  `buildTableRegistryRegenerationProof`) emit exactly one primary status
   (`classifyGeneratedTableRegistryArtifactStatus`,
   `buildTableRegistryRegenerationProof`) emit exactly one primary status
   (`expected`, `stale`, `owned`, `ownerless`) backed by deterministic table

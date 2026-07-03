@@ -158,6 +158,7 @@ export type DocsMessages = {
   browseIndex: BrowseIndexMessages;
   glossaryIndex: SectionIndexMessages;
   architectureIndex: SectionIndexMessages;
+  blogIndex: SectionIndexMessages;
   pageKind: Record<string, string>;
 };
 
@@ -341,6 +342,7 @@ export const UI_MESSAGES_COMPATIBILITY_KEYS = [
   "systemsIndex",
   "glossaryIndex",
   "architectureIndex",
+  "blogIndex",
   "topologyPrototype",
   "tagsIndex",
   "tagLanding",

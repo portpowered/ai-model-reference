@@ -232,6 +232,14 @@
     "emptyDescription": "Các trang khái niệm kiến trúc đã xuất bản và các trang trong nhóm nội dung kiến trúc sẽ xuất hiện ở đây. Trong lúc này, hãy quay lại trang chủ hoặc mở tìm kiếm để khám phá module và thẻ.",
     "emptyHomeLink": "Về trang chủ"
   },
+  "blogIndex": {
+    "title": "Blog",
+    "description": "Các bài viết kể chuyện kết nối bản phát hành và khái niệm serving với các trang tham chiếu chuẩn.",
+    "listLabel": "Bài viết blog",
+    "emptyTitle": "Chưa có bài viết blog nào",
+    "emptyDescription": "Các bài viết kể chuyện đã xuất bản sẽ xuất hiện ở đây khi được thêm vào atlas. Trong lúc này, hãy quay lại trang chủ hoặc mở tìm kiếm để khám phá mô hình, module, và khái niệm.",
+    "emptyHomeLink": "Về trang chủ"
+  },
   "topologyPrototype": {
     "title": "Topology",
     "description": "Các quan hệ topology giữa classification, concept, và module đã xuất bản.",

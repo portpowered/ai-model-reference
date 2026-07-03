@@ -5,6 +5,23 @@ import type {
   RunCommand,
 } from "@/lib/factory/active-pr-mergeability-watchdog";
 
+const GIT_ISOLATION_ENV_KEYS = [
+  "GIT_COMMON_DIR",
+  "GIT_DIR",
+  "GIT_INDEX_FILE",
+  "GIT_WORK_TREE",
+] as const;
+
+export function createIsolatedGitProcessEnv(
+  baseEnv: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv {
+  const env = { ...baseEnv };
+  for (const key of GIT_ISOLATION_ENV_KEYS) {
+    delete env[key];
+  }
+  return env;
+}
+
 function defaultRunCommand(
   binary: string,
   args: string[],
@@ -13,7 +30,7 @@ function defaultRunCommand(
   const result = spawnSync(binary, args, {
     cwd,
     encoding: "utf8",
-    env: process.env,
+    env: createIsolatedGitProcessEnv(),
   });
   return {
     ok: result.status === 0,

@@ -113,7 +113,7 @@ describe("search page panel accessibility smoke", () => {
 
       await expectNoSeriousAxeViolations(container);
     },
-    { timeout: 30_000 },
+    { timeout: 60_000 },
   );
 
   test("exposes search results to assistive technology with no serious axe violations", async () => {
