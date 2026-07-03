@@ -1,0 +1,86 @@
+{
+  "title": "Video generation",
+  "description": "Models that produce moving visual sequences by generating or refining frames—or visual tokens arranged over time—while keeping motion, identity, and appearance coherent from one moment to the next.",
+  "openingSummary": "Video generation builds a sequence of visual states over time, so the hard problem is not only what each frame should look like but how those frames stay temporally consistent as objects move, cameras shift, and lighting changes.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Video generation is the task of producing a moving visual sequence rather than a single still image. The model must represent how visual state changes over time—where objects sit, how they move, and how the scene evolves—not only what one snapshot should contain. A system may output full frames, latent grids that decode into frames, or visual tokens that represent patches across space and time. The output is always ordered: frame one comes before frame two, and readers judge the result by whether the sequence feels like one continuous scene instead of unrelated pictures."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Image generation asks what one picture should contain. Video generation adds time as a hard modeling axis: the model must predict how the scene changes from one moment to the next while keeping temporal consistency across frames. Readers notice that consistency through stable identity, object location, camera motion, lighting, style, and physical continuity—a person should stay the same person, a cup should not teleport, a rolling object should follow believable motion, and shadows should move with the light source. Failures show up as flicker, object drift, broken physics, and style shifts that a single-frame model never has to solve. Conditioning guides generation across the whole clip: text can set the subject and action, a reference image can lock appearance, previous frames can carry motion forward, and layout or motion controls can steer composition and camera paths. Different models accept different conditioning signals, so a capability in one system does not imply every system supports it."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A text-to-video model receives a prompt such as \"a red ball rolling across a wooden floor.\" The text conditions what should appear and how it should move. The model may denoise a stack of latent frames over many steps or predict visual tokens frame by frame, reusing guidance from the prompt and from earlier frames at each time step. A convincing clip keeps temporal consistency: the ball stays red and round, its location advances smoothly along the floor, the camera viewpoint stays steady, and the wood grain and lighting stay coherent. A weak clip might change the ball's color, float it off the floor, jump between unrelated backgrounds, or break physical continuity frame to frame."
+    },
+    "generationPaths": {
+      "title": "Frame And Token Generation Paths",
+      "body": "Video systems usually follow one of two broad output shapes, and many real models blend pieces of both.\n\nFrame-level generation produces or refines full visual frames—or latent grids that decode into frames—across an ordered time axis. Each step targets a moment in the clip, and adjacent frames must agree with one another: object identity, location, camera motion, lighting, and style should evolve smoothly instead of jumping. A diffusion-style stack may denoise noisy latents for many steps before decoding pixels, while other systems refine frame latents directly; the shared requirement is temporal agreement between neighbors, not a single still image in isolation.\n\nVisual-token generation represents image or video patches as discrete or continuous tokens that a model predicts over space and time. Instead of writing every pixel at once, the system predicts the next patch token, the next frame's token grid, or a joint space-time block, then decodes tokens back into pixels. Tokens compress local appearance and motion cues so autoregressive-style prediction can march forward through the sequence.\n\nDiffusion-style denoising and autoregressive-style token prediction can both appear in video systems, sometimes in the same model. This page describes those paths as concepts rather than ranking one recipe above another. The diagram below contrasts frame-level and visual-token generation over time."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Video generation is not the same as generating a longer or higher-resolution image, and the extra difficulty is not simply more pixels or more compute. A bigger still image does not need coherent motion, stable object location across moments, or conditioning that stays aligned across an entire clip. It is also not one fixed recipe: systems may use diffusion-style denoising, autoregressive token prediction, visual tokenization, or hybrids, and they differ in how they enforce consistency across frames. Conditioning types vary by model—text, images, previous frames, layout, and motion controls are common, but no single system supports every signal."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "generationPathsMap": {
+      "title": "Frame-level and visual-token generation paths",
+      "alt": "Diagram contrasting frame-level video generation, where adjacent frames must agree, with visual-token generation, where patches are predicted across space and time.",
+      "caption": "Two common output shapes for video generation: full frames or latents decoded over time, versus visual tokens predicted across space and time.",
+      "legend": {
+        "data-flow": {
+          "label": "Generation path over time"
+        },
+        "process-node": {
+          "label": "Output shape or time axis"
+        },
+        "annotation": {
+          "label": "Consistency or mechanism detail"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "videoClip": {
+        "label": "Video clip over ordered time",
+        "summary": "A sequence of moments where frame one precedes frame two."
+      },
+      "frameLevel": {
+        "label": "Frame-level generation",
+        "summary": "Produce or refine full frames or latent grids per time step."
+      },
+      "visualTokens": {
+        "label": "Visual-token generation",
+        "summary": "Represent patches as tokens the model predicts over space and time."
+      },
+      "frameAgreement": {
+        "label": "Adjacent frames must agree",
+        "summary": "Identity, location, camera motion, lighting, and style stay coherent between neighbors."
+      },
+      "frameMechanisms": {
+        "label": "Diffusion-style denoising or latent decode",
+        "summary": "Common frame paths; not the only recipe."
+      },
+      "tokenSpaceTime": {
+        "label": "Tokens over space and time",
+        "summary": "Patch tokens carry local appearance and motion across the sequence."
+      },
+      "tokenMechanisms": {
+        "label": "Autoregressive or hybrid prediction",
+        "summary": "Predict next tokens or blocks, then decode to pixels."
+      }
+    }
+  }
+}

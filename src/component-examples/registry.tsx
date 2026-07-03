@@ -17,6 +17,10 @@ import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
 import { SearchResultMetaDetails } from "@/features/docs/search/SearchResultMetaDetails";
+import { GenerationEvolutionTimeline } from "@/features/generation-evolution/GenerationEvolutionTimeline";
+import { DEFAULT_GENERATION_EVOLUTION_BLOG_DATA } from "@/features/generation-evolution/generation-evolution-data";
+import { DEFAULT_TRAINING_SIGNAL_CHART_INPUT } from "@/features/graphs/training-signal/default-training-signal-timeline";
+import { TrainingSignalStackedChart } from "@/features/graphs/training-signal/TrainingSignalStackedChart";
 import {
   SAME_CONCEPT_TYPE,
   SAME_VARIANT_GROUP,
@@ -201,6 +205,78 @@ export const componentExamples: ComponentExampleDefinition[] = [
     variantLabel: "page row without metadata",
     render: (context) => (
       <SearchResultListItemNoMetaExample context={context} />
+    ),
+  },
+  {
+    id: "generation-evolution-default",
+    componentName: "GenerationEvolutionTimeline",
+    variantLabel: "default (blog comparison)",
+    description:
+      "Four-stage diffusion generation evolution with title, legend, and descriptors.",
+    render: () => <GenerationEvolutionTimeline />,
+  },
+  {
+    id: "generation-evolution-empty",
+    componentName: "GenerationEvolutionTimeline",
+    variantLabel: "empty stages",
+    description: "Controlled empty state when stage data is absent.",
+    render: () => (
+      <GenerationEvolutionTimeline
+        data={{
+          ...DEFAULT_GENERATION_EVOLUTION_BLOG_DATA,
+          stages: [],
+        }}
+      />
+    ),
+  },
+  {
+    id: "generation-evolution-error",
+    componentName: "GenerationEvolutionTimeline",
+    variantLabel: "invalid stage order",
+    description: "Controlled error state when stage order is invalid.",
+    render: () => (
+      <GenerationEvolutionTimeline
+        data={{
+          ...DEFAULT_GENERATION_EVOLUTION_BLOG_DATA,
+          stages: [
+            DEFAULT_GENERATION_EVOLUTION_BLOG_DATA.stages[1],
+            DEFAULT_GENERATION_EVOLUTION_BLOG_DATA.stages[0],
+          ],
+        }}
+      />
+    ),
+  },
+  {
+    id: "training-signal-stacked-chart-conceptual",
+    componentName: "TrainingSignalStackedChart",
+    variantLabel: "default (conceptual training-signal mix)",
+    description:
+      "Stacked training-signal chart with illustrative values and accessible labels.",
+    render: () => (
+      <TrainingSignalStackedChart
+        caption="Illustrative mix of training signals over time; not measured percentages."
+        chartInput={DEFAULT_TRAINING_SIGNAL_CHART_INPUT}
+        dataTestId="component-example-training-signal-chart"
+      />
+    ),
+  },
+  {
+    id: "training-signal-stacked-chart-quantitative",
+    componentName: "TrainingSignalStackedChart",
+    variantLabel: "quantitative (sourced values)",
+    description:
+      "Training-signal chart with source-aware quantitative status text.",
+    render: () => (
+      <TrainingSignalStackedChart
+        chartInput={{
+          ...DEFAULT_TRAINING_SIGNAL_CHART_INPUT,
+          metadata: {
+            valueMode: "quantitative",
+            quantitativeSource: "Component example sourced report",
+          },
+        }}
+        dataTestId="component-example-training-signal-chart-quantitative"
+      />
     ),
   },
 ];

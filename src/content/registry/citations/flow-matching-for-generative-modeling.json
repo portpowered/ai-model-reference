@@ -1,0 +1,32 @@
+{
+  "id": "citation.flow-matching-for-generative-modeling",
+  "slug": "flow-matching-for-generative-modeling",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Flow Matching for Generative Modeling",
+    "flow matching paper",
+    "Lipman flow matching",
+    "2210.02747",
+    "arxiv:2210.02747"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Yaron Lipman",
+    "Ricky T. Q. Chen",
+    "Heli Ben-Hamu",
+    "Maximilian Nickel",
+    "Matt Le"
+  ],
+  "title": "Flow Matching for Generative Modeling",
+  "year": 2023,
+  "url": "https://arxiv.org/abs/2210.02747",
+  "mla": "Lipman, Yaron, et al. \"Flow Matching for Generative Modeling.\" arXiv, 2023, https://arxiv.org/abs/2210.02747."
+}

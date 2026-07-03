@@ -35,18 +35,31 @@ Contributor-facing walkthrough:
 Routine canonical page branches should stay page-local unless the requested
 behavior requires shared infrastructure changes.
 
+Full observable budget (page-owned, supported derived, shared hotspot, and
+review lanes):
+[canonical-page-surface-budget-relevant-files.md](./canonical-page-surface-budget-relevant-files.md).
+
 **Page-local (routine):**
 
-- Page bundle under `src/content/docs/<section>/<slug>/`
+- Page bundle under `src/content/docs/<section>/<slug>/` (`page.mdx`, messages,
+  `assets.json`, page-local media)
 - Matching primary registry record and page-specific supporting graph/table
   records
 
-**Shared hotspot (redirect):**
+**Supported derived (regenerate locally; keep out of routine commits):**
 
-- Shared helpers such as `src/lib/content` and `src/lib/search`
+- Outputs from `bun run prepare:content-runtime` such as
+  `src/lib/content/generated/*.generated.ts`
+
+**Shared hotspot (redirect or visible exception):**
+
+- **`src/lib/content`** runtime helpers, MDX components, and colocated content
+  tests — currently the hottest shared surface in maintained hotspot evidence
+- Shared test and verification files (`src/tests/ci`, `src/tests/search`,
+  `scripts/validate-*.ts`)
 - Generated runtime artifacts checked in as authored changes
-- Shared test suites and broad `validate-*.ts` churn
 - Registry-manifest rewrites beyond the page's primary record
+- Build, search, or tooling files unless the work item is explicitly broader
 
 Do not hide shared hotspot churn inside an ordinary page slice. When
 `bun run audit:canonical-page-surface` reports `redirect-to-throughput-prd`, or
@@ -109,6 +122,12 @@ routes:
   align `conceptType` with `classification.concept.architecture`, and rely on ontology
   sidebar resolution for math/training/evaluation before editorial `sidebarGrouping`
   fallbacks for generation-and-diffusion or sequence-and-attention subgroups.
+- Concepts-section `sidebarGrouping.concepts` only allows `long-context`,
+  `inference`, `architecture`, and `reference-samples`; `generation-and-diffusion`
+  is glossary-only until a concepts generation subgroup exists.
+- Registry `relatedIds` should omit records without published docs pages; for
+  example `paper.ltx-2` can stay in model/paper metadata but must not appear in
+  concept `relatedIds` until `/docs/papers/ltx-2` ships.
 - `validatePublishedGlossaryClassification` in `validate-glossary-classification.ts`
   blocks published glossary pages that lack `primaryClassificationId` unless
   `sidebarGrouping.glossary` provides an explicit editorial fallback; wired through
@@ -143,12 +162,6 @@ conflicts or merging the current base branch; and updating shared files outside
 the original page slice when they are the concrete reason the reviewed head is
 blocked. Document mergeability-only follow-ups in `progress.txt` and PR
 conversation comments.
-
-**Worktree dev-server prerequisite:** `.claude/worktrees/<lane>` checkouts
-created by `setup-workspace.py` may not include local `node_modules`. Run
-`bun install` in the worktree root before `bun run dev` or Playwright browser
-QA; without it Turbopack cannot resolve `next/package.json` and dev-server
-verification fails even when `turbopack.root` is configured.
 
 **Do not add** page-specific directory exports for ordinary page work. A focused
 guard in `content-paths.test.ts` fails when new `export const *_PAGE_DIR`
@@ -200,6 +213,10 @@ from a `*_PAGE_DIR` import or `join(sectionRoot, slug)` to the derived lookup.
 * `src/content/docs/<section>/<slug>/`
   Canonical page bundle layout (`page.mdx`, `messages/`, `assets.json`, graphs,
   and related colocated files).
+* Concept teaching graphs wired through `<ConceptMap />` must define message-backed
+  `assets.<assetId>.title` and `assets.<assetId>.legend` entries (same shape as
+  `<ModuleGraph />`); `ConceptMap` delegates to `RegistryGraphFlow` via
+  `buildRegistryGraphLegend`.
 * `src/content/registry/`
   Registry JSON records that connect published pages to taxonomy, graphs, and
   runtime loaders.
@@ -224,6 +241,18 @@ requiring a broad rewrite of every legacy `*_PAGE_DIR` import:
 When adding a new page test, follow the same module-level
 `const pageDir = getDocsPageDir("<section>", "<slug>")` pattern instead of
 importing a page-specific constant.
+
+### Module compute-flow graph title and legend
+
+Attention-variant module pages (`assets.computeFlow.type:
+"attention-variant-graph"`) can teach mechanism details through
+`messages.assets.computeFlow.title` and `messages.assets.computeFlow.legend`.
+`ModuleGraph` routes those assets through `AttentionVariantComparisonGraph`,
+which builds the legend from the active variant graph via
+`buildModuleComputeFlowLegend` in
+`src/features/models/components/module-compute-flow-legend.ts`. Page tests should
+assert `data-graph-title`, `data-graph-legend`, and the active variant's graph
+id when the story requires graphing-standard legend support.
 
 ## Stale-branch reconciliation before publishing
 
@@ -267,6 +296,16 @@ Representative paired-slice verification:
 
 ## Reviewer-facing verification
 
+* Canonical concept page slices should keep one `*-slice-verification` file with
+  observable route/render/search assertions only; routine bundle alignment
+  (registry fields, frontmatter, raw messages, tags, citations, assets) stays in
+  `make validate-data`.
+* When adding a page-local comparison table, commit only the new
+  `flops-peak-achieved-comparison.json` entries in
+  `table-registry.generated.ts`; do not carry unrelated stale generated
+  reconciliation from other lanes (for example `looped-transformers-comparison`)
+  because `prepare:content-runtime` regenerates the full table manifest at CI
+  time.
 * `bun test src/lib/content/content-paths.test.ts`
   Proves derived lookup across sections and rejects new ordinary page directory
   exports.

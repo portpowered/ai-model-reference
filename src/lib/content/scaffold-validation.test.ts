@@ -140,6 +140,7 @@ describe("scaffold and validation integration", () => {
       const errors = await validateRegistryContent({
         registryRoot: join(contentRoot, "registry"),
         docsRoot: join(contentRoot, "docs"),
+        blogRoot: join(contentRoot, "docs", "__fixture-no-blog__"),
         phase1PageDirectories: [],
       });
       expect(errors).toEqual([]);
@@ -195,6 +196,7 @@ describe("scaffold and validation integration", () => {
       const errors = await validateRegistryContent({
         registryRoot: join(contentRoot, "registry"),
         docsRoot: join(contentRoot, "docs"),
+        blogRoot: join(contentRoot, "docs", "__fixture-no-blog__"),
         phase1PageDirectories: [],
       });
       expect(errors).toEqual([]);

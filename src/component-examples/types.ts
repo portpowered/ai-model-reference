@@ -9,6 +9,8 @@ export const REQUIRED_COMPONENT_NAMES = [
   "SearchInlineResultItem",
   "SearchResultListItem",
   "SearchResultMetaDetails",
+  "GenerationEvolutionTimeline",
+  "TrainingSignalStackedChart",
 ] as const;
 
 export type ComponentExampleName = (typeof REQUIRED_COMPONENT_NAMES)[number];

@@ -1,0 +1,24 @@
+{
+  "id": "citation.cosmos-3-github-repository",
+  "slug": "cosmos-3-github-repository",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "NVIDIA Cosmos GitHub repository",
+    "nvidia/cosmos repository",
+    "Cosmos 3 GitHub"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["paper.cosmos-3"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "repository",
+  "authors": ["NVIDIA"],
+  "title": "nvidia/cosmos",
+  "url": "https://github.com/nvidia/cosmos",
+  "mla": "NVIDIA. \"nvidia/cosmos.\" GitHub, 2026, https://github.com/nvidia/cosmos.",
+  "year": 2026
+}

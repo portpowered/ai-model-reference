@@ -377,10 +377,16 @@ export async function validateGeneratedPageBundle(
 export async function validateGeneratedPageBundleRegistryContent(options: {
   registryRoot: string;
   docsRoot: string;
+  /** Omit production blog validation when exercising isolated registry fixtures. */
+  blogRoot?: string;
 }): Promise<ValidationError[]> {
+  const blogRoot =
+    options.blogRoot ?? join(options.docsRoot, "__fixture-no-blog__");
+
   return validateRegistryContent({
     registryRoot: options.registryRoot,
     docsRoot: options.docsRoot,
+    blogRoot,
     phase1PageDirectories: [],
   });
 }

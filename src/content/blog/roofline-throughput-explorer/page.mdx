@@ -1,0 +1,47 @@
+---
+messageNamespace: "local"
+assetNamespace: "local"
+publishedAt: "2026-07-02"
+updatedAt: "2026-07-02"
+authors:
+  - site-team
+tags:
+  - foundations
+  - kv-cache
+relatedDocIds:
+  - concept.prefill
+  - concept.decode
+  - concept.kv-cache
+status: "published"
+---
+
+import { BlogRelatedDocs } from "@/features/blog/components/BlogRelatedDocs";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { RooflineThroughputExplorerFromRegistry } from "@/features/roofline-throughput-explorer/RooflineThroughputExplorerFromRegistry";
+
+# <T k="title" />
+
+<T k="contextSentence" />
+
+<TagPillList tags={["foundations", "kv-cache"]} />
+
+## Why active weight reads can cap throughput
+
+Serving a language model repeatedly reads weights from memory. When the memory subsystem cannot supply bytes fast enough, compute sits idle and throughput stops growing even if the accelerator has spare FLOPs.
+
+The roofline view plots achievable decode throughput (tokens per second) against memory bandwidth. The sloped boundary is the memory-bound limit: larger active weight reads and wider parameter encodings lower achievable throughput because each forward pass must move more bytes.
+
+## Explore the roofline
+
+Use the explorer below to compare registry-backed model presets, adjust active weight size, and change bytes-per-parameter assumptions. Presets are resolved at build time from canonical registry metadata, so the page does not fetch registry records in the browser.
+
+<RooflineThroughputExplorerFromRegistry />
+
+## Takeaway
+
+<T k="takeaway" />
+
+## Related reference pages
+
+<BlogRelatedDocs relatedDocIds={["concept.prefill", "concept.decode", "concept.kv-cache"]} />
