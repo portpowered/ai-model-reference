@@ -65,7 +65,7 @@
       "moduleKind": "other",
       "position": { "x": 580, "y": 330 },
       "size": { "width": 240, "height": 72 },
-      "visualRole": "annotation",
+      "visualRole": "default",
       "childNodeIds": []
     },
     {

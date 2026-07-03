@@ -25,11 +25,16 @@ function expectExportDefined(
 }
 
 describe("blog content loader lane isolation", () => {
-  test("production blog root exposes only committed published posts", async () => {
+  test("production blog root lists committed published posts", async () => {
     const posts = await listPublishedBlogPosts();
     expect(posts.map((post) => post.slug).sort()).toEqual([
       "roofline-throughput-explorer",
     ]);
+    await expect(
+      getPublishedBlogPostBySlug("roofline-throughput-explorer"),
+    ).resolves.toMatchObject({
+      slug: "roofline-throughput-explorer",
+    });
     await expect(
       getPublishedBlogPostBySlug("example-post"),
     ).resolves.toBeNull();
