@@ -469,12 +469,25 @@ export const pageMathMessagesSchema = z.record(
   pageMathFormulaSchema,
 );
 
+export const blogPostFrontmatterSchema = z.object({
+  messageNamespace: z.union([z.literal("local"), z.string().min(1)]),
+  assetNamespace: z.union([z.literal("local"), z.string().min(1)]),
+  publishedAt: z.string().min(1),
+  updatedAt: z.string().min(1),
+  authors: z.array(z.string().min(1)).min(1),
+  tags: z.array(z.string()),
+  relatedDocIds: z.array(z.string()),
+  status: registryStatusSchema,
+});
+
 export const pageMessagesSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
   problemStatement: z.string().optional(),
   coreIdea: z.string().optional(),
   openingSummary: z.string().optional(),
+  contextSentence: z.string().optional(),
+  takeaway: z.string().optional(),
   sections: z.record(z.string(), pageSectionSchema).optional(),
   relatedDocs: z.record(z.string(), pageRelatedDocMessageSchema).optional(),
   callouts: z.record(z.string(), pageCalloutSchema).optional(),
@@ -606,6 +619,7 @@ export type ModuleGraphNode = z.infer<typeof moduleGraphNodeSchema>;
 export type ModuleGraphEdge = z.infer<typeof moduleGraphEdgeSchema>;
 export type SidebarGroupingMetadata = z.infer<typeof sidebarGroupingSchema>;
 export type PageKind = z.infer<typeof pageKindSchema>;
+export type BlogPostFrontmatter = z.infer<typeof blogPostFrontmatterSchema>;
 export type PageFrontmatter = z.infer<typeof pageFrontmatterSchema>;
 export type PageMessages = z.infer<typeof pageMessagesSchema>;
 export type PageTableMessages = z.infer<typeof pageTableMessagesSchema>;
