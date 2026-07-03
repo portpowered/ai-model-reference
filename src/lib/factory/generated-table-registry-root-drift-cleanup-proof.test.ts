@@ -846,8 +846,22 @@ describe("buildGeneratedTableRegistryExpectedOutputOutcome", () => {
 
   test("formats expected-output outcome with validation and discoverability fields", () => {
     const outcome = buildGeneratedTableRegistryExpectedOutputOutcome({
-      checkoutRepoPath: process.cwd(),
+      checkoutRepoPath: "/checkout",
       generatedAtUtc: "2026-07-03T05:02:00.000Z",
+      driftEvidence: captureGeneratedTableRegistryRootDriftEvidence({
+        generatedAtUtc: "2026-07-03T05:02:00.000Z",
+        repoRoot: "/checkout",
+        remoteBaseRef: "origin/main",
+        statusOutput: "## main...origin/main\n",
+        diffOutput: "",
+        runGit: createMockGitRunner({}),
+      }),
+      pathExists: () => false,
+      readDir: () => [],
+      readFile: () => {
+        throw new Error("readFile should not be called in format test");
+      },
+      runGit: createMockGitRunner({}),
     });
     const text = formatGeneratedTableRegistryExpectedOutputOutcome(outcome);
 
@@ -1146,8 +1160,22 @@ describe("buildGeneratedTableRegistryStaleDriftHandoff", () => {
 
   test("formats stale drift handoff with operator actions and page refill hold rule", () => {
     const handoff = buildGeneratedTableRegistryStaleDriftHandoff({
-      checkoutRepoPath: process.cwd(),
+      checkoutRepoPath: "/checkout",
       generatedAtUtc: "2026-07-03T06:02:00.000Z",
+      driftEvidence: captureGeneratedTableRegistryRootDriftEvidence({
+        generatedAtUtc: "2026-07-03T06:02:00.000Z",
+        repoRoot: "/checkout",
+        remoteBaseRef: "origin/main",
+        statusOutput: "## main...origin/main\n",
+        diffOutput: "",
+        runGit: createMockGitRunner({}),
+      }),
+      pathExists: () => false,
+      readDir: () => [],
+      readFile: () => {
+        throw new Error("readFile should not be called in format test");
+      },
+      runGit: createMockGitRunner({}),
     });
     const text = formatGeneratedTableRegistryStaleDriftHandoff(handoff);
 
@@ -1458,9 +1486,17 @@ describe("buildGeneratedTableRegistryActiveLaneOwnershipHandoff", () => {
 
   test("formats active lane ownership handoff with evidence and refill rule", () => {
     const handoff = buildGeneratedTableRegistryActiveLaneOwnershipHandoff({
-      checkoutRepoPath: process.cwd(),
+      checkoutRepoPath: "/checkout",
       generatedAtUtc: "2026-07-03T07:03:00.000Z",
       skipWorktreeDriftDiscovery: true,
+      driftEvidence: captureGeneratedTableRegistryRootDriftEvidence({
+        generatedAtUtc: "2026-07-03T07:03:00.000Z",
+        repoRoot: "/checkout",
+        remoteBaseRef: "origin/main",
+        statusOutput: "## main...origin/main\n",
+        diffOutput: "",
+        runGit: createMockGitRunner({}),
+      }),
     });
     const text =
       formatGeneratedTableRegistryActiveLaneOwnershipHandoff(handoff);
