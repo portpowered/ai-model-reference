@@ -6,7 +6,7 @@ import {
 } from "@/lib/factory/planner-concurrency-floor-report";
 
 const SUMMARY_SUFFIX =
-  " blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 page-refill-hold=false advisory-only=true";
+  " blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 stale-backlog=0 page-refill-hold=false advisory-only=true";
 
 describe("discoverPlannerConcurrencyFloorReport", () => {
   test("counts only live active queue lanes and compares them against the configured floor", () => {
@@ -254,6 +254,7 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
       "- work-item=alpha raw-state=in-review session=session-alpha",
     );
     expect(reportText).toContain("Ignored Stale Noise (0)");
+    expect(reportText).toContain("Stale Backlog Candidates (0)");
     expect(reportText).toContain("Planner-Owned Backlog Candidates (0)");
     expect(reportText).toContain("Refill Candidates (0)");
     expect(jsonReport).toMatchObject({
@@ -618,7 +619,7 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
       },
     ]);
     expect(reportText).toContain(
-      "summary useful-active=1 floor=4 status=below-target refill-needed=3 blocked-dependencies=1 held-backlog=1 advisory-uncertain=1 page-refill-hold=false advisory-only=true",
+      "summary useful-active=1 floor=4 status=below-target refill-needed=3 blocked-dependencies=1 held-backlog=1 advisory-uncertain=1 stale-backlog=0 page-refill-hold=false advisory-only=true",
     );
     expect(reportText).toContain("Blocked Dependency Lanes (1)");
     expect(reportText).toContain("work-item=blocked-loopback");
@@ -751,5 +752,149 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     expect(
       jsonReport.refillCandidates.map((candidate) => candidate.taskId),
     ).toEqual(["ideas-to-review/content/factory-refill"]);
+  });
+
+  test("keeps stale backlog candidates visible but excludes them from preferred refill recommendations", () => {
+    const terminalCompleteResults = Array.from({ length: 25 }, (_, index) => ({
+      workId: `task-complete-${index}`,
+      name: `stale-${index}`,
+      workTypeName: "task",
+      state: { name: "complete", type: "TERMINAL" },
+    }));
+    const workListJsonText = JSON.stringify({
+      results: [
+        {
+          workId: "task-active",
+          name: "active-lane",
+          sessionId: "session-active",
+          workTypeName: "task",
+          state: { name: "in-review", type: "PROCESSING" },
+        },
+        ...terminalCompleteResults,
+        {
+          workId: "task-complete-page",
+          name: "completed-page",
+          workTypeName: "task",
+          state: { name: "complete", type: "TERMINAL" },
+        },
+        {
+          workId: "task-complete-module",
+          name: "merged-module",
+          workTypeName: "task",
+          state: { name: "complete", type: "TERMINAL" },
+        },
+      ],
+    });
+    const staleTaskFiles = Array.from({ length: 25 }, (_, index) => ({
+      path: `tasks/ideas-to-review/content/stale-${index}.md`,
+      text: `# Stale ${index}\n`,
+    }));
+    const report = discoverPlannerConcurrencyFloorReport({
+      concurrencyFloor: 3,
+      generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      plannerRootDirtyPaths: [],
+      plannerRootDirtyPathsAvailable: true,
+      sourceSession: "~planner",
+      taskFiles: [
+        ...staleTaskFiles,
+        {
+          path: "tasks/ideas-to-review/content/completed-page.md",
+          text: "# Completed Page\n",
+        },
+        {
+          path: "tasks/ideas-to-review/content/merged-module.md",
+          text: "# Merged Module\n",
+        },
+        {
+          path: "tasks/ideas-to-review/content/fresh-refill.md",
+          text: [
+            "# Fresh Refill",
+            "",
+            "- Scope `src/features/docs/search`.",
+          ].join("\n"),
+        },
+        {
+          path: "tasks/ideas-to-review/content/explicit-stale.md",
+          text: [
+            "# Explicit Stale",
+            "",
+            "- stale backlog marker for superseded page idea",
+          ].join("\n"),
+        },
+      ],
+      tempStateFiles: [],
+      workListJsonText,
+    });
+    const reportText = formatPlannerConcurrencyFloorReport(report);
+    const jsonReport = JSON.parse(
+      serializePlannerConcurrencyFloorReport(report),
+    ) as {
+      lanesNeededToReachFloor: number;
+      staleBacklogCandidates: Array<{ taskId: string }>;
+      refillCandidates: Array<{
+        taskId: string;
+        refillRecommendation: string;
+      }>;
+      plannerOwnedBacklogCandidates: Array<{
+        status: string;
+        taskId: string;
+        refillRecommendation: string;
+      }>;
+    };
+
+    expect(report.lanesNeededToReachFloor).toBe(2);
+    expect(
+      report.staleBacklogCandidates.map((candidate) => candidate.taskId).sort(),
+    ).toEqual(
+      [
+        "ideas-to-review/content/completed-page",
+        "ideas-to-review/content/explicit-stale",
+        "ideas-to-review/content/merged-module",
+        ...Array.from(
+          { length: 25 },
+          (_, index) => `ideas-to-review/content/stale-${index}`,
+        ),
+      ].sort(),
+    );
+    expect(
+      report.refillCandidates.map((candidate) => candidate.taskId),
+    ).toEqual(["ideas-to-review/content/fresh-refill"]);
+    expect(
+      report.plannerOwnedBacklogCandidates.filter(
+        (candidate) => candidate.status === "stale",
+      ),
+    ).toHaveLength(28);
+    expect(
+      report.plannerOwnedBacklogCandidates.find(
+        (candidate) =>
+          candidate.taskId === "ideas-to-review/content/fresh-refill",
+      ),
+    ).toMatchObject({
+      refillRecommendation: "prefer",
+      status: "ready",
+    });
+    expect(reportText).toContain("stale-backlog=28");
+    expect(reportText).toContain("Stale Backlog Candidates (28, showing 20)");
+    expect(reportText).toContain(
+      "... and 8 more stale backlog candidates grouped under",
+    );
+    expect(reportText).toContain("Planner-Owned Backlog Candidates (1)");
+    expect(reportText).toContain("Refill Candidates (1)");
+    expect(reportText).toContain(
+      "task=ideas-to-review/content/fresh-refill title=Fresh Refill recommendation=prefer",
+    );
+    expect(jsonReport.lanesNeededToReachFloor).toBe(2);
+    expect(jsonReport.staleBacklogCandidates).toHaveLength(28);
+    expect(jsonReport.refillCandidates).toEqual([
+      expect.objectContaining({
+        refillRecommendation: "prefer",
+        taskId: "ideas-to-review/content/fresh-refill",
+      }),
+    ]);
+    expect(
+      jsonReport.plannerOwnedBacklogCandidates.filter(
+        (candidate) => candidate.status === "stale",
+      ),
+    ).toHaveLength(28);
   });
 });

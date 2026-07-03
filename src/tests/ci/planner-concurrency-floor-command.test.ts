@@ -101,7 +101,7 @@ describe("report-planner-concurrency-floor script", () => {
       expect(jsonResult.status).toBe(0);
       expect(humanResult.stdout).toContain("Planner concurrency-floor summary");
       expect(humanResult.stdout).toContain(
-        "summary useful-active=2 floor=3 status=below-target refill-needed=1 blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 page-refill-hold=false advisory-only=true",
+        "summary useful-active=2 floor=3 status=below-target refill-needed=1 blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 stale-backlog=0 page-refill-hold=false advisory-only=true",
       );
       expect(humanResult.stdout).toContain("Useful Active Lanes (2)");
       expect(humanResult.stdout).toContain("Blocked Dependency Lanes (0)");
@@ -206,7 +206,7 @@ describe("report-planner-concurrency-floor script", () => {
 
       expect(result.status).toBe(0);
       expect(result.stdout).toContain(
-        "summary useful-active=1 floor=2 status=below-target refill-needed=1 blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 page-refill-hold=false advisory-only=true",
+        "summary useful-active=1 floor=2 status=below-target refill-needed=1 blocked-dependencies=0 held-backlog=0 advisory-uncertain=0 stale-backlog=0 page-refill-hold=false advisory-only=true",
       );
       expect(result.stdout).toContain("Ignored Stale Noise (2)");
       expect(result.stdout).toContain("work-item=cron:though-retrigger");

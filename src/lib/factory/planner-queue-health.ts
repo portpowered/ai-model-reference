@@ -256,6 +256,47 @@ export function buildQueueSessionIdByWorkId(
   return sessionIdsByWorkId;
 }
 
+export interface QueueTerminalCompleteAliasEvidence {
+  workId: string;
+  workItemName: string;
+  stateName: string;
+}
+
+function normalizeQueueWorkItemAlias(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\\/g, "/")
+    .replace(/\.md$/i, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export function buildQueueTerminalCompleteAliasMap(
+  workListJsonText: string,
+): Map<string, QueueTerminalCompleteAliasEvidence> {
+  const aliasMap = new Map<string, QueueTerminalCompleteAliasEvidence>();
+
+  for (const record of parseQueueRecords(workListJsonText)) {
+    if (!isCompleteState(record)) {
+      continue;
+    }
+
+    const alias = normalizeQueueWorkItemAlias(record.workItemName);
+    if (!alias) {
+      continue;
+    }
+
+    aliasMap.set(alias, {
+      workId: record.workId,
+      workItemName: record.workItemName,
+      stateName: record.stateName,
+    });
+  }
+
+  return aliasMap;
+}
+
 function isCompleteState(record: ParsedQueueRecord | undefined): boolean {
   if (!record) {
     return false;

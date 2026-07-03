@@ -1,10 +1,12 @@
 import {
   buildQueueSessionIdByWorkId,
+  buildQueueTerminalCompleteAliasMap,
   discoverPlannerQueueHealthReport,
   type QueueHealthDependency,
   type QueueHealthItem,
   type QueueHealthReport,
   type QueueHealthStateType,
+  type QueueTerminalCompleteAliasEvidence,
 } from "./planner-queue-health";
 import {
   isTableRegistryGeneratedArtifactPath,
@@ -92,7 +94,22 @@ export interface PlannerBlockedDependencyEvidence {
   sessionId?: string;
 }
 
-export type PlannerBacklogCandidateStatus = "ready" | "held" | "already-active";
+export type PlannerBacklogCandidateStatus =
+  | "ready"
+  | "held"
+  | "already-active"
+  | "stale";
+
+export const STALE_BACKLOG_CANDIDATE_HUMAN_DISPLAY_LIMIT = 20;
+
+const EXPLICIT_STALE_BACKLOG_MARKERS = [
+  /\bstale\s+backlog\b/i,
+  /\bsuperseded\b/i,
+  /\balready[\s-]+terminal\b/i,
+  /\balready[\s-]+settled\b/i,
+  /\balready[\s-]+merged\b/i,
+  /\bdo\s+not\s+refill\b/i,
+] as const;
 
 export interface PlannerBacklogTaskFile {
   path: string;
@@ -151,6 +168,14 @@ export interface PlannerAdvisoryUncertaintyEvidence {
   taskPathHints: string[];
 }
 
+export interface PlannerStaleBacklogEvidence {
+  taskPath: string;
+  taskId: string;
+  title: string;
+  staleReasons: string[];
+  terminalCompleteLane?: QueueTerminalCompleteAliasEvidence;
+}
+
 export interface PlannerRootGeneratedArtifactDriftPathEvidence {
   path: string;
   surface: string;
@@ -177,6 +202,7 @@ export interface PlannerConcurrencyFloorReport {
   heldBacklogCandidates: PlannerHeldBacklogEvidence[];
   advisoryUncertainties: PlannerAdvisoryUncertaintyEvidence[];
   ignoredStaleNoise: PlannerStaleNoiseEvidence[];
+  staleBacklogCandidates: PlannerStaleBacklogEvidence[];
   plannerOwnedBacklogCandidates: PlannerBacklogCandidate[];
   refillCandidates: PlannerBacklogCandidate[];
   rootGeneratedArtifactDriftHold: PlannerRootGeneratedArtifactDriftHold;
@@ -374,6 +400,63 @@ function deriveAdvisoryUncertainties(
       overlappingDirtySurfaces: [...candidate.overlappingDirtySurfaces],
       taskPathHints: [...candidate.taskPathHints],
     }));
+}
+
+function deriveStaleBacklogCandidates(
+  candidates: PlannerBacklogCandidate[],
+  terminalCompleteAliases: Map<string, QueueTerminalCompleteAliasEvidence>,
+): PlannerStaleBacklogEvidence[] {
+  return candidates
+    .filter((candidate) => candidate.status === "stale")
+    .map((candidate) => {
+      const terminalCompleteLane = candidate.activeLaneName
+        ? undefined
+        : collectCandidateAliases(candidate.taskPath, candidate.title)
+            .map((alias) => terminalCompleteAliases.get(alias))
+            .find((evidence): evidence is QueueTerminalCompleteAliasEvidence =>
+              Boolean(evidence),
+            );
+
+      return {
+        taskPath: candidate.taskPath,
+        taskId: candidate.taskId,
+        title: candidate.title,
+        staleReasons: [...candidate.recommendationReasons],
+        terminalCompleteLane,
+      };
+    });
+}
+
+function collectExplicitStaleBacklogMarkers(text: string): string[] {
+  const reasons = new Set<string>();
+
+  for (const line of text.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      continue;
+    }
+
+    for (const marker of EXPLICIT_STALE_BACKLOG_MARKERS) {
+      if (marker.test(trimmed)) {
+        reasons.add(`Task file marks stale backlog evidence: ${trimmed}`);
+      }
+    }
+  }
+
+  return [...reasons].sort();
+}
+
+function findTerminalCompleteAliasMatch(
+  aliases: string[],
+  terminalCompleteAliases: Map<string, QueueTerminalCompleteAliasEvidence>,
+): QueueTerminalCompleteAliasEvidence | undefined {
+  for (const alias of aliases) {
+    const match = terminalCompleteAliases.get(alias);
+    if (match) {
+      return match;
+    }
+  }
+  return undefined;
 }
 
 function classifyFloorStatus(
@@ -686,6 +769,7 @@ function discoverPlannerOwnedBacklogCandidates(options: {
   taskFiles: PlannerBacklogTaskFile[];
   tempStateFiles: PlannerTempStateFile[];
   usefulActiveLanes: PlannerUsefulActiveLane[];
+  terminalCompleteAliases: Map<string, QueueTerminalCompleteAliasEvidence>;
   rootDirtyPaths?: PlannerRootDirtyPathEvidence[];
   rootDirtyPathsAvailable?: boolean;
 }): PlannerBacklogCandidate[] {
@@ -710,11 +794,30 @@ function discoverPlannerOwnedBacklogCandidates(options: {
         aliases,
         options.tempStateFiles,
       );
+      const explicitStaleReasons = collectExplicitStaleBacklogMarkers(
+        taskFile.text,
+      );
+      const terminalCompleteMatch = activeLaneName
+        ? undefined
+        : findTerminalCompleteAliasMatch(
+            aliases,
+            options.terminalCompleteAliases,
+          );
+      const staleReasons = [
+        ...explicitStaleReasons,
+        ...(terminalCompleteMatch
+          ? [
+              `Queue lane ${terminalCompleteMatch.workItemName} is already terminal-complete (${terminalCompleteMatch.stateName}).`,
+            ]
+          : []),
+      ];
       const status: PlannerBacklogCandidateStatus = activeLaneName
         ? "already-active"
         : holdReasons.length > 0
           ? "held"
-          : "ready";
+          : staleReasons.length > 0
+            ? "stale"
+            : "ready";
       const readyRecommendation = buildReadyCandidateRecommendation({
         rootDirtyPaths,
         rootDirtyPathsAvailable,
@@ -725,17 +828,23 @@ function discoverPlannerOwnedBacklogCandidates(options: {
         ? "hold"
         : holdReasons.length > 0
           ? "hold"
-          : readyRecommendation.refillRecommendation;
+          : staleReasons.length > 0
+            ? "hold"
+            : readyRecommendation.refillRecommendation;
       const evidenceQuality: PlannerCollisionEvidenceQuality = activeLaneName
         ? "grounded"
         : holdReasons.length > 0
           ? readyRecommendation.evidenceQuality
-          : readyRecommendation.evidenceQuality;
+          : staleReasons.length > 0
+            ? "grounded"
+            : readyRecommendation.evidenceQuality;
       const recommendationReasons = activeLaneName
         ? [`An active lane already owns alias ${activeLaneName}.`]
         : holdReasons.length > 0
           ? ["Explicit hold evidence exists in planner temp-state notes."]
-          : readyRecommendation.recommendationReasons;
+          : staleReasons.length > 0
+            ? staleReasons
+            : readyRecommendation.recommendationReasons;
 
       return {
         taskPath: normalizedPath,
@@ -783,6 +892,9 @@ export function discoverPlannerConcurrencyFloorReport(options: {
     workListJsonText: options.workListJsonText,
   });
   const usefulActiveLaneCount = usefulActiveLanes.length;
+  const terminalCompleteAliases = buildQueueTerminalCompleteAliasMap(
+    options.workListJsonText,
+  );
   const rootGeneratedArtifactDriftHold = deriveRootGeneratedArtifactDriftHold(
     options.plannerRootDirtyPaths ?? [],
   );
@@ -793,6 +905,7 @@ export function discoverPlannerConcurrencyFloorReport(options: {
         rootDirtyPathsAvailable: options.plannerRootDirtyPathsAvailable,
         taskFiles: options.taskFiles ?? [],
         tempStateFiles: options.tempStateFiles ?? [],
+        terminalCompleteAliases,
         usefulActiveLanes,
       }),
       rootGeneratedArtifactDriftHold,
@@ -807,11 +920,16 @@ export function discoverPlannerConcurrencyFloorReport(options: {
   const advisoryUncertainties = deriveAdvisoryUncertainties(
     plannerOwnedBacklogCandidates,
   );
+  const staleBacklogCandidates = deriveStaleBacklogCandidates(
+    plannerOwnedBacklogCandidates,
+    terminalCompleteAliases,
+  );
   const refillCandidates =
     usefulActiveLaneCount < options.concurrencyFloor
       ? plannerOwnedBacklogCandidates
           .filter(
             (candidate) =>
+              candidate.status !== "stale" &&
               candidate.eligibleForRefill &&
               candidate.refillRecommendation !== "hold",
           )
@@ -868,6 +986,7 @@ export function discoverPlannerConcurrencyFloorReport(options: {
     advisoryUncertainties,
     ignoredStaleNoise:
       queueHealth.ignorableStaleNoise.items.map(summarizeStaleNoise),
+    staleBacklogCandidates,
     plannerOwnedBacklogCandidates,
     refillCandidates,
     rootGeneratedArtifactDriftHold,
@@ -1033,16 +1152,96 @@ function formatAdvisoryUncertainties(
   return lines;
 }
 
-function formatPlannerOwnedBacklogCandidates(
-  candidates: PlannerBacklogCandidate[],
+function groupStaleBacklogCandidatesByDirectoryPrefix(
+  candidates: PlannerStaleBacklogEvidence[],
+): Array<{ prefix: string; count: number }> {
+  const counts = new Map<string, number>();
+
+  for (const candidate of candidates) {
+    const normalizedPath = candidate.taskPath.replace(/\\/g, "/");
+    const segments = normalizedPath.split("/").filter(Boolean);
+    const prefix =
+      segments.length >= 2
+        ? segments.slice(0, Math.min(3, segments.length - 1)).join("/")
+        : normalizedPath;
+    counts.set(prefix, (counts.get(prefix) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([prefix, count]) => ({ prefix, count }))
+    .sort((left, right) =>
+      left.count === right.count
+        ? left.prefix.localeCompare(right.prefix)
+        : right.count - left.count,
+    );
+}
+
+function formatStaleBacklogCandidates(
+  staleBacklogCandidates: PlannerStaleBacklogEvidence[],
 ): string[] {
-  const lines = [`Planner-Owned Backlog Candidates (${candidates.length})`];
-  if (candidates.length === 0) {
+  const totalCount = staleBacklogCandidates.length;
+  const lines = [
+    totalCount > STALE_BACKLOG_CANDIDATE_HUMAN_DISPLAY_LIMIT
+      ? `Stale Backlog Candidates (${totalCount}, showing ${STALE_BACKLOG_CANDIDATE_HUMAN_DISPLAY_LIMIT})`
+      : `Stale Backlog Candidates (${totalCount})`,
+  ];
+
+  if (totalCount === 0) {
     lines.push("- none");
     return lines;
   }
 
-  for (const candidate of candidates) {
+  const visibleCandidates = staleBacklogCandidates.slice(
+    0,
+    STALE_BACKLOG_CANDIDATE_HUMAN_DISPLAY_LIMIT,
+  );
+  for (const candidate of visibleCandidates) {
+    const fields = [
+      `task=${candidate.taskId}`,
+      `title=${candidate.title}`,
+      `path=${candidate.taskPath}`,
+    ];
+    if (candidate.terminalCompleteLane) {
+      fields.push(
+        `terminal-lane=${candidate.terminalCompleteLane.workItemName}`,
+      );
+    }
+    fields.push(`reason=${candidate.staleReasons.join(" | ")}`);
+    lines.push(`- ${fields.join(" ")}`);
+  }
+
+  const hiddenCount = totalCount - visibleCandidates.length;
+  if (hiddenCount > 0) {
+    const groupedOverflow = groupStaleBacklogCandidatesByDirectoryPrefix(
+      staleBacklogCandidates.slice(STALE_BACKLOG_CANDIDATE_HUMAN_DISPLAY_LIMIT),
+    );
+    const groupedSummary = groupedOverflow
+      .slice(0, 5)
+      .map((group) => `${group.prefix} (${group.count})`)
+      .join(", ");
+    lines.push(
+      `- ... and ${hiddenCount} more stale backlog candidates grouped under ${groupedSummary}`,
+    );
+  }
+
+  return lines;
+}
+
+function formatPlannerOwnedBacklogCandidates(
+  candidates: PlannerBacklogCandidate[],
+): string[] {
+  const nonStaleCandidates = candidates.filter(
+    (candidate) => candidate.status !== "stale",
+  );
+  const lines = [
+    `Planner-Owned Backlog Candidates (${nonStaleCandidates.length})`,
+  ];
+  if (nonStaleCandidates.length === 0) {
+    lines.push("- none");
+    return lines;
+  }
+
+  for (const candidate of nonStaleCandidates) {
     const fields = [
       `task=${candidate.taskId}`,
       `status=${candidate.status}`,
@@ -1126,7 +1325,7 @@ export function formatPlannerConcurrencyFloorReport(
   const lines = [
     "Planner concurrency-floor summary",
     `generated-at=${report.generatedAtUtc} session=${report.sourceSession}`,
-    `summary useful-active=${report.usefulActiveLaneCount} floor=${report.concurrencyFloor} status=${report.floorStatus} refill-needed=${report.lanesNeededToReachFloor} blocked-dependencies=${report.blockedDependencyLanes.length} held-backlog=${report.heldBacklogCandidates.length} advisory-uncertain=${report.advisoryUncertainties.length} page-refill-hold=${report.rootGeneratedArtifactDriftHold.pageRefillHold} advisory-only=${report.advisoryOnly}`,
+    `summary useful-active=${report.usefulActiveLaneCount} floor=${report.concurrencyFloor} status=${report.floorStatus} refill-needed=${report.lanesNeededToReachFloor} blocked-dependencies=${report.blockedDependencyLanes.length} held-backlog=${report.heldBacklogCandidates.length} advisory-uncertain=${report.advisoryUncertainties.length} stale-backlog=${report.staleBacklogCandidates.length} page-refill-hold=${report.rootGeneratedArtifactDriftHold.pageRefillHold} advisory-only=${report.advisoryOnly}`,
     "",
     ...formatUsefulActiveLanes(report.usefulActiveLanes),
     "",
@@ -1141,6 +1340,8 @@ export function formatPlannerConcurrencyFloorReport(
     ),
     "",
     ...formatIgnoredStaleNoise(report.ignoredStaleNoise),
+    "",
+    ...formatStaleBacklogCandidates(report.staleBacklogCandidates),
     "",
     ...formatPlannerOwnedBacklogCandidates(
       report.plannerOwnedBacklogCandidates,

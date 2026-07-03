@@ -37,7 +37,7 @@ For tests or offline inspection, replace live sources with:
 The summary line is the stable top-level contract for human output:
 
 ```txt
-summary useful-active=<count> floor=<count> status=<below-target|at-target|above-target> refill-needed=<count> blocked-dependencies=<count> held-backlog=<count> advisory-uncertain=<count> page-refill-hold=<true|false> advisory-only=true
+summary useful-active=<count> floor=<count> status=<below-target|at-target|above-target> refill-needed=<count> blocked-dependencies=<count> held-backlog=<count> advisory-uncertain=<count> stale-backlog=<count> page-refill-hold=<true|false> advisory-only=true
 ```
 
 Interpretation:
@@ -46,11 +46,13 @@ Interpretation:
 * `blocked-dependencies` counts queue lanes with explicit dependency blockers from queue-health. These lanes are shown separately and are not treated as useful active refill capacity.
 * `held-backlog` counts planner-owned backlog tasks that are already active or explicitly held in planner temp-state notes.
 * `advisory-uncertain` counts planner-owned backlog tasks whose refill recommendation is `uncertain` because collision evidence is incomplete or only partial.
+* `stale-backlog` counts planner-owned backlog tasks classified as stale because they match terminal-complete queue lanes or explicit stale-backlog markers in the task file.
 * `status=below-target` means useful concurrency is under the configured floor, so the planner should review `Refill Candidates`.
 * `refill-needed` is the remaining lane count needed to reach the floor.
 * `Blocked Dependency Lanes` shows queue items waiting on unfinished dependencies with dependency and reason detail.
 * `Held Backlog Candidates` shows planner-owned tasks that are already active or explicitly held.
 * `Advisory Uncertainties` shows backlog tasks that need planner judgment before refill because evidence is incomplete or only partial.
+* `Stale Backlog Candidates` shows terminal-complete or explicitly marked backlog tasks for planner awareness. They are not preferred refill work and do not increase `refill-needed`.
 * `page-refill-hold=true` means explicit root generated-artifact drift is present and page-oriented refill candidates are suppressed until generated artifacts are reconciled.
 * `Root Generated-Artifact Drift Hold` shows blocking paths and guidance when page refill is held for generated-artifact drift.
 * `Planner-Owned Backlog Candidates` shows the full scanned planner-owned task set with hold evidence and collision context.
