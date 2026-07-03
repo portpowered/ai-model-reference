@@ -17,11 +17,23 @@
     },
     "whereItAppears": {
       "title": "Where It Appears",
-      "body": "Hosted chat APIs expose a temperature parameter on completion calls. Local runtimes apply temperature scaling divides logits before softmax inside sampling kernels. Distinctive chain phrase: temperature scaling divides logits before softmax at sample time."
+      "body": "Hosted chat APIs expose a temperature parameter on completion calls. Local runtimes apply temperature scaling during decoding: logits are divided by T immediately before softmax inside sampling kernels. Distinctive chain phrase: temperature scaling divides logits before softmax at sample time."
+    },
+    "lowerTemperature": {
+      "title": "Lower Temperature",
+      "body": "Values below 1 divide logits by a smaller positive factor, which amplifies score gaps before softmax. The next-token distribution becomes sharper: one token usually dominates probability mass, so repeated prompts with the same settings tend to produce similar wording. Many runtimes treat temperature 0 as a special greedy or argmax path rather than literal division by zero, which is why \"temperature zero\" is discussed as a determinism limit rather than a separate model."
+    },
+    "higherTemperature": {
+      "title": "Higher Temperature",
+      "body": "Values above 1 divide logits by a larger factor, which shrinks score gaps before softmax. Probability mass spreads across more tokens, so sampled outputs vary more across runs and less likely tokens can win draws. That diversity helps brainstorming or creative drafts, but very high settings raise the chance of unlikely continuations, tangents, or locally incoherent phrasing because the sampler is choosing from a wider pool."
+    },
+    "tradeoffs": {
+      "title": "Tradeoffs And Limits",
+      "body": "Temperature is a decoding-time control on next-token probabilities, not a change to trained weights, stored knowledge, or whether answers are factually correct. Lower settings can make replies feel more decisive because probabilities concentrate on top tokens, but that appearance of confidence comes only from sharper sampling—not from new evidence, better calibration, or updated training. Turning temperature down does not make the model inherently more truthful; turning it up does not inject new information. Pick lower values when you want steadier, more focused outputs and higher values when you accept more variation and occasional low-probability tokens."
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Temperature is not the same as top-p or top-k filtering—those truncate or renormalize after probabilities exist. Setting temperature to zero is handled as a limit toward argmax in many libraries, not as literal division by zero."
+      "body": "Temperature is not the same as top-p or top-k filtering—those truncate or renormalize after probabilities exist. It is also not fine-tuning: weights stay fixed and temperature only reshapes decoding scores. A confident tone at low temperature reflects sharper probabilities, not proof that the model verified facts."
     },
     "related": {
       "title": "Related Concepts And Modules"

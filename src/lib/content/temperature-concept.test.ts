@@ -122,6 +122,46 @@ describe("temperature concept page", () => {
     expect(messages.sections?.simpleExample.body?.toLowerCase()).toContain(
       "probabilities move closer together",
     );
+    expect(messages.sections?.whereItAppears.body?.toLowerCase()).toContain(
+      "during decoding",
+    );
+  });
+
+  test("messages teach lower and higher temperature behavior with decoding limits", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.sections?.lowerTemperature.body?.toLowerCase()).toContain(
+      "sharper",
+    );
+    expect(messages.sections?.lowerTemperature.body?.toLowerCase()).toContain(
+      "similar wording",
+    );
+    expect(messages.sections?.lowerTemperature.body?.toLowerCase()).toContain(
+      "temperature 0",
+    );
+    expect(messages.sections?.lowerTemperature.body?.toLowerCase()).toContain(
+      "argmax",
+    );
+    expect(messages.sections?.higherTemperature.body?.toLowerCase()).toContain(
+      "vary more",
+    );
+    expect(messages.sections?.higherTemperature.body?.toLowerCase()).toContain(
+      "incoherent",
+    );
+    expect(messages.sections?.tradeoffs.body?.toLowerCase()).toContain(
+      "trained weights",
+    );
+    expect(messages.sections?.tradeoffs.body?.toLowerCase()).toContain(
+      "stored knowledge",
+    );
+    expect(messages.sections?.tradeoffs.body?.toLowerCase()).toContain(
+      "appearance of confidence",
+    );
+    expect(messages.sections?.tradeoffs.body?.toLowerCase()).toContain(
+      "calibration",
+    );
   });
 
   test("page renders title, sections, opening summary, and related links", async () => {
@@ -143,6 +183,9 @@ describe("temperature concept page", () => {
 
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
+    expect(html).toContain("Lower Temperature");
+    expect(html).toContain("Higher Temperature");
+    expect(html).toContain("Tradeoffs And Limits");
     expect(html).toContain("softmax(z / T)");
     expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).toContain('href="/docs/glossary/sampling-overview"');
