@@ -174,6 +174,11 @@ export function getMessagesRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "messages");
 }
 
+/** Blog posts under `src/content/blog`. */
+export function getBlogRoot(contentRoot = getContentRoot()): string {
+  return join(contentRoot, "blog");
+}
+
 /** Localized tag copy under `src/content/registry/tags/messages`. */
 export function getTagMessagesRoot(registryRoot = getRegistryRoot()): string {
   return join(getRegistryCollectionRoot("tags", registryRoot), "messages");
@@ -183,6 +188,9 @@ const contentRoot = getContentRoot();
 
 /** Default `src/content` root for production loaders. */
 export const CONTENT_ROOT = contentRoot;
+
+/** Default `src/content/blog` root. */
+export const BLOG_ROOT = getBlogRoot(contentRoot);
 
 /** Default `src/content/docs` root for page discovery. */
 export const DOCS_ROOT = getDocsRoot(contentRoot);
