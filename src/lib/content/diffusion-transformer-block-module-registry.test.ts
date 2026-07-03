@@ -144,7 +144,7 @@ describe("diffusion transformer block module registry slice (diffusion-transform
     ).toBe("/docs/training/diffusion-training-objective");
     expect(
       items.find((item) => item.registryId === "concept.latent-space")?.href,
-    ).toBe("/docs/glossary/latent-space");
+    ).toBe("/docs/concepts/latent-space");
     expect(
       items.find((item) => item.registryId === "concept.conditioning")?.href,
     ).toBe("/docs/glossary/conditioning");

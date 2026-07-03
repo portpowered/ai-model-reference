@@ -1,16 +1,29 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { loadConceptPage } from "@/lib/content/concept-page";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
-import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import {
+  PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
 import {
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const GLOSSARY_URL = "/docs/glossary/latent-space";
+const pageDir = getDocsPageDir("concepts", "latent-space");
+const messagesPath = join(pageDir, "messages/en.json");
+const CONCEPT_URL = "/docs/concepts/latent-space";
 
 const DISCOVERY_ALIAS_QUERIES = [
   ["latent manifold"],
@@ -44,6 +57,9 @@ describe("latent-space concept discovery (latent-space-concept-page-001)", () =>
       "concept.latent",
     ]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.latent-space")).toBe(true);
+    expect(
+      PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has("concept.latent-space"),
+    ).toBe(true);
   });
 
   test("curated related links point to diffusion, conditioning, paper, embedding, and latent peers", () => {
@@ -93,8 +109,8 @@ describe("latent-space concept discovery (latent-space-concept-page-001)", () =>
     const pages = await loadPublishedDocsPages("en");
     const documents = buildSearchDocuments(pages, registry);
 
-    const document = documents.find((entry) => entry.url === GLOSSARY_URL);
-    expect(document?.kind).toBe("glossary");
+    const document = documents.find((entry) => entry.url === CONCEPT_URL);
+    expect(document?.kind).toBe("concept");
     expect(document?.registryId).toBe("concept.latent-space");
     expect(document?.aliases).toEqual(
       expect.arrayContaining([
@@ -111,8 +127,55 @@ describe("latent-space concept discovery (latent-space-concept-page-001)", () =>
 
   test.each(
     DISCOVERY_ALIAS_QUERIES,
-  )("live search routes %s to the latent-space glossary page", async (query) => {
+  )("live search routes %s to the latent-space concept page", async (query) => {
     const results = await docsSearchApi.search(query);
-    expect(results.some((result) => result.url === GLOSSARY_URL)).toBe(true);
+    expect(results.some((result) => result.url === CONCEPT_URL)).toBe(true);
+  });
+});
+
+describe("latent-space concept page (latent-space-concept-page-002)", () => {
+  test("messages include required concept template keys", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.title).toBe("Latent Space");
+    expect(messages.openingSummary?.length).toBeGreaterThan(0);
+    expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.whyItMatters.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.simpleExample.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.commonConfusions.body?.length).toBeGreaterThan(0);
+    expect(messages.description).not.toContain("Draft placeholder");
+  });
+
+  test("page renders title, sections, opening summary, and diffusion-related links", async () => {
+    const page = await loadConceptPage("latent-space");
+
+    expect(page.frontmatter.kind).toBe("concept");
+    expect(page.frontmatter.status).toBe("published");
+    expect(page.frontmatter.registryId).toBe("concept.latent-space");
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("What It Is");
+    expect(html).toContain("Why It Matters");
+    expect(html).toContain("latent codes");
+    expect(html).toContain('href="/docs/glossary/diffusion-model"');
+    expect(html).toContain('href="/docs/glossary/denoising-generation"');
+    expect(html).toContain('href="/docs/glossary/conditioning"');
+    expect(html).toContain('href="/docs/papers/latent-diffusion"');
+    expect(html).toContain('href="/docs/concepts/embedding"');
+    expect(html).toContain('href="/docs/glossary/latent"');
+    expect(html).toContain('href="/tags/model-family"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).not.toContain("Draft placeholder");
   });
 });

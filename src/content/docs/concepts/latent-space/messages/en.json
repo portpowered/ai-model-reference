@@ -1,6 +1,7 @@
 {
   "title": "Latent Space",
   "description": "The coordinate system in which latent codes live, where distance and direction correspond to semantic or structural variation in the data.",
+  "openingSummary": "Latent space is the structured vector manifold where latents live; encoders map inputs into it and decoders or denoisers map points back to outputs.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -13,10 +14,6 @@
     "simpleExample": {
       "title": "Simple Example",
       "body": "Two face latents averaged in latent space decode to a blended face after the decoder runs. Moving along one principal direction might change smile intensity if the space disentangles factors—quality depends on training, not on the word latent alone."
-    },
-    "whereItAppears": {
-      "title": "Where It Appears",
-      "body": "Latent space is central to VAEs, latent diffusion, and multimodal encoders that align image and text latents. Forward links in this foundation chain point to encoders that populate the space and denoising generation that walks through it during sampling."
     },
     "commonConfusions": {
       "title": "Common Confusions",
@@ -31,6 +28,5 @@
     "references": {
       "title": "References"
     }
-  },
-  "openingSummary": "Latent space is the structured vector manifold where latents live; encoders map inputs into it and decoders or denoisers map points back to outputs."
+  }
 }
