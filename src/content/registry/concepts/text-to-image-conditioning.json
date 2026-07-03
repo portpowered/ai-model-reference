@@ -1,0 +1,34 @@
+{
+  "id": "concept.text-to-image-conditioning",
+  "slug": "text-to-image-conditioning",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "text-to-image conditioning",
+    "text conditioning",
+    "prompt conditioning",
+    "text prompt steering"
+  ],
+  "tags": ["foundations", "taxonomy", "model-family"],
+  "relatedIds": [
+    "concept.conditioning",
+    "concept.denoising-generation",
+    "concept.diffusion-model",
+    "paper.latent-diffusion"
+  ],
+  "citationIds": [
+    "citation.latent-diffusion-models",
+    "citation.classifier-free-diffusion-guidance"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-03T00:00:00.000Z",
+  "updatedAt": "2026-07-03T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.architecture",
+  "conceptType": "architecture",
+  "sidebarGrouping": {
+    "glossary": "generation-and-diffusion"
+  },
+  "prerequisiteIds": ["concept.conditioning", "concept.denoising-generation"],
+  "explainsIds": []
+}

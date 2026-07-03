@@ -1,0 +1,36 @@
+{
+  "title": "Text-to-image conditioning",
+  "description": "Extra prompt-derived vectors that steer an image generator while the denoiser removes noise step by step.",
+  "openingSummary": "Text-to-image conditioning turns a written prompt into vectors the generator reads at each denoising step, so the model knows what scene to build without treating the prompt as the noise-removal loss.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Text-to-image conditioning is side information that tells an image generator what to produce. A text encoder maps the prompt into vectors, and the generator consumes those vectors while it predicts denoising updates. The conditioning signal states the target scene; the denoising loop is the mechanism that actually forms the output."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Without conditioning, a denoiser could still remove noise but would have no stable way to aim the result at a specific description. Conditioning links language to the generation loop so one fixed model can serve many prompts at inference time."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A user enters \"a watercolor fox in a meadow.\" The text encoder turns that sentence into vectors. At each denoising step the generator receives the current noisy latent plus those vectors through cross-attention or a similar fusion path. The model still predicts a noise update, but the conditioning vectors bias that update toward fox-shaped, meadow-colored structure."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Latent diffusion pipelines pair a text tower with a latent-space denoiser for prompt-driven synthesis. Systems may borrow CLIP-style encoders or swap in other text or multimodal towers while keeping the same conditioning pattern. Related docs below connect to the broader conditioning idea, denoising generation, and diffusion model architecture."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Conditioning is not prompt engineering, classifier-free guidance, a specific encoder brand, or the diffusion training loss. Prompt engineering changes the words you feed the encoder. Classifier-free guidance mixes conditional and unconditional sampling passes. A text encoder is one implementation choice. The denoising objective still asks the network to predict noise; the prompt does not become the loss function."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
