@@ -15,17 +15,21 @@ import {
 } from "@/lib/content/table-registry-generation";
 import {
   applyGeneratedTableRegistryExpectedOutput,
+  buildGeneratedTableRegistryActiveLaneOwnershipHandoff,
   buildGeneratedTableRegistryExpectedOutputOutcome,
   buildGeneratedTableRegistryStaleDriftHandoff,
   captureGeneratedTableRegistryRootDriftEvidence,
+  classifyGeneratedTableRegistryActiveLaneOwnershipApplicable,
   classifyGeneratedTableRegistryExpectedOutputKind,
   classifyGeneratedTableRegistryStaleDriftApplicable,
   extractLoopedTransformersComparisonDiffHighlights,
   extractLoopedTransformersGeneratedLines,
+  formatGeneratedTableRegistryActiveLaneOwnershipHandoff,
   formatGeneratedTableRegistryExpectedOutputOutcome,
   formatGeneratedTableRegistryReproducibilityProof,
   formatGeneratedTableRegistryRootDriftEvidence,
   formatGeneratedTableRegistryStaleDriftHandoff,
+  GENERATED_TABLE_REGISTRY_ACTIVE_LANE_OWNERSHIP_PAGE_REFILL_HOLD_RULE,
   GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
   GENERATED_TABLE_REGISTRY_DRIFT_EVIDENCE_PRESERVE_POLICY,
   GENERATED_TABLE_REGISTRY_EXPECTED_OUTPUT_UNRELATED_PATHS_NOTE,
@@ -41,6 +45,8 @@ import {
   TABLE_REGISTRY_VALIDATION_COMMAND,
   verifyLoopedTransformersTableRegistryDiscoverability,
 } from "@/lib/factory/generated-table-registry-root-drift-cleanup-proof";
+import type { PlannerWorktreeDriftSnapshot } from "@/lib/factory/planner-worktree-drift-watchdog";
+import type { QueueWorktreePrLinkageLedger } from "@/lib/factory/queue-worktree-pr-linkage-ledger";
 
 const FIXTURE_DIR = join(
   import.meta.dir,
@@ -1222,6 +1228,316 @@ describe("stale-drift handoff report script integration", () => {
     );
     expect(result.stdout).toContain(
       `page-refill-hold-rule=${GENERATED_TABLE_REGISTRY_STALE_DRIFT_PAGE_REFILL_HOLD_RULE}`,
+    );
+
+    const statusAfter = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+    expect(statusAfter).toBe(statusBefore);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+});
+
+function createMockDriftSnapshotForTableRegistry(input: {
+  ownershipKind: "root-owned" | "worktree-owned";
+  laneName?: string;
+  branchName?: string;
+  worktreePath?: string;
+}): PlannerWorktreeDriftSnapshot {
+  const ownership =
+    input.ownershipKind === "worktree-owned"
+      ? {
+          branchName: input.branchName ?? "looped-transformers-page",
+          kind: "worktree-owned" as const,
+          laneName: input.laneName ?? "looped-transformers-page",
+          linkageStatus: "linked" as const,
+          reasonCode: "direct-worktree-match" as const,
+          reason: `Root drift matches dirty path ownership already visible in active lane ${input.laneName ?? "looped-transformers-page"}.`,
+          worktreePath:
+            input.worktreePath ?? ".claude/worktrees/looped-transformers-page",
+        }
+      : {
+          kind: "root-owned" as const,
+          reasonCode: "root-unmatched" as const,
+          reason:
+            "Ownerless root dirty path: no active or merged lane currently matches this dirty path or shared surface.",
+        };
+
+  return {
+    activeLaneCount: input.ownershipKind === "worktree-owned" ? 1 : 0,
+    evaluatedWorktreeCount: input.ownershipKind === "worktree-owned" ? 1 : 0,
+    generatedAtUtc: "2026-07-03T07:00:00.000Z",
+    issues: [],
+    mergedLaneCount: 0,
+    mergedLanes: [],
+    risks: [],
+    root: {
+      dirtyPathCount: 1,
+      dirtyPaths: [
+        {
+          category: "generated-artifact",
+          changeKind: "modified",
+          location: "root",
+          ownership,
+          path: GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+          statusCode: " M",
+          surface: "src/lib/content/generated",
+        },
+      ],
+      repoRoot: "/repo/root",
+    },
+    totalDirtyPathCount: 1,
+    worktrees: [],
+  };
+}
+
+function createMockLinkageLedgerForLane(input: {
+  branchName: string;
+  laneName: string;
+  prNumber: number;
+}): QueueWorktreePrLinkageLedger {
+  return {
+    actionableLinkageGapLaneCount: 0,
+    activeLaneCount: 1,
+    failedLaneCount: 0,
+    generatedAtUtc: "2026-07-03T07:00:00.000Z",
+    issues: [],
+    laneCount: 1,
+    lanes: [
+      {
+        branchName: input.branchName,
+        laneName: input.laneName,
+        linkageStatus: "linked",
+        missingLinkageReasons: [],
+        pullRequest: {
+          number: input.prNumber,
+          url: `https://github.com/example/repo/pull/${input.prNumber}`,
+        },
+        pullRequestLookup: { status: "resolved" },
+        queueState: "active",
+        rawQueueState: "active",
+        worktreePath: `.claude/worktrees/${input.laneName}`,
+      },
+    ],
+    linkedLaneCount: 1,
+    linkedWithGapsLaneCount: 0,
+    prBackedLaneCount: 1,
+    queueOnlyControlNoiseLaneCount: 0,
+    staleCleanPrMismatchLaneCount: 0,
+  };
+}
+
+describe("classifyGeneratedTableRegistryActiveLaneOwnershipApplicable", () => {
+  test("returns false when generated artifact is clean", () => {
+    expect(
+      classifyGeneratedTableRegistryActiveLaneOwnershipApplicable({
+        generatedArtifactCleanliness: "clean",
+        ownership: {
+          kind: "worktree-owned",
+          laneName: "alpha",
+          reasonCode: "direct-worktree-match",
+          reason: "owned",
+        },
+      }),
+    ).toBe(false);
+  });
+
+  test("returns true when dirty artifact is worktree-owned by an active lane", () => {
+    expect(
+      classifyGeneratedTableRegistryActiveLaneOwnershipApplicable({
+        generatedArtifactCleanliness: "dirty",
+        ownership: {
+          kind: "worktree-owned",
+          laneName: "alpha",
+          reasonCode: "direct-worktree-match",
+          reason: "owned",
+        },
+      }),
+    ).toBe(true);
+  });
+
+  test("returns false for ownerless dirty artifact", () => {
+    expect(
+      classifyGeneratedTableRegistryActiveLaneOwnershipApplicable({
+        generatedArtifactCleanliness: "dirty",
+        ownership: {
+          kind: "root-owned",
+          reasonCode: "root-unmatched",
+          reason: "ownerless",
+        },
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("buildGeneratedTableRegistryActiveLaneOwnershipHandoff", () => {
+  test("records not-applicable handoff when root artifact is clean", () => {
+    const handoff = buildGeneratedTableRegistryActiveLaneOwnershipHandoff({
+      checkoutRepoPath: "/checkout",
+      generatedAtUtc: "2026-07-03T07:00:00.000Z",
+      skipWorktreeDriftDiscovery: true,
+      driftEvidence: captureGeneratedTableRegistryRootDriftEvidence({
+        generatedAtUtc: "2026-07-03T07:00:00.000Z",
+        repoRoot: "/checkout",
+        remoteBaseRef: "origin/main",
+        statusOutput: "## main...origin/main\n",
+        diffOutput: "",
+        runGit: createMockGitRunner({}),
+      }),
+    });
+
+    expect(handoff.applicable).toBe(false);
+    expect(handoff.generatedArtifactCleanliness).toBe("clean");
+    expect(handoff.notApplicableReason).toContain("Story 005 does not apply");
+    expect(handoff.pageRefillHoldRule).toBe(
+      GENERATED_TABLE_REGISTRY_ACTIVE_LANE_OWNERSHIP_PAGE_REFILL_HOLD_RULE,
+    );
+  });
+
+  test("records active-lane ownership when dirty artifact is worktree-owned", () => {
+    const handoff = buildGeneratedTableRegistryActiveLaneOwnershipHandoff({
+      checkoutRepoPath: "/checkout",
+      generatedAtUtc: "2026-07-03T07:01:00.000Z",
+      driftEvidence: captureGeneratedTableRegistryRootDriftEvidence({
+        generatedAtUtc: "2026-07-03T07:01:00.000Z",
+        repoRoot: "/checkout",
+        remoteBaseRef: "origin/main",
+        statusOutput: readFixture("dirty-table-registry-status.txt"),
+        diffOutput: readFixture("looped-transformers-table-registry.diff"),
+        runGit: createMockGitRunner({}),
+      }),
+      driftSnapshot: createMockDriftSnapshotForTableRegistry({
+        ownershipKind: "worktree-owned",
+        laneName: "looped-transformers-page",
+        branchName: "looped-transformers-page",
+      }),
+      linkageLedger: createMockLinkageLedgerForLane({
+        branchName: "looped-transformers-page",
+        laneName: "looped-transformers-page",
+        prNumber: 301,
+      }),
+    });
+
+    expect(handoff.applicable).toBe(true);
+    expect(handoff.laneName).toBe("looped-transformers-page");
+    expect(handoff.branchName).toBe("looped-transformers-page");
+    expect(handoff.pullRequestNumber).toBe(301);
+    expect(handoff.ownershipRationale).toContain(
+      GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+    );
+    expect(handoff.pageRefillHoldRule).toContain("PR #301");
+    expect(handoff.ownershipEvidence).toContain(
+      "owning-lane=looped-transformers-page",
+    );
+    expect(handoff.ownershipEvidence).toContain("owning-pr-number=301");
+  });
+
+  test("records not-applicable handoff for ownerless dirty artifact", () => {
+    const handoff = buildGeneratedTableRegistryActiveLaneOwnershipHandoff({
+      checkoutRepoPath: "/checkout",
+      generatedAtUtc: "2026-07-03T07:02:00.000Z",
+      driftEvidence: captureGeneratedTableRegistryRootDriftEvidence({
+        generatedAtUtc: "2026-07-03T07:02:00.000Z",
+        repoRoot: "/checkout",
+        remoteBaseRef: "origin/main",
+        statusOutput: readFixture("dirty-table-registry-status.txt"),
+        diffOutput: readFixture("looped-transformers-table-registry.diff"),
+        runGit: createMockGitRunner({}),
+      }),
+      driftSnapshot: createMockDriftSnapshotForTableRegistry({
+        ownershipKind: "root-owned",
+      }),
+    });
+
+    expect(handoff.applicable).toBe(false);
+    expect(handoff.notApplicableReason).toContain("ownerless root drift");
+    expect(handoff.ownership?.kind).toBe("root-owned");
+  });
+
+  test("formats active lane ownership handoff with evidence and refill rule", () => {
+    const handoff = buildGeneratedTableRegistryActiveLaneOwnershipHandoff({
+      checkoutRepoPath: process.cwd(),
+      generatedAtUtc: "2026-07-03T07:03:00.000Z",
+      skipWorktreeDriftDiscovery: true,
+    });
+    const text =
+      formatGeneratedTableRegistryActiveLaneOwnershipHandoff(handoff);
+
+    expect(text).toContain("Active Lane Ownership");
+    expect(text).toContain("ownership-evidence:");
+    if (handoff.applicable) {
+      expect(text).toContain("ownership-rationale=");
+      expect(text).toContain("owning-lane=");
+    } else {
+      expect(text).toContain("not-applicable-reason=");
+    }
+  });
+});
+
+describe("active-lane ownership report script integration", () => {
+  test("emits active lane ownership handoff without mutating git state", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "generated-table-registry-root-drift-active-lane-"),
+    );
+    const repoRoot = join(dir, "repo");
+    const tablesDir = join(repoRoot, "src/content/registry/tables");
+    const artifactPath = join(repoRoot, GENERATED_TABLE_REGISTRY_ARTIFACT_PATH);
+    const sourceTablePath = join(
+      tablesDir,
+      LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
+    );
+
+    mkdirSync(tablesDir, { recursive: true });
+    writeFileSync(
+      sourceTablePath,
+      createMinimalTableRecord(
+        LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID,
+        "module.looped-transformers",
+      ),
+    );
+
+    const generatedModuleSource = renderGeneratedTableRegistryModule(
+      createTableRegistrySourceEntries([
+        LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
+      ]),
+    );
+    mkdirSync(join(artifactPath, ".."), { recursive: true });
+    writeFileSync(artifactPath, generatedModuleSource);
+
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+    runGit(repoRoot, ["add", "."]);
+    runGit(repoRoot, ["commit", "-m", "initial"]);
+    runGit(repoRoot, ["branch", "origin-main"]);
+    runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "origin-main"]);
+
+    const statusBefore = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-generated-table-registry-root-drift-cleanup-proof.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+        "--active-lane-ownership",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("Active Lane Ownership");
+    expect(result.stdout).toContain("applicable=false");
+    expect(result.stdout).toContain("generated-artifact-cleanliness=clean");
+    expect(result.stdout).toContain(
+      `page-refill-hold-rule=${GENERATED_TABLE_REGISTRY_ACTIVE_LANE_OWNERSHIP_PAGE_REFILL_HOLD_RULE}`,
     );
 
     const statusAfter = spawnSync("git", ["status", "--porcelain"], {

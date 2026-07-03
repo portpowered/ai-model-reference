@@ -1,14 +1,17 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
+  buildGeneratedTableRegistryActiveLaneOwnershipHandoff,
   buildGeneratedTableRegistryExpectedOutputOutcome,
   buildGeneratedTableRegistryStaleDriftHandoff,
   captureGeneratedTableRegistryRootDriftEvidence,
+  formatGeneratedTableRegistryActiveLaneOwnershipHandoff,
   formatGeneratedTableRegistryExpectedOutputOutcome,
   formatGeneratedTableRegistryReproducibilityProof,
   formatGeneratedTableRegistryRootDriftEvidence,
   formatGeneratedTableRegistryStaleDriftHandoff,
   proveGeneratedTableRegistryReproducibility,
+  serializeGeneratedTableRegistryActiveLaneOwnershipHandoff,
   serializeGeneratedTableRegistryExpectedOutputOutcome,
   serializeGeneratedTableRegistryReproducibilityProof,
   serializeGeneratedTableRegistryRootDriftEvidence,
@@ -66,6 +69,12 @@ function isStaleDriftHandoffRequested(argv: string[]): boolean {
   );
 }
 
+function isActiveLaneOwnershipRequested(argv: string[]): boolean {
+  return (
+    argv.includes("--active-lane-ownership") || argv.includes("--full-proof")
+  );
+}
+
 const repoRoot = readFlagValue("--repo-root")
   ? resolve(readFlagValue("--repo-root") as string)
   : defaultRepoRoot;
@@ -84,7 +93,21 @@ const reproducibilityRequested = isReproducibilityProofRequested(process.argv);
 const driftEvidenceRequested = isDriftEvidenceRequested(process.argv);
 const expectedOutputRequested = isExpectedOutputRequested(process.argv);
 const staleDriftHandoffRequested = isStaleDriftHandoffRequested(process.argv);
+const activeLaneOwnershipRequested = isActiveLaneOwnershipRequested(
+  process.argv,
+);
 const applyExpectedOutput = process.argv.includes("--apply");
+const workListJsonPath = readFlagValue("--work-list-json");
+const sessionListJsonPath = readFlagValue("--session-list-json");
+const worktreesDir = readFlagValue("--worktrees-dir")
+  ? resolve(readFlagValue("--worktrees-dir") as string)
+  : resolve(repoRoot, ".claude", "worktrees");
+const workListJsonText = workListJsonPath
+  ? readOptionalFile(workListJsonPath, "work list")
+  : undefined;
+const sessionListJsonText = sessionListJsonPath
+  ? readOptionalFile(sessionListJsonPath, "session list")
+  : undefined;
 
 const report = driftEvidenceRequested
   ? captureGeneratedTableRegistryRootDriftEvidence({
@@ -126,8 +149,41 @@ const staleDriftHandoff = staleDriftHandoffRequested
     })
   : null;
 
+const activeLaneOwnershipHandoff = activeLaneOwnershipRequested
+  ? buildGeneratedTableRegistryActiveLaneOwnershipHandoff({
+      checkoutRepoPath: repoRoot,
+      driftEvidence: report ?? undefined,
+      generatedAtUtc,
+      remoteBaseRef,
+      repoRoot,
+      sessionListJsonText,
+      workListJsonText,
+      worktreesDir,
+    })
+  : null;
+
 if (jsonOutput) {
   if (
+    report !== null &&
+    reproducibilityProof !== null &&
+    expectedOutputOutcome !== null &&
+    staleDriftHandoff !== null &&
+    activeLaneOwnershipHandoff !== null
+  ) {
+    process.stdout.write(
+      `${JSON.stringify(
+        {
+          activeLaneOwnershipHandoff,
+          driftEvidence: report,
+          expectedOutputOutcome,
+          reproducibilityProof,
+          staleDriftHandoff,
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  } else if (
     report !== null &&
     reproducibilityProof !== null &&
     expectedOutputOutcome !== null &&
@@ -198,6 +254,10 @@ if (jsonOutput) {
     process.stdout.write(
       `${serializeGeneratedTableRegistryExpectedOutputOutcome(expectedOutputOutcome)}\n`,
     );
+  } else if (activeLaneOwnershipHandoff !== null) {
+    process.stdout.write(
+      `${serializeGeneratedTableRegistryActiveLaneOwnershipHandoff(activeLaneOwnershipHandoff)}\n`,
+    );
   } else if (staleDriftHandoff !== null) {
     process.stdout.write(
       `${serializeGeneratedTableRegistryStaleDriftHandoff(staleDriftHandoff)}\n`,
@@ -229,6 +289,13 @@ if (jsonOutput) {
   if (staleDriftHandoff !== null) {
     outputSections.push(
       formatGeneratedTableRegistryStaleDriftHandoff(staleDriftHandoff),
+    );
+  }
+  if (activeLaneOwnershipHandoff !== null) {
+    outputSections.push(
+      formatGeneratedTableRegistryActiveLaneOwnershipHandoff(
+        activeLaneOwnershipHandoff,
+      ),
     );
   }
   process.stdout.write(`${outputSections.join("\n\n")}\n`);

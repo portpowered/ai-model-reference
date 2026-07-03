@@ -15,6 +15,16 @@ import {
   detectDefaultRemoteBaseRef,
   pathExistsOnGitRef,
 } from "./planner-root-checkout-reconciliation";
+import {
+  discoverPlannerWorktreeDriftSnapshot,
+  type PlannerWorktreeDirtyPath,
+  type PlannerWorktreeDriftOwnership,
+  type PlannerWorktreeDriftSnapshot,
+} from "./planner-worktree-drift-watchdog";
+import type {
+  QueueWorktreePrLinkageLane,
+  QueueWorktreePrLinkageLedger,
+} from "./queue-worktree-pr-linkage-ledger";
 
 export const GENERATED_TABLE_REGISTRY_ROOT_DRIFT_CLEANUP_PROOF_HEADER =
   "Generated Table Registry Root Drift Cleanup Proof";
@@ -1289,6 +1299,416 @@ export function formatGeneratedTableRegistryStaleDriftHandoff(
 
 export function serializeGeneratedTableRegistryStaleDriftHandoff(
   handoff: GeneratedTableRegistryStaleDriftHandoff,
+): string {
+  return JSON.stringify(handoff, null, 2);
+}
+
+export const GENERATED_TABLE_REGISTRY_ACTIVE_LANE_OWNERSHIP_PAGE_REFILL_HOLD_RULE =
+  "Hold page refills until the owning active lane lands, refreshes, or releases src/lib/content/generated/table-registry.generated.ts.";
+
+export const GENERATED_TABLE_REGISTRY_ACTIVE_LANE_OWNERSHIP_WATCHDOG_COMMAND =
+  "bun run report:planner-worktree-drift-watchdog";
+
+export const GENERATED_TABLE_REGISTRY_ACTIVE_LANE_OWNERSHIP_LINKAGE_COMMAND =
+  "bun run report:queue-worktree-pr-linkage-ledger";
+
+export type GeneratedTableRegistryActiveLaneOwnershipDiscoveryStatus =
+  | "available"
+  | "unavailable";
+
+export interface GeneratedTableRegistryActiveLaneOwnershipHandoff {
+  applicable: boolean;
+  branchName?: string;
+  checkoutRepoPath: string;
+  discoveryStatus: GeneratedTableRegistryActiveLaneOwnershipDiscoveryStatus;
+  discoveryUnavailableReason?: string;
+  generatedArtifactCleanliness: GeneratedTableRegistryArtifactCleanliness;
+  generatedArtifactPath: string;
+  generatedArtifactStatusLine: string | null;
+  generatedAtUtc: string;
+  laneName?: string;
+  linkageStatus?: QueueWorktreePrLinkageLane["linkageStatus"];
+  notApplicableReason?: string;
+  ownership?: PlannerWorktreeDriftOwnership;
+  ownershipEvidence: string[];
+  ownershipRationale?: string;
+  pageRefillHoldRule: string;
+  pullRequestNumber?: number;
+  pullRequestUrl?: string;
+  rootRepoPath: string;
+  worktreePath?: string;
+}
+
+export interface BuildGeneratedTableRegistryActiveLaneOwnershipHandoffOptions {
+  checkoutRepoPath?: string;
+  driftEvidence?: GeneratedTableRegistryRootDriftEvidence;
+  driftSnapshot?: PlannerWorktreeDriftSnapshot;
+  generatedAtUtc?: string;
+  linkageLedger?: QueueWorktreePrLinkageLedger;
+  remoteBaseRef?: string;
+  repoRoot?: string;
+  runGit?: RunGit;
+  sessionListJsonText?: string;
+  skipWorktreeDriftDiscovery?: boolean;
+  workListJsonText?: string;
+  worktreesDir?: string;
+}
+
+export function findGeneratedTableRegistryRootDirtyPath(
+  driftSnapshot: PlannerWorktreeDriftSnapshot,
+): PlannerWorktreeDirtyPath | undefined {
+  return driftSnapshot.root.dirtyPaths.find(
+    (dirtyPath) => dirtyPath.path === GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+  );
+}
+
+export function classifyGeneratedTableRegistryActiveLaneOwnershipApplicable(input: {
+  generatedArtifactCleanliness: GeneratedTableRegistryArtifactCleanliness;
+  ownership?: PlannerWorktreeDriftOwnership | null;
+}): boolean {
+  if (input.generatedArtifactCleanliness !== "dirty") {
+    return false;
+  }
+
+  return (
+    input.ownership?.kind === "worktree-owned" &&
+    Boolean(input.ownership.laneName)
+  );
+}
+
+function buildActiveLaneOwnershipNotApplicableReason(input: {
+  discoveryStatus: GeneratedTableRegistryActiveLaneOwnershipDiscoveryStatus;
+  discoveryUnavailableReason?: string;
+  generatedArtifactCleanliness: GeneratedTableRegistryArtifactCleanliness;
+  ownership?: PlannerWorktreeDriftOwnership;
+}): string {
+  if (input.generatedArtifactCleanliness !== "dirty") {
+    return "Story 005 does not apply because the root generated table registry artifact is clean; no active-lane ownership attribution is required.";
+  }
+
+  if (input.discoveryStatus === "unavailable") {
+    return `Story 005 cannot confirm active-lane ownership because worktree drift discovery is unavailable${input.discoveryUnavailableReason ? `: ${input.discoveryUnavailableReason}` : ""}.`;
+  }
+
+  if (!input.ownership) {
+    return `Story 005 does not apply because ${GENERATED_TABLE_REGISTRY_ARTIFACT_PATH} is not present in the root dirty-path set reported by the worktree drift watchdog.`;
+  }
+
+  if (input.ownership.kind === "worktree-owned") {
+    return "Story 005 does not apply because worktree-owned drift was expected but lane metadata was missing.";
+  }
+
+  if (input.ownership.reasonCode === "ambiguous-shared-surface") {
+    return `Story 005 does not apply because ownership is ambiguous across active lanes on shared surface for ${GENERATED_TABLE_REGISTRY_ARTIFACT_PATH}; operator investigation is required before attributing the generated artifact to one lane.`;
+  }
+
+  if (input.ownership.kind === "already-merged-owned") {
+    return `Story 005 does not apply because root drift on ${GENERATED_TABLE_REGISTRY_ARTIFACT_PATH} is attributed to already-merged lane ${input.ownership.laneName ?? "unknown"} rather than an active in-flight lane.`;
+  }
+
+  return `Story 005 does not apply because ${GENERATED_TABLE_REGISTRY_ARTIFACT_PATH} is ownerless root drift (${input.ownership.kind}/${input.ownership.reasonCode}); use story 004 stale-drift handoff or operator investigation instead of active-lane ownership.`;
+}
+
+function buildActiveLaneOwnershipRationale(input: {
+  branchName?: string;
+  laneName: string;
+  ownership: PlannerWorktreeDriftOwnership;
+  pullRequestNumber?: number;
+}): string {
+  const prLabel =
+    typeof input.pullRequestNumber === "number"
+      ? `PR #${input.pullRequestNumber}`
+      : "its open PR";
+  return `Root dirty ${GENERATED_TABLE_REGISTRY_ARTIFACT_PATH} is intentionally held by active lane ${input.laneName}${input.branchName ? ` (${input.branchName})` : ""} via ${prLabel}; ${input.ownership.reason}`;
+}
+
+function buildActiveLaneOwnershipEvidence(input: {
+  branchName?: string;
+  discoveryStatus: GeneratedTableRegistryActiveLaneOwnershipDiscoveryStatus;
+  generatedArtifactStatusLine: string | null;
+  laneName?: string;
+  linkageStatus?: QueueWorktreePrLinkageLane["linkageStatus"];
+  ownership?: PlannerWorktreeDriftOwnership;
+  pullRequestNumber?: number;
+  pullRequestUrl?: string;
+  worktreePath?: string;
+}): string[] {
+  const evidence = [
+    `watchdog-command=${GENERATED_TABLE_REGISTRY_ACTIVE_LANE_OWNERSHIP_WATCHDOG_COMMAND}`,
+    `linkage-command=${GENERATED_TABLE_REGISTRY_ACTIVE_LANE_OWNERSHIP_LINKAGE_COMMAND}`,
+    `discovery-status=${input.discoveryStatus}`,
+    `generated-artifact-path=${GENERATED_TABLE_REGISTRY_ARTIFACT_PATH}`,
+    `generated-artifact-status-line=${input.generatedArtifactStatusLine ?? "none"}`,
+  ];
+
+  if (input.ownership) {
+    evidence.push(
+      `ownership-kind=${input.ownership.kind}`,
+      `ownership-reason-code=${input.ownership.reasonCode}`,
+      `ownership-reason=${input.ownership.reason}`,
+    );
+  }
+
+  if (input.laneName) {
+    evidence.push(`owning-lane=${input.laneName}`);
+  }
+  if (input.branchName) {
+    evidence.push(`owning-branch=${input.branchName}`);
+  }
+  if (typeof input.pullRequestNumber === "number") {
+    evidence.push(`owning-pr-number=${input.pullRequestNumber}`);
+  }
+  if (input.pullRequestUrl) {
+    evidence.push(`owning-pr-url=${input.pullRequestUrl}`);
+  }
+  if (input.linkageStatus) {
+    evidence.push(`linkage-status=${input.linkageStatus}`);
+  }
+  if (input.worktreePath) {
+    evidence.push(`owning-worktree-path=${input.worktreePath}`);
+  }
+
+  return evidence;
+}
+
+function resolveLinkageLaneForOwnership(
+  linkageLedger: QueueWorktreePrLinkageLedger | undefined,
+  laneName: string | undefined,
+): QueueWorktreePrLinkageLane | undefined {
+  if (!linkageLedger || !laneName) {
+    return undefined;
+  }
+
+  return linkageLedger.lanes.find((lane) => lane.laneName === laneName);
+}
+
+function resolveGeneratedTableRegistryDriftSnapshot(
+  options: BuildGeneratedTableRegistryActiveLaneOwnershipHandoffOptions & {
+    mainRepoRoot: string;
+  },
+): {
+  discoveryStatus: GeneratedTableRegistryActiveLaneOwnershipDiscoveryStatus;
+  discoveryUnavailableReason?: string;
+  driftSnapshot?: PlannerWorktreeDriftSnapshot;
+} {
+  if (options.driftSnapshot) {
+    return {
+      discoveryStatus: "available",
+      driftSnapshot: options.driftSnapshot,
+    };
+  }
+
+  if (options.skipWorktreeDriftDiscovery) {
+    return {
+      discoveryStatus: "unavailable",
+      discoveryUnavailableReason: "skipped-by-request",
+    };
+  }
+
+  if (
+    !options.workListJsonText ||
+    !options.sessionListJsonText ||
+    !options.worktreesDir
+  ) {
+    return {
+      discoveryStatus: "unavailable",
+      discoveryUnavailableReason: "missing queue/worktree discovery inputs",
+    };
+  }
+
+  try {
+    return {
+      discoveryStatus: "available",
+      driftSnapshot: discoverPlannerWorktreeDriftSnapshot({
+        baseBranchName: options.remoteBaseRef,
+        generatedAtUtc: options.generatedAtUtc,
+        linkageLedger: options.linkageLedger,
+        repoRoot: options.mainRepoRoot,
+        sessionListJsonText: options.sessionListJsonText,
+        workListJsonText: options.workListJsonText,
+        worktreesDir: options.worktreesDir,
+      }),
+    };
+  } catch (error) {
+    return {
+      discoveryStatus: "unavailable",
+      discoveryUnavailableReason:
+        error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+export function buildGeneratedTableRegistryActiveLaneOwnershipHandoff(
+  options: BuildGeneratedTableRegistryActiveLaneOwnershipHandoffOptions = {},
+): GeneratedTableRegistryActiveLaneOwnershipHandoff {
+  const checkoutRepoPath = resolve(
+    options.checkoutRepoPath ?? options.repoRoot ?? process.cwd(),
+  );
+  const runGit = options.runGit ?? defaultRunGit;
+  const driftEvidence =
+    options.driftEvidence ??
+    captureGeneratedTableRegistryRootDriftEvidence({
+      generatedAtUtc: options.generatedAtUtc,
+      remoteBaseRef: options.remoteBaseRef,
+      repoRoot: checkoutRepoPath,
+      runGit,
+    });
+  const mainRepoRoot = driftEvidence.rootRepoPath;
+  const driftDiscovery = resolveGeneratedTableRegistryDriftSnapshot({
+    ...options,
+    mainRepoRoot,
+  });
+  const rootDirtyPath = driftDiscovery.driftSnapshot
+    ? findGeneratedTableRegistryRootDirtyPath(driftDiscovery.driftSnapshot)
+    : undefined;
+  const ownership = rootDirtyPath?.ownership;
+  const applicable =
+    classifyGeneratedTableRegistryActiveLaneOwnershipApplicable({
+      generatedArtifactCleanliness: driftEvidence.generatedArtifactCleanliness,
+      ownership,
+    });
+  const linkageLane = resolveLinkageLaneForOwnership(
+    options.linkageLedger,
+    ownership?.laneName,
+  );
+  const branchName = ownership?.branchName ?? linkageLane?.branchName;
+  const pullRequestNumber = linkageLane?.pullRequest?.number;
+  const pullRequestUrl = linkageLane?.pullRequest?.url;
+  const worktreePath = ownership?.worktreePath ?? linkageLane?.worktreePath;
+  const linkageStatus = ownership?.linkageStatus ?? linkageLane?.linkageStatus;
+  const ownershipEvidence = buildActiveLaneOwnershipEvidence({
+    branchName,
+    discoveryStatus: driftDiscovery.discoveryStatus,
+    generatedArtifactStatusLine: driftEvidence.generatedArtifactStatusLine,
+    laneName: ownership?.laneName,
+    linkageStatus,
+    ownership,
+    pullRequestNumber,
+    pullRequestUrl,
+    worktreePath,
+  });
+
+  if (!applicable) {
+    return {
+      applicable: false,
+      checkoutRepoPath,
+      discoveryStatus: driftDiscovery.discoveryStatus,
+      discoveryUnavailableReason: driftDiscovery.discoveryUnavailableReason,
+      generatedArtifactCleanliness: driftEvidence.generatedArtifactCleanliness,
+      generatedArtifactPath: GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+      generatedArtifactStatusLine: driftEvidence.generatedArtifactStatusLine,
+      generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
+      notApplicableReason: buildActiveLaneOwnershipNotApplicableReason({
+        discoveryStatus: driftDiscovery.discoveryStatus,
+        discoveryUnavailableReason: driftDiscovery.discoveryUnavailableReason,
+        generatedArtifactCleanliness:
+          driftEvidence.generatedArtifactCleanliness,
+        ownership,
+      }),
+      ownership,
+      ownershipEvidence,
+      pageRefillHoldRule:
+        GENERATED_TABLE_REGISTRY_ACTIVE_LANE_OWNERSHIP_PAGE_REFILL_HOLD_RULE,
+      rootRepoPath: mainRepoRoot,
+    };
+  }
+
+  const laneName = ownership?.laneName;
+  if (!laneName || !ownership) {
+    throw new Error(
+      "Active lane ownership handoff classified as applicable without lane metadata.",
+    );
+  }
+
+  return {
+    applicable: true,
+    branchName,
+    checkoutRepoPath,
+    discoveryStatus: driftDiscovery.discoveryStatus,
+    generatedArtifactCleanliness: driftEvidence.generatedArtifactCleanliness,
+    generatedArtifactPath: GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+    generatedArtifactStatusLine: driftEvidence.generatedArtifactStatusLine,
+    generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
+    laneName,
+    linkageStatus,
+    ownership,
+    ownershipEvidence,
+    ownershipRationale: buildActiveLaneOwnershipRationale({
+      branchName,
+      laneName,
+      ownership,
+      pullRequestNumber,
+    }),
+    pageRefillHoldRule: `Hold page refills until active lane ${laneName}${typeof pullRequestNumber === "number" ? ` (PR #${pullRequestNumber})` : ""} lands, refreshes, or releases ${GENERATED_TABLE_REGISTRY_ARTIFACT_PATH}.`,
+    pullRequestNumber,
+    pullRequestUrl,
+    rootRepoPath: mainRepoRoot,
+    worktreePath,
+  };
+}
+
+export function formatGeneratedTableRegistryActiveLaneOwnershipHandoff(
+  handoff: GeneratedTableRegistryActiveLaneOwnershipHandoff,
+): string {
+  const lines = [
+    `${GENERATED_TABLE_REGISTRY_ROOT_DRIFT_CLEANUP_PROOF_HEADER} — Active Lane Ownership`,
+    `generated-at-utc=${handoff.generatedAtUtc}`,
+    `checkout-repo-path=${handoff.checkoutRepoPath}`,
+    `root-repo-path=${handoff.rootRepoPath}`,
+    `generated-artifact-path=${handoff.generatedArtifactPath}`,
+    `generated-artifact-cleanliness=${handoff.generatedArtifactCleanliness}`,
+    `generated-artifact-status-line=${handoff.generatedArtifactStatusLine ?? "none"}`,
+    `applicable=${handoff.applicable}`,
+    `discovery-status=${handoff.discoveryStatus}`,
+    `page-refill-hold-rule=${handoff.pageRefillHoldRule}`,
+  ];
+
+  if (handoff.discoveryUnavailableReason) {
+    lines.push(
+      `discovery-unavailable-reason=${handoff.discoveryUnavailableReason}`,
+    );
+  }
+
+  if (handoff.notApplicableReason) {
+    lines.push(`not-applicable-reason=${handoff.notApplicableReason}`);
+  }
+
+  if (handoff.laneName) {
+    lines.push(`owning-lane=${handoff.laneName}`);
+  }
+  if (handoff.branchName) {
+    lines.push(`owning-branch=${handoff.branchName}`);
+  }
+  if (typeof handoff.pullRequestNumber === "number") {
+    lines.push(`owning-pr-number=${handoff.pullRequestNumber}`);
+  }
+  if (handoff.pullRequestUrl) {
+    lines.push(`owning-pr-url=${handoff.pullRequestUrl}`);
+  }
+  if (handoff.worktreePath) {
+    lines.push(`owning-worktree-path=${handoff.worktreePath}`);
+  }
+  if (handoff.linkageStatus) {
+    lines.push(`linkage-status=${handoff.linkageStatus}`);
+  }
+  if (handoff.ownershipRationale) {
+    lines.push(`ownership-rationale=${handoff.ownershipRationale}`);
+  }
+
+  lines.push("", "ownership-evidence:");
+  if (handoff.ownershipEvidence.length === 0) {
+    lines.push("- none");
+  } else {
+    for (const evidence of handoff.ownershipEvidence) {
+      lines.push(`  - ${evidence}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
+export function serializeGeneratedTableRegistryActiveLaneOwnershipHandoff(
+  handoff: GeneratedTableRegistryActiveLaneOwnershipHandoff,
 ): string {
   return JSON.stringify(handoff, null, 2);
 }

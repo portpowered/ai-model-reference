@@ -21,7 +21,10 @@ revert, stage, overwrite, or commit the root artifact during evidence capture.
   optional `--apply` write of only `table-registry.generated.ts`; story 004 stale-drift
   operator handoff (`classifyGeneratedTableRegistryStaleDriftApplicable`,
   `buildGeneratedTableRegistryStaleDriftHandoff`) with reproduction-failure evidence,
-  operator-safe preserve/restore/regenerate/verify actions, and page-refill hold rule.
+  operator-safe preserve/restore/regenerate/verify actions, and page-refill hold rule; story 005
+  active-lane ownership handoff (`classifyGeneratedTableRegistryActiveLaneOwnershipApplicable`,
+  `buildGeneratedTableRegistryActiveLaneOwnershipHandoff`) with worktree-drift ownership evidence,
+  linkage-backed PR metadata, explicit refill hold rule, and not-applicable paths for clean or ownerless drift.
 * `src/lib/factory/generated-table-registry-root-drift-cleanup-proof.test.ts` —
   fixture diff/status tests plus temp-git-repo integration proving the report
   script does not mutate porcelain state.
@@ -48,6 +51,7 @@ revert, stage, overwrite, or commit the root artifact during evidence capture.
 | Classify expected generated output lane (story 003) | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --expected-output` |
 | Apply minimal generated artifact when dirty and reproducible (story 003) | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --expected-output --apply` |
 | Document operator-safe stale drift handoff (story 004) | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --stale-drift-handoff` |
+| Record active-lane ownership when drift is PR-owned (story 005) | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --active-lane-ownership` |
 | Capture drift evidence and reproducibility proof together | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof` |
 | Point at the planner root checkout explicitly | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --repo-root /path/to/root` |
 | Fixture-backed status/diff replay | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --repo-root /path/to/root --status-output /path/to/status.txt --diff-output /path/to/diff.txt` |
@@ -153,6 +157,25 @@ When reproducibility is `differs-from-deterministic-generation` or
 `missing-canonical-source-table`, the handoff emits preserve, restore-from-main,
 restore-from-head, regenerate, and verify-after-cleanup actions scoped to only
 `src/lib/content/generated/table-registry.generated.ts`.
+
+## Live active-lane ownership (2026-07-03 UTC)
+
+Captured via
+`bun run report:generated-table-registry-root-drift-cleanup-proof -- --active-lane-ownership`
+from this worktree.
+
+| Field | Value |
+| --- | --- |
+| Applicable | `false` |
+| Root generated artifact cleanliness | `clean` |
+| Not-applicable reason | Story 005 does not apply because the root generated table registry artifact is clean |
+| Page refill hold rule | Hold page refills until the owning active lane lands, refreshes, or releases the generated artifact |
+| Ownership evidence | watchdog/linkage command references only (no dirty artifact to attribute) |
+
+When root `table-registry.generated.ts` is dirty and the worktree drift watchdog
+attributes it to a single active lane, the handoff names the owning lane, branch,
+PR number, worktree path, and explicit refill hold rule until that lane lands or
+releases the artifact.
 
 ## Preserve policy
 
