@@ -335,19 +335,23 @@ describe("SearchPagePanel Phase 1 queries", () => {
     expectReadableQueryMatchHighlightPanel(within(results));
   });
 
-  test("GQA query ranks grouped-query attention first on /search", async () => {
-    const context = await loadAppTestContext();
-    await renderSearchPagePanelContent(context);
+  test(
+    "GQA query ranks grouped-query attention first on /search",
+    async () => {
+      const context = await loadAppTestContext();
+      await renderSearchPagePanelContent(context);
 
-    const user = userEvent.setup();
-    await user.type(
-      screen.getByLabelText(context.messages.search.placeholder),
-      "GQA",
-    );
+      const user = userEvent.setup();
+      await user.type(
+        screen.getByLabelText(context.messages.search.placeholder),
+        "GQA",
+      );
 
-    const results = await waitForSearchPagePanelResults();
-    await expectFirstSearchResultMatch(results, { url: SAMPLE_MODULE_URL });
-  }, { timeout: 90_000 });
+      const results = await waitForSearchPagePanelResults();
+      await expectFirstSearchResultMatch(results, { url: SAMPLE_MODULE_URL });
+    },
+    { timeout: 90_000 },
+  );
 
   test.each([
     "prefill",

@@ -55,6 +55,9 @@ Use these files when extending the default English blog surface at `/blog` and
 * Search page panel GQA ranking rows without explicit per-test timeouts inherit
   the 15s default and can fail under full-suite load; align them with the 90s GQA
   `test.each` budget when CI is already green.
+* Production roofline post assertions should track canonical frontmatter tags from
+  `src/content/blog/roofline-throughput-explorer/page.mdx` (currently
+  `foundations` and `kv-cache`), not stale `inference` labels after main sync.
 
 ## Patterns
 

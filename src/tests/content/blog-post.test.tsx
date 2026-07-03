@@ -94,7 +94,7 @@ describe("blog post page render", () => {
     expect(html).toContain("July 2, 2026");
     expect(html).toContain('class="sr-only">Authors: </span>');
     expect(html).toContain("Site Team");
-    expect(html).toContain("Inference");
+    expect(html).toContain("Foundations");
     expect(html).toContain("Kv Cache");
     expect(html).toContain('data-blog-slug="roofline-throughput-explorer"');
     expect(html).toContain("Why active weight reads can cap throughput");

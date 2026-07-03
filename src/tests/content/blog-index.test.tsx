@@ -103,7 +103,7 @@ describe("blog index page render", () => {
     );
     expect(html).toContain('dateTime="2026-07-02"');
     expect(html).toContain("July 2, 2026");
-    expect(html).toContain("Inference");
+    expect(html).toContain("Foundations");
     expect(html).toContain("Kv Cache");
     expect(html).toContain('href="/blog/roofline-throughput-explorer"');
     expect(html).toContain(
