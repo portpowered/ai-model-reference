@@ -1,4 +1,6 @@
 ## Codebase Patterns
+- Cosmos 3 story 001 follows the Nemotron release-identity slice: `page-specs/cosmos-3.json`, primary-source citation records, `paper.cosmos-3`, and `cosmos-3-release-identity.test.ts` before the model registry record or MDX bundle land in later stories.
+- Run `make validate-data` after adding registry citations/papers so `registry-runtime.generated.ts` exists before release-identity tests call `getCitationById` / `validateRegistryContent`.
 - Concept registry ids route to `/docs/concepts/<slug>` only after adding to `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS` in `published-docs-registry-ids.ts`; until then glossary pages at `/docs/glossary/<slug>` remain the live surface.
 - Serving-path glossary concepts (`prefill`, `decode`, `kv-cache`, `prefill-decode-split`) share tags `foundations`, `attention`, and `kv-cache` for attention-tag discovery without new taxonomy tags.
 - Registry `relatedIds` on `concept.prefill-decode-split` should stay limited to serving foundations (`prefill`, `decode`, `kv-cache`, `autoregressive-generation`); attention modules and transformer links belong on inbound records, not on the split concept itself.
@@ -62,4 +64,15 @@
   - Keep `progress.txt` / `prd.json` local-only commits off the review branch; reset soft and recommit code-only fixes when a progress chore commit was pushed accidentally.
   - Long `await docsSearchApi.search(...)` assignments may need Biome line breaks even when tests otherwise pass.
   - When `main` migrates glossary pages to concepts in parallel, merge conflicts often duplicate `conceptGroup` assertions—merge into one `arrayContaining` block instead of redeclaring the variable.
+---
+
+## 2026-07-03T02:35:00Z - cosmos-3-model-or-paper-page-001
+- Verified Cosmos 3 as a model-family page kind with draft `page-specs/cosmos-3.json` targeting `/docs/models/cosmos-3` and registry id `model.cosmos-3`.
+- Added primary-source citation records for the arXiv technical report, NVIDIA Cosmos Lab research page, Cosmos3-Super Hugging Face model card, `nvidia/cosmos` GitHub repository, and the Hugging Face Cosmos3 collection, plus `paper.cosmos-3`.
+- Added `cosmos-3-release-identity.test.ts` proving model kind, canonical route/registry id, source URLs, alias coverage, and registry validation for the touched slice without benchmark framing.
+- Files changed: `page-specs/cosmos-3.json`, `src/content/registry/citations/cosmos-3-*.json`, `src/content/registry/papers/cosmos-3.json`, `src/lib/content/cosmos-3-release-identity.test.ts`
+- **Learnings for future iterations:**
+  - Story 002 should add `model.cosmos-3` registry record and wire `organization.nvidia` / `paper.cosmos-3` cross-links from the verified page spec.
+  - Keep `relatedIds` and `modelIds` empty on `paper.cosmos-3` until the model registry record exists, matching the Nemotron story 001 pattern.
+  - Omit benchmark or ranking language from page-spec summaries even when primary marketing pages mention leaderboard results.
 ---
