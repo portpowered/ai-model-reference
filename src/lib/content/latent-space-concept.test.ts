@@ -167,7 +167,10 @@ describe("latent-space concept page (latent-space-concept-page-002)", () => {
 
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
-    expect(html).toContain("latent codes");
+    expect(html).toContain("compressed representations");
+    expect(html).toContain("latent diffusion");
+    expect(html).toContain("denoising");
+    expect(html).toContain("decode");
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/glossary/denoising-generation"');
     expect(html).toContain('href="/docs/glossary/conditioning"');
@@ -177,5 +180,54 @@ describe("latent-space concept page (latent-space-concept-page-002)", () => {
     expect(html).toContain('href="/tags/model-family"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Draft placeholder");
+  });
+});
+
+describe("latent-space compressed representation teaching (latent-space-concept-page-003)", () => {
+  test("messages explain compressed latents, latent diffusion flow, and practical denoising advantages", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const body = [
+      messages.openingSummary,
+      messages.sections?.whatItIs.body,
+      messages.sections?.whyItMatters.body,
+      messages.sections?.simpleExample.body,
+      messages.sections?.commonConfusions.body,
+    ].join(" ");
+
+    expect(body).toMatch(/compressed/i);
+    expect(body).toMatch(/latent diffusion/i);
+    expect(body).toMatch(/denois/i);
+    expect(body).toMatch(/decode/i);
+    expect(body).toMatch(/conditioning/i);
+    expect(body).toMatch(/pixel/i);
+    expect(body).toMatch(/compute|memory/i);
+    expect(body).not.toMatch(/benchmark|leaderboard/i);
+    expect(body).toMatch(
+      /not guaranteed to preserve every pixel|not lossless|blur fine detail/i,
+    );
+  });
+
+  test("rendered page surfaces latent diffusion flow without benchmark framing", async () => {
+    const page = await loadConceptPage("latent-space");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("compressed representations");
+    expect(html).toContain("latent diffusion");
+    expect(html).toContain("conditioning");
+    expect(html).toContain("decode");
+    expect(html.toLowerCase()).not.toContain("leaderboard");
+    expect(html).toMatch(
+      /not guaranteed to preserve every pixel|not lossless|blur fine detail/i,
+    );
   });
 });

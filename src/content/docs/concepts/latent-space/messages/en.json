@@ -1,23 +1,23 @@
 {
   "title": "Latent Space",
-  "description": "The coordinate system in which latent codes live, where distance and direction correspond to semantic or structural variation in the data.",
-  "openingSummary": "Latent space is the structured vector manifold where latents live; encoders map inputs into it and decoders or denoisers map points back to outputs.",
+  "description": "A learned compressed representation space where models store internal codes instead of raw pixels or token ids, then decode or denoise back to visible outputs.",
+  "openingSummary": "Latent space is the learned coordinate system where a model stores compressed internal representations. An encoder or compressor maps raw input into this space; generation modules such as denoisers work there; a decoder maps the final code back to pixels or another visible form.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Latent space organizes all latent codes for a model family: VAE priors, diffusion noise schedules viewed across timesteps, or shared multimodal alignment spaces. Geometry matters—nearby points should correspond to similar decoded outputs after the decoder or denoising steps."
+      "body": "Latent space holds learned compressed representations: each point is an internal code that keeps useful structure—layout, object boundaries, coarse texture—while dropping much of the raw input detail. For images, a photo becomes a smaller grid or vector of latent values rather than a full-resolution pixel array. Nearby points in latent space should decode to similar outputs, so moving through the space means changing structure in a smooth way."
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Understanding latent space separates representation learning from generation mechanics. It explains why interpolation works, why regularization targets KL terms, and why encoders and denoising generators are paired in diffusion and autoencoder stacks."
+      "body": "Many generative models do heavy work in latent space because it has far fewer spatial values than pixel space. Latent diffusion pushes that idea further: instead of denoising a full-resolution image on every step, the pipeline encodes into latents, runs iterative denoising in the compressed space, optionally steers each step with conditioning inputs such as text, then decodes the final latent back to pixels. That layout lowers compute and memory pressure enough to make high-resolution image generation practical on typical hardware. Compression is not lossless—the autoencoder may blur fine detail that never enters the latent code."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "Two face latents averaged in latent space decode to a blended face after the decoder runs. Moving along one principal direction might change smile intensity if the space disentangles factors—quality depends on training, not on the word latent alone."
+      "body": "Suppose an image autoencoder has already learned a latent space for faces. Training stores each photo as a compact latent tensor. At generation time, latent diffusion starts from noisy latents—not noisy pixels—and repeats denoising steps that gradually sharpen structure inside that tensor. A text conditioning signal can bias those steps toward, say, a smiling pose. When denoising finishes, the decoder turns the clean latent into a visible face image. The denoising loop never touches every pixel directly until the final decode."
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Latent space is not the tokenizer vocabulary or embedding table—that is discrete input indexing. It is also not parameter space (weights); latents are activations or stochastic codes during inference. A single latent vector is a point in latent space, not the space itself."
+      "body": "Latent space is not parameter space (model weights) and not a tokenizer vocabulary. It is also not guaranteed to preserve every pixel-level detail: compression trades away some raw fidelity for a smaller working area. A single latent vector is one point in latent space; the space itself is the full learned manifold those points share across examples."
     },
     "related": {
       "title": "Related Concepts And Modules"
