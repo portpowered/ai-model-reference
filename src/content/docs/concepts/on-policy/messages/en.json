@@ -1,0 +1,46 @@
+{
+  "title": "On-policy training",
+  "description": "Learning from examples or trajectories produced by the model or agent policy that is currently being updated.",
+  "openingSummary": "On-policy training means learning from examples or trajectories that the current model or agent policy produces right now, rather than from a fixed dataset collected earlier or from behavior that no longer matches the weights being updated.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "On-policy training updates a model or agent using data that the current policy generates during training. Each refresh samples answers, actions, or full trajectories from the weights you are about to change. The optimizer then learns from that fresh behavior instead of treating an older snapshot of the model as if it were still in charge."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Language models and agents change their behavior as weights move. Training on stale examples can teach the optimizer to fix problems the live model no longer makes, or miss failures that appear only after the latest update. On-policy loops try to keep the training signal aligned with present behavior so corrections target what users would see if the model shipped today."
+    },
+    "currentPolicyVsStatic": {
+      "title": "Current-policy data versus static examples",
+      "body": "The current policy is the model or agent you are updating right now. As its weights change, it can reach situations, make mistakes, and answer in styles that a fixed demonstration set or a replayed trace set never recorded. That older data still shows what some earlier version did—or what human labelers wrote once—not necessarily what the live policy would do after the latest fine-tune.\n\nRefreshing samples from the current policy can reduce train/deploy mismatch: the update sees the failures and habits the model actually produces now instead of polishing behavior that no longer appears. That match matters when you care whether training fixes the errors readers or users will see in production.\n\nThe same freshness has a downside. Current-policy data can also reinforce narrow or harmful behavior when sampling is too selective, rewards are misaligned, filters drop useful diversity, or a weak teacher approves bad answers. Off-policy training reuses static or older trajectories and is often cheaper and more stable; on-policy training pays extra compute to stay aligned with present behavior. Neither approach wins every setup—the useful question is whether your update needs data from the policy you are changing now."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a chat model that keeps giving overconfident math answers. A fixed correction dataset might not include the exact wrong proofs the model writes after the latest fine-tune. An on-policy loop samples fresh answers from the current weights, scores them, and updates on those new mistakes. The trainer sees the failure modes the deployed policy would show today, not only errors that appeared in an older log file."
+    },
+    "nearbyRegimes": {
+      "title": "Nearby Training Regimes",
+      "body": "On-policy names where training data comes from, not a single optimizer or product recipe. These nearby regimes often use current-policy data in different ways.\n\nReinforcement learning loops commonly work on-policy: the policy samples actions or answers, receives feedback as reward or preference signal, and the optimizer updates from that fresh behavior. Reinforcement learning from human feedback is a familiar language-model example where rollouts from the current weights feed reward-model training and policy updates.\n\nReinforcement Learning with Verifiable Rewards can also run on-policy when candidate answers are sampled from the current model and scored by checkable verifiers such as unit tests or exact-answer graders. The verifier outcome becomes the reward, but the data still comes from what the live policy produces now.\n\nOn-policy distillation shares the same current-policy-data idea: the student refreshes supervision from trajectories its own weights generate rather than replaying one frozen offline set. That page covers the distillation-specific filtering and teacher loop—here the shared point is only that data tracks the policy being updated.\n\nSelf-distillation is a nearby pattern where a model or family of related checkpoints supervises later behavior—think of an earlier checkpoint or a larger sibling model teaching a student from generated traces. It can reuse on-policy sampling when supervision is refreshed from the current student, but full self-distillation recipes vary by team. Treat it as related context rather than a duplicate of this page."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "On-policy training is not the same as any single recipe named above. It describes the data source—the current policy—not the optimizer, loss function, or deployment product. A static supervised dataset is not automatically off-policy either: if the examples still match the behavior of the weights being updated, the data source can still be on-policy for that step."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "rlhf": "Reinforcement learning from human feedback",
+    "rlvr": "Reinforcement Learning with Verifiable Rewards",
+    "onPolicyDistillation": "On-policy distillation",
+    "distillation": "Distillation"
+  }
+}

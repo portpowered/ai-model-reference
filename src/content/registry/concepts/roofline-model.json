@@ -1,0 +1,31 @@
+{
+  "id": "concept.roofline-model",
+  "slug": "roofline-model",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "roofline model",
+    "roofline",
+    "memory bound",
+    "compute bound",
+    "memory-bandwidth bound",
+    "arithmetic intensity"
+  ],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [
+    "system.memory",
+    "system.inference-engine",
+    "concept.quantization",
+    "concept.inter-token-latency",
+    "concept.hidden-size"
+  ],
+  "citationIds": ["citation.orca-serving-system"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.inference",
+  "conceptType": "inference",
+  "prerequisiteIds": [],
+  "explainsIds": []
+}

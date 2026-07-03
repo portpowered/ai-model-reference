@@ -1,0 +1,36 @@
+{
+  "id": "concept.synthetic-data",
+  "slug": "synthetic-data",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Synthetic data",
+    "synthetic data",
+    "generated data",
+    "model-generated data",
+    "generated training data",
+    "synthetic labels",
+    "synthetic traces",
+    "preference data"
+  ],
+  "tags": ["foundations", "alignment"],
+  "relatedIds": [
+    "training-regime.distillation",
+    "training-regime.on-policy-distillation",
+    "training-regime.post-training",
+    "training-regime.rlhf",
+    "training-regime.rlvr",
+    "concept.alignment"
+  ],
+  "citationIds": [
+    "citation.training-language-models-to-follow-instructions-with-human-feedback",
+    "citation.on-policy-distillation-of-language-models"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-03T01:00:00.000Z",
+  "primaryClassificationId": "classification.concept.training",
+  "prerequisiteIds": ["concept.alignment"],
+  "explainsIds": []
+}

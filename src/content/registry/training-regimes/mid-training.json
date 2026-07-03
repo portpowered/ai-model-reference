@@ -1,0 +1,36 @@
+{
+  "id": "training-regime.mid-training",
+  "slug": "mid-training",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Mid-Training",
+    "mid-training",
+    "continued training",
+    "intermediate training"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "training-regime.pretraining",
+    "training-regime.post-training",
+    "training-regime.supervised-fine-tuning",
+    "training-regime.distillation",
+    "model.gpt-3",
+    "model.llama-3"
+  ],
+  "citationIds": ["citation.llama-3-herd-of-models"],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-03T03:15:00.000Z",
+  "releaseDate": "2024-07-23",
+  "authors": ["Meta AI", "Llama Team"],
+  "sourceId": "citation.llama-3-herd-of-models",
+  "primaryClassificationId": "classification.training",
+  "regimeType": "other",
+  "usedByModelIds": [],
+  "relatedModuleIds": [],
+  "paperIds": [],
+  "conceptType": "training",
+  "variantGroup": "language-model-training-stages"
+}

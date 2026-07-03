@@ -1,0 +1,91 @@
+---
+title: Memory bandwidth
+description: How quickly weights, activations, and KV cache bytes can move between memory and compute during model serving, and why that movement can cap useful throughput.
+kind: "concept"
+registryId: "concept.memory-bandwidth"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - kv-cache
+aliases:
+  - "memory bandwidth"
+  - "serving memory bandwidth"
+  - "inference memory bandwidth"
+  - "KV cache bandwidth"
+  - "weight bandwidth"
+  - "throughput ceiling"
+updatedAt: "2026-07-02"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="which-bytes-move" titleKey="sections.whichBytesMove.title">
+  <T k="sections.whichBytesMove.body" />
+</Section>
+
+<Section id="throughput-ceiling" titleKey="sections.throughputCeiling.title">
+  <T k="sections.throughputCeiling.body" />
+</Section>
+
+<Section id="compute-vs-bandwidth" titleKey="sections.computeVsBandwidth.title">
+  <T k="sections.computeVsBandwidth.body" />
+</Section>
+
+<Section id="serving-phases" titleKey="sections.servingPhases.title">
+  <T k="sections.servingPhases.body" />
+</Section>
+
+<Section
+  id="quantization-and-bandwidth"
+  titleKey="sections.quantizationAndBandwidth.title"
+>
+  <T k="sections.quantizationAndBandwidth.body" />
+</Section>
+
+<Section id="kv-cache-compression" titleKey="sections.kvCacheCompression.title">
+  <T k="sections.kvCacheCompression.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.memory-bandwidth"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.memory-bandwidth" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.memory-bandwidth" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.memory-bandwidth" />
+</Section>
