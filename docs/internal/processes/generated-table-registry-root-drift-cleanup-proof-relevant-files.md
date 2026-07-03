@@ -24,19 +24,25 @@ revert, stage, overwrite, or commit the root artifact during evidence capture.
   operator-safe preserve/restore/regenerate/verify actions, and page-refill hold rule; story 005
   active-lane ownership handoff (`classifyGeneratedTableRegistryActiveLaneOwnershipApplicable`,
   `buildGeneratedTableRegistryActiveLaneOwnershipHandoff`) with worktree-drift ownership evidence,
-  linkage-backed PR metadata, explicit refill hold rule, and not-applicable paths for clean or ownerless drift.
+  linkage-backed PR metadata, explicit refill hold rule, and not-applicable paths for clean or ownerless drift;
+  `resolveGeneratedTableRegistryProofContext` keeps drift evidence, reproducibility, validation, and `--apply`
+  on the main repo root checkout when invoked from nested worktrees.
 * `src/lib/factory/generated-table-registry-root-drift-cleanup-proof.test.ts` —
   fixture diff/status tests plus temp-git-repo integration proving the report
-  script does not mutate porcelain state.
+  script does not mutate porcelain state, including nested-worktree regression
+  where root and worktree artifacts differ.
 * `scripts/report-generated-table-registry-root-drift-cleanup-proof.ts` —
-  planner-facing CLI with `--repo-root`, `--remote-base-ref`,
+  planner-facing CLI with `--repo-root`, optional `--checkout-repo-path` override,
+  `--remote-base-ref`,
   `--status-output`, `--diff-output`, `--generated-at-utc`, and `--json` /
   `--format json`. Does not invoke `you`.
 
 ## Upstream evidence reuse
 
 * `src/lib/factory/merged-pr-drain-rows-reconciliation.ts` — `resolveMainRepoRoot`
-  so nested worktrees resolve the main root checkout.
+  so nested worktrees resolve the main root checkout; paired with
+  `resolveGeneratedTableRegistryProofContext` so reproducibility/apply use that
+  root checkout instead of the invocation worktree path.
 * `src/lib/factory/planner-root-checkout-reconciliation.ts` —
   `detectDefaultRemoteBaseRef`.
 * `src/lib/factory/active-pr-mergeability-watchdog.ts` — `classifyBranchDrift`
@@ -75,35 +81,41 @@ Fixtures live under
 bun test src/lib/factory/generated-table-registry-root-drift-cleanup-proof.test.ts
 ```
 
-## Live root evidence (2026-07-03T05:02:04Z UTC)
+## Live root evidence (2026-07-03T06:11:11Z UTC)
 
 Captured via
 `bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof --json`
-from this worktree (resolves main repo root automatically).
+from this worktree. Drift evidence, reproducibility, expected-output, and apply
+all target the main repo root checkout (`checkoutRepoPath` =
+`/Users/abdifamily/work/learn-agent-factories`) even though invocation came from
+this nested worktree.
 
 | Field | Value |
 | --- | --- |
 | Root repo path | `/Users/abdifamily/work/learn-agent-factories` |
-| `origin/main` SHA | `3d4311b1ddc8c1b5b099a7ef375d31230af3f394` |
-| Root `HEAD` SHA | `a0c57068c45d692ff192f645d58afd3ec54d8618` |
-| Ahead / behind | `0` / `31` (root behind `origin/main`) |
-| Generated artifact cleanliness | `clean` |
-| Generated artifact diff | none at capture time |
+| Invocation repo path | `/Users/abdifamily/work/learn-agent-factories/.claude/worktrees/generated-table-registry-root-drift-cleanup-proof` |
+| Proof target uses root checkout | `true` |
+| `origin/main` SHA | `f39808ba0cacda29eacb3a3c9893493aabd48282` |
+| Root `HEAD` SHA | `f39808ba0cacda29eacb3a3c9893493aabd48282` |
+| Ahead / behind | `0` / `0` (aligned) |
+| Generated artifact cleanliness | `dirty` (root checkout has unrelated staged drift at capture time) |
+| Generated artifact diff | empty at capture time (staged-only drift) |
 | `looped-transformers-comparison` diff highlights | none at capture time |
 
 The PRD customer ask referenced root checkout that was 9 commits behind with
 dirty `table-registry.generated.ts` looped-transformers entries. The current
-live proof shows root `HEAD` is 31 commits behind `origin/main` while the
-generated artifact remains clean with no looped-transformers diff; story 002
-proves whether looped-transformers entries on `origin/main` are reproducible
-from canonical source tables.
+live proof shows root aligned with `origin/main` while the generated artifact
+may be dirty from unrelated root checkout work; reproducibility still evaluates
+the root checkout artifact and reports `matches-deterministic-generation`.
 
-An earlier capture (2026-07-03T03:27:47Z UTC) recorded root aligned with
-`origin/main` at `a0c57068c45d692ff192f645d58afd3ec54d8618`; that snapshot is
-historical. Re-run the proof command above for the current
-`origin/main` / ahead-behind relationship.
+Prior captures remain historical:
+- 2026-07-03T05:02:04Z UTC — root 31 commits behind, artifact clean
+- 2026-07-03T03:27:47Z UTC — root aligned at `a0c57068...`
 
-## Live reproducibility proof (2026-07-03T05:02:04Z UTC)
+Re-run the proof command above for the current `origin/main` / ahead-behind
+relationship.
+
+## Live reproducibility proof (2026-07-03T06:11:11Z UTC)
 
 Captured via
 `bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof`
@@ -111,6 +123,8 @@ from this worktree.
 
 | Field | Value |
 | --- | --- |
+| Checkout repo path | `/Users/abdifamily/work/learn-agent-factories` (main root, not worktree) |
+| Proof target uses root checkout | `true` |
 | Generation command | `bun run generate:table-registry` |
 | Validation command | `bun run verify:table-registry` |
 | `looped-transformers-comparison.json` on `origin/main` | `present` |
@@ -125,7 +139,7 @@ remains `matches-deterministic-generation` while the generated artifact is
 dirty; when the artifact is already clean and aligned, no registry commit is
 required.
 
-## Live expected-output outcome (2026-07-03T05:02:04Z UTC)
+## Live expected-output outcome (2026-07-03T06:11:11Z UTC)
 
 Captured via
 `bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof`
@@ -133,20 +147,21 @@ from this worktree.
 
 | Field | Value |
 | --- | --- |
-| Outcome kind | `already-aligned-no-commit` |
+| Checkout repo path | `/Users/abdifamily/work/learn-agent-factories` |
+| Outcome kind | `land-minimal-expected-output-required` |
 | Reproducibility outcome | `matches-deterministic-generation` |
-| Root generated artifact cleanliness | `clean` |
+| Root generated artifact cleanliness | `dirty` |
 | Validation command | `bun run verify:table-registry` |
 | Looped-transformers table discoverable | `true` (`table.looped-transformers-comparison`) |
 | Looped-transformers source discoverable | `true` (`looped-transformers-comparison.json`) |
-| Changed paths | none |
+| Changed paths | none (`--apply` not requested) |
 | Unrelated paths note | No unrelated dirty root paths were modified, reverted, staged, overwritten, or deleted. |
-| Operational summary | Expected looped-transformers generated entries are already on `origin/main`; no registry commit required. |
+| Operational summary | Expected looped-transformers generated entries while root artifact is dirty; land minimal regenerated artifact after `bun run generate:table-registry`. |
 
 Stories 004–005 apply only when reproducibility is **not**
 `matches-deterministic-generation` or when drift belongs to an active PR lane.
 
-## Live stale-drift handoff (2026-07-03T05:02:04Z UTC)
+## Live stale-drift handoff (2026-07-03T06:11:11Z UTC)
 
 Captured via
 `bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof`
@@ -165,7 +180,7 @@ When reproducibility is `differs-from-deterministic-generation` or
 restore-from-head, regenerate, and verify-after-cleanup actions scoped to only
 `src/lib/content/generated/table-registry.generated.ts`.
 
-## Live active-lane ownership (2026-07-03T05:02:04Z UTC)
+## Live active-lane ownership (2026-07-03T06:11:11Z UTC)
 
 Captured via
 `bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof`
@@ -174,8 +189,8 @@ from this worktree.
 | Field | Value |
 | --- | --- |
 | Applicable | `false` |
-| Root generated artifact cleanliness | `clean` |
-| Not-applicable reason | Story 005 does not apply because the root generated table registry artifact is clean |
+| Root generated artifact cleanliness | `dirty` |
+| Not-applicable reason | Story 005 does not apply because worktree drift discovery is unavailable without queue/worktree inputs |
 | Page refill hold rule | Hold page refills until the owning active lane lands, refreshes, or releases the generated artifact |
 | Ownership evidence | watchdog/linkage command references only (no dirty artifact to attribute) |
 

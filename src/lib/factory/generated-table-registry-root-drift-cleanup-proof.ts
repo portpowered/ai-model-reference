@@ -58,6 +58,17 @@ export const LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID =
 export const GENERATED_TABLE_REGISTRY_EXPECTED_OUTPUT_UNRELATED_PATHS_NOTE =
   "No unrelated dirty root paths were modified, reverted, staged, overwritten, or deleted.";
 
+export const GENERATED_TABLE_REGISTRY_PROOF_TARGET_ROOT_CHECKOUT_POLICY =
+  "Root drift proof uses the main repo root checkout for drift evidence, reproducibility, validation, and apply; nested worktree invocations must not classify root drift from worktree artifacts.";
+
+export interface GeneratedTableRegistryProofContext {
+  checkoutRepoPath: string;
+  invocationRepoPath: string;
+  invocationUsesNestedWorktree: boolean;
+  proofTargetRepoPath: string;
+  proofTargetUsesRootCheckout: boolean;
+}
+
 export type CanonicalSourcePresenceStatus = "present" | "absent";
 
 export type GeneratedTableRegistryReproducibilityOutcome =
@@ -84,6 +95,8 @@ export interface LoopedTransformersSourceTablePresence {
 
 export interface GeneratedTableRegistryReproducibilityProof {
   checkoutRepoPath: string;
+  invocationRepoPath: string;
+  proofTargetUsesRootCheckout: boolean;
   currentGeneratedArtifactMatchesDryRun: boolean;
   currentGeneratedModuleSource: string | null;
   dryRunGeneratedModuleSource: string;
@@ -178,6 +191,57 @@ function defaultRunGitStatus(cwd: string): string {
     );
   }
   return result.stdout;
+}
+
+function createGitCommandAdapter(
+  runGit: RunGit,
+  fallbackCwd: string,
+): (
+  binary: string,
+  args: readonly string[],
+  cwd?: string,
+) => {
+  ok: boolean;
+  stdout: string;
+  stderr: string;
+  exitCode: number | null;
+} {
+  return (_binary, args, cwd) => {
+    const result = runGit(cwd ?? fallbackCwd, args);
+    return {
+      ok: result.status === 0,
+      stdout: result.stdout,
+      stderr: result.stderr,
+      exitCode: result.status,
+    };
+  };
+}
+
+export function resolveGeneratedTableRegistryProofContext(
+  options: {
+    checkoutRepoPath?: string;
+    repoRoot?: string;
+    runGit?: RunGit;
+  } = {},
+): GeneratedTableRegistryProofContext {
+  const invocationRepoPath = resolve(options.repoRoot ?? process.cwd());
+  const runGit = options.runGit ?? defaultRunGit;
+  const proofTargetRepoPath = resolveMainRepoRoot(
+    invocationRepoPath,
+    createGitCommandAdapter(runGit, invocationRepoPath),
+  );
+  const explicitCheckoutRepoPath = options.checkoutRepoPath
+    ? resolve(options.checkoutRepoPath)
+    : undefined;
+  const checkoutRepoPath = explicitCheckoutRepoPath ?? proofTargetRepoPath;
+
+  return {
+    checkoutRepoPath,
+    invocationRepoPath,
+    invocationUsesNestedWorktree: invocationRepoPath !== proofTargetRepoPath,
+    proofTargetRepoPath,
+    proofTargetUsesRootCheckout: checkoutRepoPath === proofTargetRepoPath,
+  };
 }
 
 function resolveGitRef(repoRoot: string, ref: string, runGit: RunGit): string {
@@ -306,18 +370,13 @@ export function captureGeneratedTableRegistryRootDriftEvidence(
 ): GeneratedTableRegistryRootDriftEvidence {
   const repoRoot = resolve(options.repoRoot ?? process.cwd());
   const runGit = options.runGit ?? defaultRunGit;
-  const runGitStatus = options.runGitStatus ?? defaultRunGitStatus;
-  const mainRepoRoot = resolveMainRepoRoot(repoRoot, (_binary, args, cwd) => {
-    const result = runGit(cwd ?? repoRoot, args);
-    return {
-      ok: result.status === 0,
-      stdout: result.stdout,
-      stderr: result.stderr,
-      exitCode: result.status,
-    };
-  });
+  const mainRepoRoot = resolveMainRepoRoot(
+    repoRoot,
+    createGitCommandAdapter(runGit, repoRoot),
+  );
   const remoteBaseRef =
     options.remoteBaseRef ?? detectDefaultRemoteBaseRef(mainRepoRoot, runGit);
+  const runGitStatus = options.runGitStatus ?? defaultRunGitStatus;
   const statusOutput = options.statusOutput ?? runGitStatus(mainRepoRoot);
   const generatedArtifactStatusLine = extractStatusLineForPath(
     statusOutput,
@@ -561,25 +620,17 @@ function loadSourceRecordsFromCheckout(
 export function proveGeneratedTableRegistryReproducibility(
   options: ProveGeneratedTableRegistryReproducibilityOptions = {},
 ): GeneratedTableRegistryReproducibilityProof {
-  const checkoutRepoPath = resolve(
-    options.checkoutRepoPath ?? options.repoRoot ?? process.cwd(),
-  );
+  const proofContext = resolveGeneratedTableRegistryProofContext({
+    checkoutRepoPath: options.checkoutRepoPath,
+    repoRoot: options.repoRoot,
+    runGit: options.runGit,
+  });
+  const checkoutRepoPath = proofContext.checkoutRepoPath;
   const runGit = options.runGit ?? defaultRunGit;
   const readDir = options.readDir ?? defaultReadDir;
   const readFile = options.readFile ?? defaultReadFile;
   const pathExists = options.pathExists ?? fileExistsAtPath;
-  const mainRepoRoot = resolveMainRepoRoot(
-    checkoutRepoPath,
-    (_binary, args, cwd) => {
-      const result = runGit(cwd ?? checkoutRepoPath, args);
-      return {
-        ok: result.status === 0,
-        stdout: result.stdout,
-        stderr: result.stderr,
-        exitCode: result.status,
-      };
-    },
-  );
+  const mainRepoRoot = proofContext.proofTargetRepoPath;
   const remoteBaseRef =
     options.remoteBaseRef ?? detectDefaultRemoteBaseRef(mainRepoRoot, runGit);
   const generatedArtifactPath = join(
@@ -655,6 +706,8 @@ export function proveGeneratedTableRegistryReproducibility(
 
   return {
     checkoutRepoPath,
+    invocationRepoPath: proofContext.invocationRepoPath,
+    proofTargetUsesRootCheckout: proofContext.proofTargetUsesRootCheckout,
     currentGeneratedArtifactMatchesDryRun,
     currentGeneratedModuleSource,
     dryRunGeneratedModuleSource,
@@ -687,8 +740,10 @@ export function formatGeneratedTableRegistryReproducibilityProof(
   const lines = [
     `${GENERATED_TABLE_REGISTRY_ROOT_DRIFT_CLEANUP_PROOF_HEADER} — Reproducibility`,
     `generated-at-utc=${report.generatedAtUtc}`,
+    `invocation-repo-path=${report.invocationRepoPath}`,
     `checkout-repo-path=${report.checkoutRepoPath}`,
     `root-repo-path=${report.rootRepoPath}`,
+    `proof-target-uses-root-checkout=${report.proofTargetUsesRootCheckout}`,
     `remote-base-ref=${report.remoteBaseRef}`,
     `root-head-sha=${report.rootHeadSha}`,
     `origin-main-sha=${report.originMainSha}`,
@@ -704,6 +759,12 @@ export function formatGeneratedTableRegistryReproducibilityProof(
     `missing-canonical-source-table-files=${report.missingCanonicalSourceTableFiles.length === 0 ? "(none)" : report.missingCanonicalSourceTableFiles.join(", ")}`,
     `validation-problem-count=${report.validationProblems.length}`,
   ];
+
+  if (!report.proofTargetUsesRootCheckout) {
+    lines.push(
+      "proof-target-warning=checkout-repo-path differs from root proof target; reproducibility and apply may not reflect root drift evidence",
+    );
+  }
 
   if (report.validationProblems.length > 0) {
     lines.push("", "validation-problems:");
@@ -877,15 +938,18 @@ export function applyGeneratedTableRegistryExpectedOutput(input: {
 export function buildGeneratedTableRegistryExpectedOutputOutcome(
   options: BuildGeneratedTableRegistryExpectedOutputOutcomeOptions = {},
 ): GeneratedTableRegistryExpectedOutputOutcome {
-  const checkoutRepoPath = resolve(
-    options.checkoutRepoPath ?? options.repoRoot ?? process.cwd(),
-  );
+  const proofContext = resolveGeneratedTableRegistryProofContext({
+    checkoutRepoPath: options.checkoutRepoPath,
+    repoRoot: options.repoRoot,
+    runGit: options.runGit,
+  });
+  const checkoutRepoPath = proofContext.checkoutRepoPath;
   const driftEvidence =
     options.driftEvidence ??
     captureGeneratedTableRegistryRootDriftEvidence({
       generatedAtUtc: options.generatedAtUtc,
       remoteBaseRef: options.remoteBaseRef,
-      repoRoot: checkoutRepoPath,
+      repoRoot: proofContext.invocationRepoPath,
       runGit: options.runGit,
     });
   const reproducibilityProof = proveGeneratedTableRegistryReproducibility({
@@ -895,7 +959,7 @@ export function buildGeneratedTableRegistryExpectedOutputOutcome(
     readDir: options.readDir,
     readFile: options.readFile,
     remoteBaseRef: options.remoteBaseRef,
-    repoRoot: checkoutRepoPath,
+    repoRoot: proofContext.invocationRepoPath,
     runGit: options.runGit,
   });
   const kind = classifyGeneratedTableRegistryExpectedOutputKind({
@@ -1159,15 +1223,18 @@ function buildStaleDriftOperatorSafeActions(input: {
 export function buildGeneratedTableRegistryStaleDriftHandoff(
   options: BuildGeneratedTableRegistryStaleDriftHandoffOptions = {},
 ): GeneratedTableRegistryStaleDriftHandoff {
-  const checkoutRepoPath = resolve(
-    options.checkoutRepoPath ?? options.repoRoot ?? process.cwd(),
-  );
+  const proofContext = resolveGeneratedTableRegistryProofContext({
+    checkoutRepoPath: options.checkoutRepoPath,
+    repoRoot: options.repoRoot,
+    runGit: options.runGit,
+  });
+  const checkoutRepoPath = proofContext.checkoutRepoPath;
   const driftEvidence =
     options.driftEvidence ??
     captureGeneratedTableRegistryRootDriftEvidence({
       generatedAtUtc: options.generatedAtUtc,
       remoteBaseRef: options.remoteBaseRef,
-      repoRoot: checkoutRepoPath,
+      repoRoot: proofContext.invocationRepoPath,
       runGit: options.runGit,
     });
   const reproducibilityProof = proveGeneratedTableRegistryReproducibility({
@@ -1177,7 +1244,7 @@ export function buildGeneratedTableRegistryStaleDriftHandoff(
     readDir: options.readDir,
     readFile: options.readFile,
     remoteBaseRef: options.remoteBaseRef,
-    repoRoot: checkoutRepoPath,
+    repoRoot: proofContext.invocationRepoPath,
     runGit: options.runGit,
   });
   const applicable = classifyGeneratedTableRegistryStaleDriftApplicable(
@@ -1541,16 +1608,19 @@ function resolveGeneratedTableRegistryDriftSnapshot(
 export function buildGeneratedTableRegistryActiveLaneOwnershipHandoff(
   options: BuildGeneratedTableRegistryActiveLaneOwnershipHandoffOptions = {},
 ): GeneratedTableRegistryActiveLaneOwnershipHandoff {
-  const checkoutRepoPath = resolve(
-    options.checkoutRepoPath ?? options.repoRoot ?? process.cwd(),
-  );
+  const proofContext = resolveGeneratedTableRegistryProofContext({
+    checkoutRepoPath: options.checkoutRepoPath,
+    repoRoot: options.repoRoot,
+    runGit: options.runGit,
+  });
+  const checkoutRepoPath = proofContext.checkoutRepoPath;
   const runGit = options.runGit ?? defaultRunGit;
   const driftEvidence =
     options.driftEvidence ??
     captureGeneratedTableRegistryRootDriftEvidence({
       generatedAtUtc: options.generatedAtUtc,
       remoteBaseRef: options.remoteBaseRef,
-      repoRoot: checkoutRepoPath,
+      repoRoot: proofContext.invocationRepoPath,
       runGit,
     });
   const mainRepoRoot = driftEvidence.rootRepoPath;

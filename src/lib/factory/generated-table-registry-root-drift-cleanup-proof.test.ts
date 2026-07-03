@@ -4,6 +4,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -41,6 +42,7 @@ import {
   LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH,
   LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID,
   proveGeneratedTableRegistryReproducibility,
+  resolveGeneratedTableRegistryProofContext,
   TABLE_REGISTRY_GENERATION_COMMAND,
   TABLE_REGISTRY_VALIDATION_COMMAND,
   verifyLoopedTransformersTableRegistryDiscoverability,
@@ -55,6 +57,10 @@ const FIXTURE_DIR = join(
 
 function readFixture(name: string): string {
   return readFileSync(join(FIXTURE_DIR, name), "utf8");
+}
+
+function expectSamePath(received: string, expected: string): void {
+  expect(realpathSync(received)).toBe(realpathSync(expected));
 }
 
 function runGit(repoRoot: string, args: string[]): void {
@@ -1581,6 +1587,159 @@ describe("active-lane ownership report script integration", () => {
       encoding: "utf8",
     }).stdout;
     expect(statusAfter).toBe(statusBefore);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+});
+
+describe("nested worktree proof target", () => {
+  test("targets root checkout for reproducibility and apply when invoked from a worktree", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "generated-table-registry-root-drift-nested-"),
+    );
+    const mainRepoRoot = join(dir, "main-repo");
+    const worktreePath = join(dir, "nested-worktree");
+    const tablesDir = join(mainRepoRoot, "src/content/registry/tables");
+    const rootArtifactPath = join(
+      mainRepoRoot,
+      GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+    );
+    const worktreeArtifactPath = join(
+      worktreePath,
+      GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+    );
+    const sourceTablePath = join(
+      tablesDir,
+      LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
+    );
+
+    mkdirSync(tablesDir, { recursive: true });
+    writeFileSync(
+      sourceTablePath,
+      createMinimalTableRecord(
+        LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID,
+        "module.looped-transformers",
+      ),
+    );
+
+    const generatedModuleSource = renderGeneratedTableRegistryModule(
+      createTableRegistrySourceEntries([
+        LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
+      ]),
+    );
+    const staleCommittedArtifact =
+      "// committed stale generated artifact without looped-transformers\n";
+    mkdirSync(join(rootArtifactPath, ".."), { recursive: true });
+    writeFileSync(rootArtifactPath, staleCommittedArtifact);
+
+    runGit(mainRepoRoot, ["init", "-b", "main"]);
+    runGit(mainRepoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(mainRepoRoot, ["config", "user.name", "Planner Tests"]);
+    runGit(mainRepoRoot, ["add", "."]);
+    runGit(mainRepoRoot, ["commit", "-m", "initial"]);
+    runGit(mainRepoRoot, ["branch", "origin-main"]);
+    runGit(mainRepoRoot, [
+      "update-ref",
+      "refs/remotes/origin/main",
+      "origin-main",
+    ]);
+    runGit(mainRepoRoot, ["worktree", "add", worktreePath, "-b", "feature"]);
+
+    writeFileSync(
+      rootArtifactPath,
+      "// stale root generated artifact that does not match dry-run\n",
+    );
+    writeFileSync(worktreeArtifactPath, generatedModuleSource);
+
+    const proofContext = resolveGeneratedTableRegistryProofContext({
+      repoRoot: worktreePath,
+    });
+    expect(proofContext.invocationUsesNestedWorktree).toBe(true);
+    expectSamePath(proofContext.checkoutRepoPath, mainRepoRoot);
+    expectSamePath(proofContext.proofTargetRepoPath, mainRepoRoot);
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-generated-table-registry-root-drift-cleanup-proof.ts",
+        "--repo-root",
+        worktreePath,
+        "--remote-base-ref",
+        "origin/main",
+        "--full-proof",
+        "--json",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    const payload = JSON.parse(result.stdout) as {
+      driftEvidence: {
+        generatedArtifactCleanliness: string;
+        rootRepoPath: string;
+      };
+      expectedOutputOutcome: {
+        checkoutRepoPath: string;
+        kind: string;
+      };
+      reproducibilityProof: {
+        checkoutRepoPath: string;
+        invocationRepoPath: string;
+        proofTargetUsesRootCheckout: boolean;
+        reproducibilityOutcome: string;
+        rootRepoPath: string;
+      };
+      staleDriftHandoff: {
+        applicable: boolean;
+        checkoutRepoPath: string;
+      };
+    };
+
+    expectSamePath(payload.driftEvidence.rootRepoPath, mainRepoRoot);
+    expect(payload.driftEvidence.generatedArtifactCleanliness).toBe("dirty");
+    expectSamePath(payload.reproducibilityProof.rootRepoPath, mainRepoRoot);
+    expectSamePath(payload.reproducibilityProof.checkoutRepoPath, mainRepoRoot);
+    expectSamePath(
+      payload.reproducibilityProof.invocationRepoPath,
+      worktreePath,
+    );
+    expect(payload.reproducibilityProof.proofTargetUsesRootCheckout).toBe(true);
+    expect(payload.reproducibilityProof.reproducibilityOutcome).toBe(
+      "differs-from-deterministic-generation",
+    );
+    expectSamePath(
+      payload.expectedOutputOutcome.checkoutRepoPath,
+      mainRepoRoot,
+    );
+    expect(payload.expectedOutputOutcome.kind).toBe("not-applicable");
+    expectSamePath(payload.staleDriftHandoff.checkoutRepoPath, mainRepoRoot);
+    expect(payload.staleDriftHandoff.applicable).toBe(true);
+
+    writeFileSync(rootArtifactPath, generatedModuleSource);
+    writeFileSync(worktreeArtifactPath, "// stale worktree artifact\n");
+
+    const applyResult = spawnSync(
+      "bun",
+      [
+        "./scripts/report-generated-table-registry-root-drift-cleanup-proof.ts",
+        "--repo-root",
+        worktreePath,
+        "--remote-base-ref",
+        "origin/main",
+        "--expected-output",
+        "--apply",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(applyResult.status).toBe(0);
+    expect(applyResult.stdout).toContain(
+      "kind=land-minimal-expected-output-required",
+    );
+    expect(readFileSync(rootArtifactPath, "utf8")).toBe(generatedModuleSource);
+    expect(readFileSync(worktreeArtifactPath, "utf8")).toBe(
+      "// stale worktree artifact\n",
+    );
 
     rmSync(dir, { recursive: true, force: true });
   });

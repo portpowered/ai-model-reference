@@ -11,6 +11,7 @@ import {
   formatGeneratedTableRegistryRootDriftEvidence,
   formatGeneratedTableRegistryStaleDriftHandoff,
   proveGeneratedTableRegistryReproducibility,
+  resolveGeneratedTableRegistryProofContext,
   serializeGeneratedTableRegistryActiveLaneOwnershipHandoff,
   serializeGeneratedTableRegistryExpectedOutputOutcome,
   serializeGeneratedTableRegistryReproducibilityProof,
@@ -97,6 +98,7 @@ const activeLaneOwnershipRequested = isActiveLaneOwnershipRequested(
   process.argv,
 );
 const applyExpectedOutput = process.argv.includes("--apply");
+const checkoutRepoPathOverride = readFlagValue("--checkout-repo-path");
 const workListJsonPath = readFlagValue("--work-list-json");
 const sessionListJsonPath = readFlagValue("--session-list-json");
 const worktreesDir = readFlagValue("--worktrees-dir")
@@ -108,6 +110,13 @@ const workListJsonText = workListJsonPath
 const sessionListJsonText = sessionListJsonPath
   ? readOptionalFile(sessionListJsonPath, "session list")
   : undefined;
+
+const proofContext = resolveGeneratedTableRegistryProofContext({
+  checkoutRepoPath: checkoutRepoPathOverride
+    ? resolve(checkoutRepoPathOverride)
+    : undefined,
+  repoRoot,
+});
 
 const report = driftEvidenceRequested
   ? captureGeneratedTableRegistryRootDriftEvidence({
@@ -121,7 +130,7 @@ const report = driftEvidenceRequested
 
 const reproducibilityProof = reproducibilityRequested
   ? proveGeneratedTableRegistryReproducibility({
-      checkoutRepoPath: repoRoot,
+      checkoutRepoPath: proofContext.checkoutRepoPath,
       generatedAtUtc,
       remoteBaseRef,
       repoRoot,
@@ -131,7 +140,7 @@ const reproducibilityProof = reproducibilityRequested
 const expectedOutputOutcome = expectedOutputRequested
   ? buildGeneratedTableRegistryExpectedOutputOutcome({
       apply: applyExpectedOutput,
-      checkoutRepoPath: repoRoot,
+      checkoutRepoPath: proofContext.checkoutRepoPath,
       driftEvidence: report ?? undefined,
       generatedAtUtc,
       remoteBaseRef,
@@ -141,7 +150,7 @@ const expectedOutputOutcome = expectedOutputRequested
 
 const staleDriftHandoff = staleDriftHandoffRequested
   ? buildGeneratedTableRegistryStaleDriftHandoff({
-      checkoutRepoPath: repoRoot,
+      checkoutRepoPath: proofContext.checkoutRepoPath,
       driftEvidence: report ?? undefined,
       generatedAtUtc,
       remoteBaseRef,
@@ -151,7 +160,7 @@ const staleDriftHandoff = staleDriftHandoffRequested
 
 const activeLaneOwnershipHandoff = activeLaneOwnershipRequested
   ? buildGeneratedTableRegistryActiveLaneOwnershipHandoff({
-      checkoutRepoPath: repoRoot,
+      checkoutRepoPath: proofContext.checkoutRepoPath,
       driftEvidence: report ?? undefined,
       generatedAtUtc,
       remoteBaseRef,
