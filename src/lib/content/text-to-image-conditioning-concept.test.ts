@@ -26,9 +26,10 @@ const CLIP_PAPER_URL =
 
 const DISCOVERY_HREFS = [
   "/docs/glossary/conditioning",
+  "/docs/concepts/classifier-free-guidance",
   "/docs/glossary/denoising-generation",
   "/docs/glossary/diffusion-model",
-  "/docs/glossary/latent-space",
+  "/docs/concepts/latent-space",
   "/docs/models/clip",
   "/docs/papers/latent-diffusion",
 ] as const;
@@ -119,6 +120,7 @@ describe("text-to-image-conditioning concept discovery (text-to-image-conditioni
     expect(record?.tags).toEqual(["foundations", "taxonomy", "model-family"]);
     expect(record?.relatedIds).toEqual([
       "concept.conditioning",
+      "concept.classifier-free-guidance",
       "concept.denoising-generation",
       "concept.diffusion-model",
       "concept.latent-space",
@@ -153,6 +155,11 @@ describe("text-to-image-conditioning concept discovery (text-to-image-conditioni
       items.find((item) => item.registryId === "concept.conditioning")?.href,
     ).toBe("/docs/glossary/conditioning");
     expect(
+      items.find(
+        (item) => item.registryId === "concept.classifier-free-guidance",
+      )?.href,
+    ).toBe("/docs/concepts/classifier-free-guidance");
+    expect(
       items.find((item) => item.registryId === "concept.denoising-generation")
         ?.href,
     ).toBe("/docs/glossary/denoising-generation");
@@ -161,7 +168,7 @@ describe("text-to-image-conditioning concept discovery (text-to-image-conditioni
     ).toBe("/docs/glossary/diffusion-model");
     expect(
       items.find((item) => item.registryId === "concept.latent-space")?.href,
-    ).toBe("/docs/glossary/latent-space");
+    ).toBe("/docs/concepts/latent-space");
     expect(items.find((item) => item.registryId === "model.clip")?.href).toBe(
       "/docs/models/clip",
     );

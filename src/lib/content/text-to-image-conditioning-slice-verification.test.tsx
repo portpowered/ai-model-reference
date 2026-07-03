@@ -34,9 +34,10 @@ const assetsPath = join(pageDir, "assets.json");
 
 const DISCOVERY_HREFS = [
   "/docs/glossary/conditioning",
+  "/docs/concepts/classifier-free-guidance",
   "/docs/glossary/denoising-generation",
   "/docs/glossary/diffusion-model",
-  "/docs/glossary/latent-space",
+  "/docs/concepts/latent-space",
   "/docs/models/clip",
   "/docs/papers/latent-diffusion",
 ] as const;

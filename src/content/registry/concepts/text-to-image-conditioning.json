@@ -13,6 +13,7 @@
   "tags": ["foundations", "taxonomy", "model-family"],
   "relatedIds": [
     "concept.conditioning",
+    "concept.classifier-free-guidance",
     "concept.denoising-generation",
     "concept.diffusion-model",
     "concept.latent-space",
