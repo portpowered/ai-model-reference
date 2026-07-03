@@ -39,14 +39,30 @@
   },
   "assets": {
     "architectureGraph": {
-      "alt": "Cosmos 3 architecture diagram showing multimodal conditioning inputs feeding an autoregressive reasoner path and a diffusion-based generator path that produce text, image, video, audio, and action outputs."
+      "alt": "Cosmos 3 architecture diagram showing text, image, video, and audio references encoded into multimodal conditioning, an autoregressive reasoner grounding language and action planning, a diffusion-based generator synthesizing visual and audio outputs, and reasoner guidance steering generation across text, image, video, audio, and action categories."
     }
   },
   "graph": {
     "nodes": {
-      "multimodalOutputs": {
-        "label": "Text, Image,\nVideo, Audio,\nAction",
-        "summary": "Multimodal outputs the Cosmos 3 family can produce from shared world-model context"
+      "textOutput": {
+        "label": "Text\nOutput",
+        "summary": "Language answers grounded in spatial, temporal, and action evidence"
+      },
+      "imageOutput": {
+        "label": "Image\nOutput",
+        "summary": "Generated still images steered by shared world-model context"
+      },
+      "videoOutput": {
+        "label": "Video\nOutput",
+        "summary": "Synthesized video clips from the diffusion generation path"
+      },
+      "audioOutput": {
+        "label": "Audio\nOutput",
+        "summary": "Generated audio aligned with visual world-model outputs"
+      },
+      "actionOutput": {
+        "label": "Action\nOutput",
+        "summary": "Robot trajectories and policy plans for physical AI tasks"
       },
       "diffusionGenerator": {
         "label": "Diffusion-Based\nGenerator",
@@ -56,9 +72,25 @@
         "label": "Autoregressive\nReasoner",
         "summary": "Grounds language in spatial, temporal, and action evidence from visual inputs"
       },
-      "conditioningInputs": {
+      "multimodalConditioning": {
         "label": "Multimodal\nConditioning",
-        "summary": "Text, image, video, and audio references that steer reasoning and generation"
+        "summary": "Encoded text, image, video, and audio references that steer both paths"
+      },
+      "textPrompt": {
+        "label": "Text\nPrompt",
+        "summary": "Natural-language instructions and questions for the world model"
+      },
+      "imageInput": {
+        "label": "Image\nInput",
+        "summary": "Still images that ground spatial layout and object state"
+      },
+      "videoInput": {
+        "label": "Video\nInput",
+        "summary": "Video clips that provide temporal and motion context"
+      },
+      "audioInput": {
+        "label": "Audio\nInput",
+        "summary": "Audio references that can steer tone, rhythm, or ambience"
       }
     }
   }
