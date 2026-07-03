@@ -8,7 +8,7 @@ import { getConceptById, getModuleById } from "@/lib/content/registry-runtime";
 
 describe("registry-linking", () => {
   test("registryRecordHref derives concept routes from published page location", () => {
-    const moduleBackedConcept = getConceptById("concept.feed-forward-network");
+    const moduleBackedConcept = getConceptById("concept.relu");
     const conceptSectionConcept = getConceptById("concept.quantization");
     const glossaryConcept = getConceptById("concept.token");
 
@@ -16,9 +16,7 @@ describe("registry-linking", () => {
       throw new Error("expected representative concept records in registry");
     }
 
-    expect(registryRecordHref(moduleBackedConcept)).toBe(
-      "/docs/modules/feed-forward-network",
-    );
+    expect(registryRecordHref(moduleBackedConcept)).toBe("/docs/modules/relu");
     expect(registryRecordHref(conceptSectionConcept)).toBe(
       "/docs/concepts/quantization",
     );

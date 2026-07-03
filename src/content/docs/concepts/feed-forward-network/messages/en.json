@@ -1,0 +1,36 @@
+{
+  "title": "Feed-Forward Network",
+  "description": "The token-wise transformation block inside transformer layers that refines each position after attention without mixing information across tokens.",
+  "openingSummary": "A feed-forward network in a transformer block applies the same learned transformation independently to every token position after attention has mixed context across the sequence.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A feed-forward network is a stack of learned linear projections and nonlinear activation steps that maps one vector to another. Inside a transformer block it runs token-wise: each token vector is transformed on its own without reading neighboring positions. Papers and model cards refer to the same block as a feed-forward network; once that full name is clear, they often shorten it to FFN."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Attention lets token positions exchange context across the sequence, but the feed-forward network is the step that follows. It applies the same learned transformation independently to every position after that mixing. The block expands each token vector into a wider hidden size, passes it through a nonlinear activation function, and projects back to model width so the stack can compute richer per-token features. Without this step, attention would mostly rearrange information between positions rather than reshape what each position represents."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "After a self-attention layer lets every token read context from other tokens, the feed-forward network handles each position separately. Token five might represent the word \"river\": its vector expands to a wider hidden state, passes through an activation function such as GELU (Gaussian Error Linear Unit), and compresses back to model width before the next sublayer. Token six runs the same weight matrices on its own vector values, without mixing activations across positions."
+    },
+    "denseAndSparseVariants": {
+      "title": "Dense And Sparse Variants",
+      "body": "Most transformer blocks still reserve one feed-forward slot after attention, but the internal wiring inside that slot varies. The standard feed-forward network is the dense baseline: it expands each token vector to a wider hidden size, applies a pointwise activation such as rectified linear unit or a GELU-family function where appropriate, and projects back to model width on the same shared path for every token.\n\nSwiGLU keeps that dense shape but adds a gate branch built from the swish gated linear unit pattern. The gate passes through the sigmoid linear unit activation and multiplies the value branch element by element, so the layer can control which transformed features pass forward instead of treating every hidden unit the same way.\n\nMixture of experts is the sparse feed-forward-family variant. A router scores a pool of expert feed-forward networks for each token and sends the token through only the selected experts, merging their outputs instead of activating one identical dense block on every position. That pattern trades routing complexity for extra total capacity without paying full dense compute on every token.\n\nThese three families cover the usual dense-versus-sparse split readers meet in model cards. They modify the same token-wise role rather than replacing attention, and this page stops at that comparison instead of cataloging every later feed-forward tweak."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A transformer feed-forward network is not the same thing as the entire transformer. It is one sublayer inside each block, paired with attention and usually wrapped by residual connections and normalization. It is also not recurrent: during the forward pass it does not send activations back into earlier positions."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

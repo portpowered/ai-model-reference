@@ -45,6 +45,13 @@ const PAGE_CASES = [
       "/docs/modules/relu",
       "/docs/modules/silu",
     ],
+    curatedHrefs: [
+      "/docs/concepts/activation",
+      "/docs/concepts/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/relu",
+      "/docs/modules/silu",
+    ],
     messageNeedles: ["smooth", "saturat", "0-to-1"],
     renderNeedle: "maps each input value",
     searchQuery: "sigmoid",
@@ -70,6 +77,13 @@ const PAGE_CASES = [
     hrefs: [
       "/docs/concepts/activation",
       "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/sigmoid",
+      "/docs/modules/relu",
+    ],
+    curatedHrefs: [
+      "/docs/concepts/activation",
+      "/docs/concepts/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/sigmoid",
       "/docs/modules/relu",
@@ -100,6 +114,14 @@ const PAGE_CASES = [
     hrefs: [
       "/docs/concepts/activation",
       "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/relu",
+      "/docs/modules/silu",
+      "/docs/modules/swiglu",
+    ],
+    curatedHrefs: [
+      "/docs/concepts/activation",
+      "/docs/concepts/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/relu",
       "/docs/modules/silu",
@@ -139,6 +161,13 @@ const PAGE_CASES = [
       "/docs/modules/leaky-relu",
       "/docs/modules/silu",
     ],
+    curatedHrefs: [
+      "/docs/concepts/activation",
+      "/docs/concepts/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/leaky-relu",
+      "/docs/modules/silu",
+    ],
     messageNeedles: ["positive", "zero", "negative evidence"],
     renderNeedle: "keep positive numbers",
     searchQuery: "ReLU",
@@ -171,6 +200,13 @@ const PAGE_CASES = [
       "/docs/modules/relu",
       "/docs/modules/silu",
     ],
+    curatedHrefs: [
+      "/docs/concepts/activation",
+      "/docs/concepts/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/relu",
+      "/docs/modules/silu",
+    ],
     messageNeedles: ["small constant", "negative", "weak negative signal"],
     renderNeedle: "small constant such as 0.01",
     searchQuery: "LeakyReLU",
@@ -195,6 +231,13 @@ const PAGE_CASES = [
     hrefs: [
       "/docs/concepts/activation",
       "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/relu",
+      "/docs/modules/swiglu",
+    ],
+    curatedHrefs: [
+      "/docs/concepts/activation",
+      "/docs/concepts/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/relu",
       "/docs/modules/swiglu",
@@ -228,7 +271,7 @@ const PAGE_CASES = [
       "/docs/concepts/activation",
     ],
     curatedHrefs: [
-      "/docs/modules/feed-forward-network",
+      "/docs/concepts/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/concepts/mixture-of-experts",
       "/docs/modules/silu",
@@ -283,8 +326,7 @@ describe("Phase 3 activation-family glossary pages", () => {
         PUBLISHED_DOCS_REGISTRY_IDS,
       );
 
-      const expectedHrefs =
-        "curatedHrefs" in testCase ? testCase.curatedHrefs : testCase.hrefs;
+      const expectedHrefs = testCase.curatedHrefs ?? testCase.hrefs;
 
       for (const href of expectedHrefs) {
         expect(
