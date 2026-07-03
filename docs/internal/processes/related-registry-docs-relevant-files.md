@@ -37,7 +37,15 @@ and the shared related-registry-docs component/blog wrapper.
 ## Blog wrapper (story 003)
 
 * `src/features/blog/components/BlogRelatedDocs.tsx`
-  Blog wrapper using `relatedDocIds`; should delegate to `RelatedRegistryDocs` in story 003.
+  Blog wrapper accepting `relatedDocIds` and delegating to `RelatedRegistryDocs` with
+  blog-specific empty/all-unavailable fallback copy and `testId="blog-related-docs"`.
+* `src/features/blog/components/BlogRelatedDocs.test.tsx`
+  Wrapper render/fallback tests with injectable `resolveOptions`.
+* `src/features/blog/components/blog-related-docs-blog-integration.test.tsx`
+  Loads `roofline-throughput-explorer` blog post and asserts explicit frontmatter ids
+  render as compact published docs links via `renderBlogPostShell`.
+* `src/lib/content/blog-mdx-components.tsx`
+  Registers `BlogRelatedDocs` for MDX blog posts.
 
 ## Component examples (browser verification)
 
@@ -50,5 +58,9 @@ and the shared related-registry-docs component/blog wrapper.
 
 * `bun test src/lib/content/related-registry-docs.test.ts`
 * `bun test src/features/docs/components/RelatedRegistryDocs.test.tsx`
+* `bun test src/features/blog/components/BlogRelatedDocs.test.tsx`
+* `bun test src/features/blog/components/blog-related-docs-blog-integration.test.tsx`
 * `bun run typecheck`
 * `bun run lint`
+* Blog browser check: build then curl `/blog/roofline-throughput-explorer` for
+  `data-testid="blog-related-docs"` and concept hrefs.
