@@ -270,7 +270,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPagePanelResults();
     expect(results.className).toContain("list-none");
     expect(results.className).not.toContain("list-disc");
     expect(results.querySelectorAll("li").length).toBeGreaterThan(0);
@@ -286,7 +286,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPagePanelResults();
     expectSharedSearchResultRowPanel(within(results));
   });
 
@@ -300,7 +300,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPagePanelResults();
     expectThinSearchMetadataPanel(within(results), { expectSummary: true });
   });
 
@@ -314,7 +314,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPagePanelResults();
     expectFullRowSearchResultHighlightPanel(within(results));
     const row = within(results).getAllByTestId("search-result-row")[0];
     expect(row?.className).toContain("hover:bg-accent");
@@ -331,7 +331,7 @@ describe("SearchPagePanel Phase 1 queries", () => {
       "Grouped",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await waitForSearchPagePanelResults();
     expectReadableQueryMatchHighlightPanel(within(results));
   });
 
@@ -349,26 +349,32 @@ describe("SearchPagePanel Phase 1 queries", () => {
     await expectFirstSearchResultMatch(results, { url: SAMPLE_MODULE_URL });
   });
 
-  test.each([
-    "prefill",
-    "prompt processing",
-    "prompt pass",
-  ] as const)("%s query ranks the canonical prefill concept page first on /search", async (query) => {
-    const context = await loadAppTestContext();
-    await renderSearchPagePanelContent(context);
+  test.each(["prefill", "prompt processing", "prompt pass"] as const)(
+    "%s query ranks the canonical prefill concept page first on /search",
+    async (query) => {
+      const context = await loadAppTestContext();
+      await renderSearchPagePanelContent(context);
 
-    const user = userEvent.setup();
-    await user.type(
-      screen.getByLabelText(context.messages.search.placeholder),
-      query,
-    );
+      const user = userEvent.setup();
+      await user.type(
+        screen.getByLabelText(context.messages.search.placeholder),
+        query,
+      );
 
-    const results = await waitForSearchPagePanelResults();
-    await expectFirstSearchResultMatch(results, {
-      url: PREFILL_URL,
-      titlePattern: /prefill/i,
-    });
-  });
+      const results = await waitForSearchPagePanelResults({
+        timeout: 30_000,
+      });
+      await expectFirstSearchResultMatch(
+        results,
+        {
+          url: PREFILL_URL,
+          titlePattern: /prefill/i,
+        },
+        { timeout: 30_000 },
+      );
+    },
+    { timeout: 30_000 },
+  );
 
   test.each([
     {

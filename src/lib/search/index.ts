@@ -21,6 +21,11 @@ export {
   enrichSearchDocument,
   enrichSearchDocuments,
 } from "./enrich-search-document";
+export type { SearchDocumentEnrichmentAdapter } from "./model-atlas-ai-search-enrichment-adapter";
+export {
+  enrichSearchDocumentsWithModelAtlasAiFacets,
+  enrichSearchDocumentWithModelAtlasAiFacets,
+} from "./model-atlas-ai-search-enrichment-adapter";
 export type { OramaSearchRecord, OramaSnapshotDocument } from "./orama-index";
 export {
   createOramaDatabase,
