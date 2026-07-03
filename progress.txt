@@ -1,4 +1,5 @@
 ## Codebase Patterns
+- Serving-metric glossary pages (`time-to-first-token`, `inter-token-latency`, `tokens-per-second`, `throughput-vs-latency`) use `kind: glossary`, `registryId: concept.<slug>`, `classification.concept.inference`, tags `foundations` + `kv-cache`, and `sidebarGrouping.glossary: sequence-and-attention`; route is `/docs/glossary/<slug>`.
 - Classifier-free guidance concept page lives at `/docs/concepts/classifier-free-guidance`; the `classifier-free guidance` alias belongs on `concept.classifier-free-guidance`, not on `concept.conditioning`.
 - Classifier-free guidance registry record uses `classification.concept.inference`, `conceptType: inference`, and `generation-and-diffusion` sidebar grouping; `relatedIds` should stay limited to conditioning, diffusion-model, denoising-generation, `model.clip`, and `paper.latent-diffusion`.
 - Concept registry ids route to `/docs/concepts/<slug>` only after adding to `PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS` in `published-docs-registry-ids.ts`; until then glossary pages at `/docs/glossary/<slug>` remain the live surface.
@@ -231,4 +232,15 @@
 - **Learnings for future iterations:**
   - Main can carry a committed published blog bundle (`roofline-throughput-explorer`) while shell isolation tests still pass; empty-list assertions on `listPublishedBlogPosts()` are stale after blog content landed.
   - Keep mergeability-only fixes scoped to the failing assertion and document them separately from PRD story work in progress notes and PR conversation.
+---
+
+## 2026-07-03T09:40:00Z - throughput-vs-latency-serving-metric-page-001
+- Added published `concept.throughput-vs-latency` registry record with serving tradeoff aliases, inference classification, serving-neighbor `relatedIds`, and prerequisite links to TTFT, inter-token latency, and tokens per second.
+- Published glossary page bundle at `src/content/docs/glossary/throughput-vs-latency` with structural `page.mdx`, localized `messages/en.json`, and empty `assets.json`.
+- Added `throughput-vs-latency-registry.test.ts` proving registry metadata, frontmatter alignment, published-docs discovery, and search alias exposure.
+- Ran `make validate-data`, typecheck, lint, and focused tests.
+- **Learnings for future iterations:**
+  - `serving throughput` currently overlaps on both `concept.tokens-per-second` and `concept.throughput-vs-latency`; story 004 or a throughput/conflict-reduction lane may need alias narrowing on tokens-per-second.
+  - Story 002 should expand reader-facing prose and metric definitions without restating the identity contract; story 003 adds serving-pressure mechanics.
+  - Run `bun run fumadocs-mdx` before page render tests after adding glossary bundles.
 ---
