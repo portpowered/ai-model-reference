@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { search } from "@orama/orama";
+import { listPublishedBlogPosts } from "@/lib/content/blog-post-list";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
@@ -351,7 +352,11 @@ describe("build-search-index script", () => {
     expect(snapshot.version).toBe(1);
     expect(snapshot.orama).toBeDefined();
     const pages = await loadPublishedDocsPages("en");
-    const expectedUrls = pages.map((page) => page.url).sort();
+    const blogPosts = await listPublishedBlogPosts({ locale: "en" });
+    const expectedUrls = [
+      ...pages.map((page) => page.url),
+      ...blogPosts.map((post) => `/blog/${post.slug}`),
+    ].sort();
     const urls = snapshot.documents.map((document) => document.url).sort();
     expect(snapshot.documents.length).toBe(expectedUrls.length);
     expect(urls).toEqual(expectedUrls);

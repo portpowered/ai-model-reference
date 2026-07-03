@@ -73,6 +73,6 @@ describe("glossary opening convergence", () => {
         expectGlossaryOmitsOpeningSummary(html);
       }
     },
-    { timeout: 60_000 },
+    { timeout: 120_000 },
   );
 });

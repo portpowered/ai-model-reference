@@ -647,7 +647,12 @@ export async function renderTagLandingPage(
             locale={locale}
           />
         ) : (
-          <TagResourceList groups={groups} listLabel={tagLanding.listLabel} />
+          <TagResourceList
+            groups={groups}
+            listLabel={tagLanding.listLabel}
+            tagSlug={slug}
+            locale={locale}
+          />
         )}
       </DocsBody>
     </DocsPage>
