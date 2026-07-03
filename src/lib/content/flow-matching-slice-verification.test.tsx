@@ -134,10 +134,10 @@ describe("flow matching slice verification (flow-matching-concept-page-006)", ()
     expect(html).toContain('href="/docs/papers/latent-diffusion"');
     expect(html).toContain('href="/docs/modules/diffusion-transformer-block"');
     expect(html).toContain('href="/docs/models/ltx-23"');
+    expect(html).toContain('href="/docs/concepts/video-generation"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('href="/tags/model-family"');
     expect(html).not.toContain('href="/docs/concepts/cosmos"');
-    expect(html).not.toContain('href="/docs/concepts/video-generation"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toMatch(/\{\{[^}]+\}\}/);
     expect(html).not.toContain("missing-content");

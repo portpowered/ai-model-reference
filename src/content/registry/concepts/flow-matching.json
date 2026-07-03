@@ -18,7 +18,8 @@
     "training-regime.diffusion-training-objective",
     "paper.latent-diffusion",
     "module.diffusion-transformer-block",
-    "model.ltx-23"
+    "model.ltx-23",
+    "concept.video-generation"
   ],
   "citationIds": [
     "citation.flow-matching-for-generative-modeling",
@@ -26,7 +27,7 @@
   ],
   "status": "published",
   "createdAt": "2026-07-02T00:00:00.000Z",
-  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-03T00:00:00.000Z",
   "primaryClassificationId": "classification.concept.training",
   "conceptType": "training",
   "sidebarGrouping": {

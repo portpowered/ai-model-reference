@@ -73,7 +73,8 @@
     "diffusionTrainingObjective": "Diffusion training objective",
     "latentDiffusion": "Latent diffusion",
     "diffusionTransformerBlock": "Diffusion transformer block",
-    "ltx23": "LTX-2.3"
+    "ltx23": "LTX-2.3",
+    "videoGeneration": "Video generation"
   },
   "math": {
     "velocityMatchingObjective": {

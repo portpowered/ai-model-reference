@@ -35,6 +35,7 @@ const EXPECTED_RELATED_IDS = [
   "paper.latent-diffusion",
   "module.diffusion-transformer-block",
   "model.ltx-23",
+  "concept.video-generation",
 ] as const;
 
 describe("flow matching concept discovery (flow-matching-concept-page-001)", () => {
@@ -116,12 +117,12 @@ describe("flow matching concept discovery (flow-matching-concept-page-001)", () 
     expect(items.find((item) => item.registryId === "model.ltx-23")?.href).toBe(
       "/docs/models/ltx-23",
     );
+    expect(
+      items.find((item) => item.registryId === "concept.video-generation")?.href,
+    ).toBe("/docs/concepts/video-generation");
     expect(items.some((item) => item.registryId.includes("cosmos"))).toBe(
       false,
     );
-    expect(
-      items.some((item) => item.registryId.includes("video-generation")),
-    ).toBe(false);
   });
 });
 
@@ -310,7 +311,6 @@ describe("flow matching diffusion comparison (flow-matching-concept-page-004)", 
     );
     expect(html).toContain('href="/docs/papers/latent-diffusion"');
     expect(html).not.toContain('href="/docs/concepts/cosmos"');
-    expect(html).not.toContain('href="/docs/concepts/video-generation"');
   });
 });
 
@@ -348,8 +348,8 @@ describe("flow matching modern image and video discovery (flow-matching-concept-
     expect(html).toContain("diffusion vs flow matching");
     expect(html).toContain('href="/docs/modules/diffusion-transformer-block"');
     expect(html).toContain('href="/docs/models/ltx-23"');
+    expect(html).toContain('href="/docs/concepts/video-generation"');
     expect(html).not.toContain('href="/docs/concepts/cosmos"');
-    expect(html).not.toContain('href="/docs/concepts/video-generation"');
   });
 
   test("search and curated related docs surface flow matching for modern image and video discovery queries", async () => {
@@ -394,5 +394,9 @@ describe("flow matching modern image and video discovery (flow-matching-concept-
     expect(items.find((item) => item.registryId === "model.ltx-23")?.href).toBe(
       "/docs/models/ltx-23",
     );
+    expect(
+      items.find((item) => item.registryId === "concept.video-generation")
+        ?.href,
+    ).toBe("/docs/concepts/video-generation");
   });
 });
