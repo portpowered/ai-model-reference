@@ -184,58 +184,58 @@ describe("static export GitHub Pages base-path contract", () => {
   test(
     "script entrypoints pass against the shared base-path export artifact",
     () => {
-    const scriptEnv = {
-      ...process.env,
-      GITHUB_PAGES_BASE_PATH: exportBasePath,
-    };
+      const scriptEnv = {
+        ...process.env,
+        GITHUB_PAGES_BASE_PATH: exportBasePath,
+      };
 
-    const routeResult = spawnSync(
-      "bun",
-      ["./scripts/verify-phase-1-export-routes.ts"],
-      {
+      const routeResult = spawnSync(
+        "bun",
+        ["./scripts/verify-phase-1-export-routes.ts"],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: scriptEnv,
+        },
+      );
+      expect(routeResult.status).toBe(0);
+      expect(routeResult.stdout ?? "").toContain(
+        "Phase 1 export routes verified",
+      );
+
+      const handoffResult = spawnSync(
+        "bun",
+        ["./scripts/verify-phase-1-export-search-handoff.ts"],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: scriptEnv,
+        },
+      );
+      expect(handoffResult.status).toBe(0);
+      expect(handoffResult.stdout ?? "").toContain(
+        "Phase 1 static export search handoff verified",
+      );
+
+      const shellResult = spawnSync(
+        "bun",
+        ["./scripts/verify-phase-1-export-search-shell.ts"],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: scriptEnv,
+        },
+      );
+      expect(shellResult.status).toBe(0);
+      expect(shellResult.stdout ?? "").toContain(
+        "Phase 1 export search shell verified",
+      );
+
+      const shellVerification = verifyPhase1ExportSearchShellFromOutDir("out", {
         cwd: repoRoot,
-        encoding: "utf8",
-        env: scriptEnv,
-      },
-    );
-    expect(routeResult.status).toBe(0);
-    expect(routeResult.stdout ?? "").toContain(
-      "Phase 1 export routes verified",
-    );
-
-    const handoffResult = spawnSync(
-      "bun",
-      ["./scripts/verify-phase-1-export-search-handoff.ts"],
-      {
-        cwd: repoRoot,
-        encoding: "utf8",
-        env: scriptEnv,
-      },
-    );
-    expect(handoffResult.status).toBe(0);
-    expect(handoffResult.stdout ?? "").toContain(
-      "Phase 1 static export search handoff verified",
-    );
-
-    const shellResult = spawnSync(
-      "bun",
-      ["./scripts/verify-phase-1-export-search-shell.ts"],
-      {
-        cwd: repoRoot,
-        encoding: "utf8",
-        env: scriptEnv,
-      },
-    );
-    expect(shellResult.status).toBe(0);
-    expect(shellResult.stdout ?? "").toContain(
-      "Phase 1 export search shell verified",
-    );
-
-    const shellVerification = verifyPhase1ExportSearchShellFromOutDir("out", {
-      cwd: repoRoot,
-    });
-    expect(shellVerification.ok).toBe(true);
-  },
-  { timeout: 30_000 },
+      });
+      expect(shellVerification.ok).toBe(true);
+    },
+    { timeout: 30_000 },
   );
 });
