@@ -88,7 +88,7 @@ describe("Phase 2 generation paradigm glossary pages (US-003)", () => {
     const html = await renderGlossaryHtml("denoising-generation");
 
     expect(html).toContain('href="/docs/glossary/latent"');
-    expect(html).toContain('href="/docs/glossary/latent-space"');
+    expect(html).toContain('href="/docs/concepts/latent-space"');
     expect(html).toContain('href="/docs/glossary/generative-model"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
   });

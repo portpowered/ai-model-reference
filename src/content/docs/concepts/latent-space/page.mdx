@@ -1,28 +1,31 @@
 ---
 title: "Latent Space"
-description: "The coordinate system in which latent codes live, where distance and direction correspond to semantic or structural variation in the data."
-kind: "glossary"
+description: "A learned compressed representation space where models store internal codes instead of raw pixels or token ids, then decode or denoise back to visible outputs."
+kind: "concept"
 registryId: "concept.latent-space"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
-  - "foundations"
-  - "taxonomy"
+  - foundations
+  - taxonomy
+  - model-family
 aliases:
   - "latent manifold"
+  - "compressed representation"
   - "compressed representation space"
+  - "latent representation"
   - "latent representation space"
-updatedAt: "2026-06-04"
+  - "latent diffusion"
+updatedAt: "2026-07-04"
 ---
 
-
 import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
-
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
   <T k="sections.whatItIs.body" />
@@ -36,12 +39,20 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
   <T k="sections.simpleExample.body" />
 </Section>
 
-
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
   <T k="sections.commonConfusions.body" />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.latent-space"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
   <RelatedDocs registryId="concept.latent-space" />
 </Section>
 

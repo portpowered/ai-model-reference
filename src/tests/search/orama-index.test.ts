@@ -96,7 +96,7 @@ const ROLE_MODALITY_TAXONOMY_URLS = [
 const REPRESENTATION_LATENT_URLS = [
   "/docs/glossary/patch",
   "/docs/glossary/latent",
-  "/docs/glossary/latent-space",
+  "/docs/concepts/latent-space",
 ] as const;
 const ENCODER_DECODER_URLS = [
   "/docs/glossary/encoder",
