@@ -118,7 +118,8 @@ describe("flow matching concept discovery (flow-matching-concept-page-001)", () 
       "/docs/models/ltx-23",
     );
     expect(
-      items.find((item) => item.registryId === "concept.video-generation")?.href,
+      items.find((item) => item.registryId === "concept.video-generation")
+        ?.href,
     ).toBe("/docs/concepts/video-generation");
     expect(items.some((item) => item.registryId.includes("cosmos"))).toBe(
       false,
