@@ -31,11 +31,31 @@ export function isCanonicalDocsPageKind(
   return kind !== undefined && canonicalDocsPageKinds.has(kind);
 }
 
+/** Blog routes and content paths stay outside canonical docs prose rules. */
+export function isBlogContentPath(pagePath: string): boolean {
+  const normalized = pagePath.replace(/\\/g, "/");
+  return (
+    normalized.includes("/blog/") ||
+    normalized.endsWith("/blog") ||
+    normalized.startsWith("/blog/")
+  );
+}
+
+const canonicalMdxProseErrorCodes = new Set([
+  "mdx-hard-coded-heading",
+  "mdx-hard-coded-attribute",
+  "mdx-hard-coded-prose",
+]);
+
+export function isCanonicalMdxProseErrorCode(code: string): boolean {
+  return canonicalMdxProseErrorCodes.has(code);
+}
+
 export function shouldValidateCanonicalMdxProse(options: {
   pagePath: string;
   kind: PageKind | undefined;
 }): boolean {
-  if (options.pagePath.replace(/\\/g, "/").includes("/blog/")) {
+  if (isBlogContentPath(options.pagePath)) {
     return false;
   }
   return isCanonicalDocsPageKind(options.kind);

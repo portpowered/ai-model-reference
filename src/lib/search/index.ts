@@ -3,6 +3,16 @@ export {
   buildBaseSearchDocuments,
 } from "./build-base-document";
 export {
+  BLOG_SEARCH_DOCUMENT_KIND,
+  type BlogSearchPostSource,
+  buildBlogBaseSearchDocument,
+  buildBlogSearchDocument,
+  buildBlogSearchDocuments,
+  extractBlogMdxSearchText,
+  loadBlogSearchPostSources,
+  splitBlogPostMdxBody,
+} from "./build-blog-search-document";
+export {
   buildSearchDocument,
   buildSearchDocuments,
   buildSearchDocumentsForLocale,

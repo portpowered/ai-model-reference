@@ -1,6 +1,10 @@
 import type { DocsPageSource } from "@/lib/content/pages";
 import type { RegistryIndexes } from "@/lib/content/registry";
 import { buildBaseSearchDocument } from "./build-base-document";
+import {
+  type BlogSearchPostSource,
+  buildBlogSearchDocuments,
+} from "./build-blog-search-document";
 import { enrichSearchDocument } from "./enrich-search-document";
 import type { SearchDocument } from "./types";
 
@@ -23,10 +27,14 @@ export function buildSearchDocumentsForLocale(
   locale: string,
   indexes: RegistryIndexes,
   pages: DocsPageSource[],
+  blogPosts: BlogSearchPostSource[] = [],
 ): SearchDocument[] {
   if (locale.trim() === "") {
     throw new Error("Search document locale must be non-empty.");
   }
 
-  return buildSearchDocuments(pages, indexes);
+  return [
+    ...buildSearchDocuments(pages, indexes),
+    ...buildBlogSearchDocuments(blogPosts, indexes),
+  ];
 }
