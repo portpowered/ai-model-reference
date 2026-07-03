@@ -13,7 +13,7 @@
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "A user enters \"a watercolor fox in a meadow.\" The text encoder turns that sentence into vectors. At every denoising step the generator receives the current noisy latent plus those same conditioning vectors through cross-attention or a similar fusion path. The model still predicts a noise update—the denoising task—but the conditioning vectors bias that update toward fox-shaped, meadow-colored structure."
+      "body": "A user enters \"a watercolor fox in a meadow.\" The text encoder turns that sentence into vectors. At every denoising step the generator receives the current noisy latent plus those same conditioning vectors through cross-attention or a similar fusion path. The model still predicts a noise update—the denoising task—but the conditioning vectors bias that update toward fox-shaped, meadow-colored structure. The diagram below shows how prompt encoding, conditioning vectors, denoising steps, and optional classifier-free guidance combine during image generation."
     },
     "whereItAppears": {
       "title": "Where It Appears",
@@ -31,6 +31,40 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Diagram showing a text prompt flowing through a text encoder into conditioning vectors, then into a latent denoiser with classifier-free guidance as a sampling adjustment, and finally into a generated image.",
+      "caption": "How prompt encoding supplies conditioning vectors to the denoiser while classifier-free guidance adjusts sampling strength—not the denoising objective itself."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "prompt": {
+        "label": "Text prompt",
+        "summary": "The caption or description a user wants the image to match."
+      },
+      "textEncoder": {
+        "label": "Text / text-image encoder",
+        "summary": "Maps prompt tokens into vectors the generator can read."
+      },
+      "conditioningVectors": {
+        "label": "Conditioning vectors",
+        "summary": "The guidance input that steers what the denoiser should build."
+      },
+      "denoiser": {
+        "label": "Latent denoiser",
+        "summary": "Predicts noise updates step by step while reading conditioning vectors."
+      },
+      "classifierFreeGuidance": {
+        "label": "Classifier-free guidance",
+        "summary": "Sampling adjustment that scales how strongly conditioning is applied."
+      },
+      "generatedImage": {
+        "label": "Generated image",
+        "summary": "Decoded output after the denoising loop finishes."
+      }
     }
   }
 }

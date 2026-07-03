@@ -241,3 +241,57 @@ describe("text-to-image-conditioning concept discovery (text-to-image-conditioni
     expect(html).toContain('data-testid="citation-list"');
   });
 });
+
+describe("text-to-image-conditioning concept map (text-to-image-conditioning-concept-page-004)", () => {
+  test("assets and messages align with the generation-flow concept map graph", () => {
+    const page = JSON.parse(readFileSync(join(pageDir, "assets.json"), "utf8"));
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(page.conceptMap.graphId).toBe(
+      "graph.text-to-image-conditioning-generation-flow",
+    );
+    expect(messages.assets?.conceptMap?.alt).toContain("text prompt");
+    expect(messages.assets?.conceptMap?.caption).toContain(
+      "classifier-free guidance",
+    );
+    expect(messages.graph?.nodes?.prompt?.label).toBe("Text prompt");
+    expect(messages.graph?.nodes?.textEncoder?.label).toContain("encoder");
+    expect(messages.graph?.nodes?.conditioningVectors?.label).toContain(
+      "Conditioning vectors",
+    );
+    expect(messages.graph?.nodes?.denoiser?.label).toContain("denoiser");
+    expect(messages.graph?.nodes?.classifierFreeGuidance?.label).toContain(
+      "Classifier-free guidance",
+    );
+    expect(messages.graph?.nodes?.generatedImage?.label).toContain(
+      "Generated image",
+    );
+  });
+
+  test("page renders concept map in the simple example section with graph asset metadata", async () => {
+    const page = await loadConceptPage("text-to-image-conditioning");
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('data-page-asset="conceptMap"');
+    expect(html).toContain(
+      'data-graph-id="graph.text-to-image-conditioning-generation-flow"',
+    );
+    expect(html).toContain("Text prompt");
+    expect(html).toContain("Conditioning vectors");
+    expect(html).toContain("Classifier-free guidance");
+    expect(html).toContain(
+      "How prompt encoding supplies conditioning vectors to the denoiser while classifier-free guidance adjusts sampling strength",
+    );
+    expect(html).not.toContain("missing content");
+  });
+});

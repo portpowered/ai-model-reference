@@ -24,6 +24,7 @@ import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ConceptMap } from "@/features/models/components/ConceptMap";
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
   <T k="sections.whatItIs.body" />
@@ -35,6 +36,10 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="simple-example" titleKey="sections.simpleExample.title">
   <T k="sections.simpleExample.body" />
+  <ConceptMap
+    registryId="concept.text-to-image-conditioning"
+    assetId="conceptMap"
+  />
 </Section>
 
 <Section id="where-it-appears" titleKey="sections.whereItAppears.title">

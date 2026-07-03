@@ -1,0 +1,124 @@
+{
+  "id": "graph.text-to-image-conditioning-generation-flow",
+  "slug": "text-to-image-conditioning-generation-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations", "taxonomy", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-04T00:00:00.000Z",
+  "updatedAt": "2026-07-04T00:00:00.000Z",
+  "subjectId": "concept.text-to-image-conditioning",
+  "graphType": "concept-map",
+  "rootNodeId": "prompt",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "prompt",
+      "labelKey": "graph.nodes.prompt.label",
+      "summaryKey": "graph.nodes.prompt.summary",
+      "moduleKind": "input",
+      "position": { "x": 300, "y": 0 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["text-encoder"]
+    },
+    {
+      "id": "text-encoder",
+      "labelKey": "graph.nodes.textEncoder.label",
+      "summaryKey": "graph.nodes.textEncoder.summary",
+      "moduleKind": "tokenizer",
+      "position": { "x": 270, "y": 110 },
+      "size": { "width": 260, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["conditioning-vectors"]
+    },
+    {
+      "id": "conditioning-vectors",
+      "labelKey": "graph.nodes.conditioningVectors.label",
+      "summaryKey": "graph.nodes.conditioningVectors.summary",
+      "moduleKind": "embedding",
+      "position": { "x": 260, "y": 220 },
+      "size": { "width": 280, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": ["denoiser"]
+    },
+    {
+      "id": "denoiser",
+      "labelKey": "graph.nodes.denoiser.label",
+      "summaryKey": "graph.nodes.denoiser.summary",
+      "moduleKind": "block",
+      "position": { "x": 280, "y": 330 },
+      "size": { "width": 240, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["generated-image"]
+    },
+    {
+      "id": "classifier-free-guidance",
+      "labelKey": "graph.nodes.classifierFreeGuidance.label",
+      "summaryKey": "graph.nodes.classifierFreeGuidance.summary",
+      "moduleKind": "other",
+      "position": { "x": 580, "y": 330 },
+      "size": { "width": 240, "height": 72 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "generated-image",
+      "labelKey": "graph.nodes.generatedImage.label",
+      "summaryKey": "graph.nodes.generatedImage.summary",
+      "moduleKind": "output",
+      "position": { "x": 300, "y": 440 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "prompt-to-text-encoder",
+      "source": "prompt",
+      "target": "text-encoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "text-encoder-to-conditioning",
+      "source": "text-encoder",
+      "target": "conditioning-vectors",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "conditioning-to-denoiser",
+      "source": "conditioning-vectors",
+      "target": "denoiser",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "denoiser-to-image",
+      "source": "denoiser",
+      "target": "generated-image",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "cfg-to-denoiser",
+      "source": "classifier-free-guidance",
+      "target": "denoiser",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "left",
+      "targetHandleSide": "right"
+    }
+  ]
+}
