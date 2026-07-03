@@ -228,3 +228,53 @@ describe("video-generation concept page (video-generation-concept-page-002)", ()
     expect(html).not.toMatch(/\{\{[^}]+\}\}/);
   });
 });
+
+describe("video-generation temporal consistency and conditioning (video-generation-concept-page-003)", () => {
+  test("messages explain time, temporal consistency outcomes, conditioning, and image contrast", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const whatItIs = messages.sections?.whatItIs.body?.toLowerCase() ?? "";
+    const whyItMatters =
+      messages.sections?.whyItMatters.body?.toLowerCase() ?? "";
+    const simpleExample =
+      messages.sections?.simpleExample.body?.toLowerCase() ?? "";
+    const commonConfusions =
+      messages.sections?.commonConfusions.body?.toLowerCase() ?? "";
+
+    expect(whatItIs).toContain("visual state changes over time");
+    expect(whyItMatters).toContain("temporal consistency");
+    expect(whyItMatters).toContain("stable identity");
+    expect(whyItMatters).toContain("object location");
+    expect(whyItMatters).toContain("camera motion");
+    expect(whyItMatters).toContain("physical continuity");
+    expect(whyItMatters).toContain("conditioning");
+    expect(whyItMatters).toContain("reference image");
+    expect(whyItMatters).toContain("previous frames");
+    expect(simpleExample).toContain("temporal consistency");
+    expect(commonConfusions).toContain("more pixels");
+    expect(commonConfusions).toContain("more compute");
+    expect(commonConfusions).toContain("previous frames");
+  });
+
+  test("rendered page surfaces temporal consistency and conditioning prose", async () => {
+    const page = await loadConceptPage("video-generation");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html.toLowerCase()).toContain("temporal consistency");
+    expect(html.toLowerCase()).toContain("visual state changes over time");
+    expect(html.toLowerCase()).toContain("conditioning");
+    expect(html.toLowerCase()).toContain("physical continuity");
+    expect(html.toLowerCase()).toContain("more pixels");
+    expect(html).not.toContain("benchmark");
+    expect(html).not.toContain("leaderboard");
+  });
+});
