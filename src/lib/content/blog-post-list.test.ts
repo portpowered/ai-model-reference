@@ -155,7 +155,9 @@ describe("listPublishedBlogPosts", () => {
       locale: "ja",
     });
 
-    expect(englishPosts.map((post) => post.slug)).toEqual(["english-only-post"]);
+    expect(englishPosts.map((post) => post.slug)).toEqual([
+      "english-only-post",
+    ]);
     expect(localizedPosts).toEqual([]);
   });
 
