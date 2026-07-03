@@ -18,7 +18,10 @@ revert, stage, overwrite, or commit the root artifact during evidence capture.
   expected-output classification (`already-aligned-no-commit` vs
   `land-minimal-expected-output-required`), looped-transformers table/source
   discoverability via `getTableById` and `generatedTableRegistrySourceFiles`, and
-  optional `--apply` write of only `table-registry.generated.ts`.
+  optional `--apply` write of only `table-registry.generated.ts`; story 004 stale-drift
+  operator handoff (`classifyGeneratedTableRegistryStaleDriftApplicable`,
+  `buildGeneratedTableRegistryStaleDriftHandoff`) with reproduction-failure evidence,
+  operator-safe preserve/restore/regenerate/verify actions, and page-refill hold rule.
 * `src/lib/factory/generated-table-registry-root-drift-cleanup-proof.test.ts` —
   fixture diff/status tests plus temp-git-repo integration proving the report
   script does not mutate porcelain state.
@@ -44,6 +47,7 @@ revert, stage, overwrite, or commit the root artifact during evidence capture.
 | Prove generator reproducibility (story 002) | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --reproducibility` |
 | Classify expected generated output lane (story 003) | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --expected-output` |
 | Apply minimal generated artifact when dirty and reproducible (story 003) | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --expected-output --apply` |
+| Document operator-safe stale drift handoff (story 004) | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --stale-drift-handoff` |
 | Capture drift evidence and reproducibility proof together | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof` |
 | Point at the planner root checkout explicitly | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --repo-root /path/to/root` |
 | Fixture-backed status/diff replay | `bun run report:generated-table-registry-root-drift-cleanup-proof -- --repo-root /path/to/root --status-output /path/to/status.txt --diff-output /path/to/diff.txt` |
@@ -130,6 +134,25 @@ from this worktree.
 
 Stories 004–005 apply only when reproducibility is **not**
 `matches-deterministic-generation` or when drift belongs to an active PR lane.
+
+## Live stale-drift handoff (2026-07-03 UTC)
+
+Captured via
+`bun run report:generated-table-registry-root-drift-cleanup-proof -- --stale-drift-handoff`
+from this worktree.
+
+| Field | Value |
+| --- | --- |
+| Applicable | `false` |
+| Reproducibility outcome | `matches-deterministic-generation` |
+| Not-applicable reason | Story 004 does not apply; artifact is reproducible from canonical sources |
+| Page refill hold rule | Hold page refills until root artifact is clean or explicitly accepted |
+| Operator-safe actions | none (stale drift lane not active) |
+
+When reproducibility is `differs-from-deterministic-generation` or
+`missing-canonical-source-table`, the handoff emits preserve, restore-from-main,
+restore-from-head, regenerate, and verify-after-cleanup actions scoped to only
+`src/lib/content/generated/table-registry.generated.ts`.
 
 ## Preserve policy
 

@@ -16,17 +16,22 @@ import {
 import {
   applyGeneratedTableRegistryExpectedOutput,
   buildGeneratedTableRegistryExpectedOutputOutcome,
+  buildGeneratedTableRegistryStaleDriftHandoff,
   captureGeneratedTableRegistryRootDriftEvidence,
   classifyGeneratedTableRegistryExpectedOutputKind,
+  classifyGeneratedTableRegistryStaleDriftApplicable,
   extractLoopedTransformersComparisonDiffHighlights,
   extractLoopedTransformersGeneratedLines,
   formatGeneratedTableRegistryExpectedOutputOutcome,
   formatGeneratedTableRegistryReproducibilityProof,
   formatGeneratedTableRegistryRootDriftEvidence,
+  formatGeneratedTableRegistryStaleDriftHandoff,
   GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
   GENERATED_TABLE_REGISTRY_DRIFT_EVIDENCE_PRESERVE_POLICY,
   GENERATED_TABLE_REGISTRY_EXPECTED_OUTPUT_UNRELATED_PATHS_NOTE,
   GENERATED_TABLE_REGISTRY_ROOT_DRIFT_CLEANUP_PROOF_HEADER,
+  GENERATED_TABLE_REGISTRY_STALE_DRIFT_PAGE_REFILL_HOLD_RULE,
+  GENERATED_TABLE_REGISTRY_STALE_DRIFT_UNRELATED_PATHS_NOTE,
   LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
   LOOPED_TRANSFORMERS_COMPARISON_IMPORT_MARKER,
   LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH,
@@ -950,6 +955,274 @@ describe("expected-output report script integration", () => {
     expect(result.stdout).toContain("Expected Output");
     expect(result.stdout).toContain("kind=already-aligned-no-commit");
     expect(result.stdout).toContain("validation-passed=true");
+
+    const statusAfter = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+    expect(statusAfter).toBe(statusBefore);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+});
+
+describe("classifyGeneratedTableRegistryStaleDriftApplicable", () => {
+  test("returns false when reproducibility matches deterministic generation", () => {
+    expect(
+      classifyGeneratedTableRegistryStaleDriftApplicable(
+        "matches-deterministic-generation",
+      ),
+    ).toBe(false);
+  });
+
+  test("returns true for non-reproducible outcomes", () => {
+    expect(
+      classifyGeneratedTableRegistryStaleDriftApplicable(
+        "differs-from-deterministic-generation",
+      ),
+    ).toBe(true);
+    expect(
+      classifyGeneratedTableRegistryStaleDriftApplicable(
+        "missing-canonical-source-table",
+      ),
+    ).toBe(true);
+    expect(
+      classifyGeneratedTableRegistryStaleDriftApplicable(
+        "missing-generated-artifact",
+      ),
+    ).toBe(true);
+  });
+});
+
+describe("buildGeneratedTableRegistryStaleDriftHandoff", () => {
+  test("records not-applicable handoff when reproducibility matches deterministic generation", () => {
+    const generatedModuleSource = renderGeneratedTableRegistryModule(
+      createTableRegistrySourceEntries([
+        LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
+      ]),
+    );
+    const sourceTableRecord = createMinimalTableRecord(
+      LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID,
+      "module.looped-transformers",
+    );
+    const existingPaths = new Set([
+      "/checkout/src/lib/content/generated/table-registry.generated.ts",
+      `/checkout/${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+    ]);
+
+    const handoff = buildGeneratedTableRegistryStaleDriftHandoff({
+      checkoutRepoPath: "/checkout",
+      generatedAtUtc: "2026-07-03T06:00:00.000Z",
+      remoteBaseRef: "origin/main",
+      driftEvidence: captureGeneratedTableRegistryRootDriftEvidence({
+        generatedAtUtc: "2026-07-03T06:00:00.000Z",
+        repoRoot: "/checkout",
+        remoteBaseRef: "origin/main",
+        statusOutput: "## main...origin/main\n",
+        diffOutput: "",
+        runGit: createMockGitRunner({
+          presentPaths: new Set([
+            `origin/main:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+            `HEAD:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+          ]),
+        }),
+      }),
+      pathExists: (filePath) => existingPaths.has(filePath),
+      runGit: createMockGitRunner({
+        presentPaths: new Set([
+          `origin/main:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+          `HEAD:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+        ]),
+      }),
+      readDir: () => [LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME],
+      readFile: (filePath) => {
+        if (filePath.endsWith(LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME)) {
+          return sourceTableRecord;
+        }
+        if (filePath.endsWith("table-registry.generated.ts")) {
+          return generatedModuleSource;
+        }
+        throw new Error(`Unexpected read: ${filePath}`);
+      },
+    });
+
+    expect(handoff.applicable).toBe(false);
+    expect(handoff.reproducibilityOutcome).toBe(
+      "matches-deterministic-generation",
+    );
+    expect(handoff.notApplicableReason).toContain("Story 004 does not apply");
+    expect(handoff.operatorSafeActions).toEqual([]);
+    expect(handoff.pageRefillHoldRule).toBe(
+      GENERATED_TABLE_REGISTRY_STALE_DRIFT_PAGE_REFILL_HOLD_RULE,
+    );
+  });
+
+  test("records operator-safe stale drift handoff when artifact differs from dry-run output", () => {
+    const dryRunModuleSource = renderGeneratedTableRegistryModule(
+      createTableRegistrySourceEntries([
+        LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
+      ]),
+    );
+    const staleGeneratedModuleSource = `${dryRunModuleSource}\n// stale hand edit\n`;
+    const sourceTableRecord = createMinimalTableRecord(
+      LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID,
+      "module.looped-transformers",
+    );
+    const existingPaths = new Set([
+      "/checkout/src/lib/content/generated/table-registry.generated.ts",
+      `/checkout/${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+    ]);
+
+    const handoff = buildGeneratedTableRegistryStaleDriftHandoff({
+      checkoutRepoPath: "/checkout",
+      generatedAtUtc: "2026-07-03T06:01:00.000Z",
+      remoteBaseRef: "origin/main",
+      driftEvidence: captureGeneratedTableRegistryRootDriftEvidence({
+        generatedAtUtc: "2026-07-03T06:01:00.000Z",
+        repoRoot: "/checkout",
+        remoteBaseRef: "origin/main",
+        statusOutput: readFixture("dirty-table-registry-status.txt"),
+        diffOutput: readFixture("looped-transformers-table-registry.diff"),
+        runGit: createMockGitRunner({
+          presentPaths: new Set([
+            `origin/main:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+            `HEAD:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+          ]),
+        }),
+      }),
+      pathExists: (filePath) => existingPaths.has(filePath),
+      runGit: createMockGitRunner({
+        presentPaths: new Set([
+          `origin/main:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+          `HEAD:${LOOPED_TRANSFORMERS_COMPARISON_SOURCE_TABLE_PATH}`,
+        ]),
+      }),
+      readDir: () => [LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME],
+      readFile: (filePath) => {
+        if (filePath.endsWith(LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME)) {
+          return sourceTableRecord;
+        }
+        if (filePath.endsWith("table-registry.generated.ts")) {
+          return staleGeneratedModuleSource;
+        }
+        throw new Error(`Unexpected read: ${filePath}`);
+      },
+    });
+
+    expect(handoff.applicable).toBe(true);
+    expect(handoff.reproducibilityOutcome).toBe(
+      "differs-from-deterministic-generation",
+    );
+    expect(handoff.generatedArtifactCleanliness).toBe("dirty");
+    expect(handoff.staleDriftRationale).toContain("stale root checkout drift");
+    expect(handoff.reproductionFailureEvidence).toContain(
+      "reproducibility-outcome=differs-from-deterministic-generation",
+    );
+    expect(handoff.reproductionFailureEvidence).toContain(
+      `generation-command=${TABLE_REGISTRY_GENERATION_COMMAND}`,
+    );
+    expect(handoff.unrelatedPathsNote).toBe(
+      GENERATED_TABLE_REGISTRY_STALE_DRIFT_UNRELATED_PATHS_NOTE,
+    );
+    expect(
+      handoff.operatorSafeActions.some(
+        (action) => action.kind === "restore-from-origin-main",
+      ),
+    ).toBe(true);
+    expect(
+      handoff.operatorSafeActions.some(
+        (action) =>
+          action.kind === "verify-after-cleanup" &&
+          action.command === TABLE_REGISTRY_VALIDATION_COMMAND,
+      ),
+    ).toBe(true);
+  });
+
+  test("formats stale drift handoff with operator actions and page refill hold rule", () => {
+    const handoff = buildGeneratedTableRegistryStaleDriftHandoff({
+      checkoutRepoPath: process.cwd(),
+      generatedAtUtc: "2026-07-03T06:02:00.000Z",
+    });
+    const text = formatGeneratedTableRegistryStaleDriftHandoff(handoff);
+
+    expect(text).toContain("Stale Drift Handoff");
+    expect(text).toContain(
+      `page-refill-hold-rule=${GENERATED_TABLE_REGISTRY_STALE_DRIFT_PAGE_REFILL_HOLD_RULE}`,
+    );
+    expect(text).toContain("operator-safe-actions:");
+    if (handoff.applicable) {
+      expect(text).toContain("reproduction-failure-evidence:");
+    } else {
+      expect(text).toContain("not-applicable-reason=");
+    }
+  });
+});
+
+describe("stale-drift handoff report script integration", () => {
+  test("emits stale drift handoff without mutating git state", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "generated-table-registry-root-drift-stale-handoff-"),
+    );
+    const repoRoot = join(dir, "repo");
+    const tablesDir = join(repoRoot, "src/content/registry/tables");
+    const artifactPath = join(repoRoot, GENERATED_TABLE_REGISTRY_ARTIFACT_PATH);
+    const sourceTablePath = join(
+      tablesDir,
+      LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
+    );
+
+    mkdirSync(tablesDir, { recursive: true });
+    writeFileSync(
+      sourceTablePath,
+      createMinimalTableRecord(
+        LOOPED_TRANSFORMERS_COMPARISON_TABLE_ID,
+        "module.looped-transformers",
+      ),
+    );
+
+    const generatedModuleSource = renderGeneratedTableRegistryModule(
+      createTableRegistrySourceEntries([
+        LOOPED_TRANSFORMERS_COMPARISON_FILE_NAME,
+      ]),
+    );
+    mkdirSync(join(artifactPath, ".."), { recursive: true });
+    writeFileSync(artifactPath, generatedModuleSource);
+
+    runGit(repoRoot, ["init", "-b", "main"]);
+    runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+    runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+    runGit(repoRoot, ["add", "."]);
+    runGit(repoRoot, ["commit", "-m", "initial"]);
+    runGit(repoRoot, ["branch", "origin-main"]);
+    runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", "origin-main"]);
+
+    const statusBefore = spawnSync("git", ["status", "--porcelain"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).stdout;
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-generated-table-registry-root-drift-cleanup-proof.ts",
+        "--repo-root",
+        repoRoot,
+        "--remote-base-ref",
+        "origin/main",
+        "--stale-drift-handoff",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("Stale Drift Handoff");
+    expect(result.stdout).toContain("applicable=false");
+    expect(result.stdout).toContain(
+      "reproducibility-outcome=matches-deterministic-generation",
+    );
+    expect(result.stdout).toContain(
+      `page-refill-hold-rule=${GENERATED_TABLE_REGISTRY_STALE_DRIFT_PAGE_REFILL_HOLD_RULE}`,
+    );
 
     const statusAfter = spawnSync("git", ["status", "--porcelain"], {
       cwd: repoRoot,

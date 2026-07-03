@@ -990,3 +990,305 @@ export function serializeGeneratedTableRegistryExpectedOutputOutcome(
 ): string {
   return JSON.stringify(outcome, null, 2);
 }
+
+export const GENERATED_TABLE_REGISTRY_STALE_DRIFT_PAGE_REFILL_HOLD_RULE =
+  "Hold page refills until the root generated table registry artifact is clean or explicitly accepted by an operator after review.";
+
+export const GENERATED_TABLE_REGISTRY_STALE_DRIFT_UNRELATED_PATHS_NOTE =
+  "Do not revert, stage, overwrite, delete, or modify unrelated paths while cleaning stale generated table registry drift.";
+
+export type GeneratedTableRegistryStaleDriftOperatorActionKind =
+  | "accept-and-preserve"
+  | "restore-from-origin-main"
+  | "restore-from-head"
+  | "regenerate-from-canonical-sources"
+  | "verify-after-cleanup";
+
+export interface GeneratedTableRegistryStaleDriftOperatorAction {
+  command: string;
+  description: string;
+  kind: GeneratedTableRegistryStaleDriftOperatorActionKind;
+}
+
+export interface GeneratedTableRegistryStaleDriftHandoff {
+  applicable: boolean;
+  checkoutRepoPath: string;
+  generatedArtifactCleanliness: GeneratedTableRegistryArtifactCleanliness;
+  generatedArtifactPath: string;
+  generatedAtUtc: string;
+  generationCommand: string;
+  loopedTransformersEntriesMatchDryRun: boolean;
+  notApplicableReason?: string;
+  operatorSafeActions: GeneratedTableRegistryStaleDriftOperatorAction[];
+  pageRefillHoldRule: string;
+  reproductionFailureEvidence: string[];
+  reproducibilityOutcome: GeneratedTableRegistryReproducibilityOutcome;
+  rootRepoPath: string;
+  staleDriftRationale?: string;
+  unrelatedPathsNote: string;
+  validationCommand: string;
+}
+
+export interface BuildGeneratedTableRegistryStaleDriftHandoffOptions {
+  checkoutRepoPath?: string;
+  driftEvidence?: GeneratedTableRegistryRootDriftEvidence;
+  generatedAtUtc?: string;
+  pathExists?: (filePath: string) => boolean;
+  readDir?: (directoryPath: string) => string[];
+  readFile?: (filePath: string) => string;
+  remoteBaseRef?: string;
+  repoRoot?: string;
+  runGit?: RunGit;
+}
+
+export function classifyGeneratedTableRegistryStaleDriftApplicable(
+  reproducibilityOutcome: GeneratedTableRegistryReproducibilityOutcome,
+): boolean {
+  return reproducibilityOutcome !== "matches-deterministic-generation";
+}
+
+function buildStaleDriftNotApplicableReason(
+  reproducibilityOutcome: GeneratedTableRegistryReproducibilityOutcome,
+): string {
+  return `Story 004 does not apply because reproducibility is ${reproducibilityOutcome}; the generated table registry artifact is reproducible from canonical source tables and is not stale root drift.`;
+}
+
+function buildStaleDriftRationale(input: {
+  generatedArtifactCleanliness: GeneratedTableRegistryArtifactCleanliness;
+  loopedTransformersEntriesMatchDryRun: boolean;
+  reproducibilityOutcome: GeneratedTableRegistryReproducibilityOutcome;
+  validationProblems: readonly string[];
+}): string {
+  switch (input.reproducibilityOutcome) {
+    case "differs-from-deterministic-generation":
+      return input.generatedArtifactCleanliness === "dirty"
+        ? "The dirty generated table registry artifact does not match deterministic output from canonical source tables; this is stale root checkout drift rather than expected generated output."
+        : "The committed generated table registry artifact does not match deterministic output from canonical source tables.";
+    case "missing-canonical-source-table":
+      return "The generated table registry artifact references canonical source table files that are absent on the checkout filesystem; looped-transformers entries cannot be reproduced from current canonical sources.";
+    case "missing-generated-artifact":
+      return "The generated table registry artifact is missing on the checkout filesystem.";
+    default:
+      return "The generated table registry artifact is not reproducible from canonical source tables.";
+  }
+}
+
+function buildStaleDriftReproductionFailureEvidence(input: {
+  generationCommand: string;
+  loopedTransformersEntriesMatchDryRun: boolean;
+  reproducibilityOutcome: GeneratedTableRegistryReproducibilityOutcome;
+  validationCommand: string;
+  validationProblems: readonly string[];
+}): string[] {
+  const evidence = [
+    `reproducibility-outcome=${input.reproducibilityOutcome}`,
+    `generation-command=${input.generationCommand}`,
+    `validation-command=${input.validationCommand}`,
+    `looped-transformers-entries-match-dry-run=${input.loopedTransformersEntriesMatchDryRun}`,
+  ];
+
+  for (const problem of input.validationProblems) {
+    evidence.push(`validation-problem=${problem}`);
+  }
+
+  return evidence;
+}
+
+function buildStaleDriftOperatorSafeActions(input: {
+  remoteBaseRef: string;
+  reproducibilityOutcome: GeneratedTableRegistryReproducibilityOutcome;
+}): GeneratedTableRegistryStaleDriftOperatorAction[] {
+  const artifactPath = GENERATED_TABLE_REGISTRY_ARTIFACT_PATH;
+  const actions: GeneratedTableRegistryStaleDriftOperatorAction[] = [
+    {
+      kind: "accept-and-preserve",
+      command: "(no file mutation)",
+      description:
+        "Preserve the current root artifact after operator review when the drift must be investigated further; keep page refills on hold until the operator explicitly accepts the dirty state.",
+    },
+  ];
+
+  actions.push({
+    kind: "restore-from-origin-main",
+    command: `git restore --source=${input.remoteBaseRef} --worktree -- ${artifactPath}`,
+    description:
+      "Restore only the generated table registry artifact from the remote main baseline when the dirty content is stale checkout drift and canonical sources on main are authoritative.",
+  });
+
+  if (input.reproducibilityOutcome !== "missing-generated-artifact") {
+    actions.push({
+      kind: "restore-from-head",
+      command: `git restore --worktree -- ${artifactPath}`,
+      description:
+        "Discard unstaged worktree edits to the generated artifact when root HEAD already matches the intended committed baseline.",
+    });
+  }
+
+  if (
+    input.reproducibilityOutcome === "differs-from-deterministic-generation" ||
+    input.reproducibilityOutcome === "missing-generated-artifact"
+  ) {
+    actions.push({
+      kind: "regenerate-from-canonical-sources",
+      command: TABLE_REGISTRY_GENERATION_COMMAND,
+      description:
+        "Regenerate only the generated table registry artifact from canonical source tables when canonical files are present and the drift should be replaced with deterministic output.",
+    });
+  }
+
+  actions.push({
+    kind: "verify-after-cleanup",
+    command: TABLE_REGISTRY_VALIDATION_COMMAND,
+    description:
+      "After any cleanup or regeneration, verify generated table registry completeness before resuming page refills.",
+  });
+
+  return actions;
+}
+
+export function buildGeneratedTableRegistryStaleDriftHandoff(
+  options: BuildGeneratedTableRegistryStaleDriftHandoffOptions = {},
+): GeneratedTableRegistryStaleDriftHandoff {
+  const checkoutRepoPath = resolve(
+    options.checkoutRepoPath ?? options.repoRoot ?? process.cwd(),
+  );
+  const driftEvidence =
+    options.driftEvidence ??
+    captureGeneratedTableRegistryRootDriftEvidence({
+      generatedAtUtc: options.generatedAtUtc,
+      remoteBaseRef: options.remoteBaseRef,
+      repoRoot: checkoutRepoPath,
+      runGit: options.runGit,
+    });
+  const reproducibilityProof = proveGeneratedTableRegistryReproducibility({
+    checkoutRepoPath,
+    generatedAtUtc: options.generatedAtUtc,
+    pathExists: options.pathExists,
+    readDir: options.readDir,
+    readFile: options.readFile,
+    remoteBaseRef: options.remoteBaseRef,
+    repoRoot: checkoutRepoPath,
+    runGit: options.runGit,
+  });
+  const applicable = classifyGeneratedTableRegistryStaleDriftApplicable(
+    reproducibilityProof.reproducibilityOutcome,
+  );
+
+  if (!applicable) {
+    return {
+      applicable: false,
+      checkoutRepoPath,
+      generatedArtifactCleanliness: driftEvidence.generatedArtifactCleanliness,
+      generatedArtifactPath: GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+      generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
+      generationCommand: reproducibilityProof.generationCommand,
+      loopedTransformersEntriesMatchDryRun:
+        reproducibilityProof.loopedTransformersEntriesMatchDryRun,
+      notApplicableReason: buildStaleDriftNotApplicableReason(
+        reproducibilityProof.reproducibilityOutcome,
+      ),
+      operatorSafeActions: [],
+      pageRefillHoldRule:
+        GENERATED_TABLE_REGISTRY_STALE_DRIFT_PAGE_REFILL_HOLD_RULE,
+      reproductionFailureEvidence: [],
+      reproducibilityOutcome: reproducibilityProof.reproducibilityOutcome,
+      rootRepoPath: driftEvidence.rootRepoPath,
+      unrelatedPathsNote:
+        GENERATED_TABLE_REGISTRY_STALE_DRIFT_UNRELATED_PATHS_NOTE,
+      validationCommand: reproducibilityProof.validationCommand,
+    };
+  }
+
+  return {
+    applicable: true,
+    checkoutRepoPath,
+    generatedArtifactCleanliness: driftEvidence.generatedArtifactCleanliness,
+    generatedArtifactPath: GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+    generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
+    generationCommand: reproducibilityProof.generationCommand,
+    loopedTransformersEntriesMatchDryRun:
+      reproducibilityProof.loopedTransformersEntriesMatchDryRun,
+    operatorSafeActions: buildStaleDriftOperatorSafeActions({
+      remoteBaseRef: reproducibilityProof.remoteBaseRef,
+      reproducibilityOutcome: reproducibilityProof.reproducibilityOutcome,
+    }),
+    pageRefillHoldRule:
+      GENERATED_TABLE_REGISTRY_STALE_DRIFT_PAGE_REFILL_HOLD_RULE,
+    reproductionFailureEvidence: buildStaleDriftReproductionFailureEvidence({
+      generationCommand: reproducibilityProof.generationCommand,
+      loopedTransformersEntriesMatchDryRun:
+        reproducibilityProof.loopedTransformersEntriesMatchDryRun,
+      reproducibilityOutcome: reproducibilityProof.reproducibilityOutcome,
+      validationCommand: reproducibilityProof.validationCommand,
+      validationProblems: reproducibilityProof.validationProblems,
+    }),
+    reproducibilityOutcome: reproducibilityProof.reproducibilityOutcome,
+    rootRepoPath: driftEvidence.rootRepoPath,
+    staleDriftRationale: buildStaleDriftRationale({
+      generatedArtifactCleanliness: driftEvidence.generatedArtifactCleanliness,
+      loopedTransformersEntriesMatchDryRun:
+        reproducibilityProof.loopedTransformersEntriesMatchDryRun,
+      reproducibilityOutcome: reproducibilityProof.reproducibilityOutcome,
+      validationProblems: reproducibilityProof.validationProblems,
+    }),
+    unrelatedPathsNote:
+      GENERATED_TABLE_REGISTRY_STALE_DRIFT_UNRELATED_PATHS_NOTE,
+    validationCommand: reproducibilityProof.validationCommand,
+  };
+}
+
+export function formatGeneratedTableRegistryStaleDriftHandoff(
+  handoff: GeneratedTableRegistryStaleDriftHandoff,
+): string {
+  const lines = [
+    `${GENERATED_TABLE_REGISTRY_ROOT_DRIFT_CLEANUP_PROOF_HEADER} — Stale Drift Handoff`,
+    `generated-at-utc=${handoff.generatedAtUtc}`,
+    `checkout-repo-path=${handoff.checkoutRepoPath}`,
+    `root-repo-path=${handoff.rootRepoPath}`,
+    `generated-artifact-path=${handoff.generatedArtifactPath}`,
+    `generated-artifact-cleanliness=${handoff.generatedArtifactCleanliness}`,
+    `applicable=${handoff.applicable}`,
+    `reproducibility-outcome=${handoff.reproducibilityOutcome}`,
+    `generation-command=${handoff.generationCommand}`,
+    `validation-command=${handoff.validationCommand}`,
+    `looped-transformers-entries-match-dry-run=${handoff.loopedTransformersEntriesMatchDryRun}`,
+    `page-refill-hold-rule=${handoff.pageRefillHoldRule}`,
+    `unrelated-paths-note=${handoff.unrelatedPathsNote}`,
+  ];
+
+  if (handoff.notApplicableReason) {
+    lines.push(`not-applicable-reason=${handoff.notApplicableReason}`);
+  }
+
+  if (handoff.staleDriftRationale) {
+    lines.push(`stale-drift-rationale=${handoff.staleDriftRationale}`);
+  }
+
+  if (handoff.reproductionFailureEvidence.length > 0) {
+    lines.push("", "reproduction-failure-evidence:");
+    for (const evidence of handoff.reproductionFailureEvidence) {
+      lines.push(`  - ${evidence}`);
+    }
+  }
+
+  lines.push("", "operator-safe-actions:");
+  if (handoff.operatorSafeActions.length === 0) {
+    lines.push("- none");
+  } else {
+    for (const action of handoff.operatorSafeActions) {
+      lines.push(
+        `- kind=${action.kind}`,
+        `  command=${action.command}`,
+        `  description=${action.description}`,
+      );
+    }
+  }
+
+  return lines.join("\n");
+}
+
+export function serializeGeneratedTableRegistryStaleDriftHandoff(
+  handoff: GeneratedTableRegistryStaleDriftHandoff,
+): string {
+  return JSON.stringify(handoff, null, 2);
+}
