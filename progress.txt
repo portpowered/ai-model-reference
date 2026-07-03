@@ -13,9 +13,14 @@
 - Migrating a glossary page to concepts removes it from glossary index counts/tests and surfaces it under the attention tag `concept` kind group instead of `glossary`.
 - Story 004 slice verification: add `classifier-free-guidance-slice-verification.test.tsx` with registry/message/asset alignment, `renderDocsSlugPage` route proof, rendered HTML/search assertions, and citation/graph asset checks; routine bundle invariants stay in `make validate-data`; run `audit:canonical-page-surface` from the root repo with `--repo-root` pointing at the worktree when the script is absent locally.
 - After merging `main`, regenerate published-docs manifests with `bun run generate:published-docs-registry` (or `make validate-data` / `prepare:content-runtime`) instead of hand-editing `published-docs-registry-ids.ts`.
+- Search page panel GQA `test.each` per-test timeout must stay at `90_000` ms (main default); lowering it to `30_000` during mergeability fixes causes `attention` query rows to flake under full `make test` load.
 - CFG story 003 teaching: add `guidance-scale` and `tradeoffs` sections with `PageMathFormula` for the guided-prediction blend and `ConceptMap` wired to a new `graph.classifier-free-guidance-blend` record; run `bun run generate:graph-registry-runtime` after adding graph JSON under `src/content/registry/graphs/`.
 - Use `bun run report:merged-pr-drain-rows-reconciliation` to capture read-only queue/PR/worktree evidence for merged PR drain rows #281/#282/#284/#286; target session is `930b51a6-07ce-44e6-a639-7a6217f6e864`.
 - When running planner reports from a nested git worktree, resolve main-repo paths via `resolveMainRepoRoot` / `resolveDefaultWorktreesDir` (`git rev-parse --git-common-dir`) so `.claude/worktrees` and root checkout evidence point at `/Users/abdifamily/work/learn-agent-factories`, not the nested worktree checkout.
+- Use `bun run report:ownerless-generated-table-registry-drift` for read-only evidence on root `HEAD`, `origin/main`, ahead/behind, scoped dirty status for `src/lib/content/generated/table-registry.generated.ts`, and `looped-transformers-comparison.json` import/source-list/payload observation; read worktree file content from disk (not `git show :path`) when the artifact is unstaged.
+- Classify generated table registry drift with `classifyGeneratedTableRegistryArtifactStatus` / `buildTableRegistryRegenerationProof`; `expected` requires deterministic regeneration proof from canonical `src/content/registry/tables`, `stale` requires canonical source plus a no-match proof, `owned` requires dirty drift plus lane ownership evidence, and `ownerless` records explicit evidence gaps.
+- Resolve planner next actions with `resolveGeneratedTableRegistryArtifactNextAction` / `buildOwnerlessGeneratedTableRegistryDriftPlannerReport`; default CLI output includes evidence, classification, and one `next-safe-action` per primary status.
+- Consolidated planner report (`formatOwnerlessGeneratedTableRegistryDriftPlannerReport`) surfaces `evidence-summary`, `classification-clarity` (`clear` vs `ambiguous` for ownerless drift), artifact path, table id, primary status, and next safe action in one `[planner-report]` section appended to unified CLI output.
 - Distinguish merged PR truth from queue completion truth explicitly; all four PRs can be MERGED while drain rows remain `init/INITIAL`.
 - Use `classifyMergedPrDrainRowOutcome` / `buildMergedPrDrainRowsClassificationReport` for per-row `consume` / `complete` / `no-op` outcomes; stale `init/INITIAL` drain rows with terminal-complete content lanes classify as `consume`, and rows without drain rows classify as `no-op` (`already-settled`).
 - Use `buildMergedPrDrainRowNoOpHandoff` / `buildMergedPrDrainRowsNoOpReport` for explicit no-op handoffs with `row-left-untouched=true`, `missing-evidence`, and `next-safe-owner-action` when blockers apply.
@@ -186,6 +191,35 @@
   - Prefer keeping `progress.txt` local-only off review branches when possible; when it is already on the branch, resolving the conflict is required for mergeability.
 ---
 
+## 2026-07-03T04:07:20Z - ownerless-generated-table-registry-drift-priority-unblock-001
+- Implemented read-only ownerless generated table registry drift evidence capture module, planner CLI, fixtures, and process documentation.
+- Evidence records root `HEAD`, `origin/main`, ahead/behind relationship, scoped dirty status for `src/lib/content/generated/table-registry.generated.ts`, and `looped-transformers-comparison.json` import/source-list/payload observation from HEAD, worktree, and scoped diff excerpts.
+- Fixed duplicate `getBlogRoot` export in `content-paths.ts` so branch typecheck passes.
+- Files changed: `src/lib/factory/ownerless-generated-table-registry-drift.ts`, `src/lib/factory/ownerless-generated-table-registry-drift.test.ts`, `scripts/report-ownerless-generated-table-registry-drift.ts`, `src/tests/fixtures/ownerless-generated-table-registry-drift/*`, `docs/internal/processes/ownerless-generated-table-registry-drift-relevant-files.md`, `docs/internal/processes/factory-linkage-relevant-files.md`, `package.json`, `src/lib/content/content-paths.ts`
+- **Learnings for future iterations:**
+  - Live root evidence (2026-07-03T04:07:20Z UTC): `HEAD=a0c5706`, `origin/main=b1dda15`, `behind(ahead=0,behind=19)`; generated artifact is currently `clean` with `looped-transformers-comparison.json` present on both HEAD and worktree.
+  - Read unstaged generated-artifact content from the working tree via `readFileSync`, not `git show :path` (index-only).
+  - Story 002 should classify artifact status using table-registry validation/regeneration proof and lane ownership evidence on top of this capture surface.
+---
+
+## 2026-07-03T04:15:00Z - ownerless-generated-table-registry-drift-priority-unblock-002
+- Implemented generated table registry artifact classification with deterministic regeneration proof, optional drift-snapshot lane ownership, unified planner CLI output, and focused tests for expected, stale, owned, and ownerless cases.
+- Files changed: `src/lib/factory/ownerless-generated-table-registry-drift.ts`, `src/lib/factory/ownerless-generated-table-registry-drift.test.ts`, `scripts/report-ownerless-generated-table-registry-drift.ts`, `docs/internal/processes/ownerless-generated-table-registry-drift-relevant-files.md`
+- **Learnings for future iterations:**
+  - Live root evidence (2026-07-03T04:08:35Z UTC): artifact is `clean` with `looped-transformers-comparison.json` present on HEAD and worktree; regeneration proof matches canonical `src/content/registry/tables` catalog.
+  - Classify `expected` from full-module regeneration proof first; `stale` requires canonical source present plus table-entry mismatch; `owned` applies only to dirty drift with lane ownership evidence.
+  - Story 003 should emit the concrete planner next action from the classified status without broad report redesign.
+---
+
+## 2026-07-03T05:30:00Z - ownerless-generated-table-registry-drift-priority-unblock-003
+- Implemented planner next-action resolution and unified report emission for expected, stale, owned, and ownerless generated table registry classifications.
+- Added `resolveGeneratedTableRegistryArtifactNextAction`, `buildOwnerlessGeneratedTableRegistryDriftPlannerReport`, and next-action formatting/serialization; default CLI JSON now emits the full planner report.
+- Files changed: `src/lib/factory/ownerless-generated-table-registry-drift.ts`, `src/lib/factory/ownerless-generated-table-registry-drift.test.ts`, `scripts/report-ownerless-generated-table-registry-drift.ts`, `docs/internal/processes/ownerless-generated-table-registry-drift-relevant-files.md`
+- **Learnings for future iterations:**
+  - Next actions map one-to-one to primary status: `land-minimal-generated-registry-proof` (expected), `operator-cleanup-scoped-artifact` (stale), `wait-for-or-inspect-named-lane` (owned), `planner-hold-missing-evidence` (ownerless with explicit gaps in reason text).
+  - Story 004 is only needed if planner output still cannot clearly show artifact status and next action together; evaluate whether the unified report already satisfies that bar before adding ambiguous-report hardening.
+---
+
 ## 2026-07-03T06:18:00Z - related-registry-docs-component-001
 - Implemented `resolveRelatedRegistryDocs` to map explicit registry ids to published docs link data with `available`/`unavailable` results, input-order preservation, and injectable lookup for tests.
 - Added focused resolver tests for published links, missing ids, unpublished records, and runtime index integration.
@@ -231,4 +265,33 @@
   - `hasPublishedDocsPageForRecord` keys off `publishedRegistryIds`, not record `status`; use a published record absent from the index to test docs-page-less unavailable paths separately from draft records.
   - Consolidated behavior tests should assert resolver return values and rendered HTML in one place so reviewers can map acceptance criteria without scanning multiple files.
   - Counting `<a` tags in static markup is a simple observable guard against broken anchors in fallback states.
+---
+
+## 2026-07-03T09:20:00Z - mergeability follow-up (PR #326 BLOCKING)
+- Merged `origin/main` to pick up updated `blog-content-loader-scope.test.ts` expectations for committed published blog bundles (`llm-training-shift`, `roofline-throughput-explorer`).
+- Stabilized `search-page-panel.test.tsx` GQA proof by asserting `/docs/modules/grouped-query-attention` appears in `search-result-url` nodes (matching `search-dialog-panel.test.tsx`) instead of scanning full `results.textContent` with a 30s test timeout that flaked on the broad `attention` query.
+- Verified blocking tests pass in isolation; full `make test` completed with 3949 pass / 3 flaky timeout failures on slow local hardware (reconciliation convergence and glossary opening groups pass when re-run alone).
+- Files changed: merge from `origin/main`; `src/lib/content/blog-content-loader-scope.test.ts`; `src/tests/search/search-page-panel.test.tsx`
+- **Learnings for future iterations:**
+  - After main lands committed blog bundles, empty `listPublishedBlogPosts()` assertions in lane-isolation tests are stale; merge main before re-running `make test` on related-registry-docs lanes.
+  - Search page panel GQA proofs should assert canonical module URLs in result rows, not broad textContent regex, to stay within per-test timeouts for broad queries like `attention`.
+---
+
+## 2026-07-03T12:45:00Z - mergeability follow-up (PR #326 BLOCKING)
+- Restored `90_000` ms per-test timeout on SearchPagePanel GQA `test.each` rows (regression from prior mergeability fix had lowered it to `30_000`).
+- Raised MHA/MQA first-result ranking test budget to `60_000` ms and nested match wait to `45_000` ms.
+- Raised Phase 2/3 reconciliation convergence gate timeouts (`registry` 20s, `attention tag` 30s, combined 60s) and Phase 1 representative discovery contract to `60_000` ms for full-suite stability.
+- Verified local `make test`: 3952 pass / 0 fail across 586 files (~44 min).
+- Files changed: `src/tests/search/search-page-panel.test.tsx`, `src/lib/content/content-reconciliation-convergence.test.ts`, `src/lib/content/phase-1-published-resources.test.ts`
+- **Learnings for future iterations:**
+  - Keep main's `90_000` ms GQA page-panel timeout when tightening assertions; URL-node proofs are fine but must not shrink the per-test budget.
+  - Combined reconciliation and representative discovery rows need headroom above `30_000` ms when the full website suite runs serially on slower hardware.
+---
+- Hardened consolidated planner report output with `evidence-summary`, `classification-clarity` (`clear` vs `ambiguous` for ownerless drift), and a dedicated `[planner-report]` section naming artifact path, observed table id, primary status, and next safe action.
+- Added focused tests for consolidated and unified report output across expected, stale, lane-owned, and ownerless classifications; extended CLI script assertions for planner-report fields.
+- Files changed: `src/lib/factory/ownerless-generated-table-registry-drift.ts`, `src/lib/factory/ownerless-generated-table-registry-drift.test.ts`, `docs/internal/processes/ownerless-generated-table-registry-drift-relevant-files.md`
+- **Learnings for future iterations:**
+  - Story 004 was needed because stories 001-003 spread status and next action across separate sections without a single evidence summary; the consolidated `[planner-report]` section closes that gap without changing classification logic.
+  - Treat `ownerless` primary status as `classification-clarity=ambiguous` so planner loops always get an explicit actionable hold rather than stalling without a named ambiguity signal.
+  - Unified CLI output now ends with the consolidated planner report after evidence, classification, and next-action sections for backward-compatible review.
 ---
