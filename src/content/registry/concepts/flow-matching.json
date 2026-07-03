@@ -9,7 +9,9 @@
     "flow matching",
     "rectified flow",
     "velocity prediction",
-    "flow-matching objective"
+    "flow-matching objective",
+    "diffusion vs flow matching",
+    "flow matching video generation"
   ],
   "tags": ["foundations", "model-family"],
   "relatedIds": [

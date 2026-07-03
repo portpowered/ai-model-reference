@@ -49,6 +49,8 @@ describe("flow matching concept discovery (flow-matching-concept-page-001)", () 
       "rectified flow",
       "velocity prediction",
       "flow-matching objective",
+      "diffusion vs flow matching",
+      "flow matching video generation",
     ]);
     expect(record?.tags).toEqual(["foundations", "model-family"]);
     expect(record?.conceptType).toBe("training");
@@ -274,7 +276,8 @@ describe("flow matching diffusion comparison (flow-matching-concept-page-004)", 
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    const body = messages.sections?.comparedToDiffusionStyleGeneration.body ?? "";
+    const body =
+      messages.sections?.comparedToDiffusionStyleGeneration.body ?? "";
     expect(body.toLowerCase()).toContain("simple");
     expect(body.toLowerCase()).toContain("noisy");
     expect(body.toLowerCase()).toContain("update steps");
@@ -308,5 +311,88 @@ describe("flow matching diffusion comparison (flow-matching-concept-page-004)", 
     expect(html).toContain('href="/docs/papers/latent-diffusion"');
     expect(html).not.toContain('href="/docs/concepts/cosmos"');
     expect(html).not.toContain('href="/docs/concepts/video-generation"');
+  });
+});
+
+describe("flow matching modern image and video discovery (flow-matching-concept-page-005)", () => {
+  test("messages explain flow-style objectives in modern image and video stacks without overclaiming quality", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    const body = messages.sections?.inModernImageAndVideoSystems.body ?? "";
+    expect(body.toLowerCase()).toContain("latent");
+    expect(body.toLowerCase()).toContain("transformer");
+    expect(body.toLowerCase()).toContain("velocity");
+    expect(body.toLowerCase()).toContain("sampling");
+    expect(body.toLowerCase()).toContain("diffusion vs flow matching");
+    expect(body.toLowerCase()).toContain("flow matching video generation");
+    expect(body.toLowerCase()).toContain("ltx-2.3");
+    expect(body.toLowerCase()).not.toContain("benchmark");
+    expect(body.toLowerCase()).not.toContain("best model");
+  });
+
+  test("page renders modern image and video section with resolving DiT and LTX links", async () => {
+    const page = await loadConceptPage("flow-matching");
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("In Modern Image And Video Systems");
+    expect(html).toContain("diffusion vs flow matching");
+    expect(html).toContain('href="/docs/modules/diffusion-transformer-block"');
+    expect(html).toContain('href="/docs/models/ltx-23"');
+    expect(html).not.toContain('href="/docs/concepts/cosmos"');
+    expect(html).not.toContain('href="/docs/concepts/video-generation"');
+  });
+
+  test("search and curated related docs surface flow matching for modern image and video discovery queries", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const document = documents.find((entry) => entry.url === CONCEPT_URL);
+
+    expect(document?.aliases).toEqual(
+      expect.arrayContaining([
+        "diffusion vs flow matching",
+        "flow matching video generation",
+      ]),
+    );
+
+    for (const query of [
+      "diffusion vs flow matching",
+      "flow matching video generation",
+      "rectified flow",
+      "velocity prediction",
+    ] as const) {
+      const results = await docsSearchApi.search(query);
+      expect(results.some((result) => result.url === CONCEPT_URL)).toBe(true);
+    }
+
+    const source = getConceptById(REGISTRY_ID);
+    if (!source) {
+      throw new Error("expected concept.flow-matching in registry");
+    }
+
+    const items = deriveCuratedRelatedItems(
+      source,
+      listRelatedRegistryRecords(),
+      PUBLISHED_DOCS_REGISTRY_IDS,
+    );
+
+    expect(
+      items.find(
+        (item) => item.registryId === "module.diffusion-transformer-block",
+      )?.href,
+    ).toBe("/docs/modules/diffusion-transformer-block");
+    expect(items.find((item) => item.registryId === "model.ltx-23")?.href).toBe(
+      "/docs/models/ltx-23",
+    );
   });
 });

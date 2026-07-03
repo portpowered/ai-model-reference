@@ -23,6 +23,10 @@
       "title": "Compared To Diffusion-Style Generation",
       "body": "Diffusion-style generation and flow matching both build samples by starting from a simple or noisy state and applying many learned update steps toward data. At inference, both can look like the same loop: draw a starting state, ask the network for the next correction, repeat until the schedule ends.\n\nThe difference is usually in training wording and target quantity, not in whether generation iterates. Classic denoising-diffusion descriptions often say the model predicts noise to remove or a denoised estimate at each noise level along a fixed schedule. Flow matching descriptions say the model predicts a velocity or vector field—the direction and speed that should move the current state along a transport path toward data.\n\nThose wordings are related but not interchangeable labels for one loss. Some diffusion trainers still optimize noise-prediction or score-matching objectives, while flow-matching trainers optimize velocity matching on constructed transport pairs. A paper headline may say diffusion while the implementation trains velocity targets, or the reverse. Flow matching is not merely a renamed diffusion loss, and not every diffusion system uses flow-matching training—even when both families share similar multi-step samplers.\n\nLatent diffusion systems often keep the same iterative pattern while operating in a compressed latent space rather than raw pixels. The links below point to the diffusion training objective explainer and the latent diffusion paper page for adjacent context on denoising-style training and latent-space generation."
     },
+    "inModernImageAndVideoSystems": {
+      "title": "In Modern Image And Video Systems",
+      "body": "Modern image and video stacks often combine three ideas: iterative generation from a simple start, latent-space compression for tractable training, and transformer backbones that predict update steps at each schedule point. Flow-style objectives fit that setup because they teach a stable update direction—the velocity or transport rule—rather than tying every release to one denoising headline. Teams can pair velocity matching with latent encoders, diffusion transformer blocks, and multi-step samplers while keeping the same generation loop readers already recognize from diffusion-style systems.\n\nThat compatibility matters for sampling behavior. When training optimizes a vector field, generation can follow small learned moves step by step, similar to multi-step latent diffusion sampling, while describing each move as following a flow rather than only subtracting noise. The point is not to claim every modern image or video model switched objectives overnight, but to explain why flow matching appears beside latent diffusion and transformer-based denoisers when readers compare releases or search phrases like diffusion vs flow matching or flow matching video generation.\n\nDiffusion transformer blocks are a common backbone for patch-based update prediction in image models. Representative video systems such as LTX-2.3 show how the same iterative latent pattern extends to synchronized audio-video output with a diffusion-transformer backbone and public training materials framed around denoising updates. The links below lead to those adjacent module and model pages for architecture and modality context."
+    },
     "commonConfusions": {
       "title": "Common Confusions",
       "body": "Flow matching is not the name of one product model or benchmark leaderboard. It is an objective family used inside many image and video stacks. Marketing copy can also blur labels: a page may say diffusion while the trainer optimizes velocity targets, or say flow while the sampler still uses classic noise-removal steps. Treat the stated training target and update rule as the reliable signal, not the headline term alone."
@@ -67,7 +71,9 @@
   },
   "links": {
     "diffusionTrainingObjective": "Diffusion training objective",
-    "latentDiffusion": "Latent diffusion"
+    "latentDiffusion": "Latent diffusion",
+    "diffusionTransformerBlock": "Diffusion transformer block",
+    "ltx23": "LTX-2.3"
   },
   "math": {
     "velocityMatchingObjective": {
