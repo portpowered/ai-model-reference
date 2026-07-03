@@ -38,6 +38,25 @@ export function GenerationEvolutionTimeline({
   const validation = validateGenerationEvolutionStages(data.stages);
 
   if (!validation.ok) {
+    if (validation.reason === "empty") {
+      return (
+        <section
+          aria-label="Generation evolution visual unavailable"
+          className={timelineStateClassName}
+          data-generation-evolution-surface={GENERATION_EVOLUTION_SURFACE}
+          data-generation-evolution-state="empty"
+        >
+          <p className="m-0 font-medium text-foreground">
+            Generation evolution stages unavailable
+          </p>
+          <p className="m-0 mt-2">
+            Add at least one stage in the U-Net, diffusion transformer,
+            flow-matching, and open-world/video progression order.
+          </p>
+        </section>
+      );
+    }
+
     return (
       <section
         aria-label="Generation evolution visual unavailable"
@@ -112,6 +131,7 @@ export function GenerationEvolutionTimeline({
             <div className="flex flex-col gap-2">
               <p
                 className={`m-0 w-fit rounded-full px-2 py-0.5 text-xs font-medium ${changeKindLegendClassName[stage.changeKind]}`}
+                data-generation-evolution-change-kind={stage.changeKind}
               >
                 {data.legend[stage.changeKind]}
               </p>

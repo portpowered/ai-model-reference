@@ -1,3 +1,4 @@
+export { GenerationEvolutionBlogVisual } from "@/features/generation-evolution/GenerationEvolutionBlogVisual";
 export { GenerationEvolutionTimeline } from "@/features/generation-evolution/GenerationEvolutionTimeline";
 export {
   DEFAULT_GENERATION_EVOLUTION_BLOG_DATA,
