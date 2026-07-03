@@ -1,0 +1,8 @@
+{
+  "rooflineChart": {
+    "type": "chart",
+    "chartId": "chart.roofline-model.teaching",
+    "altKey": "assets.rooflineChart.alt",
+    "captionKey": "assets.rooflineChart.caption"
+  }
+}

@@ -44,7 +44,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <DocsPage breadcrumb={{ enabled: false }} toc={post.toc}>
-      <ModulePageProviders assets={post.assets} messages={post.messages}>
+      <ModulePageProviders messages={post.messages} assets={post.assets}>
         <DocsTitle>{post.messages.title}</DocsTitle>
         <DocsDescription>{post.messages.description}</DocsDescription>
         <DocsBody>

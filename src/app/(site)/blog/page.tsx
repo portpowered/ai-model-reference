@@ -13,7 +13,7 @@ import {
 export const metadata = {
   title: "Blog",
   description:
-    "Narrative posts that connect releases and training concepts back to canonical reference pages.",
+    "Narrative posts that connect releases and model concepts back to canonical reference pages.",
 };
 
 export default async function BlogIndexPage() {
@@ -23,7 +23,7 @@ export default async function BlogIndexPage() {
     <DocsPage breadcrumb={{ enabled: false }}>
       <DocsTitle>Blog</DocsTitle>
       <DocsDescription>
-        Narrative posts that connect releases and training concepts back to
+        Narrative posts that connect releases and model concepts back to
         canonical reference pages.
       </DocsDescription>
       <DocsBody>
@@ -31,8 +31,8 @@ export default async function BlogIndexPage() {
           {posts.map((post) => (
             <li key={post.slug}>
               <Link
-                className="block rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary"
                 href={blogPostHref(post.slug)}
+                className="block rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary"
               >
                 <h2 className="text-lg font-semibold text-foreground">
                   {post.messages.title}
