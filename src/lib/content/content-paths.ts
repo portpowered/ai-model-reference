@@ -174,11 +174,6 @@ export function getMessagesRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "messages");
 }
 
-/** Blog posts under `src/content/blog`. */
-export function getBlogRoot(contentRoot = getContentRoot()): string {
-  return join(contentRoot, "blog");
-}
-
 /** Localized tag copy under `src/content/registry/tags/messages`. */
 export function getTagMessagesRoot(registryRoot = getRegistryRoot()): string {
   return join(getRegistryCollectionRoot("tags", registryRoot), "messages");

@@ -1,0 +1,18 @@
+diff --git a/src/lib/content/generated/table-registry.generated.ts b/src/lib/content/generated/table-registry.generated.ts
+index 1111111..2222222 100644
+--- a/src/lib/content/generated/table-registry.generated.ts
++++ b/src/lib/content/generated/table-registry.generated.ts
+@@ -19,6 +19,7 @@ import linearAttentionComparisonTableRecord from "@/content/registry/tables/linear
+ import localAttentionComparisonTableRecord from "@/content/registry/tables/local-attention-comparison.json";
++import loopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison.json";
+ import mambaSelectiveStateSpaceComparisonTableRecord from "@/content/registry/tables/mamba-selective-state-space-comparison.json";
+@@ -58,6 +59,7 @@ export const generatedTableRegistrySourceFiles = [
+   "linear-attention-comparison.json",
+   "local-attention-comparison.json",
++  "looped-transformers-comparison.json",
+   "mamba-selective-state-space-comparison.json",
+@@ -98,6 +100,7 @@ export const generatedTableRegistryPayloads = [
+   linearAttentionComparisonTableRecord,
+   localAttentionComparisonTableRecord,
++  loopedTransformersComparisonTableRecord,
+   mambaSelectiveStateSpaceComparisonTableRecord,
