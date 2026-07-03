@@ -109,6 +109,12 @@ routes:
   align `conceptType` with `classification.concept.architecture`, and rely on ontology
   sidebar resolution for math/training/evaluation before editorial `sidebarGrouping`
   fallbacks for generation-and-diffusion or sequence-and-attention subgroups.
+- Concepts-section `sidebarGrouping.concepts` only allows `long-context`,
+  `inference`, `architecture`, and `reference-samples`; `generation-and-diffusion`
+  is glossary-only until a concepts generation subgroup exists.
+- Registry `relatedIds` should omit records without published docs pages; for
+  example `paper.ltx-2` can stay in model/paper metadata but must not appear in
+  concept `relatedIds` until `/docs/papers/ltx-2` ships.
 - `validatePublishedGlossaryClassification` in `validate-glossary-classification.ts`
   blocks published glossary pages that lack `primaryClassificationId` unless
   `sidebarGrouping.glossary` provides an explicit editorial fallback; wired through
@@ -200,6 +206,10 @@ from a `*_PAGE_DIR` import or `join(sectionRoot, slug)` to the derived lookup.
 * `src/content/docs/<section>/<slug>/`
   Canonical page bundle layout (`page.mdx`, `messages/`, `assets.json`, graphs,
   and related colocated files).
+* Concept teaching graphs wired through `<ConceptMap />` must define message-backed
+  `assets.<assetId>.title` and `assets.<assetId>.legend` entries (same shape as
+  `<ModuleGraph />`); `ConceptMap` delegates to `RegistryGraphFlow` via
+  `buildRegistryGraphLegend`.
 * `src/content/registry/`
   Registry JSON records that connect published pages to taxonomy, graphs, and
   runtime loaders.
