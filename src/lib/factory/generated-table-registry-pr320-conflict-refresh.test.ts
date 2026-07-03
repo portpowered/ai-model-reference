@@ -3,9 +3,14 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { CommandResult } from "@/lib/factory/active-pr-mergeability-watchdog";
 import {
+  buildGeneratedTableRegistryPr320ConflictRefreshOutput,
+  buildPr320ConflictRefreshOutcomeReport,
   captureGeneratedTableRegistryPr320ConflictRefreshEvidence,
+  classifyPr320ConflictRefreshOutcome,
+  extractMergeTreeConflictPaths,
   findQueueTokensForWorkItemName,
   formatGeneratedTableRegistryPr320ConflictRefreshEvidenceReport,
+  formatGeneratedTableRegistryPr320ConflictRefreshOutput,
   PR320_CONFLICT_REFRESH_CAPTURE_POLICY,
   PR320_CONFLICT_REFRESH_TARGET_SESSION_ID,
   PR320_CONFLICT_REFRESH_WORK_ITEM_NAME,
@@ -202,5 +207,166 @@ describe("generated-table-registry-pr320-conflict-refresh", () => {
     };
     expect(serialized.pullRequest.mergeabilityClass).toBe("mergeable");
     expect(serialized.branchDrift.status).toBe("diverged");
+  });
+
+  test("extractMergeTreeConflictPaths parses CONFLICT lines from merge-tree output", () => {
+    const output = [
+      "CONFLICT (content): Merge conflict in scripts/run-website-verifier-tests.ts",
+      "CONFLICT (content): Merge conflict in src/lib/content/generated/table-registry.generated.ts",
+    ].join("\n");
+
+    expect(extractMergeTreeConflictPaths(output)).toEqual([
+      "scripts/run-website-verifier-tests.ts",
+      "src/lib/content/generated/table-registry.generated.ts",
+    ]);
+  });
+
+  test("classifyPr320ConflictRefreshOutcome selects consumed-on-main when proof markers exist on main", () => {
+    const evidence = captureGeneratedTableRegistryPr320ConflictRefreshEvidence({
+      pr320PullRequestJson: readFixture("pr320-pull-request.json"),
+      remoteBaseRef: "origin/main",
+      repoRoot: "/tmp/main-repo",
+      runCommand: buildRunCommand({}),
+      workListJsonText: readFixture("work-list.json"),
+      worktreesDir: "/tmp/worktrees",
+    });
+
+    const classification = classifyPr320ConflictRefreshOutcome(evidence, {
+      proofOnMain: {
+        consumed: true,
+        markerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+          "scripts/report-generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        missingMarkerPaths: [],
+        presentMarkerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+          "scripts/report-generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+      },
+    });
+
+    expect(classification.outcome).toBe("consumed-on-main");
+    expect(classification.refreshRecommended).toBe(false);
+    expect(classification.nextSafeAction).toContain("close or consume PR #320");
+  });
+
+  test("classifyPr320ConflictRefreshOutcome selects merge-ready for clean mergeable PR evidence", () => {
+    const evidence = captureGeneratedTableRegistryPr320ConflictRefreshEvidence({
+      pr320PullRequestJson: readFixture("pr320-pull-request.json"),
+      remoteBaseRef: "origin/main",
+      repoRoot: "/tmp/main-repo",
+      runCommand: buildRunCommand({}),
+      workListJsonText: readFixture("work-list.json"),
+      worktreesDir: "/tmp/worktrees",
+    });
+
+    const classification = classifyPr320ConflictRefreshOutcome(evidence, {
+      mergeTreeConflictPaths: [],
+      proofOnMain: {
+        consumed: false,
+        markerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        missingMarkerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        presentMarkerPaths: [],
+      },
+    });
+
+    expect(classification.outcome).toBe("merge-ready");
+    expect(classification.refreshRecommended).toBe(true);
+    expect(classification.nextSafeAction).toContain(
+      "mergeable with passing checks",
+    );
+    expect(classification.nextSafeAction).toContain("48 commits behind");
+  });
+
+  test("classifyPr320ConflictRefreshOutcome selects operator-handoff when merge-tree reports conflicts", () => {
+    const evidence = captureGeneratedTableRegistryPr320ConflictRefreshEvidence({
+      pr320PullRequestJson: readFixture("pr320-pull-request-conflicting.json"),
+      remoteBaseRef: "origin/main",
+      repoRoot: "/tmp/main-repo",
+      runCommand: buildRunCommand({}),
+      workListJsonText: readFixture("work-list.json"),
+      worktreesDir: "/tmp/worktrees",
+    });
+
+    const classification = classifyPr320ConflictRefreshOutcome(evidence, {
+      mergeTreeConflictPaths: [
+        "src/lib/content/generated/table-registry.generated.ts",
+      ],
+      proofOnMain: {
+        consumed: false,
+        markerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        missingMarkerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        presentMarkerPaths: [],
+      },
+    });
+
+    expect(classification.outcome).toBe("operator-handoff");
+    expect(classification.unsafeReason).toBe("merge-conflicts-detected");
+    expect(classification.classificationEvidence).toContain(
+      "merge-tree-conflict-paths=src/lib/content/generated/table-registry.generated.ts",
+    );
+  });
+
+  test("buildPr320ConflictRefreshOutcomeReport emits operator handoff with conflicting files", () => {
+    const evidence = captureGeneratedTableRegistryPr320ConflictRefreshEvidence({
+      pr320PullRequestJson: readFixture("pr320-pull-request-conflicting.json"),
+      remoteBaseRef: "origin/main",
+      repoRoot: "/tmp/main-repo",
+      runCommand: buildRunCommand({}),
+      workListJsonText: readFixture("work-list.json"),
+      worktreesDir: "/tmp/worktrees",
+    });
+
+    const outcomeReport = buildPr320ConflictRefreshOutcomeReport(evidence, {
+      mergeTreeConflictPaths: [
+        "docs/internal/processes/generated-table-registry-root-drift-cleanup-proof-relevant-files.md",
+      ],
+    });
+
+    expect(outcomeReport.classification.outcome).toBe("operator-handoff");
+    expect(outcomeReport.operatorHandoff?.conflictingFiles).toEqual([
+      "docs/internal/processes/generated-table-registry-root-drift-cleanup-proof-relevant-files.md",
+    ]);
+    expect(outcomeReport.operatorHandoff?.nextOperatorAction).toContain(
+      "generated-table-registry-root-drift-cleanup-proof",
+    );
+  });
+
+  test("formatGeneratedTableRegistryPr320ConflictRefreshOutput includes outcome section", () => {
+    const output = buildGeneratedTableRegistryPr320ConflictRefreshOutput({
+      classifyOutcome: true,
+      mergeTreeConflictPaths: [],
+      pr320PullRequestJson: readFixture("pr320-pull-request.json"),
+      remoteBaseRef: "origin/main",
+      repoRoot: "/tmp/main-repo",
+      runCommand: buildRunCommand({}),
+      proofOnMain: {
+        consumed: false,
+        markerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        missingMarkerPaths: [
+          "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+        ],
+        presentMarkerPaths: [],
+      },
+      workListJsonText: readFixture("work-list.json"),
+      worktreesDir: "/tmp/worktrees",
+    });
+
+    const formatted =
+      formatGeneratedTableRegistryPr320ConflictRefreshOutput(output);
+    expect(formatted).toContain("[outcome]");
+    expect(formatted).toContain("selectedOutcome=merge-ready");
+    expect(formatted).toContain("mergeTreeConflictCount=0");
   });
 });

@@ -40,7 +40,43 @@ Fixture flags:
 * `--remote-base-ref`
 * `--work-list-json`
 * `--pr320-pull-request-json`
+* `--evidence-only` (skip outcome classification; story 001 capture only)
 * `--json` or `--format json`
+
+## Story 002 — Selected outcome (2026-07-03T12:15:00Z UTC)
+
+Live classification from `bun run report:generated-table-registry-pr320-conflict-refresh`
+with non-mutating `git merge-tree origin/main origin/generated-table-registry-root-drift-cleanup-proof`
+and proof-on-main marker checks.
+
+| Field | Value |
+| --- | --- |
+| Selected outcome | **merge-ready** |
+| Proof on main | false (`generated-table-registry-root-drift-cleanup-proof.ts` and report script absent on `origin/main`) |
+| GitHub mergeability | MERGEABLE / CLEAN |
+| Check health | passing (11/11 on head `87538e37`) |
+| Merge-tree conflicts | 0 paths |
+| Branch drift | 10 ahead / 48 behind `origin/main` (`89a395a9`) |
+| Refresh recommended | yes (optional merge-refresh in original worktree before merge) |
+| Operator handoff | none |
+
+**Next safe action:** PR #320 conflict drift is cleared; no automated conflict-refresh
+is required from this lane. Optional merge-refresh against current `origin/main`
+belongs in the `generated-table-registry-root-drift-cleanup-proof` worktree.
+Unresolved PR #320 conversation **BLOCKING** feedback (local `make test` accessibility
+smoke timeout on head `87538e37`) remains with the original review lane, not this
+conflict-refresh classifier.
+
+### Outcome selection rules
+
+| Outcome | When |
+| --- | --- |
+| `consumed-on-main` | All `PR320_PROOF_ON_MAIN_MARKER_PATHS` exist on `origin/main` |
+| `merge-ready` | PR mergeable, checks passing, merge-tree reports zero conflicts |
+| `operator-handoff` | merge-tree conflicts, failing checks, unavailable PR evidence, or GitHub/merge-tree mismatch |
+
+Handoffs name each `conflictingFile=` path and a `operatorHandoffNextAction` that
+preserves generated-table-registry cleanup-proof intent in the original worktree.
 
 ## Live evidence snapshot (2026-07-03T12:05:51Z UTC)
 

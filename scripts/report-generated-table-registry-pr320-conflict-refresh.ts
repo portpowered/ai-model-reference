@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
-  captureGeneratedTableRegistryPr320ConflictRefreshEvidence,
-  formatGeneratedTableRegistryPr320ConflictRefreshEvidenceReport,
-  serializeGeneratedTableRegistryPr320ConflictRefreshEvidenceReport,
+  buildGeneratedTableRegistryPr320ConflictRefreshOutput,
+  formatGeneratedTableRegistryPr320ConflictRefreshOutput,
+  serializeGeneratedTableRegistryPr320ConflictRefreshOutput,
 } from "../src/lib/factory/generated-table-registry-pr320-conflict-refresh";
 
 const defaultRepoRoot = resolve(import.meta.dir, "..");
@@ -31,6 +31,10 @@ function isJsonOutputRequested(argv: string[]): boolean {
   );
 }
 
+function isEvidenceOnlyRequested(argv: string[]): boolean {
+  return argv.includes("--evidence-only");
+}
+
 const repoRoot = readFlagValue("--repo-root")
   ? resolve(readFlagValue("--repo-root") as string)
   : defaultRepoRoot;
@@ -47,22 +51,18 @@ const workListJsonText = workListJsonPath
       "default work list JSON",
     );
 
-const evidenceReport =
-  captureGeneratedTableRegistryPr320ConflictRefreshEvidence({
-    pr320PullRequestJson: pr320PullRequestJsonPath
-      ? readRequiredFile(pr320PullRequestJsonPath, "PR #320 JSON")
-      : undefined,
-    remoteBaseRef,
-    repoRoot,
-    workListJsonText,
-  });
+const output = buildGeneratedTableRegistryPr320ConflictRefreshOutput({
+  classifyOutcome: !isEvidenceOnlyRequested(process.argv),
+  pr320PullRequestJson: pr320PullRequestJsonPath
+    ? readRequiredFile(pr320PullRequestJsonPath, "PR #320 JSON")
+    : undefined,
+  remoteBaseRef,
+  repoRoot,
+  workListJsonText,
+});
 
-const output = isJsonOutputRequested(process.argv)
-  ? serializeGeneratedTableRegistryPr320ConflictRefreshEvidenceReport(
-      evidenceReport,
-    )
-  : formatGeneratedTableRegistryPr320ConflictRefreshEvidenceReport(
-      evidenceReport,
-    );
+const rendered = isJsonOutputRequested(process.argv)
+  ? serializeGeneratedTableRegistryPr320ConflictRefreshOutput(output)
+  : formatGeneratedTableRegistryPr320ConflictRefreshOutput(output);
 
-process.stdout.write(`${output}\n`);
+process.stdout.write(`${rendered}\n`);

@@ -1,0 +1,19 @@
+{
+  "number": 320,
+  "title": "generated-table-registry-root-drift-cleanup-proof",
+  "url": "https://github.com/portpowered/ai-model-reference/pull/320",
+  "state": "OPEN",
+  "mergeable": false,
+  "mergeStateStatus": "DIRTY",
+  "baseRefName": "main",
+  "headRefName": "generated-table-registry-root-drift-cleanup-proof",
+  "headRefOid": "87538e3756c09199e3691f67175a505eefe92981",
+  "baseRefOid": "3d4311b1ddc8c1b5b099a7ef375d31230af3f394",
+  "updatedAt": "2026-07-03T09:25:25Z",
+  "statusCheckRollup": [
+    { "name": "lint", "conclusion": "SUCCESS", "status": "COMPLETED" },
+    { "name": "typecheck", "conclusion": "SUCCESS", "status": "COMPLETED" },
+    { "name": "test", "conclusion": "SUCCESS", "status": "COMPLETED" },
+    { "name": "ci", "conclusion": "SUCCESS", "status": "COMPLETED" }
+  ]
+}

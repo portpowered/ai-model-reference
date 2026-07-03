@@ -672,3 +672,479 @@ export function serializeGeneratedTableRegistryPr320ConflictRefreshEvidenceRepor
 ): string {
   return JSON.stringify(report, null, 2);
 }
+
+export const PR320_PROOF_ON_MAIN_MARKER_PATHS = [
+  "src/lib/factory/generated-table-registry-root-drift-cleanup-proof.ts",
+  "scripts/report-generated-table-registry-root-drift-cleanup-proof.ts",
+] as const;
+
+export type Pr320ConflictRefreshOutcome =
+  | "merge-ready"
+  | "consumed-on-main"
+  | "operator-handoff";
+
+export type Pr320ConflictRefreshUnsafeReason =
+  | "checks-not-passing"
+  | "merge-conflicts-detected"
+  | "proof-evidence-unavailable"
+  | "pull-request-unavailable";
+
+export interface Pr320ProofOnMainEvidence {
+  consumed: boolean;
+  markerPaths: readonly string[];
+  missingMarkerPaths: string[];
+  presentMarkerPaths: string[];
+}
+
+export interface Pr320MergeTreeConflictEvidence {
+  conflictPaths: string[];
+  mergeTreeCommand: string;
+  mergeTreeExitCode: number;
+  mergeTreeOutputExcerpt: string;
+}
+
+export interface Pr320ConflictRefreshOutcomeClassification {
+  classificationEvidence: string[];
+  mergeTreeConflicts: Pr320MergeTreeConflictEvidence;
+  nextSafeAction: string;
+  outcome: Pr320ConflictRefreshOutcome;
+  proofOnMain: Pr320ProofOnMainEvidence;
+  refreshRecommended: boolean;
+  unsafeReason?: Pr320ConflictRefreshUnsafeReason;
+}
+
+export interface Pr320ConflictRefreshOperatorHandoff {
+  conflictingFiles: string[];
+  nextOperatorAction: string;
+  summary: string;
+  unsafeCondition: string;
+}
+
+export interface Pr320ConflictRefreshOutcomeReport {
+  classification: Pr320ConflictRefreshOutcomeClassification;
+  evidenceReport: GeneratedTableRegistryPr320ConflictRefreshEvidenceReport;
+  operatorHandoff: Pr320ConflictRefreshOperatorHandoff | null;
+}
+
+export interface ClassifyPr320ConflictRefreshOutcomeOptions {
+  mergeTreeConflictPaths?: string[];
+  mergeTreeExitCode?: number;
+  mergeTreeOutputExcerpt?: string;
+  proofOnMain?: Pr320ProofOnMainEvidence;
+}
+
+const MERGE_TREE_CONFLICT_PATH_PATTERN =
+  /CONFLICT \([^)]+\): Merge conflict in (.+)/g;
+
+export function extractMergeTreeConflictPaths(
+  mergeTreeOutput: string,
+): string[] {
+  const paths = new Set<string>();
+  for (const match of mergeTreeOutput.matchAll(
+    MERGE_TREE_CONFLICT_PATH_PATTERN,
+  )) {
+    const path = match[1]?.trim();
+    if (path) {
+      paths.add(path);
+    }
+  }
+  return [...paths].sort();
+}
+
+export function detectPr320ProofOnMainEvidence(options: {
+  markerPaths?: readonly string[];
+  remoteBaseRef: string;
+  repoRoot: string;
+  runCommand: RunCommand;
+}): Pr320ProofOnMainEvidence {
+  const markerPaths = options.markerPaths ?? PR320_PROOF_ON_MAIN_MARKER_PATHS;
+  const presentMarkerPaths: string[] = [];
+  const missingMarkerPaths: string[] = [];
+
+  for (const markerPath of markerPaths) {
+    const result = options.runCommand(
+      "git",
+      ["cat-file", "-e", `${options.remoteBaseRef}:${markerPath}`],
+      options.repoRoot,
+    );
+    if (result.ok) {
+      presentMarkerPaths.push(markerPath);
+    } else {
+      missingMarkerPaths.push(markerPath);
+    }
+  }
+
+  return {
+    consumed: missingMarkerPaths.length === 0 && presentMarkerPaths.length > 0,
+    markerPaths,
+    missingMarkerPaths,
+    presentMarkerPaths,
+  };
+}
+
+export function detectPr320MergeTreeConflictEvidence(options: {
+  remoteBaseRef: string;
+  repoRoot: string;
+  runCommand: RunCommand;
+  targetBranchRef: string;
+}): Pr320MergeTreeConflictEvidence {
+  const mergeTreeCommand = `git merge-tree ${options.remoteBaseRef} ${options.targetBranchRef}`;
+  const result = options.runCommand(
+    "git",
+    ["merge-tree", options.remoteBaseRef, options.targetBranchRef],
+    options.repoRoot,
+  );
+  const mergeTreeOutput = `${result.stdout}${result.stderr}`.trim();
+  const conflictPaths = extractMergeTreeConflictPaths(mergeTreeOutput);
+
+  return {
+    conflictPaths,
+    mergeTreeCommand,
+    mergeTreeExitCode: result.exitCode ?? 1,
+    mergeTreeOutputExcerpt:
+      mergeTreeOutput.length > 0
+        ? mergeTreeOutput.slice(0, 500)
+        : "merge-tree produced no output",
+  };
+}
+
+function isOriginalLaneTaskFailed(
+  evidenceReport: GeneratedTableRegistryPr320ConflictRefreshEvidenceReport,
+): boolean {
+  const taskToken = evidenceReport.originalLane.queueTokens.find(
+    (token) => token.workTypeName === "task",
+  );
+  return taskToken?.stateName === "failed";
+}
+
+function buildMergeReadyNextSafeAction(
+  evidenceReport: GeneratedTableRegistryPr320ConflictRefreshEvidenceReport,
+  refreshRecommended: boolean,
+): string {
+  if (refreshRecommended) {
+    return `PR #${PR320_TARGET_PULL_REQUEST_NUMBER} is mergeable with passing checks but ${evidenceReport.branchDrift.commitsBehindMain ?? 0} commits behind ${evidenceReport.originMain.remoteBaseRef}; optional merge-refresh in the ${PR320_ORIGINAL_WORK_ITEM_NAME} worktree is recommended before merge.`;
+  }
+  if (isOriginalLaneTaskFailed(evidenceReport)) {
+    return `PR #${PR320_TARGET_PULL_REQUEST_NUMBER} conflict drift is cleared (mergeable/CLEAN with passing checks); return review focus to the original ${PR320_ORIGINAL_WORK_ITEM_NAME} lane for any unresolved PR conversation blockers.`;
+  }
+  return `PR #${PR320_TARGET_PULL_REQUEST_NUMBER} is merge-ready with no conflict-refresh action required.`;
+}
+
+function buildOperatorHandoffNextSafeAction(
+  handoff: Pr320ConflictRefreshOperatorHandoff,
+): string {
+  return `${handoff.summary} Next operator action: ${handoff.nextOperatorAction}`;
+}
+
+export function buildPr320ConflictRefreshOperatorHandoff(
+  classification: Pr320ConflictRefreshOutcomeClassification,
+): Pr320ConflictRefreshOperatorHandoff | null {
+  if (classification.outcome !== "operator-handoff") {
+    return null;
+  }
+
+  const conflictingFiles = classification.mergeTreeConflicts.conflictPaths;
+  const unsafeCondition =
+    classification.unsafeReason === "checks-not-passing"
+      ? "Required checks are not passing on PR #320."
+      : classification.unsafeReason === "proof-evidence-unavailable"
+        ? "Proof-on-main or PR evidence is unavailable for a safe refresh decision."
+        : classification.unsafeReason === "pull-request-unavailable"
+          ? "PR #320 metadata is unavailable."
+          : conflictingFiles.length > 0
+            ? `Non-mutating merge-tree reports ${conflictingFiles.length} conflicting path(s) between origin/main and the PR branch.`
+            : "Automated conflict refresh is unsafe from current evidence.";
+
+  const nextOperatorAction =
+    conflictingFiles.length > 0
+      ? `Resolve the listed conflicts in the ${PR320_ORIGINAL_WORK_ITEM_NAME} worktree while preserving generated-table-registry cleanup-proof intent, then rerun bun run report:generated-table-registry-pr320-conflict-refresh.`
+      : "Restore PR/git evidence and rerun bun run report:generated-table-registry-pr320-conflict-refresh before attempting refresh.";
+
+  return {
+    conflictingFiles,
+    nextOperatorAction,
+    summary: unsafeCondition,
+    unsafeCondition,
+  };
+}
+
+export function classifyPr320ConflictRefreshOutcome(
+  evidenceReport: GeneratedTableRegistryPr320ConflictRefreshEvidenceReport,
+  options?: ClassifyPr320ConflictRefreshOutcomeOptions,
+): Pr320ConflictRefreshOutcomeClassification {
+  const proofOnMain =
+    options?.proofOnMain ??
+    ({
+      consumed: false,
+      markerPaths: PR320_PROOF_ON_MAIN_MARKER_PATHS,
+      missingMarkerPaths: [...PR320_PROOF_ON_MAIN_MARKER_PATHS],
+      presentMarkerPaths: [],
+    } satisfies Pr320ProofOnMainEvidence);
+  const mergeTreeConflicts: Pr320MergeTreeConflictEvidence = {
+    conflictPaths: options?.mergeTreeConflictPaths ?? [],
+    mergeTreeCommand: `git merge-tree ${evidenceReport.originMain.remoteBaseRef} ${evidenceReport.branchDrift.targetBranchRef}`,
+    mergeTreeExitCode: options?.mergeTreeExitCode ?? 0,
+    mergeTreeOutputExcerpt: options?.mergeTreeOutputExcerpt ?? "not-run",
+  };
+  const classificationEvidence: string[] = [
+    `pull-request-number=${PR320_TARGET_PULL_REQUEST_NUMBER}`,
+    `proof-on-main=${proofOnMain.consumed}`,
+    `merge-tree-conflict-count=${mergeTreeConflicts.conflictPaths.length}`,
+  ];
+
+  if (proofOnMain.consumed) {
+    classificationEvidence.push(
+      `present-marker-paths=${proofOnMain.presentMarkerPaths.join(",")}`,
+    );
+    return {
+      classificationEvidence,
+      mergeTreeConflicts,
+      nextSafeAction:
+        "PR #320 cleanup proof is already on origin/main; close or consume PR #320 without duplicating proof work.",
+      outcome: "consumed-on-main",
+      proofOnMain,
+      refreshRecommended: false,
+    };
+  }
+
+  const pullRequest = evidenceReport.pullRequest;
+  if (pullRequest.availability !== "present") {
+    classificationEvidence.push("pull-request-availability=unavailable");
+    return {
+      classificationEvidence,
+      mergeTreeConflicts,
+      nextSafeAction:
+        "Restore PR #320 metadata via gh pr view before choosing a conflict-refresh outcome.",
+      outcome: "operator-handoff",
+      proofOnMain,
+      refreshRecommended: false,
+      unsafeReason: "pull-request-unavailable",
+    };
+  }
+
+  classificationEvidence.push(
+    `mergeability-class=${pullRequest.mergeabilityClass ?? "unknown"}`,
+    `merge-state-status=${pullRequest.mergeStateStatus ?? "unknown"}`,
+    `check-health=${pullRequest.checkHealth ?? "unknown"}`,
+    `commits-behind-main=${evidenceReport.branchDrift.commitsBehindMain ?? 0}`,
+  );
+
+  if (pullRequest.checkHealth === "failing") {
+    return {
+      classificationEvidence,
+      mergeTreeConflicts,
+      nextSafeAction:
+        "Wait for or repair failing required checks on PR #320 before merge-refresh.",
+      outcome: "operator-handoff",
+      proofOnMain,
+      refreshRecommended: false,
+      unsafeReason: "checks-not-passing",
+    };
+  }
+
+  const refreshRecommended =
+    (evidenceReport.branchDrift.commitsBehindMain ?? 0) > 0 &&
+    evidenceReport.branchDrift.status !== "up-to-date";
+
+  if (mergeTreeConflicts.conflictPaths.length > 0) {
+    classificationEvidence.push(
+      `merge-tree-conflict-paths=${mergeTreeConflicts.conflictPaths.join(",")}`,
+    );
+    return {
+      classificationEvidence,
+      mergeTreeConflicts,
+      nextSafeAction: buildOperatorHandoffNextSafeAction({
+        conflictingFiles: mergeTreeConflicts.conflictPaths,
+        nextOperatorAction:
+          "Resolve merge-tree conflicts in the original worktree while preserving proof intent.",
+        summary:
+          "Automated merge-refresh is unsafe until listed conflicts are resolved manually.",
+        unsafeCondition: "merge-tree conflicts detected",
+      }),
+      outcome: "operator-handoff",
+      proofOnMain,
+      refreshRecommended,
+      unsafeReason: "merge-conflicts-detected",
+    };
+  }
+
+  if (pullRequest.mergeabilityClass === "conflicting") {
+    classificationEvidence.push(
+      "github-mergeability=conflicting-with-clean-merge-tree",
+    );
+    return {
+      classificationEvidence,
+      mergeTreeConflicts,
+      nextSafeAction:
+        "GitHub reports CONFLICTING but merge-tree is clean; rerun gh pr view after fetch or perform a cautious merge-refresh in the original worktree.",
+      outcome: "operator-handoff",
+      proofOnMain,
+      refreshRecommended: true,
+      unsafeReason: "proof-evidence-unavailable",
+    };
+  }
+
+  if (
+    pullRequest.mergeabilityClass === "mergeable" &&
+    pullRequest.checkHealth === "passing"
+  ) {
+    return {
+      classificationEvidence,
+      mergeTreeConflicts,
+      nextSafeAction: buildMergeReadyNextSafeAction(
+        evidenceReport,
+        refreshRecommended,
+      ),
+      outcome: "merge-ready",
+      proofOnMain,
+      refreshRecommended,
+    };
+  }
+
+  return {
+    classificationEvidence,
+    mergeTreeConflicts,
+    nextSafeAction:
+      "Gather fresher PR mergeability/check evidence before attempting automated conflict refresh.",
+    outcome: "operator-handoff",
+    proofOnMain,
+    refreshRecommended,
+    unsafeReason: "proof-evidence-unavailable",
+  };
+}
+
+export function buildPr320ConflictRefreshOutcomeReport(
+  evidenceReport: GeneratedTableRegistryPr320ConflictRefreshEvidenceReport,
+  options?: ClassifyPr320ConflictRefreshOutcomeOptions,
+): Pr320ConflictRefreshOutcomeReport {
+  const classification = classifyPr320ConflictRefreshOutcome(
+    evidenceReport,
+    options,
+  );
+  return {
+    classification,
+    evidenceReport,
+    operatorHandoff: buildPr320ConflictRefreshOperatorHandoff(classification),
+  };
+}
+
+export function buildGeneratedTableRegistryPr320ConflictRefreshOutput(
+  options: CaptureGeneratedTableRegistryPr320ConflictRefreshEvidenceOptions & {
+    classifyOutcome?: boolean;
+    mergeTreeConflictPaths?: string[];
+    mergeTreeExitCode?: number;
+    mergeTreeOutputExcerpt?: string;
+    proofOnMain?: Pr320ProofOnMainEvidence;
+  },
+): {
+  evidenceReport: GeneratedTableRegistryPr320ConflictRefreshEvidenceReport;
+  outcomeReport?: Pr320ConflictRefreshOutcomeReport;
+} {
+  const evidenceReport =
+    captureGeneratedTableRegistryPr320ConflictRefreshEvidence(options);
+  if (options.classifyOutcome === false) {
+    return { evidenceReport };
+  }
+
+  const repoRoot = options.repoRoot ?? resolveMainRepoRoot(process.cwd());
+  const remoteBaseRef = options.remoteBaseRef ?? "origin/main";
+  const runCommand = options.runCommand ?? defaultRunCommand;
+  const targetBranchRef = `origin/${PR320_TARGET_BRANCH_NAME}`;
+
+  const proofOnMain =
+    options.proofOnMain ??
+    detectPr320ProofOnMainEvidence({
+      remoteBaseRef,
+      repoRoot,
+      runCommand,
+    });
+  const mergeTreeConflicts =
+    options.mergeTreeConflictPaths !== undefined
+      ? {
+          conflictPaths: options.mergeTreeConflictPaths,
+          mergeTreeCommand: `git merge-tree ${remoteBaseRef} ${targetBranchRef}`,
+          mergeTreeExitCode: options.mergeTreeExitCode ?? 0,
+          mergeTreeOutputExcerpt:
+            options.mergeTreeOutputExcerpt ?? "fixture-merge-tree",
+        }
+      : detectPr320MergeTreeConflictEvidence({
+          remoteBaseRef,
+          repoRoot,
+          runCommand,
+          targetBranchRef,
+        });
+
+  const outcomeReport = buildPr320ConflictRefreshOutcomeReport(evidenceReport, {
+    mergeTreeConflictPaths: mergeTreeConflicts.conflictPaths,
+    mergeTreeExitCode: mergeTreeConflicts.mergeTreeExitCode,
+    mergeTreeOutputExcerpt: mergeTreeConflicts.mergeTreeOutputExcerpt,
+    proofOnMain,
+  });
+
+  return {
+    evidenceReport,
+    outcomeReport,
+  };
+}
+
+export function formatPr320ConflictRefreshOutcomeReport(
+  outcomeReport: Pr320ConflictRefreshOutcomeReport,
+): string {
+  const classification = outcomeReport.classification;
+  const lines = [
+    "[outcome]",
+    `selectedOutcome=${classification.outcome}`,
+    `refreshRecommended=${classification.refreshRecommended}`,
+    `nextSafeAction=${classification.nextSafeAction}`,
+    `proofOnMain=${classification.proofOnMain.consumed}`,
+    `mergeTreeConflictCount=${classification.mergeTreeConflicts.conflictPaths.length}`,
+  ];
+
+  if (classification.unsafeReason) {
+    lines.push(`unsafeReason=${classification.unsafeReason}`);
+  }
+
+  for (const evidence of classification.classificationEvidence) {
+    lines.push(`classificationEvidence=${evidence}`);
+  }
+
+  if (outcomeReport.operatorHandoff) {
+    lines.push(
+      `operatorHandoffSummary=${outcomeReport.operatorHandoff.summary}`,
+      `operatorHandoffUnsafeCondition=${outcomeReport.operatorHandoff.unsafeCondition}`,
+      `operatorHandoffNextAction=${outcomeReport.operatorHandoff.nextOperatorAction}`,
+    );
+    for (const path of outcomeReport.operatorHandoff.conflictingFiles) {
+      lines.push(`conflictingFile=${path}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
+export function formatGeneratedTableRegistryPr320ConflictRefreshOutput(
+  output: ReturnType<
+    typeof buildGeneratedTableRegistryPr320ConflictRefreshOutput
+  >,
+): string {
+  const sections = [
+    formatGeneratedTableRegistryPr320ConflictRefreshEvidenceReport(
+      output.evidenceReport,
+    ),
+  ];
+  if (output.outcomeReport) {
+    sections.push(
+      "",
+      formatPr320ConflictRefreshOutcomeReport(output.outcomeReport),
+    );
+  }
+  return sections.join("\n");
+}
+
+export function serializeGeneratedTableRegistryPr320ConflictRefreshOutput(
+  output: ReturnType<
+    typeof buildGeneratedTableRegistryPr320ConflictRefreshOutput
+  >,
+): string {
+  return JSON.stringify(output, null, 2);
+}
