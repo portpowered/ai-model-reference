@@ -88,7 +88,7 @@ describe("Phase 2 generation paradigm glossary pages (US-003)", () => {
     const html = await renderGlossaryHtml("denoising-generation");
 
     expect(html).toContain('href="/docs/glossary/latent"');
-    expect(html).toContain('href="/docs/glossary/latent-space"');
+    expect(html).toContain('href="/docs/concepts/latent-space"');
     expect(html).toContain('href="/docs/glossary/generative-model"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
   });
@@ -166,7 +166,9 @@ describe("Phase 2 generation paradigm glossary pages (US-003)", () => {
       "classifier-free guidance",
     );
     expect(
-      conditioningResults.some((r) => r.url === "/docs/glossary/conditioning"),
+      conditioningResults.some(
+        (r) => r.url === "/docs/concepts/classifier-free-guidance",
+      ),
     ).toBe(true);
   });
 });

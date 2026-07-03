@@ -129,7 +129,7 @@ describe("u-net module registry slice (u-net-module-page-001)", () => {
     ).toBe("/docs/glossary/conditioning");
     expect(
       items.find((item) => item.registryId === "concept.latent-space")?.href,
-    ).toBe("/docs/glossary/latent-space");
+    ).toBe("/docs/concepts/latent-space");
     expect(
       items.find((item) => item.registryId === "paper.latent-diffusion")?.href,
     ).toBe("/docs/papers/latent-diffusion");

@@ -1,0 +1,32 @@
+{
+  "title": "Latent Space",
+  "description": "A learned compressed representation space where models store internal codes instead of raw pixels or token ids, then decode or denoise back to visible outputs.",
+  "openingSummary": "Latent space is the learned coordinate system where a model stores compressed internal representations. An encoder or compressor maps raw input into this space; generation modules such as denoisers work there; a decoder maps the final code back to pixels or another visible form.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Latent space holds learned compressed representations: each point is an internal code that keeps useful structure—layout, object boundaries, coarse texture—while dropping much of the raw input detail. For images, a photo becomes a smaller grid or vector of latent values rather than a full-resolution pixel array. Nearby points in latent space should decode to similar outputs, so moving through the space means changing structure in a smooth way."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Many generative models do heavy work in latent space because it has far fewer spatial values than pixel space. Latent diffusion pushes that idea further: instead of denoising a full-resolution image on every step, the pipeline encodes into latents, runs iterative denoising in the compressed space, optionally steers each step with conditioning inputs such as text, then decodes the final latent back to pixels. That layout lowers compute and memory pressure enough to make high-resolution image generation practical on typical hardware. Compression is not lossless—the autoencoder may blur fine detail that never enters the latent code."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose an image autoencoder has already learned a latent space for faces. Training stores each photo as a compact latent tensor. At generation time, latent diffusion starts from noisy latents—not noisy pixels—and repeats denoising steps that gradually sharpen structure inside that tensor. A text conditioning signal can bias those steps toward, say, a smiling pose. When denoising finishes, the decoder turns the clean latent into a visible face image. The denoising loop never touches every pixel directly until the final decode."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Latent space is not the same as an embedding. Embeddings are usually vectors tied to a discrete input—a token id, a lookup row, or an image patch—at the front of a model stack. Latent space is broader: it is the learned compressed coordinate system inside a generator or autoencoder where many internal codes share the same geometry across examples. One embedding vector can be one point inside a pipeline, but latent space names the full arena encoders, denoisers, and decoders read and write.\n\nLatent space is also not the same as a hidden state. A hidden state is the activation a layer outputs at one step or depth—a snapshot tensor after attention or a feed-forward block. Latent space describes the compressed representation coordinate system being operated on: a persistent code that iterative denoising updates across steps. A model may produce hidden states at every layer while still denoising one latent tensor in the same space.\n\nPixel space stores visible image values directly—color numbers at each spatial location you could display on screen. Latent space stores compressed features that a decoder must expand back into pixels. Denoising in pixel space touches every channel at full resolution; denoising in latent space works on a smaller grid of learned codes until the final decode.\n\nLatent space is not parameter space (model weights) and not a tokenizer vocabulary. Compression trades away some raw fidelity for a smaller working area; it is not guaranteed to preserve every pixel-level detail. A single latent vector is one point in latent space, while the space itself is the full learned manifold those points share."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

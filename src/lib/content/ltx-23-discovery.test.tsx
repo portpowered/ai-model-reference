@@ -172,7 +172,7 @@ describe("LTX-2.3 reader-facing discovery (ltx-23-004)", () => {
     ).toBe("/docs/glossary/diffusion-model");
     expect(
       items.find((item) => item.registryId === "concept.latent-space")?.href,
-    ).toBe("/docs/glossary/latent-space");
+    ).toBe("/docs/concepts/latent-space");
     expect(
       items.find((item) => item.registryId === "paper.ltx-2")?.href,
     ).toBeUndefined();
@@ -204,7 +204,7 @@ describe("LTX-2.3 reader-facing discovery (ltx-23-004)", () => {
     expect(curatedHtml).toContain('href="/docs/modules/cross-attention"');
     expect(curatedHtml).toContain('href="/docs/papers/latent-diffusion"');
     expect(curatedHtml).toContain('href="/docs/glossary/diffusion-model"');
-    expect(curatedHtml).toContain('href="/docs/glossary/latent-space"');
+    expect(curatedHtml).toContain('href="/docs/concepts/latent-space"');
     expect(curatedHtml).toContain(
       'href="/docs/concepts/transformer-architecture"',
     );

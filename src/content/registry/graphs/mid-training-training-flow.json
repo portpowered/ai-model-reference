@@ -1,0 +1,67 @@
+{
+  "id": "graph.mid-training-training-flow",
+  "slug": "mid-training-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["mid-training flow", "continued training flow"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "subjectId": "training-regime.mid-training",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "baseCheckpoint",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "baseCheckpoint",
+      "labelKey": "graph.nodes.baseCheckpoint.label",
+      "moduleKind": "input",
+      "position": { "x": 79, "y": 0 },
+      "size": { "width": 220, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": ["continuedTraining"]
+    },
+    {
+      "id": "continuedTraining",
+      "labelKey": "graph.nodes.continuedTraining.label",
+      "moduleKind": "block",
+      "position": { "x": 79, "y": 122 },
+      "size": { "width": 240, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["intermediateCheckpoint"]
+    },
+    {
+      "id": "intermediateCheckpoint",
+      "labelKey": "graph.nodes.intermediateCheckpoint.label",
+      "moduleKind": "output",
+      "position": { "x": 79, "y": 258 },
+      "size": { "width": 220, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "base-continued-training",
+      "source": "baseCheckpoint",
+      "target": "continuedTraining",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "continued-intermediate-checkpoint",
+      "source": "continuedTraining",
+      "target": "intermediateCheckpoint",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

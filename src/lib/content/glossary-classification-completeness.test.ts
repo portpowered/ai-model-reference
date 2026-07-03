@@ -35,7 +35,7 @@ const REMAINING_GLOSSARY_CLASSIFICATIONS = {
   "concept.computational-graph": "classification.concept.math",
   "concept.parameter": "classification.concept.math",
   "concept.latent": "classification.concept.math",
-  "concept.latent-space": "classification.concept.math",
+  "concept.latent-space": "classification.concept.architecture",
   "concept.hidden-size": "classification.concept.math",
   "concept.alignment": "classification.concept.training",
   "concept.model-capacity": "classification.concept.training",

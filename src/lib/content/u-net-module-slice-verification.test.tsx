@@ -74,7 +74,7 @@ const EXPECTED_CURATED_RELATED = [
   },
   {
     registryId: "concept.latent-space",
-    href: "/docs/glossary/latent-space",
+    href: "/docs/concepts/latent-space",
   },
   {
     registryId: "paper.latent-diffusion",
