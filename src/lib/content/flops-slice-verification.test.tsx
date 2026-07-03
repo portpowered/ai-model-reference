@@ -54,7 +54,8 @@ describe("FLOPs slice verification (flops-concept-page-005)", () => {
     expect(html).toContain("Peak Versus Achieved Compute");
     expect(html).toContain("Peak hardware FLOPs");
     expect(html).toContain("Achieved inference compute");
-    expect(html).toContain("Memory bandwidth limits");
+    expect(html).toMatch(/memory bandwidth/i);
+    expect(html).toMatch(/kernel efficiency/i);
     expect(html).toContain("Architecture And Precision Effects");
     expect(html).toContain("mixture-of-experts");
     expect(html).toContain("quantization");
