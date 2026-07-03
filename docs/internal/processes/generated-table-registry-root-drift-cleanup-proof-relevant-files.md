@@ -75,31 +75,38 @@ Fixtures live under
 bun test src/lib/factory/generated-table-registry-root-drift-cleanup-proof.test.ts
 ```
 
-## Live root evidence (2026-07-03 UTC)
+## Live root evidence (2026-07-03T05:02:04Z UTC)
 
-Captured via `bun run report:generated-table-registry-root-drift-cleanup-proof`
+Captured via
+`bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof --json`
 from this worktree (resolves main repo root automatically).
 
 | Field | Value |
 | --- | --- |
 | Root repo path | `/Users/abdifamily/work/learn-agent-factories` |
-| `origin/main` SHA | `a0c57068c45d692ff192f645d58afd3ec54d8618` |
+| `origin/main` SHA | `3d4311b1ddc8c1b5b099a7ef375d31230af3f394` |
 | Root `HEAD` SHA | `a0c57068c45d692ff192f645d58afd3ec54d8618` |
-| Ahead / behind | `0` / `0` (aligned) |
+| Ahead / behind | `0` / `31` (root behind `origin/main`) |
 | Generated artifact cleanliness | `clean` |
 | Generated artifact diff | none at capture time |
 | `looped-transformers-comparison` diff highlights | none at capture time |
 
 The PRD customer ask referenced root checkout that was 9 commits behind with
-dirty `table-registry.generated.ts` looped-transformers entries. Live capture
-shows the root checkout is now aligned with `origin/main` and the generated
-artifact is clean; story 002 must prove whether looped-transformers entries on
-`origin/main` are reproducible from canonical source tables.
+dirty `table-registry.generated.ts` looped-transformers entries. The current
+live proof shows root `HEAD` is 31 commits behind `origin/main` while the
+generated artifact remains clean with no looped-transformers diff; story 002
+proves whether looped-transformers entries on `origin/main` are reproducible
+from canonical source tables.
 
-## Live reproducibility proof (2026-07-03 UTC)
+An earlier capture (2026-07-03T03:27:47Z UTC) recorded root aligned with
+`origin/main` at `a0c57068c45d692ff192f645d58afd3ec54d8618`; that snapshot is
+historical. Re-run the proof command above for the current
+`origin/main` / ahead-behind relationship.
+
+## Live reproducibility proof (2026-07-03T05:02:04Z UTC)
 
 Captured via
-`bun run report:generated-table-registry-root-drift-cleanup-proof -- --reproducibility`
+`bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof`
 from this worktree.
 
 | Field | Value |
@@ -118,10 +125,10 @@ remains `matches-deterministic-generation` while the generated artifact is
 dirty; when the artifact is already clean and aligned, no registry commit is
 required.
 
-## Live expected-output outcome (2026-07-03 UTC)
+## Live expected-output outcome (2026-07-03T05:02:04Z UTC)
 
 Captured via
-`bun run report:generated-table-registry-root-drift-cleanup-proof -- --expected-output`
+`bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof`
 from this worktree.
 
 | Field | Value |
@@ -139,10 +146,10 @@ from this worktree.
 Stories 004–005 apply only when reproducibility is **not**
 `matches-deterministic-generation` or when drift belongs to an active PR lane.
 
-## Live stale-drift handoff (2026-07-03 UTC)
+## Live stale-drift handoff (2026-07-03T05:02:04Z UTC)
 
 Captured via
-`bun run report:generated-table-registry-root-drift-cleanup-proof -- --stale-drift-handoff`
+`bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof`
 from this worktree.
 
 | Field | Value |
@@ -158,10 +165,10 @@ When reproducibility is `differs-from-deterministic-generation` or
 restore-from-head, regenerate, and verify-after-cleanup actions scoped to only
 `src/lib/content/generated/table-registry.generated.ts`.
 
-## Live active-lane ownership (2026-07-03 UTC)
+## Live active-lane ownership (2026-07-03T05:02:04Z UTC)
 
 Captured via
-`bun run report:generated-table-registry-root-drift-cleanup-proof -- --active-lane-ownership`
+`bun run report:generated-table-registry-root-drift-cleanup-proof -- --full-proof`
 from this worktree.
 
 | Field | Value |
