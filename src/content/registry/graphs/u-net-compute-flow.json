@@ -13,7 +13,7 @@
   ],
   "status": "published",
   "createdAt": "2026-07-02T00:00:00.000Z",
-  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-03T00:00:00.000Z",
   "subjectId": "module.u-net",
   "graphType": "module-compute-flow",
   "rootNodeId": "noisy-image",
@@ -25,7 +25,7 @@
       "id": "noisy-image",
       "labelKey": "graph.nodes.noisyImage.label",
       "moduleKind": "input",
-      "position": { "x": 200, "y": 0 },
+      "position": { "x": 60, "y": 0 },
       "visualRole": "process-node",
       "childNodeIds": ["downsample-one"]
     },
@@ -33,7 +33,7 @@
       "id": "downsample-one",
       "labelKey": "graph.nodes.downsampleOne.label",
       "moduleKind": "block",
-      "position": { "x": 80, "y": 100 },
+      "position": { "x": 60, "y": 120 },
       "visualRole": "process-node",
       "childNodeIds": ["downsample-two"]
     },
@@ -41,7 +41,7 @@
       "id": "downsample-two",
       "labelKey": "graph.nodes.downsampleTwo.label",
       "moduleKind": "block",
-      "position": { "x": 80, "y": 210 },
+      "position": { "x": 60, "y": 250 },
       "visualRole": "process-node",
       "childNodeIds": ["bottleneck"]
     },
@@ -49,7 +49,7 @@
       "id": "bottleneck",
       "labelKey": "graph.nodes.bottleneck.label",
       "moduleKind": "other",
-      "position": { "x": 200, "y": 320 },
+      "position": { "x": 220, "y": 380 },
       "visualRole": "process-node",
       "childNodeIds": ["upsample-one"]
     },
@@ -57,7 +57,7 @@
       "id": "upsample-one",
       "labelKey": "graph.nodes.upsampleOne.label",
       "moduleKind": "block",
-      "position": { "x": 320, "y": 210 },
+      "position": { "x": 380, "y": 250 },
       "visualRole": "process-node",
       "childNodeIds": ["upsample-two"]
     },
@@ -65,7 +65,7 @@
       "id": "upsample-two",
       "labelKey": "graph.nodes.upsampleTwo.label",
       "moduleKind": "block",
-      "position": { "x": 320, "y": 100 },
+      "position": { "x": 380, "y": 120 },
       "visualRole": "process-node",
       "childNodeIds": ["denoised-output"]
     },
@@ -73,7 +73,7 @@
       "id": "denoised-output",
       "labelKey": "graph.nodes.denoisedOutput.label",
       "moduleKind": "output",
-      "position": { "x": 200, "y": 430 },
+      "position": { "x": 380, "y": 0 },
       "visualRole": "process-node",
       "childNodeIds": []
     },
@@ -81,7 +81,7 @@
       "id": "timestep-signal",
       "labelKey": "graph.nodes.timestepSignal.label",
       "moduleKind": "diffusion-step",
-      "position": { "x": 20, "y": 320 },
+      "position": { "x": 0, "y": 380 },
       "visualRole": "architecture-io",
       "childNodeIds": ["bottleneck"]
     },
@@ -89,7 +89,7 @@
       "id": "conditioning-signal",
       "labelKey": "graph.nodes.conditioningSignal.label",
       "moduleKind": "embedding",
-      "position": { "x": 380, "y": 320 },
+      "position": { "x": 460, "y": 380 },
       "visualRole": "architecture-io",
       "childNodeIds": ["bottleneck"]
     }

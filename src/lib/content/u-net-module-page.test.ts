@@ -10,6 +10,8 @@ import {
 } from "@/lib/content/assets";
 import { getDocsPageDir } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
+import { buildRegistryFlowGraph } from "@/lib/content/graph-flow";
+import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import { loadModulePage } from "@/lib/content/module-page";
 import {
   expectModuleComputeFlowGraphOnlyInHowItWorks,
@@ -148,4 +150,87 @@ describe("u-net page template", () => {
       /<Section id="math-or-compute-schema"[\s\S]*<ModuleGraph/,
     );
   });
+});
+
+describe("u-net U-shaped denoising teaching asset (u-net-module-page-003)", () => {
+  test("resolves skip connections across matching-resolution encoder and decoder stages", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const graph = getGraphById(defaultGraphId);
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const { nodes, edges } = buildRegistryFlowGraph(graph, messages);
+    expect(nodes).toHaveLength(9);
+    expect(edges).toHaveLength(10);
+
+    const downsampleOne = nodes.find((node) => node.id === "downsample-one");
+    const downsampleTwo = nodes.find((node) => node.id === "downsample-two");
+    const upsampleOne = nodes.find((node) => node.id === "upsample-one");
+    const upsampleTwo = nodes.find((node) => node.id === "upsample-two");
+    const denoisedOutput = nodes.find((node) => node.id === "denoised-output");
+
+    expect(downsampleOne?.position.y).toBe(upsampleTwo?.position.y);
+    expect(downsampleTwo?.position.y).toBe(upsampleOne?.position.y);
+    expect(denoisedOutput?.position.y).toBeLessThan(
+      upsampleTwo?.position.y ?? Number.POSITIVE_INFINITY,
+    );
+
+    const skipEdges = edges.filter(
+      (edge) => edge.data?.semantic.edgeKind === "residual",
+    );
+    expect(skipEdges.map((edge) => edge.id).sort()).toEqual([
+      "skip-down-one-up-two",
+      "skip-down-two-up-one",
+    ]);
+    expect(skipEdges[0]?.data?.semantic).toMatchObject({
+      edgeFamily: "residual",
+      sourceNodeId: "downsample-one",
+      targetNodeId: "upsample-two",
+      interactionEnabled: false,
+    });
+    expect(skipEdges[1]?.data?.semantic).toMatchObject({
+      edgeFamily: "residual",
+      sourceNodeId: "downsample-two",
+      targetNodeId: "upsample-one",
+      interactionEnabled: false,
+    });
+  });
+
+  test(
+    "renders message-backed graph chrome with skip-connection accessibility edges",
+    async () => {
+      const page = await loadModulePage("u-net");
+      const html = renderToStaticMarkup(
+        createElement(ModulePageProviders, {
+          messages: page.messages,
+          assets: page.assets,
+          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+          children: page.content,
+        }),
+      );
+
+      expect(html).toContain('data-graph-id="graph.u-net-compute-flow"');
+      expect(html).toContain('data-graph-title="graph.u-net-compute-flow"');
+      expect(html).toContain('data-graph-node-count="9"');
+      expect(html).toContain('data-graph-node-id="noisy-image"');
+      expect(html).toContain('data-graph-node-id="bottleneck"');
+      expect(html).toContain('data-graph-node-id="denoised-output"');
+      expect(html).toContain('data-graph-edge-id="skip-down-one-up-two"');
+      expect(html).toContain('data-graph-edge-id="skip-down-two-up-one"');
+      expect(html).toContain('data-graph-edge-kind="residual"');
+      expect(html).toContain(
+        page.messages.assets?.computeFlow?.alt ??
+          "U-Net graph showing a noisy image",
+      );
+      expect(html).toContain("Main down-up feature path");
+      expect(html).toContain("Timestep and conditioning steering");
+      expect(html).toContain("registry-graph-flow w-full min-w-0");
+      expect(html).toContain("max-w-full overflow-hidden");
+    },
+    { timeout: 15_000 },
+  );
 });
