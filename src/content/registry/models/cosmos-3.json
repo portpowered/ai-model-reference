@@ -1,0 +1,59 @@
+{
+  "id": "model.cosmos-3",
+  "slug": "cosmos-3",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Cosmos 3",
+    "NVIDIA Cosmos 3",
+    "Cosmos3",
+    "Cosmos 3 Super",
+    "Cosmos 3 Nano",
+    "Cosmos3-Super",
+    "Cosmos3-Nano",
+    "omnimodal world model",
+    "physical AI world model"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "paper.cosmos-3",
+    "organization.nvidia",
+    "concept.world-model",
+    "concept.multimodal-model",
+    "concept.autoregressive-generation",
+    "concept.denoising-generation",
+    "concept.diffusion-model",
+    "concept.conditioning"
+  ],
+  "citationIds": [
+    "citation.cosmos-3-technical-report",
+    "citation.cosmos-3-research-page",
+    "citation.cosmos-3-model-card",
+    "citation.cosmos-3-github-repository",
+    "citation.cosmos-3-huggingface-collection"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-03T02:45:00.000Z",
+  "updatedAt": "2026-07-03T02:45:00.000Z",
+  "releaseDate": "2026-05-31",
+  "authors": ["NVIDIA"],
+  "sourceId": "citation.cosmos-3-technical-report",
+  "family": "cosmos",
+  "sourceType": "open-weights",
+  "modalities": ["text", "image", "video", "audio", "multimodal"],
+  "architectureIds": [
+    "concept.world-model",
+    "concept.multimodal-model",
+    "concept.autoregressive-generation",
+    "concept.denoising-generation",
+    "concept.diffusion-model",
+    "concept.conditioning"
+  ],
+  "moduleIds": [],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": ["paper.cosmos-3"],
+  "organizationId": "organization.nvidia",
+  "parameterCount": "16B Nano and 64B Super family variants"
+}
