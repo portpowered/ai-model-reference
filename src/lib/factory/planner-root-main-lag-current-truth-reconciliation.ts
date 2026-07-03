@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { classifyBranchDrift } from "./active-pr-mergeability-watchdog";
 import { detectDefaultRemoteBaseRef } from "./planner-root-checkout-reconciliation";
 import { parsePlannerRelevantDirtyPaths } from "./planner-worktree-drift-watchdog";
+import { createIsolatedGitProcessEnv } from "./repo-path-resolution";
 
 export const ROOT_MAIN_LAG_CURRENT_TRUTH_RECONCILIATION_HEADER =
   "Root Main Lag and Current Truth Reconciliation";
@@ -165,7 +166,7 @@ function defaultRunGit(
   const result = spawnSync("git", [...args], {
     cwd: repoRoot,
     encoding: "utf8",
-    env: process.env,
+    env: createIsolatedGitProcessEnv(),
   });
 
   return {
