@@ -50,10 +50,20 @@ adding public blog routes, shell hardening, or committed real posts.
 * `src/lib/search/search-server.ts`
   Loads published blog posts into the live search catalog.
 
+## Tag landing grouping (story 004+)
+
+* `src/lib/content/tag-resources.ts`
+  Loads published blog posts into tag landing groups with distinct `blog` kind, `/blog/<slug>` URLs,
+  localized title/description, `publishedAt`, and frontmatter tags.
+* `src/features/docs/components/TagResourceList.tsx`
+  Renders blog group metadata (published date and supplemental tag pills) on tag landing pages.
+* `src/lib/content/blog-tag-landing.test.ts`
+  Fixture and production tag landing coverage for blog grouping, draft exclusion, and render proof.
+
 ## Out of scope for this lane
 
 * Public `/blog` or `/blog/<slug>` routes under `src/app`
-* Blog navigation, sidebar entries, or tag landing page grouping (story 004)
+* Blog navigation or sidebar entries
 * Real blog post content under `src/content/blog`
 * Generic shell hardening lanes (`shell-domain-relevant-files.md`, browse, sidebar, search enrichment beyond blog indexing)
 
