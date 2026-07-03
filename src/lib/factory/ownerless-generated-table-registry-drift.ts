@@ -1,12 +1,21 @@
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import {
+  createTableRegistrySourceEntries,
+  renderGeneratedTableRegistryModule,
+} from "@/lib/content/table-registry-generation";
 import { resolveMainRepoRoot } from "./merged-pr-drain-rows-reconciliation";
 import { detectDefaultRemoteBaseRef } from "./planner-root-checkout-reconciliation";
 import {
   classifyRootRemoteRelationship,
   type RootRemoteRelationship,
 } from "./planner-root-main-lag-current-truth-reconciliation";
+import type {
+  PlannerWorktreeDirtyPath,
+  PlannerWorktreeDriftOwnership,
+  PlannerWorktreeDriftSnapshot,
+} from "./planner-worktree-drift-watchdog";
 
 export const OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_HEADER =
   "Ownerless Generated Table Registry Drift Evidence";
@@ -485,4 +494,523 @@ export function serializeOwnerlessGeneratedTableRegistryDriftEvidenceReport(
   report: OwnerlessGeneratedTableRegistryDriftEvidenceReport,
 ): string {
   return `${JSON.stringify(report, null, 2)}\n`;
+}
+
+export const OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_CLASSIFICATION_HEADER =
+  "Ownerless Generated Table Registry Drift Classification";
+
+export type GeneratedTableRegistryArtifactPrimaryStatus =
+  | "expected"
+  | "stale"
+  | "ownerless"
+  | "owned";
+
+export type TableRegistryRegenerationProofKind =
+  | "full-module-match"
+  | "table-entry-match"
+  | "no-match"
+  | "unavailable";
+
+export interface TableRegistrySourceCatalog {
+  canonicalSourceFilePresent: boolean;
+  sourceFileNames: readonly string[];
+  tablesRegistryRoot: string;
+}
+
+export interface TableRegistryRegenerationProof {
+  canonicalSourceFilePresent: boolean;
+  headMatchesRegeneration: boolean | null;
+  kind: TableRegistryRegenerationProofKind;
+  observedTableEntryInExpectedModule: boolean;
+  proofEvidence: string[];
+  worktreeMatchesRegeneration: boolean | null;
+}
+
+export interface GeneratedTableRegistryLaneOwnershipEvidence {
+  branchName?: string;
+  laneName: string;
+  ownershipKind: PlannerWorktreeDriftOwnership["kind"];
+  reason: string;
+  reasonCode: PlannerWorktreeDriftOwnership["reasonCode"];
+}
+
+export interface GeneratedTableRegistryArtifactClassification {
+  artifactPath: string;
+  classificationEvidence: string[];
+  evidenceGaps: string[];
+  laneOwnership: GeneratedTableRegistryLaneOwnershipEvidence | null;
+  primaryStatus: GeneratedTableRegistryArtifactPrimaryStatus;
+  regenerationProof: TableRegistryRegenerationProof;
+  tableEntryFileName: string;
+  tableEntryId: string;
+}
+
+export interface OwnerlessGeneratedTableRegistryDriftClassificationReport {
+  classification: GeneratedTableRegistryArtifactClassification;
+  evidenceReport: OwnerlessGeneratedTableRegistryDriftEvidenceReport;
+  generatedAtUtc: string;
+}
+
+export interface BuildTableRegistryRegenerationProofOptions {
+  headSource: string | null;
+  repoRoot: string;
+  tableEntryFileName: string;
+  worktreeSource: string | null;
+  loadSourceCatalog?: (
+    repoRoot: string,
+    tableEntryFileName: string,
+  ) => TableRegistrySourceCatalog | null;
+}
+
+export interface ClassifyGeneratedTableRegistryArtifactOptions {
+  artifactPath?: string;
+  driftSnapshot?: PlannerWorktreeDriftSnapshot | null;
+  evidenceReport: OwnerlessGeneratedTableRegistryDriftEvidenceReport;
+  headSource?: string | null;
+  laneOwnership?: GeneratedTableRegistryLaneOwnershipEvidence | null;
+  loadSourceCatalog?: (
+    repoRoot: string,
+    tableEntryFileName: string,
+  ) => TableRegistrySourceCatalog | null;
+  tableEntryFileName?: string;
+  worktreeSource?: string | null;
+}
+
+function moduleSourcesMatchRegenerationProof(
+  proof: TableRegistryRegenerationProof,
+): boolean {
+  return (
+    proof.worktreeMatchesRegeneration === true ||
+    proof.headMatchesRegeneration === true
+  );
+}
+
+function tableEntryMatchesRegenerationProof(
+  proof: TableRegistryRegenerationProof,
+): boolean {
+  return (
+    proof.observedTableEntryInExpectedModule &&
+    (proof.worktreeMatchesRegeneration === true ||
+      proof.headMatchesRegeneration === true ||
+      proof.kind === "table-entry-match")
+  );
+}
+
+function resolveTablesRegistryRoot(repoRoot: string): string {
+  return join(repoRoot, "src/content/registry/tables");
+}
+
+export function loadTableRegistrySourceCatalog(
+  repoRoot: string,
+  tableEntryFileName: string,
+): TableRegistrySourceCatalog | null {
+  const tablesRegistryRoot = resolveTablesRegistryRoot(repoRoot);
+  if (!existsSync(tablesRegistryRoot)) {
+    return null;
+  }
+
+  const sourceFileNames = readdirSync(tablesRegistryRoot)
+    .filter((fileName) => fileName.endsWith(".json"))
+    .sort((left, right) => left.localeCompare(right));
+
+  return {
+    canonicalSourceFilePresent: sourceFileNames.includes(tableEntryFileName),
+    sourceFileNames,
+    tablesRegistryRoot,
+  };
+}
+
+export function renderExpectedTableRegistryModuleSource(
+  sourceFileNames: readonly string[],
+): string {
+  return renderGeneratedTableRegistryModule(
+    createTableRegistrySourceEntries(sourceFileNames),
+  );
+}
+
+export function buildTableRegistryRegenerationProof(
+  options: BuildTableRegistryRegenerationProofOptions,
+): TableRegistryRegenerationProof {
+  const loadSourceCatalog =
+    options.loadSourceCatalog ?? loadTableRegistrySourceCatalog;
+  const catalog = loadSourceCatalog(
+    options.repoRoot,
+    options.tableEntryFileName,
+  );
+  const proofEvidence: string[] = [];
+
+  if (catalog === null) {
+    return {
+      canonicalSourceFilePresent: false,
+      headMatchesRegeneration: null,
+      kind: "unavailable",
+      observedTableEntryInExpectedModule: false,
+      proofEvidence: [
+        `tables-registry-root-missing=${resolveTablesRegistryRoot(options.repoRoot)}`,
+      ],
+      worktreeMatchesRegeneration: null,
+    };
+  }
+
+  proofEvidence.push(
+    `canonical-source-file-present=${catalog.canonicalSourceFilePresent}`,
+    `canonical-table-count=${catalog.sourceFileNames.length}`,
+  );
+
+  if (!catalog.canonicalSourceFilePresent) {
+    return {
+      canonicalSourceFilePresent: false,
+      headMatchesRegeneration: null,
+      kind: "unavailable",
+      observedTableEntryInExpectedModule: false,
+      proofEvidence: [
+        ...proofEvidence,
+        `missing-canonical-source=${options.tableEntryFileName}`,
+      ],
+      worktreeMatchesRegeneration: null,
+    };
+  }
+
+  const expectedModuleSource = renderExpectedTableRegistryModuleSource(
+    catalog.sourceFileNames,
+  );
+  const expectedEntryPresence = detectTableEntryPresenceInModuleSource(
+    expectedModuleSource,
+    options.tableEntryFileName,
+  );
+  const observedTableEntryInExpectedModule =
+    expectedEntryPresence.importStatementPresent &&
+    expectedEntryPresence.sourceFileListEntryPresent &&
+    expectedEntryPresence.payloadEntryPresent;
+
+  proofEvidence.push(
+    `expected-table-entry-import=${expectedEntryPresence.importStatementPresent}`,
+    `expected-table-entry-source-list=${expectedEntryPresence.sourceFileListEntryPresent}`,
+    `expected-table-entry-payload=${expectedEntryPresence.payloadEntryPresent}`,
+  );
+
+  const worktreeMatchesRegeneration =
+    options.worktreeSource === null
+      ? null
+      : options.worktreeSource === expectedModuleSource;
+  const headMatchesRegeneration =
+    options.headSource === null
+      ? null
+      : options.headSource === expectedModuleSource;
+
+  if (worktreeMatchesRegeneration !== null) {
+    proofEvidence.push(
+      `worktree-full-module-match=${worktreeMatchesRegeneration}`,
+    );
+  }
+  if (headMatchesRegeneration !== null) {
+    proofEvidence.push(`head-full-module-match=${headMatchesRegeneration}`);
+  }
+
+  let kind: TableRegistryRegenerationProofKind;
+  if (
+    worktreeMatchesRegeneration === true ||
+    headMatchesRegeneration === true
+  ) {
+    kind = "full-module-match";
+  } else if (
+    worktreeMatchesRegeneration === false ||
+    headMatchesRegeneration === false
+  ) {
+    const worktreeEntryPresence =
+      options.worktreeSource === null
+        ? null
+        : detectTableEntryPresenceInModuleSource(
+            options.worktreeSource,
+            options.tableEntryFileName,
+          );
+    const headEntryPresence =
+      options.headSource === null
+        ? null
+        : detectTableEntryPresenceInModuleSource(
+            options.headSource,
+            options.tableEntryFileName,
+          );
+    const worktreeEntryMatches =
+      worktreeEntryPresence === null
+        ? null
+        : worktreeEntryPresence.importStatementPresent ===
+            expectedEntryPresence.importStatementPresent &&
+          worktreeEntryPresence.sourceFileListEntryPresent ===
+            expectedEntryPresence.sourceFileListEntryPresent &&
+          worktreeEntryPresence.payloadEntryPresent ===
+            expectedEntryPresence.payloadEntryPresent;
+    const headEntryMatches =
+      headEntryPresence === null
+        ? null
+        : headEntryPresence.importStatementPresent ===
+            expectedEntryPresence.importStatementPresent &&
+          headEntryPresence.sourceFileListEntryPresent ===
+            expectedEntryPresence.sourceFileListEntryPresent &&
+          headEntryPresence.payloadEntryPresent ===
+            expectedEntryPresence.payloadEntryPresent;
+
+    if (worktreeEntryMatches === true || headEntryMatches === true) {
+      kind = "table-entry-match";
+      proofEvidence.push("table-entry-only-match=true");
+    } else {
+      kind = "no-match";
+      proofEvidence.push("table-entry-only-match=false");
+    }
+  } else {
+    kind = "unavailable";
+    proofEvidence.push("regeneration-comparison-unavailable=true");
+  }
+
+  return {
+    canonicalSourceFilePresent: true,
+    headMatchesRegeneration,
+    kind,
+    observedTableEntryInExpectedModule,
+    proofEvidence,
+    worktreeMatchesRegeneration,
+  };
+}
+
+function isOwnedDriftOwnership(
+  ownership: PlannerWorktreeDriftOwnership,
+): ownership is PlannerWorktreeDriftOwnership & {
+  kind: "worktree-owned" | "already-merged-owned";
+  laneName: string;
+} {
+  return (
+    (ownership.kind === "worktree-owned" ||
+      ownership.kind === "already-merged-owned") &&
+    typeof ownership.laneName === "string" &&
+    ownership.laneName.length > 0
+  );
+}
+
+export function resolveGeneratedTableRegistryLaneOwnership(input: {
+  artifactPath: string;
+  driftSnapshot?: PlannerWorktreeDriftSnapshot | null;
+}): GeneratedTableRegistryLaneOwnershipEvidence | null {
+  if (!input.driftSnapshot) {
+    return null;
+  }
+
+  const matchingPath = input.driftSnapshot.root.dirtyPaths.find(
+    (dirtyPath) => dirtyPath.path === input.artifactPath,
+  );
+  if (!matchingPath) {
+    return null;
+  }
+
+  return mapLaneOwnershipEvidence(matchingPath);
+}
+
+function mapLaneOwnershipEvidence(
+  dirtyPath: PlannerWorktreeDirtyPath,
+): GeneratedTableRegistryLaneOwnershipEvidence | null {
+  if (!isOwnedDriftOwnership(dirtyPath.ownership)) {
+    return null;
+  }
+
+  return {
+    branchName: dirtyPath.ownership.branchName,
+    laneName: dirtyPath.ownership.laneName,
+    ownershipKind: dirtyPath.ownership.kind,
+    reason: dirtyPath.ownership.reason,
+    reasonCode: dirtyPath.ownership.reasonCode,
+  };
+}
+
+export function classifyGeneratedTableRegistryArtifactStatus(
+  options: ClassifyGeneratedTableRegistryArtifactOptions,
+): GeneratedTableRegistryArtifactClassification {
+  const artifactPath =
+    options.artifactPath ??
+    options.evidenceReport.generatedArtifact.artifactPath;
+  const tableEntryFileName =
+    options.tableEntryFileName ?? OBSERVED_TABLE_ENTRY_FILE_NAME;
+  const repoRoot = options.evidenceReport.rootGitTruth.repoRoot;
+  const generatedArtifact = options.evidenceReport.generatedArtifact;
+  const laneOwnership =
+    options.laneOwnership ??
+    resolveGeneratedTableRegistryLaneOwnership({
+      artifactPath,
+      driftSnapshot: options.driftSnapshot,
+    });
+  const regenerationProof = buildTableRegistryRegenerationProof({
+    headSource:
+      options.headSource ??
+      readGitObjectAtRef(repoRoot, "HEAD", artifactPath, defaultRunGit),
+    loadSourceCatalog: options.loadSourceCatalog,
+    repoRoot,
+    tableEntryFileName,
+    worktreeSource:
+      options.worktreeSource ?? readWorkingTreeFile(repoRoot, artifactPath),
+  });
+
+  const classificationEvidence: string[] = [
+    `artifact-path=${artifactPath}`,
+    `dirty-status=${generatedArtifact.dirtyStatus}`,
+    `table-entry-file=${tableEntryFileName}`,
+    `table-entry-id=${OBSERVED_TABLE_ENTRY_ID}`,
+    `observation-kind=${generatedArtifact.loopedTransformersComparisonEntry.kind}`,
+    ...regenerationProof.proofEvidence,
+  ];
+  const evidenceGaps: string[] = [];
+
+  if (laneOwnership) {
+    classificationEvidence.push(
+      `lane-name=${laneOwnership.laneName}`,
+      `ownership-kind=${laneOwnership.ownershipKind}`,
+      `ownership-reason-code=${laneOwnership.reasonCode}`,
+      `ownership-reason=${laneOwnership.reason}`,
+    );
+    if (laneOwnership.branchName) {
+      classificationEvidence.push(`lane-branch=${laneOwnership.branchName}`);
+    }
+  }
+
+  let primaryStatus: GeneratedTableRegistryArtifactPrimaryStatus;
+
+  if (generatedArtifact.dirtyStatus === "dirty" && laneOwnership !== null) {
+    primaryStatus = "owned";
+  } else if (moduleSourcesMatchRegenerationProof(regenerationProof)) {
+    primaryStatus = "expected";
+    classificationEvidence.push(
+      "expected-proof=deterministic-table-registry-regeneration",
+    );
+  } else if (
+    regenerationProof.canonicalSourceFilePresent &&
+    !tableEntryMatchesRegenerationProof(regenerationProof)
+  ) {
+    primaryStatus = "stale";
+    classificationEvidence.push(
+      "stale-proof=generated-entry-not-reproducible-from-canonical-source",
+    );
+  } else if (tableEntryMatchesRegenerationProof(regenerationProof)) {
+    primaryStatus = "expected";
+    classificationEvidence.push(
+      "expected-proof=table-entry-regeneration-match",
+    );
+  } else {
+    primaryStatus = "ownerless";
+    if (!regenerationProof.canonicalSourceFilePresent) {
+      evidenceGaps.push(
+        `Missing canonical table source ${tableEntryFileName} under src/content/registry/tables.`,
+      );
+    }
+    if (regenerationProof.kind === "unavailable") {
+      evidenceGaps.push(
+        "Table registry regeneration proof unavailable for observed artifact sources.",
+      );
+    }
+    if (generatedArtifact.dirtyStatus === "dirty" && laneOwnership === null) {
+      evidenceGaps.push(
+        "No active or merged lane claims ownership of the dirty generated artifact.",
+      );
+    }
+    classificationEvidence.push("ownerless-proof=evidence-gap");
+    if (evidenceGaps.length > 0) {
+      classificationEvidence.push(`evidence-gap-count=${evidenceGaps.length}`);
+    }
+  }
+
+  return {
+    artifactPath,
+    classificationEvidence,
+    evidenceGaps,
+    laneOwnership,
+    primaryStatus,
+    regenerationProof,
+    tableEntryFileName,
+    tableEntryId: OBSERVED_TABLE_ENTRY_ID,
+  };
+}
+
+export function buildOwnerlessGeneratedTableRegistryDriftClassificationReport(input: {
+  driftSnapshot?: PlannerWorktreeDriftSnapshot | null;
+  evidenceReport: OwnerlessGeneratedTableRegistryDriftEvidenceReport;
+  generatedAtUtc?: string;
+  headSource?: string | null;
+  laneOwnership?: GeneratedTableRegistryLaneOwnershipEvidence | null;
+  loadSourceCatalog?: (
+    repoRoot: string,
+    tableEntryFileName: string,
+  ) => TableRegistrySourceCatalog | null;
+  worktreeSource?: string | null;
+}): OwnerlessGeneratedTableRegistryDriftClassificationReport {
+  return {
+    classification: classifyGeneratedTableRegistryArtifactStatus({
+      driftSnapshot: input.driftSnapshot,
+      evidenceReport: input.evidenceReport,
+      headSource: input.headSource,
+      laneOwnership: input.laneOwnership,
+      loadSourceCatalog: input.loadSourceCatalog,
+      worktreeSource: input.worktreeSource,
+    }),
+    evidenceReport: input.evidenceReport,
+    generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
+  };
+}
+
+export function formatOwnerlessGeneratedTableRegistryDriftClassificationReport(
+  report: OwnerlessGeneratedTableRegistryDriftClassificationReport,
+): string {
+  const classification = report.classification;
+  const lines = [
+    OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_CLASSIFICATION_HEADER,
+    `generated-at-utc=${report.generatedAtUtc}`,
+    "",
+    "[artifact-classification]",
+    `artifact-path=${classification.artifactPath}`,
+    `primary-status=${classification.primaryStatus}`,
+    `table-entry-file=${classification.tableEntryFileName}`,
+    `table-entry-id=${classification.tableEntryId}`,
+    `regeneration-proof-kind=${classification.regenerationProof.kind}`,
+    `canonical-source-file-present=${classification.regenerationProof.canonicalSourceFilePresent}`,
+    `observed-table-entry-in-expected-module=${classification.regenerationProof.observedTableEntryInExpectedModule}`,
+  ];
+
+  if (classification.laneOwnership) {
+    lines.push(
+      `owned-lane=${classification.laneOwnership.laneName}`,
+      `ownership-kind=${classification.laneOwnership.ownershipKind}`,
+      `ownership-reason-code=${classification.laneOwnership.reasonCode}`,
+    );
+  }
+
+  lines.push("", "[classification-evidence]");
+  for (const evidence of classification.classificationEvidence) {
+    lines.push(`  - ${evidence}`);
+  }
+
+  if (classification.evidenceGaps.length > 0) {
+    lines.push("", "[evidence-gaps]");
+    for (const gap of classification.evidenceGaps) {
+      lines.push(`  - ${gap}`);
+    }
+  }
+
+  return `${lines.join("\n")}\n`;
+}
+
+export function serializeOwnerlessGeneratedTableRegistryDriftClassificationReport(
+  report: OwnerlessGeneratedTableRegistryDriftClassificationReport,
+): string {
+  return `${JSON.stringify(report, null, 2)}\n`;
+}
+
+export function formatOwnerlessGeneratedTableRegistryDriftUnifiedReport(input: {
+  classificationReport: OwnerlessGeneratedTableRegistryDriftClassificationReport;
+  evidenceReport: OwnerlessGeneratedTableRegistryDriftEvidenceReport;
+}): string {
+  return [
+    formatOwnerlessGeneratedTableRegistryDriftEvidenceReport(
+      input.evidenceReport,
+    ).trimEnd(),
+    "",
+    formatOwnerlessGeneratedTableRegistryDriftClassificationReport(
+      input.classificationReport,
+    ).trimEnd(),
+    "",
+  ].join("\n");
 }

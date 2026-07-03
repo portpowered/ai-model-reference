@@ -21,15 +21,24 @@ The observed table entry under investigation is
   scoped dirty status for the generated artifact, and
   `looped-transformers-comparison.json` import/source-list/payload observation
   from HEAD, worktree, and scoped diff excerpts. Resolves the main repo root
-  from nested worktrees via `resolveMainRepoRoot`.
+  from nested worktrees via `resolveMainRepoRoot`. Classification helpers
+  (`classifyGeneratedTableRegistryArtifactStatus`,
+  `buildTableRegistryRegenerationProof`) emit exactly one primary status
+  (`expected`, `stale`, `owned`, `ownerless`) backed by deterministic table
+  registry regeneration proof and optional drift-snapshot lane ownership.
 * `scripts/report-ownerless-generated-table-registry-drift.ts` — planner-facing
-  CLI with fixture flags aligned to other factory reports.
+  CLI with fixture flags aligned to other factory reports. Default output
+  includes evidence plus classification; pass `--evidence-only` to retain the
+  story-001 evidence surface.
 
 ## Planner-facing command
 
 | When | Command |
 | --- | --- |
 | Capture read-only generated table registry drift evidence for the ownerless priority blocker | `bun run report:ownerless-generated-table-registry-drift` |
+
+Default output includes evidence and artifact classification. Use
+`--evidence-only` when a caller needs the story-001 evidence surface only.
 
 Fixture flags:
 
@@ -38,6 +47,7 @@ Fixture flags:
 * `--status-output`
 * `--diff-output`
 * `--json` or `--format json`
+* `--evidence-only`
 
 ## Fixture-backed verification
 
@@ -46,8 +56,9 @@ When report or evidence logic changes, add or extend fixture-backed tests under
 fixtures in
 `src/tests/fixtures/ownerless-generated-table-registry-drift/`. Tests should
 assert observable emitted behavior (root git truth, artifact dirty status,
-table-entry observation kind, preserve policy) without meta inventories of
-routes, docs links, or command lists.
+table-entry observation kind, preserve policy, primary classification status,
+regeneration proof kind, and lane ownership when present) without meta
+inventories of routes, docs links, or command lists.
 
 ## Related process docs
 

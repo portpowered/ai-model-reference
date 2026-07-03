@@ -10,19 +10,33 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  createTableRegistrySourceEntries,
+  renderGeneratedTableRegistryModule,
+} from "@/lib/content/table-registry-generation";
+import {
+  buildOwnerlessGeneratedTableRegistryDriftClassificationReport,
+  buildTableRegistryRegenerationProof,
   captureGeneratedTableRegistryArtifactEvidence,
   captureOwnerlessGeneratedTableRegistryDriftEvidence,
   captureRootGitTruthEvidence,
+  classifyGeneratedTableRegistryArtifactStatus,
   classifyLoopedTransformersComparisonEntryObservation,
   detectTableEntryPresenceInModuleSource,
   extractTableEntryDiffLines,
   formatOwnerlessGeneratedTableRegistryDriftEvidenceReport,
+  formatOwnerlessGeneratedTableRegistryDriftUnifiedReport,
   GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+  type GeneratedTableRegistryLaneOwnershipEvidence,
+  loadTableRegistrySourceCatalog,
   OBSERVED_TABLE_ENTRY_FILE_NAME,
   OBSERVED_TABLE_ENTRY_ID,
+  OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_CLASSIFICATION_HEADER,
   OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_HEADER,
   OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_PRESERVE_POLICY,
+  type OwnerlessGeneratedTableRegistryDriftEvidenceReport,
+  renderExpectedTableRegistryModuleSource,
   serializeOwnerlessGeneratedTableRegistryDriftEvidenceReport,
+  type TableRegistrySourceCatalog,
 } from "@/lib/factory/ownerless-generated-table-registry-drift";
 
 const TABLE_REGISTRY_ARTIFACT_DIRTY_STATUS_FIXTURE = readFileSync(
@@ -118,6 +132,101 @@ export const generatedTableRegistryPayloads = [
     cleanup: () => rmSync(dir, { force: true, recursive: true }),
     mainRef: "origin/main",
     repoRoot,
+  };
+}
+
+function createExpectedModuleSourceForTableEntry(
+  tableEntryFileName: string,
+): string {
+  return renderGeneratedTableRegistryModule(
+    createTableRegistrySourceEntries([tableEntryFileName]),
+  );
+}
+
+function createEvidenceReport(input: {
+  dirtyStatus: "clean" | "dirty";
+  headSource: string;
+  observationKind?:
+    | "present-in-worktree"
+    | "added-in-diff"
+    | "removed-in-diff"
+    | "modified-in-diff";
+  repoRoot?: string;
+  statusLine?: string | null;
+  worktreeSource: string;
+}): OwnerlessGeneratedTableRegistryDriftEvidenceReport {
+  const observationKind = input.observationKind ?? "present-in-worktree";
+  return {
+    capturePolicy: OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_PRESERVE_POLICY,
+    generatedArtifact: {
+      artifactPath: GENERATED_TABLE_REGISTRY_ARTIFACT_PATH,
+      diffExcerpt: input.dirtyStatus === "dirty" ? "+added" : null,
+      dirtyStatus: input.dirtyStatus,
+      statusCode: input.dirtyStatus === "dirty" ? " M" : null,
+      statusLine:
+        input.statusLine ??
+        (input.dirtyStatus === "dirty"
+          ? ` M ${GENERATED_TABLE_REGISTRY_ARTIFACT_PATH}`
+          : null),
+      loopedTransformersComparisonEntry: {
+        importStatementPresentOnHead:
+          observationKind !== "added-in-diff" &&
+          observationKind !== "removed-in-diff",
+        importStatementPresentInWorktree: observationKind !== "removed-in-diff",
+        kind: observationKind,
+        observedDiffLines:
+          observationKind === "added-in-diff" ? ["+added"] : [],
+        payloadEntryPresentOnHead:
+          observationKind !== "added-in-diff" &&
+          observationKind !== "removed-in-diff",
+        payloadEntryPresentInWorktree: observationKind !== "removed-in-diff",
+        sourceFileListEntryPresentOnHead:
+          observationKind !== "added-in-diff" &&
+          observationKind !== "removed-in-diff",
+        sourceFileListEntryPresentInWorktree:
+          observationKind !== "removed-in-diff",
+        tableEntryFileName: OBSERVED_TABLE_ENTRY_FILE_NAME,
+        tableEntryId: OBSERVED_TABLE_ENTRY_ID,
+      },
+    },
+    generatedAtUtc: "2026-07-03T05:00:00.000Z",
+    rootGitTruth: {
+      commitsAheadOfRemote: 0,
+      commitsBehindRemote: 19,
+      headSha: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      headShortSha: "aaaaaaa",
+      remoteBaseRef: "origin/main",
+      remoteMainSha: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      remoteMainShortSha: "bbbbbbb",
+      remoteRelationship: "behind",
+      repoRoot: input.repoRoot ?? "/tmp/root-repo",
+    },
+  };
+}
+
+function createSourceCatalog(
+  tableEntryFileName: string,
+  extraFileNames: string[] = [],
+): TableRegistrySourceCatalog {
+  const sourceFileNames = [...extraFileNames, tableEntryFileName].sort(
+    (left, right) => left.localeCompare(right),
+  );
+  return {
+    canonicalSourceFilePresent: true,
+    sourceFileNames,
+    tablesRegistryRoot: "/tmp/root-repo/src/content/registry/tables",
+  };
+}
+
+function createLaneOwnership(
+  laneName: string,
+): GeneratedTableRegistryLaneOwnershipEvidence {
+  return {
+    branchName: `${laneName}-branch`,
+    laneName,
+    ownershipKind: "worktree-owned",
+    reason: `Dirty path was observed directly in active lane ${laneName}.`,
+    reasonCode: "direct-worktree-match",
   };
 }
 
@@ -442,5 +551,229 @@ export const generatedTableRegistryPayloads = [
     for (const command of invokedCommands) {
       expect(MUTATING_GIT_COMMANDS.has(command)).toBe(false);
     }
+  });
+
+  test("builds regeneration proof for expected table entry from canonical source catalog", () => {
+    const expectedSource = createExpectedModuleSourceForTableEntry(
+      OBSERVED_TABLE_ENTRY_FILE_NAME,
+    );
+    const proof = buildTableRegistryRegenerationProof({
+      headSource: expectedSource,
+      repoRoot: "/tmp/root-repo",
+      tableEntryFileName: OBSERVED_TABLE_ENTRY_FILE_NAME,
+      worktreeSource: expectedSource,
+      loadSourceCatalog: () =>
+        createSourceCatalog(OBSERVED_TABLE_ENTRY_FILE_NAME),
+    });
+
+    expect(proof.kind).toBe("full-module-match");
+    expect(proof.canonicalSourceFilePresent).toBe(true);
+    expect(proof.observedTableEntryInExpectedModule).toBe(true);
+    expect(proof.worktreeMatchesRegeneration).toBe(true);
+    expect(proof.headMatchesRegeneration).toBe(true);
+  });
+
+  test("classifies dirty expected drift from regeneration proof", () => {
+    const expectedSource = createExpectedModuleSourceForTableEntry(
+      OBSERVED_TABLE_ENTRY_FILE_NAME,
+    );
+    const classification = classifyGeneratedTableRegistryArtifactStatus({
+      evidenceReport: createEvidenceReport({
+        dirtyStatus: "dirty",
+        headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+        observationKind: "added-in-diff",
+        worktreeSource: expectedSource,
+      }),
+      headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+      loadSourceCatalog: () =>
+        createSourceCatalog(OBSERVED_TABLE_ENTRY_FILE_NAME),
+      worktreeSource: expectedSource,
+    });
+
+    expect(classification.primaryStatus).toBe("expected");
+    expect(classification.regenerationProof.kind).toBe("full-module-match");
+    expect(classification.evidenceGaps).toEqual([]);
+    expect(classification.classificationEvidence).toContain(
+      "expected-proof=deterministic-table-registry-regeneration",
+    );
+  });
+
+  test("classifies stale drift when generated module does not match canonical source", () => {
+    const staleSource = `import staleLoopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison-stale.json";
+export const generatedTableRegistrySourceFiles = [
+  "looped-transformers-comparison-stale.json",
+] as const;
+export const generatedTableRegistryPayloads = [
+  staleLoopedTransformersComparisonTableRecord,
+] as const;`;
+
+    const classification = classifyGeneratedTableRegistryArtifactStatus({
+      evidenceReport: createEvidenceReport({
+        dirtyStatus: "dirty",
+        headSource: staleSource,
+        worktreeSource: staleSource,
+      }),
+      headSource: staleSource,
+      loadSourceCatalog: () =>
+        createSourceCatalog(OBSERVED_TABLE_ENTRY_FILE_NAME),
+      worktreeSource: staleSource,
+    });
+
+    expect(classification.primaryStatus).toBe("stale");
+    expect(classification.regenerationProof.kind).toBe("no-match");
+    expect(classification.classificationEvidence).toContain(
+      "stale-proof=generated-entry-not-reproducible-from-canonical-source",
+    );
+  });
+
+  test("classifies dirty drift as owned when a lane claims the generated artifact", () => {
+    const classification = classifyGeneratedTableRegistryArtifactStatus({
+      evidenceReport: createEvidenceReport({
+        dirtyStatus: "dirty",
+        headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+        observationKind: "added-in-diff",
+        worktreeSource: createExpectedModuleSourceForTableEntry(
+          OBSERVED_TABLE_ENTRY_FILE_NAME,
+        ),
+      }),
+      laneOwnership: createLaneOwnership("looped-transformers-page"),
+      loadSourceCatalog: () => null,
+    });
+
+    expect(classification.primaryStatus).toBe("owned");
+    expect(classification.laneOwnership?.laneName).toBe(
+      "looped-transformers-page",
+    );
+    expect(classification.classificationEvidence).toContain(
+      "lane-name=looped-transformers-page",
+    );
+  });
+
+  test("classifies ownerless drift when regeneration and ownership proof are unavailable", () => {
+    const classification = classifyGeneratedTableRegistryArtifactStatus({
+      evidenceReport: createEvidenceReport({
+        dirtyStatus: "dirty",
+        headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+        observationKind: "added-in-diff",
+        worktreeSource: `import loopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison.json";`,
+      }),
+      headSource: `export const generatedTableRegistrySourceFiles = [] as const;`,
+      loadSourceCatalog: () => null,
+      worktreeSource: `import loopedTransformersComparisonTableRecord from "@/content/registry/tables/looped-transformers-comparison.json";`,
+    });
+
+    expect(classification.primaryStatus).toBe("ownerless");
+    expect(classification.evidenceGaps.length).toBeGreaterThan(0);
+    expect(classification.classificationEvidence).toContain(
+      "ownerless-proof=evidence-gap",
+    );
+  });
+
+  test("formats unified report with evidence and classification sections", () => {
+    const expectedSource = createExpectedModuleSourceForTableEntry(
+      OBSERVED_TABLE_ENTRY_FILE_NAME,
+    );
+    const evidenceReport = createEvidenceReport({
+      dirtyStatus: "clean",
+      headSource: expectedSource,
+      worktreeSource: expectedSource,
+    });
+    const classificationReport =
+      buildOwnerlessGeneratedTableRegistryDriftClassificationReport({
+        evidenceReport,
+        generatedAtUtc: "2026-07-03T05:00:00.000Z",
+        headSource: expectedSource,
+        loadSourceCatalog: () =>
+          createSourceCatalog(OBSERVED_TABLE_ENTRY_FILE_NAME),
+        worktreeSource: expectedSource,
+      });
+
+    const formatted = formatOwnerlessGeneratedTableRegistryDriftUnifiedReport({
+      classificationReport,
+      evidenceReport,
+    });
+
+    expect(formatted).toContain(
+      OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_HEADER,
+    );
+    expect(formatted).toContain(
+      OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_CLASSIFICATION_HEADER,
+    );
+    expect(formatted).toContain("primary-status=expected");
+    expect(formatted).toContain(`table-entry-id=${OBSERVED_TABLE_ENTRY_ID}`);
+    expect(formatted).toContain(
+      "expected-proof=deterministic-table-registry-regeneration",
+    );
+  });
+
+  test("report script emits classification output without mutating git state", () => {
+    const fixture = createFixtureRepo();
+    try {
+      mkdirSync(join(fixture.repoRoot, "src/content/registry/tables"), {
+        recursive: true,
+      });
+      writeFileSync(
+        join(
+          fixture.repoRoot,
+          "src/content/registry/tables",
+          OBSERVED_TABLE_ENTRY_FILE_NAME,
+        ),
+        JSON.stringify({ id: OBSERVED_TABLE_ENTRY_ID }),
+      );
+
+      const statusBefore = spawnSync(
+        "git",
+        ["status", "--porcelain=v1", "--untracked-files=all"],
+        {
+          cwd: fixture.repoRoot,
+          encoding: "utf8",
+        },
+      ).stdout;
+
+      const result = spawnSync(
+        "bun",
+        [
+          "./scripts/report-ownerless-generated-table-registry-drift.ts",
+          "--repo-root",
+          fixture.repoRoot,
+          "--remote-base-ref",
+          fixture.mainRef,
+        ],
+        { cwd: process.cwd(), encoding: "utf8" },
+      );
+
+      expect(result.status).toBe(0);
+      expect(result.stdout).toContain(
+        OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_CLASSIFICATION_HEADER,
+      );
+      expect(result.stdout).toContain("primary-status=expected");
+      expect(result.stdout).toContain(OBSERVED_TABLE_ENTRY_FILE_NAME);
+
+      const statusAfter = spawnSync(
+        "git",
+        ["status", "--porcelain=v1", "--untracked-files=all"],
+        {
+          cwd: fixture.repoRoot,
+          encoding: "utf8",
+        },
+      ).stdout;
+      expect(statusAfter).toBe(statusBefore);
+    } finally {
+      fixture.cleanup();
+    }
+  });
+
+  test("loads live table registry source catalog from repo root", () => {
+    const catalog = loadTableRegistrySourceCatalog(
+      process.cwd(),
+      OBSERVED_TABLE_ENTRY_FILE_NAME,
+    );
+
+    expect(catalog).not.toBeNull();
+    expect(catalog?.canonicalSourceFilePresent).toBe(true);
+    expect(catalog?.sourceFileNames).toContain(OBSERVED_TABLE_ENTRY_FILE_NAME);
+    expect(
+      renderExpectedTableRegistryModuleSource(catalog?.sourceFileNames ?? []),
+    ).toContain(OBSERVED_TABLE_ENTRY_FILE_NAME);
   });
 });

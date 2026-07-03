@@ -1,8 +1,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
+  buildOwnerlessGeneratedTableRegistryDriftClassificationReport,
   captureOwnerlessGeneratedTableRegistryDriftEvidence,
   formatOwnerlessGeneratedTableRegistryDriftEvidenceReport,
+  formatOwnerlessGeneratedTableRegistryDriftUnifiedReport,
+  serializeOwnerlessGeneratedTableRegistryDriftClassificationReport,
   serializeOwnerlessGeneratedTableRegistryDriftEvidenceReport,
 } from "../src/lib/factory/ownerless-generated-table-registry-drift";
 
@@ -31,6 +34,10 @@ function isJsonOutputRequested(argv: string[]): boolean {
   );
 }
 
+function isEvidenceOnlyRequested(argv: string[]): boolean {
+  return argv.includes("--evidence-only");
+}
+
 const repoRoot = readFlagValue("--repo-root")
   ? resolve(readFlagValue("--repo-root") as string)
   : defaultRepoRoot;
@@ -44,15 +51,31 @@ const diffOutput = diffOutputPath
   ? readRequiredFile(diffOutputPath, "diff output")
   : undefined;
 
-const report = captureOwnerlessGeneratedTableRegistryDriftEvidence({
+const evidenceReport = captureOwnerlessGeneratedTableRegistryDriftEvidence({
   diffOutput,
   remoteBaseRef,
   repoRoot,
   statusOutput,
 });
 
+const classificationReport =
+  buildOwnerlessGeneratedTableRegistryDriftClassificationReport({
+    evidenceReport,
+  });
+
 const output = isJsonOutputRequested(process.argv)
-  ? serializeOwnerlessGeneratedTableRegistryDriftEvidenceReport(report)
-  : formatOwnerlessGeneratedTableRegistryDriftEvidenceReport(report);
+  ? isEvidenceOnlyRequested(process.argv)
+    ? serializeOwnerlessGeneratedTableRegistryDriftEvidenceReport(
+        evidenceReport,
+      )
+    : serializeOwnerlessGeneratedTableRegistryDriftClassificationReport(
+        classificationReport,
+      )
+  : isEvidenceOnlyRequested(process.argv)
+    ? formatOwnerlessGeneratedTableRegistryDriftEvidenceReport(evidenceReport)
+    : formatOwnerlessGeneratedTableRegistryDriftUnifiedReport({
+        classificationReport,
+        evidenceReport,
+      });
 
 process.stdout.write(output);
