@@ -56,6 +56,12 @@ watchdog summaries, or planner-facing linkage reports.
   `looped-transformers-comparison.json` import/source-list/payload observation.
   See
   [ownerless-generated-table-registry-drift-relevant-files](./ownerless-generated-table-registry-drift-relevant-files.md).
+* `src/lib/factory/generated-table-registry-pr320-conflict-refresh.ts` —
+  read-only evidence capture for PR #320 conflict refresh: records PR
+  mergeability/check state, base and head SHAs, `origin/main` identity, branch
+  ahead/behind relationship, queue-token state for the original proof lane and
+  this conflict-refresh lane, and worktree metadata for both worktrees. See
+  [generated-table-registry-pr320-conflict-refresh-relevant-files](./generated-table-registry-pr320-conflict-refresh-relevant-files.md).
 * `src/lib/factory/planner-merged-lane-evidence.ts` — terminal-complete and
   merged-branch evidence used to attribute stale root drift to merged page lanes.
 * `src/lib/factory/terminal-lane-main-branch-landing-audit.ts` — read-only
@@ -88,7 +94,9 @@ watchdog summaries, or planner-facing linkage reports.
 | Root checkout reconciliation against HEAD and origin/main | `bun run report:planner-root-checkout-reconciliation` |
 | Latent diffusion root deletion landed-evidence verification | `bun run report:planner-latent-diffusion-root-deletion-reconciliation` |
 | Ownerless generated table registry drift evidence capture | `bun run report:ownerless-generated-table-registry-drift` |
+| PR #320 generated table registry conflict-refresh evidence capture | `bun run report:generated-table-registry-pr320-conflict-refresh` |
 | Merged PR drain row evidence for PRs #281/#282/#284/#286 | `bun run report:merged-pr-drain-rows-reconciliation` |
+| Generated table registry root drift cleanup proof | `bun run report:generated-table-registry-root-drift-cleanup-proof` |
 | Planner concurrency floor: useful active lanes, refill guidance, and hold/stale classifications | `bun run report:planner-concurrency-floor` |
 
 Direct script paths remain supported for fixture-driven tests:
@@ -99,6 +107,8 @@ Direct script paths remain supported for fixture-driven tests:
 * `bun ./scripts/report-planner-root-checkout-reconciliation.ts`
 * `bun ./scripts/report-planner-latent-diffusion-root-deletion-reconciliation.ts`
 * `bun ./scripts/report-merged-pr-drain-rows-reconciliation.ts`
+* `bun ./scripts/report-generated-table-registry-pr320-conflict-refresh.ts`
+* `bun ./scripts/report-generated-table-registry-root-drift-cleanup-proof.ts`
 * `bun ./scripts/report-planner-concurrency-floor.ts`
 
 Concurrency-floor report contract details:
@@ -211,6 +221,12 @@ status output under `src/tests/fixtures/planner-root-checkout-reconciliation/`.
   state on heads `6a1530a0` / `e5defbc8`, batch 066 drain still `idea:init`,
   expanded merge-tree conflict set on #277 (four paths), and PR conversation
   blocking feedback status for story 002 classification.
+* [generated-table-registry-pr320-conflict-refresh-relevant-files](./generated-table-registry-pr320-conflict-refresh-relevant-files.md)
+  — PR #320 conflict-refresh evidence on session
+  `930b51a6-07ce-44e6-a639-7a6217f6e864`: live mergeability/check state, branch
+  drift vs `origin/main`, queue tokens for the original proof lane and this
+  refresh lane, stamped worktree metadata, and historical PR conversation
+  blocking feedback for story 002 outcome classification.
 * [merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files](./merged-pr-drain-rows-274-276-278-280-reconciliation-relevant-files.md)
   — merged PR drain evidence for PRs #274/#275/#276/#278/#280: live queue tokens
   on session `930b51a6-07ce-44e6-a639-7a6217f6e864`, stamped lane metadata,
