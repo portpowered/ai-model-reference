@@ -1,10 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { RooflineThroughputExplorerFromRegistry } from "@/features/roofline-throughput-explorer/RooflineThroughputExplorerFromRegistry";
-import { shouldRunPlaywrightHttpVerifierUnitTests } from "./export-integration-probe-lock";
+import {
+  getExportIntegrationBunTestTimeoutMs,
+  shouldRunPlaywrightHttpVerifierUnitTests,
+} from "./export-integration-probe-lock";
 import { verifyRooflineThroughputExplorerViewports } from "./roofline-throughput-explorer-viewport-http";
-
-const ROOFLINE_VIEWPORT_PROBE_TIMEOUT_MS = 120_000;
 
 describe("roofline throughput explorer viewport probes", () => {
   test(
@@ -21,6 +22,6 @@ describe("roofline throughput explorer viewport probes", () => {
 
       expect(failure).toBeNull();
     },
-    { timeout: ROOFLINE_VIEWPORT_PROBE_TIMEOUT_MS },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
   );
 });
