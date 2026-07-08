@@ -20,10 +20,21 @@ import { loadSystemPage } from "@/lib/content/system-page";
 import { renderSystemDocsShell } from "@/lib/content/system-shell-render";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "@/lib/verify/launch-playwright-browser";
+import {
+  acquireVerifyServerSession,
+  shouldRunVerifyProductionIntegrationTests,
+} from "@/lib/verify/server-lifecycle";
 
 const pageDir = getDocsPageDir("systems", "gpu");
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
+const GPU_SYSTEM_ROUTE = "/docs/systems/gpu";
+const PAGE_CONTRACT_TIMEOUT_MS = 15_000;
+const repoRoot = join(import.meta.dir, "../../..");
 
 async function renderAsyncMarkup(element: ReactElement): Promise<string> {
   const stream = await renderToReadableStream(element);
@@ -119,6 +130,28 @@ describe("gpu canonical page bundle", () => {
     expect(page.messages.sections?.practicalImpact?.body).toContain(
       "memory bandwidth cannot feed the cores",
     );
+    expect(page.messages.sections?.practicalImpact?.body).toContain(
+      "raise throughput",
+    );
+    expect(page.messages.sections?.practicalImpact?.body).toContain(
+      "wait in queue for batch formation",
+    );
+    expect(page.messages.sections?.practicalImpact?.body).toContain(
+      "first-token or inter-token latency",
+    );
+    expect(page.messages.sections?.practicalImpact?.body).toContain(
+      "Kernel optimization",
+    );
+    expect(page.messages.sections?.practicalImpact?.body).toContain(
+      "not which product to buy today",
+    );
+    expect(page.messages.sections?.related?.body).toContain("inference engine");
+    expect(page.messages.sections?.related?.body).toContain(
+      "deployment placement",
+    );
+    expect(page.messages.sections?.related?.body).toContain(
+      "roofline reasoning",
+    );
     expect(page.messages.assets?.systemFlow?.alt).toContain("parallel cores");
     expect(page.messages.assets?.systemFlow?.caption).toContain(
       "memory bandwidth",
@@ -177,6 +210,13 @@ describe("gpu docs route render", () => {
     expect(html).toContain("tensor cores");
     expect(html).toContain("VRAM");
     expect(html).toContain("dense matrix");
+    expect(html).toContain("raise throughput");
+    expect(html).toContain("wait in queue for batch formation");
+    expect(html).toContain("deployment placement");
+    expect(html).toContain('href="/docs/concepts/roofline-model"');
+    expect(html).toContain("Kernel optimization");
+    expect(html).toContain("not which product to buy today");
+    expect(html).toContain('data-testid="curated-related-docs"');
   });
 
   test("renders the GPU system flow graph with the page-local graph asset", async () => {
@@ -201,6 +241,69 @@ describe("gpu docs route render", () => {
     expect(html).toContain("VRAM capacity and memory bandwidth");
     expect(html).toContain("Tensor cores accelerate matrix blocks");
   });
+
+  test(
+    "served GPU page renders relationship section and related-doc surface at desktop and mobile widths",
+    async () => {
+      if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+        return;
+      }
+
+      const session = await acquireVerifyServerSession({
+        projectRoot: repoRoot,
+      });
+      const browser = await launchPlaywrightBrowser();
+
+      try {
+        for (const viewport of [
+          { width: 1280, height: 800 },
+          { width: 375, height: 667 },
+        ]) {
+          const page = await browser.newPage({ viewport });
+          page.setDefaultTimeout(30_000);
+          await page.goto(`${session.baseUrl}${GPU_SYSTEM_ROUTE}`, {
+            waitUntil: "load",
+          });
+
+          await page
+            .getByRole("heading", { name: "GPU", exact: true })
+            .waitFor({ state: "visible" });
+
+          await page.locator("#related").waitFor({ state: "visible" });
+          await page
+            .locator('[data-testid="curated-related-docs"]')
+            .first()
+            .waitFor({ state: "visible" });
+
+          const relatedSection = page.locator("#related");
+          await relatedSection
+            .getByRole("link", { name: /inference engine/i })
+            .first()
+            .waitFor({ state: "visible" });
+          await relatedSection
+            .getByRole("link", { name: /roofline model/i })
+            .first()
+            .waitFor({ state: "visible" });
+          await relatedSection
+            .getByRole("link", { name: /memory bandwidth/i })
+            .first()
+            .waitFor({ state: "visible" });
+
+          const bodyText = await page.locator("article").innerText();
+          expect(bodyText).toContain("raise throughput");
+          expect(bodyText).toContain("wait in queue for batch formation");
+          expect(bodyText).not.toContain("missing message");
+          expect(bodyText).not.toContain("missing asset");
+
+          await page.close();
+        }
+      } finally {
+        await closePlaywrightBrowserWithTimeout(browser);
+        await session.cleanup();
+      }
+    },
+    { timeout: PAGE_CONTRACT_TIMEOUT_MS },
+  );
 });
 
 describe("gpu page assets", () => {
