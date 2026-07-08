@@ -35,4 +35,17 @@ describe("roofline throughput explorer blog integration", () => {
     expect(html).toContain('data-testid="roofline-model-preset"');
     expect(html).toContain("Why throughput follows a roofline");
   });
+
+  test("roofline max throughput post renders the registry-backed explorer on /blog/roofline-max-throughput", async () => {
+    const slug = "roofline-max-throughput";
+    const post = await loadBlogPostFromDisk(slug);
+    const html = renderBlogPostShell(post);
+
+    expect(blogPostHref(slug)).toBe("/blog/roofline-max-throughput");
+    expect(post.frontmatter.status).toBe("published");
+    expect(html).toContain('data-roofline-throughput-explorer="explorer"');
+    expect(html).toContain('data-testid="roofline-model-preset"');
+    expect(html).toContain("Explore the maximum-throughput bound");
+    expect(html).toContain("Memory bandwidth sets how many weight bytes");
+  });
 });

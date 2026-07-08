@@ -1,5 +1,6 @@
 {
   "title": "Roofline maximum throughput: when bandwidth beats peak FLOPs",
   "description": "How memory bandwidth, compute FLOPs, precision, and active weight size jointly bound the maximum tokens per second a language model can achieve during serving.",
-  "contextSentence": "Peak FLOPs on a datasheet does not tell you how many tokens per second a model will serve when each decode step must move a large active weight footprint through memory."
+  "contextSentence": "Peak FLOPs on a datasheet does not tell you how many tokens per second a model will serve when each decode step must move a large active weight footprint through memory.",
+  "takeaway": "Compare registry-backed model presets, then change bytes per parameter and active weight size to see when memory bandwidth sets the maximum throughput versus when compute FLOPs become the limiting envelope."
 }

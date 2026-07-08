@@ -103,6 +103,9 @@ describe("blog post page render", () => {
     expect(html).toContain(
       "When weight reads, precision, and bandwidth dominate",
     );
+    expect(html).toContain("Explore the maximum-throughput bound");
+    expect(html).toContain('data-roofline-throughput-explorer="explorer"');
+    expect(html).toContain('data-testid="roofline-model-preset"');
     expect(html).toContain('data-testid="blog-related-docs"');
   });
 
