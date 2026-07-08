@@ -50,22 +50,26 @@
   },
   "assets": {
     "architectureGraph": {
-      "alt": "GPT-2 architecture diagram with input tokens, token embeddings, learned positional embeddings, a repeated decoder block containing masked multi-head attention and feed-forward layers, then a linear head, softmax, and output probabilities."
+      "alt": "GPT-2 architecture diagram with input tokens, token embeddings, learned positional embeddings, a repeated decoder block containing masked multi-head attention and feed-forward layers, logits, softmax probabilities, and next-token sampling or selection."
     }
   },
   "graph": {
     "nodes": {
+      "nextTokenSelection": {
+        "label": "Next Token\nSelection",
+        "summary": "Picks or samples the next token from the probability distribution"
+      },
       "outputProbabilities": {
         "label": "Output\nProbabilities",
-        "summary": "The model's probability distribution over the next token"
+        "summary": "Softmax probability distribution over the vocabulary"
       },
       "softmax": {
         "label": "Softmax",
         "summary": "Turns final vocabulary scores into probabilities"
       },
       "linear": {
-        "label": "Linear",
-        "summary": "Projects the hidden state into vocabulary logits"
+        "label": "Logits",
+        "summary": "Vocabulary scores before softmax normalization"
       },
       "decoderStack": {
         "label": " ",
