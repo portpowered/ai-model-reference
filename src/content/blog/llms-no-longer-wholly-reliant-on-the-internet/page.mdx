@@ -13,8 +13,10 @@ relatedDocIds:
 status: "published"
 ---
 
+import { Callout } from "@/features/docs/components/Callout";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingSignalStackedChartFromDefault } from "@/features/graphs/training-signal/TrainingSignalStackedChartFromDefault";
 import { TrainingSignalEvolutionBlogVisual } from "@/features/training-signal-evolution/TrainingSignalEvolutionBlogVisual";
 
 # <T k="title" />
@@ -36,5 +38,17 @@ Instruction examples teach format-following behavior. Preference comparisons ste
 ## How training signals evolved
 
 Web-scale pretraining remains the foundation. Later stages add mid-training and post-training supervision, prompting-time adaptation, and on-policy feedback loops that now share more of the job of shaping deployed behavior.
+
+### Training-signal mix over time
+
+The stacked chart below is a **conceptual illustration**. Band heights show illustrative relative emphasis across three eras, not measured dataset percentages or published benchmarks.
+
+<TrainingSignalStackedChartFromDefault caption="Illustrative training-signal mix across three eras. Values are conceptual, not sourced measurements." />
+
+<Callout type="note" titleKey="callouts.conceptualChart.title">
+  <T k="callouts.conceptualChart.body" />
+</Callout>
+
+The timeline below walks through the same shift in chronological order, naming each stage and explaining what changed in the training signal readers observe.
 
 <TrainingSignalEvolutionBlogVisual />

@@ -112,6 +112,11 @@ describe("blog post page render", () => {
     expect(html).toContain(
       "Treat web-scale pretraining as the foundation, not the whole story",
     );
+    expect(html).toContain('data-training-signal-chart="ready"');
+    expect(html).toContain("Conceptual illustration");
+    expect(html).toContain("Training-signal mix over time");
+    expect(html).toContain("Broad pretraining corpus");
+    expect(html).toContain("On-policy distillation / self-distillation");
   });
 
   it("renders the production roofline post with metadata and MDX body content", async () => {
