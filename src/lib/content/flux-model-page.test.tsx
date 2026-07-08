@@ -57,6 +57,12 @@ describe("flux model page", () => {
       'href="/docs/training/diffusion-training-objective"',
     );
     expect(html).toContain('id="references"');
+    expect(html).toContain('data-testid="citation-list"');
+    expect(html).toContain("https://bfl.ai/blog/24-08-01-bfl");
+    expect(html).toContain("https://github.com/black-forest-labs/flux");
+    expect(html).toContain(
+      "https://huggingface.co/black-forest-labs/FLUX.1-dev",
+    );
     expect(html).not.toContain("No modules listed yet.");
     expect(html).not.toContain("No training regimes listed yet.");
     expect(html).not.toContain("No linked paper pages listed yet.");
