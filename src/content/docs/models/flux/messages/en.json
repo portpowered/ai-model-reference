@@ -36,5 +36,46 @@
     "references": {
       "title": "References"
     }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Flux architecture diagram showing a text prompt encoded into conditioning features, cross-attention and classifier-free guidance steering a diffusion transformer that performs rectified-flow latent denoising, and an image decoder rendering the finished picture."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputImage": {
+        "label": "Generated\nImage",
+        "summary": "The finished raster image produced from the denoised latents"
+      },
+      "imageDecoder": {
+        "label": "Image\nDecoder",
+        "summary": "Renders cleaned latent features into viewable pixels"
+      },
+      "latentDenoising": {
+        "label": "Rectified Flow\nLatent Updates",
+        "summary": "Iteratively refines noisy image latents through rectified-flow steps"
+      },
+      "diffusionTransformer": {
+        "label": "Diffusion\nTransformer",
+        "summary": "Transformer backbone that predicts latent updates across denoising steps"
+      },
+      "crossAttention": {
+        "label": "Cross-\nAttention",
+        "summary": "Lets the denoiser read prompt conditioning while updating latents"
+      },
+      "cfgGuidance": {
+        "label": "Classifier-Free\nGuidance",
+        "summary": "Steers sampling toward the prompt by comparing conditional and unconditional paths"
+      },
+      "conditioning": {
+        "label": "Text\nConditioning",
+        "summary": "Encoded prompt features that describe the desired image"
+      },
+      "textPrompt": {
+        "label": "Text\nPrompt",
+        "summary": "Natural-language instructions that specify what to generate"
+      }
+    }
   }
 }

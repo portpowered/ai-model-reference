@@ -58,6 +58,8 @@ describe("flux model page", () => {
     );
     expect(html).toContain('id="references"');
     expect(html).toContain('data-testid="citation-list"');
+    expect(html).toContain('data-page-asset="architectureGraph"');
+    expect(html).toContain('data-graph-id="graph.flux-architecture"');
     expect(html).toContain("https://bfl.ai/blog/24-08-01-bfl");
     expect(html).toContain("https://github.com/black-forest-labs/flux");
     expect(html).toContain(
