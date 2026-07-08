@@ -137,6 +137,10 @@ describe("temperature concept discovery (temperature-concept-page-current-main)"
     expect(html).toContain("Sampling Neighbors");
     expect(html.toLowerCase()).toContain("softmax(z / t)");
     expect(html.toLowerCase()).toContain("does not change model");
+    expect(html.toLowerCase()).toContain("stored knowledge");
+    expect(html.toLowerCase()).toContain("inherently more truthful");
+    expect(html.toLowerCase()).toContain("sharper");
+    expect(html.toLowerCase()).toContain("spreads across");
     expect(html).toContain('href="/docs/glossary/parameter"');
     expect(html.toLowerCase()).toContain("temperature 0");
     expect(html.toLowerCase()).toContain("argmax");
