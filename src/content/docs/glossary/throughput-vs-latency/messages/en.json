@@ -1,0 +1,32 @@
+{
+  "title": "Throughput Vs Latency",
+  "description": "The serving tradeoff between aggregate completed work over time and the wait experienced by an individual request under concurrency.",
+  "openingSummary": "Throughput vs latency describes why a serving system can complete more total work per second while individual requests wait longer when load, batching, and shared resources increase.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Throughput vs latency is the serving tradeoff between aggregate throughput—the total completed model work per unit time across the system—and individual request latency—the elapsed wait one user experiences from request start through visible progress. Higher utilization can raise completed work while stretching waits for some requests."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Operators and readers often see both numbers move in opposite directions under load. A dashboard can show rising tokens per second while chat replies feel sluggish. Understanding the tradeoff separates healthy utilization from overload and clarifies why tuning for one metric can harm the other."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine ten chat requests arriving close together. The scheduler groups them into one larger batch so the accelerator stays busy and total tokens per second climbs. Each user may wait longer in queue and between streamed tokens even though the system completes more aggregate work during the same wall-clock window."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Throughput vs latency is not a single latency metric like time to first token or inter-token latency, and it is not the same as tokens per second alone. Tokens per second measures aggregate output rate. Individual latency metrics measure one request's waits. The tradeoff explains how those views can diverge under concurrency, batching, and shared serving resources."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

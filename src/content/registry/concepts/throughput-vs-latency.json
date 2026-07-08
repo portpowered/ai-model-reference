@@ -1,0 +1,45 @@
+{
+  "id": "concept.throughput-vs-latency",
+  "slug": "throughput-vs-latency",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Throughput Vs Latency",
+    "throughput vs latency",
+    "latency throughput tradeoff",
+    "serving throughput",
+    "concurrency latency tradeoff",
+    "throughput-latency tradeoff"
+  ],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [
+    "concept.tokens-per-second",
+    "concept.time-to-first-token",
+    "concept.inter-token-latency",
+    "concept.prefill",
+    "concept.decode",
+    "concept.prefill-decode-split",
+    "system.batching",
+    "system.continuous-batching",
+    "system.dynamic-batching",
+    "system.request-scheduling",
+    "system.memory",
+    "system.deployment",
+    "system.inference-engine"
+  ],
+  "citationIds": ["citation.orca-serving-system", "citation.brown-gpt-3"],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.inference",
+  "conceptType": "inference",
+  "sidebarGrouping": {
+    "glossary": "sequence-and-attention"
+  },
+  "prerequisiteIds": [
+    "concept.tokens-per-second",
+    "concept.time-to-first-token"
+  ],
+  "explainsIds": []
+}
