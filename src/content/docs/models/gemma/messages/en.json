@@ -5,15 +5,15 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Gemma is an open-weights model family from Google DeepMind, with Gemma 4 as the current main release announced on 2026-04-02. Google positions Gemma as inspectable, adaptable open models rather than a closed API-only platform. Earlier Gemma 3 and Gemma 3n lines remain useful family context for multimodal and on-device history, while specialized Gemmaverse members such as embedding, safety, medical, and translation variants extend the family without replacing Gemma 4 as the primary line described here."
+      "body": "Gemma is an open-weights model family from Google DeepMind, with Gemma 4 as the current main release announced on 2026-04-02. Google positions Gemma as inspectable, adaptable open models rather than a closed API-only platform. Earlier Gemma 3 and Gemma 3n lines remain useful family context: Gemma 3 for the prior general-purpose multimodal line and Gemma 3n for efficient on-device variants. Specialized Gemmaverse members such as embedding, safety, medical, and translation variants extend the family without replacing Gemma 4 as the primary line described here."
     },
     "inputsAndOutputs": {
       "title": "Inputs And Outputs",
-      "body": "Gemma 4 accepts text, images, and audio as native inputs and produces text outputs. Public materials describe a thinking-mode path that lets the model reason before returning a final answer. Effective 2B and 4B checkpoints target edge and on-device deployment, while 12B, 26B A4B mixture-of-experts, and 31B dense variants trade additional size for broader capacity and the family's advertised long-context reach."
+      "body": "Gemma 4 accepts text, images, and audio as native inputs and produces text outputs. Public materials describe a thinking-mode path that lets the model reason before returning a final answer. The published model card advertises a 256K-token context window, so long prompts, documents, and multimodal references can stay in context together. Effective 2B and 4B checkpoints target edge and on-device deployment, while the 12B and 31B dense variants keep a straightforward dense feed-forward path for builders who want predictable capacity scaling. The 26B A4B mixture-of-experts checkpoint trades total parameter count for sparse expert routing when serving cost and throughput matter more than the simplest dense stack."
     },
     "architecture": {
       "title": "Architecture",
-      "body": "Google DeepMind describes Gemma 4 as a decoder-style transformer family with native multimodal input handling and mixture-of-experts routing on the 26B A4B checkpoint. Public sources also highlight long-context support up to 256K tokens, per-layer embeddings on some variants, and design choices aimed at efficient inference such as speculative decoding. Checkpoint-specific wiring remains in the linked primary sources."
+      "body": "Google DeepMind describes Gemma 4 as a decoder-style transformer family with native multimodal input handling. Dense checkpoints carry context through repeated causal attention and feed-forward blocks, while the 26B A4B variant adds mixture-of-experts routing so only a subset of experts activates per token. Public sources also highlight long-context support up to 256K tokens, per-layer embeddings on some variants, and design choices aimed at efficient inference such as speculative decoding. Those choices matter because edge checkpoints optimize for phone-scale deployment, whereas larger dense and MoE checkpoints target workstation and server inference with the same multimodal interface."
     },
     "importantModules": {
       "title": "Important Modules",
@@ -25,7 +25,7 @@
     },
     "practicalNotes": {
       "title": "Practical Notes",
-      "body": "Gemma is useful to read as an open multimodal family that spans phone-scale edge deployment through larger server checkpoints, with Apache 2.0 licensing broadening adaptation and redistribution options compared with earlier Gemma terms. Confirm checkpoint availability, quantization formats, and deployment targets in the linked Google and DeepMind release pages rather than treating this overview as a product catalog or model-ranking page."
+      "body": "Gemma is useful to read as an open multimodal family that spans phone-scale edge deployment through larger server checkpoints, with Apache 2.0 licensing broadening adaptation and redistribution options compared with earlier Gemma terms. Choose Effective checkpoints when latency, memory, and on-device constraints dominate; choose dense 12B or 31B checkpoints when a straightforward scaling path matters; and choose the 26B A4B mixture-of-experts checkpoint when sparse routing is the better serving tradeoff. Confirm checkpoint availability, quantization formats, and deployment targets in the linked Google and DeepMind release pages rather than treating this overview as a product catalog or model-ranking page."
     },
     "related": {
       "title": "Related Models, Modules, And Papers"
