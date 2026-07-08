@@ -103,6 +103,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
       "/docs/models/qwen3-5-0-8b",
       "/docs/models/qwen-3-6-27b",
       "/docs/models/qwen-3-6-35b-a3b",
+      "/docs/models/t5",
     ]);
 
     const conceptGroup = groups.find((group) => group.kind === "concept");
