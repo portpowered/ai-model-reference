@@ -59,4 +59,5 @@
   - Gotchas encountered: assert the current `messages/en.json` title in shell tests, not titles from parallel worktree branches.
   - Useful context: RTL keyboard tab tests focus controls directly; Playwright viewport probes need `shouldRunPlaywrightHttpVerifierUnitTests` gate.
   - Gotchas encountered (CI): Playwright probes must live under `src/lib/verify/`—`make test` excludes that prefix and lacks browser binaries; register new verifier files in `scripts/run-website-verifier-tests.ts`.
+  - Mergeability: after main landed `evolution-of-diffusion`, reconcile `blog-content-loader-scope.test.ts` slug inventory and `blog-tag-landing.test.ts` newest-first ordering (`evolution-of-diffusion` before `roofline-max-throughput` on `2026-07-08`).
 ---
