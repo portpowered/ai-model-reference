@@ -1,0 +1,24 @@
+{
+  "id": "citation.gemma-4-apache-license",
+  "slug": "gemma-4-apache-license",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Gemma 4 Apache 2.0",
+    "Gemma 4 license",
+    "Gemmaverse Apache 2.0"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["citation.gemma-4-announcement"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["Google"],
+  "title": "Gemma 4: Expanding the Gemmaverse with Apache 2.0",
+  "url": "https://opensource.googleblog.com/2026/03/gemma-4-expanding-the-gemmaverse-with-apache-20.html",
+  "mla": "Google. \"Gemma 4: Expanding the Gemmaverse with Apache 2.0.\" Google Open Source Blog, 2026.",
+  "year": 2026
+}
