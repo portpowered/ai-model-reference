@@ -1,3 +1,8 @@
+/**
+ * Focused GPU registry identity and curated-related href contracts.
+ * Routine bundle invariants stay on `make validate-data` and
+ * `gpu-system-slice-verification.test.ts`.
+ */
 import { describe, expect, test } from "bun:test";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {

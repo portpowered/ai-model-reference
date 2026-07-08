@@ -1,3 +1,8 @@
+/**
+ * Focused GPU system page rendering and graph contracts.
+ * Routine bundle invariants stay on `make validate-data` and
+ * `gpu-system-slice-verification.test.ts`.
+ */
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
