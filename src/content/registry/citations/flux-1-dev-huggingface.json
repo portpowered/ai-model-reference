@@ -1,0 +1,24 @@
+{
+  "id": "citation.flux-1-dev-huggingface",
+  "slug": "flux-1-dev-huggingface",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "black-forest-labs/FLUX.1-dev",
+    "FLUX.1 dev Hugging Face model card",
+    "FLUX.1 dev model card"
+  ],
+  "tags": ["model-family", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["Black Forest Labs"],
+  "title": "black-forest-labs/FLUX.1-dev",
+  "url": "https://huggingface.co/black-forest-labs/FLUX.1-dev",
+  "mla": "Black Forest Labs. \"black-forest-labs/FLUX.1-dev.\" Hugging Face, 2024.",
+  "year": 2024
+}

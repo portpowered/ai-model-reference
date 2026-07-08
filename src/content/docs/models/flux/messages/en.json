@@ -1,0 +1,81 @@
+{
+  "title": "Flux",
+  "description": "A Black Forest Labs image-generation model family that turns text prompts into images using rectified-flow transformer backbones in latent space.",
+  "openingSummary": "Flux is Black Forest Labs' image-generation model family. Public releases describe rectified-flow transformers that map text prompts to images in latent space, which is a different backbone choice than the U-Net denoisers common in early Stable Diffusion pipelines.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Flux is an image-generation model family from Black Forest Labs (BFL), announced in August 2024 with the FLUX.1 suite and followed by later releases such as FLUX.2. Public materials frame Flux as a text-to-image system built around rectified flow and transformer-style denoising rather than as a chat or language model. The family ships through official inference repositories, Hugging Face model cards, and BFL-hosted APIs, so readers can inspect weights or run generation without treating Flux as a closed black box."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Flux takes natural-language prompts as its primary input and produces raster images as its main output. Public FLUX.1 materials focus on text-to-image generation, while later FLUX.2 repositories describe additional editing-oriented workflows on top of the same broad image-generation stack. The immediate user-visible result is a finished image file rather than an embedding, caption, or token stream, which is why Flux belongs on the image-generation path even though prompts are text."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "At a high level, Flux follows a latent image-generation pattern. A text encoder turns the prompt into conditioning features, a rectified-flow transformer backbone updates noisy latent representations over many steps, and a decoder renders pixels from the cleaned latents. Classifier-free guidance can steer how strongly the model follows the prompt during sampling. Compared with classic Stable Diffusion-era stacks that often paired a convolutional U-Net denoiser with CLIP text embeddings, Flux's public descriptions emphasize a diffusion transformer backbone and rectified flow training instead of treating a U-Net as the main denoising network."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The diffusion transformer block is the named module on this page because it carries most of the iterative latent update work. Cross-attention inside that stack is what lets prompt conditioning steer image structure while the model refines latents step by step."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public FLUX.1 materials describe rectified-flow training with guidance distillation so the dev release can sample with fewer guidance-heavy steps at inference time. That training objective differs from next-token language modeling and from purely score-matching diffusion setups, even though Flux still belongs to the broader diffusion-model family because it learns to transform noisy latents into clean images."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Flux is useful to read as a transformer-first latent image generator rather than as a general chat model with an image button. License terms vary by checkpoint: the public FLUX.1 dev card ships under a non-commercial license, while other endpoints and weights may carry different usage rules. Official repositories remain the safest place to confirm variant names, supported resolutions, and editing features before repeating capability claims."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Flux architecture diagram showing a text prompt encoded into conditioning features, cross-attention and classifier-free guidance steering a diffusion transformer that performs rectified-flow latent denoising, and an image decoder rendering the finished picture."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputImage": {
+        "label": "Generated\nImage",
+        "summary": "The finished raster image produced from the denoised latents"
+      },
+      "imageDecoder": {
+        "label": "Image\nDecoder",
+        "summary": "Renders cleaned latent features into viewable pixels"
+      },
+      "latentDenoising": {
+        "label": "Rectified Flow\nLatent Updates",
+        "summary": "Iteratively refines noisy image latents through rectified-flow steps"
+      },
+      "diffusionTransformer": {
+        "label": "Diffusion\nTransformer",
+        "summary": "Transformer backbone that predicts latent updates across denoising steps"
+      },
+      "crossAttention": {
+        "label": "Cross-\nAttention",
+        "summary": "Lets the denoiser read prompt conditioning while updating latents"
+      },
+      "cfgGuidance": {
+        "label": "Classifier-Free\nGuidance",
+        "summary": "Steers sampling toward the prompt by comparing conditional and unconditional paths"
+      },
+      "conditioning": {
+        "label": "Text\nConditioning",
+        "summary": "Encoded prompt features that describe the desired image"
+      },
+      "textPrompt": {
+        "label": "Text\nPrompt",
+        "summary": "Natural-language instructions that specify what to generate"
+      }
+    }
+  }
+}
