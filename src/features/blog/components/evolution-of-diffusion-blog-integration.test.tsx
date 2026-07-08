@@ -23,13 +23,24 @@ describe("evolution of diffusion blog integration", () => {
       "paper.latent-diffusion",
     ]);
     expect(html).toContain(
-      "How diffusion image generation evolved from pixel U-Nets to latent Stable Diffusion",
+      "How diffusion generation evolved from pixel U-Nets to transformers, flow matching, and modern video models",
     );
     expect(html).toContain("Denoising diffusion and U-Net backbones");
     expect(html).toContain("Denoising diffusion probabilistic models");
     expect(html).toContain("CLIP-conditioned image systems");
     expect(html).toContain("Contrastive Language-Image Pre-training");
     expect(html).toContain("Latent diffusion and Stable Diffusion");
+    expect(html).toContain("Diffusion transformers as the denoising backbone");
+    expect(html).toContain("Flow matching as an objective shift");
+    expect(html).toContain("Modern open video and world-model examples");
+    expect(html).toContain("LTX-2.3");
+    expect(html).toContain("Cosmos 3");
+    expect(html).toContain('href="/docs/modules/diffusion-transformer-block"');
+    expect(html).toContain('href="/docs/concepts/flow-matching"');
+    expect(html).toContain('href="/docs/concepts/video-generation"');
+    expect(html).toContain('href="/docs/glossary/world-model"');
+    expect(html).toContain('href="/docs/models/ltx-23"');
+    expect(html).toContain('href="/docs/models/cosmos-3"');
     expect(html).toContain('data-testid="blog-related-docs"');
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/glossary/denoising-generation"');
