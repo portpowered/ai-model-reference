@@ -20,7 +20,8 @@
     "concept.loss-function",
     "concept.optimizer-state",
     "concept.conditioning",
-    "training-regime.grpo"
+    "training-regime.grpo",
+    "model.gemma"
   ],
   "citationIds": [
     "citation.training-language-models-to-follow-instructions-with-human-feedback"

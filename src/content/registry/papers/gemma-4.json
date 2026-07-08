@@ -11,7 +11,7 @@
     "Gemma model family"
   ],
   "tags": ["foundations", "model-family"],
-  "relatedIds": [],
+  "relatedIds": ["model.gemma"],
   "citationIds": [
     "citation.gemma-4-technical-report",
     "citation.gemma-4-announcement",

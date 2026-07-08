@@ -18,7 +18,8 @@
     "module.mixture-of-experts",
     "module.deepseekmoe",
     "model.deepseek-v4-pro",
-    "concept.transformer-architecture"
+    "concept.transformer-architecture",
+    "model.gemma"
   ],
   "citationIds": [
     "citation.sparsely-gated-mixture-of-experts-layer",

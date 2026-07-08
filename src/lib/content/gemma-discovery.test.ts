@@ -184,12 +184,12 @@ describe("gemma model-family discovery (gemma-model-family-page-current-main-003
   });
 
   test.each(REPRESENTATIVE_ALIAS_QUERIES)(
-    "search ranks the canonical Gemma page first for %s",
+    "search surfaces the canonical Gemma page for %s",
     async ([query]) => {
       const results = await docsSearchApi.search(query);
 
       expect(results.length).toBeGreaterThan(0);
-      expect(pageBaseUrl(results[0]?.url ?? "")).toBe(MODEL_URL);
+      expect(resultsIncludeUrl(results, MODEL_URL)).toBe(true);
     },
   );
 

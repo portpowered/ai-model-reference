@@ -6,7 +6,7 @@
   "defaultSummaryKey": "description",
   "aliases": ["Google DeepMind", "Google", "DeepMind"],
   "tags": ["foundations", "model-family"],
-  "relatedIds": ["paper.gemma-4"],
+  "relatedIds": ["paper.gemma-4", "model.gemma"],
   "citationIds": [
     "citation.gemma-4-technical-report",
     "citation.gemma-4-announcement",
