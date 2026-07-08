@@ -6,6 +6,9 @@
 - Page-local scope: avoid shared helper edits, generated artifact commits, and page-specific tests unless special behavior requires them.
 - Model `sourceType` enum is `open-weights` | `closed` | `research` (not `public`); use `open-weights` for GPT-2 since smaller checkpoints were publicly released.
 - Registry-only slices need no page bundle: `make validate-data` regenerates ignored runtime artifacts locally but they stay untracked.
+- Model page `assets.json` graph references require a matching `src/content/registry/graphs/{slug}-architecture.json` record or `validate-registry` fails; include the graph registry when adding `ModelArchitectureGraph` even if a later story refines the visual.
+- Use `module.standard-ffn` (not `module.feed-forward-network`) in GPT-2 graph nodes to match the model registry `moduleIds`.
+- GPT-family decoder architecture graphs can add a page-local `next-token-selection` root node linked to `concept.sampling-overview` when the story needs explicit sampling/selection teaching beyond baseline `output-probabilities`.
 
 ## 2026-07-08T13:10:00Z - gpt-2-model-page-current-main-001
 - Verified GPT-2 absence and existing record reuse before any slice work.
@@ -32,4 +35,26 @@
   - `relatedIds` is the right place for logits/softmax/sampling concept links; existing model records rarely put those in `architectureIds`/`moduleIds`.
   - No paper `modelIds` or pretraining `usedByModelIds` back-link updates were required for validation to pass.
   - Full `bun run test` suite takes ~34 minutes locally; `make validate-data` + `bun run typecheck` are faster gates for registry-only changes.
+---
+
+## 2026-07-08T13:55:00Z - gpt-2-model-page-current-main-003
+- Added canonical GPT-2 model page bundle under `src/content/docs/models/gpt-2/` with production model template structure, localized English messages, and assets referencing `graph.gpt-2-architecture`.
+- Page explains GPT-2 as a decoder-only Transformer with next-token pretraining, byte-level tokenization, logits/softmax/sampling generation flow, historical significance, and practical context for modern readers.
+- Added `src/content/registry/graphs/gpt-2-architecture.json` (GPT-3-style decoder stack adapted for GPT-2 module IDs) so asset validation and `ModelArchitectureGraph` rendering succeed.
+- Files changed: `src/content/docs/models/gpt-2/page.mdx`, `src/content/docs/models/gpt-2/messages/en.json`, `src/content/docs/models/gpt-2/assets.json`, `src/content/registry/graphs/gpt-2-architecture.json`
+- **Learnings for future iterations:**
+  - SSR render via `loadModelPage` + `ModulePageProviders` is a fast browser-verification substitute when full `bun run build` is slow locally.
+  - Story 004 may still refine the architecture graph (e.g., explicit next-token sampling node) even though a baseline graph was required for story 003 validation.
+  - `relatedDocs` message keys for transformer architecture, byte-level tokenization, and sampling-overview give curated discovery reasons without a second `RelatedDocs` block.
+---
+
+## 2026-07-08T14:25:00Z - gpt-2-model-page-current-main-004
+- Refined `graph.gpt-2-architecture` to teach the full decoder-only next-token flow: added `next-token-selection` root node (`concept.sampling-overview`), renamed the linear head label to Logits with `concept.logit`, shifted stack layout to preserve vertical flow, and wired a new edge from output probabilities to next-token selection.
+- Updated localized graph node messages and architecture-graph alt text in `messages/en.json` to describe logits, softmax probabilities, and next-token sampling/selection.
+- Verified via `make validate-data`, `bun run typecheck`, `buildRegistryFlowGraph` for 16 nodes/13 edges, SSR render of the GPT-2 page, and graph-flow/a11y tests.
+- Files changed: `src/content/registry/graphs/gpt-2-architecture.json`, `src/content/docs/models/gpt-2/messages/en.json`
+- **Learnings for future iterations:**
+  - Story 003's baseline GPT-3-style graph satisfies validation but story 004 should add explicit sampling and Logits labeling when acceptance criteria call out the generation chain.
+  - Shifting all downstream node Y positions by ~80px is the smallest layout change when inserting a new root output node above `output-probabilities`.
+  - `bun run test:full-fast` can surface unrelated flaky `source` initialization and timeout failures; graph-specific tests (`graph-flow.test.ts`, `registry-graph-flow.a11y.test.tsx`) are reliable gates for architecture graph edits.
 ---
