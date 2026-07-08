@@ -107,18 +107,91 @@ currently links alignment → GRPO only).
 | --- | --- |
 | _(none for citations on July 2026 main)_ | `src/lib/content/citations.ts` delegates to generated `registry-runtime`; publishing `src/content/registry/citations/proximal-policy-optimization-algorithms.json` plus `bun run prepare:content-runtime` is sufficient. PR #130 blocking finding about `citations.ts` applied to the stale branch pattern only. |
 
-## Implementation order (remaining PRD stories)
+## Implementation order (completed)
 
-1. **002** — Publish page bundle (salvaged MDX, messages, assets) plus citation record, graph, and
-   `citations.ts` registration.
-2. **003** — Publish reconciled `training-regime.ppo` registry, alignment back-link, and discovery tests.
-3. **004** — Run `make validate-data`, focused tests, browser verification, and final handoff.
+1. **002** — Published page bundle, citation record, graph, and reconciled registry record.
+2. **003** — Published reconciled `training-regime.ppo` relationships, alignment back-link, and discovery tests.
+3. **004** — Final slice verification, browser check, and this handoff (2026-07-08 UTC).
+
+## Final slice verification handoff (story 004)
+
+### Validation commands and outcomes (2026-07-08 UTC)
+
+| Command | Outcome |
+| --- | --- |
+| `make validate-data` | pass — registry validation passed after `prepare:content-runtime` |
+| `make typecheck` | pass |
+| `make lint` | pass (3 pre-existing warnings in unrelated phase-1 tests) |
+| `make test` | pass — 4250 tests, 0 failures |
+| `bun test src/lib/content/ppo-training-regime.test.ts` | pass — 12 tests, 82 assertions |
+| `bun run audit:canonical-page-surface` | over-budget (expected for reconciliation lane touching alignment back-link, citation record, and colocated tests) |
+| `bun run build` + HTTP verify on port 3785 | pass — title, operational-cost copy, training-flow graph, neighbor links, citations, related docs, and tag pills render |
+
+### Browser verification
+
+HTTP verification against production build on port 3785 confirmed:
+
+- Page title **Proximal Policy Optimization** renders.
+- Operational-cost narrative (`operationally heavy`) is visible.
+- Training-flow graph (`data-graph-id="graph.ppo-training-flow"`) is present.
+- Neighbor links resolve (`/docs/training/rlhf`, curated related docs, tag pills).
+- PPO paper citation (**Proximal Policy Optimization Algorithms**) appears in references.
+
+Playwright integration test in `ppo-training-regime.test.ts` gates on
+`shouldRunVerifyProductionIntegrationTests` for desktop/mobile viewport checks when CI enables
+production integration verification.
+
+### Focused tests versus derived validation
+
+Routine bundle alignment (frontmatter, messages, registryId, asset keys) is proven by
+`make validate-data` / `validateDerivedPublishedPageBundles`. The colocated
+`ppo-training-regime.test.ts` file adds focused behavioral coverage only where derived validation
+does not directly prove reader-visible behavior:
+
+- rendered page sections, math variable definitions, and neighbor links,
+- citation list output for the PPO paper and RLHF citation,
+- search documents, live search aliases (`ppo`, `proximal policy optimization`, `rlhf ppo`),
+- tag landing and alignment back-link discovery,
+- graph registry record wiring.
+
+No additional route-inventory or navigation-snapshot tests were added; derived validation and the
+focused file above are sufficient.
+
+### Page-local diff inventory (branch vs `origin/main`)
+
+| Path | Classification |
+| --- | --- |
+| `src/content/docs/training/ppo/page.mdx` | page-owned |
+| `src/content/docs/training/ppo/messages/en.json` | page-owned |
+| `src/content/docs/training/ppo/assets.json` | page-owned |
+| `src/content/registry/training-regimes/ppo.json` | page-owned primary record |
+| `src/content/registry/graphs/ppo-training-flow.json` | page-owned support record |
+| `src/content/registry/citations/proximal-policy-optimization-algorithms.json` | required citation input |
+| `src/content/registry/concepts/alignment.json` | minimal back-link (`training-regime.ppo` in `relatedIds`) |
+| `src/lib/content/ppo-training-regime.test.ts` | colocated behavioral tests |
+| `docs/internal/processes/ppo-training-regime-current-main-reconciliation-notes.md` | reconciliation handoff |
+
+**Excluded from this lane (not in diff):** model-page rows, blog/U-Net/diffusion work, shared MDX
+helpers, generated registry runtime commits, broad search/runtime code, locale infrastructure, and
+unrelated training pages.
+
+### Stale work resolution
+
+| Stale finding (PR #130) | Reconciled outcome |
+| --- | --- |
+| Missing `citations.ts` registration for PPO paper | July 2026 main resolves citations from registry JSON via generated runtime — publishing citation JSON + `prepare:content-runtime` is sufficient |
+| Missing behavioral citation-render tests | `ppo-training-regime.test.ts` includes `CitationList` render assertions |
+| Branch CONFLICTING with main | This lane reimplemented page-local slice on current main instead of merging stale branch |
+
+Salvaged from stale worktree: page MDX/messages/assets, citation JSON, graph JSON, and test patterns.
+Reconciled on main: expanded `relatedIds`, alignment back-link, tags, and discovery tests.
 
 ## Verification commands
 
 ```bash
 make typecheck
 make validate-data
-bun test src/lib/content/ppo-training-regime-page.test.ts
-bun test src/lib/content/ppo-training-regime-record.test.ts
+make test
+bun test src/lib/content/ppo-training-regime.test.ts
+bun run audit:canonical-page-surface
 ```

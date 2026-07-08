@@ -27,8 +27,19 @@ import { loadUiMessages } from "@/lib/content/ui-messages";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import { docsSearchApi } from "@/lib/search/search-server";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "@/lib/verify/launch-playwright-browser";
+import {
+  acquireVerifyServerSession,
+  shouldRunVerifyProductionIntegrationTests,
+} from "@/lib/verify/server-lifecycle";
 
 const PAGE_URL = "/docs/training/ppo";
+const REGISTRY_ID = "training-regime.ppo";
+const GRAPH_ID = "graph.ppo-training-flow";
+const repoRoot = join(import.meta.dir, "../../..");
 
 function pageBaseUrlFromResults(
   results: Array<{ url: string }>,
@@ -61,7 +72,13 @@ async function renderHtml(
   return await new Response(stream).text();
 }
 
-describe("PPO training-regime page contracts", () => {
+/**
+ * Routine page-bundle checks (frontmatter, messages, registryId, tags, assets)
+ * are covered by `validateDerivedPublishedPageBundles` via `validateRegistryContent`.
+ * These tests stay focused on search, discovery, neighbor navigation, citation/graph
+ * resolution, and rendered surface contracts specific to the PPO slice.
+ */
+describe("PPO training-regime slice verification (ppo-training-regime-current-main-reconciliation-v2-004)", () => {
   test("registry record publishes PPO aliases and alignment classification", () => {
     const record = getTrainingRegimeById("training-regime.ppo");
     expect(record?.status).toBe("published");
@@ -326,4 +343,84 @@ describe("PPO training-regime page contracts", () => {
       "Training language models to follow instructions with human feedback",
     );
   });
+
+  test("served PPO page renders title, summary, training-flow graph, related links, tags, and references at desktop and mobile widths", async () => {
+    if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+      return;
+    }
+
+    const session = await acquireVerifyServerSession({ projectRoot: repoRoot });
+    const browser = await launchPlaywrightBrowser();
+
+    try {
+      for (const viewport of [
+        { width: 1280, height: 800 },
+        { width: 375, height: 667 },
+      ]) {
+        const page = await browser.newPage({ viewport });
+        page.setDefaultTimeout(30_000);
+        await page.goto(`${session.baseUrl}${PAGE_URL}`, {
+          waitUntil: "load",
+        });
+
+        await page
+          .getByRole("heading", {
+            name: "Proximal Policy Optimization",
+            exact: true,
+          })
+          .waitFor({ state: "visible" });
+
+        const summaryText = await page
+          .locator('[data-testid="folded-summary"]')
+          .innerText();
+        expect(summaryText).toContain(
+          "Proximal Policy Optimization, usually shortened to PPO",
+        );
+
+        const bodyText = await page
+          .locator(`article[data-registry-id="${REGISTRY_ID}"]`)
+          .innerText();
+
+        for (const sectionTitle of [
+          "What It Is",
+          "How It Works",
+          "Compared To Nearby Regimes",
+          "Related To",
+          "References",
+        ]) {
+          await page
+            .getByRole("heading", { name: sectionTitle })
+            .first()
+            .waitFor({ state: "visible" });
+        }
+
+        const graph = page.locator('[data-react-flow-graph="true"]');
+        await graph.waitFor({ state: "visible" });
+        expect(await graph.getAttribute("data-graph-id")).toBe(GRAPH_ID);
+
+        await page
+          .locator('[data-testid="tag-pill-list"]')
+          .first()
+          .waitFor({ state: "visible" });
+        await page
+          .locator('[data-testid="citation-list"]')
+          .first()
+          .waitFor({ state: "visible" });
+        await page
+          .locator('[data-testid="curated-related-docs"]')
+          .first()
+          .waitFor({ state: "visible" });
+
+        expect(bodyText).toContain("operationally heavy");
+        expect(bodyText).not.toContain("missing message");
+        expect(bodyText).not.toContain("missing asset");
+        expect(bodyText).not.toContain("missing-content");
+
+        await page.close();
+      }
+    } finally {
+      await closePlaywrightBrowserWithTimeout(browser);
+      await session.cleanup();
+    }
+  }, 120_000);
 });
