@@ -15,9 +15,9 @@ relatedDocIds:
   - training-regime.instruction-tuning
   - training-regime.rlhf
   - training-regime.rlvr
+  - concept.synthetic-data
   - training-regime.distillation
   - training-regime.on-policy-distillation
-  - concept.synthetic-data
   - concept.on-policy
 status: "published"
 ---
@@ -27,7 +27,6 @@ import { Callout } from "@/features/docs/components/Callout";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
 import { TrainingSignalStackedChartFromDefault } from "@/features/graphs/training-signal/TrainingSignalStackedChartFromDefault";
-import { TrainingSignalEvolutionBlogVisual } from "@/features/training-signal-evolution/TrainingSignalEvolutionBlogVisual";
 
 # <T k="title" />
 
@@ -39,19 +38,19 @@ import { TrainingSignalEvolutionBlogVisual } from "@/features/training-signal-ev
 
 <T k="takeaway" />
 
-## Why the training story changed
+## The training-signal shift
 
-Early public explanations of large language models often stopped at one idea: scrape a broad pretraining corpus from the open web and predict the next token. That corpus still matters, but the models readers use today are shaped by additional supervision and feedback that arrives after broad corpus learning.
+Large language models still begin with a broad pretraining corpus drawn from text on the open web. That internet-scale foundation teaches grammar, facts, and general reasoning patterns at scale.
 
-Instruction examples teach format-following behavior. Preference comparisons steer style and safety. Verifiable reinforcement-learning tasks reward outcomes that can be checked automatically. On-policy distillation and self-distillation recycle a model's own outputs back into training. The timeline below walks through each stage and explains what changed in the training signal readers actually observe.
+The finished models readers use today are not explained by that corpus alone. After pretraining, additional signals reshape behavior: curated demonstrations, preference comparisons, verifiable task rewards, synthetic traces, and distillation loops that recycle a model's own outputs back into training.
 
-## How training signals evolved
+This post traces how those later signals accumulated into the modern training recipe. Each stage adds to the mix rather than replacing pretraining.
 
-Web-scale pretraining remains the foundation. Later stages add mid-training and post-training supervision, prompting-time adaptation, and on-policy feedback loops that now share more of the job of shaping deployed behavior.
+## How training signals accumulated over time
 
-### Training-signal mix over time
+The recipe below moves from the earliest dominant signal toward the feedback loops that shape models today. Later steps build on earlier ones; none of them makes internet-scale pretraining irrelevant.
 
-The stacked chart below is a **conceptual illustration**. Band heights show illustrative relative emphasis across three eras, not measured dataset percentages or published benchmarks.
+The stacked chart below is a **conceptual illustration**. Band heights show illustrative relative emphasis across training eras, not measured dataset percentages or published benchmarks.
 
 <TrainingSignalStackedChartFromDefault caption="Illustrative training-signal mix across three eras. Values are conceptual, not sourced measurements." />
 
@@ -59,9 +58,69 @@ The stacked chart below is a **conceptual illustration**. Band heights show illu
   <T k="callouts.conceptualChart.body" />
 </Callout>
 
-The timeline below walks through the same shift in chronological order, naming each stage and explaining what changed in the training signal readers observe.
+### 1. Broad web-scale pretraining
 
-<TrainingSignalEvolutionBlogVisual />
+The first large language models were defined mainly by one signal: a broad corpus of text drawn from the open web. That pretraining pass teaches vocabulary, grammar, facts, and general reasoning patterns at scale. Every modern recipe still starts here.
+
+### 2. Few-shot prompting
+
+Researchers soon showed that a pretrained model could follow new tasks from a handful of examples placed directly in the prompt. Few-shot prompting is an **inference-time** adaptation pattern: the model steers toward a task without any weight update. It demonstrated that pretrained representations already encoded flexible task behavior, but it is not the same as a later supervised or reinforcement training loop.
+
+### 3. Mid-training
+
+Mid-training sits between broad pretraining and the heavier post-training stages. It can specialize a generally capable base model on curated or domain-focused data before preference optimization, verifiable reinforcement learning, or large-scale instruction tuning fully take over. Think of it as a bridge that narrows a wide foundation toward the behaviors a product team actually wants.
+
+### 4. Instruction tuning
+
+Instruction tuning adds supervised prompt-and-answer demonstrations so the model learns to follow formats, roles, and user intent. The signal is human- or curator-written examples rather than raw web text. It teaches how to respond, not just how to predict the next token on a webpage.
+
+### 5. Preference feedback and RLHF
+
+Preference feedback compares alternative model outputs and trains the model to favor the better one. Reinforcement learning from human feedback (RLHF) is the best-known form: human raters score style, helpfulness, and safety, and optimization pushes the policy toward those preferences. The scoring comes from people, and the weights change.
+
+### 6. Verifiable reward loops and RLVR
+
+Reinforcement learning from verifiable rewards (RLVR) replaces or supplements human taste with outcomes that can be checked automatically—exact answers, unit tests, compiler results, or other external verifiers. The reward signal is objective when the verifier passes, and the model still updates its weights through a reinforcement loop.
+
+### 7. Synthetic and model-generated traces
+
+When human labels are scarce, teams generate synthetic traces, chain-of-thought drafts, tool-call trajectories, or other model-produced examples and feed them back into training. The signal often originates from the model family itself, sometimes after filtering or critique, which expands coverage beyond what manual annotation alone can supply.
+
+### 8. On-policy distillation and self-distillation
+
+On-policy distillation refreshes supervision from behavior aligned with the current or recently updated policy instead of relying only on a frozen offline dataset. On-policy self-distillation closes the loop further: the model (or a related checkpoint) generates answers, critiques, or trajectories that supervise later versions. Recipes vary, but the pattern is the same—recycle recent model behavior back into training while weights keep moving.
+
+## Key post-training and feedback loops
+
+The timeline above orders these methods historically. The loops below spell out what each one contributes. For each method, three questions matter: where the training signal comes from, who or what scores it, and whether the model updates its weights.
+
+### Instruction tuning
+
+Instruction tuning is supervised learning from prompt-and-answer demonstrations or equivalent instruction examples. The signal comes from human- or curator-written pairs that show how to follow formats, roles, and user intent. Scoring is implicit in the demonstration itself—there is no separate reward model—because each example already names the target completion. The weights update through standard supervised fine-tuning.
+
+### Reinforcement learning from human feedback (RLHF)
+
+RLHF is preference-driven behavior shaping. The signal comes from comparisons or rankings of alternative model outputs on the same prompt. Human raters score helpfulness, style, safety, or other subjective qualities; a reward or preference model may distill those judgments for optimization. The weights update through reinforcement or preference optimization that pushes the policy toward higher-scoring outputs. This post summarizes the pattern; the canonical RLHF reference page carries the full recipe.
+
+### Reinforcement learning from verifiable rewards (RLVR)
+
+RLVR is reinforcement learning from externally checkable outcomes. The signal comes from tasks where success can be verified automatically—exact answers, unit tests, compiler results, or formal checkers. Scoring is objective when the verifier passes, although humans often design the task suite. The weights update through a reinforcement loop that rewards completions that satisfy the external check. See the canonical RLVR reference page for the full workflow.
+
+### On-policy distillation
+
+On-policy distillation refreshes supervision from behavior aligned with the current or recently updated policy rather than only from a frozen offline dataset. The signal comes from fresh model rollouts or traces collected while the policy is still moving. A teacher model, stronger checkpoint, or filter typically decides which on-policy examples become labels. The weights update as the student imitates the selected on-policy behavior.
+
+### On-policy self-distillation
+
+On-policy self-distillation closes the loop inside a model family. The signal comes from generated traces, answers, critiques, or trajectories produced by the same model or a nearby checkpoint. Scoring may use filtering, ranking, critique passes, or verifier gates—recipes vary by lab and product. The weights update when later checkpoints train on that recycled model output.
+
+### Comparing signal source, scoring, and weight updates
+
+Instruction tuning draws labels from curated demonstrations and updates weights through imitation. RLHF draws comparisons from model outputs and updates weights from human preference scores. RLVR draws tasks with checkable outcomes and updates weights from verifier pass or fail signals. On-policy distillation draws fresh policy-aligned traces and updates weights from teacher-selected supervision. On-policy self-distillation draws model-generated traces and updates weights from filtered or critiqued self-labels. Few-shot prompting is the outlier in this group: it steers behavior at inference time from prompt examples without changing weights.
+
+### What mid-training and post-training mean together
+
+**Mid-training** specializes the base before or alongside the heaviest alignment work. **Post-training** is the umbrella for everything that shapes behavior after that base exists: demonstrations, preference comparisons, verifiable tasks, synthetic traces, and distillation loops. Post-training does not erase pretraining; it layers new objectives on top of the corpus the model already absorbed.
 
 ## What to read next
 
@@ -69,4 +128,17 @@ For stable definitions of each training stage, use the reference pages linked be
 
 ## Related reference pages
 
-<BlogRelatedDocs relatedDocIds={["training-regime.pretraining", "training-regime.mid-training", "training-regime.post-training", "training-regime.instruction-tuning", "training-regime.rlhf", "training-regime.rlvr", "training-regime.distillation", "training-regime.on-policy-distillation", "concept.synthetic-data", "concept.on-policy"]} />
+<BlogRelatedDocs
+  relatedDocIds={[
+    "training-regime.pretraining",
+    "training-regime.mid-training",
+    "training-regime.post-training",
+    "training-regime.instruction-tuning",
+    "training-regime.rlhf",
+    "training-regime.rlvr",
+    "concept.synthetic-data",
+    "training-regime.distillation",
+    "training-regime.on-policy-distillation",
+    "concept.on-policy",
+  ]}
+/>

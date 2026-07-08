@@ -208,6 +208,28 @@ describe("training signal stacked chart behavioral verification (005)", () => {
 
         const chart = page.locator('[data-training-signal-chart="ready"]');
         await chart.waitFor({ state: "visible" });
+        await page
+          .locator('[data-training-signal-chart="ready"] .recharts-area-area')
+          .first()
+          .waitFor({ state: "attached" });
+
+        const plotMarks = await page.evaluate(() => {
+          const figure = document.querySelector(
+            '[data-training-signal-chart="ready"]',
+          );
+          if (!figure) {
+            throw new Error("missing training-signal chart figure");
+          }
+
+          return {
+            svgCount: figure.querySelectorAll("svg").length,
+            pathCount: figure.querySelectorAll("path").length,
+            areaCount: figure.querySelectorAll(".recharts-area-area").length,
+          };
+        });
+        expect(plotMarks.svgCount).toBeGreaterThan(0);
+        expect(plotMarks.pathCount).toBeGreaterThan(0);
+        expect(plotMarks.areaCount).toBe(6);
 
         const layout = await page.evaluate(() => {
           const pageClientWidth = document.documentElement.clientWidth;
@@ -226,7 +248,7 @@ describe("training signal stacked chart behavioral verification (005)", () => {
           const title = figure.querySelector(
             "#training-signal-stacked-chart-title",
           );
-          const plot = figure.querySelector(".recharts-responsive-container");
+          const plot = figure.querySelector(".recharts-wrapper");
           const legend = figure.querySelector(
             '[data-graph-legend="training-signal-stacked-chart"]',
           );

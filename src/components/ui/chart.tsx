@@ -18,7 +18,59 @@ export type ChartConfig = Record<
 >;
 
 const ChartContext = React.createContext<ChartConfig | null>(null);
-const DEFAULT_CHART_DIMENSION = { width: 640, height: 320 } as const;
+type ChartDimensions = { width: number; height: number };
+const DEFAULT_CHART_DIMENSION: ChartDimensions = { width: 640, height: 320 };
+const CHART_HEIGHT = DEFAULT_CHART_DIMENSION.height;
+
+function cloneChartWithDimensions(
+  children: React.ReactNode,
+  dimensions: ChartDimensions,
+): React.ReactNode {
+  if (!React.isValidElement(children)) {
+    return children;
+  }
+
+  return React.cloneElement(
+    children as React.ReactElement<{ width?: number; height?: number }>,
+    dimensions,
+  );
+}
+
+function useChartContainerDimensions(enabled: boolean): {
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  dimensions: ChartDimensions;
+} {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = React.useState<ChartDimensions>(
+    DEFAULT_CHART_DIMENSION,
+  );
+
+  React.useLayoutEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const node = containerRef.current;
+    if (!node) {
+      return;
+    }
+
+    const updateDimensions = () => {
+      const width = Math.floor(node.getBoundingClientRect().width);
+      if (width > 0) {
+        setDimensions({ width, height: CHART_HEIGHT });
+      }
+    };
+
+    updateDimensions();
+
+    const observer = new ResizeObserver(updateDimensions);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [enabled]);
+
+  return { containerRef, dimensions };
+}
 
 export function useChart() {
   const context = React.useContext(ChartContext);
@@ -45,17 +97,18 @@ export function ChartContainer({
     ]),
   ) as React.CSSProperties;
   const isTestEnvironment = process.env.NODE_ENV === "test";
-  const chartChildren =
-    isTestEnvironment && React.isValidElement(children)
-      ? React.cloneElement(
-          children as React.ReactElement<{ width?: number; height?: number }>,
-          DEFAULT_CHART_DIMENSION,
-        )
-      : children;
+  const { containerRef, dimensions } = useChartContainerDimensions(
+    !isTestEnvironment,
+  );
+  const chartChildren = cloneChartWithDimensions(
+    children,
+    isTestEnvironment ? DEFAULT_CHART_DIMENSION : dimensions,
+  );
 
   return (
     <ChartContext.Provider value={config}>
       <div
+        ref={containerRef}
         data-slot="chart"
         className={cn(
           "bg-card/55 relative flex min-h-[20rem] w-full items-center justify-center overflow-hidden rounded-xl border border-border/70 px-2 py-3 shadow-sm",
@@ -63,19 +116,7 @@ export function ChartContainer({
         )}
         style={style}
       >
-        {isTestEnvironment ? (
-          chartChildren
-        ) : (
-          <Recharts.ResponsiveContainer
-            width="100%"
-            height={320}
-            initialDimension={DEFAULT_CHART_DIMENSION}
-            minWidth={0}
-            minHeight={320}
-          >
-            {chartChildren}
-          </Recharts.ResponsiveContainer>
-        )}
+        {chartChildren}
       </div>
     </ChartContext.Provider>
   );

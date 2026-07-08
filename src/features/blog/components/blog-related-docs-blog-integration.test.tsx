@@ -42,9 +42,9 @@ const TRAINING_SHIFT_RELATED_DOC_IDS = [
   "training-regime.instruction-tuning",
   "training-regime.rlhf",
   "training-regime.rlvr",
+  "concept.synthetic-data",
   "training-regime.distillation",
   "training-regime.on-policy-distillation",
-  "concept.synthetic-data",
   "concept.on-policy",
 ] as const;
 

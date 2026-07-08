@@ -24,7 +24,7 @@ describe("training signal evolution timeline blog integration", () => {
     expect(html).toContain("On-policy distillation and self-distillation");
   });
 
-  test("llms-no-longer-wholly-reliant-on-the-internet blog post renders the timeline", async () => {
+  test("llms-no-longer-wholly-reliant-on-the-internet blog post renders prose timeline sections", async () => {
     const post = await loadBlogPostFromDisk(BLOG_SLUG);
     const html = renderBlogPostShell(post);
 
@@ -32,16 +32,12 @@ describe("training signal evolution timeline blog integration", () => {
       "/blog/llms-no-longer-wholly-reliant-on-the-internet",
     );
     expect(post.frontmatter.status).toBe("published");
-    expect(html).toContain('data-training-signal-evolution-state="success"');
-    expect(html).toContain(
-      "How training signals evolved beyond the pretraining corpus",
-    );
+    expect(html).toContain("How training signals accumulated over time");
     expect(html).toContain("Few-shot prompting");
     expect(html).toContain("Instruction tuning");
-    expect(html).toContain("Prompting-time adaptation");
-    expect(html).toContain("On-policy feedback loop");
+    expect(html).toContain("Key post-training and feedback loops");
     expect(html).toContain(
-      "Treat web-scale pretraining as the foundation, not the whole story",
+      "Internet-scale pretraining remains the foundation of modern LLMs",
     );
   });
 });

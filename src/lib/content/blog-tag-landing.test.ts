@@ -356,6 +356,25 @@ describe("production blog tag landing", () => {
     ]);
   });
 
+  it("lists the training-shift post on the alignment tag page", async () => {
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups("alignment", messages, "en");
+    const blogGroup = groups.find((group) => group.kind === "blog");
+
+    expect(blogGroup?.resources.map((resource) => resource.slug)).toEqual([
+      "llms-no-longer-wholly-reliant-on-the-internet",
+      "llm-training-shift",
+    ]);
+    expect(blogGroup?.resources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: "LLMs are no longer wholly reliant on the internet",
+          url: "/blog/llms-no-longer-wholly-reliant-on-the-internet",
+        }),
+      ]),
+    );
+  });
+
   it("keeps attention tag groups unchanged without a blog section", async () => {
     const messages = await loadUiMessages();
     const groups = await loadTagResourceGroups("attention", messages, "en");

@@ -99,7 +99,7 @@ describe("blog index page render", () => {
 
     expect(html).toContain("LLMs are no longer wholly reliant on the internet");
     expect(html).toContain(
-      "Why modern language models still learn from broad corpora",
+      "Why modern language-model quality still starts with internet-scale pretraining",
     );
     expect(html).toContain('dateTime="2026-07-08"');
     expect(html).toContain("July 8, 2026");

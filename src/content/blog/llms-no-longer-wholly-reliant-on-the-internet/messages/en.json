@@ -1,8 +1,8 @@
 {
   "title": "LLMs are no longer wholly reliant on the internet",
-  "description": "Why modern language models still learn from broad corpora, but later training loops now shape much of the behavior readers actually see.",
-  "contextSentence": "Large language models still begin with broad pretraining on massive text corpora, but the final model is increasingly shaped by instruction data, preference feedback, verifiable tasks, and on-policy loops that arrive after corpus learning.",
-  "takeaway": "Treat web-scale pretraining as the foundation, not the whole story. Mid-training and post-training loops now supply a large share of the signal that determines how a model follows instructions, avoids unsafe outputs, and solves verifiable tasks.",
+  "description": "Why modern language-model quality still starts with internet-scale pretraining but increasingly depends on mid-training, post-training, preference feedback, verifiable rewards, and distillation loops.",
+  "contextSentence": "Internet-scale pretraining remains the foundation of modern LLMs, yet the behavior readers experience is increasingly shaped by later training and feedback loops.",
+  "takeaway": "Treat broad web-scale pretraining as the base layer, then expect mid-training, instruction tuning, preference optimization, verifiable RL, synthetic traces, and on-policy distillation to refine what the model can do.",
   "callouts": {
     "conceptualChart": {
       "title": "Conceptual chart",

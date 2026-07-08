@@ -126,7 +126,7 @@ describe("blog post page render", () => {
 
     expect(html).toContain("LLMs are no longer wholly reliant on the internet");
     expect(html).toContain(
-      "Why modern language models still learn from broad corpora",
+      "Why modern language-model quality still starts with internet-scale pretraining",
     );
     expect(html).toContain('dateTime="2026-07-08"');
     expect(html).toContain("July 8, 2026");
@@ -137,20 +137,15 @@ describe("blog post page render", () => {
     expect(html).toContain(
       'data-blog-slug="llms-no-longer-wholly-reliant-on-the-internet"',
     );
-    expect(html).toContain("Why the training story changed");
-    expect(html).toContain("How training signals evolved");
-    expect(html).toContain('data-training-signal-evolution-state="success"');
-    expect(html).toContain("Broad web-scale pretraining");
-    expect(html).toContain("Reinforcement learning from human feedback (RLHF)");
+    expect(html).toContain("The training-signal shift");
+    expect(html).toContain("How training signals accumulated over time");
+    expect(html).toContain("Few-shot prompting");
+    expect(html).toContain("Key post-training and feedback loops");
     expect(html).toContain(
-      "Reinforcement learning with verifiable rewards (RLVR)",
-    );
-    expect(html).toContain(
-      "Treat web-scale pretraining as the foundation, not the whole story",
+      "Internet-scale pretraining remains the foundation of modern LLMs",
     );
     expect(html).toContain('data-training-signal-chart="ready"');
     expect(html).toContain("Conceptual illustration");
-    expect(html).toContain("Training-signal mix over time");
     expect(html).toContain("Broad pretraining corpus");
     expect(html).toContain("On-policy distillation / self-distillation");
     expect(html).toContain('data-testid="blog-related-docs"');

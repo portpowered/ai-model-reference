@@ -22,7 +22,7 @@ const BLOG_SLUG = "llms-no-longer-wholly-reliant-on-the-internet";
 const BLOG_ROUTE = `/blog/${BLOG_SLUG}`;
 const BLOG_TITLE = "LLMs are no longer wholly reliant on the internet";
 const BLOG_DESCRIPTION =
-  "Why modern language models still learn from broad corpora, but later training loops now shape much of the behavior readers actually see.";
+  "Why modern language-model quality still starts with internet-scale pretraining but increasingly depends on mid-training, post-training, preference feedback, verifiable rewards, and distillation loops.";
 
 const DISCOVERY_QUERIES = [
   "LLM training internet",
@@ -166,8 +166,11 @@ describe("llms-no-longer-reliant responsive reading verification (005)", () => {
           const chart = document.querySelector(
             '[data-training-signal-chart="ready"]',
           );
-          const timeline = document.querySelector(
-            '[data-training-signal-evolution-state="success"]',
+          const timeline = Array.from(document.querySelectorAll("h2")).find(
+            (node) =>
+              node.textContent?.includes(
+                "How training signals accumulated over time",
+              ),
           );
           const relatedDocs = document.querySelector(
             '[data-testid="blog-related-docs"]',
@@ -183,7 +186,7 @@ describe("llms-no-longer-reliant responsive reading verification (005)", () => {
           const titleRect = readRect(title, "title");
           const summaryRect = readRect(summary, "summary");
           const chartRect = readRect(chart, "chart");
-          const timelineRect = readRect(timeline, "timeline");
+          const timelineRect = readRect(timeline ?? null, "timeline");
           const relatedDocsRect = readRect(relatedDocs, "related-docs");
           const tagRects = tagLinks.map((node, index) =>
             readRect(node, `tag-${index}`),

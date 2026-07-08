@@ -61,16 +61,14 @@ describe("training signal stacked chart blog integration", () => {
     expect(html).toContain('data-training-signal-chart="ready"');
     expect(html).toContain('data-value-mode="conceptual"');
     expect(html).toContain("Conceptual illustration");
-    expect(html).toContain("Training-signal mix over time");
+    expect(html).toContain("How training signals accumulated over time");
     expect(html).toContain(
       "Illustrative training-signal mix across three eras",
     );
     expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.pretrainingCorpus);
     expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.syntheticTraces);
     expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.onPolicyDistillation);
-    expect(html).toContain('data-training-signal-evolution-state="success"');
-    expect(html).toContain(
-      "The timeline below walks through the same shift in chronological order",
-    );
+    expect(html).toContain("Few-shot prompting");
+    expect(html).toContain("Key post-training and feedback loops");
   });
 });
