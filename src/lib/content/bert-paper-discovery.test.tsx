@@ -40,8 +40,13 @@ describe("BERT paper discovery surfaces", () => {
     );
   });
 
+  test("search routes BERT to the canonical BERT model page", async () => {
+    const results = await docsSearchApi.search("BERT");
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe("/docs/models/bert");
+  });
+
   test.each([
-    "BERT",
     "BERT paper",
     "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
   ])("search routes %s to the canonical BERT paper page", async (query) => {

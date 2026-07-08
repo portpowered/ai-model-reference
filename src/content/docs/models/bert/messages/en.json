@@ -5,15 +5,15 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Bidirectional Encoder Representations from Transformers (BERT) is a research text model from Google that popularized deep bidirectional transformer encoders. It is encoder-only: it reads an input sequence and produces contextual representations for every token instead of generating new text one token at a time."
+      "body": "Bidirectional Encoder Representations from Transformers (BERT) is a research text model from Google that popularized deep bidirectional transformer encoders. It is encoder-only: it reads an input sequence and produces contextual representations for every token instead of generating new text one token at a time like decoder-only language models."
     },
     "inputsAndOutputs": {
       "title": "Inputs And Outputs",
-      "body": "BERT takes tokenized text as input. WordPiece tokenization turns words and subwords into token IDs, then the model returns a hidden vector for each token position. Downstream systems use those vectors for sentence classification, question answering, named-entity recognition, and other understanding tasks."
+      "body": "BERT takes tokenized text as input. WordPiece tokenization splits words into subword pieces so rare words can still be represented. Each token receives a learned embedding, a position embedding that marks its place in the sequence, and a segment embedding when two sentences are packed together for tasks like question answering. The model returns a hidden vector for each token position. Downstream systems use those vectors for sentence classification, question answering, named-entity recognition, and other understanding tasks rather than open-ended generation."
     },
     "architecture": {
       "title": "Architecture",
-      "body": "The high-level path starts with WordPiece tokens, combines token, position, and segment embeddings, and passes the sequence through a stack of transformer encoder blocks. Each block uses bidirectional self-attention so every token can read the full surrounding context, followed by a feed-forward layer and residual normalization."
+      "body": "Unlike decoder-only models that predict the next token from left to right, BERT processes the full sequence through transformer encoder blocks with bidirectional self-attention. The path starts with WordPiece tokens, combines token, position, and segment embeddings, then passes the sequence through a stack of encoder blocks where each token can attend to every other token in both directions, followed by feed-forward layers and residual normalization."
     },
     "importantModules": {
       "title": "Important Modules",
@@ -21,7 +21,7 @@
     },
     "training": {
       "title": "Training",
-      "body": "BERT's defining pretraining recipe combines masked language modeling with next-sentence prediction over large text corpora. Random tokens are hidden and the model learns to predict them from bidirectional context, which teaches rich representations before task-specific fine-tuning."
+      "body": "BERT's defining pretraining recipe combines masked language modeling with next-sentence prediction over large text corpora. In masked language modeling, random input tokens are replaced with a mask symbol and the model learns to predict the original token using bidirectional context from both sides of the gap. That objective teaches the encoder rich representations before task-specific fine-tuning on labeled data."
     },
     "practicalNotes": {
       "title": "Practical Notes",
@@ -35,6 +35,26 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "relatedDocs": {
+    "paper.bert-pre-training-of-deep-bidirectional-transformers": {
+      "reason": "The original BERT paper explains the encoder-only design, masked language modeling objective, and fine-tuning recipes that this model page summarizes."
+    },
+    "concept.transformer-architecture": {
+      "reason": "BERT reuses the repeating transformer block pattern—attention, feed-forward layers, normalization, and residuals—but keeps only the encoder half instead of a decoder stack."
+    },
+    "concept.self-attention": {
+      "reason": "Bidirectional self-attention is what lets every BERT token read the full surrounding sequence at once rather than only earlier tokens."
+    },
+    "concept.tokenizers-overview": {
+      "reason": "BERT does not read raw characters; this overview explains how text becomes token IDs before the encoder stack starts."
+    },
+    "module.wordpiece": {
+      "reason": "WordPiece is BERT's subword tokenizer, splitting rare words into pieces so the vocabulary stays compact while still covering open vocabulary text."
+    },
+    "training-regime.pretraining": {
+      "reason": "BERT's masked language modeling and next-sentence prediction objectives are classic examples of large-scale pretraining before task-specific fine-tuning."
     }
   },
   "assets": {

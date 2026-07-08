@@ -70,6 +70,7 @@ describe("attention tag landing resources", () => {
 
     const modelGroup = groups.find((group) => group.kind === "model");
     expect(modelGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/models/bert",
       "/docs/models/deepseek-v4-flash",
       "/docs/models/deepseek-v4-pro",
       "/docs/models/glm-5",

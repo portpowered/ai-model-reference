@@ -19,6 +19,7 @@ updatedAt: "2026-07-08"
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
@@ -72,6 +73,7 @@ import { ModelTrainingSummary } from "@/features/models/components/ModelTraining
       "curated-related"
     ]}
   />
+  <RelatedDocs registryId="model.bert" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
