@@ -23,12 +23,13 @@
     "system.expert-parallel-overlap",
     "model.gpt-3",
     "model.deepseek-v4-pro",
-    "model.nemotron-3-super"
+    "model.nemotron-3-super",
+    "model.gemma"
   ],
   "citationIds": ["citation.brown-gpt-3", "citation.deepseek-v4-paper"],
   "status": "published",
   "createdAt": "2026-06-19T00:00:00.000Z",
-  "updatedAt": "2026-07-01T18:00:00.000Z",
+  "updatedAt": "2026-07-08T06:00:00.000Z",
   "releaseDate": "2020-05-28",
   "authors": ["OpenAI"],
   "sourceId": "citation.brown-gpt-3",
@@ -36,7 +37,8 @@
   "relatedModelIds": [
     "model.gpt-3",
     "model.deepseek-v4-pro",
-    "model.nemotron-3-super"
+    "model.nemotron-3-super",
+    "model.gemma"
   ],
   "relatedModuleIds": [],
   "relatedConceptIds": [

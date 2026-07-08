@@ -23,7 +23,8 @@
     "module.clip-image-tokenization",
     "module.unigram-tokenizer",
     "module.wordpiece",
-    "model.gpt-3"
+    "model.gpt-3",
+    "model.gemma"
   ],
   "citationIds": [
     "citation.sennrich-bpe",

@@ -15,6 +15,7 @@
     "model.mixtral-8x22b",
     "model.mixtral-8x7b",
     "model.nemotron-3-super",
+    "model.gemma",
     "paper.nemotron-3-super"
   ],
   "citationIds": ["citation.sparsely-gated-mixture-of-experts-layer"],
@@ -41,7 +42,8 @@
     "model.mixtral-8x22b",
     "model.mixtral-8x7b",
     "model.nemotron-3-super",
-    "model.qwen-3-6-35b-a3b"
+    "model.qwen-3-6-35b-a3b",
+    "model.gemma"
   ],
   "introducedByPaperIds": [],
   "mathLevel": "none"

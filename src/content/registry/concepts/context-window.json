@@ -10,7 +10,8 @@
     "concept.context-extension",
     "concept.why-long-context-is-hard",
     "concept.alibi",
-    "model.nemotron-3-super"
+    "model.nemotron-3-super",
+    "model.gemma"
   ],
   "citationIds": ["citation.brown-gpt-3", "citation.deepseek-v4-paper"],
   "status": "published",

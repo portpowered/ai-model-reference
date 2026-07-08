@@ -15,16 +15,28 @@
     "multimodal open model",
     "on-device model"
   ],
-  "tags": ["foundations", "model-family"],
+  "tags": [
+    "foundations",
+    "model-family",
+    "context-window",
+    "attention",
+    "tokenization"
+  ],
   "relatedIds": [
     "paper.gemma-4",
     "organization.google-deepmind",
     "concept.transformer-architecture",
+    "concept.transformer",
     "concept.autoregressive-generation",
+    "concept.decoder",
     "concept.multimodal-model",
     "concept.mixture-of-experts",
     "concept.context-window",
-    "module.mixture-of-experts"
+    "concept.tokenizers-overview",
+    "concept.alignment",
+    "module.mixture-of-experts",
+    "system.inference-engine",
+    "system.deployment"
   ],
   "citationIds": [
     "citation.gemma-4-technical-report",
@@ -35,7 +47,7 @@
   ],
   "status": "published",
   "createdAt": "2026-07-08T00:00:00.000Z",
-  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T06:00:00.000Z",
   "releaseDate": "2026-04-02",
   "authors": ["Google DeepMind", "Gemma Team"],
   "sourceId": "citation.gemma-4-technical-report",
