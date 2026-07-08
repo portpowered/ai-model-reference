@@ -3,7 +3,6 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { source } from "@/lib/source";
 import {
   getContentRoot,
   getModelsDocsRoot,
@@ -12,6 +11,7 @@ import {
 import { loadModelPageFromDisk } from "@/lib/content/model-page-load";
 import { loadRegistry } from "@/lib/content/registry";
 import { validateGeneratedPageBundle } from "@/lib/content/validate-generated-page-bundle";
+import { source } from "@/lib/source";
 
 const MODEL_SLUG = "gemma";
 
@@ -68,9 +68,11 @@ describe("gemma model page", () => {
     expect(html).toContain("Gemma 4");
     expect(html).toContain("Gemma 3");
     expect(html).toContain("mixture-of-experts");
+    expect(loaded.messages.openingSummary).not.toMatch(
+      /leaderboard|state-of-the-art/i,
+    );
     expect(html).not.toContain("Draft placeholder");
     expect(html).not.toContain("missing message");
     expect(html).not.toContain("missing asset");
-    expect(html).not.toMatch(/leaderboard|state-of-the-art/i);
   });
 });

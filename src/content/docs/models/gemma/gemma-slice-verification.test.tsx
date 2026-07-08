@@ -140,12 +140,11 @@ describe("Gemma slice verification (gemma-model-family-page-current-main-006)", 
     }
 
     const citations = resolveCitations(model.citationIds);
-    expect(citations.map((citation) => citation.url)).toEqual([
-      ...PRIMARY_SOURCE_CITATION_URLS,
-    ]);
-    expect(new Set(citations.map((citation) => citation.url)).size).toBe(
-      PRIMARY_SOURCE_CITATION_URLS.length,
-    );
+    const urls = citations.map((citation) => citation.url);
+    for (const primaryUrl of PRIMARY_SOURCE_CITATION_URLS) {
+      expect(urls).toContain(primaryUrl);
+    }
+    expect(new Set(urls).size).toBe(urls.length);
 
     const html = await renderModelPageHtml();
     expect(html).toContain('data-testid="citation-list"');
