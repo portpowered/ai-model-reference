@@ -90,7 +90,7 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
       items.some(
         (item) =>
           item.registryId === "concept.softmax" &&
-          item.href === "/docs/glossary/softmax" &&
+          item.href === "/docs/concepts/softmax" &&
           item.isPlanned === false,
       ),
     ).toBe(true);
@@ -194,7 +194,7 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
       "top-k keeps a fixed number of candidates while top-p keeps a variable number of candidates based on cumulative probability mass",
     );
     expect(html).toContain('href="/docs/glossary/temperature"');
-    expect(html).toContain('href="/docs/glossary/softmax"');
+    expect(html).toContain('href="/docs/concepts/softmax"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/greedy-decoding"');
     expect(html).toContain('href="/docs/glossary/top-k-sampling"');
