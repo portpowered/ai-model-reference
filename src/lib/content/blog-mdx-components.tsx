@@ -7,6 +7,7 @@ import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
 import { TrainingSignalStackedChartFromDefault } from "@/features/graphs/training-signal/TrainingSignalStackedChartFromDefault";
 import { RooflineThroughputExplorerFromRegistry } from "@/features/roofline-throughput-explorer/RooflineThroughputExplorerFromRegistry";
+import { TrainingSignalEvolutionBlogVisual } from "@/features/training-signal-evolution/TrainingSignalEvolutionBlogVisual";
 
 export const blogMdxComponents: MDXComponents = {
   ...defaultMdxComponents,
@@ -16,5 +17,6 @@ export const blogMdxComponents: MDXComponents = {
   RooflineThroughputExplorerFromRegistry,
   T,
   TagPillList,
+  TrainingSignalEvolutionBlogVisual,
   TrainingSignalStackedChartFromDefault,
 };

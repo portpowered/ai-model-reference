@@ -102,6 +102,13 @@ describe("blog post page render", () => {
       'data-blog-slug="llms-no-longer-wholly-reliant-on-the-internet"',
     );
     expect(html).toContain("Why the training story changed");
+    expect(html).toContain("How training signals evolved");
+    expect(html).toContain('data-training-signal-evolution-state="success"');
+    expect(html).toContain("Broad web-scale pretraining");
+    expect(html).toContain("Reinforcement learning from human feedback (RLHF)");
+    expect(html).toContain(
+      "Reinforcement learning with verifiable rewards (RLVR)",
+    );
     expect(html).toContain(
       "Treat web-scale pretraining as the foundation, not the whole story",
     );

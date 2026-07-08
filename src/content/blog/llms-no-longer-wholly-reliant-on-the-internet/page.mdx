@@ -15,6 +15,7 @@ status: "published"
 
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingSignalEvolutionBlogVisual } from "@/features/training-signal-evolution/TrainingSignalEvolutionBlogVisual";
 
 # <T k="title" />
 
@@ -30,4 +31,10 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 Early public explanations of large language models often stopped at one idea: scrape a broad pretraining corpus from the open web and predict the next token. That corpus still matters, but the models readers use today are shaped by additional supervision and feedback that arrives after broad corpus learning.
 
-Instruction examples teach format-following behavior. Preference comparisons steer style and safety. Verifiable reinforcement-learning tasks reward outcomes that can be checked automatically. On-policy distillation and self-distillation recycle a model's own outputs back into training. Later sections of this post walk through that timeline and show how the mix of training signals shifted over time.
+Instruction examples teach format-following behavior. Preference comparisons steer style and safety. Verifiable reinforcement-learning tasks reward outcomes that can be checked automatically. On-policy distillation and self-distillation recycle a model's own outputs back into training. The timeline below walks through each stage and explains what changed in the training signal readers actually observe.
+
+## How training signals evolved
+
+Web-scale pretraining remains the foundation. Later stages add mid-training and post-training supervision, prompting-time adaptation, and on-policy feedback loops that now share more of the job of shaping deployed behavior.
+
+<TrainingSignalEvolutionBlogVisual />
