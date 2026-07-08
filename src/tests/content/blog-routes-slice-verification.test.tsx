@@ -126,7 +126,12 @@ describe("blog routes slice verification (blog-routes-layout-index-004)", () => 
   it("includes published blog slugs in static params", () => {
     const params = generateBlogPostStaticParams();
 
-    expect(params).toEqual(expect.arrayContaining([{ slug: ROOFLINE_SLUG }]));
+    expect(params).toEqual(
+      expect.arrayContaining([
+        { slug: ROOFLINE_SLUG },
+        { slug: "llms-no-longer-wholly-reliant-on-the-internet" },
+      ]),
+    );
   });
 
   it("renders /blog index content from post metadata", async () => {
