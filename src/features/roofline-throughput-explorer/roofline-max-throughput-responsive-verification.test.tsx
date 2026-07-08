@@ -1,22 +1,17 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { chromium } from "playwright";
 import {
   blogPostHref,
   loadBlogPostFromDisk,
 } from "@/lib/content/blog-page-load";
 import { renderBlogPostShell } from "@/lib/content/blog-shell-render";
 import type { RooflineModelSizePreset } from "@/lib/content/roofline-model-size-presets";
-import { shouldRunPlaywrightHttpVerifierUnitTests } from "@/lib/verify/export-integration-probe-lock";
 import {
   closePlaywrightBrowserWithTimeout,
   launchPlaywrightBrowser,
-  resolvePlaywrightChromiumExecutablePath,
 } from "@/lib/verify/launch-playwright-browser";
-import { verifyRooflineThroughputExplorerViewports } from "@/lib/verify/roofline-throughput-explorer-viewport-http";
 import {
   acquireVerifyServerSession,
   shouldRunVerifyProductionIntegrationTests,
@@ -42,25 +37,14 @@ import {
 const repoRoot = join(import.meta.dir, "../../..");
 const BLOG_SLUG = "roofline-max-throughput";
 const BLOG_ROUTE = "/blog/roofline-max-throughput";
+const BLOG_TITLE =
+  "Roofline maximum throughput: the practical upper bound before you compare hardware";
 const ROOFLINE_VIEWPORT_PROBE_TIMEOUT_MS = 120_000;
 
 const BLOG_VIEWPORTS = [
   { label: "mobile", width: 390, height: 844 },
   { label: "desktop", width: 1280, height: 800 },
 ] as const;
-
-function canLaunchPlaywrightChromium(): boolean {
-  const executablePath = resolvePlaywrightChromiumExecutablePath();
-  if (executablePath) {
-    return existsSync(executablePath);
-  }
-
-  try {
-    return existsSync(chromium.executablePath());
-  } catch {
-    return false;
-  }
-}
 
 const PRESETS_WITH_MISSING_SIZE = [
   {
@@ -140,9 +124,7 @@ describe("roofline max throughput responsive verification (005)", () => {
     const html = renderBlogPostShell(post);
 
     expect(blogPostHref(BLOG_SLUG)).toBe(BLOG_ROUTE);
-    expect(html).toContain(
-      "Roofline maximum throughput: when bandwidth beats peak FLOPs",
-    );
+    expect(html).toContain(BLOG_TITLE);
     expect(html).toContain('data-testid="blog-related-docs"');
     expect(html).toContain('data-roofline-throughput-explorer="explorer"');
     expect(html).toContain('data-testid="roofline-model-preset"');
@@ -277,34 +259,12 @@ describe("roofline max throughput responsive verification (005)", () => {
     assertExplorerBehavioralSurface(container);
   });
 
-  test(
-    "blog post explorer markup keeps desktop and mobile control regions visible and non-overlapping",
-    async () => {
-      if (
-        !shouldRunPlaywrightHttpVerifierUnitTests() ||
-        !canLaunchPlaywrightChromium()
-      ) {
-        return;
-      }
-
-      const post = await loadBlogPostFromDisk(BLOG_SLUG);
-      const html = renderBlogPostShell(post);
-      const failure = await verifyRooflineThroughputExplorerViewports(html);
-
-      expect(failure).toBeNull();
-    },
-    { timeout: ROOFLINE_VIEWPORT_PROBE_TIMEOUT_MS },
-  );
-
   test.each(
     BLOG_VIEWPORTS.map((viewport) => [viewport.label, viewport] as const),
   )(
     "served blog route keeps explorer regions ordered without overlap at %s width",
     async (_label, viewport) => {
-      if (
-        !shouldRunVerifyProductionIntegrationTests(repoRoot) ||
-        !canLaunchPlaywrightChromium()
-      ) {
+      if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
         return;
       }
 

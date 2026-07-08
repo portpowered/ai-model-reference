@@ -221,24 +221,22 @@ describe("roofline max throughput blog search discovery", () => {
       id: ROOFLINE_MAX_THROUGHPUT_URL,
       url: ROOFLINE_MAX_THROUGHPUT_URL,
       kind: BLOG_SEARCH_DOCUMENT_KIND,
-      title: "Roofline maximum throughput: when bandwidth beats peak FLOPs",
+      title:
+        "Roofline maximum throughput: the practical upper bound before you compare hardware",
       description:
-        "How memory bandwidth, compute FLOPs, precision, and active weight size jointly bound the maximum tokens per second a language model can achieve during serving.",
+        "How peak compute FLOPs, memory bandwidth, parameter precision, and active weight size jointly set the maximum tokens-per-second bound for inference serving.",
       publishedAt: "2026-07-08",
       tags: ["foundations", "kv-cache"],
     });
     expect(document?.headings).toEqual(
       expect.arrayContaining([
-        "Peak FLOPs is not the full throughput story",
-        "What the roofline maximum-throughput bound means",
-        "Explore the maximum-throughput bound",
+        "Peak FLOPs alone do not set tokens per second",
+        "What maximum throughput means in practice",
+        "Explore the throughput bound",
       ]),
     );
     expect(document?.bodyText).toContain(
-      "Peak FLOPs on a datasheet does not tell you how many tokens per second",
-    );
-    expect(document?.bodyText).toContain(
-      "Compare registry-backed model presets",
+      "Peak accelerator FLOPs look impressive on a spec sheet",
     );
     expect(document?.bodyText).toContain("memory-bound slope");
     expect(document?.bodyText).not.toContain("RooflineThroughputExplorer");

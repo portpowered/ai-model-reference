@@ -87,10 +87,10 @@ describe("blog post page render", () => {
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain(
-      "Roofline maximum throughput: when bandwidth beats peak FLOPs",
+      "Roofline maximum throughput: the practical upper bound before you compare hardware",
     );
     expect(html).toContain(
-      "How memory bandwidth, compute FLOPs, precision, and active weight size",
+      "How peak compute FLOPs, memory bandwidth, parameter precision, and active weight size",
     );
     expect(html).toContain('dateTime="2026-07-08"');
     expect(html).toContain("July 8, 2026");
@@ -99,11 +99,11 @@ describe("blog post page render", () => {
     expect(html).toContain("Foundations");
     expect(html).toContain("Kv Cache");
     expect(html).toContain('data-blog-slug="roofline-max-throughput"');
-    expect(html).toContain("Peak FLOPs is not the full throughput story");
+    expect(html).toContain("Peak FLOPs alone do not set tokens per second");
     expect(html).toContain(
-      "When weight reads, precision, and bandwidth dominate",
+      "Weight reads, precision, and bandwidth dominate the bound",
     );
-    expect(html).toContain("Explore the maximum-throughput bound");
+    expect(html).toContain("Explore the throughput bound");
     expect(html).toContain('data-roofline-throughput-explorer="explorer"');
     expect(html).toContain('data-testid="roofline-model-preset"');
     expect(html).toContain('data-testid="blog-related-docs"');
