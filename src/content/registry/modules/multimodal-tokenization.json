@@ -1,0 +1,68 @@
+{
+  "id": "module.multimodal-tokenization",
+  "slug": "multimodal-tokenization",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "multimodal tokenization",
+    "multimodal tokenizer",
+    "image tokenization",
+    "audio tokenization",
+    "video tokenization",
+    "modality adapter",
+    "token-like embeddings",
+    "omni tokenization"
+  ],
+  "tags": ["tokenization", "foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.token",
+    "concept.tokenizers-overview",
+    "concept.visual-tokenization",
+    "concept.multimodal-model",
+    "concept.modality",
+    "module.clip-image-tokenization",
+    "module.cross-attention",
+    "model.clip"
+  ],
+  "citationIds": [
+    "citation.learning-transferable-visual-models-from-natural-language-supervision",
+    "citation.image-is-worth-16x16-words",
+    "citation.flamingo-visual-language-model"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "releaseDate": "2021-02-26",
+  "authors": [
+    "Alec Radford",
+    "Jong Wook Kim",
+    "Chris Hallacy",
+    "Aditya Ramesh",
+    "Gabriel Goh",
+    "Sandhini Agarwal",
+    "Girish Sastry",
+    "Amanda Askell",
+    "Pamela Mishkin",
+    "Jack Clark",
+    "Gretchen Krueger",
+    "Ilya Sutskever"
+  ],
+  "sourceId": "citation.learning-transferable-visual-models-from-natural-language-supervision",
+  "primaryClassificationId": "classification.module.tokenization",
+  "moduleType": "tokenizer",
+  "moduleFamily": "tokenization",
+  "conceptType": "multimodal-tokenization",
+  "variantGroup": "multimodal-tokenizers",
+  "optimizes": [
+    "non-text-modality-encoding",
+    "shared-sequence-fusion",
+    "modality-adapter-bridging"
+  ],
+  "exampleModelIds": ["model.clip"],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}
