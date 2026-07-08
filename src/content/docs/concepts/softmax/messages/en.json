@@ -5,15 +5,15 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Softmax is the usual final normalization for multiclass outputs in language models. Given a logits vector z, it returns probabilities p_i proportional to exp(z_i), divided by the sum across all classes."
+      "body": "Softmax is the usual final step that turns raw model scores into probabilities over a fixed list of choices, such as every token in the vocabulary. The inputs are logits: relative scores that are not probabilities. They can be negative, greater than one, and they do not need to sum to one. Softmax exponentiates each logit so larger scores receive exponentially more weight while every candidate stays strictly positive. It then divides each positive weight by the same shared total weight across all candidates. That shared denominator is why the outputs are nonnegative and add up to exactly 1."
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Next-token sampling reads softmax probabilities. Cross-entropy training compares softmax outputs to target tokens. Any discussion of model confidence, entropy, or temperature assumes you understand this mapping from logits to a distribution."
+      "body": "Language models emit one logit per vocabulary item at each position. Softmax is what turns that score vector into the probability distribution sampling and ranking read. Cross-entropy training compares those probabilities to the target token. Measures such as entropy and controls such as temperature all assume you know how logits became a full distribution whose masses sum to 1."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "With logits [2.0, 1.0, 0.0], softmax assigns the largest mass to index 0 because exp(2) dominates, but all three entries receive strictly positive probability. Dividing logits by temperature before softmax sharpens or flattens that distribution."
+      "body": "Suppose three candidate next tokens have logits 2.0, 1.0, and 0.0. Exponentiating gives weights about 7.39, 2.72, and 1.00. The shared total is about 11.11, so the probabilities are about 0.66, 0.24, and 0.09. The largest logit still wins the largest share, but every candidate keeps a strictly positive chance because exponentiation never returns zero."
     },
     "whereItAppears": {
       "title": "Where It Appears",
@@ -21,7 +21,7 @@
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Softmax is not the same as a single activation inside a hidden layer—those may be ReLU or GELU. Softmax also differs from sigmoid, which handles binary probabilities. Applying softmax twice does not generally recover the original logits."
+      "body": "Logits are not probabilities until softmax runs. Softmax is also not the same as a single activation inside a hidden layer—those may be ReLU or GELU. It differs from sigmoid, which handles one binary outcome at a time. Applying softmax twice does not generally recover the original logits."
     },
     "related": {
       "title": "Related Concepts And Modules"
@@ -31,6 +31,26 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "math": {
+    "distribution": {
+      "label": "Softmax distribution",
+      "formula": "p_i = \\frac{e^{z_i}}{\\sum_j e^{z_j}}",
+      "variableDefinitions": {
+        "zi": {
+          "term": "z_i",
+          "definition": "logit index i"
+        },
+        "pi": {
+          "term": "p_i",
+          "definition": "softmax probability index i"
+        },
+        "j": {
+          "term": "j",
+          "definition": "vocabulary index"
+        }
+      }
     }
   }
 }
