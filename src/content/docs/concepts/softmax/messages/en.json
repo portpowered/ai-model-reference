@@ -1,0 +1,36 @@
+{
+  "title": "Softmax",
+  "description": "A function that turns a vector of logits into a probability distribution that sums to one.",
+  "openingSummary": "Softmax converts logits into nonnegative probabilities that sum to 1 across the vocabulary—the standard step from raw scores to interpretable chances.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Softmax is the usual final normalization for multiclass outputs in language models. Given a logits vector z, it returns probabilities p_i proportional to exp(z_i), divided by the sum across all classes."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Next-token sampling reads softmax probabilities. Cross-entropy training compares softmax outputs to target tokens. Any discussion of model confidence, entropy, or temperature assumes you understand this mapping from logits to a distribution."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "With logits [2.0, 1.0, 0.0], softmax assigns the largest mass to index 0 because exp(2) dominates, but all three entries receive strictly positive probability. Dividing logits by temperature before softmax sharpens or flattens that distribution."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Autoregressive transformers apply softmax along the vocabulary dimension of the logits tensor at each position. Frameworks expose it as nn.Softmax, jax.nn.softmax, or fused kernels inside sampling loops. Distinctive chain phrase: vocabulary softmax normalization at decode time."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Softmax is not the same as a single activation inside a hidden layer—those may be ReLU or GELU. Softmax also differs from sigmoid, which handles binary probabilities. Applying softmax twice does not generally recover the original logits."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
