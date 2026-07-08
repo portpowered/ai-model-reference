@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { DEFAULT_GENERATION_EVOLUTION_BLOG_DATA } from "@/features/generation-evolution/generation-evolution-data";
 import {
   blogPostHref,
   loadBlogPostFromDisk,
@@ -25,6 +26,14 @@ describe("evolution of diffusion blog integration", () => {
     expect(html).toContain(
       "How diffusion generation evolved from pixel U-Nets to transformers, flow matching, and modern video models",
     );
+    expect(html).toContain("Evolution at a glance");
+    expect(html).toContain('data-generation-evolution-state="success"');
+    expect(html).toContain('data-generation-evolution-legend="true"');
+    expect(html).toContain(DEFAULT_GENERATION_EVOLUTION_BLOG_DATA.title);
+    for (const stage of DEFAULT_GENERATION_EVOLUTION_BLOG_DATA.stages) {
+      expect(html).toContain(`data-generation-evolution-stage="${stage.id}"`);
+      expect(html).toContain(stage.label);
+    }
     expect(html).toContain("Denoising diffusion and U-Net backbones");
     expect(html).toContain("Denoising diffusion probabilistic models");
     expect(html).toContain("CLIP-conditioned image systems");
