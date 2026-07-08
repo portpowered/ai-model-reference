@@ -51,3 +51,15 @@ Relationship targets wired on `model.whisper`:
 Focused observable guard: `src/lib/content/whisper-model-page.test.tsx`.
 
 Story 003 ships prose-only architecture (no `ModelArchitectureGraph` yet); story 005 adds the teaching graph asset and registry graph record.
+
+## Architecture and training narrative (story 004)
+
+Story 004 deepens localized copy in `messages/en.json` only:
+
+- Opening and section prose introduce OpenAI's Whisper model family before shorthand.
+- `inputsAndOutputs` distinguishes automatic speech recognition transcription from speech translation.
+- `architecture` walks audio → spectrogram-like features → encoder → decoder → text tokens.
+- `training` frames weak supervision and robustness goals from linked primary sources without benchmark-leaderboard framing.
+- Prose auto-link phrases (`encoder-decoder architecture`, `tokenizers overview`, `multimodal models`, `model family`) surface inline discovery links via `ProseAutoLinkText`.
+
+Focused observable guard extensions live in `src/lib/content/whisper-model-page.test.tsx` under the architecture/training narrative tests.

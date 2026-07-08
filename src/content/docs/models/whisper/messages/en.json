@@ -1,7 +1,7 @@
 {
   "title": "Whisper",
   "description": "OpenAI's Whisper model family for automatic speech recognition and speech translation, mapping audio input to text through an encoder-decoder transformer.",
-  "openingSummary": "Whisper is OpenAI's Whisper model family for turning speech audio into text. It uses an encoder-decoder transformer to transcribe spoken audio and, when asked, translate speech into another written language.",
+  "openingSummary": "Whisper is OpenAI's Whisper model family for automatic speech recognition and speech translation. It turns spoken audio into written text through an encoder-decoder transformer, either transcribing words in the original language or translating speech into another written language.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -9,11 +9,11 @@
     },
     "inputsAndOutputs": {
       "title": "Inputs And Outputs",
-      "body": "Whisper takes audio waveforms as its primary input. Its outputs are text tokens that decode into transcripts, translated text, or other task-specific strings depending on the requested mode. That audio-to-text interface is what connects Whisper to tokenization and encoder-decoder architecture pages elsewhere in this reference."
+      "body": "Whisper takes audio waveforms as its primary input. In automatic speech recognition mode, the model transcribes spoken words into written text in the same language. In speech translation mode, it writes the meaning of the speech into a different target language. Both paths output text tokens that decode into the final transcript or translation string. That audio-to-text interface is what connects Whisper to the tokenizers overview and encoder-decoder architecture pages elsewhere in this reference."
     },
     "architecture": {
       "title": "Architecture",
-      "body": "At a high level, Whisper follows an encoder-decoder pattern: an audio encoder reads time-frequency features from the input waveform, and a text decoder generates output tokens conditioned on those encoded representations. Cross-attention lets the decoder read encoder states while it emits text one token at a time."
+      "body": "At a high level, Whisper follows an encoder-decoder pattern built for audio. Raw audio enters a feature step that converts the waveform into a time-frequency representation similar to a spectrogram. An audio encoder reads those frames and builds hidden states across the utterance. A text decoder then generates output tokens conditioned on those encoder states, using cross-attention to read audio context while it emits text one token at a time. Decoder output passes through text tokenization in reverse to become the final transcript or translation string."
     },
     "importantModules": {
       "title": "Important Modules",
@@ -21,11 +21,11 @@
     },
     "training": {
       "title": "Training",
-      "body": "OpenAI's public Whisper paper frames training around large-scale weak supervision from web-scale speech data, with robustness across accents, background noise, and languages as a central design goal. The linked citations below are the stable primary sources for dataset framing and training objectives."
+      "body": "OpenAI's public Whisper paper frames training around large-scale weak supervision from web-scale multilingual speech paired with text. The training objective emphasizes robustness across accents, background noise, technical vocabulary, and many languages rather than leaderboard chasing on a single clean benchmark. The linked citations below are the stable primary sources for dataset framing, task definitions, and robustness goals."
     },
     "practicalNotes": {
       "title": "Practical Notes",
-      "body": "Whisper is useful to read as an audio encoder-decoder system rather than as a chat model with a microphone attached. Readers still need tokenization to understand the text side of the interface, and encoder-decoder architecture pages explain how audio features and text generation connect across modalities."
+      "body": "Whisper is useful to read as an audio encoder-decoder system among multimodal models rather than as a chat model with a microphone attached. Readers still need the tokenizers overview to understand the text side of the interface, encoder-decoder architecture pages explain how audio features and text generation connect across modalities, and model family discovery surfaces show where Whisper sits among other architecture families."
     },
     "related": {
       "title": "Related Models, Modules, And Papers"

@@ -179,6 +179,41 @@ describe("whisper model page (whisper-model-page-current-main-003)", () => {
     }
   });
 
+  test("architecture and training narrative explains audio-to-text flow and task framing", async () => {
+    const page = await loadModelPage(WHISPER_SLUG);
+    const messages = page.messages;
+
+    expect(messages.openingSummary).toContain("OpenAI's Whisper model family");
+    expect(messages.openingSummary).toContain("automatic speech recognition");
+    expect(messages.openingSummary).toContain("speech translation");
+    expect(messages.sections?.inputsAndOutputs?.body).toContain("transcrib");
+    expect(messages.sections?.inputsAndOutputs?.body).toContain("translation");
+    expect(messages.sections?.architecture?.body).toMatch(
+      /spectrogram|time-frequency/i,
+    );
+    expect(messages.sections?.architecture?.body).toContain("encoder");
+    expect(messages.sections?.architecture?.body).toContain("decoder");
+    expect(messages.sections?.training?.body).toContain("weak supervision");
+    expect(messages.sections?.training?.body).toMatch(/robust/i);
+  });
+
+  test("rendered prose auto-links architecture, tokenization, and multimodal discovery targets", async () => {
+    const page = await loadModelPage(WHISPER_SLUG);
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('href="/docs/glossary/encoder-decoder"');
+    expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
+    expect(html).toContain('href="/docs/glossary/multimodal-model"');
+    expect(page.messages.sections?.training?.body).toMatch(/rather than/i);
+  });
+
   test("page renders core explainer sections and registry-backed metadata", async () => {
     const page = await loadModelPage(WHISPER_SLUG);
     const html = renderToStaticMarkup(
@@ -193,7 +228,14 @@ describe("whisper model page (whisper-model-page-current-main-003)", () => {
     expect(page.frontmatter.registryId).toBe("model.whisper");
     expect(page.frontmatter.messageNamespace).toBe("local");
     expect(page.frontmatter.assetNamespace).toBe("local");
+    expect(page.messages.openingSummary).toContain(
+      "OpenAI's Whisper model family",
+    );
     expect(page.messages.openingSummary).toContain("encoder-decoder");
+    expect(html).toContain("spectrogram");
+    expect(html).toContain("weak supervision");
+    expect(html).toContain("automatic speech recognition");
+    expect(html).toContain("speech translation");
     expect(html).toContain("What It Is");
     expect(html).toContain("Inputs And Outputs");
     expect(html).toContain("Architecture");
