@@ -1,0 +1,81 @@
+{
+  "title": "Temperature",
+  "description": "A positive scaling factor applied to logits before softmax to make the next-token distribution sharper or flatter.",
+  "openingSummary": "Temperature divides logits by T before softmax: T below 1 sharpens the distribution, T above 1 flattens it, and T equal to 1 leaves the model's raw scores unchanged.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Temperature is a positive scalar used at inference (and sometimes in analysis) as softmax(z / T). It does not change model weights—it only rescales logits immediately before normalization."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Creative writing APIs often raise temperature for diverse outputs; factual or code assistants lower it for deterministic answers. Because temperature acts on logits before softmax, it directly controls how sharply probabilities concentrate on top tokens."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "With logits [2, 1, 0], temperature 0.5 divides by a smaller T, exaggerating differences so softmax favors index 0 even more. Temperature 2.0 dampens gaps so the three probabilities move closer together."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Hosted chat APIs expose a temperature parameter on completion calls. Local runtimes apply temperature scaling during decoding: logits are divided by T immediately before softmax inside sampling kernels. Distinctive chain phrase: temperature scaling divides logits before softmax at sample time."
+    },
+    "lowerTemperature": {
+      "title": "Lower Temperature",
+      "body": "Values below 1 divide logits by a smaller positive factor, which amplifies score gaps before softmax. The next-token distribution becomes sharper: one token usually dominates probability mass, so repeated prompts with the same settings tend to produce similar wording. Many runtimes treat temperature 0 as a special greedy or argmax path rather than literal division by zero, which is why \"temperature zero\" is discussed as a determinism limit rather than a separate model."
+    },
+    "higherTemperature": {
+      "title": "Higher Temperature",
+      "body": "Values above 1 divide logits by a larger factor, which shrinks score gaps before softmax. Probability mass spreads across more tokens, so sampled outputs vary more across runs and less likely tokens can win draws. That diversity helps brainstorming or creative drafts, but very high settings raise the chance of unlikely continuations, tangents, or locally incoherent phrasing because the sampler is choosing from a wider pool."
+    },
+    "tradeoffs": {
+      "title": "Tradeoffs And Limits",
+      "body": "Temperature is a decoding-time control on next-token probabilities, not a change to trained weights, stored knowledge, or whether answers are factually correct. Lower settings can make replies feel more decisive because probabilities concentrate on top tokens, but that appearance of confidence comes only from sharper sampling—not from new evidence, better calibration, or updated training. Turning temperature down does not make the model inherently more truthful; turning it up does not inject new information. Pick lower values when you want steadier, more focused outputs and higher values when you accept more variation and occasional low-probability tokens."
+    },
+    "samplingNeighbors": {
+      "title": "Sampling Neighbors",
+      "body": "Temperature is one step in a longer decoding chain. It rescales logits before softmax turns those scores into a next-token probability distribution. Entropy summarizes how spread out that distribution is—high entropy means many tokens look plausible, low entropy means one token dominates. Greedy decoding then picks the single highest-probability token, while top-k and top-p sampling keep only part of the distribution and draw from that smaller candidate set. In user-visible terms, temperature reshapes scores first; softmax converts them into probabilities; truncation rules such as top-k or top-p decide which tokens stay eligible; and the final choice rule—greedy or stochastic sampling—selects the next token. Use the pages below to compare this control with softmax, entropy, the sampling overview, greedy decoding, and the two common truncation methods."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Temperature is not the same as top-p or top-k filtering—those methods work on probabilities after softmax and restrict which tokens can win the draw. It is also not fine-tuning: weights stay fixed and temperature only reshapes decoding scores. A confident tone at low temperature reflects sharper probabilities, not proof that the model verified facts."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "glossaryTemperature": "Temperature glossary entry",
+    "softmax": "Softmax",
+    "entropy": "Entropy",
+    "samplingOverview": "Sampling overview",
+    "greedyDecoding": "Greedy decoding",
+    "topKSampling": "Top-k sampling",
+    "topPSampling": "Top-p sampling"
+  },
+  "relatedDocs": {
+    "concept.softmax": {
+      "reason": "Softmax converts temperature-rescaled logits into the next-token probability distribution."
+    },
+    "concept.entropy": {
+      "reason": "Entropy measures how uncertain or spread out that next-token distribution is after softmax."
+    },
+    "concept.sampling-overview": {
+      "reason": "The sampling overview explains how temperature fits into the full next-token decision path."
+    },
+    "concept.greedy-decoding": {
+      "reason": "Greedy decoding is the deterministic limit that always picks the highest-probability token."
+    },
+    "concept.top-k-sampling": {
+      "reason": "Top-k sampling keeps only the k highest-scoring tokens before drawing the next token."
+    },
+    "concept.top-p-sampling": {
+      "reason": "Top-p sampling keeps the smallest token set whose cumulative probability reaches a chosen threshold."
+    }
+  }
+}

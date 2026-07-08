@@ -669,6 +669,63 @@ describe("canonical page surface audit", () => {
     }
   });
 
+  test("allows glossary-bridge dual-route discovery and convergence fixture updates in declare-exception lane", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "canonical-page-surface-"));
+
+    try {
+      mkdirSync(
+        join(repoRoot, "src/content/docs/concepts/temperature/messages"),
+        { recursive: true },
+      );
+      mkdirSync(
+        join(repoRoot, "src/content/docs/glossary/temperature/messages"),
+        { recursive: true },
+      );
+      mkdirSync(join(repoRoot, "src/content/registry/concepts"), {
+        recursive: true,
+      });
+      mkdirSync(join(repoRoot, "src/lib/content"), { recursive: true });
+
+      writeFileSync(
+        join(repoRoot, "src/content/docs/concepts/temperature/page.mdx"),
+        `---\nkind: "concept"\nregistryId: "concept.temperature"\nmessageNamespace: "local"\nassetNamespace: "local"\nstatus: "published"\ntags:\n  - "foundations"\nupdatedAt: "2026-07-03"\n---\n`,
+      );
+      writeFileSync(
+        join(repoRoot, "src/content/docs/glossary/temperature/page.mdx"),
+        `---\nkind: "glossary"\nregistryId: "concept.temperature"\nmessageNamespace: "local"\nassetNamespace: "local"\nstatus: "published"\ntags:\n  - "foundations"\nupdatedAt: "2026-06-04"\n---\n`,
+      );
+      writeJson(
+        join(repoRoot, "src/content/registry/concepts/temperature.json"),
+        { id: "concept.temperature" },
+      );
+      writeFileSync(
+        join(repoRoot, "src/lib/content/greedy-decoding-glossary.test.ts"),
+        `const href = "/docs/glossary/temperature";\n`,
+      );
+      writeFileSync(
+        join(repoRoot, "src/lib/content/temperature-concept-discovery.test.ts"),
+        `const href = "/docs/concepts/temperature";\n`,
+      );
+
+      const audit = collectCanonicalPageSurfaceAudit(repoRoot, {
+        changedPaths: [
+          "src/content/docs/concepts/temperature/page.mdx",
+          "src/content/registry/concepts/temperature.json",
+          "src/lib/content/greedy-decoding-glossary.test.ts",
+          "src/lib/content/temperature-concept-discovery.test.ts",
+        ],
+        pageDirectory: "src/content/docs/concepts/temperature",
+      });
+
+      expect(audit.guidance.recommendedAction).toBe("declare-exception");
+      expect(formatCanonicalPageSurfaceAudit(audit)).toContain(
+        "glossary-bridge dual-route",
+      );
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
+
   test("treats generated outputs without shared hotspot paths as split-back work", () => {
     const repoRoot = mkdtempSync(join(tmpdir(), "canonical-page-surface-"));
 

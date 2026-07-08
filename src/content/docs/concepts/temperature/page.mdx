@@ -1,0 +1,104 @@
+---
+title: Temperature
+description: A positive scaling factor applied to logits before softmax to make the next-token distribution sharper or flatter.
+kind: "concept"
+registryId: "concept.temperature"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - token-to-probability-chain
+  - foundations
+aliases:
+  - "sampling temperature"
+  - "softmax temperature"
+updatedAt: "2026-07-03"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="where-it-appears" titleKey="sections.whereItAppears.title">
+  <T k="sections.whereItAppears.body" />
+</Section>
+
+<Section id="lower-temperature" titleKey="sections.lowerTemperature.title">
+  <T k="sections.lowerTemperature.body" />
+</Section>
+
+<Section id="higher-temperature" titleKey="sections.higherTemperature.title">
+  <T k="sections.higherTemperature.body" />
+</Section>
+
+<Section id="tradeoffs" titleKey="sections.tradeoffs.title">
+  <T k="sections.tradeoffs.body" />
+</Section>
+
+<Section id="sampling-neighbors" titleKey="sections.samplingNeighbors.title">
+  <T k="sections.samplingNeighbors.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/glossary/temperature", labelKey: "links.glossaryTemperature" },
+      { href: "/docs/glossary/softmax", labelKey: "links.softmax" },
+      { href: "/docs/glossary/entropy", labelKey: "links.entropy" },
+      {
+        href: "/docs/glossary/sampling-overview",
+        labelKey: "links.samplingOverview",
+      },
+      {
+        href: "/docs/glossary/greedy-decoding",
+        labelKey: "links.greedyDecoding",
+      },
+      {
+        href: "/docs/glossary/top-k-sampling",
+        labelKey: "links.topKSampling",
+      },
+      {
+        href: "/docs/glossary/top-p-sampling",
+        labelKey: "links.topPSampling",
+      },
+    ]}
+  />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.temperature"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.temperature" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.temperature" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.temperature" />
+</Section>

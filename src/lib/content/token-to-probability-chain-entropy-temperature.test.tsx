@@ -18,7 +18,7 @@ import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta"
 import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 
 const ENTROPY_GLOSSARY_URL = "/docs/glossary/entropy";
-const TEMPERATURE_GLOSSARY_URL = "/docs/glossary/temperature";
+const TEMPERATURE_CONCEPT_URL = "/docs/concepts/temperature";
 
 const ENTROPY_BODY_PHRASE =
   "Shannon entropy of the next-token distribution at decode time";
@@ -56,7 +56,7 @@ describe("Phase 2 entropy and temperature glossary pages (US-006)", () => {
     expect(html).toContain("What It Is");
     expect(html).toContain('class="katex"');
     expect(html).toContain("katex-display");
-    expect(html).toContain('href="/docs/glossary/temperature"');
+    expect(html).toContain('href="/docs/concepts/temperature"');
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
   });
 
@@ -126,7 +126,7 @@ describe("Phase 2 entropy and temperature search discoverability (US-006)", () =
     );
 
     expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url).toBe(TEMPERATURE_GLOSSARY_URL);
+    expect(results[0]?.url).toBe(TEMPERATURE_CONCEPT_URL);
   });
 
   test("search finds entropy glossary for distinctive body phrase", async () => {
@@ -173,7 +173,7 @@ describe("Phase 2 entropy and temperature search discoverability (US-006)", () =
     );
 
     expect(
-      results.some((result) => result.url === TEMPERATURE_GLOSSARY_URL),
+      results.some((result) => result.url === TEMPERATURE_CONCEPT_URL),
     ).toBe(true);
   });
 });

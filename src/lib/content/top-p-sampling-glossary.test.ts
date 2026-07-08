@@ -78,7 +78,7 @@ describe("Phase 5 top-p sampling glossary page (phase-5-sampling-basics-decision
       ["concept.sampling-overview", "/docs/glossary/sampling-overview"],
       ["concept.greedy-decoding", "/docs/glossary/greedy-decoding"],
       ["concept.top-k-sampling", "/docs/glossary/top-k-sampling"],
-      ["concept.temperature", "/docs/glossary/temperature"],
+      ["concept.temperature", "/docs/concepts/temperature"],
     ] as const) {
       expect(
         items.some(
@@ -157,7 +157,7 @@ describe("Phase 5 top-p sampling glossary page (phase-5-sampling-basics-decision
     expect(html).toContain('href="/docs/glossary/sampling-overview"');
     expect(html).toContain('href="/docs/glossary/greedy-decoding"');
     expect(html).toContain('href="/docs/glossary/top-k-sampling"');
-    expect(html).toContain('href="/docs/glossary/temperature"');
+    expect(html).toContain('href="/docs/concepts/temperature"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain('data-planned="true"');
     expect(html).not.toContain("Reader Shortcut");
