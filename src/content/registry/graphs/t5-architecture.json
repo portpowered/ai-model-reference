@@ -6,11 +6,17 @@
   "defaultSummaryKey": "description",
   "aliases": ["T5 architecture graph"],
   "tags": ["foundations", "model-family"],
-  "relatedIds": [],
+  "relatedIds": [
+    "concept.encoder-decoder",
+    "concept.transformer-architecture",
+    "module.t5-relative-position-bias",
+    "module.cross-attention",
+    "module.sentencepiece"
+  ],
   "citationIds": ["citation.raffel-t5"],
   "status": "published",
   "createdAt": "2026-07-08T00:00:00.000Z",
-  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T12:00:00.000Z",
   "subjectId": "model.t5",
   "graphType": "model-architecture",
   "rootNodeId": "output-text",
@@ -35,9 +41,91 @@
       "summaryKey": "graph.nodes.decoderStack.summary",
       "registryId": "concept.decoder",
       "moduleKind": "block",
-      "position": { "x": 250, "y": 92 },
-      "size": { "width": 250, "height": 82 },
+      "position": { "x": 190, "y": 92 },
+      "size": { "width": 370, "height": 360 },
+      "visualRole": "group-container",
+      "zIndex": 0,
+      "childNodeIds": []
+    },
+    {
+      "id": "decoder-attention-sublayer",
+      "labelKey": "graph.nodes.decoderAttentionSublayer.label",
+      "summaryKey": "graph.nodes.decoderAttentionSublayer.summary",
+      "moduleKind": "block",
+      "position": { "x": 222, "y": 130 },
+      "size": { "width": 305, "height": 140 },
+      "visualRole": "group-container",
+      "zIndex": 1,
+      "childNodeIds": []
+    },
+    {
+      "id": "decoder-ffn-sublayer",
+      "labelKey": "graph.nodes.decoderFfnSublayer.label",
+      "summaryKey": "graph.nodes.decoderFfnSublayer.summary",
+      "moduleKind": "block",
+      "position": { "x": 222, "y": 286 },
+      "size": { "width": 305, "height": 140 },
+      "visualRole": "group-container",
+      "zIndex": 1,
+      "childNodeIds": []
+    },
+    {
+      "id": "decoder-repeat-marker",
+      "labelKey": "graph.nodes.decoderRepeatMarker.label",
+      "summaryKey": "graph.nodes.decoderRepeatMarker.summary",
+      "moduleKind": "other",
+      "position": { "x": 576, "y": 240 },
+      "size": { "width": 48, "height": 120 },
+      "visualRole": "repeat-label",
+      "zIndex": 2,
+      "childNodeIds": []
+    },
+    {
+      "id": "add-norm-decoder-attention",
+      "labelKey": "graph.nodes.addNormDecoderAttention.label",
+      "summaryKey": "graph.nodes.addNormDecoderAttention.summary",
+      "registryId": "module.layer-norm",
+      "moduleKind": "normalization",
+      "position": { "x": 275, "y": 148 },
+      "size": { "width": 200, "height": 44 },
+      "visualRole": "architecture-add-norm",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "masked-self-attention",
+      "labelKey": "graph.nodes.maskedSelfAttention.label",
+      "summaryKey": "graph.nodes.maskedSelfAttention.summary",
+      "registryId": "module.multi-head-attention",
+      "moduleKind": "attention",
+      "position": { "x": 260, "y": 206 },
+      "size": { "width": 230, "height": 82 },
       "visualRole": "architecture-attention",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "add-norm-decoder-ffn",
+      "labelKey": "graph.nodes.addNormDecoderFfn.label",
+      "summaryKey": "graph.nodes.addNormDecoderFfn.summary",
+      "registryId": "module.layer-norm",
+      "moduleKind": "normalization",
+      "position": { "x": 275, "y": 304 },
+      "size": { "width": 200, "height": 44 },
+      "visualRole": "architecture-add-norm",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "decoder-feed-forward",
+      "labelKey": "graph.nodes.decoderFeedForward.label",
+      "summaryKey": "graph.nodes.decoderFeedForward.summary",
+      "registryId": "module.feed-forward-network",
+      "moduleKind": "feed-forward",
+      "position": { "x": 260, "y": 362 },
+      "size": { "width": 230, "height": 82 },
+      "visualRole": "architecture-feed-forward",
+      "zIndex": 3,
       "childNodeIds": []
     },
     {
@@ -46,7 +134,7 @@
       "summaryKey": "graph.nodes.crossAttention.summary",
       "registryId": "module.cross-attention",
       "moduleKind": "attention",
-      "position": { "x": 275, "y": 204 },
+      "position": { "x": 275, "y": 480 },
       "size": { "width": 200, "height": 62 },
       "visualRole": "architecture-attention",
       "childNodeIds": []
@@ -57,26 +145,131 @@
       "summaryKey": "graph.nodes.encoderStack.summary",
       "registryId": "concept.encoder",
       "moduleKind": "block",
-      "position": { "x": 250, "y": 296 },
-      "size": { "width": 250, "height": 82 },
+      "position": { "x": 190, "y": 570 },
+      "size": { "width": 370, "height": 320 },
+      "visualRole": "group-container",
+      "zIndex": 0,
+      "childNodeIds": []
+    },
+    {
+      "id": "encoder-attention-sublayer",
+      "labelKey": "graph.nodes.encoderAttentionSublayer.label",
+      "summaryKey": "graph.nodes.encoderAttentionSublayer.summary",
+      "moduleKind": "block",
+      "position": { "x": 222, "y": 608 },
+      "size": { "width": 305, "height": 140 },
+      "visualRole": "group-container",
+      "zIndex": 1,
+      "childNodeIds": []
+    },
+    {
+      "id": "encoder-ffn-sublayer",
+      "labelKey": "graph.nodes.encoderFfnSublayer.label",
+      "summaryKey": "graph.nodes.encoderFfnSublayer.summary",
+      "moduleKind": "block",
+      "position": { "x": 222, "y": 764 },
+      "size": { "width": 305, "height": 140 },
+      "visualRole": "group-container",
+      "zIndex": 1,
+      "childNodeIds": []
+    },
+    {
+      "id": "encoder-repeat-marker",
+      "labelKey": "graph.nodes.encoderRepeatMarker.label",
+      "summaryKey": "graph.nodes.encoderRepeatMarker.summary",
+      "moduleKind": "other",
+      "position": { "x": 576, "y": 718 },
+      "size": { "width": 48, "height": 120 },
+      "visualRole": "repeat-label",
+      "zIndex": 2,
+      "childNodeIds": []
+    },
+    {
+      "id": "add-norm-encoder-attention",
+      "labelKey": "graph.nodes.addNormEncoderAttention.label",
+      "summaryKey": "graph.nodes.addNormEncoderAttention.summary",
+      "registryId": "module.layer-norm",
+      "moduleKind": "normalization",
+      "position": { "x": 275, "y": 626 },
+      "size": { "width": 200, "height": 44 },
+      "visualRole": "architecture-add-norm",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "encoder-self-attention",
+      "labelKey": "graph.nodes.encoderSelfAttention.label",
+      "summaryKey": "graph.nodes.encoderSelfAttention.summary",
+      "registryId": "module.multi-head-attention",
+      "moduleKind": "attention",
+      "position": { "x": 260, "y": 684 },
+      "size": { "width": 230, "height": 82 },
       "visualRole": "architecture-attention",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "relative-position-bias",
+      "labelKey": "graph.nodes.relativePositionBias.label",
+      "summaryKey": "graph.nodes.relativePositionBias.summary",
+      "registryId": "module.t5-relative-position-bias",
+      "moduleKind": "embedding",
+      "position": { "x": 68, "y": 694 },
+      "size": { "width": 190, "height": 80 },
+      "visualRole": "architecture-embedding",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "add-norm-encoder-ffn",
+      "labelKey": "graph.nodes.addNormEncoderFfn.label",
+      "summaryKey": "graph.nodes.addNormEncoderFfn.summary",
+      "registryId": "module.layer-norm",
+      "moduleKind": "normalization",
+      "position": { "x": 275, "y": 782 },
+      "size": { "width": 200, "height": 44 },
+      "visualRole": "architecture-add-norm",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "encoder-feed-forward",
+      "labelKey": "graph.nodes.encoderFeedForward.label",
+      "summaryKey": "graph.nodes.encoderFeedForward.summary",
+      "registryId": "module.feed-forward-network",
+      "moduleKind": "feed-forward",
+      "position": { "x": 260, "y": 840 },
+      "size": { "width": 230, "height": 82 },
+      "visualRole": "architecture-feed-forward",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "sentencepiece-tokenization",
+      "labelKey": "graph.nodes.sentencepieceTokenization.label",
+      "summaryKey": "graph.nodes.sentencepieceTokenization.summary",
+      "registryId": "module.sentencepiece",
+      "moduleKind": "tokenizer",
+      "position": { "x": 275, "y": 920 },
+      "size": { "width": 200, "height": 62 },
+      "visualRole": "architecture-io",
       "childNodeIds": []
     },
     {
       "id": "input-text",
       "labelKey": "graph.nodes.inputText.label",
       "summaryKey": "graph.nodes.inputText.summary",
-      "registryId": "concept.tokenizers-overview",
-      "moduleKind": "tokenizer",
-      "position": { "x": 290, "y": 408 },
-      "size": { "width": 170, "height": 62 },
+      "registryId": "concept.token",
+      "moduleKind": "input",
+      "position": { "x": 291, "y": 1010 },
+      "size": { "width": 170, "height": 60 },
       "visualRole": "architecture-io",
       "childNodeIds": []
     }
   ],
   "edges": [
     {
-      "id": "decoder-to-output",
+      "id": "decoder-stack-to-output-text",
       "source": "decoder-stack",
       "target": "output-text",
       "edgeKind": "data-flow",
@@ -84,7 +277,7 @@
       "targetHandleSide": "bottom"
     },
     {
-      "id": "cross-to-decoder",
+      "id": "cross-attention-to-decoder-stack",
       "source": "cross-attention",
       "target": "decoder-stack",
       "edgeKind": "data-flow",
@@ -92,7 +285,7 @@
       "targetHandleSide": "bottom"
     },
     {
-      "id": "encoder-to-cross",
+      "id": "encoder-stack-to-cross-attention",
       "source": "encoder-stack",
       "target": "cross-attention",
       "edgeKind": "data-flow",
@@ -100,9 +293,105 @@
       "targetHandleSide": "bottom"
     },
     {
-      "id": "input-to-encoder",
-      "source": "input-text",
+      "id": "sentencepiece-to-encoder-stack",
+      "source": "sentencepiece-tokenization",
       "target": "encoder-stack",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "input-text-to-sentencepiece",
+      "source": "input-text",
+      "target": "sentencepiece-tokenization",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "masked-self-attention-to-add-norm-decoder-attention",
+      "source": "masked-self-attention",
+      "target": "add-norm-decoder-attention",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "add-norm-decoder-attention-to-decoder-feed-forward",
+      "source": "add-norm-decoder-attention",
+      "target": "decoder-feed-forward",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "decoder-feed-forward-to-add-norm-decoder-ffn",
+      "source": "decoder-feed-forward",
+      "target": "add-norm-decoder-ffn",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "add-norm-decoder-ffn-to-add-norm-decoder-attention",
+      "target": "add-norm-decoder-attention",
+      "source": "add-norm-decoder-ffn",
+      "edgeKind": "residual",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "right"
+    },
+    {
+      "id": "cross-attention-to-masked-self-attention",
+      "source": "cross-attention",
+      "target": "masked-self-attention",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "encoder-self-attention-to-add-norm-encoder-attention",
+      "source": "encoder-self-attention",
+      "target": "add-norm-encoder-attention",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "add-norm-encoder-attention-to-encoder-feed-forward",
+      "source": "add-norm-encoder-attention",
+      "target": "encoder-feed-forward",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "encoder-feed-forward-to-add-norm-encoder-ffn",
+      "source": "encoder-feed-forward",
+      "target": "add-norm-encoder-ffn",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "add-norm-encoder-ffn-to-add-norm-encoder-attention",
+      "target": "add-norm-encoder-attention",
+      "source": "add-norm-encoder-ffn",
+      "edgeKind": "residual",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "right"
+    },
+    {
+      "id": "relative-position-bias-to-encoder-self-attention",
+      "source": "relative-position-bias",
+      "target": "encoder-self-attention",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "sentencepiece-to-encoder-self-attention",
+      "source": "sentencepiece-tokenization",
+      "target": "encoder-self-attention",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"

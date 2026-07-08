@@ -39,30 +39,102 @@
   },
   "assets": {
     "architectureGraph": {
-      "alt": "T5 architecture diagram with input text, an encoder stack with relative position bias and self-attention, cross-attention into a decoder stack, and output text generation."
+      "alt": "T5 architecture diagram with SentencePiece tokenization, an encoder stack using relative position bias and bidirectional self-attention, a cross-attention bridge, a decoder stack with masked self-attention, and output text generation."
     }
   },
   "graph": {
     "nodes": {
       "outputText": {
         "label": "Output\nText",
-        "summary": "Generated text tokens from the decoder"
+        "summary": "Generated text tokens emitted one step at a time"
+      },
+      "linear": {
+        "label": "Linear",
+        "summary": "Projects decoder hidden states into vocabulary logits"
       },
       "decoderStack": {
-        "label": "Decoder\nStack",
-        "summary": "Autoregressive decoder blocks with masked self-attention and cross-attention"
+        "label": " ",
+        "summary": "Repeated decoder block container"
+      },
+      "decoderAttentionSublayer": {
+        "label": " ",
+        "summary": "Decoder attention sublayer container"
+      },
+      "decoderFfnSublayer": {
+        "label": " ",
+        "summary": "Decoder feed-forward sublayer container"
+      },
+      "decoderRepeatMarker": {
+        "label": "N×",
+        "summary": "Decoder blocks repeat through the stack"
+      },
+      "decoderAddNormAttention": {
+        "label": "Add & Norm",
+        "summary": "Residual add and normalization after decoder attention"
+      },
+      "maskedMha": {
+        "label": "Masked\nMulti-Head\nAttention",
+        "summary": "Decoder self-attention that can read earlier output tokens only"
+      },
+      "decoderAddNormFfn": {
+        "label": "Add & Norm",
+        "summary": "Residual add and normalization after the decoder feed-forward block"
+      },
+      "decoderFeedForward": {
+        "label": "Feed\nForward",
+        "summary": "Per-token dense transform inside each decoder block"
       },
       "crossAttention": {
         "label": "Cross\nAttention",
         "summary": "Decoder queries attend to encoder key-value states"
       },
       "encoderStack": {
-        "label": "Encoder\nStack",
-        "summary": "Bidirectional encoder blocks that build input representations"
+        "label": " ",
+        "summary": "Repeated encoder block container"
+      },
+      "encoderAttentionSublayer": {
+        "label": " ",
+        "summary": "Encoder attention sublayer container"
+      },
+      "encoderFfnSublayer": {
+        "label": " ",
+        "summary": "Encoder feed-forward sublayer container"
+      },
+      "encoderRepeatMarker": {
+        "label": "N×",
+        "summary": "Encoder blocks repeat through the stack"
+      },
+      "encoderAddNormAttention": {
+        "label": "Add & Norm",
+        "summary": "Residual add and normalization after encoder attention"
+      },
+      "bidirectionalMha": {
+        "label": "Bidirectional\nMulti-Head\nAttention",
+        "summary": "Encoder self-attention with full-sequence context on the input"
+      },
+      "encoderAddNormFfn": {
+        "label": "Add & Norm",
+        "summary": "Residual add and normalization after the encoder feed-forward block"
+      },
+      "encoderFeedForward": {
+        "label": "Feed\nForward",
+        "summary": "Per-token dense transform inside each encoder block"
+      },
+      "relativePositionBias": {
+        "label": "Relative\nPosition\nBias",
+        "summary": "Bucketed distance bias added to encoder attention scores"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs to hidden vectors shared by encoder and decoder"
+      },
+      "sentencepiece": {
+        "label": "SentencePiece\nTokenization",
+        "summary": "Splits raw text into subword tokens for the shared vocabulary"
       },
       "inputText": {
         "label": "Input\nText",
-        "summary": "Tokenized source text fed to the encoder"
+        "summary": "Source prompt or task text before tokenization"
       }
     }
   }
