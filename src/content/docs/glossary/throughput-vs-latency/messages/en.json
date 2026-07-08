@@ -27,6 +27,10 @@
       "title": "Common Confusions",
       "body": "Throughput vs latency is not a single latency metric like time to first token or inter-token latency, and it is not the same as tokens per second alone. Tokens per second measures aggregate output rate. Individual latency metrics measure one request's waits. The tradeoff explains how those views can diverge under concurrency, batching, and shared serving resources.\n\nHigh throughput does not guarantee a fast experience for every reader, and low latency for one request does not prove the fleet is using its capacity well. Both views answer different questions and both matter when judging serving behavior."
     },
+    "servingPath": {
+      "title": "Go Deeper Into Serving",
+      "body": "The sections above explain why aggregate throughput and individual latency can move in opposite directions. Follow the links below to the serving pages that define each metric, execution phase, and policy that shapes the tradeoff under load."
+    },
     "related": {
       "title": "Related Concepts And Modules"
     },
@@ -35,6 +39,61 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "links": {
+    "tokensPerSecond": "Tokens per second",
+    "timeToFirstToken": "Time to first token",
+    "interTokenLatency": "Inter-token latency",
+    "prefill": "Prefill",
+    "decode": "Decode",
+    "prefillDecodeSplit": "Prefill/decode split",
+    "batching": "Batching",
+    "dynamicBatching": "Dynamic batching",
+    "requestScheduling": "Request scheduling",
+    "deployment": "Deployment",
+    "memory": "Memory",
+    "inferenceEngine": "Inference engine"
+  },
+  "relatedDocs": {
+    "concept.tokens-per-second": {
+      "reason": "Tokens per second is the aggregate throughput view this tradeoff contrasts with individual wait times."
+    },
+    "concept.time-to-first-token": {
+      "reason": "Time to first token is one latency slice that can grow when batching windows and queues favor fleet throughput."
+    },
+    "concept.inter-token-latency": {
+      "reason": "Inter-token latency tracks streaming rhythm, which can feel uneven even when aggregate tokens per second climbs."
+    },
+    "concept.prefill": {
+      "reason": "Prefill dominates prompt work and queue pressure before decode begins, which shapes both throughput windows and first-visible waits."
+    },
+    "concept.decode": {
+      "reason": "Decode is where repeated token generation happens, so decode cost and cache traffic set the baseline for both tok/s and per-token gaps."
+    },
+    "concept.prefill-decode-split": {
+      "reason": "Split deployments move cache state between workers, which can change how much work each pool sustains and how long handoffs add to waits."
+    },
+    "system.batching": {
+      "reason": "Batching decides how many requests share each accelerator step, which is a main lever for raising throughput at the cost of longer formation waits."
+    },
+    "system.continuous-batching": {
+      "reason": "Continuous batching keeps decode slots filled as sequences finish, which can lift throughput while reshaping whose turn runs next."
+    },
+    "system.dynamic-batching": {
+      "reason": "Dynamic regrouping changes which requests decode together, so cadence and queue depth can shift when the scheduler reshuffles work."
+    },
+    "system.request-scheduling": {
+      "reason": "Request scheduling decides which work runs next under contention, so fairness and admission policies directly shape the throughput-latency balance."
+    },
+    "system.memory": {
+      "reason": "Memory bandwidth and residency limits how quickly weights and KV cache state move during decode-heavy bursts that cap both views."
+    },
+    "system.deployment": {
+      "reason": "Deployment layout—which pools handle prefill versus decode and how replicas scale—sets the operating context where the tradeoff plays out."
+    },
+    "system.inference-engine": {
+      "reason": "The inference engine implements batching, scheduling, and the decode loop that turn hardware capacity into reported throughput and visible waits."
     }
   }
 }
