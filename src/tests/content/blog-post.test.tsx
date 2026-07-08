@@ -107,6 +107,15 @@ describe("blog post page render", () => {
     expect(html).toContain('data-roofline-throughput-explorer="explorer"');
     expect(html).toContain('data-testid="roofline-model-preset"');
     expect(html).toContain('data-testid="blog-related-docs"');
+    expect(html).toContain('href="/docs/concepts/roofline-model"');
+    expect(html).toContain('href="/docs/concepts/memory-bandwidth"');
+    expect(html).toContain('href="/docs/concepts/flops"');
+    expect(html).toContain('href="/docs/glossary/tokens-per-second"');
+    expect(html).toContain('href="/docs/concepts/prefill"');
+    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain('href="/docs/concepts/prefill-decode-split"');
+    expect(html).toContain('href="/docs/concepts/kv-cache"');
+    expect(html).toContain('href="/docs/systems/inference-engine"');
   });
 
   it("renders the production roofline post with metadata and MDX body content", async () => {

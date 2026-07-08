@@ -34,25 +34,25 @@ import { RooflineThroughputExplorerFromRegistry } from "@/features/roofline-thro
 
 ## Peak FLOPs is not the full throughput story
 
-Hardware datasheets highlight peak floating-point throughput. That number answers how many multiply-add operations an accelerator can theoretically finish per second when data is already on chip. It does not, by itself, answer how many tokens per second a language model can emit during decode.
+Hardware datasheets highlight peak [floating-point throughput](/docs/concepts/flops). That number answers how many multiply-add operations an accelerator can theoretically finish per second when data is already on chip. It does not, by itself, answer how many [tokens per second](/docs/glossary/tokens-per-second) a language model can emit during [decode](/docs/glossary/decode).
 
-Each autoregressive step reads the active weights that participate in the forward pass, moves them through the memory hierarchy, and applies them at a specific precision. When those weight reads cannot keep pace with compute, the accelerator waits on memory. Throughput stops rising even though the FLOPs counter still shows unused headroom.
+Each autoregressive step reads the active weights that participate in the forward pass, moves them through the memory hierarchy, and applies them at a specific precision. When those weight reads cannot keep pace with compute, the accelerator waits on memory. Throughput stops rising even though the [FLOPs](/docs/concepts/flops) counter still shows unused headroom.
 
 ## When weight reads, precision, and bandwidth dominate
 
-Active weight size counts only the parameters that run on each step—not the full checkpoint on disk. Precision sets how many bytes each of those parameters occupies in memory. Memory bandwidth sets how fast those bytes can cross the chip boundary.
+Active weight size counts only the parameters that run on each step—not the full checkpoint on disk. Precision sets how many bytes each of those parameters occupies in memory. [Memory bandwidth](/docs/concepts/memory-bandwidth) sets how fast those bytes can cross the chip boundary.
 
-Together they form a bytes-per-step budget. Divide available bandwidth by that budget and you get a memory-bound ceiling on decode throughput. A larger model, wider encoding, or more layers touched per token shrinks the ceiling. Compute FLOPs matter only after the memory path can sustain the bytes each step requires.
+Together they form a bytes-per-step budget. Divide available bandwidth by that budget and you get a memory-bound ceiling on decode throughput. A larger model, wider encoding, or more layers touched per token shrinks the ceiling. [Compute FLOPs](/docs/concepts/flops) matter only after the memory path can sustain the bytes each step requires.
 
 ## What the roofline maximum-throughput bound means
 
-The roofline view places achievable tokens per second against bandwidth and arithmetic intensity. Below the knee, throughput climbs with bandwidth because weight delivery is the bottleneck. Past the knee, compute limits gains instead.
+The [roofline view](/docs/concepts/roofline-model) places achievable tokens per second against bandwidth and arithmetic intensity. Below the knee, throughput climbs with bandwidth because weight delivery is the bottleneck. Past the knee, compute limits gains instead.
 
-For many decoder-only serving scenarios at modest batch sizes, the operating point sits on the memory-bound slope. Peak FLOPs still describe the upper compute envelope, but the practical maximum tokens per second is often set earlier by how fast weights can be read.
+For many decoder-only serving scenarios at modest batch sizes, the operating point sits on the memory-bound slope. Peak FLOPs still describe the upper compute envelope, but the practical maximum tokens per second is often set earlier by how fast weights can be read. [Prefill](/docs/concepts/prefill) and decode are scheduled differently in production—the [prefill/decode split](/docs/concepts/prefill-decode-split) page explains that boundary, and the growing [KV cache](/docs/concepts/kv-cache) adds bytes to each step as context lengthens. An [inference engine](/docs/systems/inference-engine) decides how those phases share bandwidth and compute on real hardware.
 
 ## Explore the maximum-throughput bound
 
-The explorer below combines four serving inputs into one roofline chart. Memory bandwidth sets how many weight bytes can cross the chip per second. Compute FLOPs set the flat ceiling once the memory path can keep up. Bytes per parameter encode precision—wider formats move more bytes for the same parameter count. Active weight size counts the parameters that participate on each decode step.
+The explorer below combines four serving inputs into one roofline chart. [Memory bandwidth](/docs/concepts/memory-bandwidth) sets how many weight bytes can cross the chip per second. [Compute FLOPs](/docs/concepts/flops) set the flat ceiling once the memory path can keep up. Bytes per parameter encode precision—wider formats move more bytes for the same parameter count. Active weight size counts the parameters that participate on each decode step.
 
 Select a registry-backed model preset to load a representative active weight footprint, then adjust bytes per parameter or active weight size to see the maximum decode throughput move along the memory-bound slope or toward the compute cap. Presets resolve at build time from canonical registry metadata, so the page does not fetch registry records in the browser.
 
