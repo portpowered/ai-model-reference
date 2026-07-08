@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, test } from "bun:test";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { chromium } from "playwright";
 import {
   blogPostHref,
   loadBlogPostFromDisk,
@@ -12,6 +14,7 @@ import { shouldRunPlaywrightHttpVerifierUnitTests } from "@/lib/verify/export-in
 import {
   closePlaywrightBrowserWithTimeout,
   launchPlaywrightBrowser,
+  resolvePlaywrightChromiumExecutablePath,
 } from "@/lib/verify/launch-playwright-browser";
 import { verifyRooflineThroughputExplorerViewports } from "@/lib/verify/roofline-throughput-explorer-viewport-http";
 import {
@@ -45,6 +48,19 @@ const BLOG_VIEWPORTS = [
   { label: "mobile", width: 390, height: 844 },
   { label: "desktop", width: 1280, height: 800 },
 ] as const;
+
+function canLaunchPlaywrightChromium(): boolean {
+  const executablePath = resolvePlaywrightChromiumExecutablePath();
+  if (executablePath) {
+    return existsSync(executablePath);
+  }
+
+  try {
+    return existsSync(chromium.executablePath());
+  } catch {
+    return false;
+  }
+}
 
 const PRESETS_WITH_MISSING_SIZE = [
   {
@@ -264,7 +280,10 @@ describe("roofline max throughput responsive verification (005)", () => {
   test(
     "blog post explorer markup keeps desktop and mobile control regions visible and non-overlapping",
     async () => {
-      if (!shouldRunPlaywrightHttpVerifierUnitTests()) {
+      if (
+        !shouldRunPlaywrightHttpVerifierUnitTests() ||
+        !canLaunchPlaywrightChromium()
+      ) {
         return;
       }
 
@@ -282,7 +301,10 @@ describe("roofline max throughput responsive verification (005)", () => {
   )(
     "served blog route keeps explorer regions ordered without overlap at %s width",
     async (_label, viewport) => {
-      if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+      if (
+        !shouldRunVerifyProductionIntegrationTests(repoRoot) ||
+        !canLaunchPlaywrightChromium()
+      ) {
         return;
       }
 

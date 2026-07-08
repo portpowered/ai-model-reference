@@ -46,6 +46,8 @@ describe("roofline throughput explorer blog integration", () => {
     expect(html).toContain('data-roofline-throughput-explorer="explorer"');
     expect(html).toContain('data-testid="roofline-model-preset"');
     expect(html).toContain("Explore the maximum-throughput bound");
-    expect(html).toContain("Memory bandwidth sets how many weight bytes");
+    expect(html).toContain(
+      "sets how many weight bytes can cross the chip per second",
+    );
   });
 });
