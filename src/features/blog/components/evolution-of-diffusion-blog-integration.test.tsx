@@ -5,23 +5,63 @@ import {
   loadBlogPostFromDisk,
 } from "@/lib/content/blog-page-load";
 import { renderBlogPostShell } from "@/lib/content/blog-shell-render";
+import {
+  getPublishedDocsEntryByRegistryId,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
+import { loadRegistry } from "@/lib/content/registry";
+import { validatePublishedBlogPosts } from "@/lib/content/validate-blog-posts";
 
 const BLOG_SLUG = "evolution-of-diffusion";
 
+const EXPECTED_RELATED_DOC_IDS = [
+  "concept.diffusion-model",
+  "concept.denoising-generation",
+  "module.u-net",
+  "training-regime.diffusion-training-objective",
+  "module.clip-image-tokenization",
+  "paper.latent-diffusion",
+  "module.diffusion-transformer-block",
+  "concept.flow-matching",
+  "concept.video-generation",
+  "concept.world-model",
+  "model.ltx-23",
+  "model.cosmos-3",
+] as const;
+
+const EXPECTED_INLINE_DOC_HREFS = [
+  "/docs/modules/diffusion-transformer-block",
+  "/docs/concepts/flow-matching",
+  "/docs/concepts/video-generation",
+  "/docs/glossary/world-model",
+  "/docs/models/ltx-23",
+  "/docs/models/cosmos-3",
+] as const;
+
+const EXPECTED_RELATED_DOC_HREFS = [
+  "/docs/glossary/diffusion-model",
+  "/docs/glossary/denoising-generation",
+  "/docs/modules/u-net",
+  "/docs/training/diffusion-training-objective",
+  "/docs/modules/clip-image-tokenization",
+  "/docs/papers/latent-diffusion",
+  "/docs/modules/diffusion-transformer-block",
+  "/docs/concepts/flow-matching",
+  "/docs/concepts/video-generation",
+  "/docs/glossary/world-model",
+  "/docs/models/ltx-23",
+  "/docs/models/cosmos-3",
+] as const;
+
 describe("evolution of diffusion blog integration", () => {
-  test("evolution-of-diffusion blog post renders the early diffusion arc on /blog/evolution-of-diffusion", async () => {
+  test("evolution-of-diffusion blog post renders the diffusion evolution arc on /blog/evolution-of-diffusion", async () => {
     const post = await loadBlogPostFromDisk(BLOG_SLUG);
     const html = renderBlogPostShell(post);
 
     expect(blogPostHref(BLOG_SLUG)).toBe("/blog/evolution-of-diffusion");
     expect(post.frontmatter.status).toBe("published");
     expect(post.frontmatter.relatedDocIds).toEqual([
-      "concept.diffusion-model",
-      "concept.denoising-generation",
-      "module.u-net",
-      "training-regime.diffusion-training-objective",
-      "module.clip-image-tokenization",
-      "paper.latent-diffusion",
+      ...EXPECTED_RELATED_DOC_IDS,
     ]);
     expect(html).toContain(
       "How diffusion generation evolved from pixel U-Nets to transformers, flow matching, and modern video models",
@@ -44,25 +84,40 @@ describe("evolution of diffusion blog integration", () => {
     expect(html).toContain("Modern open video and world-model examples");
     expect(html).toContain("LTX-2.3");
     expect(html).toContain("Cosmos 3");
-    expect(html).toContain('href="/docs/modules/diffusion-transformer-block"');
-    expect(html).toContain('href="/docs/concepts/flow-matching"');
-    expect(html).toContain('href="/docs/concepts/video-generation"');
-    expect(html).toContain('href="/docs/glossary/world-model"');
-    expect(html).toContain('href="/docs/models/ltx-23"');
-    expect(html).toContain('href="/docs/models/cosmos-3"');
+    for (const href of EXPECTED_INLINE_DOC_HREFS) {
+      expect(html).toContain(`href="${href}"`);
+    }
     expect(html).toContain('data-testid="blog-related-docs"');
-    expect(html).toContain('href="/docs/glossary/diffusion-model"');
-    expect(html).toContain('href="/docs/glossary/denoising-generation"');
-    expect(html).toContain('href="/docs/modules/u-net"');
-    expect(html).toContain(
-      'href="/docs/training/diffusion-training-objective"',
-    );
-    expect(html).toContain('href="/docs/modules/clip-image-tokenization"');
-    expect(html).toContain('href="/docs/papers/latent-diffusion"');
+    for (const href of EXPECTED_RELATED_DOC_HREFS) {
+      expect(html).toContain(`href="${href}"`);
+    }
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('href="/tags/model-family"');
-    expect(html).not.toContain("stable-diffusion");
+    expect(html).not.toContain('href="/docs/models/stable-diffusion"');
     expect(html).not.toContain("model.stable-diffusion");
     expect(html).toContain('data-blog-slug="evolution-of-diffusion"');
+  });
+
+  test("relatedDocIds and inline canonical links resolve for evolution-of-diffusion", async () => {
+    const indexes = await loadRegistry();
+    const post = await loadBlogPostFromDisk(BLOG_SLUG);
+
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("model.stable-diffusion")).toBe(
+      false,
+    );
+
+    for (const relatedDocId of post.frontmatter.relatedDocIds) {
+      const entry = getPublishedDocsEntryByRegistryId(relatedDocId);
+      expect(entry).toBeDefined();
+      expect(PUBLISHED_DOCS_REGISTRY_IDS.has(relatedDocId)).toBe(true);
+      expect(entry?.url).toMatch(/^\/docs\//);
+    }
+
+    const validationErrors = await validatePublishedBlogPosts({ indexes });
+    const blogErrors = validationErrors.filter((error) =>
+      error.message.includes(`/blog/${BLOG_SLUG}`),
+    );
+
+    expect(blogErrors).toEqual([]);
   });
 });
