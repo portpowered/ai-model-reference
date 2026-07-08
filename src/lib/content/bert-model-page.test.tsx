@@ -81,6 +81,9 @@ describe("bert model page", () => {
 
     expect(html).toContain('data-page-asset="architectureGraph"');
     expect(html).toContain('data-graph-id="graph.bert-architecture"');
+    expect(html).toContain("Bidirectional");
+    expect(html).toContain("WordPiece");
+    expect(html).toContain("MLM");
     expect(html).toContain('data-react-flow-graph="true"');
     expect(html).toContain("WordPiece");
     expect(html).toContain("Bidirectional");

@@ -32,9 +32,9 @@
       "childNodeIds": []
     },
     {
-      "id": "mlm-prediction",
-      "labelKey": "graph.nodes.mlmPrediction.label",
-      "summaryKey": "graph.nodes.mlmPrediction.summary",
+      "id": "task-heads",
+      "labelKey": "graph.nodes.taskHeads.label",
+      "summaryKey": "graph.nodes.taskHeads.summary",
       "registryId": "training-regime.pretraining",
       "moduleKind": "output",
       "position": { "x": 520, "y": 92 },
@@ -136,9 +136,9 @@
       "childNodeIds": []
     },
     {
-      "id": "embedding-add",
-      "labelKey": "graph.nodes.embeddingAdd.label",
-      "summaryKey": "graph.nodes.embeddingAdd.summary",
+      "id": "embedding-sum",
+      "labelKey": "graph.nodes.embeddingSum.label",
+      "summaryKey": "graph.nodes.embeddingSum.summary",
       "registryId": "concept.embedding",
       "moduleKind": "other",
       "position": { "x": 353, "y": 600 },
@@ -198,9 +198,9 @@
   ],
   "edges": [
     {
-      "id": "contextual-output-to-mlm-prediction",
+      "id": "contextual-output-to-task-heads",
       "source": "contextual-output",
-      "target": "mlm-prediction",
+      "target": "task-heads",
       "edgeKind": "depends-on",
       "sourceHandleSide": "right",
       "targetHandleSide": "left"
@@ -246,41 +246,41 @@
       "targetHandleSide": "bottom"
     },
     {
-      "id": "embedding-add-to-bidirectional-mha",
-      "source": "embedding-add",
+      "id": "embedding-sum-to-bidirectional-mha",
+      "source": "embedding-sum",
       "target": "bidirectional-mha",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },
     {
-      "id": "embedding-add-to-add-norm-attention",
-      "source": "embedding-add",
+      "id": "embedding-sum-to-add-norm-attention",
+      "source": "embedding-sum",
       "target": "add-norm-attention",
       "edgeKind": "residual",
       "sourceHandleSide": "top",
       "targetHandleSide": "left"
     },
     {
-      "id": "token-embedding-to-embedding-add",
+      "id": "token-embedding-to-embedding-sum",
       "source": "token-embedding",
-      "target": "embedding-add",
+      "target": "embedding-sum",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },
     {
-      "id": "position-embedding-to-embedding-add",
+      "id": "position-embedding-to-embedding-sum",
       "source": "position-embedding",
-      "target": "embedding-add",
+      "target": "embedding-sum",
       "edgeKind": "control-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },
     {
-      "id": "segment-embedding-to-embedding-add",
+      "id": "segment-embedding-to-embedding-sum",
       "source": "segment-embedding",
-      "target": "embedding-add",
+      "target": "embedding-sum",
       "edgeKind": "control-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
