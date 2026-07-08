@@ -51,6 +51,10 @@ describe("flux model page", () => {
     expect(html).toContain('href="/docs/concepts/latent-space"');
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/concepts/classifier-free-guidance"');
+    expect(html).toContain('href="/docs/models/clip"');
+    expect(html).toContain('href="/docs/concepts/text-to-image-conditioning"');
+    expect(html).toContain('data-testid="derived-related-docs"');
+    expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('id="important-modules"');
     expect(html).toContain("diffusion transformer");
     expect(html).toContain(
