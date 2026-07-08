@@ -376,6 +376,10 @@ describe("production blog tag landing", () => {
       "Roofline maximum throughput: when bandwidth beats peak FLOPs",
     );
     expect(html).toContain('href="/blog/roofline-max-throughput"');
+    expect(html).toContain(
+      "How memory bandwidth, compute FLOPs, precision, and active weight size jointly bound the maximum tokens per second a language model can achieve during serving.",
+    );
+    expect(html).toContain('dateTime="2026-07-08"');
     expect(html).toContain("Why throughput follows a roofline");
     expect(html).toContain('href="/blog/roofline-throughput-explorer"');
     expect(html).toContain(
@@ -383,6 +387,22 @@ describe("production blog tag landing", () => {
     );
     expect(html).toContain('dateTime="2026-07-02"');
     expect(html).toContain('href="/tags/kv-cache"');
+  });
+
+  it("renders roofline max throughput blog metadata on the kv-cache tag landing page", async () => {
+    const page = await TagLandingPage({
+      params: Promise.resolve({ slug: "kv-cache" }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Blog");
+    expect(html).toContain(
+      "Roofline maximum throughput: when bandwidth beats peak FLOPs",
+    );
+    expect(html).toContain('href="/blog/roofline-max-throughput"');
+    expect(html).toContain('dateTime="2026-07-08"');
+    expect(html).toContain("Why throughput follows a roofline");
+    expect(html).toContain('href="/blog/roofline-throughput-explorer"');
   });
 });
 
