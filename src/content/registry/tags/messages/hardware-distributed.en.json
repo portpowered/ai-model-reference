@@ -1,0 +1,4 @@
+{
+  "title": "Hardware and distributed systems",
+  "summary": "Hardware accelerators, memory limits, and placement concerns that shape how model workloads run across devices and clusters."
+}
