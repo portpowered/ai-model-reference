@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { TRAINING_SIGNAL_BAND_LABELS } from "@/features/graphs/training-signal/training-signal-band-keys";
 import {
   blogPostHref,
   loadBlogPostFromDisk,
@@ -33,6 +34,23 @@ describe("llms training shift post blog integration", () => {
       "additional signals reshape behavior: curated demonstrations",
     );
     expect(html).toContain("How training signals accumulated over time");
+    expect(html).toContain("conceptual illustration");
+    expect(html).toContain('data-training-signal-chart="ready"');
+    expect(html).toContain('data-value-mode="conceptual"');
+    expect(html).toContain("Conceptual illustration");
+    expect(html).toContain(
+      "Illustrative training-signal mix across three eras",
+    );
+    expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.pretrainingCorpus);
+    expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.instructionSupervised);
+    expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.preferenceSignal);
+    expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.verifiableRl);
+    expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.syntheticTraces);
+    expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.onPolicyDistillation);
+    expect(html).toContain("Conceptual chart");
+    expect(html).toContain(
+      "communicate direction and relative emphasis, not quantitative market shares",
+    );
     expect(html).toContain("Few-shot prompting");
     expect(html).toContain("inference-time");
     expect(html).toContain("without any weight update");

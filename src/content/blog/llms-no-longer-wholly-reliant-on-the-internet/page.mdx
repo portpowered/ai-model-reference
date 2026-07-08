@@ -16,8 +16,10 @@ status: "published"
 ---
 
 import { BlogRelatedDocs } from "@/features/blog/components/BlogRelatedDocs";
+import { Callout } from "@/features/docs/components/Callout";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingSignalStackedChartFromDefault } from "@/features/graphs/training-signal/TrainingSignalStackedChartFromDefault";
 
 # <T k="title" />
 
@@ -40,6 +42,14 @@ This post traces how those later signals accumulated into the modern training re
 ## How training signals accumulated over time
 
 The recipe below moves from the earliest dominant signal toward the feedback loops that shape models today. Later steps build on earlier ones; none of them makes internet-scale pretraining irrelevant.
+
+The stacked chart below is a **conceptual illustration**. Band heights show illustrative relative emphasis across training eras, not measured dataset percentages or published benchmarks.
+
+<TrainingSignalStackedChartFromDefault caption="Illustrative training-signal mix across three eras. Values are conceptual, not sourced measurements." />
+
+<Callout type="note" titleKey="callouts.conceptualChart.title">
+  <T k="callouts.conceptualChart.body" />
+</Callout>
 
 ### 1. Broad web-scale pretraining
 

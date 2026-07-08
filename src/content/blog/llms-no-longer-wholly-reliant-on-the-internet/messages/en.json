@@ -2,5 +2,11 @@
   "title": "LLMs are no longer wholly reliant on the internet",
   "description": "Why modern language-model quality still starts with internet-scale pretraining but increasingly depends on mid-training, post-training, preference feedback, verifiable rewards, and distillation loops.",
   "contextSentence": "Internet-scale pretraining remains the foundation of modern LLMs, yet the behavior readers experience is increasingly shaped by later training and feedback loops.",
-  "takeaway": "Treat broad web-scale pretraining as the base layer, then expect mid-training, instruction tuning, preference optimization, verifiable RL, synthetic traces, and on-policy distillation to refine what the model can do."
+  "takeaway": "Treat broad web-scale pretraining as the base layer, then expect mid-training, instruction tuning, preference optimization, verifiable RL, synthetic traces, and on-policy distillation to refine what the model can do.",
+  "callouts": {
+    "conceptualChart": {
+      "title": "Conceptual chart",
+      "body": "The stacked areas use default illustrative values bundled at build time. They are meant to communicate direction and relative emphasis, not quantitative market shares of training data."
+    }
+  }
 }
