@@ -1,14 +1,66 @@
 import { describe, expect, test } from "bun:test";
+import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { renderBlogPostPage } from "@/app/(site)/site-renderers";
 import { TRAINING_SIGNAL_BAND_LABELS } from "@/features/graphs/training-signal/training-signal-band-keys";
 import {
   blogPostHref,
   loadBlogPostFromDisk,
 } from "@/lib/content/blog-page-load";
+import { getPublishedBlogPostBySlug } from "@/lib/content/blog-post-get";
 import { renderBlogPostShell } from "@/lib/content/blog-shell-render";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import { loadRegistry } from "@/lib/content/registry";
 import { resolveRelatedRegistryDocs } from "@/lib/content/related-registry-docs";
+import {
+  loadTagResourceGroups,
+  publishedBlogPostMatchesTag,
+} from "@/lib/content/tag-resources";
+import { loadUiMessages } from "@/lib/content/ui-messages";
+import {
+  buildBlogSearchDocuments,
+  loadBlogSearchPostSources,
+} from "@/lib/search/build-blog-search-document";
+import { docsSearchApi } from "@/lib/search/search-server";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "@/lib/verify/launch-playwright-browser";
+import {
+  acquireVerifyServerSession,
+  shouldRunVerifyProductionIntegrationTests,
+} from "@/lib/verify/server-lifecycle";
+
+const repoRoot = join(import.meta.dir, "../../../..");
 
 const BLOG_SLUG = "llms-no-longer-wholly-reliant-on-the-internet";
+const BLOG_ROUTE = `/blog/${BLOG_SLUG}`;
+
+const RESPONSIVE_CONTAINER_WIDTHS = [
+  { label: "mobile", width: "24.375rem" },
+  { label: "desktop", width: "48rem" },
+] as const;
+
+const BLOG_VIEWPORTS = [
+  { label: "mobile", width: 390, height: 844 },
+  { label: "desktop", width: 1280, height: 800 },
+] as const;
+
+const DISCOVERY_SEARCH_QUERIES = [
+  "LLM training shift",
+  "internet pretraining",
+  "mid-training post-training",
+  "RLHF RLVR",
+  "on-policy distillation",
+] as const;
+
+const MDX_COMPONENT_NAMES = [
+  "TrainingSignalStackedChart",
+  "BlogRelatedDocs",
+  "TagPillList",
+  "Callout",
+] as const;
 
 const EXPECTED_RELATED_DOC_IDS = [
   "training-regime.pretraining",
@@ -129,4 +181,196 @@ describe("llms training shift post blog integration", () => {
       'data-testid="related-registry-docs-unavailable"',
     );
   });
+});
+
+describe("llms training shift post discovery", () => {
+  test.each([...DISCOVERY_SEARCH_QUERIES])(
+    "search returns the post for %s",
+    async (query) => {
+      const results = await docsSearchApi.search(query);
+      expect(results.some((result) => result.url === BLOG_ROUTE)).toBe(true);
+    },
+    { timeout: 20_000 },
+  );
+
+  test("search document indexes title, description, headings, and narrative body without MDX component names", async () => {
+    const indexes = await loadRegistry();
+    const posts = await loadBlogSearchPostSources();
+    const post = await loadBlogPostFromDisk(BLOG_SLUG);
+    const [document] = buildBlogSearchDocuments(
+      posts.filter((entry) => entry.slug === BLOG_SLUG),
+      indexes,
+    );
+
+    expect(document).toBeDefined();
+    expect(document).toMatchObject({
+      url: BLOG_ROUTE,
+      title: post.messages.title,
+      description: post.messages.description,
+      tags: ["foundations", "alignment"],
+    });
+    expect(document?.bodyText).toContain(
+      "Internet-scale pretraining remains the foundation of modern LLMs",
+    );
+    expect(document?.bodyText).toContain(
+      "Treat broad web-scale pretraining as the base layer",
+    );
+    expect(document?.bodyText).toContain("The training-signal shift");
+    expect(document?.bodyText).toContain("Few-shot prompting");
+    expect(document?.bodyText).toContain("On-policy distillation");
+    expect(document?.headings).toContain(
+      "How training signals accumulated over time",
+    );
+    expect(document?.headings).toContain(
+      "Key post-training and feedback loops",
+    );
+
+    for (const componentName of MDX_COMPONENT_NAMES) {
+      expect(document?.bodyText).not.toContain(componentName);
+      expect(
+        document?.headings.some((heading) => heading.includes(componentName)),
+      ).toBe(false);
+    }
+  });
+
+  test("published post appears on foundations and alignment tag landing groups", async () => {
+    const post = await getPublishedBlogPostBySlug(BLOG_SLUG);
+    if (!post) {
+      throw new Error(`missing published blog post ${BLOG_SLUG}`);
+    }
+    const messages = await loadUiMessages();
+
+    for (const tagSlug of ["foundations", "alignment"] as const) {
+      expect(publishedBlogPostMatchesTag(post, tagSlug)).toBe(true);
+
+      const groups = await loadTagResourceGroups(tagSlug, messages, "en");
+      const blogGroup = groups.find((group) => group.kind === "blog");
+
+      expect(blogGroup?.resources).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            slug: BLOG_SLUG,
+            url: BLOG_ROUTE,
+            title: post.messages.title,
+            summary: post.messages.description,
+          }),
+        ]),
+      );
+    }
+  });
+});
+
+describe("llms training shift post responsive layout", () => {
+  test.each(
+    RESPONSIVE_CONTAINER_WIDTHS.map(
+      (viewport) => [viewport.label, viewport.width] as const,
+    ),
+  )("keeps title, timeline sections, chart, tags, and related docs readable at %s width", async (_label, width) => {
+    const page = await renderBlogPostPage(BLOG_SLUG);
+    const html = renderToStaticMarkup(
+      createElement("div", { style: { maxWidth: width, width: "100%" } }, page),
+    );
+
+    expect(html).toContain("LLMs are no longer wholly reliant on the internet");
+    expect(html).toContain("How training signals accumulated over time");
+    expect(html).toContain("Key post-training and feedback loops");
+    expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.pretrainingCorpus);
+    expect(html).toContain("Related reference pages");
+    expect(html).toContain('data-testid="blog-related-docs"');
+    expect(html).toContain('href="/tags/foundations"');
+    expect(html).toContain('href="/tags/alignment"');
+  });
+
+  test.each(
+    BLOG_VIEWPORTS.map((viewport) => [viewport.label, viewport] as const),
+  )(
+    "served blog route keeps timeline, chart, tags, and related docs visible without horizontal overflow at %s width",
+    async (_label, viewport) => {
+      if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+        return;
+      }
+
+      const session = await acquireVerifyServerSession({
+        projectRoot: repoRoot,
+      });
+      const browser = await launchPlaywrightBrowser();
+
+      try {
+        const page = await browser.newPage({
+          viewport: { width: viewport.width, height: viewport.height },
+        });
+        page.setDefaultTimeout(30_000);
+        await page.goto(`${session.baseUrl}${BLOG_ROUTE}`, {
+          waitUntil: "load",
+        });
+
+        await page
+          .getByRole("heading", {
+            name: "LLMs are no longer wholly reliant on the internet",
+          })
+          .waitFor({ state: "visible" });
+        await page
+          .getByRole("heading", {
+            name: "How training signals accumulated over time",
+          })
+          .waitFor({ state: "visible" });
+        await page.locator('[data-training-signal-chart="ready"]').waitFor({
+          state: "visible",
+        });
+        await page.locator('[data-testid="blog-related-docs"]').waitFor({
+          state: "visible",
+        });
+
+        const layout = await page.evaluate(() => {
+          const pageClientWidth = document.documentElement.clientWidth;
+          const pageScrollWidth = document.documentElement.scrollWidth;
+          const title = document.querySelector("h1");
+          const timeline = Array.from(document.querySelectorAll("h2")).find(
+            (node) =>
+              node.textContent?.includes(
+                "How training signals accumulated over time",
+              ),
+          );
+          const chart = document.querySelector(
+            '[data-training-signal-chart="ready"]',
+          );
+          const relatedDocs = document.querySelector(
+            '[data-testid="blog-related-docs"]',
+          );
+
+          function readHeight(element: Element | null, name: string): number {
+            if (!element) {
+              throw new Error(`missing ${name}`);
+            }
+            return element.getBoundingClientRect().height;
+          }
+
+          return {
+            page: {
+              clientWidth: pageClientWidth,
+              scrollWidth: pageScrollWidth,
+            },
+            titleHeight: readHeight(title, "title"),
+            timelineHeight: readHeight(timeline ?? null, "timeline heading"),
+            chartHeight: readHeight(chart, "chart"),
+            relatedDocsHeight: readHeight(relatedDocs, "related docs"),
+          };
+        });
+
+        expect(layout.page.scrollWidth).toBeLessThanOrEqual(
+          layout.page.clientWidth + 1,
+        );
+        expect(layout.titleHeight).toBeGreaterThan(0);
+        expect(layout.timelineHeight).toBeGreaterThan(0);
+        expect(layout.chartHeight).toBeGreaterThan(0);
+        expect(layout.relatedDocsHeight).toBeGreaterThan(0);
+
+        await page.close();
+      } finally {
+        await closePlaywrightBrowserWithTimeout(browser);
+        await session.cleanup();
+      }
+    },
+    120_000,
+  );
 });
