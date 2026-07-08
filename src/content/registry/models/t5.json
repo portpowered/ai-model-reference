@@ -10,16 +10,25 @@
     "text-to-text transformer",
     "encoder-decoder T5"
   ],
-  "tags": ["foundations", "model-family", "attention", "tokenization"],
+  "tags": [
+    "foundations",
+    "model-family",
+    "attention",
+    "tokenization",
+    "position-encoding",
+    "feed-forward"
+  ],
   "relatedIds": [
     "concept.transformer-architecture",
     "concept.encoder-decoder",
     "concept.tokenizers-overview",
+    "module.attention",
     "module.t5-relative-position-bias",
     "module.cross-attention",
     "module.multi-head-attention",
     "module.standard-ffn",
     "module.sentencepiece",
+    "module.layer-norm",
     "training-regime.pretraining",
     "training-regime.supervised-fine-tuning"
   ],
