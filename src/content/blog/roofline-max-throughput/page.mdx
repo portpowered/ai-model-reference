@@ -34,9 +34,9 @@ import { RooflineThroughputExplorerFromRegistry } from "@/features/roofline-thro
 
 ## Peak FLOPs alone do not set tokens per second
 
-An accelerator datasheet lists peak floating-point operations per second. That number answers how fast the chip can multiply and add when arithmetic is already in registers. It does not answer how fast a language model can emit tokens when every decode step must pull weights from memory first.
+An accelerator datasheet lists peak [FLOPs](/docs/concepts/flops). That number answers how fast the chip can multiply and add when arithmetic is already in registers. It does not answer how fast a language model can emit tokens when every [decode](/docs/glossary/decode) step must pull weights from memory first.
 
-Tokens per second is a serving outcome. Each autoregressive step runs a forward pass that touches the active parameter set, updates activations, and often grows a key–value cache. When weight reads dominate the timeline, spare FLOPs sit idle. Throughput stops rising even though the silicon still advertises a high peak.
+[Tokens per second](/docs/glossary/tokens-per-second) is a serving outcome. Each autoregressive step runs a forward pass that touches the active parameter set, updates activations, and often grows a [KV cache](/docs/concepts/kv-cache). When weight reads dominate the timeline, spare FLOPs sit idle. Throughput stops rising even though the silicon still advertises a high peak.
 
 ## Weight reads, precision, and bandwidth dominate the bound
 
@@ -44,25 +44,25 @@ Three quantities shape the memory side of the story:
 
 - **Active weight size** — how many parameters participate in the forward pass for the scenario you care about, including any experts or adapters that are live for that request.
 - **Bytes per parameter** — the storage width after quantization or mixed-precision packing. Wider encodings move more bytes for the same parameter count.
-- **Memory bandwidth** — how fast the system can deliver those bytes to the compute units that consume them.
+- **[Memory bandwidth](/docs/concepts/memory-bandwidth)** — how fast the system can deliver those bytes to the compute units that consume them.
 
 Multiply active parameters by bytes per parameter and divide by available bandwidth and you get a memory-limited time per step. That time converts directly into a ceiling on decode throughput. Narrower precision or a smaller active footprint raises the ceiling; a wider model or heavier encoding lowers it.
 
-Compute sets a separate ceiling: peak FLOPs divided by the arithmetic work required per token for the model architecture. The **maximum throughput bound** is the lower of the memory-limited rate and the compute-limited rate. Whichever side is lower is the binding limit for that scenario.
+Compute sets a separate ceiling: peak FLOPs divided by the arithmetic work required per token for the model architecture. The **[roofline model](/docs/concepts/roofline-model)** names this as the **maximum throughput bound**: the lower of the memory-limited rate and the compute-limited rate. Whichever side is lower is the binding limit for that scenario.
 
 ## What maximum throughput means in practice
 
-Maximum throughput is not a promise about real-world latency under concurrent users, scheduling, or network overhead. It is the upper bound you should expect before comparing hardware SKUs or arguing about whether a larger checkpoint can still hit a tokens-per-second target.
+Maximum throughput is not a promise about real-world latency under concurrent users, scheduling, or network overhead in a live [inference engine](/docs/systems/inference-engine). It is the upper bound you should expect before comparing hardware SKUs or arguing about whether a larger checkpoint can still hit a tokens-per-second target.
 
 Use it to sanity-check serving plans:
 
 - If the memory-bound rate is already below your product goal, faster peak FLOPs will not close the gap until you shrink active weights, reduce bytes per parameter, improve bandwidth, or change the model.
 - If the compute-bound rate is lower, optimization should target arithmetic efficiency, kernel fusion, or a smaller active graph—not only faster DRAM.
-- Prefill and decode stress different parts of the stack; a bound computed for steady decode does not automatically describe prompt ingestion. The reference pages below define those phases separately.
+- [Prefill](/docs/concepts/prefill) and [decode](/docs/glossary/decode) stress different parts of the stack; a bound computed for steady decode does not automatically describe prompt ingestion. The [prefill/decode split](/docs/concepts/prefill-decode-split) reference and the pages below define those phases separately.
 
 ## Explore the throughput bound
 
-The chart below uses the same registry-backed roofline explorer as the reference tooling. Model presets come from current registry metadata at build time—no browser-side registry fetch—so each option reflects an available effective active weight size for a shipped checkpoint.
+The chart below uses the same registry-backed roofline explorer as the [roofline model](/docs/concepts/roofline-model) reference tooling. Model presets come from current registry metadata at build time—no browser-side registry fetch—so each option reflects an available effective active weight size for a shipped checkpoint.
 
 Use the controls to see how the binding limit moves:
 
