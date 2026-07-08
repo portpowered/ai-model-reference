@@ -7,6 +7,7 @@
 - When adding a published blog post, update `blog-content-loader-scope.test.ts` and `blog-tag-landing.test.ts` slug inventories (newest-first on tag pages).
 - Blog inline canonical links use markdown `[label](/docs/...)` syntax; `validate-data` / `validatePublishedBlogPosts` rejects broken reader-visible MDX links.
 - Blog search discovery tests live in `build-blog-search-document.test.ts` under a post-specific `describe` block; assert document fields, representative `docsSearchApi.search` queries, and tag-filtered search without full-site route inventories.
+- Responsive blog post verification: add `roofline-max-throughput-responsive-verification.test.tsx` for desktop/mobile Playwright probes, keyboard tab order, and missing-preset fallbacks; reuse `verifyRooflineThroughputExplorerViewports` on `renderBlogPostShell` HTML.
 
 ## 2026-07-08T08:15:00Z - roofline-max-throughput-post-001
 - Published English-first blog post at `/blog/roofline-max-throughput` with local message/asset namespaces, published status, site-team author, 2026-07-08 dates, foundations + kv-cache tags, and nine canonical throughput-related doc IDs in frontmatter and `BlogRelatedDocs`.
@@ -47,4 +48,14 @@
   - Patterns discovered: published blog search discovery mirrors `roofline-post` lane—add a post-specific `describe` in `build-blog-search-document.test.ts` rather than a separate search inventory test file.
   - Gotchas encountered: multi-term queries like `memory bandwidth tokens per second` still return the post but rank lower; acceptance only requires discoverability, not top rank.
   - Useful context: post content already satisfied search indexing via `buildBlogSearchDocument`; story 004 work is primarily validation unless prose lacks query terms.
+---
+
+## 2026-07-08T09:15:00Z - roofline-max-throughput-post-005
+- Added `roofline-max-throughput-responsive-verification.test.tsx` proving desktop/mobile viewport probes on blog shell HTML, keyboard tab order through preset/active-weight/bytes controls with focus-visible classes, missing-preset and empty-preset fallback states, and served-route layout checks when production integration tests are enabled.
+- Documented the verification entry in `blog-routes-layout-index-relevant-files.md`.
+- Files changed: `src/features/roofline-throughput-explorer/roofline-max-throughput-responsive-verification.test.tsx`, `docs/internal/processes/blog-routes-layout-index-relevant-files.md`
+- **Learnings for future iterations:**
+  - Patterns discovered: mirror `roofline-post` lane story 005—reuse `verifyRooflineThroughputExplorerViewports` on full `renderBlogPostShell` output and gate served-route Playwright probes with `shouldRunVerifyProductionIntegrationTests`.
+  - Gotchas encountered: assert the current `messages/en.json` title in shell tests, not titles from parallel worktree branches.
+  - Useful context: RTL keyboard tab tests focus controls directly; Playwright viewport probes need `shouldRunPlaywrightHttpVerifierUnitTests` gate.
 ---
