@@ -33,7 +33,11 @@ const CHAIN_GLOSSARY_PAGES: readonly ChainGlossaryPage[] = [
   },
   { title: "Tensor", url: "/docs/glossary/tensor" },
   { title: "Logit", url: "/docs/glossary/logit" },
-  { title: "Softmax", url: "/docs/glossary/softmax" },
+  {
+    title: "Softmax",
+    url: "/docs/glossary/softmax",
+    searchUrl: "/docs/concepts/softmax",
+  },
   { title: "Entropy", url: "/docs/glossary/entropy" },
   {
     title: "Temperature",

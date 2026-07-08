@@ -85,7 +85,7 @@ describe("temperature concept discovery (temperature-concept-page-current-main)"
       items.map((item) => [item.registryId, item.href]),
     );
 
-    expect(hrefById["concept.softmax"]).toBe("/docs/glossary/softmax");
+    expect(hrefById["concept.softmax"]).toBe("/docs/concepts/softmax");
     expect(hrefById["concept.entropy"]).toBe("/docs/glossary/entropy");
     expect(hrefById["concept.sampling-overview"]).toBe(
       "/docs/glossary/sampling-overview",
@@ -162,7 +162,7 @@ describe("temperature concept discovery (temperature-concept-page-current-main)"
       "truncation rules such as top-k or top-p decide which",
     );
     expect(html).toContain('href="/docs/glossary/temperature"');
-    expect(html).toContain('href="/docs/glossary/softmax"');
+    expect(html).toContain('href="/docs/concepts/softmax"');
     expect(html).toContain('href="/docs/glossary/entropy"');
     expect(html).toContain('href="/docs/glossary/sampling-overview"');
     expect(html).toContain('href="/docs/glossary/greedy-decoding"');

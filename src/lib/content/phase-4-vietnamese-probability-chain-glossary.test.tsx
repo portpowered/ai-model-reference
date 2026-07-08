@@ -47,9 +47,9 @@ const VIETNAMESE_GLOSSARY_EXPECTATIONS = [
     expectedHrefs: [
       "/vi/tags/token-to-probability-chain",
       "/vi/tags/foundations",
-      "/vi/docs/glossary/softmax",
+      "/docs/concepts/softmax",
     ],
-    shellLocalizedHrefs: ["/vi/docs/glossary/softmax"],
+    shellLocalizedHrefs: ["/docs/concepts/softmax"],
     shellRejectedCanonicalHrefs: ["/docs/glossary/softmax"],
   },
   {
