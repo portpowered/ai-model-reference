@@ -103,7 +103,6 @@ describe("gemma model-family discovery (gemma-model-family-page-current-main-003
       "foundations",
       "model-family",
       "context-window",
-      "attention",
       "tokenization",
     ]);
     expect(model?.contextLength).toBe(262144);
@@ -154,7 +153,6 @@ describe("gemma model-family discovery (gemma-model-family-page-current-main-003
         "foundations",
         "model-family",
         "context-window",
-        "attention",
         "tokenization",
       ]),
     );
@@ -182,7 +180,6 @@ describe("gemma model-family discovery (gemma-model-family-page-current-main-003
     "model-family",
     "foundations",
     "context-window",
-    "attention",
     "tokenization",
   ] as const)("tag browsing lists Gemma under model groups for %s", async (tagSlug) => {
     const messages = await loadUiMessages();

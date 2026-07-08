@@ -19,7 +19,6 @@
     "foundations",
     "model-family",
     "context-window",
-    "attention",
     "tokenization"
   ],
   "relatedIds": [
