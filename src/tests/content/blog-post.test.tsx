@@ -82,6 +82,30 @@ describe("blog post page render", () => {
     );
   }
 
+  it("renders the production roofline max throughput post with metadata and MDX body content", async () => {
+    const page = await renderBlogPostPage("roofline-max-throughput");
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain(
+      "Roofline maximum throughput: when bandwidth beats peak FLOPs",
+    );
+    expect(html).toContain(
+      "How memory bandwidth, compute FLOPs, precision, and active weight size",
+    );
+    expect(html).toContain('dateTime="2026-07-08"');
+    expect(html).toContain("July 8, 2026");
+    expect(html).toContain('class="sr-only">Authors: </span>');
+    expect(html).toContain("Site Team");
+    expect(html).toContain("Foundations");
+    expect(html).toContain("Kv Cache");
+    expect(html).toContain('data-blog-slug="roofline-max-throughput"');
+    expect(html).toContain("Peak FLOPs is not the full throughput story");
+    expect(html).toContain(
+      "When weight reads, precision, and bandwidth dominate",
+    );
+    expect(html).toContain('data-testid="blog-related-docs"');
+  });
+
   it("renders the production roofline post with metadata and MDX body content", async () => {
     const page = await renderBlogPostPage("roofline-throughput-explorer");
     const html = renderToStaticMarkup(page);

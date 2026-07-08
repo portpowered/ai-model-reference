@@ -1,0 +1,54 @@
+---
+messageNamespace: "local"
+assetNamespace: "local"
+publishedAt: "2026-07-08"
+updatedAt: "2026-07-08"
+authors:
+  - site-team
+tags:
+  - foundations
+  - kv-cache
+relatedDocIds:
+  - concept.roofline-model
+  - concept.memory-bandwidth
+  - concept.flops
+  - concept.tokens-per-second
+  - concept.prefill
+  - concept.decode
+  - concept.prefill-decode-split
+  - concept.kv-cache
+  - system.inference-engine
+status: "published"
+---
+
+import { BlogRelatedDocs } from "@/features/blog/components/BlogRelatedDocs";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+# <T k="title" />
+
+<T k="contextSentence" />
+
+<TagPillList tags={["foundations", "kv-cache"]} />
+
+## Peak FLOPs is not the full throughput story
+
+Hardware datasheets highlight peak floating-point throughput. That number answers how many multiply-add operations an accelerator can theoretically finish per second when data is already on chip. It does not, by itself, answer how many tokens per second a language model can emit during decode.
+
+Each autoregressive step reads the active weights that participate in the forward pass, moves them through the memory hierarchy, and applies them at a specific precision. When those weight reads cannot keep pace with compute, the accelerator waits on memory. Throughput stops rising even though the FLOPs counter still shows unused headroom.
+
+## When weight reads, precision, and bandwidth dominate
+
+Active weight size counts only the parameters that run on each step—not the full checkpoint on disk. Precision sets how many bytes each of those parameters occupies in memory. Memory bandwidth sets how fast those bytes can cross the chip boundary.
+
+Together they form a bytes-per-step budget. Divide available bandwidth by that budget and you get a memory-bound ceiling on decode throughput. A larger model, wider encoding, or more layers touched per token shrinks the ceiling. Compute FLOPs matter only after the memory path can sustain the bytes each step requires.
+
+## What the roofline maximum-throughput bound means
+
+The roofline view places achievable tokens per second against bandwidth and arithmetic intensity. Below the knee, throughput climbs with bandwidth because weight delivery is the bottleneck. Past the knee, compute limits gains instead.
+
+For many decoder-only serving scenarios at modest batch sizes, the operating point sits on the memory-bound slope. Peak FLOPs still describe the upper compute envelope, but the practical maximum tokens per second is often set earlier by how fast weights can be read.
+
+## Related reference pages
+
+<BlogRelatedDocs relatedDocIds={["concept.roofline-model", "concept.memory-bandwidth", "concept.flops", "concept.tokens-per-second", "concept.prefill", "concept.decode", "concept.prefill-decode-split", "concept.kv-cache", "system.inference-engine"]} />
