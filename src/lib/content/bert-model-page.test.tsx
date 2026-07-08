@@ -10,7 +10,8 @@ import { ModulePageProviders } from "@/features/docs/components/ModulePageProvid
 import { loadModelPage } from "@/lib/content/model-page";
 import { getModelById } from "@/lib/content/registry-runtime";
 
-const BERT_FULL_NAME = "Bidirectional Encoder Representations from Transformers";
+const BERT_FULL_NAME =
+  "Bidirectional Encoder Representations from Transformers";
 
 describe("bert model page", () => {
   test("loads the canonical published BERT model bundle", async () => {
@@ -24,6 +25,12 @@ describe("bert model page", () => {
   test("messages expand the full BERT name before shorthand and teach encoder-only behavior", async () => {
     const page = await loadModelPage("bert");
     const record = getModelById("model.bert");
+    const sections = page.messages.sections;
+
+    expect(sections).toBeDefined();
+    if (!sections) {
+      return;
+    }
 
     expect(record?.architectureIds).toEqual(
       expect.arrayContaining([
@@ -32,26 +39,16 @@ describe("bert model page", () => {
       ]),
     );
     expect(page.messages.openingSummary).toContain(`${BERT_FULL_NAME} (BERT)`);
-    expect(page.messages.sections.whatItIs.body).toContain(BERT_FULL_NAME);
-    expect(page.messages.sections.architecture.body).toContain(
-      "decoder-only models",
-    );
-    expect(page.messages.sections.architecture.body).toContain(
+    expect(sections.whatItIs.body).toContain(BERT_FULL_NAME);
+    expect(sections.architecture.body).toContain("decoder-only models");
+    expect(sections.architecture.body).toContain(
       "bidirectional self-attention",
     );
-    expect(page.messages.sections.inputsAndOutputs.body).toContain("WordPiece");
-    expect(page.messages.sections.inputsAndOutputs.body).toContain(
-      "position embedding",
-    );
-    expect(page.messages.sections.inputsAndOutputs.body).toContain(
-      "segment embedding",
-    );
-    expect(page.messages.sections.training.body).toContain(
-      "masked language modeling",
-    );
-    expect(page.messages.sections.practicalNotes.body).not.toContain(
-      "benchmark",
-    );
+    expect(sections.inputsAndOutputs.body).toContain("WordPiece");
+    expect(sections.inputsAndOutputs.body).toContain("position embedding");
+    expect(sections.inputsAndOutputs.body).toContain("segment embedding");
+    expect(sections.training.body).toContain("masked language modeling");
+    expect(sections.practicalNotes.body).not.toContain("benchmark");
     expect(page.messages.relatedDocs).toMatchObject({
       "paper.bert-pre-training-of-deep-bidirectional-transformers": {
         reason: expect.any(String),
