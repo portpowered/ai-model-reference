@@ -98,7 +98,9 @@ describe("t5 model registry record", () => {
   });
 
   test("reverse module and training links list T5 as a published consumer", () => {
-    const relativePositionBias = getModuleById("module.t5-relative-position-bias");
+    const relativePositionBias = getModuleById(
+      "module.t5-relative-position-bias",
+    );
     expect(relativePositionBias?.usedByModelIds).toContain("model.t5");
     expect(relativePositionBias?.exampleModelIds).toContain("model.t5");
     expect(relativePositionBias?.relatedIds).toContain("model.t5");

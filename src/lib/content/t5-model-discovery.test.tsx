@@ -54,7 +54,9 @@ describe("t5 model discovery surfaces", () => {
         "feed-forward",
       ]),
     );
-    expect(t5Document?.relatedIds).toContain("module.t5-relative-position-bias");
+    expect(t5Document?.relatedIds).toContain(
+      "module.t5-relative-position-bias",
+    );
     expect(t5Document?.relatedIds).toContain("concept.encoder-decoder");
     expect(t5Document?.relatedIds).toContain("training-regime.pretraining");
   });

@@ -15,7 +15,9 @@ describe("t5 model page discovery surfaces", () => {
   test("registry keeps T5 relative position bias as an explicit curated discovery path", () => {
     const record = getModelById("model.t5");
     expect(record?.relatedIds).toContain("module.t5-relative-position-bias");
-    expect(record?.relatedIds).toContain("training-regime.supervised-fine-tuning");
+    expect(record?.relatedIds).toContain(
+      "training-regime.supervised-fine-tuning",
+    );
   });
 
   test("derived related docs surface tokenization, position bias, and training links", () => {
@@ -32,9 +34,9 @@ describe("t5 model page discovery surfaces", () => {
       />,
     );
 
-    expect(html.match(/href="\/docs\/modules\/sentencepiece"/g) ?? []).toHaveLength(
-      1,
-    );
+    expect(
+      html.match(/href="\/docs\/modules\/sentencepiece"/g) ?? [],
+    ).toHaveLength(1);
     expect(
       html.match(/href="\/docs\/modules\/t5-relative-position-bias"/g) ?? [],
     ).toHaveLength(1);
