@@ -1,0 +1,24 @@
+{
+  "id": "citation.gemma-4-technical-report",
+  "slug": "gemma-4-technical-report",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Gemma 4 Technical Report",
+    "Gemma 4 technical report",
+    "Gemma Team Google DeepMind technical report"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Google DeepMind", "Gemma Team"],
+  "title": "Gemma 4 Technical Report",
+  "url": "https://arxiv.org/abs/2607.02770",
+  "mla": "Gemma Team, Google DeepMind. \"Gemma 4 Technical Report.\" arXiv:2607.02770, 2026.",
+  "year": 2026
+}
