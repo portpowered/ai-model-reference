@@ -62,7 +62,9 @@ describe("t5 model registry record", () => {
         "feed-forward",
       ]),
     );
-    expect(model?.parameterCount).toBe("11 billion parameters (base)");
+    expect(model?.parameterCount).toBe(
+      "60M to 11B parameters (family variants)",
+    );
     expect(model?.contextLength).toBe(512);
     expect(model?.citationIds).toEqual(["citation.raffel-t5"]);
     expect(model?.sourceId).toBe("citation.raffel-t5");

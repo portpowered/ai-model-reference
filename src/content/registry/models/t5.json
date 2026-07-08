@@ -70,6 +70,6 @@
   "datasetIds": [],
   "paperIds": [],
   "releaseDate": "2019-10-23",
-  "parameterCount": "11 billion parameters (base)",
+  "parameterCount": "60M to 11B parameters (family variants)",
   "contextLength": 512
 }
