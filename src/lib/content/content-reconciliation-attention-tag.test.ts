@@ -91,7 +91,6 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     const modelGroup = groups.find((group) => group.kind === "model");
     expect(modelGroup?.kindLabel).toBe("Model");
     expect(modelGroup?.resources.map((resource) => resource.url)).toEqual([
-      "/docs/models/bert",
       "/docs/models/deepseek-v4-flash",
       "/docs/models/deepseek-v4-pro",
       "/docs/models/glm-5",

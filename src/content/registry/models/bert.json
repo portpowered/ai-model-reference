@@ -13,7 +13,7 @@
     "encoder-only transformer",
     "bidirectional transformer encoder"
   ],
-  "tags": ["foundations", "model-family", "attention", "tokenization"],
+  "tags": ["foundations", "model-family", "tokenization"],
   "relatedIds": [
     "paper.bert-pre-training-of-deep-bidirectional-transformers",
     "concept.transformer-architecture",
