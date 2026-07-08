@@ -39,6 +39,9 @@ describe("blog content loader lane isolation", () => {
       ].sort(),
     );
     await expect(
+      getPublishedBlogPostBySlug("evolution-of-diffusion"),
+    ).resolves.toMatchObject({ slug: "evolution-of-diffusion" });
+    await expect(
       getPublishedBlogPostBySlug("llm-training-shift"),
     ).resolves.toMatchObject({ slug: "llm-training-shift" });
     await expect(
