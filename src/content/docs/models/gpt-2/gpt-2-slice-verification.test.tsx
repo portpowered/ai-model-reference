@@ -205,20 +205,23 @@ describe("GPT-2 slice verification (gpt-2-model-page-current-main-005)", () => {
     expect(html).not.toContain("Draft placeholder");
   });
 
-  test.each(SEARCH_QUERIES)(
-    "search query %s resolves to the canonical GPT-2 page",
-    async (query) => {
+  test("representative search queries surface the canonical GPT-2 page", async () => {
+    for (const query of SEARCH_QUERIES) {
       const results = await docsSearchApi.search(query);
       expect(results.length).toBeGreaterThan(0);
       expect(resultsIncludeUrl(results, MODEL_URL)).toBe(true);
-    },
-  );
+    }
+  });
 
   test("related-doc traversal exposes transformer architecture, tokenization, sampling, and GPT-2 report discovery paths", () => {
     const relatedHtml = renderToStaticMarkup(
       createElement(DerivedRelatedDocs, {
         registryId: MODEL_ID,
-        groups: ["curated-related", "shared-modules", "shared-training-regimes"],
+        groups: [
+          "curated-related",
+          "shared-modules",
+          "shared-training-regimes",
+        ],
       }),
     );
 
