@@ -15,7 +15,6 @@
   "relatedIds": [
     "model.gpt-3",
     "model.llama-3",
-    "model.t5",
     "concept.transformer-architecture",
     "module.byte-level-tokenization",
     "module.bpe",
@@ -44,7 +43,7 @@
   "sourceId": "citation.gpt-2-report",
   "primaryClassificationId": "classification.training.pretraining",
   "regimeType": "pretraining",
-  "usedByModelIds": ["model.gpt-3", "model.llama-3", "model.t5"],
+  "usedByModelIds": ["model.gpt-3", "model.llama-3"],
   "relatedModuleIds": ["module.byte-level-tokenization", "module.bpe"],
   "paperIds": [],
   "conceptType": "training",

@@ -9,8 +9,7 @@
   "relatedIds": [
     "training-regime.pretraining",
     "training-regime.dpo",
-    "concept.alignment",
-    "model.t5"
+    "concept.alignment"
   ],
   "citationIds": [
     "citation.training-language-models-to-follow-instructions-with-human-feedback"
@@ -46,7 +45,7 @@
   "sidebarGrouping": {
     "training": "post-training"
   },
-  "usedByModelIds": ["model.t5"],
+  "usedByModelIds": [],
   "relatedModuleIds": [],
   "paperIds": [],
   "conceptType": "training",

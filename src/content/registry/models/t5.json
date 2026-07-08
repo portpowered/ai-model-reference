@@ -13,7 +13,6 @@
   "tags": [
     "foundations",
     "model-family",
-    "attention",
     "tokenization",
     "position-encoding",
     "feed-forward"
