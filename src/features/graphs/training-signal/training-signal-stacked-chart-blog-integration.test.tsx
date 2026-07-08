@@ -8,7 +8,9 @@ import {
 } from "@/lib/content/blog-page-load";
 import { renderBlogPostShell } from "@/lib/content/blog-shell-render";
 
-const BLOG_SLUG = "llm-training-shift";
+const LLM_TRAINING_SHIFT_SLUG = "llm-training-shift";
+const LLMS_NO_LONGER_RELIANT_SLUG =
+  "llms-no-longer-wholly-reliant-on-the-internet";
 
 describe("training signal stacked chart blog integration", () => {
   test("build-time wrapper renders the default conceptual chart without client fetches", () => {
@@ -25,10 +27,12 @@ describe("training signal stacked chart blog integration", () => {
   });
 
   test("llm-training-shift blog post renders the stacked chart on /blog/llm-training-shift", async () => {
-    const post = await loadBlogPostFromDisk(BLOG_SLUG);
+    const post = await loadBlogPostFromDisk(LLM_TRAINING_SHIFT_SLUG);
     const html = renderBlogPostShell(post);
 
-    expect(blogPostHref(BLOG_SLUG)).toBe("/blog/llm-training-shift");
+    expect(blogPostHref(LLM_TRAINING_SHIFT_SLUG)).toBe(
+      "/blog/llm-training-shift",
+    );
     expect(post.frontmatter.status).toBe("published");
     expect(html).toContain('data-training-signal-chart="ready"');
     expect(html).toContain(
@@ -44,5 +48,27 @@ describe("training signal stacked chart blog integration", () => {
     expect(html).toContain('href="/tags/alignment"');
     expect(html).not.toContain('href="/tags/training"');
     expect(html).not.toContain('href="/tags/post-training"');
+  });
+
+  test("llms-no-longer-wholly-reliant-on-the-internet blog post renders the stacked chart near the timeline", async () => {
+    const post = await loadBlogPostFromDisk(LLMS_NO_LONGER_RELIANT_SLUG);
+    const html = renderBlogPostShell(post);
+
+    expect(blogPostHref(LLMS_NO_LONGER_RELIANT_SLUG)).toBe(
+      "/blog/llms-no-longer-wholly-reliant-on-the-internet",
+    );
+    expect(post.frontmatter.status).toBe("published");
+    expect(html).toContain('data-training-signal-chart="ready"');
+    expect(html).toContain('data-value-mode="conceptual"');
+    expect(html).toContain("Conceptual illustration");
+    expect(html).toContain("How training signals accumulated over time");
+    expect(html).toContain(
+      "Illustrative training-signal mix across three eras",
+    );
+    expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.pretrainingCorpus);
+    expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.syntheticTraces);
+    expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.onPolicyDistillation);
+    expect(html).toContain("Few-shot prompting");
+    expect(html).toContain("Key post-training and feedback loops");
   });
 });

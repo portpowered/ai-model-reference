@@ -300,6 +300,11 @@ describe("production blog tag landing", () => {
           publishedAt: "2026-07-08",
         }),
         expect.objectContaining({
+          title: "LLMs are no longer wholly reliant on the internet",
+          url: "/blog/llms-no-longer-wholly-reliant-on-the-internet",
+          publishedAt: "2026-07-08",
+        }),
+        expect.objectContaining({
           title:
             "Roofline maximum throughput: the practical upper bound before you compare hardware",
           url: "/blog/roofline-max-throughput",
@@ -394,6 +399,10 @@ describe("production blog tag landing", () => {
       "How diffusion generation evolved from pixel U-Nets to transformers, flow matching, and modern video models",
     );
     expect(html).toContain('href="/blog/evolution-of-diffusion"');
+    expect(html).toContain("LLMs are no longer wholly reliant on the internet");
+    expect(html).toContain(
+      'href="/blog/llms-no-longer-wholly-reliant-on-the-internet"',
+    );
     expect(html).toContain(
       "Roofline maximum throughput: the practical upper bound before you compare hardware",
     );
@@ -409,6 +418,31 @@ describe("production blog tag landing", () => {
     );
     expect(html).toContain('dateTime="2026-07-02"');
     expect(html).toContain('href="/tags/kv-cache"');
+  });
+
+  it("lists llms-no-longer-wholly-reliant-on-the-internet on the alignment tag landing page", async () => {
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups("alignment", messages, "en");
+    const blogGroup = groups.find((group) => group.kind === "blog");
+
+    expect(blogGroup).toBeDefined();
+    expect(
+      blogGroup?.resources.some(
+        (resource) =>
+          resource.slug === "llms-no-longer-wholly-reliant-on-the-internet",
+      ),
+    ).toBe(true);
+
+    const page = await TagLandingPage({
+      params: Promise.resolve({ slug: "alignment" }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("LLMs are no longer wholly reliant on the internet");
+    expect(html).toContain(
+      'href="/blog/llms-no-longer-wholly-reliant-on-the-internet"',
+    );
+    expect(html).toContain('dateTime="2026-07-08"');
   });
 });
 

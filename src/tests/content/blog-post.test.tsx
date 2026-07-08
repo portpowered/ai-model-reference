@@ -82,6 +82,42 @@ describe("blog post page render", () => {
     );
   }
 
+  it("renders the production llms-no-longer-wholly-reliant-on-the-internet post with metadata and MDX body content", async () => {
+    const page = await renderBlogPostPage(
+      "llms-no-longer-wholly-reliant-on-the-internet",
+    );
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("LLMs are no longer wholly reliant on the internet");
+    expect(html).toContain(
+      "Why modern language-model quality still starts with internet-scale pretraining",
+    );
+    expect(html).toContain('dateTime="2026-07-08"');
+    expect(html).toContain("July 8, 2026");
+    expect(html).toContain('class="sr-only">Authors: </span>');
+    expect(html).toContain("Site Team");
+    expect(html).toContain("Foundations");
+    expect(html).toContain("Alignment");
+    expect(html).toContain(
+      'data-blog-slug="llms-no-longer-wholly-reliant-on-the-internet"',
+    );
+    expect(html).toContain("The training-signal shift");
+    expect(html).toContain("How training signals accumulated over time");
+    expect(html).toContain("Few-shot prompting");
+    expect(html).toContain("Key post-training and feedback loops");
+    expect(html).toContain(
+      "Internet-scale pretraining remains the foundation of modern LLMs",
+    );
+    expect(html).toContain('data-training-signal-chart="ready"');
+    expect(html).toContain("Conceptual illustration");
+    expect(html).toContain("Broad pretraining corpus");
+    expect(html).toContain("On-policy distillation / self-distillation");
+    expect(html).toContain('data-testid="blog-related-docs"');
+    expect(html).toContain('href="/docs/training/rlhf"');
+    expect(html).toContain('href="/docs/training/rlvr"');
+    expect(html).toContain("Related reference pages");
+  });
+
   it("renders the production roofline post with metadata and MDX body content", async () => {
     const page = await renderBlogPostPage("roofline-throughput-explorer");
     const html = renderToStaticMarkup(page);
