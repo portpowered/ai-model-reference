@@ -1,0 +1,16 @@
+{
+  "title": "How diffusion generation evolved from pixel U-Nets to transformers, flow matching, and modern video models",
+  "description": "A narrative arc from denoising diffusion probabilistic models and convolutional U-Net backbones through CLIP-conditioned image systems, latent diffusion, diffusion transformers, flow matching, and source-backed open video and world-model examples.",
+  "contextSentence": "Generation systems did not jump straight to modern video models — they moved through pixel denoising, stronger conditioning, compressed latents, transformer denoisers, revised training objectives, and finally multimodal video and world-model stacks readers can follow without reading every paper first.",
+  "takeaway": "Start with denoising diffusion and U-Net backbones, add cross-modal conditioning and latent compression, then swap in diffusion transformers and flow-style objectives before recent open systems extend the same iterative loop to synchronized video, audio, and world simulation.",
+  "callouts": {
+    "narrativeScope": {
+      "title": "Narrative scope",
+      "body": "This post keeps the historical sequence in one place. Canonical reference pages linked below carry module, concept, and model detail; this narrative summarizes roles in the evolution arc without replacing those pages."
+    },
+    "sourceBackedExamples": {
+      "title": "Source-backed examples",
+      "body": "Named modern models appear here only with claims grounded in public release materials and model pages on this site. Parameter counts, release dates, licensing, and deployment details can change — confirm those facts in the linked model pages and primary citations rather than treating this post as a product announcement."
+    }
+  }
+}
