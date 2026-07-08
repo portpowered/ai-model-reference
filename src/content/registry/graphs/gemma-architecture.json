@@ -4,34 +4,37 @@
   "kind": "graph",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["Gemma architecture graph", "Gemma 4 family architecture"],
+  "aliases": [
+    "Gemma architecture graph",
+    "Gemma 4 multimodal architecture flow"
+  ],
   "tags": ["foundations", "model-family", "context-window", "attention"],
   "relatedIds": [
-    "concept.multimodal-model",
     "concept.transformer-architecture",
-    "concept.autoregressive-generation",
+    "concept.multimodal-model",
     "concept.mixture-of-experts",
     "concept.context-window",
     "module.mixture-of-experts"
   ],
   "citationIds": [
     "citation.gemma-4-technical-report",
-    "citation.gemma-4-model-card"
+    "citation.gemma-4-model-card",
+    "citation.gemma-4-docs-overview"
   ],
   "status": "published",
   "createdAt": "2026-07-08T00:00:00.000Z",
   "updatedAt": "2026-07-08T07:00:00.000Z",
   "subjectId": "model.gemma",
   "graphType": "model-architecture",
-  "rootNodeId": "text-output",
+  "rootNodeId": "output-probabilities",
   "layout": "vertical-expandable",
   "defaultExpandedDepth": 1,
   "supportedRenderers": ["react-flow", "vertical-svg"],
   "nodes": [
     {
-      "id": "text-output",
-      "labelKey": "graph.nodes.textOutput.label",
-      "summaryKey": "graph.nodes.textOutput.summary",
+      "id": "output-probabilities",
+      "labelKey": "graph.nodes.outputProbabilities.label",
+      "summaryKey": "graph.nodes.outputProbabilities.summary",
       "registryId": "concept.autoregressive-generation",
       "moduleKind": "output",
       "position": { "x": 290, "y": 0 },
@@ -84,9 +87,9 @@
       "childNodeIds": []
     },
     {
-      "id": "ffn-sublayer",
-      "labelKey": "graph.nodes.ffnSublayer.label",
-      "summaryKey": "graph.nodes.ffnSublayer.summary",
+      "id": "moe-sublayer",
+      "labelKey": "graph.nodes.moeSublayer.label",
+      "summaryKey": "graph.nodes.moeSublayer.summary",
       "moduleKind": "block",
       "position": { "x": 222, "y": 456 },
       "size": { "width": 305, "height": 150 },
@@ -121,8 +124,8 @@
       "id": "long-context-attention",
       "labelKey": "graph.nodes.longContextAttention.label",
       "summaryKey": "graph.nodes.longContextAttention.summary",
-      "relatedRegistryId": "module.multi-head-attention",
       "registryId": "concept.context-window",
+      "relatedRegistryId": "module.multi-head-attention",
       "moduleKind": "attention",
       "position": { "x": 260, "y": 366 },
       "size": { "width": 230, "height": 82 },
@@ -131,9 +134,9 @@
       "childNodeIds": []
     },
     {
-      "id": "rmsnorm-ffn",
-      "labelKey": "graph.nodes.rmsnormFfn.label",
-      "summaryKey": "graph.nodes.rmsnormFfn.summary",
+      "id": "rmsnorm-moe",
+      "labelKey": "graph.nodes.rmsnormMoe.label",
+      "summaryKey": "graph.nodes.rmsnormMoe.summary",
       "registryId": "module.rmsnorm",
       "moduleKind": "normalization",
       "position": { "x": 275, "y": 474 },
@@ -143,9 +146,9 @@
       "childNodeIds": []
     },
     {
-      "id": "feed-forward-path",
-      "labelKey": "graph.nodes.feedForwardPath.label",
-      "summaryKey": "graph.nodes.feedForwardPath.summary",
+      "id": "moe-routing",
+      "labelKey": "graph.nodes.moeRouting.label",
+      "summaryKey": "graph.nodes.moeRouting.summary",
       "registryId": "module.mixture-of-experts",
       "moduleKind": "feed-forward",
       "position": { "x": 260, "y": 532 },
@@ -155,25 +158,61 @@
       "childNodeIds": []
     },
     {
-      "id": "multimodal-fusion",
-      "labelKey": "graph.nodes.multimodalFusion.label",
-      "summaryKey": "graph.nodes.multimodalFusion.summary",
-      "registryId": "concept.multimodal-model",
+      "id": "rope-inject",
+      "labelKey": "graph.nodes.ropeInject.label",
+      "summaryKey": "graph.nodes.ropeInject.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "other",
+      "position": { "x": 353, "y": 682 },
+      "size": { "width": 46, "height": 46 },
+      "visualRole": "operator-circle",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "rope",
+      "labelKey": "graph.nodes.rope.label",
+      "summaryKey": "graph.nodes.rope.summary",
+      "registryId": "module.rope",
       "moduleKind": "embedding",
-      "position": { "x": 250, "y": 700 },
-      "size": { "width": 250, "height": 72 },
+      "position": { "x": 68, "y": 780 },
+      "size": { "width": 190, "height": 80 },
       "visualRole": "architecture-embedding",
       "zIndex": 3,
       "childNodeIds": []
     },
     {
-      "id": "text-prompt",
-      "labelKey": "graph.nodes.textPrompt.label",
-      "summaryKey": "graph.nodes.textPrompt.summary",
+      "id": "input-embedding",
+      "labelKey": "graph.nodes.inputEmbedding.label",
+      "summaryKey": "graph.nodes.inputEmbedding.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "embedding",
+      "position": { "x": 273, "y": 780 },
+      "size": { "width": 205, "height": 62 },
+      "visualRole": "architecture-embedding",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "multimodal-encoding",
+      "labelKey": "graph.nodes.multimodalEncoding.label",
+      "summaryKey": "graph.nodes.multimodalEncoding.summary",
+      "registryId": "concept.multimodal-model",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 880 },
+      "size": { "width": 210, "height": 62 },
+      "visualRole": "architecture-linear",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "text-input",
+      "labelKey": "graph.nodes.textInput.label",
+      "summaryKey": "graph.nodes.textInput.summary",
       "registryId": "concept.token",
       "moduleKind": "input",
-      "position": { "x": 90, "y": 820 },
-      "size": { "width": 150, "height": 60 },
+      "position": { "x": 80, "y": 980 },
+      "size": { "width": 140, "height": 60 },
       "visualRole": "architecture-io",
       "zIndex": 3,
       "childNodeIds": []
@@ -184,8 +223,8 @@
       "summaryKey": "graph.nodes.imageInput.summary",
       "registryId": "concept.representation",
       "moduleKind": "input",
-      "position": { "x": 290, "y": 820 },
-      "size": { "width": 150, "height": 60 },
+      "position": { "x": 240, "y": 980 },
+      "size": { "width": 140, "height": 60 },
       "visualRole": "architecture-io",
       "zIndex": 3,
       "childNodeIds": []
@@ -196,8 +235,8 @@
       "summaryKey": "graph.nodes.audioInput.summary",
       "registryId": "concept.modality",
       "moduleKind": "input",
-      "position": { "x": 490, "y": 820 },
-      "size": { "width": 150, "height": 60 },
+      "position": { "x": 400, "y": 980 },
+      "size": { "width": 140, "height": 60 },
       "visualRole": "architecture-io",
       "zIndex": 3,
       "childNodeIds": []
@@ -205,9 +244,9 @@
   ],
   "edges": [
     {
-      "id": "softmax-to-text-output",
+      "id": "softmax-to-output-probabilities",
       "source": "softmax",
-      "target": "text-output",
+      "target": "output-probabilities",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
@@ -221,32 +260,32 @@
       "targetHandleSide": "bottom"
     },
     {
-      "id": "rmsnorm-ffn-to-linear",
-      "source": "rmsnorm-ffn",
+      "id": "rmsnorm-moe-to-linear",
+      "source": "rmsnorm-moe",
       "target": "linear",
       "edgeKind": "control-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },
     {
-      "id": "feed-forward-path-to-rmsnorm-ffn",
-      "source": "feed-forward-path",
-      "target": "rmsnorm-ffn",
+      "id": "moe-routing-to-rmsnorm-moe",
+      "source": "moe-routing",
+      "target": "rmsnorm-moe",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },
     {
-      "id": "rmsnorm-attention-to-feed-forward-path",
+      "id": "rmsnorm-attention-to-moe-routing",
       "source": "rmsnorm-attention",
-      "target": "feed-forward-path",
+      "target": "moe-routing",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },
     {
-      "id": "rmsnorm-ffn-to-rmsnorm-attention",
-      "source": "rmsnorm-ffn",
+      "id": "rmsnorm-attention-to-rmsnorm-moe",
+      "source": "rmsnorm-moe",
       "target": "rmsnorm-attention",
       "edgeKind": "residual",
       "sourceHandleSide": "right",
@@ -261,33 +300,65 @@
       "targetHandleSide": "bottom"
     },
     {
-      "id": "multimodal-fusion-to-long-context-attention",
-      "source": "multimodal-fusion",
+      "id": "rope-inject-to-long-context-attention",
+      "source": "rope-inject",
       "target": "long-context-attention",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },
     {
-      "id": "text-prompt-to-multimodal-fusion",
-      "source": "text-prompt",
-      "target": "multimodal-fusion",
+      "id": "rope-inject-to-rmsnorm-attention",
+      "source": "rope-inject",
+      "target": "rmsnorm-attention",
+      "edgeKind": "residual",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "input-embedding-to-rope-inject",
+      "source": "input-embedding",
+      "target": "rope-inject",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },
     {
-      "id": "image-input-to-multimodal-fusion",
+      "id": "rope-to-rope-inject",
+      "source": "rope",
+      "target": "rope-inject",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "multimodal-encoding-to-input-embedding",
+      "source": "multimodal-encoding",
+      "target": "input-embedding",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "text-input-to-multimodal-encoding",
+      "source": "text-input",
+      "target": "multimodal-encoding",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "image-input-to-multimodal-encoding",
       "source": "image-input",
-      "target": "multimodal-fusion",
+      "target": "multimodal-encoding",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },
     {
-      "id": "audio-input-to-multimodal-fusion",
+      "id": "audio-input-to-multimodal-encoding",
       "source": "audio-input",
-      "target": "multimodal-fusion",
+      "target": "multimodal-encoding",
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"

@@ -74,7 +74,7 @@ describe("Gemma architecture graph", () => {
     cleanup();
   });
 
-  test("registry graph record exposes multimodal inputs, long-context attention, and dense or MoE feed-forward nodes", () => {
+  test("registry graph record exposes multimodal inputs, backbone, and MoE path", () => {
     const graph = getGraphById(GRAPH_ID);
     expect(graph).toBeDefined();
     if (!graph) {
@@ -82,63 +82,61 @@ describe("Gemma architecture graph", () => {
     }
 
     expect(graph.graphType).toBe("model-architecture");
-    expect(graph.rootNodeId).toBe("text-output");
-    expect(graph.nodes.length).toBeGreaterThanOrEqual(14);
-    expect(graph.edges.length).toBeGreaterThanOrEqual(10);
+    expect(graph.rootNodeId).toBe("output-probabilities");
+    expect(graph.nodes.length).toBeGreaterThanOrEqual(17);
+    expect(graph.edges.length).toBeGreaterThanOrEqual(14);
 
     const nodeIds = graph.nodes.map((node) => node.id);
     expect(nodeIds).toEqual(
       expect.arrayContaining([
-        "text-prompt",
+        "text-input",
         "image-input",
         "audio-input",
-        "multimodal-fusion",
+        "multimodal-encoding",
         "long-context-attention",
-        "feed-forward-path",
-        "text-output",
-        "repeat-marker",
+        "moe-routing",
+        "output-probabilities",
       ]),
     );
   });
 
-  test("buildRegistryFlowGraph resolves multimodal fusion and dense-or-MoE semantics", () => {
+  test("buildRegistryFlowGraph resolves multimodal and MoE labels", () => {
     const graph = getGraphById(GRAPH_ID);
     expect(graph).toBeDefined();
     if (!graph) {
       return;
     }
 
-    const fusionNode = graph.nodes.find(
-      (node) => node.id === "multimodal-fusion",
+    const multimodalNode = graph.nodes.find(
+      (node) => node.id === "multimodal-encoding",
     );
     const attentionNode = graph.nodes.find(
       (node) => node.id === "long-context-attention",
     );
-    const ffnNode = graph.nodes.find((node) => node.id === "feed-forward-path");
+    const moeNode = graph.nodes.find((node) => node.id === "moe-routing");
 
-    expect(fusionNode?.registryId).toBe("concept.multimodal-model");
+    expect(multimodalNode?.registryId).toBe("concept.multimodal-model");
     expect(attentionNode?.registryId).toBe("concept.context-window");
-    expect(ffnNode?.registryId).toBe("module.mixture-of-experts");
+    expect(moeNode?.registryId).toBe("module.mixture-of-experts");
     expect(
-      resolveGraphNodeLabel(gemmaMessages, fusionNode?.labelKey ?? ""),
-    ).toBe("Multimodal\nFusion");
+      resolveGraphNodeLabel(gemmaMessages, multimodalNode?.labelKey ?? ""),
+    ).toBe("Multimodal\nEncoding");
     expect(
       resolveGraphNodeLabel(gemmaMessages, attentionNode?.labelKey ?? ""),
     ).toBe("Long-Context\nAttention");
-    expect(resolveGraphNodeLabel(gemmaMessages, ffnNode?.labelKey ?? "")).toBe(
-      "Dense FFN\nor MoE",
-    );
 
     const { nodes } = buildRegistryFlowGraph(graph, gemmaMessages);
     const labels = nodes.map((node) => node.data.label);
 
-    expect(labels).toContain("Multimodal\nFusion");
+    expect(labels).toContain("Multimodal\nEncoding");
     expect(labels).toContain("Long-Context\nAttention");
-    expect(labels).toContain("Dense FFN\nor MoE");
-    expect(labels).toContain("N×");
+    expect(labels).toContain("MoE or\nDense FFN");
+    expect(labels).toContain("Text\nInput");
+    expect(labels).toContain("Image\nInput");
+    expect(labels).toContain("Audio\nInput");
   });
 
-  test("RegistryGraphFlow renders readable multimodal and feed-forward markers with message-backed alt text", () => {
+  test("RegistryGraphFlow renders readable markers with message-backed alt text", () => {
     const html = renderToStaticMarkup(
       <PageMessagesProvider messages={gemmaMessages} isDev={false}>
         <PageAssetsProvider assets={gemmaAssets} isDev={false}>
@@ -153,31 +151,33 @@ describe("Gemma architecture graph", () => {
 
     expect(html).toContain(`data-graph-id="${GRAPH_ID}"`);
     expect(html).toContain('data-react-flow-graph="true"');
-    expect(html).toContain('data-graph-node-id="multimodal-fusion"');
+    expect(html).toContain('data-graph-node-id="multimodal-encoding"');
     expect(html).toContain('data-graph-node-id="long-context-attention"');
-    expect(html).toContain('data-graph-node-id="feed-forward-path"');
-    expect(html).toContain('data-graph-node-id="text-prompt"');
+    expect(html).toContain('data-graph-node-id="moe-routing"');
+    expect(html).toContain('data-graph-node-id="text-input"');
     expect(html).toContain("Multimodal");
     expect(html).toContain("Long-Context");
-    expect(html).toContain("Dense FFN");
     expect(html).toContain(
-      "Gemma 4 architecture diagram showing text, image, and audio inputs fused into a shared multimodal backbone",
+      "Gemma 4 architecture diagram showing text, image, and audio inputs encoded into a shared multimodal backbone",
     );
   });
 
-  test("hydrated graph exposes multimodal fusion and feed-forward labels", () => {
+  test("hydrated graph exposes multimodal and MoE node labels", () => {
     renderArchitectureGraph();
 
     expect(
       screen.getByLabelText(
-        /Gemma 4 architecture diagram showing text, image, and audio inputs fused into a shared multimodal backbone/,
+        /Gemma 4 architecture diagram showing text, image, and audio inputs encoded into a shared multimodal backbone/,
       ),
     ).toBeTruthy();
     expect(
-      document.querySelector('[data-graph-node-id="multimodal-fusion"]'),
+      document.querySelector('[data-graph-node-id="multimodal-encoding"]'),
     ).toBeTruthy();
     expect(
-      document.querySelector('[data-graph-node-id="feed-forward-path"]'),
+      document.querySelector('[data-graph-node-id="long-context-attention"]'),
+    ).toBeTruthy();
+    expect(
+      document.querySelector('[data-graph-node-id="moe-routing"]'),
     ).toBeTruthy();
     expect(document.querySelector(".react-flow__node")).toBeTruthy();
   });
@@ -199,20 +199,28 @@ describe("Gemma architecture graph", () => {
   </head>
   <body>
     <div
-      id="fusion-node"
+      id="multimodal-node"
       class="registry-graph-flow__process-node"
-      style="width: 250px; height: 72px;"
+      style="width: 210px; height: 62px;"
     >
       Multimodal
-Fusion
+Encoding
     </div>
     <div
-      id="ffn-node"
+      id="attention-node"
       class="registry-graph-flow__process-node"
       style="width: 230px; height: 82px;"
     >
-      Dense FFN
-or MoE
+      Long-Context
+Attention
+    </div>
+    <div
+      id="moe-node"
+      class="registry-graph-flow__process-node"
+      style="width: 230px; height: 82px;"
+    >
+      MoE or
+Dense FFN
     </div>
   </body>
 </html>`;
@@ -221,13 +229,17 @@ or MoE
 
     try {
       for (const viewport of [
-        { width: 1280, height: 800 },
-        { width: 375, height: 667 },
+        { width: 1280, height: 800, name: "desktop" },
+        { width: 375, height: 667, name: "mobile" },
       ]) {
         const page = await browser.newPage({ viewport });
         await page.setContent(fixtureHtml, { waitUntil: "domcontentloaded" });
 
-        for (const nodeId of ["fusion-node", "ffn-node"]) {
+        for (const nodeId of [
+          "multimodal-node",
+          "attention-node",
+          "moe-node",
+        ]) {
           const metrics = await page.evaluate((id) => {
             const element = document.getElementById(id);
             if (!element) {
@@ -268,17 +280,13 @@ or MoE
     );
 
     expect(page.messages.sections?.architecture.body).toContain(
-      "multimodal architecture",
-    );
-    expect(page.messages.sections?.architecture.body).toContain(
-      "mixture of experts",
+      "architecture graph below",
     );
     expect(html).toContain('data-page-asset="architectureGraph"');
     expect(html).toContain(`data-graph-id="${GRAPH_ID}"`);
     expect(html).toContain('data-react-flow-graph="true"');
     expect(html).toContain("Multimodal");
     expect(html).toContain("Long-Context");
-    expect(html).toContain("Dense FFN");
   });
 
   test("served model page exposes the architecture graph at desktop and mobile widths", async () => {
@@ -307,14 +315,18 @@ or MoE
         const nodeCount = Number(
           (await graph.getAttribute("data-graph-node-count")) ?? "0",
         );
-        expect(nodeCount).toBeGreaterThanOrEqual(14);
+        expect(nodeCount).toBeGreaterThanOrEqual(17);
 
         await page
-          .locator('[data-graph-node-id="multimodal-fusion"]')
+          .locator('[data-graph-node-id="multimodal-encoding"]')
           .first()
           .waitFor({ state: "attached" });
         await page
-          .locator('[data-graph-node-id="feed-forward-path"]')
+          .locator('[data-graph-node-id="long-context-attention"]')
+          .first()
+          .waitFor({ state: "attached" });
+        await page
+          .locator('[data-graph-node-id="moe-routing"]')
           .first()
           .waitFor({ state: "attached" });
 

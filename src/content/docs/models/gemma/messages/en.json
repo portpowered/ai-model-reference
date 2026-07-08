@@ -13,7 +13,7 @@
     },
     "architecture": {
       "title": "Architecture",
-      "body": "Google DeepMind describes Gemma 4 as a transformer block family with multimodal architecture support for text, image, and audio references feeding one backbone. Dense checkpoints at 12B and 31B keep the familiar repeated attention and feed-forward transformer stack, while the 26B A4B checkpoint uses mixture of experts routing on the feed-forward path so total parameter capacity can grow without paying full dense cost on every token. Public sources highlight long-context attention out to 256K tokens, per-layer embeddings on selected variants, and inference-oriented optimizations such as draft-token acceptance described in release materials. Earlier Gemma 3 and Gemma 3n releases mainly matter as family history for multimodal and on-device experimentation; they do not replace Gemma 4 as the architectural reference point on this page."
+      "body": "Google DeepMind describes Gemma 4 as a transformer block family with multimodal architecture support for text, image, and audio references feeding one backbone. Dense checkpoints at 12B and 31B keep the familiar repeated attention and feed-forward transformer stack, while the 26B A4B checkpoint uses mixture of experts routing on the feed-forward path so total parameter capacity can grow without paying full dense cost on every token. Public sources highlight long-context attention out to 256K tokens, per-layer embeddings on selected variants, and inference-oriented optimizations such as draft-token acceptance described in release materials. The architecture graph below shows that multimodal flow at a high level; dense variants swap the expert router for a standard feed-forward path. Earlier Gemma 3 and Gemma 3n releases mainly matter as family history for multimodal and on-device experimentation; they do not replace Gemma 4 as the architectural reference point on this page."
     },
     "importantModules": {
       "title": "Important Modules",
@@ -39,18 +39,18 @@
   },
   "assets": {
     "architectureGraph": {
-      "alt": "Gemma 4 architecture diagram showing text, image, and audio inputs fused into a shared multimodal backbone, long-context attention and dense or mixture-of-experts feed-forward blocks in a repeated decoder stack, and autoregressive text output."
+      "alt": "Gemma 4 architecture diagram showing text, image, and audio inputs encoded into a shared multimodal backbone, long-context attention and mixture-of-experts or dense feed-forward decoder blocks, and autoregressive text output."
     }
   },
   "graph": {
     "nodes": {
-      "textOutput": {
+      "outputProbabilities": {
         "label": "Text\nOutput",
-        "summary": "Autoregressive text generation is the primary output for Gemma 4 checkpoints"
+        "summary": "Autoregressive text generation from the Gemma 4 backbone"
       },
       "softmax": {
         "label": "Softmax",
-        "summary": "Turns final vocabulary scores into probabilities for the next token"
+        "summary": "Turns final vocabulary scores into probabilities"
       },
       "linear": {
         "label": "Output\nLinear",
@@ -58,19 +58,19 @@
       },
       "decoderStack": {
         "label": " ",
-        "summary": "Repeated transformer decoder block container for the Gemma 4 backbone"
+        "summary": "Repeated Gemma 4 decoder block container"
       },
       "attentionSublayer": {
         "label": " ",
-        "summary": "Attention sublayer container inside each decoder block"
+        "summary": "Long-context attention sublayer container"
       },
-      "ffnSublayer": {
+      "moeSublayer": {
         "label": " ",
-        "summary": "Feed-forward sublayer container inside each decoder block"
+        "summary": "Feed-forward sublayer container for MoE or dense variants"
       },
       "repeatMarker": {
         "label": "N×",
-        "summary": "This decoder block repeats through the full Gemma 4 stack"
+        "summary": "This decoder block repeats through the full stack"
       },
       "rmsnormAttention": {
         "label": "RMSNorm",
@@ -78,31 +78,43 @@
       },
       "longContextAttention": {
         "label": "Long-Context\nAttention",
-        "summary": "Carries multimodal references across prompts up to 256K tokens when hardware allows"
+        "summary": "Attention stack supporting context length up to 256K tokens"
       },
-      "rmsnormFfn": {
+      "rmsnormMoe": {
         "label": "RMSNorm",
-        "summary": "Normalizes the stream before the feed-forward step"
+        "summary": "Normalizes the residual stream before the feed-forward step"
       },
-      "feedForwardPath": {
-        "label": "Dense FFN\nor MoE",
-        "summary": "12B and 31B checkpoints use dense feed-forward blocks; the 26B A4B member routes experts on this path"
+      "moeRouting": {
+        "label": "MoE or\nDense FFN",
+        "summary": "Expert routing on the 26B A4B variant; dense feed-forward on 12B and 31B checkpoints"
       },
-      "multimodalFusion": {
-        "label": "Multimodal\nFusion",
-        "summary": "Aligns text, image, and audio references into one shared backbone representation"
+      "ropeInject": {
+        "label": "+",
+        "summary": "Applies token states together with rotary position information before the stack"
       },
-      "textPrompt": {
+      "rope": {
+        "label": "RoPE",
+        "summary": "Rotary position encoding gives the attention stack token order information"
+      },
+      "inputEmbedding": {
+        "label": "Token\nEmbedding",
+        "summary": "Maps encoded multimodal references into hidden vectors"
+      },
+      "multimodalEncoding": {
+        "label": "Multimodal\nEncoding",
+        "summary": "Encodes text, image, and audio references into one shared backbone"
+      },
+      "textInput": {
         "label": "Text\nInput",
-        "summary": "Prompt text after tokenization"
+        "summary": "Natural-language prompts and instructions"
       },
       "imageInput": {
         "label": "Image\nInput",
-        "summary": "Image references encoded for the shared backbone"
+        "summary": "Still images that ground visual references"
       },
       "audioInput": {
         "label": "Audio\nInput",
-        "summary": "Audio references encoded for the shared backbone"
+        "summary": "Audio references for speech or sound context"
       }
     }
   }
