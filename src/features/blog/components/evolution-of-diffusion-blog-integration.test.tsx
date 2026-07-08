@@ -170,7 +170,9 @@ describe("evolution of diffusion blog integration", () => {
     const { contextSentence, takeaway } = post.messages;
     const bodyText = document?.bodyText;
     if (!bodyText || !contextSentence || !takeaway) {
-      throw new Error("expected indexed blog search document and message fields");
+      throw new Error(
+        "expected indexed blog search document and message fields",
+      );
     }
     expect(bodyText).toContain(contextSentence);
     expect(bodyText).toContain(takeaway);
