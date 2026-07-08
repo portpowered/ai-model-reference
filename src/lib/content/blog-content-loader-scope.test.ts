@@ -34,6 +34,7 @@ describe("blog content loader lane isolation", () => {
         "evolution-of-diffusion",
         "llm-training-shift",
         "llms-no-longer-wholly-reliant-on-the-internet",
+        "roofline-max-throughput",
         "roofline-throughput-explorer",
       ].sort(),
     );
@@ -47,6 +48,9 @@ describe("blog content loader lane isolation", () => {
     ).resolves.toMatchObject({
       slug: "llms-no-longer-wholly-reliant-on-the-internet",
     });
+    await expect(
+      getPublishedBlogPostBySlug("roofline-max-throughput"),
+    ).resolves.toMatchObject({ slug: "roofline-max-throughput" });
     await expect(
       getPublishedBlogPostBySlug("roofline-throughput-explorer"),
     ).resolves.toMatchObject({ slug: "roofline-throughput-explorer" });

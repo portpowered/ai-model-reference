@@ -300,6 +300,17 @@ describe("production blog tag landing", () => {
           publishedAt: "2026-07-08",
         }),
         expect.objectContaining({
+          title: "LLMs are no longer wholly reliant on the internet",
+          url: "/blog/llms-no-longer-wholly-reliant-on-the-internet",
+          publishedAt: "2026-07-08",
+        }),
+        expect.objectContaining({
+          title:
+            "Roofline maximum throughput: the practical upper bound before you compare hardware",
+          url: "/blog/roofline-max-throughput",
+          publishedAt: "2026-07-08",
+        }),
+        expect.objectContaining({
           title: "Why throughput follows a roofline",
           url: "/blog/roofline-throughput-explorer",
           publishedAt: "2026-07-02",
@@ -318,19 +329,28 @@ describe("production blog tag landing", () => {
 
     expect(kvCacheBlogGroup).toBeDefined();
     expect(kvCacheBlogGroup?.kindLabel).toBe("Blog");
-    expect(kvCacheBlogGroup?.resources).toEqual([
-      expect.objectContaining({
-        title: "Why throughput follows a roofline",
-        url: "/blog/roofline-throughput-explorer",
-        publishedAt: "2026-07-02",
-      }),
-    ]);
+    expect(kvCacheBlogGroup?.resources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title:
+            "Roofline maximum throughput: the practical upper bound before you compare hardware",
+          url: "/blog/roofline-max-throughput",
+          publishedAt: "2026-07-08",
+        }),
+        expect.objectContaining({
+          title: "Why throughput follows a roofline",
+          url: "/blog/roofline-throughput-explorer",
+          publishedAt: "2026-07-02",
+        }),
+      ]),
+    );
 
     expect(
       foundationsBlogGroup?.resources.map((resource) => resource.slug),
     ).toEqual([
       "evolution-of-diffusion",
       "llms-no-longer-wholly-reliant-on-the-internet",
+      "roofline-max-throughput",
       "llm-training-shift",
       "roofline-throughput-explorer",
     ]);
@@ -364,6 +384,14 @@ describe("production blog tag landing", () => {
     expect(html).toContain(
       'href="/blog/llms-no-longer-wholly-reliant-on-the-internet"',
     );
+    expect(html).toContain(
+      "Roofline maximum throughput: the practical upper bound before you compare hardware",
+    );
+    expect(html).toContain('href="/blog/roofline-max-throughput"');
+    expect(html).toContain(
+      "How peak compute FLOPs, memory bandwidth, parameter precision, and active weight size jointly set the maximum tokens-per-second bound for inference serving.",
+    );
+    expect(html).toContain('dateTime="2026-07-08"');
     expect(html).toContain("Why throughput follows a roofline");
     expect(html).toContain('href="/blog/roofline-throughput-explorer"');
     expect(html).toContain(
