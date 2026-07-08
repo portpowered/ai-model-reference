@@ -67,7 +67,7 @@ describe("Phase 3 positional encoding family hub (US-001)", () => {
     expect(
       items.find((item) => item.registryId === "concept.relative-position-bias")
         ?.href,
-    ).toBe("/docs/modules/relative-position-bias");
+    ).toBe("/docs/concepts/relative-position-bias");
     expect(items.find((item) => item.registryId === "concept.rope")?.href).toBe(
       "/docs/modules/rope",
     );
@@ -99,7 +99,7 @@ describe("Phase 3 positional encoding family hub (US-001)", () => {
     expect(html).toContain(
       'href="/docs/modules/absolute-positional-embeddings"',
     );
-    expect(html).toContain('href="/docs/modules/relative-position-bias"');
+    expect(html).toContain('href="/docs/concepts/relative-position-bias"');
     expect(html).toContain('href="/docs/modules/rope"');
     expect(html).toContain('href="/docs/concepts/alibi"');
     expect(html).toContain('href="/docs/modules/nope"');
@@ -108,7 +108,7 @@ describe("Phase 3 positional encoding family hub (US-001)", () => {
     expect(html).not.toContain(
       "](/docs/modules/absolute-positional-embeddings)",
     );
-    expect(html).not.toContain("](/docs/modules/relative-position-bias)");
+    expect(html).not.toContain("](/docs/concepts/relative-position-bias)");
     expect(html).not.toContain("](/docs/modules/rope)");
     expect(html).not.toContain("](/docs/modules/alibi)");
     expect(html).not.toContain("](/docs/modules/nope)");

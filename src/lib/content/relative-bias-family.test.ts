@@ -131,7 +131,7 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
       t5Items.find(
         (item) => item.registryId === "concept.relative-position-bias",
       )?.href,
-    ).toBe("/docs/modules/relative-position-bias");
+    ).toBe("/docs/concepts/relative-position-bias");
     expect(
       t5Items.find((item) => item.registryId === "concept.rope")?.href,
     ).toBe("/docs/modules/rope");
@@ -187,7 +187,7 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
       ropeCuratedItems.find(
         (item) => item.registryId === "concept.relative-position-bias",
       )?.href,
-    ).toBe("/docs/modules/relative-position-bias");
+    ).toBe("/docs/concepts/relative-position-bias");
 
     const absoluteCuratedItems = deriveCuratedRelatedItems(
       absolute,
@@ -198,7 +198,7 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
       absoluteCuratedItems.find(
         (item) => item.registryId === "concept.relative-position-bias",
       )?.href,
-    ).toBe("/docs/modules/relative-position-bias");
+    ).toBe("/docs/concepts/relative-position-bias");
   });
 
   test(

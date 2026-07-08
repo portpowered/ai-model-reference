@@ -49,7 +49,7 @@ const ABSOLUTE_POSITIONAL_EMBEDDINGS_URL =
 const LEARNED_POSITIONAL_EMBEDDINGS_URL =
   "/docs/modules/learned-positional-embeddings";
 const LONGROPE_URL = "/docs/modules/longrope";
-const RELATIVE_POSITION_BIAS_URL = "/docs/modules/relative-position-bias";
+const RELATIVE_POSITION_BIAS_URL = "/docs/concepts/relative-position-bias";
 const T5_RELATIVE_POSITION_BIAS_URL = "/docs/modules/t5-relative-position-bias";
 const POSITIONAL_INTERPOLATION_URL = "/docs/modules/positional-interpolation";
 const ROPE_URL = "/docs/modules/rope";

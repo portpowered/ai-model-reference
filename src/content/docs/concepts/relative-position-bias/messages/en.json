@@ -1,0 +1,32 @@
+{
+  "title": "Relative position bias",
+  "description": "Relative position bias adjusts attention scores from token distance or relative position so the model reasons about how far apart pairs are instead of attaching a fixed vector to every slot.",
+  "openingSummary": "Relative position bias is the broad family that adds distance-aware terms to attention scores before softmax, which makes it the umbrella idea to compare with absolute positional embeddings and to separate T5 bucketed bias, ALiBi linear penalties, and rotary position embedding (RoPE) as nearby but different tools.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Relative position bias adds a learned or designed offset to each query-key attention score based on how far apart the two token positions are. The usual content dot product still runs, but the score now carries pairwise distance information. A token at position 400 attending to position 397 sees the same relative gap as a token at position 12 attending to position 9. Order is represented through those gaps rather than through one absolute position vector per token. Treat it as a family idea first, then as one ingredient inside standard transformer attention."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Relative distance often matters more than raw index. A token usually cares that another token is three steps away, not that it lives at position 427 exactly. That helps attention follow word order because near and far are stable relationships even when the sentence shifts. Locality matters because grammar and meaning often cluster in short spans. Repeated patterns such as parallel clauses or list items reuse the same relative spacing even when they start at different absolute positions, so distance-based bias can generalize across copies of the same structure. Absolute positional embeddings solve order differently: they attach a fixed index-specific vector to each token before attention starts. Relative bias keeps the pairwise distance signal inside the attention score matrix instead."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a query token looking at one key two steps away and another key twenty steps away. Relative position bias can lift the closer score or damp the farther one before softmax runs. The content match still matters, but the model is no longer blind to distance when choosing what to attend to. The same near-or-far split also applies when the pattern repeats later in the text: two tokens four steps apart get the same distance treatment whether that gap appears at the start of a sentence or deep in a paragraph."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Relative position bias names a broad family, not one paper-specific recipe. T5 relative position bias is a bucketed subtype that groups distances into learned bands. ALiBi is a simpler member that applies fixed linear distance penalties to logits. Rotary position embedding (RoPE) sits nearby but works differently: it rotates query and key vectors so relative offsets appear inside the dot product rather than as an added bias term. Absolute positional embeddings solve token order yet another way by attaching a position vector to each token before attention runs."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
