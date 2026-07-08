@@ -260,25 +260,26 @@ describe("blog tag landing resources", () => {
 });
 
 describe("production blog tag landing", () => {
+  it("lists evolution-of-diffusion on the model-family tag page", async () => {
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups("model-family", messages, "en");
+    const blogGroup = groups.find((group) => group.kind === "blog");
+
+    expect(blogGroup).toBeDefined();
+    expect(blogGroup?.kindLabel).toBe("Blog");
+    expect(blogGroup?.resources).toEqual([
+      expect.objectContaining({
+        title:
+          "How diffusion generation evolved from pixel U-Nets to transformers, flow matching, and modern video models",
+        url: "/blog/evolution-of-diffusion",
+        publishedAt: "2026-07-08",
+        tags: ["foundations", "model-family"],
+      }),
+    ]);
+  });
+
   it("lists published blog posts on foundations and kv-cache tag pages", async () => {
     const messages = await loadUiMessages();
-    for (const tagSlug of ["foundations", "kv-cache"] as const) {
-      const groups = await loadTagResourceGroups(tagSlug, messages, "en");
-      const blogGroup = groups.find((group) => group.kind === "blog");
-
-      expect(blogGroup).toBeDefined();
-      expect(blogGroup?.kindLabel).toBe("Blog");
-      expect(blogGroup?.resources).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            title: "Why throughput follows a roofline",
-            url: "/blog/roofline-throughput-explorer",
-            publishedAt: "2026-07-02",
-          }),
-        ]),
-      );
-    }
-
     const foundationsGroups = await loadTagResourceGroups(
       "foundations",
       messages,
@@ -287,9 +288,48 @@ describe("production blog tag landing", () => {
     const foundationsBlogGroup = foundationsGroups.find(
       (group) => group.kind === "blog",
     );
+
+    expect(foundationsBlogGroup).toBeDefined();
+    expect(foundationsBlogGroup?.kindLabel).toBe("Blog");
+    expect(foundationsBlogGroup?.resources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title:
+            "How diffusion generation evolved from pixel U-Nets to transformers, flow matching, and modern video models",
+          url: "/blog/evolution-of-diffusion",
+          publishedAt: "2026-07-08",
+        }),
+        expect.objectContaining({
+          title: "Why throughput follows a roofline",
+          url: "/blog/roofline-throughput-explorer",
+          publishedAt: "2026-07-02",
+        }),
+      ]),
+    );
+
+    const kvCacheGroups = await loadTagResourceGroups(
+      "kv-cache",
+      messages,
+      "en",
+    );
+    const kvCacheBlogGroup = kvCacheGroups.find(
+      (group) => group.kind === "blog",
+    );
+
+    expect(kvCacheBlogGroup).toBeDefined();
+    expect(kvCacheBlogGroup?.kindLabel).toBe("Blog");
+    expect(kvCacheBlogGroup?.resources).toEqual([
+      expect.objectContaining({
+        title: "Why throughput follows a roofline",
+        url: "/blog/roofline-throughput-explorer",
+        publishedAt: "2026-07-02",
+      }),
+    ]);
+
     expect(
       foundationsBlogGroup?.resources.map((resource) => resource.slug),
     ).toEqual([
+      "evolution-of-diffusion",
       "llms-no-longer-wholly-reliant-on-the-internet",
       "llm-training-shift",
       "roofline-throughput-explorer",
@@ -335,6 +375,10 @@ describe("production blog tag landing", () => {
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Blog");
+    expect(html).toContain(
+      "How diffusion generation evolved from pixel U-Nets to transformers, flow matching, and modern video models",
+    );
+    expect(html).toContain('href="/blog/evolution-of-diffusion"');
     expect(html).toContain("Why throughput follows a roofline");
     expect(html).toContain('href="/blog/roofline-throughput-explorer"');
     expect(html).toContain(

@@ -31,11 +31,15 @@ describe("blog content loader lane isolation", () => {
 
     expect(slugs).toEqual(
       [
+        "evolution-of-diffusion",
         "llm-training-shift",
         "llms-no-longer-wholly-reliant-on-the-internet",
         "roofline-throughput-explorer",
       ].sort(),
     );
+    await expect(
+      getPublishedBlogPostBySlug("evolution-of-diffusion"),
+    ).resolves.toMatchObject({ slug: "evolution-of-diffusion" });
     await expect(
       getPublishedBlogPostBySlug("llm-training-shift"),
     ).resolves.toMatchObject({ slug: "llm-training-shift" });

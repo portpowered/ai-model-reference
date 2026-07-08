@@ -1,0 +1,109 @@
+---
+messageNamespace: "local"
+assetNamespace: "local"
+publishedAt: "2026-07-08"
+updatedAt: "2026-07-08"
+authors:
+  - site-team
+tags:
+  - foundations
+  - model-family
+relatedDocIds:
+  - concept.diffusion-model
+  - concept.denoising-generation
+  - module.u-net
+  - training-regime.diffusion-training-objective
+  - module.clip-image-tokenization
+  - paper.latent-diffusion
+  - module.diffusion-transformer-block
+  - concept.flow-matching
+  - concept.video-generation
+  - concept.world-model
+  - model.ltx-23
+  - model.cosmos-3
+status: "published"
+---
+
+import { BlogRelatedDocs } from "@/features/blog/components/BlogRelatedDocs";
+import { Callout } from "@/features/docs/components/Callout";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { GenerationEvolutionBlogVisual } from "@/features/generation-evolution/GenerationEvolutionBlogVisual";
+
+# <T k="title" />
+
+<T k="contextSentence" />
+
+<TagPillList tags={["foundations", "model-family"]} />
+
+## Summary
+
+<T k="takeaway" />
+
+## Evolution at a glance
+
+The timeline below summarizes the backbone, objective, and domain shifts this post walks through in prose. Stage labels and legend categories are exposed as accessible text for screen readers and keyboard review.
+
+<GenerationEvolutionBlogVisual />
+
+## Denoising diffusion and U-Net backbones
+
+Denoising diffusion probabilistic models (DDPMs) treat generation as the reverse of a noise corruption process. Training gradually adds noise to images until the signal is mostly random; the model learns to predict and remove that noise one step at a time. At inference, sampling starts from pure noise and walks backward through many denoising updates until a coherent image appears.
+
+Early image systems ran that loop in pixel space. Each step read and rewrote a full-resolution grid, so compute and memory grew quickly with width and height. The denoising network itself was usually a U-Net: a convolutional encoder-decoder with skip connections that preserve fine spatial detail while mixing multiscale context. Timestep embeddings tell the network how noisy the current sample still is, and optional class labels can steer what the denoising step should favor.
+
+The diffusion training objective defines how noise is added during training and what target the denoising network should predict. The U-Net supplies the spatial backbone, but the sampler, noise schedule, and parameterization live in the surrounding diffusion system.
+
+## CLIP-conditioned image systems
+
+Pixel diffusion models could generate images, but controlling them with natural language required a shared embedding space between text and vision. Contrastive Language-Image Pre-training (CLIP) trains image and text encoders so matching pairs sit close together in a joint space. Diffusion systems could then feed text embeddings into cross-attention or classifier-free guidance paths so denoising steps steer toward captions instead of only class labels.
+
+CLIP-conditioned pipelines keep the same iterative denoising loop while changing what steers each step. Image tokenization modules describe how visual inputs enter that conditioning path when systems also accept reference images or latent tokens. The shift is not a new sampler — it is stronger control signals layered onto the existing U-Net denoising backbone.
+
+## Latent diffusion and Stable Diffusion
+
+Running dozens of denoising steps on full-resolution pixels remained expensive even with better conditioning. Latent diffusion moves the main loop into a compressed latent representation space learned by an autoencoder. An encoder maps pixels into a smaller latent tensor; the diffusion model denoises there; a decoder maps the finished latent back to visible pixels. Fewer values per step lowers memory pressure while preserving perceptual quality at resolutions that pixel-space diffusion struggled to reach on typical hardware.
+
+Stable Diffusion is the widely deployed consumer recipe that follows this latent diffusion pattern: compress, denoise in latent space with text conditioning, then decode. The research paper behind the approach is Latent Diffusion Models; the public name Stable Diffusion refers to open checkpoints and tooling built on the same architectural idea rather than a separate denoising paradigm.
+
+## Diffusion transformers as the denoising backbone
+
+Latent diffusion lowered cost, but the denoising network itself was still often a convolutional U-Net. Diffusion transformers (DiTs) keep the same outer loop — corrupt, denoise, repeat — while replacing the spatial backbone with patch tokens and self-attention. Noisy latent or pixel patches enter as a token grid; timestep embeddings still tell each layer how noisy the sample is; text or class conditioning still steers updates through cross-attention or modulation paths.
+
+The shift is architectural, not a new sampler headline. Training still optimizes a denoising objective over many steps, and inference still walks a schedule from noise toward a finished sample. What changes is how information mixes across the field: self-attention lets distant patches influence one another directly instead of relying on deep stacks of local convolutions. That pattern scales to higher resolutions and multimodal latents where long-range structure matters.
+
+The [diffusion transformer block](/docs/modules/diffusion-transformer-block) page explains what one transformer-style denoising layer does inside that stack. This post only marks the backbone transition from U-Net convolutions to patch-token transformers.
+
+## Flow matching as an objective shift
+
+Diffusion and flow matching can look identical at inference: start from a simple or noisy state, apply many learned update steps, end at a sample. The difference is usually training wording and target quantity, not whether generation iterates.
+
+Classic denoising-diffusion training often asks the network to predict noise to remove or a denoised estimate at each noise level along a fixed schedule. Flow matching instead trains a velocity or vector field — the direction and speed that should move the current state along a transport path toward data. Readers can think of it as learning how to steer each small move rather than only learning how much noise to subtract at a labeled timestep.
+
+Modern image and video stacks often pair flow-style objectives with latent compression and transformer denoisers. The generation loop stays familiar while the trainer optimizes a different target. The [flow matching](/docs/concepts/flow-matching) concept page defines the objective, transport paths, and how it relates to diffusion-style sampling.
+
+## Modern open video and world-model examples
+
+Once latents, transformer denoisers, and flexible objectives were in place, researchers extended the same iterative pattern across time. [Video generation](/docs/concepts/video-generation) adds a temporal axis: models must keep motion, identity, and appearance coherent from frame to frame, not only render one still image. Conditioning can include text, reference images, prior frames, or audio depending on the system.
+
+Two recent open releases illustrate how far the stack has moved beyond single-image latent diffusion:
+
+**LTX-2.3** is Lightricks' open-weight diffusion-transformer release for synchronized video and audio. Public materials describe it as denoising joint audio-video latents with text, image, and audio conditioning rather than predicting text tokens one at a time. The [LTX-2.3 model page](/docs/models/ltx-23) summarizes architecture, inputs, and training framing from those sources.
+
+**Cosmos 3** is NVIDIA's open-weights omnimodal [world model](/docs/glossary/world-model) family for physical AI. Release materials pair an autoregressive reasoning path with a diffusion-based generation path so one backbone can ground language in images and video, synthesize audiovisual worlds, and support action-oriented outputs. The [Cosmos 3 model page](/docs/models/cosmos-3) carries checkpoint-level detail from NVIDIA's technical report and research pages.
+
+<Callout type="note" titleKey="callouts.sourceBackedExamples.title">
+  <T k="callouts.sourceBackedExamples.body" />
+</Callout>
+
+<Callout type="note" titleKey="callouts.narrativeScope.title">
+  <T k="callouts.narrativeScope.body" />
+</Callout>
+
+## What to read next
+
+Use the reference pages linked below for stable definitions of diffusion models, denoising generation, U-Net backbones, the diffusion training objective, CLIP image tokenization, and latent diffusion. For the later arc, follow the diffusion transformer block module, flow matching concept, video generation concept, world model glossary, and the LTX-2.3 and Cosmos 3 model pages when you need canonical detail beyond this narrative summary.
+
+## Related reference pages
+
+<BlogRelatedDocs relatedDocIds={["concept.diffusion-model", "concept.denoising-generation", "module.u-net", "training-regime.diffusion-training-objective", "module.clip-image-tokenization", "paper.latent-diffusion", "module.diffusion-transformer-block", "concept.flow-matching", "concept.video-generation", "concept.world-model", "model.ltx-23", "model.cosmos-3"]} />

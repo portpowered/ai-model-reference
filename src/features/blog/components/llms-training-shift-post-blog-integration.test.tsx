@@ -88,6 +88,38 @@ const EXPECTED_RELATED_DOC_HREFS = [
   "/docs/concepts/on-policy",
 ] as const;
 
+async function assertServedTrainingSignalChartPlot(
+  page: import("playwright").Page,
+) {
+  const chart = page.locator('[data-training-signal-chart="ready"]');
+  await chart.waitFor({ state: "visible" });
+  await page
+    .locator('[data-training-signal-chart="ready"] .recharts-area-area')
+    .first()
+    .waitFor({ state: "attached" });
+
+  const plot = await page.evaluate(() => {
+    const figure = document.querySelector('[data-training-signal-chart="ready"]');
+    if (!figure) {
+      throw new Error("missing training-signal chart figure");
+    }
+
+    return {
+      svgCount: figure.querySelectorAll("svg").length,
+      pathCount: figure.querySelectorAll("path").length,
+      areaCount: figure.querySelectorAll(".recharts-area-area").length,
+      plotHeight:
+        figure.querySelector(".recharts-wrapper")?.getBoundingClientRect()
+          .height ?? 0,
+    };
+  });
+
+  expect(plot.svgCount).toBeGreaterThan(0);
+  expect(plot.pathCount).toBeGreaterThan(0);
+  expect(plot.areaCount).toBe(6);
+  expect(plot.plotHeight).toBeGreaterThan(0);
+}
+
 describe("llms training shift post blog integration", () => {
   test("published blog post renders on /blog/llms-no-longer-wholly-reliant-on-the-internet", async () => {
     const post = await loadBlogPostFromDisk(BLOG_SLUG);
@@ -308,6 +340,7 @@ describe("llms training shift post responsive layout", () => {
           .getByRole("heading", {
             name: "LLMs are no longer wholly reliant on the internet",
           })
+          .first()
           .waitFor({ state: "visible" });
         await page
           .getByRole("heading", {
@@ -317,6 +350,7 @@ describe("llms training shift post responsive layout", () => {
         await page.locator('[data-training-signal-chart="ready"]').waitFor({
           state: "visible",
         });
+        await assertServedTrainingSignalChartPlot(page);
         await page.locator('[data-testid="blog-related-docs"]').waitFor({
           state: "visible",
         });
