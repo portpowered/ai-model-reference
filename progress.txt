@@ -1,0 +1,39 @@
+## Codebase Patterns
+- Blog posts live under `src/content/blog/<slug>/` with `page.mdx`, `messages/en.json`, and optional `assets.json`; slug becomes `/blog/<slug>`.
+- Reuse landed blog shell components: `T`, `TagPillList`, `BlogRelatedDocs`; import them in MDX frontmatter imports block.
+- Embed `RooflineThroughputExplorerFromRegistry` for registry-backed roofline charts; presets resolve at build time via `getRooflineModelSizePresets()`.
+- Published blog `relatedDocIds` and `tags` must resolve via registry validation (`make validate-data` / `bun run validate-data`).
+- Colocated blog messages require `title`, `description`, and optional `contextSentence` / `takeaway` per `blogPostMessagesSchema`.
+- When adding a published blog post, update `blog-content-loader-scope.test.ts` and `blog-tag-landing.test.ts` slug inventories (newest-first on tag pages).
+- Blog inline canonical links use markdown `[label](/docs/...)` syntax; `validate-data` / `validatePublishedBlogPosts` rejects broken reader-visible MDX links.
+
+## 2026-07-08T08:15:00Z - roofline-max-throughput-post-001
+- Published English-first blog post at `/blog/roofline-max-throughput` with local message/asset namespaces, published status, site-team author, 2026-07-08 dates, foundations + kv-cache tags, and nine canonical throughput-related doc IDs in frontmatter and `BlogRelatedDocs`.
+- Opening sections explain that peak FLOPs alone do not determine tokens per second, how active weight size / bytes per parameter / bandwidth set the memory-bound ceiling, and what maximum throughput means versus real serving overhead.
+- Files changed: `src/content/blog/roofline-max-throughput/page.mdx`, `messages/en.json`, `assets.json`
+- **Learnings for future iterations:**
+  - Patterns discovered: mirror `roofline-throughput-explorer` and `llm-training-shift` blog bundles; filesystem slug discovery needs no route registration.
+  - Gotchas encountered: avoid forward-looking page-meta prose (e.g. teasing a future explorer section); story 002 adds the chart.
+  - Useful context: `validate-data` regenerates published-docs registry and validates all relatedDocIds; all nine throughput reference IDs resolve today.
+---
+
+## 2026-07-08T08:30:00Z - roofline-max-throughput-post-002
+- Embedded `RooflineThroughputExplorerFromRegistry` in `/blog/roofline-max-throughput` with an "Explore the throughput bound" section explaining model presets, active weight size, bytes per parameter, and memory/compute ceilings.
+- Added `roofline-max-throughput-blog-integration.test.tsx` proving the published post renders registry-backed presets and explorer controls.
+- Updated `blog-content-loader-scope.test.ts` and `blog-tag-landing.test.ts` for the new published slug (newest-first on foundations tag landing).
+- Files changed: `src/content/blog/roofline-max-throughput/page.mdx`, `src/features/roofline-throughput-explorer/roofline-max-throughput-blog-integration.test.tsx`, `src/lib/content/blog-content-loader-scope.test.ts`, `src/lib/content/blog-tag-landing.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: mirror `roofline-throughput-explorer` post for explorer embed pattern; reuse existing `RooflineThroughputExplorer` component tests for interactive behavior.
+  - Gotchas encountered: tag landing blog groups sort by `publishedAt` newest-first—expect `roofline-max-throughput` before older posts.
+  - Useful context: browser verification at `http://127.0.0.1:<port>/blog/roofline-max-throughput` shows explorer markers and control labels in SSR HTML.
+---
+
+## 2026-07-08T08:45:00Z - roofline-max-throughput-post-003
+- Wove inline markdown links to all nine canonical throughput references (`roofline-model`, `memory-bandwidth`, `flops`, `tokens-per-second`, `prefill`, `decode`, `prefill-decode-split`, `kv-cache`, `inference-engine`) through opening sections, practical guidance, and explorer intro while keeping `BlogRelatedDocs` for the full related-doc list.
+- Extended `roofline-max-throughput-blog-integration.test.tsx` to assert frontmatter `relatedDocIds`, `BlogRelatedDocs` rendering, resolved hrefs for every related doc, and absence of raw registry IDs in rendered HTML.
+- Files changed: `src/content/blog/roofline-max-throughput/page.mdx`, `src/features/roofline-throughput-explorer/roofline-max-throughput-blog-integration.test.tsx`
+- **Learnings for future iterations:**
+  - Patterns discovered: mirror `blog-related-docs-blog-integration.test.tsx` for related-doc href assertions; derive expected hrefs via `registryRecordHref` + `getConceptById`/`getSystemById` rather than hardcoding route tables.
+  - Gotchas encountered: some concepts live under `/docs/glossary/` (decode, tokens-per-second) while others are `/docs/concepts/` or `/docs/systems/`—always resolve from registry.
+  - Useful context: built-app curl at `/blog/roofline-max-throughput` lists all nine canonical hrefs in SSR output alongside `data-testid="blog-related-docs"`.
+---
