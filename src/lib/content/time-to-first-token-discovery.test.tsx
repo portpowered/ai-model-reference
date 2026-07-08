@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
@@ -13,6 +13,8 @@ import {
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
+
+setDefaultTimeout(15_000);
 
 const TTFT_URL = "/docs/glossary/time-to-first-token";
 

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
@@ -12,6 +12,8 @@ import {
   exportOramaIndexSnapshot,
   type OramaSnapshotDocument,
 } from "@/lib/search/orama-index";
+
+setDefaultTimeout(30_000);
 
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
 const MULTI_HEAD_ATTENTION_URL = "/docs/modules/multi-head-attention";

@@ -16,6 +16,7 @@ import type {
   PlannerWorktreeDriftOwnership,
   PlannerWorktreeDriftSnapshot,
 } from "./planner-worktree-drift-watchdog";
+import { createIsolatedGitProcessEnv } from "./repo-path-resolution";
 
 export const OWNERLESS_GENERATED_TABLE_REGISTRY_DRIFT_HEADER =
   "Ownerless Generated Table Registry Drift Evidence";
@@ -110,7 +111,7 @@ function defaultRunGit(
   const result = spawnSync("git", [...args], {
     cwd: repoRoot,
     encoding: "utf8",
-    env: process.env,
+    env: createIsolatedGitProcessEnv(),
   });
 
   return {

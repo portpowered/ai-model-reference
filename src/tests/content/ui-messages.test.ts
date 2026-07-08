@@ -23,6 +23,7 @@ const DOCS_MESSAGE_KEYS = [
   "browseIndex",
   "glossaryIndex",
   "architectureIndex",
+  "blogIndex",
   "pageKind",
 ] as const;
 
@@ -107,6 +108,7 @@ describe("loadUiMessages shell keys", () => {
     expect(messages.conceptsIndex.title).toBe("Concepts");
     expect(messages.architectureIndex.title).toBe("Architecture");
     expect(messages.glossaryIndex.title).toBe("Glossary");
+    expect(messages.blogIndex.title).toBe("Blog");
     expect(messages.tagsIndex.title).toBe("Tags");
   });
 

@@ -25,10 +25,6 @@ function unique(values: string[]): string[] {
   return [...new Set(values.filter(Boolean))];
 }
 
-function isModelRecord(record: RegistryRecord): record is ModelRecord {
-  return record.kind === "model";
-}
-
 type OntologyParticipatingRecord =
   | ModuleRecord
   | ConceptRecord
@@ -336,17 +332,6 @@ function buildFacets(
     facets,
     resolveLegacySearchTaxonomyCompatibility(registryRecord, topology),
   );
-
-  if (registryRecord && isModelRecord(registryRecord)) {
-    facets.modelFamily = registryRecord.family;
-    facets.sourceType = registryRecord.sourceType;
-    facets.modalities = registryRecord.modalities;
-    facets.trainingRegimeIds = registryRecord.trainingRegimeIds;
-  }
-
-  if (registryRecord && registryRecord.kind === "module") {
-    facets.optimizes = registryRecord.optimizes;
-  }
 
   return facets;
 }
