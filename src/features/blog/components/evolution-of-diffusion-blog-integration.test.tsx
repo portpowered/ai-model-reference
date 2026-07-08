@@ -167,19 +167,22 @@ describe("evolution of diffusion blog integration", () => {
       description: post.messages.description,
       tags: ["foundations", "model-family"],
     });
-    expect(document?.bodyText).toContain(post.messages.contextSentence);
-    expect(document?.bodyText).toContain(post.messages.takeaway);
+    const { contextSentence, takeaway } = post.messages;
+    const bodyText = document?.bodyText;
+    if (!bodyText || !contextSentence || !takeaway) {
+      throw new Error("expected indexed blog search document and message fields");
+    }
+    expect(bodyText).toContain(contextSentence);
+    expect(bodyText).toContain(takeaway);
     expect(document?.headings).toContain(
       "Latent diffusion and Stable Diffusion",
     );
     expect(document?.headings).toContain(
       "Diffusion transformers as the denoising backbone",
     );
-    expect(document?.bodyText).toContain(
-      "Denoising diffusion probabilistic models",
-    );
+    expect(bodyText).toContain("Denoising diffusion probabilistic models");
     for (const componentName of MDX_COMPONENT_NAMES) {
-      expect(document?.bodyText).not.toContain(componentName);
+      expect(bodyText).not.toContain(componentName);
     }
   });
 
