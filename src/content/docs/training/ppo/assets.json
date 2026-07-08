@@ -1,0 +1,10 @@
+{
+  "trainingFlow": {
+    "type": "graph",
+    "graphId": "graph.ppo-training-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.trainingFlow.alt",
+    "captionKey": "assets.trainingFlow.caption"
+  }
+}
