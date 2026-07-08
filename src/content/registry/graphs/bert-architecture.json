@@ -1,0 +1,297 @@
+{
+  "id": "graph.bert-architecture",
+  "slug": "bert-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["BERT architecture graph"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.bert-pre-training-of-deep-bidirectional-transformers"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T06:30:00.000Z",
+  "subjectId": "model.bert",
+  "graphType": "model-architecture",
+  "rootNodeId": "contextual-output",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "contextual-output",
+      "labelKey": "graph.nodes.contextualOutput.label",
+      "summaryKey": "graph.nodes.contextualOutput.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 220, "height": 72 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "task-heads",
+      "labelKey": "graph.nodes.taskHeads.label",
+      "summaryKey": "graph.nodes.taskHeads.summary",
+      "registryId": "training-regime.pretraining",
+      "moduleKind": "output",
+      "position": { "x": 520, "y": 92 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "architecture-softmax",
+      "childNodeIds": []
+    },
+    {
+      "id": "encoder-stack",
+      "labelKey": "graph.nodes.encoderStack.label",
+      "summaryKey": "graph.nodes.encoderStack.summary",
+      "registryId": "concept.encoder",
+      "moduleKind": "block",
+      "position": { "x": 190, "y": 164 },
+      "size": { "width": 370, "height": 410 },
+      "visualRole": "group-container",
+      "zIndex": 0,
+      "childNodeIds": []
+    },
+    {
+      "id": "attention-sublayer",
+      "labelKey": "graph.nodes.attentionSublayer.label",
+      "summaryKey": "graph.nodes.attentionSublayer.summary",
+      "moduleKind": "block",
+      "position": { "x": 222, "y": 208 },
+      "size": { "width": 305, "height": 150 },
+      "visualRole": "group-container",
+      "zIndex": 1,
+      "childNodeIds": []
+    },
+    {
+      "id": "ffn-sublayer",
+      "labelKey": "graph.nodes.ffnSublayer.label",
+      "summaryKey": "graph.nodes.ffnSublayer.summary",
+      "moduleKind": "block",
+      "position": { "x": 222, "y": 374 },
+      "size": { "width": 305, "height": 150 },
+      "visualRole": "group-container",
+      "zIndex": 1,
+      "childNodeIds": []
+    },
+    {
+      "id": "repeat-marker",
+      "labelKey": "graph.nodes.repeatMarker.label",
+      "summaryKey": "graph.nodes.repeatMarker.summary",
+      "moduleKind": "other",
+      "position": { "x": 576, "y": 320 },
+      "size": { "width": 48, "height": 120 },
+      "visualRole": "repeat-label",
+      "zIndex": 2,
+      "childNodeIds": []
+    },
+    {
+      "id": "add-norm-attention",
+      "labelKey": "graph.nodes.addNormAttention.label",
+      "summaryKey": "graph.nodes.addNormAttention.summary",
+      "registryId": "module.layer-norm",
+      "moduleKind": "normalization",
+      "position": { "x": 275, "y": 226 },
+      "size": { "width": 200, "height": 44 },
+      "visualRole": "architecture-add-norm",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "bidirectional-mha",
+      "labelKey": "graph.nodes.bidirectionalMha.label",
+      "summaryKey": "graph.nodes.bidirectionalMha.summary",
+      "registryId": "module.bidirectional-attention",
+      "moduleKind": "attention",
+      "position": { "x": 245, "y": 284 },
+      "size": { "width": 260, "height": 82 },
+      "visualRole": "architecture-attention",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "add-norm-ffn",
+      "labelKey": "graph.nodes.addNormFfn.label",
+      "summaryKey": "graph.nodes.addNormFfn.summary",
+      "registryId": "module.layer-norm",
+      "moduleKind": "normalization",
+      "position": { "x": 275, "y": 392 },
+      "size": { "width": 200, "height": 44 },
+      "visualRole": "architecture-add-norm",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "feed-forward",
+      "labelKey": "graph.nodes.feedForward.label",
+      "summaryKey": "graph.nodes.feedForward.summary",
+      "registryId": "module.standard-ffn",
+      "moduleKind": "feed-forward",
+      "position": { "x": 260, "y": 450 },
+      "size": { "width": 230, "height": 82 },
+      "visualRole": "architecture-feed-forward",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "embedding-sum",
+      "labelKey": "graph.nodes.embeddingSum.label",
+      "summaryKey": "graph.nodes.embeddingSum.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "other",
+      "position": { "x": 353, "y": 600 },
+      "size": { "width": 46, "height": 46 },
+      "visualRole": "operator-circle",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "position-embedding",
+      "labelKey": "graph.nodes.positionEmbedding.label",
+      "summaryKey": "graph.nodes.positionEmbedding.summary",
+      "registryId": "module.learned-positional-embeddings",
+      "moduleKind": "embedding",
+      "position": { "x": 68, "y": 698 },
+      "size": { "width": 190, "height": 80 },
+      "visualRole": "architecture-embedding",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "segment-embedding",
+      "labelKey": "graph.nodes.segmentEmbedding.label",
+      "summaryKey": "graph.nodes.segmentEmbedding.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "embedding",
+      "position": { "x": 458, "y": 698 },
+      "size": { "width": 190, "height": 80 },
+      "visualRole": "architecture-embedding",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "token-embedding",
+      "labelKey": "graph.nodes.tokenEmbedding.label",
+      "summaryKey": "graph.nodes.tokenEmbedding.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "embedding",
+      "position": { "x": 273, "y": 698 },
+      "size": { "width": 205, "height": 62 },
+      "visualRole": "architecture-embedding",
+      "zIndex": 3,
+      "childNodeIds": []
+    },
+    {
+      "id": "wordpiece-tokens",
+      "labelKey": "graph.nodes.wordpieceTokens.label",
+      "summaryKey": "graph.nodes.wordpieceTokens.summary",
+      "registryId": "module.wordpiece",
+      "moduleKind": "input",
+      "position": { "x": 291, "y": 798 },
+      "size": { "width": 170, "height": 60 },
+      "visualRole": "architecture-io",
+      "zIndex": 3,
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "contextual-output-to-task-heads",
+      "source": "contextual-output",
+      "target": "task-heads",
+      "edgeKind": "depends-on",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "add-norm-ffn-to-contextual-output",
+      "source": "add-norm-ffn",
+      "target": "contextual-output",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "feed-forward-to-add-norm-ffn",
+      "source": "feed-forward",
+      "target": "add-norm-ffn",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "add-norm-attention-to-feed-forward",
+      "source": "add-norm-attention",
+      "target": "feed-forward",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "add-norm-attention-to-add-norm-ffn",
+      "target": "add-norm-attention",
+      "source": "add-norm-ffn",
+      "edgeKind": "residual",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "right"
+    },
+    {
+      "id": "bidirectional-mha-to-add-norm-attention",
+      "source": "bidirectional-mha",
+      "target": "add-norm-attention",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "embedding-sum-to-bidirectional-mha",
+      "source": "embedding-sum",
+      "target": "bidirectional-mha",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "embedding-sum-to-add-norm-attention",
+      "source": "embedding-sum",
+      "target": "add-norm-attention",
+      "edgeKind": "residual",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "token-embedding-to-embedding-sum",
+      "source": "token-embedding",
+      "target": "embedding-sum",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "position-embedding-to-embedding-sum",
+      "source": "position-embedding",
+      "target": "embedding-sum",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "segment-embedding-to-embedding-sum",
+      "source": "segment-embedding",
+      "target": "embedding-sum",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "wordpiece-tokens-to-token-embedding",
+      "source": "wordpiece-tokens",
+      "target": "token-embedding",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    }
+  ]
+}
