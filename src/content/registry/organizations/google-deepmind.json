@@ -6,17 +6,17 @@
   "defaultSummaryKey": "description",
   "aliases": ["Google DeepMind", "Google", "DeepMind"],
   "tags": ["foundations", "model-family"],
-  "relatedIds": [],
+  "relatedIds": ["paper.gemma-4"],
   "citationIds": [
-    "citation.gemma-deepmind-family",
-    "citation.gemma-4-deepmind",
-    "citation.gemma-4-announcement"
+    "citation.gemma-4-technical-report",
+    "citation.gemma-4-announcement",
+    "citation.gemma-deepmind-family"
   ],
   "status": "published",
   "createdAt": "2026-07-08T00:00:00.000Z",
   "updatedAt": "2026-07-08T00:00:00.000Z",
   "website": "https://deepmind.google",
-  "modelIds": [],
-  "paperIds": [],
+  "modelIds": ["model.gemma"],
+  "paperIds": ["paper.gemma-4"],
   "systemIds": []
 }

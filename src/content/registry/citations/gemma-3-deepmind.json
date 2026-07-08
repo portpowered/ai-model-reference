@@ -4,14 +4,12 @@
   "kind": "citation",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "Gemma 3",
-    "Gemma 3 model page",
-    "Gemma 3 27B",
-    "Gemma 3 128K"
-  ],
+  "aliases": ["Gemma 3", "Gemma 3 model page", "Gemma 3 27B", "Gemma 3 128K"],
   "tags": ["foundations", "model-family", "context-window"],
-  "relatedIds": ["citation.gemma-deepmind-family", "citation.gemma-3n-deepmind"],
+  "relatedIds": [
+    "citation.gemma-deepmind-family",
+    "citation.gemma-3n-deepmind"
+  ],
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-07-08T00:00:00.000Z",

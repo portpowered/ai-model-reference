@@ -4,11 +4,7 @@
   "kind": "citation",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "Gemma 4 Apache 2.0",
-    "Gemma 4 license",
-    "Gemmaverse Apache 2.0"
-  ],
+  "aliases": ["Gemma 4 Apache 2.0", "Gemma 4 license", "Gemmaverse Apache 2.0"],
   "tags": ["foundations", "model-family"],
   "relatedIds": ["citation.gemma-4-announcement"],
   "citationIds": [],

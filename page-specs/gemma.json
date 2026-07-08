@@ -3,7 +3,7 @@
   "slug": "gemma",
   "title": "Gemma",
   "summary": "Open model family from Google DeepMind with Gemma 4 as the current main line, spanning Effective 2B and 4B edge checkpoints through 12B, 26B mixture-of-experts, and 31B dense variants with native text, image, and audio input, thinking-mode reasoning, and Apache 2.0 licensing.",
-  "status": "draft",
+  "status": "published",
   "aliases": [
     "Gemma",
     "Google Gemma",

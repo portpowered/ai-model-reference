@@ -4,11 +4,7 @@
   "kind": "citation",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "Gemma 3n",
-    "Gemma 3n model page",
-    "Gemma 3n on-device"
-  ],
+  "aliases": ["Gemma 3n", "Gemma 3n model page", "Gemma 3n on-device"],
   "tags": ["foundations", "model-family"],
   "relatedIds": ["citation.gemma-3-deepmind", "citation.gemma-deepmind-family"],
   "citationIds": [],

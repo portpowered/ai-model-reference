@@ -1,0 +1,24 @@
+{
+  "id": "citation.gemma-4-get-started",
+  "slug": "gemma-4-get-started",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Get started with Gemma models",
+    "Gemma get started guide",
+    "Gemma model family variants"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["paper.gemma-4"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["Google DeepMind", "Gemma Team"],
+  "title": "Get started with Gemma models",
+  "url": "https://ai.google.dev/gemma/docs/get_started",
+  "mla": "Google DeepMind, Gemma Team. \"Get started with Gemma models.\" Google AI for Developers, 2026.",
+  "year": 2026
+}
