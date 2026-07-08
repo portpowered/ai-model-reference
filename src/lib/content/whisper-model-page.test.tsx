@@ -252,6 +252,11 @@ describe("whisper model page (whisper-model-page-current-main-003)", () => {
     expect(html).toContain(
       'href="https://huggingface.co/openai/whisper-large-v3"',
     );
+    expect(html).toContain('data-page-asset="architectureGraph"');
+    expect(html).toContain('data-graph-id="graph.whisper-architecture"');
+    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain("Cross-");
+    expect(html).toContain("Spectrogram");
     expect(html).not.toContain("missing-content");
     expect(html).not.toContain("No modules listed yet.");
   });

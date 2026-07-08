@@ -50,7 +50,17 @@ Relationship targets wired on `model.whisper`:
 
 Focused observable guard: `src/lib/content/whisper-model-page.test.tsx`.
 
-Story 003 ships prose-only architecture (no `ModelArchitectureGraph` yet); story 005 adds the teaching graph asset and registry graph record.
+Story 005 adds `graph.whisper-architecture`, `assets.json` wiring, localized graph labels, and `ModelArchitectureGraph` in the architecture section.
+
+## Architecture teaching graph (story 005)
+
+| Artifact | Path |
+| --- | --- |
+| Graph registry | `src/content/registry/graphs/whisper-architecture.json` |
+| Local assets | `src/content/docs/models/whisper/assets.json` (`architectureGraph`) |
+| Graph labels / alt | `src/content/docs/models/whisper/messages/en.json` (`assets`, `graph`) |
+
+Focused observable guard: `src/lib/content/whisper-architecture-graph.test.tsx`.
 
 ## Architecture and training narrative (story 004)
 

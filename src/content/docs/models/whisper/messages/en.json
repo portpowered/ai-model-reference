@@ -36,5 +36,46 @@
     "references": {
       "title": "References"
     }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Whisper architecture diagram showing audio waveforms converted into spectrogram-like features, encoded by an audio encoder, read by cross-attention in a text decoder that emits BPE tokens, and decoded into transcription or speech-translation text."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "transcriptionOutput": {
+        "label": "Transcription\nText",
+        "summary": "Written transcript in the same language as the spoken audio"
+      },
+      "translationOutput": {
+        "label": "Translation\nText",
+        "summary": "Written text in a target language that captures the spoken meaning"
+      },
+      "textTokens": {
+        "label": "Text\nTokens",
+        "summary": "BPE token sequence the decoder emits before detokenization"
+      },
+      "textDecoder": {
+        "label": "Text\nDecoder",
+        "summary": "Autoregressively generates text tokens while reading encoded audio context"
+      },
+      "crossAttention": {
+        "label": "Cross-\nAttention",
+        "summary": "Lets the decoder attend to audio encoder states across the utterance"
+      },
+      "audioEncoder": {
+        "label": "Audio\nEncoder",
+        "summary": "Transformer encoder that builds hidden states from time-frequency audio frames"
+      },
+      "spectrogramFeatures": {
+        "label": "Spectrogram-\nLike Features",
+        "summary": "Time-frequency frames extracted from the raw waveform"
+      },
+      "audioInput": {
+        "label": "Audio\nInput",
+        "summary": "Spoken waveform fed into the recognition or translation task"
+      }
+    }
   }
 }
