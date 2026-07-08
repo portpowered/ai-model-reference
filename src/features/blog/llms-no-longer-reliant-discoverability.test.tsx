@@ -186,7 +186,7 @@ describe("llms-no-longer-reliant responsive reading verification (005)", () => {
           const titleRect = readRect(title, "title");
           const summaryRect = readRect(summary, "summary");
           const chartRect = readRect(chart, "chart");
-          const timelineRect = readRect(timeline, "timeline");
+          const timelineRect = readRect(timeline ?? null, "timeline");
           const relatedDocsRect = readRect(relatedDocs, "related-docs");
           const tagRects = tagLinks.map((node, index) =>
             readRect(node, `tag-${index}`),
