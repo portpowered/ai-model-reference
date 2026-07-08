@@ -1,0 +1,33 @@
+---
+messageNamespace: "local"
+assetNamespace: "local"
+publishedAt: "2026-07-08"
+updatedAt: "2026-07-08"
+authors:
+  - site-team
+tags:
+  - foundations
+  - alignment
+relatedDocIds:
+  - training-regime.pretraining
+status: "published"
+---
+
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+# <T k="title" />
+
+<T k="contextSentence" />
+
+<TagPillList tags={["foundations", "alignment"]} />
+
+## Summary
+
+<T k="takeaway" />
+
+## Why the training story changed
+
+Early public explanations of large language models often stopped at one idea: scrape a broad pretraining corpus from the open web and predict the next token. That corpus still matters, but the models readers use today are shaped by additional supervision and feedback that arrives after broad corpus learning.
+
+Instruction examples teach format-following behavior. Preference comparisons steer style and safety. Verifiable reinforcement-learning tasks reward outcomes that can be checked automatically. On-policy distillation and self-distillation recycle a model's own outputs back into training. Later sections of this post walk through that timeline and show how the mix of training signals shifted over time.

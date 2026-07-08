@@ -82,6 +82,31 @@ describe("blog post page render", () => {
     );
   }
 
+  it("renders the production llms-no-longer-wholly-reliant-on-the-internet post with metadata and MDX body content", async () => {
+    const page = await renderBlogPostPage(
+      "llms-no-longer-wholly-reliant-on-the-internet",
+    );
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("LLMs are no longer wholly reliant on the internet");
+    expect(html).toContain(
+      "Why modern language models still learn from broad corpora",
+    );
+    expect(html).toContain('dateTime="2026-07-08"');
+    expect(html).toContain("July 8, 2026");
+    expect(html).toContain('class="sr-only">Authors: </span>');
+    expect(html).toContain("Site Team");
+    expect(html).toContain("Foundations");
+    expect(html).toContain("Alignment");
+    expect(html).toContain(
+      'data-blog-slug="llms-no-longer-wholly-reliant-on-the-internet"',
+    );
+    expect(html).toContain("Why the training story changed");
+    expect(html).toContain(
+      "Treat web-scale pretraining as the foundation, not the whole story",
+    );
+  });
+
   it("renders the production roofline post with metadata and MDX body content", async () => {
     const page = await renderBlogPostPage("roofline-throughput-explorer");
     const html = renderToStaticMarkup(page);
