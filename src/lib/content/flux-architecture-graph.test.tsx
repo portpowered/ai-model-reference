@@ -90,7 +90,9 @@ describe("Flux architecture graph", () => {
     expect(diffusionTransformerNode?.registryId).toBe(
       "module.diffusion-transformer-block",
     );
-    expect(latentDenoisingNode?.registryId).toBe("concept.denoising-generation");
+    expect(latentDenoisingNode?.registryId).toBe(
+      "concept.denoising-generation",
+    );
     expect(
       resolveGraphNodeLabel(
         fluxMessages,
