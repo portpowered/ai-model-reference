@@ -5,19 +5,23 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Throughput vs latency is the serving tradeoff between aggregate throughput—the total completed model work per unit time across the system—and individual request latency—the elapsed wait one user experiences from request start through visible progress. Higher utilization can raise completed work while stretching waits for some requests."
+      "body": "Throughput vs latency names the tension between two serving views that often move in opposite directions under load.\n\nThroughput is aggregate completed work over time. It counts how much model output the system finishes across all active requests in a chosen window—tokens per second, requests completed per minute, or similar fleet-level rates.\n\nLatency is the wait one individual request experiences from send through visible progress: time in queue before work starts, pauses between streamed tokens, and total wall clock until the answer feels done.\n\nThe tradeoff appears when raising utilization improves throughput while stretching waits for some users."
     },
     "whyItMatters": {
       "title": "Why It Matters",
       "body": "Operators and readers often see both numbers move in opposite directions under load. A dashboard can show rising tokens per second while chat replies feel sluggish. Understanding the tradeoff separates healthy utilization from overload and clarifies why tuning for one metric can harm the other."
     },
+    "underLoad": {
+      "title": "What Changes Under Concurrency",
+      "body": "Higher concurrency and larger batches are the most common reason the two views diverge. More simultaneous requests give the scheduler more work to pack onto each accelerator step, which raises aggregate completed work. Each request may wait longer before its turn starts or between streamed tokens because shared devices, memory paths, and batch formation time are finite.\n\nA deployment is not failing when throughput climbs while one reader waits longer—that pattern can mean the system is using capacity efficiently. The question is whether individual waits still meet the experience targets operators and product teams care about."
+    },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "Imagine ten chat requests arriving close together. The scheduler groups them into one larger batch so the accelerator stays busy and total tokens per second climbs. Each user may wait longer in queue and between streamed tokens even though the system completes more aggregate work during the same wall-clock window."
+      "body": "Imagine ten chat requests arriving close together. The scheduler groups them into one larger batch so the accelerator stays busy and total tokens per second climbs. Each user may wait longer in queue and between streamed tokens even though the system completes more aggregate work during the same wall-clock window.\n\nIf the same server handled one request at a time, that lone reader might see snappier gaps between tokens. Aggregate throughput would fall because the device idles between requests and never amortizes fixed per-step cost across concurrent streams."
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Throughput vs latency is not a single latency metric like time to first token or inter-token latency, and it is not the same as tokens per second alone. Tokens per second measures aggregate output rate. Individual latency metrics measure one request's waits. The tradeoff explains how those views can diverge under concurrency, batching, and shared serving resources."
+      "body": "Throughput vs latency is not a single latency metric like time to first token or inter-token latency, and it is not the same as tokens per second alone. Tokens per second measures aggregate output rate. Individual latency metrics measure one request's waits. The tradeoff explains how those views can diverge under concurrency, batching, and shared serving resources.\n\nHigh throughput does not guarantee a fast experience for every reader, and low latency for one request does not prove the fleet is using its capacity well. Both views answer different questions and both matter when judging serving behavior."
     },
     "related": {
       "title": "Related Concepts And Modules"
