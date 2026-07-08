@@ -37,6 +37,46 @@ The finished models readers use today are not explained by that corpus alone. Af
 
 This post traces how those later signals accumulated into the modern training recipe. Each stage adds to the mix rather than replacing pretraining.
 
+## How training signals accumulated over time
+
+The recipe below moves from the earliest dominant signal toward the feedback loops that shape models today. Later steps build on earlier ones; none of them makes internet-scale pretraining irrelevant.
+
+### 1. Broad web-scale pretraining
+
+The first large language models were defined mainly by one signal: a broad corpus of text drawn from the open web. That pretraining pass teaches vocabulary, grammar, facts, and general reasoning patterns at scale. Every modern recipe still starts here.
+
+### 2. Few-shot prompting
+
+Researchers soon showed that a pretrained model could follow new tasks from a handful of examples placed directly in the prompt. Few-shot prompting is an **inference-time** adaptation pattern: the model steers toward a task without any weight update. It demonstrated that pretrained representations already encoded flexible task behavior, but it is not the same as a later supervised or reinforcement training loop.
+
+### 3. Mid-training
+
+Mid-training sits between broad pretraining and the heavier post-training stages. It can specialize a generally capable base model on curated or domain-focused data before preference optimization, verifiable reinforcement learning, or large-scale instruction tuning fully take over. Think of it as a bridge that narrows a wide foundation toward the behaviors a product team actually wants.
+
+### 4. Instruction tuning
+
+Instruction tuning adds supervised prompt-and-answer demonstrations so the model learns to follow formats, roles, and user intent. The signal is human- or curator-written examples rather than raw web text. It teaches how to respond, not just how to predict the next token on a webpage.
+
+### 5. Preference feedback
+
+Preference feedback compares alternative model outputs and trains the model to favor the better one. Reinforcement learning from human feedback is the best-known form: human raters score style, helpfulness, and safety, and optimization pushes the policy toward those preferences. The scoring comes from people, and the weights change.
+
+### 6. Verifiable reward loops
+
+Verifiable reinforcement learning replaces or supplements human taste with outcomes that can be checked automatically—exact answers, unit tests, compiler results, or other external verifiers. The reward signal is objective when the verifier passes, and the model still updates its weights through a reinforcement loop.
+
+### 7. Synthetic and model-generated traces
+
+When human labels are scarce, teams generate synthetic traces, chain-of-thought drafts, tool-call trajectories, or other model-produced examples and feed them back into training. The signal often originates from the model family itself, sometimes after filtering or critique, which expands coverage beyond what manual annotation alone can supply.
+
+### 8. On-policy distillation and self-distillation
+
+On-policy distillation refreshes supervision from behavior aligned with the current or recently updated policy instead of relying only on a frozen offline dataset. On-policy self-distillation closes the loop further: the model (or a related checkpoint) generates answers, critiques, or trajectories that supervise later versions. Recipes vary, but the pattern is the same—recycle recent model behavior back into training while weights keep moving.
+
+### What mid-training and post-training mean together
+
+**Mid-training** specializes the base before or alongside the heaviest alignment work. **Post-training** is the umbrella for everything that shapes behavior after that base exists: demonstrations, preference comparisons, verifiable tasks, synthetic traces, and distillation loops. Post-training does not erase pretraining; it layers new objectives on top of the corpus the model already absorbed.
+
 ## What to read next
 
 For stable definitions of each training stage, use the reference pages linked below instead of treating this post as a canonical spec.

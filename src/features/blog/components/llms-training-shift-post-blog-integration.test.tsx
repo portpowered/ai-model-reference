@@ -32,6 +32,18 @@ describe("llms training shift post blog integration", () => {
     expect(html).toContain(
       "additional signals reshape behavior: curated demonstrations",
     );
+    expect(html).toContain("How training signals accumulated over time");
+    expect(html).toContain("Few-shot prompting");
+    expect(html).toContain("inference-time");
+    expect(html).toContain("without any weight update");
+    expect(html).toContain("Mid-training");
+    expect(html).toContain("bridge that narrows a wide foundation");
+    expect(html).toContain("Instruction tuning");
+    expect(html).toContain("Preference feedback");
+    expect(html).toContain("Verifiable reward loops");
+    expect(html).toContain("Synthetic and model-generated traces");
+    expect(html).toContain("On-policy distillation and self-distillation");
+    expect(html).toContain("Post-training does not erase pretraining");
     expect(html).toContain('href="/docs/training/pretraining"');
     expect(html).toContain('href="/docs/training/mid-training"');
     expect(html).toContain('href="/docs/training/post-training"');
