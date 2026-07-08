@@ -117,6 +117,10 @@ describe("blog post page render", () => {
     expect(html).toContain("Training-signal mix over time");
     expect(html).toContain("Broad pretraining corpus");
     expect(html).toContain("On-policy distillation / self-distillation");
+    expect(html).toContain('data-testid="blog-related-docs"');
+    expect(html).toContain('href="/docs/training/rlhf"');
+    expect(html).toContain('href="/docs/training/rlvr"');
+    expect(html).toContain("Related reference pages");
   });
 
   it("renders the production roofline post with metadata and MDX body content", async () => {

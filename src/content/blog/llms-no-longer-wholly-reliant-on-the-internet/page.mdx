@@ -10,9 +10,19 @@ tags:
   - alignment
 relatedDocIds:
   - training-regime.pretraining
+  - training-regime.mid-training
+  - training-regime.post-training
+  - training-regime.instruction-tuning
+  - training-regime.rlhf
+  - training-regime.rlvr
+  - training-regime.distillation
+  - training-regime.on-policy-distillation
+  - concept.synthetic-data
+  - concept.on-policy
 status: "published"
 ---
 
+import { BlogRelatedDocs } from "@/features/blog/components/BlogRelatedDocs";
 import { Callout } from "@/features/docs/components/Callout";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
@@ -52,3 +62,11 @@ The stacked chart below is a **conceptual illustration**. Band heights show illu
 The timeline below walks through the same shift in chronological order, naming each stage and explaining what changed in the training signal readers observe.
 
 <TrainingSignalEvolutionBlogVisual />
+
+## What to read next
+
+For stable definitions of each training stage, use the reference pages linked below instead of treating this post as a canonical spec.
+
+## Related reference pages
+
+<BlogRelatedDocs relatedDocIds={["training-regime.pretraining", "training-regime.mid-training", "training-regime.post-training", "training-regime.instruction-tuning", "training-regime.rlhf", "training-regime.rlvr", "training-regime.distillation", "training-regime.on-policy-distillation", "concept.synthetic-data", "concept.on-policy"]} />
