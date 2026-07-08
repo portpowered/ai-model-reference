@@ -105,7 +105,7 @@ currently links alignment → GRPO only).
 
 | Path | Why |
 | --- | --- |
-| `src/lib/content/citations.ts` | must import/register `citation.proximal-policy-optimization-algorithms` so `<CitationList>` renders the PPO paper (PR #130 blocking finding) |
+| _(none for citations on July 2026 main)_ | `src/lib/content/citations.ts` delegates to generated `registry-runtime`; publishing `src/content/registry/citations/proximal-policy-optimization-algorithms.json` plus `bun run prepare:content-runtime` is sufficient. PR #130 blocking finding about `citations.ts` applied to the stale branch pattern only. |
 
 ## Implementation order (remaining PRD stories)
 

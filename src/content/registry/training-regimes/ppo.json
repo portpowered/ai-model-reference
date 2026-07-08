@@ -10,7 +10,12 @@
     "proximal policy optimization"
   ],
   "tags": ["alignment", "foundations"],
-  "relatedIds": ["concept.alignment"],
+  "relatedIds": [
+    "concept.alignment",
+    "training-regime.rlhf",
+    "training-regime.dpo",
+    "training-regime.grpo"
+  ],
   "citationIds": [
     "citation.proximal-policy-optimization-algorithms",
     "citation.training-language-models-to-follow-instructions-with-human-feedback"

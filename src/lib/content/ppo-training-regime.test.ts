@@ -11,7 +11,9 @@ import {
 } from "@/lib/content/assets";
 import { getDocsPageDir } from "@/lib/content/content-paths";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import { loadRegistry } from "@/lib/content/registry";
 import {
   getCitationById,
   getTrainingRegimeById,
@@ -19,7 +21,25 @@ import {
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadTrainingRegimePage } from "@/lib/content/training-regime-page";
+import { loadUiMessages } from "@/lib/content/ui-messages";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
+import { docsSearchApi } from "@/lib/search/search-server";
+
+const PAGE_URL = "/docs/training/ppo";
+
+function pageBaseUrlFromResults(
+  results: Array<{ url: string }>,
+  pageUrl: string,
+): boolean {
+  return results.some(
+    (result) =>
+      pageBaseUrl(result.url) === pageUrl ||
+      result.url.startsWith(`${pageUrl}#`),
+  );
+}
 
 function loadPpoPageBundle() {
   const pageDir = getDocsPageDir("training", "ppo");
@@ -51,6 +71,12 @@ describe("PPO training-regime page contracts", () => {
       "proximal policy optimization",
     ]);
     expect(record?.tags).toEqual(["alignment", "foundations"]);
+    expect(record?.relatedIds).toEqual([
+      "concept.alignment",
+      "training-regime.rlhf",
+      "training-regime.dpo",
+      "training-regime.grpo",
+    ]);
     expect(record?.primaryClassificationId).toBe(
       "classification.training.alignment",
     );
@@ -122,8 +148,82 @@ describe("PPO training-regime page contracts", () => {
     const alignment = items.find(
       (item) => item.registryId === "concept.alignment",
     );
+    const rlhf = items.find(
+      (item) => item.registryId === "training-regime.rlhf",
+    );
+    const dpo = items.find((item) => item.registryId === "training-regime.dpo");
+    const grpo = items.find(
+      (item) => item.registryId === "training-regime.grpo",
+    );
+
     expect(alignment?.href).toBe("/docs/concepts/alignment");
     expect(alignment?.isPlanned).toBe(false);
+    expect(rlhf?.href).toBe("/docs/training/rlhf");
+    expect(rlhf?.isPlanned).toBe(false);
+    expect(dpo?.href).toBe("/docs/training/dpo");
+    expect(dpo?.isPlanned).toBe(false);
+    expect(grpo?.href).toBe("/docs/training/grpo");
+    expect(grpo?.isPlanned).toBe(false);
+  });
+
+  test("search documents carry PPO aliases and alignment neighbor related ids", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+
+    const document = documents.find((entry) => entry.url === PAGE_URL);
+    expect(document?.kind).toBe("training-regime");
+    expect(document?.aliases).toEqual(
+      expect.arrayContaining([
+        "PPO",
+        "Proximal Policy Optimization",
+        "proximal policy optimization",
+      ]),
+    );
+    expect(document?.relatedIds).toEqual([
+      "concept.alignment",
+      "training-regime.rlhf",
+      "training-regime.dpo",
+      "training-regime.grpo",
+    ]);
+    expect(document?.tags).toEqual(
+      expect.arrayContaining(["alignment", "foundations"]),
+    );
+  });
+
+  test.each([
+    "ppo",
+    "proximal policy optimization",
+  ] as const)("live search routes %s to the canonical PPO training page", async (query) => {
+    const results = await docsSearchApi.search(query);
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(pageBaseUrl(results[0]?.url ?? "")).toBe(PAGE_URL);
+    expect(pageBaseUrlFromResults(results, PAGE_URL)).toBe(true);
+  });
+
+  test("live search surfaces PPO for rlhf ppo reader intent", async () => {
+    const results = await docsSearchApi.search("rlhf ppo");
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(pageBaseUrlFromResults(results, PAGE_URL)).toBe(true);
+  });
+
+  test("tag landing and alignment back-link expose PPO for alignment discovery", async () => {
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups("alignment", messages, "en");
+    const trainingGroup = groups.find(
+      (group) => group.kind === "training-regime",
+    );
+
+    expect(
+      trainingGroup?.resources.some((resource) => resource.url === PAGE_URL),
+    ).toBe(true);
+
+    const alignment = listRelatedRegistryRecords().find(
+      (record) => record.id === "concept.alignment",
+    );
+    expect(alignment?.relatedIds).toContain("training-regime.ppo");
   });
 
   test("local asset config resolves the PPO graph with message-backed references", () => {
@@ -194,6 +294,11 @@ describe("PPO training-regime page contracts", () => {
     expect(html).toContain("clip width");
     expect(html).toContain('href="/docs/training/rlhf"');
     expect(html).toContain('href="/docs/training/dpo"');
+    expect(html).toContain('href="/docs/training/grpo"');
+    expect(html).toContain('href="/docs/concepts/alignment"');
+    expect(html).toContain('href="/tags/alignment"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("on this page");
   });
