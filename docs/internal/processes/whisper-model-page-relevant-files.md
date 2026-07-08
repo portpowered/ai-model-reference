@@ -39,3 +39,15 @@ Relationship targets wired on `model.whisper`:
 
 - `concept.encoder-decoder`, `concept.tokenizers-overview`, `concept.multimodal-model`, `concept.modality`
 - `module.cross-attention`, `module.multi-head-attention`, `module.bpe`, `module.layer-norm`
+
+## Page bundle (story 003)
+
+| Artifact | Path |
+| --- | --- |
+| Page MDX | `src/content/docs/models/whisper/page.mdx` |
+| English messages | `src/content/docs/models/whisper/messages/en.json` |
+| Local assets | `src/content/docs/models/whisper/assets.json` |
+
+Focused observable guard: `src/lib/content/whisper-model-page.test.tsx`.
+
+Story 003 ships prose-only architecture (no `ModelArchitectureGraph` yet); story 005 adds the teaching graph asset and registry graph record.

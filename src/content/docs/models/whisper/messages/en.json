@@ -1,0 +1,40 @@
+{
+  "title": "Whisper",
+  "description": "OpenAI's Whisper model family for automatic speech recognition and speech translation, mapping audio input to text through an encoder-decoder transformer.",
+  "openingSummary": "Whisper is OpenAI's Whisper model family for turning speech audio into text. It uses an encoder-decoder transformer to transcribe spoken audio and, when asked, translate speech into another written language.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Whisper is OpenAI's open-weight speech recognition and translation model family released in 2022. Public materials describe a family of encoder-decoder transformer checkpoints sized from tens of millions to about 1.5 billion parameters, trained to map audio into text tokens for transcription and translation tasks."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Whisper takes audio waveforms as its primary input. Its outputs are text tokens that decode into transcripts, translated text, or other task-specific strings depending on the requested mode. That audio-to-text interface is what connects Whisper to tokenization and encoder-decoder architecture pages elsewhere in this reference."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "At a high level, Whisper follows an encoder-decoder pattern: an audio encoder reads time-frequency features from the input waveform, and a text decoder generates output tokens conditioned on those encoded representations. Cross-attention lets the decoder read encoder states while it emits text one token at a time."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The registry-linked modules below are the main building blocks to understand before comparing Whisper to text-only transformers. Multi-head attention and cross-attention carry audio context into the decoder, BPE tokenization defines the text vocabulary interface, and layer normalization stabilizes the repeated transformer blocks."
+    },
+    "training": {
+      "title": "Training",
+      "body": "OpenAI's public Whisper paper frames training around large-scale weak supervision from web-scale speech data, with robustness across accents, background noise, and languages as a central design goal. The linked citations below are the stable primary sources for dataset framing and training objectives."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Whisper is useful to read as an audio encoder-decoder system rather than as a chat model with a microphone attached. Readers still need tokenization to understand the text side of the interface, and encoder-decoder architecture pages explain how audio features and text generation connect across modalities."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
