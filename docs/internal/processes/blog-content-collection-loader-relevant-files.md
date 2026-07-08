@@ -82,3 +82,7 @@ adding public blog routes, shell hardening, or committed real posts.
 * `bun test src/lib/content/blog-`
 
 Canonical frontmatter reference: `docs/templates/blog-post.mdx`.
+
+## Patterns
+
+* Blog post `relatedDocIds` frontmatter must use block-list YAML (`relatedDocIds:\n  - concept.example`). Inline `relatedDocIds: []` is parsed as a string by `parseYamlFrontmatterBlock` and as `null` by `compileMDX`, which fails `blogPostFrontmatterSchema`.

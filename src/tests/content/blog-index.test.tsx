@@ -93,6 +93,26 @@ describe("blog index page render", () => {
     );
   }
 
+  it("renders the production llms-no-longer-wholly-reliant-on-the-internet post with title, description, date, and tags", async () => {
+    const page = await renderBlogIndexPage();
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("LLMs are no longer wholly reliant on the internet");
+    expect(html).toContain(
+      "Why modern language models still learn from broad corpora",
+    );
+    expect(html).toContain('dateTime="2026-07-08"');
+    expect(html).toContain("July 8, 2026");
+    expect(html).toContain("Foundations");
+    expect(html).toContain("Alignment");
+    expect(html).toContain(
+      'href="/blog/llms-no-longer-wholly-reliant-on-the-internet"',
+    );
+    expect(html).toContain(
+      'aria-label="Read blog post: LLMs are no longer wholly reliant on the internet"',
+    );
+  });
+
   it("renders the production roofline post with title, description, date, and tags", async () => {
     const page = await renderBlogIndexPage();
     const html = renderToStaticMarkup(page);
