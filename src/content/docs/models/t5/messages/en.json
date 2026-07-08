@@ -39,7 +39,7 @@
   },
   "assets": {
     "architectureGraph": {
-      "alt": "T5 architecture diagram with SentencePiece tokenization, an encoder stack using relative position bias and bidirectional self-attention, a cross-attention bridge, a decoder stack with masked self-attention, and output text generation."
+      "alt": "T5 architecture diagram with input text tokenized by SentencePiece, shared input embeddings, an encoder stack using relative position bias and bidirectional self-attention, cross-attention bridging encoder states into a decoder stack with masked self-attention, a linear vocabulary head, and autoregressive output text generation."
     }
   },
   "graph": {
