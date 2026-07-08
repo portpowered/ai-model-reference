@@ -316,6 +316,10 @@ describe("production blog tag landing", () => {
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Blog");
+    expect(html).toContain("LLMs are no longer wholly reliant on the internet");
+    expect(html).toContain(
+      'href="/blog/llms-no-longer-wholly-reliant-on-the-internet"',
+    );
     expect(html).toContain("Why throughput follows a roofline");
     expect(html).toContain('href="/blog/roofline-throughput-explorer"');
     expect(html).toContain(
@@ -323,6 +327,31 @@ describe("production blog tag landing", () => {
     );
     expect(html).toContain('dateTime="2026-07-02"');
     expect(html).toContain('href="/tags/kv-cache"');
+  });
+
+  it("lists llms-no-longer-wholly-reliant-on-the-internet on the alignment tag landing page", async () => {
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups("alignment", messages, "en");
+    const blogGroup = groups.find((group) => group.kind === "blog");
+
+    expect(blogGroup).toBeDefined();
+    expect(
+      blogGroup?.resources.some(
+        (resource) =>
+          resource.slug === "llms-no-longer-wholly-reliant-on-the-internet",
+      ),
+    ).toBe(true);
+
+    const page = await TagLandingPage({
+      params: Promise.resolve({ slug: "alignment" }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("LLMs are no longer wholly reliant on the internet");
+    expect(html).toContain(
+      'href="/blog/llms-no-longer-wholly-reliant-on-the-internet"',
+    );
+    expect(html).toContain('dateTime="2026-07-08"');
   });
 });
 
