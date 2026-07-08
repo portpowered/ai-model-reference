@@ -1,0 +1,111 @@
+{
+  "id": "graph.t5-architecture",
+  "slug": "t5-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["T5 architecture graph"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": ["citation.raffel-t5"],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "subjectId": "model.t5",
+  "graphType": "model-architecture",
+  "rootNodeId": "output-text",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "output-text",
+      "labelKey": "graph.nodes.outputText.label",
+      "summaryKey": "graph.nodes.outputText.summary",
+      "registryId": "concept.autoregressive-generation",
+      "moduleKind": "output",
+      "position": { "x": 290, "y": 0 },
+      "size": { "width": 170, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "decoder-stack",
+      "labelKey": "graph.nodes.decoderStack.label",
+      "summaryKey": "graph.nodes.decoderStack.summary",
+      "registryId": "concept.decoder",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 92 },
+      "size": { "width": 250, "height": 82 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "cross-attention",
+      "labelKey": "graph.nodes.crossAttention.label",
+      "summaryKey": "graph.nodes.crossAttention.summary",
+      "registryId": "module.cross-attention",
+      "moduleKind": "attention",
+      "position": { "x": 275, "y": 204 },
+      "size": { "width": 200, "height": 62 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "encoder-stack",
+      "labelKey": "graph.nodes.encoderStack.label",
+      "summaryKey": "graph.nodes.encoderStack.summary",
+      "registryId": "concept.encoder",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 296 },
+      "size": { "width": 250, "height": 82 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "input-text",
+      "labelKey": "graph.nodes.inputText.label",
+      "summaryKey": "graph.nodes.inputText.summary",
+      "registryId": "concept.tokenizers-overview",
+      "moduleKind": "tokenizer",
+      "position": { "x": 290, "y": 408 },
+      "size": { "width": 170, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "decoder-to-output",
+      "source": "decoder-stack",
+      "target": "output-text",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "cross-to-decoder",
+      "source": "cross-attention",
+      "target": "decoder-stack",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "encoder-to-cross",
+      "source": "encoder-stack",
+      "target": "cross-attention",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "input-to-encoder",
+      "source": "input-text",
+      "target": "encoder-stack",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    }
+  ]
+}

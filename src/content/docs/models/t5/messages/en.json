@@ -1,0 +1,69 @@
+{
+  "title": "T5",
+  "description": "An encoder-decoder transformer that frames every NLP task as text-to-text generation.",
+  "openingSummary": "T5 (Text-to-Text Transfer Transformer) is a transformer model family that reads text and writes text, using an encoder to build context and a decoder to generate the answer in the same token space.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "T5 is an encoder-decoder transformer model family from Google Research. It treats every natural language task as text-to-text: the model reads a text prompt and produces a text completion."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "T5 reads tokenized text as input and produces tokenized text as output. Both sides use the same vocabulary, so tasks like translation, summarization, and classification are expressed as prompt-and-answer text pairs."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "T5 follows the encoder-decoder transformer layout. An encoder stack processes the full input sequence with bidirectional self-attention, then a decoder stack generates output tokens autoregressively while attending to encoder states through cross-attention."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The modules below are the main building blocks that define how T5 processes text. Relative position bias replaces absolute position embeddings, multi-head attention moves information across tokens, cross-attention connects encoder context to the decoder, and the feed-forward network transforms each position locally."
+    },
+    "training": {
+      "title": "Training",
+      "body": "T5 is pretrained with a denoising objective on large text corpora, then fine-tuned on downstream tasks expressed as text-to-text examples. The same model weights can be adapted to many tasks by changing only the input and target text formatting."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "T5 remains a widely used reference for encoder-decoder transformers and transfer learning with a unified text interface. Different checkpoint sizes trade off quality and compute, and task-specific prefixes or templates are still needed to steer behavior at inference time."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "T5 architecture diagram with input text, an encoder stack with relative position bias and self-attention, cross-attention into a decoder stack, and output text generation."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputText": {
+        "label": "Output\nText",
+        "summary": "Generated text tokens from the decoder"
+      },
+      "decoderStack": {
+        "label": "Decoder\nStack",
+        "summary": "Autoregressive decoder blocks with masked self-attention and cross-attention"
+      },
+      "crossAttention": {
+        "label": "Cross\nAttention",
+        "summary": "Decoder queries attend to encoder key-value states"
+      },
+      "encoderStack": {
+        "label": "Encoder\nStack",
+        "summary": "Bidirectional encoder blocks that build input representations"
+      },
+      "inputText": {
+        "label": "Input\nText",
+        "summary": "Tokenized source text fed to the encoder"
+      }
+    }
+  }
+}
