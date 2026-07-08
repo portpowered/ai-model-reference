@@ -78,7 +78,7 @@ describe("Phase 2 evaluation and scaling glossary pages (US-005)", () => {
 
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/docs/glossary/generalization"');
-    expect(html).toContain('href="/docs/concepts/softmax"');
+    expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).toContain('href="/docs/glossary/entropy"');
     expect(html).toContain("curated");
   });

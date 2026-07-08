@@ -70,7 +70,6 @@ const TARGET_PATH_PAGES: readonly TargetPathPage[] = [
     slug: "softmax",
     title: "Softmax",
     url: "/docs/glossary/softmax",
-    searchUrl: "/docs/concepts/softmax",
     summarySnippet: "probability distribution",
     aliasQueries: ["softmax function"] as const,
   },
@@ -186,13 +185,13 @@ describe("Phase 2 token-probability path search ranking (phase-2-token-probabili
     expect(pageBaseUrl(results[0]?.url ?? "")).toBe(url);
   });
 
-  test("softmax query keeps concept page first while module hits remain discoverable with distinct kind metadata", async () => {
+  test("softmax query keeps glossary first while module hits remain discoverable with distinct kind metadata", async () => {
     const results = await docsSearchApi.search("softmax");
     const metaMap = await loadSearchResultMetaMap();
 
-    expect(pageBaseUrl(results[0]?.url ?? "")).toBe("/docs/concepts/softmax");
+    expect(pageBaseUrl(results[0]?.url ?? "")).toBe("/docs/glossary/softmax");
     expect(resultsIncludeUrl(results, SOFTMAX_MODULE_URL)).toBe(true);
-    expect(metaMap.get("/docs/concepts/softmax")?.kind).toBe("concept");
+    expect(metaMap.get("/docs/glossary/softmax")?.kind).toBe("glossary");
     expect(metaMap.get(SOFTMAX_MODULE_URL)?.kind).toBe("module");
   });
 
@@ -297,8 +296,7 @@ describe("Phase 2 token-probability path search panel verification (phase-2-toke
     expect(firstUrl?.textContent).toContain(url);
 
     const kindLabels = within(results).getAllByTestId("search-result-kind");
-    const expectedKind =
-      slug === "embedding" || slug === "softmax" ? "Concept" : "Glossary";
+    const expectedKind = slug === "embedding" ? "Concept" : "Glossary";
     expect(kindLabels[0]?.textContent).toContain(expectedKind);
   });
 });

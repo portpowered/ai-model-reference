@@ -44,6 +44,6 @@ describe("Phase 2 token-to-probability learning-path navigation (US-012)", () =>
 
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
-    expect(html).toContain('href="/docs/concepts/softmax"');
+    expect(html).toContain('href="/docs/glossary/softmax"');
   });
 });

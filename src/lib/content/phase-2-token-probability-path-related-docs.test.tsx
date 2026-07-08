@@ -127,7 +127,7 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
     expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
-    expect(html).toContain('href="/docs/concepts/softmax"');
+    expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).toContain("Show 2 more");
   });
 
@@ -149,7 +149,7 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
       "/docs/concepts/embedding",
       "/docs/glossary/vocabulary-size",
       "/docs/glossary/logit",
-      "/docs/concepts/softmax",
+      "/docs/glossary/softmax",
     ]) {
       expect(html).toContain(`href="${href}"`);
       expect(html).toContain("focus-visible:ring-2");

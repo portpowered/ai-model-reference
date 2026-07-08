@@ -18,7 +18,7 @@ import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta"
 import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 
 const LOGIT_GLOSSARY_URL = "/docs/glossary/logit";
-const SOFTMAX_CONCEPT_URL = "/docs/concepts/softmax";
+const SOFTMAX_GLOSSARY_URL = "/docs/glossary/softmax";
 
 describe("Phase 2 logit and softmax glossary pages (US-005)", () => {
   test("logit registry connects from tensor and forward to softmax", () => {
@@ -49,7 +49,7 @@ describe("Phase 2 logit and softmax glossary pages (US-005)", () => {
     expect(html).toContain("Logit");
     expect(html).toContain("What It Is");
     expect(html).toContain('class="katex"');
-    expect(html).toContain(`href="${SOFTMAX_CONCEPT_URL}"`);
+    expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
   });
 
@@ -98,7 +98,7 @@ describe("Phase 2 logit and softmax search discoverability (US-005)", () => {
     );
   });
 
-  test("search ranks softmax concept page first for Softmax title query", async () => {
+  test("search ranks softmax glossary first for Softmax title query", async () => {
     const exported = await (await docsSearchApi.staticGET()).json();
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
@@ -118,6 +118,6 @@ describe("Phase 2 logit and softmax search discoverability (US-005)", () => {
     );
 
     expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url).toBe(SOFTMAX_CONCEPT_URL);
+    expect(results[0]?.url).toBe(SOFTMAX_GLOSSARY_URL);
   });
 });

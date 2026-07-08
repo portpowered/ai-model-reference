@@ -55,7 +55,7 @@ describe("Phase 2 token page learning chain entry (US-010)", () => {
     expect(html).toContain('href="/docs/concepts/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
-    expect(html).toContain('href="/docs/concepts/softmax"');
+    expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).toContain(
       "Each token ID becomes a learned numerical representation before the model mixes context.",
     );

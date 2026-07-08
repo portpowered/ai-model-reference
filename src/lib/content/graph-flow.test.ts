@@ -261,7 +261,7 @@ describe("graph-flow", () => {
       sourceTitle: "Linear",
       targetTitle: "Softmax",
       relationshipSummary: "Softmax depends on Linear.",
-      targetPageHref: "/docs/concepts/softmax",
+      targetPageHref: "/docs/glossary/softmax",
       targetPageTitle: "Softmax",
       interactionEnabled: true,
     });
