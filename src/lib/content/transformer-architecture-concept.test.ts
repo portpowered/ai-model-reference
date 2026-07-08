@@ -26,6 +26,7 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
       "concept.normalization",
       "concept.residual-connection",
       "concept.positional-encodings",
+      "model.gemma",
     ]);
     expect(
       PUBLISHED_DOCS_REGISTRY_IDS.has("concept.transformer-architecture"),

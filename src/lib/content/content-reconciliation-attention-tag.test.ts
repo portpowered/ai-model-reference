@@ -93,6 +93,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(modelGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/models/deepseek-v4-flash",
       "/docs/models/deepseek-v4-pro",
+      "/docs/models/gemma",
       "/docs/models/glm-5",
       "/docs/models/glm-5-2",
       "/docs/models/gpt-3",

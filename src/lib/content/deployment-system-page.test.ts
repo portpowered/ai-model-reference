@@ -51,6 +51,7 @@ describe("Deployment system page (deployment-system-page-001)", () => {
       "model.gpt-3",
       "model.deepseek-v4-pro",
       "model.nemotron-3-super",
+      "model.gemma",
     ]);
     expect(record?.relatedConceptIds).toEqual([
       "concept.quantization",
