@@ -1,0 +1,85 @@
+---
+title: "Flux"
+description: "A Black Forest Labs image-generation model family that turns text prompts into images using rectified-flow transformer backbones in latent space."
+kind: "model"
+registryId: "model.flux"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - model-family
+aliases:
+  - "Flux"
+  - "FLUX"
+  - "FLUX.1"
+  - "FLUX.2"
+  - "Black Forest Labs Flux"
+  - "BFL Flux"
+  - "text-to-image Flux"
+  - "Black Forest Labs"
+  - "BFL image generation model"
+  - "diffusion transformer image model"
+  - "rectified flow image model"
+  - "flow matching image model"
+updatedAt: "2026-07-08"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModelAtAGlance } from "@/features/models/components/ModelAtAGlance";
+import { ModelModuleList } from "@/features/models/components/ModelModuleList";
+import { ModelTrainingSummary } from "@/features/models/components/ModelTrainingSummary";
+
+
+<ModelAtAGlance registryId="model.flux" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="inputs-and-outputs" titleKey="sections.inputsAndOutputs.title">
+  <T k="sections.inputsAndOutputs.body" />
+</Section>
+
+<Section id="architecture" titleKey="sections.architecture.title">
+  <T k="sections.architecture.body" />
+</Section>
+
+<Section id="important-modules" titleKey="sections.importantModules.title">
+  <T k="sections.importantModules.body" />
+  <ModelModuleList registryId="model.flux" />
+</Section>
+
+<Section id="training" titleKey="sections.training.title">
+  <T k="sections.training.body" />
+  <ModelTrainingSummary registryId="model.flux" />
+</Section>
+
+<Section id="practical-notes" titleKey="sections.practicalNotes.title">
+  <T k="sections.practicalNotes.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="model.flux"
+    groups={[
+      "same-model-family",
+      "shared-modules",
+      "shared-training-regimes",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="model.flux" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="model.flux" />
+</Section>
