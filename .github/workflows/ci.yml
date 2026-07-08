@@ -40,6 +40,8 @@ jobs:
           - name: test-build-contract
             command: make test-build-contract
             install_playwright: true
+            timeout_minutes: 8
+            ci_command_timeout_seconds: 480
           - name: build-export
             command: make build-export
             install_playwright: true
