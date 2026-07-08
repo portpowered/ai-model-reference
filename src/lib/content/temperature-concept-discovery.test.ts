@@ -147,6 +147,18 @@ describe("temperature concept discovery (temperature-concept-page-current-main)"
     expect(html.toLowerCase()).toContain("incoherent");
     expect(html.toLowerCase()).toContain("appearance of confidence");
     expect(html.toLowerCase()).toContain("reshapes scores first");
+    expect(html.toLowerCase()).toContain("softmax turns those scores into");
+    expect(html.toLowerCase()).toContain("probability distribution");
+    expect(html.toLowerCase()).toContain(
+      "entropy summarizes how spread out that distribution is",
+    );
+    expect(html.toLowerCase()).toContain("picks the single highest-probability");
+    expect(html.toLowerCase()).toContain("top-k and");
+    expect(html.toLowerCase()).toContain("top-p sampling");
+    expect(html.toLowerCase()).toContain("smaller candidate set");
+    expect(html.toLowerCase()).toContain(
+      "truncation rules such as top-k or top-p decide which",
+    );
     expect(html).toContain('href="/docs/glossary/temperature"');
     expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).toContain('href="/docs/glossary/entropy"');
