@@ -1,0 +1,120 @@
+{
+  "title": "GPT-2",
+  "description": "A decoder-only language model that showed large-scale next-token pretraining could produce broad text skills without task-specific fine-tuning.",
+  "openingSummary": "GPT-2 demonstrated that a decoder-only Transformer trained only to predict the next token could still read prompts, continue prose, and imitate simple tasks, which made unsupervised pretraining a mainstream path toward general-purpose language models.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "GPT-2 is a text-only decoder-only Transformer from OpenAI. It is trained to predict the next token in long text streams, and it became an early landmark for showing that scale plus simple pretraining could produce surprisingly broad language behavior."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The model reads text tokens and produces text tokens. A prompt can be a question, a partial article, or a few examples, and GPT-2 continues from that context one token at a time through autoregressive generation. Each step turns hidden states into vocabulary logits, applies softmax to get probabilities, and selects or samples the next token."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "GPT-2 follows the familiar decoder-only Transformer stack. Byte-level tokenization turns raw text into token IDs, input embeddings map those IDs to vectors, learned positional embeddings mark token order, and a repeated decoder block runs masked multi-head self-attention, add-and-norm, a standard feed-forward network, and another add-and-norm before a linear head produces logits and softmax yields next-token probabilities."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The modules below are the main moving parts to understand before reading later GPT-family models. Byte-level tokenization defines how raw text becomes token pieces, masked multi-head attention carries context across the prompt, the standard feed-forward network transforms each position locally, learned positional embeddings encode order, and layer normalization keeps the repeated stack trainable."
+    },
+    "training": {
+      "title": "Training",
+      "body": "GPT-2 training centered on large-scale next-token pretraining over a broad web text mixture. The objective is simple: predict the next token given all earlier tokens. Public checkpoints span roughly 117 million to 1.5 billion parameters, and the report argued that larger models showed smoother scaling and more coherent multitask-like behavior from the same unsupervised recipe."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "GPT-2 is historically important because it made unsupervised pretraining plus scale feel practical, but it also reflects an earlier generation. Its 1,024-token context window is short by modern standards, it uses learned absolute positional embeddings rather than later relative or rotary schemes, and OpenAI released smaller checkpoints while withholding the largest ones over misuse concerns."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "relatedDocs": {
+    "concept.transformer-architecture": {
+      "reason": "GPT-2 is a canonical decoder-only Transformer stack, so this page is the right place to compare the full architecture pattern against GPT-2's specific block choices."
+    },
+    "module.byte-level-tokenization": {
+      "reason": "GPT-2 reads byte-level BPE token pieces rather than raw characters, so this module explains the tokenizer step that sits before the decoder stack."
+    },
+    "concept.sampling-overview": {
+      "reason": "GPT-2 generates text by turning logits into probabilities and then sampling or selecting the next token, which this overview explains after the softmax step."
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "GPT-2 architecture diagram with input tokens, token embeddings, learned positional embeddings, a repeated decoder block containing masked multi-head attention and feed-forward layers, then a linear head, softmax, and output probabilities."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "The model's probability distribution over the next token"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Linear",
+        "summary": "Projects the hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated decoder block container"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Attention sublayer container"
+      },
+      "ffnSublayer": {
+        "label": " ",
+        "summary": "Feed-forward sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats many times through the stack"
+      },
+      "addNormAttention": {
+        "label": "Add & Norm",
+        "summary": "Residual add followed by normalization after masked attention"
+      },
+      "maskedMha": {
+        "label": "Masked\nMulti-Head\nAttention",
+        "summary": "Each token can read earlier tokens but not future ones"
+      },
+      "addNormFfn": {
+        "label": "Add & Norm",
+        "summary": "Residual add followed by normalization after the feed-forward block"
+      },
+      "feedForward": {
+        "label": "Feed\nForward",
+        "summary": "Per-token dense transformation inside each decoder block"
+      },
+      "positionAdd": {
+        "label": "+",
+        "summary": "Adds token embeddings and learned positional embeddings"
+      },
+      "learnedPositions": {
+        "label": "Learned\nPosition\nEmbeddings",
+        "summary": "Absolute position vectors added before the stack"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs to hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after byte-level tokenization"
+      }
+    }
+  }
+}
