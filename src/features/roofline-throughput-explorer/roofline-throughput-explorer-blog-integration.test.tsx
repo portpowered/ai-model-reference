@@ -45,9 +45,9 @@ describe("roofline throughput explorer blog integration", () => {
     expect(post.frontmatter.status).toBe("published");
     expect(html).toContain('data-roofline-throughput-explorer="explorer"');
     expect(html).toContain('data-testid="roofline-model-preset"');
-    expect(html).toContain("Explore the maximum-throughput bound");
+    expect(html).toContain("Explore the throughput bound");
     expect(html).toContain(
-      "sets how many weight bytes can cross the chip per second",
+      "Model presets come from current registry metadata at build time",
     );
   });
 });
