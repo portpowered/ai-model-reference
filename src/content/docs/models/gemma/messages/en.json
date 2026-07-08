@@ -1,0 +1,40 @@
+{
+  "title": "Gemma",
+  "description": "Open model family from Google DeepMind with Gemma 4 as the current main line, spanning Effective 2B and 4B edge checkpoints through 12B, 26B mixture-of-experts, and 31B dense variants with native text, image, and audio input, thinking-mode reasoning, and Apache 2.0 licensing.",
+  "openingSummary": "Gemma is Google DeepMind's open model family for developers and researchers. Gemma 4 is the current main line, offering native text, image, and audio understanding with Apache 2.0 weights that scale from on-device Effective 2B and 4B checkpoints through 12B, 26B mixture-of-experts, and 31B dense variants.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Gemma is an open-weights model family from Google DeepMind, with Gemma 4 as the current main release announced on 2026-04-02. Google positions Gemma as inspectable, adaptable open models rather than a closed API-only platform. Earlier Gemma 3 and Gemma 3n lines remain useful family context for multimodal and on-device history, while specialized Gemmaverse members such as embedding, safety, medical, and translation variants extend the family without replacing Gemma 4 as the primary line described here."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Gemma 4 accepts text, images, and audio as native inputs and produces text outputs. Public materials describe a thinking-mode path that lets the model reason before returning a final answer. Effective 2B and 4B checkpoints target edge and on-device deployment, while 12B, 26B A4B mixture-of-experts, and 31B dense variants trade additional size for broader capacity and the family's advertised long-context reach."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Google DeepMind describes Gemma 4 as a decoder-style transformer family with native multimodal input handling and mixture-of-experts routing on the 26B A4B checkpoint. Public sources also highlight long-context support up to 256K tokens, per-layer embeddings on some variants, and design choices aimed at efficient inference such as speculative decoding. Checkpoint-specific wiring remains in the linked primary sources."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The registry-linked modules and concepts below explain the mechanisms named most often in Gemma 4 materials. Mixture-of-experts routing matters for the 26B family member, multimodal conditioning explains how text, image, and audio references enter one backbone, and the long-context window concept anchors the advertised 256K-token reach."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Google's public Gemma materials summarize training at the family level and emphasize open-weight release under Apache 2.0 rather than publishing a full reproducible recipe on this overview. Treat training statements here as orientation from primary release pages and the technical report, not a step-by-step lab checklist."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Gemma is useful to read as an open multimodal family that spans phone-scale edge deployment through larger server checkpoints, with Apache 2.0 licensing broadening adaptation and redistribution options compared with earlier Gemma terms. Confirm checkpoint availability, quantization formats, and deployment targets in the linked Google and DeepMind release pages rather than treating this overview as a product catalog or model-ranking page."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
