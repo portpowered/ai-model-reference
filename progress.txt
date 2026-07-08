@@ -6,6 +6,7 @@
 - Colocated blog messages require `title`, `description`, and optional `contextSentence` / `takeaway` per `blogPostMessagesSchema`.
 - When adding a published blog post, update `blog-content-loader-scope.test.ts` and `blog-tag-landing.test.ts` slug inventories (newest-first on tag pages).
 - Blog inline canonical links use markdown `[label](/docs/...)` syntax; `validate-data` / `validatePublishedBlogPosts` rejects broken reader-visible MDX links.
+- Blog search discovery tests live in `build-blog-search-document.test.ts` under a post-specific `describe` block; assert document fields, representative `docsSearchApi.search` queries, and tag-filtered search without full-site route inventories.
 
 ## 2026-07-08T08:15:00Z - roofline-max-throughput-post-001
 - Published English-first blog post at `/blog/roofline-max-throughput` with local message/asset namespaces, published status, site-team author, 2026-07-08 dates, foundations + kv-cache tags, and nine canonical throughput-related doc IDs in frontmatter and `BlogRelatedDocs`.
@@ -36,4 +37,14 @@
   - Patterns discovered: mirror `blog-related-docs-blog-integration.test.tsx` for related-doc href assertions; derive expected hrefs via `registryRecordHref` + `getConceptById`/`getSystemById` rather than hardcoding route tables.
   - Gotchas encountered: some concepts live under `/docs/glossary/` (decode, tokens-per-second) while others are `/docs/concepts/` or `/docs/systems/`—always resolve from registry.
   - Useful context: built-app curl at `/blog/roofline-max-throughput` lists all nine canonical hrefs in SSR output alongside `data-testid="blog-related-docs"`.
+---
+
+## 2026-07-08T09:00:00Z - roofline-max-throughput-post-004
+- Added focused search and tag discovery tests proving `/blog/roofline-max-throughput` indexes title, description, headings, narrative prose, and tag aliases without MDX component names; representative queries (`roofline throughput`, `maximum throughput`, `memory bandwidth tokens per second`, `FLOPs throughput`) and tag-filtered `throughput` searches return the post on `foundations` and `kv-cache`.
+- Extended foundations tag landing render proof to include the newer roofline max throughput post metadata and link ahead of the older explorer post.
+- Files changed: `src/lib/search/build-blog-search-document.test.ts`, `src/lib/content/blog-tag-landing.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: published blog search discovery mirrors `roofline-post` lane—add a post-specific `describe` in `build-blog-search-document.test.ts` rather than a separate search inventory test file.
+  - Gotchas encountered: multi-term queries like `memory bandwidth tokens per second` still return the post but rank lower; acceptance only requires discoverability, not top rank.
+  - Useful context: post content already satisfied search indexing via `buildBlogSearchDocument`; story 004 work is primarily validation unless prose lacks query terms.
 ---
