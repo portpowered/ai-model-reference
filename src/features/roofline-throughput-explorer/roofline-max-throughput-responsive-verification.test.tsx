@@ -8,12 +8,10 @@ import {
 } from "@/lib/content/blog-page-load";
 import { renderBlogPostShell } from "@/lib/content/blog-shell-render";
 import type { RooflineModelSizePreset } from "@/lib/content/roofline-model-size-presets";
-import { shouldRunPlaywrightHttpVerifierUnitTests } from "@/lib/verify/export-integration-probe-lock";
 import {
   closePlaywrightBrowserWithTimeout,
   launchPlaywrightBrowser,
 } from "@/lib/verify/launch-playwright-browser";
-import { verifyRooflineThroughputExplorerViewports } from "@/lib/verify/roofline-throughput-explorer-viewport-http";
 import {
   acquireVerifyServerSession,
   shouldRunVerifyProductionIntegrationTests,
@@ -260,22 +258,6 @@ describe("roofline max throughput responsive verification (005)", () => {
     ).toBeTruthy();
     assertExplorerBehavioralSurface(container);
   });
-
-  test(
-    "blog post explorer markup keeps desktop and mobile control regions visible and non-overlapping",
-    async () => {
-      if (!shouldRunPlaywrightHttpVerifierUnitTests()) {
-        return;
-      }
-
-      const post = await loadBlogPostFromDisk(BLOG_SLUG);
-      const html = renderBlogPostShell(post);
-      const failure = await verifyRooflineThroughputExplorerViewports(html);
-
-      expect(failure).toBeNull();
-    },
-    { timeout: ROOFLINE_VIEWPORT_PROBE_TIMEOUT_MS },
-  );
 
   test.each(
     BLOG_VIEWPORTS.map((viewport) => [viewport.label, viewport] as const),
