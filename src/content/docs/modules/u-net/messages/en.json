@@ -1,0 +1,192 @@
+{
+  "title": "U-Net",
+  "description": "A U-shaped convolutional network that denoises images by mixing multiscale context down a downsampling path, through a bottleneck, and back up an upsampling path with skip connections.",
+  "openingSummary": "U-Net is a U-shaped convolutional network used as the denoising backbone in many early diffusion image systems. It reads a noisy image, compresses spatial detail down a downsampling path, mixes information in a bottleneck, rebuilds resolution on an upsampling path, and uses skip connections to carry fine layout back to the output so each denoising step can predict or remove noise without washing out structure.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "U-Net is a convolutional neural network shaped like the letter U. The left side is a downsampling path that shrinks the image grid while widening the receptive field so the network can see larger image context. The bottom is a bottleneck where the smallest spatial map holds the most compressed summary. The right side is an upsampling path that grows the grid back toward full resolution. Skip connections copy feature maps from matching stages on the downsampling path into the upsampling path so fine spatial detail can rejoin the reconstruction. In diffusion image systems, this same backbone runs at each denoising step to predict or remove noise from the current noisy sample."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Image denoising needs both wide context and precise local detail. Downsampling widens what each layer can see by shrinking the feature grid, while upsampling rebuilds full resolution so the network can emit a pixel- or latent-sized update. A plain encoder-decoder can summarize an image into a bottleneck, but fine edges, textures, and small structures are easy to lose on the way down and hard to recover from the bottleneck alone. Skip connections address that gap by giving the upsampling path direct access to matching-resolution encoder features. U-Net was built so a segmentation or restoration model could reason at multiple scales while still placing boundaries and textures in the right places. Early diffusion image models reused that design because iterative denoising faces the same tension: each step must understand the whole layout while preserving pixel-level structure."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "A noisy image enters the downsampling path as a grid of feature maps. Each downsampling block typically halves spatial resolution while increasing channel depth, so the network trades pixels for broader context across the image. At the bottleneck the map is smallest and the network mixes the most global information. The upsampling path then doubles resolution stage by stage until the grid matches the input size again. Before each upsampling block runs, a skip connection concatenates or fuses the matching-resolution features from the encoder side, giving the decoder direct access to fine detail that never had to pass only through the bottleneck. The final output is a noise prediction, a denoised update, or another training target chosen by the surrounding diffusion system. When the sampler supplies a timestep embedding, that signal tells the block how noisy the sample still is so the same weights can emphasize coarse structure removal early and fine detail cleanup late. Optional class, text, or image conditioning embeddings can enter the same modulation path so guidance steers denoising without replacing the convolutional backbone."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "A plain encoder-decoder compresses an input through a downsampling encoder and rebuilds it with an upsampling decoder. U-Net keeps that down-up shape but fuses encoder features back into the decoder at matching resolutions before each upsampling stage, which is the compute signature that preserves spatial detail during denoising."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "U-Net denoises on a convolutional image grid with local neighborhoods and multiscale pooling. A diffusion transformer block instead treats image or latent patches as tokens and mixes them with self-attention across the whole field. Both can serve as denoising backbones inside a larger diffusion system, but U-Net emphasizes spatial hierarchy and skip-fed detail while transformer blocks emphasize global token mixing over a patch sequence. U-Net keeps detail through explicit skip bridges between encoder and decoder stages; a diffusion transformer block relies on patch size, depth, and latent resolution rather than matching-resolution skip fusion. The diffusion training objective and sampler live outside this module: they define how noise is added during training and how many iterative denoising steps run at inference."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Denoising diffusion probabilistic models popularized U-Net backbones on pixel images, and latent diffusion systems later reused the same U-shaped pattern on lower-resolution latent grids for faster training and sampling. Class-conditional, text-conditional, and inpainting variants typically keep the same encoder-decoder skeleton while changing how timestep and conditioning embeddings enter the convolution blocks."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Convolutional receptive fields grow with depth, but very long-range relationships can still require deep stacks or large kernels compared with token self-attention. Skip connections add memory traffic because encoder feature maps must be stored until the matching decoder stage consumes them. U-Net also inherits resolution choices from the surrounding system: pixel-space models are direct but expensive, while latent-space variants trade pixel detail for speed. The module itself does not define the noise schedule, parameterization, or sampler."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "U-Net remains the reference shape for convolutional image denoising in diffusion tutorials and implementations. Understanding the downsampling path, bottleneck, upsampling path, and skip connections makes later latent diffusion, conditioning, and transformer-backbone designs easier to compare because the denoising role stays the same even when the internal mixing mechanism changes."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "title": "U-Net denoising compute flow",
+      "alt": "U-Net graph showing a noisy image moving through downsampling blocks, a bottleneck, upsampling blocks, skip connections, and optional timestep and conditioning inputs for diffusion denoising",
+      "caption": "Noisy image features move down the downsampling path, mix in the bottleneck, and return through upsampling blocks while skip connections bridge matching-resolution encoder and decoder stages.",
+      "legend": {
+        "data-flow": {
+          "label": "Main down-up feature path"
+        },
+        "residual": {
+          "label": "Skip connection"
+        },
+        "conditioning": {
+          "label": "Timestep and conditioning steering"
+        },
+        "architecture-io": {
+          "label": "Conditioning input"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "uNet": {
+          "title": "U-Net denoising backbone"
+        },
+        "ditBlock": {
+          "title": "Diffusion transformer block"
+        },
+        "fullDiffusion": {
+          "title": "Complete diffusion image system"
+        }
+      },
+      "dimensions": {
+        "spatialRepresentation": "Spatial representation",
+        "contextMixing": "How context mixes",
+        "detailPreservation": "How fine detail is preserved"
+      },
+      "values": {
+        "uNet": {
+          "spatialRepresentation": "Convolutional feature maps on an image or latent grid",
+          "contextMixing": "Downsampling widens receptive field; bottleneck summarizes global structure",
+          "detailPreservation": "Skip connections fuse encoder features into matching decoder stages"
+        },
+        "ditBlock": {
+          "spatialRepresentation": "Patch or latent tokens on a grid",
+          "contextMixing": "Self-attention mixes all tokens within the block",
+          "detailPreservation": "Depends on patch size, depth, and latent resolution rather than explicit skip bridges"
+        },
+        "fullDiffusion": {
+          "spatialRepresentation": "Pixel or latent field chosen by the surrounding model",
+          "contextMixing": "Stacks many denoising blocks and repeats them across sampler steps",
+          "detailPreservation": "Combines backbone design, resolution, conditioning, and the chosen sampler schedule"
+        }
+      }
+    }
+  },
+  "math": {
+    "encoderDecoderSchema": {
+      "label": "Encoder-decoder without skip fusion",
+      "formula": "y = D(E(x))",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Input feature map at the current denoising step."
+        },
+        "e": {
+          "term": "E",
+          "definition": "Downsampling encoder that compresses spatial resolution."
+        },
+        "d": {
+          "term": "D",
+          "definition": "Upsampling decoder that rebuilds spatial resolution."
+        },
+        "y": {
+          "term": "y",
+          "definition": "Decoder output used for noise prediction or denoised update."
+        }
+      }
+    },
+    "uNetDenoiseSchema": {
+      "label": "U-Net decoder stage with skip fusion",
+      "formula": "h_i = U_i\\big(\\mathrm{concat}(s_i, h_{i-1})\\big);\\quad s_i = E_i(x)",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Noisy input feature map at the current diffusion step."
+        },
+        "ei": {
+          "term": "E_i",
+          "definition": "Encoder stage i on the downsampling path."
+        },
+        "si": {
+          "term": "s_i",
+          "definition": "Skip feature map taken from encoder stage i."
+        },
+        "hi": {
+          "term": "h_i",
+          "definition": "Decoder feature map after upsampling stage i."
+        },
+        "ui": {
+          "term": "U_i",
+          "definition": "Upsampling block that fuses skip features with the growing decoder map."
+        },
+        "concat": {
+          "term": "\\mathrm{concat}",
+          "definition": "Channel-wise fusion of skip and decoder features at matching resolution."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "noisyImage": {
+        "label": "Noisy image or latent features"
+      },
+      "downsampleOne": {
+        "label": "Downsampling block 1"
+      },
+      "downsampleTwo": {
+        "label": "Downsampling block 2"
+      },
+      "bottleneck": {
+        "label": "Bottleneck"
+      },
+      "upsampleOne": {
+        "label": "Upsampling block 1"
+      },
+      "upsampleTwo": {
+        "label": "Upsampling block 2"
+      },
+      "denoisedOutput": {
+        "label": "Noise prediction or denoised update"
+      },
+      "timestepSignal": {
+        "label": "Timestep embedding"
+      },
+      "conditioningSignal": {
+        "label": "Optional conditioning embedding"
+      }
+    }
+  }
+}

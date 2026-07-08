@@ -1,0 +1,49 @@
+{
+  "id": "table.u-net-comparison",
+  "subjectId": "module.u-net",
+  "columns": [
+    {
+      "moduleId": "module.u-net",
+      "titleKey": "tables.comparison.columns.uNet.title"
+    },
+    {
+      "moduleId": "module.diffusion-transformer-block",
+      "titleKey": "tables.comparison.columns.ditBlock.title"
+    },
+    {
+      "moduleId": "concept.denoising-generation",
+      "titleKey": "tables.comparison.columns.fullDiffusion.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "spatialRepresentation",
+      "labelKey": "tables.comparison.dimensions.spatialRepresentation"
+    },
+    {
+      "id": "contextMixing",
+      "labelKey": "tables.comparison.dimensions.contextMixing"
+    },
+    {
+      "id": "detailPreservation",
+      "labelKey": "tables.comparison.dimensions.detailPreservation"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.u-net": {
+      "spatialRepresentation": "tables.comparison.values.uNet.spatialRepresentation",
+      "contextMixing": "tables.comparison.values.uNet.contextMixing",
+      "detailPreservation": "tables.comparison.values.uNet.detailPreservation"
+    },
+    "module.diffusion-transformer-block": {
+      "spatialRepresentation": "tables.comparison.values.ditBlock.spatialRepresentation",
+      "contextMixing": "tables.comparison.values.ditBlock.contextMixing",
+      "detailPreservation": "tables.comparison.values.ditBlock.detailPreservation"
+    },
+    "concept.denoising-generation": {
+      "spatialRepresentation": "tables.comparison.values.fullDiffusion.spatialRepresentation",
+      "contextMixing": "tables.comparison.values.fullDiffusion.contextMixing",
+      "detailPreservation": "tables.comparison.values.fullDiffusion.detailPreservation"
+    }
+  }
+}

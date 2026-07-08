@@ -1,0 +1,26 @@
+{
+  "id": "citation.u-net-convolutional-networks",
+  "slug": "u-net-convolutional-networks",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "U-Net paper",
+    "U-Net architecture paper",
+    "Convolutional Networks for Biomedical Image Segmentation",
+    "1505.04597",
+    "arxiv:1505.04597"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Olaf Ronneberger", "Philipp Fischer", "Thomas Brox"],
+  "title": "U-Net: Convolutional Networks for Biomedical Image Segmentation",
+  "year": 2015,
+  "url": "https://arxiv.org/abs/1505.04597",
+  "mla": "Ronneberger, Olaf, Philipp Fischer, and Thomas Brox. \"U-Net: Convolutional Networks for Biomedical Image Segmentation.\" arXiv, 2015, https://arxiv.org/abs/1505.04597."
+}

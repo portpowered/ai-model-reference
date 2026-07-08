@@ -38,6 +38,7 @@ import standardFfnComparisonTableRecord from "@/content/registry/tables/standard
 import swigluComparisonTableRecord from "@/content/registry/tables/swiglu-comparison.json";
 import tanhComparisonTableRecord from "@/content/registry/tables/tanh-comparison.json";
 import tokenizerMismatchComparisonTableRecord from "@/content/registry/tables/tokenizer-mismatch-comparison.json";
+import uNetComparisonTableRecord from "@/content/registry/tables/u-net-comparison.json";
 import unigramTokenizerComparisonTableRecord from "@/content/registry/tables/unigram-tokenizer-comparison.json";
 import visualTokenizationRepresentationFormsComparisonTableRecord from "@/content/registry/tables/visual-tokenization-representation-forms-comparison.json";
 
@@ -79,6 +80,7 @@ export const generatedTableRegistrySourceFiles = [
   "swiglu-comparison.json",
   "tanh-comparison.json",
   "tokenizer-mismatch-comparison.json",
+  "u-net-comparison.json",
   "unigram-tokenizer-comparison.json",
   "visual-tokenization-representation-forms-comparison.json",
 ] as const;
@@ -121,6 +123,7 @@ export const generatedTableRegistryPayloads = [
   swigluComparisonTableRecord,
   tanhComparisonTableRecord,
   tokenizerMismatchComparisonTableRecord,
+  uNetComparisonTableRecord,
   unigramTokenizerComparisonTableRecord,
   visualTokenizationRepresentationFormsComparisonTableRecord,
 ] as const;

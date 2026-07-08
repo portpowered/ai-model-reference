@@ -1,0 +1,13 @@
+{
+  "computeFlow": {
+    "type": "graph",
+    "graphId": "graph.u-net-compute-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.u-net-comparison"
+  }
+}
