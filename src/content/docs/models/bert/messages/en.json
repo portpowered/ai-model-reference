@@ -1,5 +1,5 @@
 {
-  "title": "BERT",
+  "title": "BERT model",
   "description": "An encoder-only transformer that learns bidirectional text representations through masked language modeling pretraining.",
   "openingSummary": "Bidirectional Encoder Representations from Transformers (BERT) is an encoder-only transformer that reads whole token sequences at once and learns contextual vectors for each position, which is why it became the standard starting point for classification and understanding tasks rather than open-ended text generation.",
   "sections": {
