@@ -322,6 +322,14 @@ describe("production blog tag landing", () => {
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Blog");
+    expect(html).toContain(
+      "Roofline maximum throughput: the practical upper bound before you compare hardware",
+    );
+    expect(html).toContain('href="/blog/roofline-max-throughput"');
+    expect(html).toContain(
+      "How peak compute FLOPs, memory bandwidth, parameter precision, and active weight size jointly set the maximum tokens-per-second bound for inference serving.",
+    );
+    expect(html).toContain('dateTime="2026-07-08"');
     expect(html).toContain("Why throughput follows a roofline");
     expect(html).toContain('href="/blog/roofline-throughput-explorer"');
     expect(html).toContain(
