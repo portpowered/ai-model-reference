@@ -13,7 +13,7 @@
     },
     "architecture": {
       "title": "Architecture",
-      "body": "Unlike decoder-only models that predict the next token from left to right, BERT processes the full sequence through transformer encoder blocks with bidirectional self-attention. The path starts with WordPiece tokens, combines token, position, and segment embeddings, then passes the sequence through a stack of encoder blocks where each token can attend to every other token in both directions, followed by feed-forward layers and residual normalization."
+      "body": "Unlike decoder-only models that predict the next token from left to right, BERT processes the full sequence through transformer encoder blocks with bidirectional self-attention. The diagram below traces WordPiece tokens into combined embeddings, a repeated encoder block with bidirectional attention and feed-forward layers, contextual token vectors, and the masked-language-model or task heads used during pretraining and fine-tuning."
     },
     "importantModules": {
       "title": "Important Modules",
@@ -59,22 +59,66 @@
   },
   "assets": {
     "architectureGraph": {
-      "alt": "BERT architecture diagram with WordPiece tokens flowing into combined embeddings, stacked transformer encoder blocks with bidirectional self-attention, and contextual token representations as output."
+      "alt": "BERT architecture diagram with WordPiece tokens flowing into token, position, and segment embeddings, a repeated encoder block with bidirectional multi-head attention and feed-forward layers, contextual token representations, and masked-language-model or task heads."
     }
   },
   "graph": {
     "nodes": {
+      "taskHeads": {
+        "label": "MLM &\nTask Heads",
+        "summary": "Masked-token prediction during pretraining and task-specific classification heads after fine-tuning"
+      },
       "contextualOutput": {
         "label": "Contextual\nToken\nRepresentations",
         "summary": "One hidden vector per token position after the encoder stack"
       },
       "encoderStack": {
-        "label": "Transformer\nEncoder\nStack",
-        "summary": "Repeated encoder blocks with bidirectional self-attention and feed-forward layers"
+        "label": " ",
+        "summary": "Repeated transformer encoder block container"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Bidirectional attention sublayer container"
+      },
+      "ffnSublayer": {
+        "label": " ",
+        "summary": "Feed-forward sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This encoder block repeats many times through the stack"
+      },
+      "addNormAttention": {
+        "label": "Add & Norm",
+        "summary": "Residual add followed by normalization after bidirectional attention"
+      },
+      "bidirectionalMha": {
+        "label": "Bidirectional\nMulti-Head\nAttention",
+        "summary": "Each token can attend to every other token in both directions"
+      },
+      "addNormFfn": {
+        "label": "Add & Norm",
+        "summary": "Residual add followed by normalization after the feed-forward block"
+      },
+      "feedForward": {
+        "label": "Feed\nForward",
+        "summary": "Per-token dense transformation inside each encoder block"
       },
       "embeddingSum": {
-        "label": "Token + Position\n+ Segment\nEmbeddings",
-        "summary": "Combines token, position, and segment signals before the encoder blocks"
+        "label": "+",
+        "summary": "Combines token, position, and segment embeddings before the encoder stack"
+      },
+      "segmentEmbedding": {
+        "label": "Segment\nEmbedding",
+        "summary": "Marks which sentence each token belongs to when two segments are packed together"
+      },
+      "positionEmbedding": {
+        "label": "Position\nEmbedding",
+        "summary": "Absolute position vectors added before the encoder blocks"
+      },
+      "tokenEmbedding": {
+        "label": "Token\nEmbedding",
+        "summary": "Maps WordPiece token IDs to hidden vectors"
       },
       "wordpieceTokens": {
         "label": "WordPiece\nTokens",
