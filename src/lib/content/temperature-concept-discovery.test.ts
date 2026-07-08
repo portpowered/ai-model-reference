@@ -152,7 +152,9 @@ describe("temperature concept discovery (temperature-concept-page-current-main)"
     expect(html.toLowerCase()).toContain(
       "entropy summarizes how spread out that distribution is",
     );
-    expect(html.toLowerCase()).toContain("picks the single highest-probability");
+    expect(html.toLowerCase()).toContain(
+      "picks the single highest-probability",
+    );
     expect(html.toLowerCase()).toContain("top-k and");
     expect(html.toLowerCase()).toContain("top-p sampling");
     expect(html.toLowerCase()).toContain("smaller candidate set");
