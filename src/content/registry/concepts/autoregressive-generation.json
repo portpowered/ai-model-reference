@@ -27,8 +27,7 @@
     "concept.conditioning",
     "concept.denoising-generation",
     "concept.quantization",
-    "model.cosmos-3",
-    "model.gemma"
+    "model.cosmos-3"
   ],
   "citationIds": [
     "citation.brown-gpt-3",

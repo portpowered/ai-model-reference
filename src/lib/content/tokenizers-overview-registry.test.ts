@@ -39,7 +39,6 @@ describe("tokenizers overview registry", () => {
       "module.unigram-tokenizer",
       "module.wordpiece",
       "model.gpt-3",
-      "model.gemma",
     ]);
     expect(record.explainsIds).toEqual([
       "module.bpe",

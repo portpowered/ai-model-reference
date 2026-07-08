@@ -14,8 +14,7 @@
     "concept.decode",
     "concept.prefill-decode-split",
     "concept.foundation-model",
-    "concept.module",
-    "model.gemma"
+    "concept.module"
   ],
   "citationIds": ["citation.attention-is-all-you-need", "citation.brown-gpt-3"],
   "status": "published",

@@ -16,8 +16,7 @@
     "concept.patch",
     "concept.representation",
     "concept.generative-model",
-    "model.cosmos-3",
-    "model.gemma"
+    "model.cosmos-3"
   ],
   "citationIds": [
     "citation.learning-transferable-visual-models-from-natural-language-supervision",

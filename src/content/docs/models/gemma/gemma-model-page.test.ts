@@ -8,10 +8,10 @@ import {
   getContentRoot,
   getModelsDocsRoot,
   getRegistryRoot,
-} from "./content-paths";
-import { loadModelPageFromDisk } from "./model-page-load";
-import { loadRegistry } from "./registry";
-import { validateGeneratedPageBundle } from "./validate-generated-page-bundle";
+} from "@/lib/content/content-paths";
+import { loadModelPageFromDisk } from "@/lib/content/model-page-load";
+import { loadRegistry } from "@/lib/content/registry";
+import { validateGeneratedPageBundle } from "@/lib/content/validate-generated-page-bundle";
 
 const MODEL_SLUG = "gemma";
 

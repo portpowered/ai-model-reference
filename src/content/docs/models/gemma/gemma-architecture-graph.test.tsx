@@ -30,7 +30,7 @@ import {
 const MODEL_SLUG = "gemma";
 const GRAPH_ID = "graph.gemma-architecture";
 const MODEL_ROUTE = "/docs/models/gemma";
-const repoRoot = join(import.meta.dir, "../../..");
+const repoRoot = join(import.meta.dir, "../../../../..");
 
 function canLaunchPlaywrightChromium(): boolean {
   const executablePath = resolvePlaywrightChromiumExecutablePath();

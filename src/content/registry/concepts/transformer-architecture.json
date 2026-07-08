@@ -12,8 +12,7 @@
     "concept.feed-forward-network",
     "concept.normalization",
     "concept.residual-connection",
-    "concept.positional-encodings",
-    "model.gemma"
+    "concept.positional-encodings"
   ],
   "citationIds": ["citation.attention-is-all-you-need"],
   "status": "published",

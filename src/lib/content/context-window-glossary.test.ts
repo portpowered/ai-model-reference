@@ -41,7 +41,6 @@ describe("Phase 3 context window glossary page (US-011)", () => {
       "concept.why-long-context-is-hard",
       "concept.alibi",
       "model.nemotron-3-super",
-      "model.gemma",
     ]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.context-window")).toBe(
       true,

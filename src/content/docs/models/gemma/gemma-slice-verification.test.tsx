@@ -38,7 +38,7 @@ const MODEL_SLUG = "gemma";
 const MODEL_ID = "model.gemma";
 const MODEL_URL = "/docs/models/gemma";
 const GRAPH_ID = "graph.gemma-architecture";
-const repoRoot = join(import.meta.dir, "../../..");
+const repoRoot = join(import.meta.dir, "../../../../..");
 
 const PRIMARY_SOURCE_CITATION_URLS = [
   "https://arxiv.org/abs/2607.02770",

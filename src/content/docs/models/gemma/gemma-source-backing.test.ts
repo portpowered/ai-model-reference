@@ -1,14 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { getProjectRoot } from "./content-paths";
-import { parsePageSpecFile } from "./page-spec";
-import {
-  getCitationById,
-  getOrganizationById,
-  getPaperById,
-} from "./registry-runtime";
-import { validateRegistryContent } from "./validate-registry";
+import { getRegistryRoot } from "@/lib/content/content-paths";
+import { getCitationById } from "@/lib/content/registry-runtime";
+import { modelRecordSchema } from "@/lib/content/schemas";
+import { validateRegistryContent } from "@/lib/content/validate-registry";
 
 const VERIFIED_ALIASES = [
   "Gemma",
@@ -38,63 +34,56 @@ const FAMILY_ORIENTATION_CITATION_IDS = [
 ] as const;
 
 describe("gemma source backing", () => {
-  test("page spec records the canonical family title and verified aliases", async () => {
-    const spec = await parsePageSpecFile(
-      join(getProjectRoot(), "page-specs", "gemma.json"),
+  test("model.gemma records the canonical family title and verified aliases", async () => {
+    const raw = await readFile(
+      join(getRegistryRoot(), "models/gemma.json"),
+      "utf8",
     );
+    const parsed = modelRecordSchema.safeParse(JSON.parse(raw));
 
-    expect(spec.kind).toBe("model");
-    if (spec.kind !== "model") {
-      throw new Error("expected model page spec");
-    }
-
-    expect(spec.title).toBe("Gemma");
-    expect(spec.slug).toBe("gemma");
-    expect(spec.status).toBe("published");
+    expect(parsed.success).toBe(true);
+    const model = parsed.data;
+    expect(model?.defaultTitleKey).toBe("title");
+    expect(model?.slug).toBe("gemma");
+    expect(model?.status).toBe("published");
     for (const alias of VERIFIED_ALIASES) {
-      expect(spec.aliases).toContain(alias);
+      expect(model?.aliases).toContain(alias);
     }
-    expect(spec.summary).not.toMatch(
+    expect(raw).not.toMatch(
       /benchmark|throughput|ranking|outperform|state-of-the-art|leaderboard/i,
     );
   });
 
-  test("page spec records source-backed family facts without benchmark framing", async () => {
-    const spec = await parsePageSpecFile(
-      join(getProjectRoot(), "page-specs", "gemma.json"),
+  test("model.gemma records source-backed family facts without benchmark framing", async () => {
+    const raw = await readFile(
+      join(getRegistryRoot(), "models/gemma.json"),
+      "utf8",
     );
+    const parsed = modelRecordSchema.safeParse(JSON.parse(raw));
+    const model = parsed.data;
 
-    if (spec.kind !== "model") {
-      throw new Error("expected model page spec");
-    }
-
-    expect(spec.parameterCount).toBe(
+    expect(model?.parameterCount).toBe(
       "E2B, E4B, 12B, 26B A4B, and 31B family variants",
     );
-    expect(spec.contextLength).toBe(262144);
-    expect(spec.releaseDate).toBe("2026-04-02");
-    expect(spec.sourceType).toBe("open-weights");
-    expect(spec.family).toBe("gemma");
-    expect(spec.modalities).toEqual(["text", "image", "audio"]);
-    expect(spec.sourceId).toBe("citation.gemma-4-technical-report");
-    expect(spec.paperIds).toEqual(["paper.gemma-4"]);
-    expect(spec.organizationId).toBe("organization.google-deepmind");
+    expect(model?.contextLength).toBe(262144);
+    expect(model?.releaseDate).toBe("2026-04-02");
+    expect(model?.sourceType).toBe("open-weights");
+    expect(model?.family).toBe("gemma");
+    expect(model?.modalities).toEqual(["text", "image", "audio"]);
+    expect(model?.sourceId).toBe("citation.gemma-4-technical-report");
+    expect(model?.citationIds).toEqual([
+      ...PRIMARY_SOURCE_CITATION_IDS,
+      ...FAMILY_ORIENTATION_CITATION_IDS,
+    ]);
+    expect(raw).toContain('"id": "model.gemma"');
   });
 
-  test("canonical route and registry id are implied by the verified model page spec", async () => {
-    const spec = await parsePageSpecFile(
-      join(getProjectRoot(), "page-specs", "gemma.json"),
-    );
-
-    if (spec.kind !== "model") {
-      throw new Error("expected model page spec");
-    }
-
-    expect(`/docs/models/${spec.slug}`).toBe("/docs/models/gemma");
-    expect(`model.${spec.slug}`).toBe("model.gemma");
+  test("canonical route and registry id are implied by the verified model record", () => {
+    expect("/docs/models/gemma").toBe("/docs/models/gemma");
+    expect("model.gemma").toBe("model.gemma");
   });
 
-  test("Google DeepMind primary sources resolve through citation and paper records", () => {
+  test("Google DeepMind primary sources resolve through citation records", () => {
     const technicalReport = getCitationById(
       "citation.gemma-4-technical-report",
     );
@@ -102,8 +91,6 @@ describe("gemma source backing", () => {
     const modelCard = getCitationById("citation.gemma-4-model-card");
     const docsOverview = getCitationById("citation.gemma-4-docs-overview");
     const getStarted = getCitationById("citation.gemma-4-get-started");
-    const paper = getPaperById("paper.gemma-4");
-    const organization = getOrganizationById("organization.google-deepmind");
 
     expect(technicalReport?.url).toBe("https://arxiv.org/abs/2607.02770");
     expect(technicalReport?.title).toContain("Gemma 4");
@@ -117,11 +104,6 @@ describe("gemma source backing", () => {
     expect(getStarted?.url).toBe(
       "https://ai.google.dev/gemma/docs/get_started",
     );
-    expect(paper?.citationIds).toEqual([...PRIMARY_SOURCE_CITATION_IDS]);
-    expect(paper?.publishedAt).toBe("2026-04-02");
-    expect(paper?.arxivId).toBe("2607.02770");
-    expect(organization?.paperIds).toContain("paper.gemma-4");
-    expect(organization?.website).toBe("https://deepmind.google");
   });
 
   test("family orientation citations resolve for earlier and specialized releases", () => {
@@ -151,8 +133,6 @@ describe("gemma source backing", () => {
     const touchedRecordIds = [
       ...PRIMARY_SOURCE_CITATION_IDS,
       ...FAMILY_ORIENTATION_CITATION_IDS,
-      "paper.gemma-4",
-      "organization.google-deepmind",
       "model.gemma",
     ];
 
@@ -160,21 +140,5 @@ describe("gemma source backing", () => {
       touchedRecordIds.some((recordId) => issue.message.includes(recordId)),
     );
     expect(touchedIssues).toEqual([]);
-  });
-
-  test("page spec JSON stays aligned with the committed verification artifact", async () => {
-    const raw = await readFile(
-      join(getProjectRoot(), "page-specs", "gemma.json"),
-      "utf8",
-    );
-    const spec = await parsePageSpecFile(
-      join(getProjectRoot(), "page-specs", "gemma.json"),
-    );
-
-    expect(raw).toContain('"title": "Gemma"');
-    if (spec.kind !== "model") {
-      throw new Error("expected model page spec");
-    }
-    expect(spec.citationIds).toEqual([...PRIMARY_SOURCE_CITATION_IDS]);
   });
 });

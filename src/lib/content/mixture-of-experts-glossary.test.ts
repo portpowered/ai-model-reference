@@ -44,7 +44,6 @@ describe("Phase 3 mixture of experts module page (US-003)", () => {
       "module.deepseekmoe",
       "model.deepseek-v4-pro",
       "concept.transformer-architecture",
-      "model.gemma",
     ]);
     expect(record?.citationIds).toEqual([
       "citation.sparsely-gated-mixture-of-experts-layer",

@@ -9,8 +9,7 @@
   "relatedIds": [
     "concept.encoder",
     "concept.encoder-decoder",
-    "concept.autoregressive-generation",
-    "model.gemma"
+    "concept.autoregressive-generation"
   ],
   "citationIds": ["citation.attention-is-all-you-need", "citation.brown-gpt-3"],
   "status": "published",
