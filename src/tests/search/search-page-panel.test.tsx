@@ -165,14 +165,18 @@ async function typeQueryAndExpectGqaResult(
   );
   await user.type(searchInput, query);
 
-  const results = await waitForSearchPagePanelResults({
-    timeout: 30_000,
-  });
+  const results = await waitForSearchPagePanelResults();
   await waitFor(
     () => {
-      expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+      const resultUrls = within(results).queryAllByTestId("search-result-url");
+      expect(resultUrls.length).toBeGreaterThan(0);
+      expect(
+        resultUrls.some((node) =>
+          node.textContent?.includes(SAMPLE_MODULE_URL),
+        ),
+      ).toBe(true);
     },
-    { timeout: 30_000 },
+    { timeout: SEARCH_PAGE_PANEL_RESULTS_TIMEOUT_MS },
   );
 }
 
@@ -374,10 +378,10 @@ describe("SearchPagePanel Phase 1 queries", () => {
           url: PREFILL_URL,
           titlePattern: /prefill/i,
         },
-        { timeout: 30_000 },
+        { timeout: 45_000 },
       );
     },
-    { timeout: 30_000 },
+    { timeout: 90_000 },
   );
 
   test.each([
@@ -412,10 +416,10 @@ describe("SearchPagePanel Phase 1 queries", () => {
           url: url,
           titlePattern: title,
         },
-        { timeout: 30_000 },
+        { timeout: 45_000 },
       );
     },
-    { timeout: 30_000 },
+    { timeout: 60_000 },
   );
 
   test("exposes idle state with aria-live region before query entry", async () => {

@@ -13,6 +13,7 @@ import type {
 import { Callout } from "@/features/docs/components/Callout";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
+import { RelatedRegistryDocs } from "@/features/docs/components/RelatedRegistryDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
@@ -140,6 +141,43 @@ export const componentExamples: ComponentExampleDefinition[] = [
       <DerivedRelatedDocs
         registryId="module.grouped-query-attention"
         groups={[SHARED_TAGS, SAME_CONCEPT_TYPE]}
+      />
+    ),
+  },
+  {
+    id: "related-registry-docs-published",
+    componentName: "RelatedRegistryDocs",
+    variantLabel: "default (published registry ids)",
+    description:
+      "Compact related links resolved from explicit published registry ids.",
+    render: () => (
+      <RelatedRegistryDocs
+        registryIds={[
+          "module.grouped-query-attention",
+          "module.multi-query-attention",
+        ]}
+      />
+    ),
+  },
+  {
+    id: "related-registry-docs-empty",
+    componentName: "RelatedRegistryDocs",
+    variantLabel: "empty related ids",
+    description: "Configured empty fallback when no related ids are supplied.",
+    render: () => <RelatedRegistryDocs registryIds={[]} />,
+  },
+  {
+    id: "related-registry-docs-unavailable",
+    componentName: "RelatedRegistryDocs",
+    variantLabel: "all unavailable references",
+    description:
+      "Fallback when every supplied registry id is missing or unpublished.",
+    render: () => (
+      <RelatedRegistryDocs
+        registryIds={[
+          "module.missing-related-registry-docs-example",
+          "module.draft-attention",
+        ]}
       />
     ),
   },
