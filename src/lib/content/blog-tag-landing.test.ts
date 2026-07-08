@@ -289,7 +289,11 @@ describe("production blog tag landing", () => {
     );
     expect(
       foundationsBlogGroup?.resources.map((resource) => resource.slug),
-    ).toEqual(["llm-training-shift", "roofline-throughput-explorer"]);
+    ).toEqual([
+      "evolution-of-diffusion",
+      "llm-training-shift",
+      "roofline-throughput-explorer",
+    ]);
   });
 
   it("keeps attention tag groups unchanged without a blog section", async () => {

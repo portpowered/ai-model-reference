@@ -1,0 +1,12 @@
+{
+  "title": "How diffusion image generation evolved from pixel U-Nets to latent Stable Diffusion",
+  "description": "A narrative arc from denoising diffusion probabilistic models and convolutional U-Net backbones through CLIP-conditioned image systems to latent diffusion and Stable Diffusion-style pipelines.",
+  "contextSentence": "Image diffusion did not jump straight to text-to-image latents — it moved through pixel denoising, stronger conditioning, and compressed latent spaces in a sequence readers can follow without reading every paper first.",
+  "takeaway": "Start with denoising diffusion and U-Net backbones on pixels, add cross-modal conditioning from systems such as CLIP, then compress into latent space where Stable Diffusion-style pipelines trade pixel cost for deployable image generation.",
+  "callouts": {
+    "narrativeScope": {
+      "title": "Narrative scope",
+      "body": "This post summarizes the early diffusion evolution arc. Later sections in the same series cover diffusion transformers, flow matching, and modern video or world models when those topics land in separate reference pages."
+    }
+  }
+}

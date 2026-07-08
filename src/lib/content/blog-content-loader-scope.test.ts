@@ -30,7 +30,11 @@ describe("blog content loader lane isolation", () => {
     const slugs = published.map((post) => post.slug).sort();
 
     expect(slugs).toEqual(
-      ["llm-training-shift", "roofline-throughput-explorer"].sort(),
+      [
+        "evolution-of-diffusion",
+        "llm-training-shift",
+        "roofline-throughput-explorer",
+      ].sort(),
     );
     await expect(
       getPublishedBlogPostBySlug("llm-training-shift"),
