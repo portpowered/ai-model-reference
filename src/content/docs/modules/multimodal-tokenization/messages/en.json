@@ -47,7 +47,14 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Multimodal tokenization flow from raw image, audio, and video inputs through modality encoders and adapters into token-like embeddings and a shared model sequence"
+      "alt": "Multimodal tokenization flow from raw image, audio, and video inputs through modality encoders and adapters into token-like embeddings and a shared model sequence",
+      "title": "Multimodal input to shared sequence",
+      "caption": "Each modality is split into patches, frames, or clips, aligned through adapters, and projected into token-like embeddings that enter one shared model sequence.",
+      "legend": {
+        "data-flow": {
+          "label": "Modality encoding and fusion path"
+        }
+      }
     },
     "comparisonTable": {}
   },
