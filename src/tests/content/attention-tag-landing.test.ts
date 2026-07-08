@@ -74,6 +74,7 @@ describe("attention tag landing resources", () => {
       "/docs/models/deepseek-v4-pro",
       "/docs/models/glm-5",
       "/docs/models/glm-5-2",
+      "/docs/models/gpt-2",
       "/docs/models/gpt-3",
       "/docs/models/llama-3",
       "/docs/models/mixtral-8x22b",
