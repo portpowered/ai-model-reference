@@ -1,0 +1,25 @@
+{
+  "id": "citation.whisper-repository",
+  "slug": "whisper-repository",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Whisper repository",
+    "OpenAI Whisper GitHub",
+    "openai/whisper",
+    "Whisper open-source codebase"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["citation.whisper-robust-speech-recognition"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "citationType": "repository",
+  "authors": ["OpenAI"],
+  "title": "openai/whisper",
+  "url": "https://github.com/openai/whisper",
+  "mla": "OpenAI. \"openai/whisper.\" GitHub, 2022, https://github.com/openai/whisper.",
+  "year": 2022
+}

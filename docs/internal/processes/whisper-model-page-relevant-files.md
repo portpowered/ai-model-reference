@@ -24,11 +24,18 @@ Follow [content-page-generation-workflow-relevant-files.md](./content-page-gener
 for bundle shape, `make validate-data`, and owned-surface audit. Avoid active
 BERT, T5, Gemma, and Flux model-family lanes.
 
-## Related targets to wire in later stories
+## Registry record (story 002)
 
-Reuse or add only when absent:
+| Artifact | Path |
+| --- | --- |
+| Model registry | `src/content/registry/models/whisper.json` |
+| Paper citation | `src/content/registry/citations/whisper-robust-speech-recognition.json` |
+| Repository citation | `src/content/registry/citations/whisper-repository.json` |
+| Model card citation | `src/content/registry/citations/whisper-large-huggingface.json` |
 
-- `concept.encoder-decoder` (architecture relationship)
-- Tokenization module/concept records already on main
-- Audio or multimodal concept records (for example `concept.multimodal-model`)
-- OpenAI Whisper paper/repository/model-card citation records
+Focused observable guard: `src/lib/content/whisper-model-registry.test.ts`.
+
+Relationship targets wired on `model.whisper`:
+
+- `concept.encoder-decoder`, `concept.tokenizers-overview`, `concept.multimodal-model`, `concept.modality`
+- `module.cross-attention`, `module.multi-head-attention`, `module.bpe`, `module.layer-norm`

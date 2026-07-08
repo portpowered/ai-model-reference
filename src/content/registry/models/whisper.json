@@ -1,0 +1,64 @@
+{
+  "id": "model.whisper",
+  "slug": "whisper",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Whisper",
+    "OpenAI Whisper",
+    "speech recognition",
+    "automatic speech recognition",
+    "speech translation"
+  ],
+  "tags": ["foundations", "model-family", "tokenization"],
+  "relatedIds": [
+    "concept.encoder-decoder",
+    "concept.encoder",
+    "concept.decoder",
+    "concept.tokenizers-overview",
+    "concept.multimodal-model",
+    "concept.modality",
+    "concept.transformer-architecture",
+    "module.cross-attention",
+    "module.multi-head-attention",
+    "module.bpe",
+    "module.layer-norm"
+  ],
+  "citationIds": [
+    "citation.whisper-robust-speech-recognition",
+    "citation.whisper-repository",
+    "citation.whisper-large-huggingface"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "authors": [
+    "Alec Radford",
+    "Jong Wook Kim",
+    "Tao Xu",
+    "Greg Brockman",
+    "Christine McLeavey",
+    "Ilya Sutskever"
+  ],
+  "sourceId": "citation.whisper-robust-speech-recognition",
+  "family": "whisper",
+  "sourceType": "open-weights",
+  "modalities": ["audio", "text", "multimodal"],
+  "architectureIds": [
+    "concept.encoder-decoder",
+    "concept.transformer-architecture",
+    "concept.multimodal-model"
+  ],
+  "moduleIds": [
+    "module.cross-attention",
+    "module.multi-head-attention",
+    "module.bpe",
+    "module.layer-norm"
+  ],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2022-09-21",
+  "parameterCount": "39M to 1.5B parameters (family variants)"
+}
