@@ -27,10 +27,16 @@ describe("gemma architecture and release tradeoffs (gemma-model-family-page-curr
     const page = await loadModelPage(MODEL_SLUG);
     const { sections } = page.messages;
 
-    expect(sections?.inputsAndOutputs.body).toContain("text, images, and audio");
-    expect(sections?.inputsAndOutputs.body).toContain("autoregressive generation");
+    expect(sections?.inputsAndOutputs.body).toContain(
+      "text, images, and audio",
+    );
+    expect(sections?.inputsAndOutputs.body).toContain(
+      "autoregressive generation",
+    );
     expect(sections?.inputsAndOutputs.body).toContain("Effective 2B and 4B");
-    expect(sections?.inputsAndOutputs.body).toContain("26B A4B mixture of experts");
+    expect(sections?.inputsAndOutputs.body).toContain(
+      "26B A4B mixture of experts",
+    );
     expect(sections?.inputsAndOutputs.body).toContain("31B dense");
     expect(sections?.inputsAndOutputs.body).toContain("256K");
 

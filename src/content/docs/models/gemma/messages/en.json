@@ -36,5 +36,74 @@
     "references": {
       "title": "References"
     }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Gemma 4 architecture diagram showing text, image, and audio inputs fused into a shared multimodal backbone, long-context attention and dense or mixture-of-experts feed-forward blocks in a repeated decoder stack, and autoregressive text output."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "textOutput": {
+        "label": "Text\nOutput",
+        "summary": "Autoregressive text generation is the primary output for Gemma 4 checkpoints"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities for the next token"
+      },
+      "linear": {
+        "label": "Output\nLinear",
+        "summary": "Projects the final hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated transformer decoder block container for the Gemma 4 backbone"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Attention sublayer container inside each decoder block"
+      },
+      "ffnSublayer": {
+        "label": " ",
+        "summary": "Feed-forward sublayer container inside each decoder block"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats through the full Gemma 4 stack"
+      },
+      "rmsnormAttention": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before the attention step"
+      },
+      "longContextAttention": {
+        "label": "Long-Context\nAttention",
+        "summary": "Carries multimodal references across prompts up to 256K tokens when hardware allows"
+      },
+      "rmsnormFfn": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the stream before the feed-forward step"
+      },
+      "feedForwardPath": {
+        "label": "Dense FFN\nor MoE",
+        "summary": "12B and 31B checkpoints use dense feed-forward blocks; the 26B A4B member routes experts on this path"
+      },
+      "multimodalFusion": {
+        "label": "Multimodal\nFusion",
+        "summary": "Aligns text, image, and audio references into one shared backbone representation"
+      },
+      "textPrompt": {
+        "label": "Text\nInput",
+        "summary": "Prompt text after tokenization"
+      },
+      "imageInput": {
+        "label": "Image\nInput",
+        "summary": "Image references encoded for the shared backbone"
+      },
+      "audioInput": {
+        "label": "Audio\nInput",
+        "summary": "Audio references encoded for the shared backbone"
+      }
+    }
   }
 }

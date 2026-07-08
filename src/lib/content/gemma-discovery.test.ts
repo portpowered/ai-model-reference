@@ -141,9 +141,9 @@ describe("gemma model-family discovery (gemma-model-family-page-current-main-003
     ]);
     expect(model?.moduleIds).toEqual(["module.mixture-of-experts"]);
 
-    expect(getModuleById("module.mixture-of-experts")?.usedByModelIds).toContain(
-      MODEL_ID,
-    );
+    expect(
+      getModuleById("module.mixture-of-experts")?.usedByModelIds,
+    ).toContain(MODEL_ID);
     expect(getSystemById("system.inference-engine")?.relatedModelIds).toContain(
       MODEL_ID,
     );
@@ -183,24 +183,22 @@ describe("gemma model-family discovery (gemma-model-family-page-current-main-003
     expect(document?.bodyText.length).toBeGreaterThan(200);
   });
 
-  test.each(REPRESENTATIVE_ALIAS_QUERIES)(
-    "search surfaces the canonical Gemma page for %s",
-    async ([query]) => {
-      const results = await docsSearchApi.search(query);
+  test.each(
+    REPRESENTATIVE_ALIAS_QUERIES,
+  )("search surfaces the canonical Gemma page for %s", async ([query]) => {
+    const results = await docsSearchApi.search(query);
 
-      expect(results.length).toBeGreaterThan(0);
-      expect(resultsIncludeUrl(results, MODEL_URL)).toBe(true);
-    },
-  );
+    expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeUrl(results, MODEL_URL)).toBe(true);
+  });
 
-  test.each(DISCOVERY_TAG_QUERIES)(
-    "search includes the Gemma model page for %s",
-    async ([query]) => {
-      const results = await docsSearchApi.search(query);
+  test.each(
+    DISCOVERY_TAG_QUERIES,
+  )("search includes the Gemma model page for %s", async ([query]) => {
+    const results = await docsSearchApi.search(query);
 
-      expect(resultsIncludeUrl(results, MODEL_URL)).toBe(true);
-    },
-  );
+    expect(resultsIncludeUrl(results, MODEL_URL)).toBe(true);
+  });
 
   test.each([
     "model-family",
@@ -232,14 +230,17 @@ describe("gemma model-family discovery (gemma-model-family-page-current-main-003
     );
 
     expect(
-      items.find((item) => item.registryId === "concept.transformer-architecture")
-        ?.href,
+      items.find(
+        (item) => item.registryId === "concept.transformer-architecture",
+      )?.href,
     ).toBe("/docs/concepts/transformer-architecture");
     expect(
-      items.find((item) => item.registryId === "concept.multimodal-model")?.href,
+      items.find((item) => item.registryId === "concept.multimodal-model")
+        ?.href,
     ).toBe("/docs/glossary/multimodal-model");
     expect(
-      items.find((item) => item.registryId === "module.mixture-of-experts")?.href,
+      items.find((item) => item.registryId === "module.mixture-of-experts")
+        ?.href,
     ).toBe("/docs/modules/mixture-of-experts");
     expect(
       items.find((item) => item.registryId === "concept.tokenizers-overview")
@@ -262,7 +263,9 @@ describe("gemma model-family discovery (gemma-model-family-page-current-main-003
     );
 
     expect(curatedHtml).toContain('data-testid="curated-related-docs"');
-    expect(curatedHtml).toContain('href="/docs/concepts/transformer-architecture"');
+    expect(curatedHtml).toContain(
+      'href="/docs/concepts/transformer-architecture"',
+    );
     expect(curatedHtml).toContain('href="/docs/glossary/multimodal-model"');
     expect(curatedHtml).toContain('href="/docs/modules/mixture-of-experts"');
     expect(curatedHtml).toContain('href="/docs/concepts/tokenizers-overview"');
