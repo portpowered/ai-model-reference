@@ -1,0 +1,26 @@
+{
+  "id": "citation.gated-delta-networks-paper",
+  "slug": "gated-delta-networks-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Gated Delta Networks paper",
+    "Gated DeltaNet paper",
+    "Gated Delta Networks: Improving Mamba2 with Delta Rule",
+    "2412.06464",
+    "gated delta rule paper"
+  ],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-02T00:00:00.000Z",
+  "updatedAt": "2026-07-02T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Songlin Yang", "Jan Kautz", "Ali Hatamizadeh"],
+  "title": "Gated Delta Networks: Improving Mamba2 with Delta Rule",
+  "year": 2025,
+  "url": "https://arxiv.org/abs/2412.06464",
+  "mla": "Yang, Songlin, Jan Kautz, and Ali Hatamizadeh. \"Gated Delta Networks: Improving Mamba2 with Delta Rule.\" arXiv, 2024, https://arxiv.org/abs/2412.06464."
+}

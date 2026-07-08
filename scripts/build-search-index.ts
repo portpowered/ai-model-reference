@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
+import { loadBlogSearchPostSources } from "@/lib/search/build-blog-search-document";
 import { buildSearchDocumentsForLocale } from "@/lib/search/build-documents";
 import { exportOramaIndexSnapshot } from "@/lib/search/orama-index";
 
@@ -13,11 +14,15 @@ const EMIT_STDOUT = process.env.SEARCH_INDEX_OUTPUT_STDOUT === "1";
 
 async function main() {
   const registry = await loadRegistry();
-  const pages = await loadPublishedDocsPages(DEFAULT_LOCALE);
+  const [pages, blogPosts] = await Promise.all([
+    loadPublishedDocsPages(DEFAULT_LOCALE),
+    loadBlogSearchPostSources({ locale: DEFAULT_LOCALE }),
+  ]);
   const documents = buildSearchDocumentsForLocale(
     DEFAULT_LOCALE,
     registry,
     pages,
+    blogPosts,
   );
   const snapshot = await exportOramaIndexSnapshot(documents);
 

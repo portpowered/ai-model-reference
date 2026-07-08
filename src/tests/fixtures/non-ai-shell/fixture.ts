@@ -10,7 +10,8 @@ import type { ShellCollectionDefinition } from "@/lib/docs/collection-definition
 import { resolveUiMessagePath } from "@/lib/docs/section-collection-index";
 import { buildShellCollectionPageTree } from "@/lib/navigation/shell-collection-page-tree";
 import { buildBaseSearchDocuments } from "@/lib/search/build-base-document";
-import type { BaseSearchDocument } from "@/lib/search/types";
+import { enrichSearchDocuments } from "@/lib/search/enrich-search-document";
+import type { BaseSearchDocument, SearchDocument } from "@/lib/search/types";
 
 /** Test-only URL prefix; fixture pages are not published customer routes. */
 export const NON_AI_SHELL_FIXTURE_URL_PREFIX = "/fixture/docs";
@@ -346,5 +347,14 @@ export function buildNonAiShellFixtureBaseSearchDocuments(): BaseSearchDocument[
   return buildBaseSearchDocuments(
     listNonAiShellFixturePages().map(toDocsPageSource),
     emptyNonAiShellFixtureRegistryIndexes(),
+  );
+}
+
+/** Generic search path for fixture proof: base documents plus shared enrichment only. */
+export function buildNonAiShellFixtureSearchDocuments(): SearchDocument[] {
+  const indexes = emptyNonAiShellFixtureRegistryIndexes();
+  return enrichSearchDocuments(
+    buildNonAiShellFixtureBaseSearchDocuments(),
+    indexes,
   );
 }

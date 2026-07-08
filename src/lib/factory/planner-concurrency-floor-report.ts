@@ -1,11 +1,31 @@
 import {
-  parseQueueLaneRecords,
-  type QueueLaneRecord,
-} from "./active-pr-mergeability-watchdog";
-import {
+  buildQueueSessionIdByWorkId,
+  buildQueueTerminalCompleteAliasMap,
   discoverPlannerQueueHealthReport,
+  type QueueHealthDependency,
   type QueueHealthItem,
+  type QueueHealthReport,
+  type QueueHealthStateType,
+  type QueueTerminalCompleteAliasEvidence,
 } from "./planner-queue-health";
+import {
+  isTableRegistryGeneratedArtifactPath,
+  PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD,
+} from "./planner-root-checkout-reconciliation";
+
+export const PLANNER_CONCURRENCY_FLOOR_ROOT_GENERATED_ARTIFACT_DRIFT_HOLD_GUIDANCE =
+  "Page refill is held because root generated-artifact drift is present; reconcile generated artifacts before adding page work.";
+
+const PAGE_ORIENTED_REPO_PATH_PREFIXES = [
+  "src/content/docs/",
+  "src/content/modules/",
+  "src/content/models/",
+  "src/content/papers/",
+  "src/content/concepts/",
+  "src/content/training/",
+] as const;
+
+const USEFUL_ACTIVE_WORK_TYPES = new Set(["task", "review"]);
 
 const HOLD_SECTION_HEADING = /^##\s+holds\s*$/i;
 const MARKDOWN_HEADING = /^#\s+(.+?)\s*$/;
@@ -63,7 +83,33 @@ export interface PlannerStaleNoiseEvidence {
   occurrenceCount?: number;
 }
 
-export type PlannerBacklogCandidateStatus = "ready" | "held" | "already-active";
+export interface PlannerBlockedDependencyEvidence {
+  workId: string;
+  workItemName: string;
+  workTypeName?: string;
+  stateName: string;
+  stateType: QueueHealthStateType;
+  reasons: string[];
+  dependencies: QueueHealthDependency[];
+  sessionId?: string;
+}
+
+export type PlannerBacklogCandidateStatus =
+  | "ready"
+  | "held"
+  | "already-active"
+  | "stale";
+
+export const STALE_BACKLOG_CANDIDATE_HUMAN_DISPLAY_LIMIT = 20;
+
+const EXPLICIT_STALE_BACKLOG_MARKERS = [
+  /\bstale\s+backlog\b/i,
+  /\bsuperseded\b/i,
+  /\balready[\s-]+terminal\b/i,
+  /\balready[\s-]+settled\b/i,
+  /\balready[\s-]+merged\b/i,
+  /\bdo\s+not\s+refill\b/i,
+] as const;
 
 export interface PlannerBacklogTaskFile {
   path: string;
@@ -102,6 +148,46 @@ export interface PlannerBacklogCandidate {
   recommendationReasons: string[];
 }
 
+export interface PlannerHeldBacklogEvidence {
+  taskPath: string;
+  taskId: string;
+  title: string;
+  status: Extract<PlannerBacklogCandidateStatus, "held" | "already-active">;
+  holdReasons: string[];
+  activeLaneName?: string;
+  recommendationReasons: string[];
+}
+
+export interface PlannerAdvisoryUncertaintyEvidence {
+  taskPath: string;
+  taskId: string;
+  title: string;
+  evidenceQuality: PlannerCollisionEvidenceQuality;
+  uncertaintyReasons: string[];
+  overlappingDirtySurfaces: string[];
+  taskPathHints: string[];
+}
+
+export interface PlannerStaleBacklogEvidence {
+  taskPath: string;
+  taskId: string;
+  title: string;
+  staleReasons: string[];
+  terminalCompleteLane?: QueueTerminalCompleteAliasEvidence;
+}
+
+export interface PlannerRootGeneratedArtifactDriftPathEvidence {
+  path: string;
+  surface: string;
+}
+
+export interface PlannerRootGeneratedArtifactDriftHold {
+  pageRefillHold: boolean;
+  blockingPaths: PlannerRootGeneratedArtifactDriftPathEvidence[];
+  guidance?: string;
+  holdReason: string;
+}
+
 export interface PlannerConcurrencyFloorReport {
   contractVersion: "planner-concurrency-floor/v1";
   advisoryOnly: true;
@@ -112,20 +198,124 @@ export interface PlannerConcurrencyFloorReport {
   floorStatus: PlannerConcurrencyFloorStatus;
   lanesNeededToReachFloor: number;
   usefulActiveLanes: PlannerUsefulActiveLane[];
+  blockedDependencyLanes: PlannerBlockedDependencyEvidence[];
+  heldBacklogCandidates: PlannerHeldBacklogEvidence[];
+  advisoryUncertainties: PlannerAdvisoryUncertaintyEvidence[];
   ignoredStaleNoise: PlannerStaleNoiseEvidence[];
+  staleBacklogCandidates: PlannerStaleBacklogEvidence[];
   plannerOwnedBacklogCandidates: PlannerBacklogCandidate[];
   refillCandidates: PlannerBacklogCandidate[];
+  rootGeneratedArtifactDriftHold: PlannerRootGeneratedArtifactDriftHold;
   issues: string[];
 }
 
+export function isPageOrientedRepoPath(path: string): boolean {
+  const normalized = normalizeRepoPath(path);
+  return PAGE_ORIENTED_REPO_PATH_PREFIXES.some((prefix) =>
+    normalized.startsWith(prefix),
+  );
+}
+
+export function isPageOrientedBacklogCandidate(
+  candidate: Pick<PlannerBacklogCandidate, "taskPathHints">,
+): boolean {
+  return candidate.taskPathHints.some((hint) => isPageOrientedRepoPath(hint));
+}
+
+export function deriveRootGeneratedArtifactDriftHold(
+  dirtyPaths: PlannerRootDirtyPathEvidence[],
+): PlannerRootGeneratedArtifactDriftHold {
+  const blockingPaths = dirtyPaths
+    .filter((dirtyPath) => isTableRegistryGeneratedArtifactPath(dirtyPath.path))
+    .map((dirtyPath) => ({
+      path: dirtyPath.path,
+      surface: dirtyPath.surface,
+    }))
+    .sort((left, right) => left.path.localeCompare(right.path));
+
+  if (blockingPaths.length === 0) {
+    return {
+      blockingPaths: [],
+      holdReason: PLANNER_ROOT_CHECKOUT_PAGE_REFILL_HOLD,
+      pageRefillHold: false,
+    };
+  }
+
+  return {
+    blockingPaths,
+    guidance:
+      PLANNER_CONCURRENCY_FLOOR_ROOT_GENERATED_ARTIFACT_DRIFT_HOLD_GUIDANCE,
+    holdReason:
+      PLANNER_CONCURRENCY_FLOOR_ROOT_GENERATED_ARTIFACT_DRIFT_HOLD_GUIDANCE,
+    pageRefillHold: true,
+  };
+}
+
+function applyRootGeneratedArtifactDriftHoldToCandidates(
+  candidates: PlannerBacklogCandidate[],
+  hold: PlannerRootGeneratedArtifactDriftHold,
+): PlannerBacklogCandidate[] {
+  if (!hold.pageRefillHold) {
+    return candidates;
+  }
+
+  return candidates.map((candidate) => {
+    if (!isPageOrientedBacklogCandidate(candidate)) {
+      return candidate;
+    }
+
+    if (candidate.refillRecommendation === "hold") {
+      return candidate;
+    }
+
+    return {
+      ...candidate,
+      eligibleForRefill: false,
+      refillRecommendation: "hold",
+      recommendationReasons: [
+        hold.guidance ?? hold.holdReason,
+        ...candidate.recommendationReasons,
+      ],
+    };
+  });
+}
+
 function summarizeUsefulActiveLane(
-  record: QueueLaneRecord,
+  item: QueueHealthItem,
+  sessionId?: string,
 ): PlannerUsefulActiveLane {
   return {
-    workItemName: record.workItemName,
-    rawState: record.rawState,
-    sessionId: record.sessionId,
+    workItemName: item.workItemName,
+    rawState: item.stateName,
+    sessionId,
   };
+}
+
+function isUsefulActiveTaskReviewOrProcessingLane(
+  item: QueueHealthItem,
+): boolean {
+  const workTypeName = item.workTypeName?.trim().toLowerCase();
+  if (workTypeName && USEFUL_ACTIVE_WORK_TYPES.has(workTypeName)) {
+    return true;
+  }
+
+  return !workTypeName && item.stateType === "PROCESSING";
+}
+
+function deriveUsefulActiveLanes(options: {
+  queueHealth: QueueHealthReport;
+  workListJsonText: string;
+}): PlannerUsefulActiveLane[] {
+  const sessionIdsByWorkId = buildQueueSessionIdByWorkId(
+    options.workListJsonText,
+  );
+
+  return options.queueHealth.activeWork.items
+    .filter(isUsefulActiveTaskReviewOrProcessingLane)
+    .map((item) =>
+      summarizeUsefulActiveLane(item, sessionIdsByWorkId.get(item.workId)),
+    )
+    .sort((left, right) => left.workItemName.localeCompare(right.workItemName));
 }
 
 function summarizeStaleNoise(item: QueueHealthItem): PlannerStaleNoiseEvidence {
@@ -138,6 +328,135 @@ function summarizeStaleNoise(item: QueueHealthItem): PlannerStaleNoiseEvidence {
     reasons: [...item.reasons],
     occurrenceCount: item.occurrenceCount,
   };
+}
+
+function summarizeBlockedDependency(
+  item: QueueHealthItem,
+  sessionId?: string,
+): PlannerBlockedDependencyEvidence {
+  return {
+    workId: item.workId,
+    workItemName: item.workItemName,
+    workTypeName: item.workTypeName,
+    stateName: item.stateName,
+    stateType: item.stateType,
+    reasons: [...item.reasons],
+    dependencies: item.dependencies.map((dependency) => ({ ...dependency })),
+    sessionId,
+  };
+}
+
+function deriveBlockedDependencyLanes(options: {
+  queueHealth: QueueHealthReport;
+  workListJsonText: string;
+}): PlannerBlockedDependencyEvidence[] {
+  const sessionIdsByWorkId = buildQueueSessionIdByWorkId(
+    options.workListJsonText,
+  );
+
+  return options.queueHealth.expectedBlockedItems.items
+    .map((item) =>
+      summarizeBlockedDependency(item, sessionIdsByWorkId.get(item.workId)),
+    )
+    .sort((left, right) => left.workItemName.localeCompare(right.workItemName));
+}
+
+function deriveHeldBacklogCandidates(
+  candidates: PlannerBacklogCandidate[],
+): PlannerHeldBacklogEvidence[] {
+  return candidates
+    .filter(
+      (
+        candidate,
+      ): candidate is PlannerBacklogCandidate & {
+        status: Extract<
+          PlannerBacklogCandidateStatus,
+          "held" | "already-active"
+        >;
+      } => candidate.status === "held" || candidate.status === "already-active",
+    )
+    .map((candidate) => ({
+      taskPath: candidate.taskPath,
+      taskId: candidate.taskId,
+      title: candidate.title,
+      status: candidate.status,
+      holdReasons: [...candidate.holdReasons],
+      activeLaneName: candidate.activeLaneName,
+      recommendationReasons: [...candidate.recommendationReasons],
+    }));
+}
+
+function deriveAdvisoryUncertainties(
+  candidates: PlannerBacklogCandidate[],
+): PlannerAdvisoryUncertaintyEvidence[] {
+  return candidates
+    .filter((candidate) => candidate.refillRecommendation === "uncertain")
+    .map((candidate) => ({
+      taskPath: candidate.taskPath,
+      taskId: candidate.taskId,
+      title: candidate.title,
+      evidenceQuality: candidate.evidenceQuality,
+      uncertaintyReasons: [...candidate.recommendationReasons],
+      overlappingDirtySurfaces: [...candidate.overlappingDirtySurfaces],
+      taskPathHints: [...candidate.taskPathHints],
+    }));
+}
+
+function deriveStaleBacklogCandidates(
+  candidates: PlannerBacklogCandidate[],
+  terminalCompleteAliases: Map<string, QueueTerminalCompleteAliasEvidence>,
+): PlannerStaleBacklogEvidence[] {
+  return candidates
+    .filter((candidate) => candidate.status === "stale")
+    .map((candidate) => {
+      const terminalCompleteLane = candidate.activeLaneName
+        ? undefined
+        : collectCandidateAliases(candidate.taskPath, candidate.title)
+            .map((alias) => terminalCompleteAliases.get(alias))
+            .find((evidence): evidence is QueueTerminalCompleteAliasEvidence =>
+              Boolean(evidence),
+            );
+
+      return {
+        taskPath: candidate.taskPath,
+        taskId: candidate.taskId,
+        title: candidate.title,
+        staleReasons: [...candidate.recommendationReasons],
+        terminalCompleteLane,
+      };
+    });
+}
+
+function collectExplicitStaleBacklogMarkers(text: string): string[] {
+  const reasons = new Set<string>();
+
+  for (const line of text.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      continue;
+    }
+
+    for (const marker of EXPLICIT_STALE_BACKLOG_MARKERS) {
+      if (marker.test(trimmed)) {
+        reasons.add(`Task file marks stale backlog evidence: ${trimmed}`);
+      }
+    }
+  }
+
+  return [...reasons].sort();
+}
+
+function findTerminalCompleteAliasMatch(
+  aliases: string[],
+  terminalCompleteAliases: Map<string, QueueTerminalCompleteAliasEvidence>,
+): QueueTerminalCompleteAliasEvidence | undefined {
+  for (const alias of aliases) {
+    const match = terminalCompleteAliases.get(alias);
+    if (match) {
+      return match;
+    }
+  }
+  return undefined;
 }
 
 function classifyFloorStatus(
@@ -450,6 +769,7 @@ function discoverPlannerOwnedBacklogCandidates(options: {
   taskFiles: PlannerBacklogTaskFile[];
   tempStateFiles: PlannerTempStateFile[];
   usefulActiveLanes: PlannerUsefulActiveLane[];
+  terminalCompleteAliases: Map<string, QueueTerminalCompleteAliasEvidence>;
   rootDirtyPaths?: PlannerRootDirtyPathEvidence[];
   rootDirtyPathsAvailable?: boolean;
 }): PlannerBacklogCandidate[] {
@@ -474,11 +794,30 @@ function discoverPlannerOwnedBacklogCandidates(options: {
         aliases,
         options.tempStateFiles,
       );
+      const explicitStaleReasons = collectExplicitStaleBacklogMarkers(
+        taskFile.text,
+      );
+      const terminalCompleteMatch = activeLaneName
+        ? undefined
+        : findTerminalCompleteAliasMatch(
+            aliases,
+            options.terminalCompleteAliases,
+          );
+      const staleReasons = [
+        ...explicitStaleReasons,
+        ...(terminalCompleteMatch
+          ? [
+              `Queue lane ${terminalCompleteMatch.workItemName} is already terminal-complete (${terminalCompleteMatch.stateName}).`,
+            ]
+          : []),
+      ];
       const status: PlannerBacklogCandidateStatus = activeLaneName
         ? "already-active"
         : holdReasons.length > 0
           ? "held"
-          : "ready";
+          : staleReasons.length > 0
+            ? "stale"
+            : "ready";
       const readyRecommendation = buildReadyCandidateRecommendation({
         rootDirtyPaths,
         rootDirtyPathsAvailable,
@@ -489,17 +828,23 @@ function discoverPlannerOwnedBacklogCandidates(options: {
         ? "hold"
         : holdReasons.length > 0
           ? "hold"
-          : readyRecommendation.refillRecommendation;
+          : staleReasons.length > 0
+            ? "hold"
+            : readyRecommendation.refillRecommendation;
       const evidenceQuality: PlannerCollisionEvidenceQuality = activeLaneName
         ? "grounded"
         : holdReasons.length > 0
           ? readyRecommendation.evidenceQuality
-          : readyRecommendation.evidenceQuality;
+          : staleReasons.length > 0
+            ? "grounded"
+            : readyRecommendation.evidenceQuality;
       const recommendationReasons = activeLaneName
         ? [`An active lane already owns alias ${activeLaneName}.`]
         : holdReasons.length > 0
           ? ["Explicit hold evidence exists in planner temp-state notes."]
-          : readyRecommendation.recommendationReasons;
+          : staleReasons.length > 0
+            ? staleReasons
+            : readyRecommendation.recommendationReasons;
 
       return {
         taskPath: normalizedPath,
@@ -542,22 +887,52 @@ export function discoverPlannerConcurrencyFloorReport(options: {
     sourceSession,
     workListJsonText: options.workListJsonText,
   });
-  const usefulActiveLanes = parseQueueLaneRecords(options.workListJsonText)
-    .filter((record) => record.queueState === "active")
-    .map(summarizeUsefulActiveLane)
-    .sort((left, right) => left.workItemName.localeCompare(right.workItemName));
-  const usefulActiveLaneCount = usefulActiveLanes.length;
-  const plannerOwnedBacklogCandidates = discoverPlannerOwnedBacklogCandidates({
-    rootDirtyPaths: options.plannerRootDirtyPaths,
-    rootDirtyPathsAvailable: options.plannerRootDirtyPathsAvailable,
-    taskFiles: options.taskFiles ?? [],
-    tempStateFiles: options.tempStateFiles ?? [],
-    usefulActiveLanes,
+  const usefulActiveLanes = deriveUsefulActiveLanes({
+    queueHealth,
+    workListJsonText: options.workListJsonText,
   });
+  const usefulActiveLaneCount = usefulActiveLanes.length;
+  const terminalCompleteAliases = buildQueueTerminalCompleteAliasMap(
+    options.workListJsonText,
+  );
+  const rootGeneratedArtifactDriftHold = deriveRootGeneratedArtifactDriftHold(
+    options.plannerRootDirtyPaths ?? [],
+  );
+  const plannerOwnedBacklogCandidates =
+    applyRootGeneratedArtifactDriftHoldToCandidates(
+      discoverPlannerOwnedBacklogCandidates({
+        rootDirtyPaths: options.plannerRootDirtyPaths,
+        rootDirtyPathsAvailable: options.plannerRootDirtyPathsAvailable,
+        taskFiles: options.taskFiles ?? [],
+        tempStateFiles: options.tempStateFiles ?? [],
+        terminalCompleteAliases,
+        usefulActiveLanes,
+      }),
+      rootGeneratedArtifactDriftHold,
+    );
+  const blockedDependencyLanes = deriveBlockedDependencyLanes({
+    queueHealth,
+    workListJsonText: options.workListJsonText,
+  });
+  const heldBacklogCandidates = deriveHeldBacklogCandidates(
+    plannerOwnedBacklogCandidates,
+  );
+  const advisoryUncertainties = deriveAdvisoryUncertainties(
+    plannerOwnedBacklogCandidates,
+  );
+  const staleBacklogCandidates = deriveStaleBacklogCandidates(
+    plannerOwnedBacklogCandidates,
+    terminalCompleteAliases,
+  );
   const refillCandidates =
     usefulActiveLaneCount < options.concurrencyFloor
       ? plannerOwnedBacklogCandidates
-          .filter((candidate) => candidate.eligibleForRefill)
+          .filter(
+            (candidate) =>
+              candidate.status !== "stale" &&
+              candidate.eligibleForRefill &&
+              candidate.refillRecommendation !== "hold",
+          )
           .sort((left, right) => {
             const recommendationOrder =
               rankRecommendation(left.refillRecommendation) -
@@ -606,10 +981,15 @@ export function discoverPlannerConcurrencyFloorReport(options: {
       0,
     ),
     usefulActiveLanes,
+    blockedDependencyLanes,
+    heldBacklogCandidates,
+    advisoryUncertainties,
     ignoredStaleNoise:
       queueHealth.ignorableStaleNoise.items.map(summarizeStaleNoise),
+    staleBacklogCandidates,
     plannerOwnedBacklogCandidates,
     refillCandidates,
+    rootGeneratedArtifactDriftHold,
     issues: [...queueHealth.issues],
   };
 }
@@ -663,16 +1043,205 @@ function formatIgnoredStaleNoise(
   return lines;
 }
 
-function formatPlannerOwnedBacklogCandidates(
-  candidates: PlannerBacklogCandidate[],
+function formatDependencyEvidence(
+  dependencies: QueueHealthDependency[],
+): string {
+  if (dependencies.length === 0) {
+    return "none";
+  }
+
+  return dependencies
+    .map((dependency) => {
+      const fields = [
+        `depends-on=${dependency.targetWorkName}`,
+        `relation=${dependency.relationType}`,
+      ];
+      if (dependency.targetWorkId) {
+        fields.push(`target-work-id=${dependency.targetWorkId}`);
+      }
+      if (dependency.requiredState) {
+        fields.push(`required-state=${dependency.requiredState}`);
+      }
+      return fields.join(" ");
+    })
+    .join(" | ");
+}
+
+function formatBlockedDependencyLanes(
+  blockedDependencyLanes: PlannerBlockedDependencyEvidence[],
 ): string[] {
-  const lines = [`Planner-Owned Backlog Candidates (${candidates.length})`];
-  if (candidates.length === 0) {
+  const lines = [`Blocked Dependency Lanes (${blockedDependencyLanes.length})`];
+  if (blockedDependencyLanes.length === 0) {
     lines.push("- none");
     return lines;
   }
 
+  for (const lane of blockedDependencyLanes) {
+    const fields = [
+      `work-item=${lane.workItemName}`,
+      `state=${lane.stateName}/${lane.stateType.toLowerCase()}`,
+      `work-id=${lane.workId}`,
+    ];
+    if (lane.workTypeName) {
+      fields.push(`type=${lane.workTypeName}`);
+    }
+    if (lane.sessionId) {
+      fields.push(`session=${lane.sessionId}`);
+    }
+    fields.push(`dependencies=${formatDependencyEvidence(lane.dependencies)}`);
+    fields.push(`reason=${lane.reasons.join("; ")}`);
+    lines.push(`- ${fields.join(" ")}`);
+  }
+  return lines;
+}
+
+function formatHeldBacklogCandidates(
+  heldBacklogCandidates: PlannerHeldBacklogEvidence[],
+): string[] {
+  const lines = [`Held Backlog Candidates (${heldBacklogCandidates.length})`];
+  if (heldBacklogCandidates.length === 0) {
+    lines.push("- none");
+    return lines;
+  }
+
+  for (const candidate of heldBacklogCandidates) {
+    const fields = [
+      `task=${candidate.taskId}`,
+      `status=${candidate.status}`,
+      `path=${candidate.taskPath}`,
+    ];
+    if (candidate.activeLaneName) {
+      fields.push(`active-lane=${candidate.activeLaneName}`);
+    }
+    if (candidate.holdReasons.length > 0) {
+      fields.push(`hold=${candidate.holdReasons.join(" | ")}`);
+    }
+    fields.push(`reason=${candidate.recommendationReasons.join(" | ")}`);
+    lines.push(`- ${fields.join(" ")}`);
+  }
+  return lines;
+}
+
+function formatAdvisoryUncertainties(
+  advisoryUncertainties: PlannerAdvisoryUncertaintyEvidence[],
+): string[] {
+  const lines = [`Advisory Uncertainties (${advisoryUncertainties.length})`];
+  if (advisoryUncertainties.length === 0) {
+    lines.push("- none");
+    return lines;
+  }
+
+  for (const uncertainty of advisoryUncertainties) {
+    const fields = [
+      `task=${uncertainty.taskId}`,
+      `title=${uncertainty.title}`,
+      `evidence=${uncertainty.evidenceQuality}`,
+      `path=${uncertainty.taskPath}`,
+    ];
+    if (uncertainty.taskPathHints.length > 0) {
+      fields.push(`path-hints=${uncertainty.taskPathHints.join(" | ")}`);
+    }
+    if (uncertainty.overlappingDirtySurfaces.length > 0) {
+      fields.push(
+        `dirty-surfaces=${uncertainty.overlappingDirtySurfaces.join(" | ")}`,
+      );
+    }
+    fields.push(`reason=${uncertainty.uncertaintyReasons.join(" | ")}`);
+    lines.push(`- ${fields.join(" ")}`);
+  }
+  return lines;
+}
+
+function groupStaleBacklogCandidatesByDirectoryPrefix(
+  candidates: PlannerStaleBacklogEvidence[],
+): Array<{ prefix: string; count: number }> {
+  const counts = new Map<string, number>();
+
   for (const candidate of candidates) {
+    const normalizedPath = candidate.taskPath.replace(/\\/g, "/");
+    const segments = normalizedPath.split("/").filter(Boolean);
+    const prefix =
+      segments.length >= 2
+        ? segments.slice(0, Math.min(3, segments.length - 1)).join("/")
+        : normalizedPath;
+    counts.set(prefix, (counts.get(prefix) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([prefix, count]) => ({ prefix, count }))
+    .sort((left, right) =>
+      left.count === right.count
+        ? left.prefix.localeCompare(right.prefix)
+        : right.count - left.count,
+    );
+}
+
+function formatStaleBacklogCandidates(
+  staleBacklogCandidates: PlannerStaleBacklogEvidence[],
+): string[] {
+  const totalCount = staleBacklogCandidates.length;
+  const lines = [
+    totalCount > STALE_BACKLOG_CANDIDATE_HUMAN_DISPLAY_LIMIT
+      ? `Stale Backlog Candidates (${totalCount}, showing ${STALE_BACKLOG_CANDIDATE_HUMAN_DISPLAY_LIMIT})`
+      : `Stale Backlog Candidates (${totalCount})`,
+  ];
+
+  if (totalCount === 0) {
+    lines.push("- none");
+    return lines;
+  }
+
+  const visibleCandidates = staleBacklogCandidates.slice(
+    0,
+    STALE_BACKLOG_CANDIDATE_HUMAN_DISPLAY_LIMIT,
+  );
+  for (const candidate of visibleCandidates) {
+    const fields = [
+      `task=${candidate.taskId}`,
+      `title=${candidate.title}`,
+      `path=${candidate.taskPath}`,
+    ];
+    if (candidate.terminalCompleteLane) {
+      fields.push(
+        `terminal-lane=${candidate.terminalCompleteLane.workItemName}`,
+      );
+    }
+    fields.push(`reason=${candidate.staleReasons.join(" | ")}`);
+    lines.push(`- ${fields.join(" ")}`);
+  }
+
+  const hiddenCount = totalCount - visibleCandidates.length;
+  if (hiddenCount > 0) {
+    const groupedOverflow = groupStaleBacklogCandidatesByDirectoryPrefix(
+      staleBacklogCandidates.slice(STALE_BACKLOG_CANDIDATE_HUMAN_DISPLAY_LIMIT),
+    );
+    const groupedSummary = groupedOverflow
+      .slice(0, 5)
+      .map((group) => `${group.prefix} (${group.count})`)
+      .join(", ");
+    lines.push(
+      `- ... and ${hiddenCount} more stale backlog candidates grouped under ${groupedSummary}`,
+    );
+  }
+
+  return lines;
+}
+
+function formatPlannerOwnedBacklogCandidates(
+  candidates: PlannerBacklogCandidate[],
+): string[] {
+  const nonStaleCandidates = candidates.filter(
+    (candidate) => candidate.status !== "stale",
+  );
+  const lines = [
+    `Planner-Owned Backlog Candidates (${nonStaleCandidates.length})`,
+  ];
+  if (nonStaleCandidates.length === 0) {
+    lines.push("- none");
+    return lines;
+  }
+
+  for (const candidate of nonStaleCandidates) {
     const fields = [
       `task=${candidate.taskId}`,
       `status=${candidate.status}`,
@@ -705,6 +1274,33 @@ function formatPlannerOwnedBacklogCandidates(
   return lines;
 }
 
+function formatRootGeneratedArtifactDriftHold(
+  hold: PlannerRootGeneratedArtifactDriftHold,
+): string[] {
+  const lines = [
+    `Root Generated-Artifact Drift Hold (page-refill-hold=${hold.pageRefillHold})`,
+  ];
+
+  if (!hold.pageRefillHold) {
+    lines.push("- none");
+    return lines;
+  }
+
+  lines.push(`- guidance=${hold.guidance ?? hold.holdReason}`);
+  if (hold.blockingPaths.length > 0) {
+    lines.push(
+      `- blocking-paths=${hold.blockingPaths.map((pathEvidence) => pathEvidence.path).join(" | ")}`,
+    );
+    for (const pathEvidence of hold.blockingPaths) {
+      lines.push(
+        `  - path=${pathEvidence.path} surface=${pathEvidence.surface}`,
+      );
+    }
+  }
+
+  return lines;
+}
+
 function formatRefillCandidates(
   candidates: PlannerBacklogCandidate[],
 ): string[] {
@@ -729,11 +1325,23 @@ export function formatPlannerConcurrencyFloorReport(
   const lines = [
     "Planner concurrency-floor summary",
     `generated-at=${report.generatedAtUtc} session=${report.sourceSession}`,
-    `summary useful-active=${report.usefulActiveLaneCount} floor=${report.concurrencyFloor} status=${report.floorStatus} refill-needed=${report.lanesNeededToReachFloor} advisory-only=${report.advisoryOnly}`,
+    `summary useful-active=${report.usefulActiveLaneCount} floor=${report.concurrencyFloor} status=${report.floorStatus} refill-needed=${report.lanesNeededToReachFloor} blocked-dependencies=${report.blockedDependencyLanes.length} held-backlog=${report.heldBacklogCandidates.length} advisory-uncertain=${report.advisoryUncertainties.length} stale-backlog=${report.staleBacklogCandidates.length} page-refill-hold=${report.rootGeneratedArtifactDriftHold.pageRefillHold} advisory-only=${report.advisoryOnly}`,
     "",
     ...formatUsefulActiveLanes(report.usefulActiveLanes),
     "",
+    ...formatBlockedDependencyLanes(report.blockedDependencyLanes),
+    "",
+    ...formatHeldBacklogCandidates(report.heldBacklogCandidates),
+    "",
+    ...formatAdvisoryUncertainties(report.advisoryUncertainties),
+    "",
+    ...formatRootGeneratedArtifactDriftHold(
+      report.rootGeneratedArtifactDriftHold,
+    ),
+    "",
     ...formatIgnoredStaleNoise(report.ignoredStaleNoise),
+    "",
+    ...formatStaleBacklogCandidates(report.staleBacklogCandidates),
     "",
     ...formatPlannerOwnedBacklogCandidates(
       report.plannerOwnedBacklogCandidates,

@@ -17,6 +17,22 @@ export type ListPublishedBlogPostsOptions = {
   locale?: SiteLocale;
 };
 
+function blogPostMessagesPath(
+  blogRoot: string,
+  slug: string,
+  locale: SiteLocale,
+): string {
+  return join(blogRoot, slug, "messages", `${locale}.json`);
+}
+
+export function hasBlogPostMessagesForLocale(
+  slug: string,
+  locale: SiteLocale,
+  blogRoot: string = BLOG_ROOT,
+): boolean {
+  return existsSync(blogPostMessagesPath(blogRoot, slug, locale));
+}
+
 export function discoverBlogPostSlugs(blogRoot: string): string[] {
   if (!existsSync(blogRoot)) {
     return [];
@@ -62,6 +78,10 @@ export async function listPublishedBlogPosts(
   for (const slug of slugs) {
     const frontmatter = readBlogPostFrontmatter(slug, { blogRoot });
     if (!isBlogPostPubliclyVisible(frontmatter)) {
+      continue;
+    }
+
+    if (!hasBlogPostMessagesForLocale(slug, locale, blogRoot)) {
       continue;
     }
 

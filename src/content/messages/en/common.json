@@ -232,6 +232,14 @@
     "emptyDescription": "Published architecture concept pages and pages under the architecture content grouping will appear here. Return home or open search to explore modules and tags in the meantime.",
     "emptyHomeLink": "Return home"
   },
+  "blogIndex": {
+    "title": "Blog",
+    "description": "Narrative posts that connect releases and serving concepts back to canonical reference pages.",
+    "listLabel": "Blog posts",
+    "emptyTitle": "No blog posts yet",
+    "emptyDescription": "Published narrative posts will appear here once they are added to the atlas. Return home or open search to explore models, modules, and concepts in the meantime.",
+    "emptyHomeLink": "Return home"
+  },
   "topologyPrototype": {
     "title": "Topology",
     "description": "Topology relationships across published classifications, concepts, and modules.",

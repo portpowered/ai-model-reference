@@ -10,12 +10,16 @@ Orama indexing, or `/api/search` behavior.
   registry fields. Produces page-derived fields with empty topology and
   kind/tag facets only.
 * `src/lib/search/enrich-search-document.ts`
-  AI enrichment step that resolves published classification lineage, topology
-  relationship terms, legacy taxonomy compatibility, and model/module facets
-  onto base documents.
+  Generic enrichment step that resolves published classification lineage, topology
+  relationship terms, and legacy taxonomy compatibility onto base documents.
+* `src/lib/search/model-atlas-ai-search-enrichment-adapter.ts`
+  Model Atlas AI enrichment adapter that appends model/module facets
+  (`modelFamily`, `sourceType`, `modalities`, `trainingRegimeIds`, `optimizes`)
+  onto generic search documents. Registered by the search builder in story 003.
 * `src/lib/search/build-documents.ts`
-  Composes base documents with `enrichSearchDocument` before returning catalog
-  `SearchDocument` records consumed by `search-server.ts`.
+  Model Atlas search builder: composes base documents with generic
+  `enrichSearchDocument`, then applies `enrichSearchDocumentWithModelAtlasAiFacets`
+  before returning catalog `SearchDocument` records consumed by `search-server.ts`.
 * `src/lib/search/to-advanced-index.ts`
   Projects `SearchDocument` records into Fumadocs advanced search indexes.
 * `src/lib/search/search-server.ts`
@@ -39,11 +43,19 @@ Orama indexing, or `/api/search` behavior.
 * `src/lib/search/build-base-document.test.ts`
   Generic base document field contract and empty topology/facet guarantees.
 * `src/tests/fixtures/non-ai-shell/search.test.ts`
-  Non-AI fixture base search document fields and Orama query behavior without
-  AI registry enrichment; uses `buildNonAiShellFixtureBaseSearchDocuments()`.
+  Non-AI fixture base and generic-enrichment search document fields and Orama
+  query behavior without AI registry enrichment; uses
+  `buildNonAiShellFixtureBaseSearchDocuments()` and
+  `buildNonAiShellFixtureSearchDocuments()` (shared enrichment only, no AI adapter).
+* `src/tests/fixtures/non-ai-shell/fixture.ts`
+  Non-AI shell fixture pages and search builders; `buildNonAiShellFixtureSearchDocuments`
+  composes base documents with `enrichSearchDocuments` for the generic search proof.
 * `src/lib/search/enrich-search-document.test.ts`
-  AI enrichment topology/facet contract, searchable topology terms, and draft or
+  Generic enrichment topology/facet contract, searchable topology terms, and draft or
   missing-target stability coverage.
+* `src/lib/search/model-atlas-ai-search-enrichment-adapter.test.ts`
+  Model Atlas AI facet adapter contract for model/module records, generic facet
+  preservation, and non-model/module no-op behavior.
 * `src/tests/search/build-documents.test.ts`
   Document construction and topology normalization coverage.
 * `src/tests/search/search-api.test.ts`

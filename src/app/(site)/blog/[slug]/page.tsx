@@ -1,19 +1,6 @@
-import {
-  DocsBody,
-  DocsDescription,
-  DocsPage,
-  DocsTitle,
-} from "fumadocs-ui/layouts/docs/page";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { loadBlogPost } from "@/lib/content/blog-page";
-import {
-  blogIndexHref,
-  blogPostHref,
-  listBlogSlugs,
-  listPublishedBlogPosts,
-} from "@/lib/content/blog-page-load";
+import { renderBlogPostPage } from "@/app/(site)/site-renderers";
+import { blogPostHref, listBlogSlugs } from "@/lib/content/blog-page-load";
+import { getPublishedBlogPostBySlug } from "@/lib/content/blog-post-get";
 
 type BlogPostPageProps = {
   params: Promise<{ slug: string }>;
@@ -25,15 +12,15 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = await loadBlogPost(slug);
+  const published = await getPublishedBlogPostBySlug(slug);
 
-  if (post.frontmatter.status !== "published") {
+  if (!published) {
     return {};
   }
 
   return {
-    title: post.messages.title,
-    description: post.messages.description,
+    title: published.messages.title,
+    description: published.messages.description,
     alternates: {
       canonical: blogPostHref(slug),
     },
@@ -42,21 +29,5 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = await loadBlogPost(slug);
-
-  if (post.frontmatter.status !== "published") {
-    notFound();
-  }
-
-  return (
-    <DocsPage breadcrumb={{ enabled: false }} toc={post.toc}>
-      <ModulePageProviders messages={post.messages} assets={post.assets}>
-        <DocsTitle>{post.messages.title}</DocsTitle>
-        <DocsDescription>{post.messages.description}</DocsDescription>
-        <DocsBody>
-          <article data-blog-slug={post.slug}>{post.content}</article>
-        </DocsBody>
-      </ModulePageProviders>
-    </DocsPage>
-  );
+  return renderBlogPostPage(slug);
 }
