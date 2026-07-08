@@ -10,9 +10,31 @@ import {
   PUBLISHED_DOCS_REGISTRY_IDS,
 } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
+import { loadTagResourceGroups } from "@/lib/content/tag-resources";
+import { loadUiMessages } from "@/lib/content/ui-messages";
 import { validatePublishedBlogPosts } from "@/lib/content/validate-blog-posts";
+import {
+  buildBlogSearchDocuments,
+  loadBlogSearchPostSources,
+} from "@/lib/search/build-blog-search-document";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const BLOG_SLUG = "evolution-of-diffusion";
+const BLOG_URL = "/blog/evolution-of-diffusion";
+
+const DISCOVERY_SEARCH_QUERIES = [
+  "diffusion evolution",
+  "latent diffusion stable diffusion",
+  "diffusion transformer flow matching",
+  "video diffusion world model",
+] as const;
+
+const MDX_COMPONENT_NAMES = [
+  "GenerationEvolutionBlogVisual",
+  "BlogRelatedDocs",
+  "TagPillList",
+  "Callout",
+] as const;
 
 const EXPECTED_RELATED_DOC_IDS = [
   "concept.diffusion-model",
@@ -119,5 +141,69 @@ describe("evolution of diffusion blog integration", () => {
     );
 
     expect(blogErrors).toEqual([]);
+  });
+
+  test(
+    "representative diffusion evolution searches return evolution-of-diffusion",
+    async () => {
+      for (const query of DISCOVERY_SEARCH_QUERIES) {
+        const results = await docsSearchApi.search(query);
+        expect(results.some((result) => result.url === BLOG_URL)).toBe(true);
+      }
+    },
+    { timeout: 20_000 },
+  );
+
+  test("search index includes title, summary, headings, and narrative body without MDX component names", async () => {
+    const indexes = await loadRegistry();
+    const posts = await loadBlogSearchPostSources();
+    const post = await loadBlogPostFromDisk(BLOG_SLUG);
+    const [document] = buildBlogSearchDocuments(posts, indexes).filter(
+      (entry) => entry.url === BLOG_URL,
+    );
+
+    expect(document).toMatchObject({
+      title: post.messages.title,
+      description: post.messages.description,
+      tags: ["foundations", "model-family"],
+    });
+    expect(document?.bodyText).toContain(post.messages.contextSentence);
+    expect(document?.bodyText).toContain(post.messages.takeaway);
+    expect(document?.headings).toContain(
+      "Latent diffusion and Stable Diffusion",
+    );
+    expect(document?.headings).toContain(
+      "Diffusion transformers as the denoising backbone",
+    );
+    expect(document?.bodyText).toContain(
+      "Denoising diffusion probabilistic models",
+    );
+    for (const componentName of MDX_COMPONENT_NAMES) {
+      expect(document?.bodyText).not.toContain(componentName);
+    }
+  });
+
+  test("foundations and model-family tag landings list evolution-of-diffusion", async () => {
+    const messages = await loadUiMessages();
+
+    for (const tagSlug of ["foundations", "model-family"] as const) {
+      const groups = await loadTagResourceGroups(tagSlug, messages, "en");
+      const blogGroup = groups.find((group) => group.kind === "blog");
+
+      expect(blogGroup).toBeDefined();
+      expect(
+        blogGroup?.resources.some((resource) => resource.url === BLOG_URL),
+      ).toBe(true);
+    }
+
+    const foundationsGroups = await loadTagResourceGroups(
+      "foundations",
+      messages,
+      "en",
+    );
+    const foundationsBlogGroup = foundationsGroups.find(
+      (group) => group.kind === "blog",
+    );
+    expect(foundationsBlogGroup?.resources[0]?.slug).toBe(BLOG_SLUG);
   });
 });
