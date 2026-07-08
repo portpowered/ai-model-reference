@@ -1,0 +1,156 @@
+{
+  "title": "Multimodal Tokenization",
+  "description": "The process of turning images, audio, video, and other non-text inputs into token-like embeddings or sequences a shared model can process.",
+  "openingSummary": "Multimodal tokenization converts raw non-text inputs—images, audio waveforms, video frames, and other sensor streams—into sequences of token-like embeddings that a model can attend over alongside text. Unlike text tokenizers that map characters or subwords to discrete vocabulary IDs, multimodal tokenizers define how each modality is split, encoded, ordered in time or space, and projected into a shared embedding space.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Multimodal tokenization is the front-end encoding step that turns non-text inputs into model-ready sequences. For images, that often means dividing a picture into fixed-size patches and projecting each patch into one embedding vector. For audio, it can mean chopping a waveform into short frames or extracting learned spectral features and treating each frame as one unit. For video, systems usually tokenize each frame or short clip the same way as images, then add ordering across time. A modality adapter is the learned bridge that maps one modality's native features into the same width and representation style as the model's text or shared trunk. The output is usually called a token because it becomes one position in a sequence the transformer stack processes, even when there is no discrete vocabulary ID behind it."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Transformer blocks and most large multimodal stacks expect a flat sequence of vectors, not raw pixels, waveforms, or frame tensors. Each modality arrives with different shape, sampling rate, and structure, so the model needs a predictable way to convert those inputs into comparable units before attention, fusion, or generation begin. Multimodal tokenization also lets one architecture reuse the same sequence machinery for text and non-text inputs: once every modality is expressed as token-like embeddings, cross-attention, shared decoders, and omni models can mix signals without rewriting the core stack for every sensor type."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The exact tokenizer depends on the modality, but the pattern is similar. Image pipelines start from a fixed-resolution grid of patches. Each patch is flattened or convolved into a local feature vector, then projected into one embedding token per patch. Audio pipelines slice a waveform into short frames—often 10–25 milliseconds wide—or run a learned feature extractor such as a log-mel filterbank or neural codec encoder so each frame becomes one vector. Video extends the image path across time: each frame yields a patch-token grid or a smaller set of spatiotemporal tokens, and the model must preserve frame order or explicit time positions so motion stays readable. When modalities meet inside one model, a modality adapter aligns widths and statistics so image, audio, and text tokens can enter the same trunk or attend to each other. Text still differs at the output boundary: byte pair encoding (BPE) and related text tokenizers emit integer IDs from a finite vocabulary, while multimodal units are usually continuous embeddings produced by encoders rather than lookups from a shared text dictionary."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "At a high level, multimodal tokenization can be read as two coupled steps: split the raw modality into ordered units, then map each unit into one embedding vector. For an image with H by W patches, the tokenizer produces one vector per patch. For audio with T frames, it produces T frame vectors. For video, the same per-frame or per-clip rule repeats across time, so total sequence length grows with both spatial tiling and temporal extent. Modality adapters sit after those per-modality encoders when a shared model needs every stream in one embedding width before fusion."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Text tokenizers such as BPE, WordPiece, and SentencePiece build discrete pieces from a learned or fixed text vocabulary. Their main output is an integer token ID per text piece. CLIP image tokenization is narrower: it covers only the vision path that turns image patches into patch embeddings for a vision encoder. Multimodal tokenization is the broader umbrella for every non-text path—image patches, audio frames or features, video tokens, and the adapters that align them with text or a shared trunk. Cross-attention is a later fusion mechanism; it assumes each modality has already been tokenized into sequences the model can read."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "CLIP tokenizes images into patch embeddings and text into subword embeddings, then trains both encoders to meet in one shared space without mixing token vocabularies. Vision Transformer (ViT) style image models use patch tokenization as the default image front end. Flamingo-style systems keep pretrained vision and language encoders and insert learned perceiver resamplers or cross-attention layers after image tokenization so visual tokens can condition text generation. Emerging omni models extend the same idea to audio and video by adding frame or clip tokenizers plus lightweight adapters before a single decoder or shared trunk processes the fused sequence."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Each modality forces its own tradeoffs. Smaller image patches preserve detail but lengthen the sequence and raise compute cost. Coarser audio frames reduce sequence length but blur phonetic timing. Video multiplies cost across frames, so models often sample frames sparsely, compress clips, or cap resolution. Modality adapters add parameters and can dominate quality when pretraining data for one stream is scarce. Because multimodal units are usually continuous embeddings, you cannot swap them like text vocabulary files: changing patch size, frame hop, or encoder weights typically requires retraining or careful adapter retuning rather than a simple tokenizer swap."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Every multimodal or omni model advertises how it turns images, sound, or video into sequences long before it describes attention or decoding. Understanding multimodal tokenization explains why vision models report patch counts, why audio models quote frame rates or mel bins, and why video systems talk about tokens per second. It also clarifies why text tokenizer IDs are not interchangeable with image or audio embeddings even when documentation calls all of them tokens."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Multimodal tokenization flow from raw image, audio, and video inputs through modality encoders and adapters into token-like embeddings and a shared model sequence"
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "textTokens": {
+          "title": "Text tokens"
+        },
+        "imagePatches": {
+          "title": "Image patches"
+        },
+        "audioFrames": {
+          "title": "Audio frames"
+        },
+        "videoTokens": {
+          "title": "Video tokens"
+        },
+        "modalityAdapter": {
+          "title": "Modality adapter"
+        }
+      },
+      "dimensions": {
+        "inputForm": "Input form",
+        "outputForm": "Output form",
+        "orderingTime": "Ordering and time",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "textTokens": {
+          "inputForm": "Unicode text strings",
+          "outputForm": "Discrete token IDs from a learned text vocabulary",
+          "orderingTime": "Left-to-right token order in the string",
+          "mainTradeoff": "Flexible open-vocabulary text, but IDs are linguistic rather than sensory"
+        },
+        "imagePatches": {
+          "inputForm": "Fixed-resolution RGB images",
+          "outputForm": "One continuous embedding vector per spatial patch",
+          "orderingTime": "Raster order over a 2D patch grid",
+          "mainTradeoff": "Reuses transformer stacks, but patch size fixes local detail and sequence length"
+        },
+        "audioFrames": {
+          "inputForm": "Raw waveforms or spectral features",
+          "outputForm": "One embedding vector per short time frame or feature step",
+          "orderingTime": "Strict time order along the waveform",
+          "mainTradeoff": "Captures phonetic timing, but frame width trades resolution for sequence length"
+        },
+        "videoTokens": {
+          "inputForm": "Frame sequences or short spatiotemporal clips",
+          "outputForm": "Patch or clip embeddings repeated across time",
+          "orderingTime": "Frame order plus within-frame spatial patch order",
+          "mainTradeoff": "Preserves motion cues, but cost grows quickly with frames and resolution"
+        },
+        "modalityAdapter": {
+          "inputForm": "Encoder outputs from one or more modalities",
+          "outputForm": "Aligned embeddings in the shared model width",
+          "orderingTime": "Preserves each modality stream's native order before fusion",
+          "mainTradeoff": "Enables shared-trunk fusion, but adds parameters and tuning burden per modality"
+        }
+      }
+    }
+  },
+  "math": {
+    "modalityUnitSplitSchema": {
+      "label": "Modality units before projection",
+      "formula": "U_m = \\{u_{m,1}, \\ldots, u_{m,T_m}\\}",
+      "variableDefinitions": {
+        "Um": {
+          "term": "U_m",
+          "definition": "Ordered units produced for modality m after splitting or framing."
+        },
+        "m": {
+          "term": "m",
+          "definition": "Modality index such as image, audio, or video."
+        },
+        "umi": {
+          "term": "u_{m,i}",
+          "definition": "The i-th raw or lightly encoded unit for modality m."
+        },
+        "tm": {
+          "term": "T_m",
+          "definition": "Number of units emitted for modality m in one input example."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rawInputs": {
+        "label": "Raw modality inputs"
+      },
+      "modalityEncoders": {
+        "label": "Split into patches, frames, or clips"
+      },
+      "modalityAdapters": {
+        "label": "Align widths with modality adapters"
+      },
+      "tokenEmbeddings": {
+        "label": "Token-like embedding vectors"
+      },
+      "sharedSequence": {
+        "label": "Shared model sequence"
+      }
+    }
+  }
+}

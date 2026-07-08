@@ -27,6 +27,7 @@ import multiHeadAttentionComparisonTableRecord from "@/content/registry/tables/m
 import multiHeadLatentAttentionComparisonTableRecord from "@/content/registry/tables/multi-head-latent-attention-comparison.json";
 import multiQueryAttentionComparisonTableRecord from "@/content/registry/tables/multi-query-attention-comparison.json";
 import multiTokenPredictionComparisonTableRecord from "@/content/registry/tables/multi-token-prediction-comparison.json";
+import multimodalTokenizationComparisonTableRecord from "@/content/registry/tables/multimodal-tokenization-comparison.json";
 import qkNormComparisonTableRecord from "@/content/registry/tables/qk-norm-comparison.json";
 import reluComparisonTableRecord from "@/content/registry/tables/relu-comparison.json";
 import rmsnormComparisonTableRecord from "@/content/registry/tables/rmsnorm-comparison.json";
@@ -69,6 +70,7 @@ export const generatedTableRegistrySourceFiles = [
   "multi-head-latent-attention-comparison.json",
   "multi-query-attention-comparison.json",
   "multi-token-prediction-comparison.json",
+  "multimodal-tokenization-comparison.json",
   "qk-norm-comparison.json",
   "relu-comparison.json",
   "rmsnorm-comparison.json",
@@ -112,6 +114,7 @@ export const generatedTableRegistryPayloads = [
   multiHeadLatentAttentionComparisonTableRecord,
   multiQueryAttentionComparisonTableRecord,
   multiTokenPredictionComparisonTableRecord,
+  multimodalTokenizationComparisonTableRecord,
   qkNormComparisonTableRecord,
   reluComparisonTableRecord,
   rmsnormComparisonTableRecord,

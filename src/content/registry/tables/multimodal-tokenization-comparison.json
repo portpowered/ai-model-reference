@@ -1,0 +1,76 @@
+{
+  "id": "table.multimodal-tokenization-comparison",
+  "subjectId": "module.multimodal-tokenization",
+  "columns": [
+    {
+      "moduleId": "module.bpe",
+      "titleKey": "tables.comparison.columns.textTokens.title"
+    },
+    {
+      "moduleId": "module.clip-image-tokenization",
+      "titleKey": "tables.comparison.columns.imagePatches.title"
+    },
+    {
+      "moduleId": "concept.modality",
+      "titleKey": "tables.comparison.columns.audioFrames.title"
+    },
+    {
+      "moduleId": "concept.visual-tokenization",
+      "titleKey": "tables.comparison.columns.videoTokens.title"
+    },
+    {
+      "moduleId": "module.multimodal-tokenization",
+      "titleKey": "tables.comparison.columns.modalityAdapter.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "inputForm",
+      "labelKey": "tables.comparison.dimensions.inputForm"
+    },
+    {
+      "id": "outputForm",
+      "labelKey": "tables.comparison.dimensions.outputForm"
+    },
+    {
+      "id": "orderingTime",
+      "labelKey": "tables.comparison.dimensions.orderingTime"
+    },
+    {
+      "id": "mainTradeoff",
+      "labelKey": "tables.comparison.dimensions.mainTradeoff"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.bpe": {
+      "inputForm": "tables.comparison.values.textTokens.inputForm",
+      "outputForm": "tables.comparison.values.textTokens.outputForm",
+      "orderingTime": "tables.comparison.values.textTokens.orderingTime",
+      "mainTradeoff": "tables.comparison.values.textTokens.mainTradeoff"
+    },
+    "module.clip-image-tokenization": {
+      "inputForm": "tables.comparison.values.imagePatches.inputForm",
+      "outputForm": "tables.comparison.values.imagePatches.outputForm",
+      "orderingTime": "tables.comparison.values.imagePatches.orderingTime",
+      "mainTradeoff": "tables.comparison.values.imagePatches.mainTradeoff"
+    },
+    "concept.modality": {
+      "inputForm": "tables.comparison.values.audioFrames.inputForm",
+      "outputForm": "tables.comparison.values.audioFrames.outputForm",
+      "orderingTime": "tables.comparison.values.audioFrames.orderingTime",
+      "mainTradeoff": "tables.comparison.values.audioFrames.mainTradeoff"
+    },
+    "concept.visual-tokenization": {
+      "inputForm": "tables.comparison.values.videoTokens.inputForm",
+      "outputForm": "tables.comparison.values.videoTokens.outputForm",
+      "orderingTime": "tables.comparison.values.videoTokens.orderingTime",
+      "mainTradeoff": "tables.comparison.values.videoTokens.mainTradeoff"
+    },
+    "module.multimodal-tokenization": {
+      "inputForm": "tables.comparison.values.modalityAdapter.inputForm",
+      "outputForm": "tables.comparison.values.modalityAdapter.outputForm",
+      "orderingTime": "tables.comparison.values.modalityAdapter.orderingTime",
+      "mainTradeoff": "tables.comparison.values.modalityAdapter.mainTradeoff"
+    }
+  }
+}
