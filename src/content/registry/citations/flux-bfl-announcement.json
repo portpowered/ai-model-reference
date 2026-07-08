@@ -1,0 +1,24 @@
+{
+  "id": "citation.flux-bfl-announcement",
+  "slug": "flux-bfl-announcement",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Announcing Black Forest Labs",
+    "Black Forest Labs launch announcement",
+    "FLUX.1 suite announcement"
+  ],
+  "tags": ["model-family", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["Black Forest Labs"],
+  "title": "Announcing Black Forest Labs",
+  "url": "https://bfl.ai/announcing-black-forest-labs/",
+  "mla": "Black Forest Labs. \"Announcing Black Forest Labs.\" Black Forest Labs, August 2024.",
+  "year": 2024
+}
