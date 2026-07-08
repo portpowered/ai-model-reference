@@ -19,7 +19,6 @@ import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 
 const LOGIT_GLOSSARY_URL = "/docs/glossary/logit";
 const SOFTMAX_CONCEPT_URL = "/docs/concepts/softmax";
-const SOFTMAX_GLOSSARY_URL = "/docs/glossary/softmax";
 
 describe("Phase 2 logit and softmax glossary pages (US-005)", () => {
   test("logit registry connects from tensor and forward to softmax", () => {
