@@ -36,15 +36,14 @@ function cloneChartWithDimensions(
   );
 }
 
-function useChartContainerDimensions(
-  enabled: boolean,
-): {
+function useChartContainerDimensions(enabled: boolean): {
   containerRef: React.RefObject<HTMLDivElement | null>;
   dimensions: ChartDimensions;
 } {
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] =
-    React.useState<ChartDimensions>(DEFAULT_CHART_DIMENSION);
+  const [dimensions, setDimensions] = React.useState<ChartDimensions>(
+    DEFAULT_CHART_DIMENSION,
+  );
 
   React.useLayoutEffect(() => {
     if (!enabled) {

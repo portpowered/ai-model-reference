@@ -99,7 +99,9 @@ async function assertServedTrainingSignalChartPlot(
     .waitFor({ state: "attached" });
 
   const plot = await page.evaluate(() => {
-    const figure = document.querySelector('[data-training-signal-chart="ready"]');
+    const figure = document.querySelector(
+      '[data-training-signal-chart="ready"]',
+    );
     if (!figure) {
       throw new Error("missing training-signal chart figure");
     }
