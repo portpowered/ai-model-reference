@@ -1,0 +1,103 @@
+## Codebase Patterns
+- Before authoring Whisper content, verify `src/content/docs/models/whisper/` and `src/content/registry/models/whisper.json` are absent or update only missing pieces; guard with `src/lib/content/whisper-duplicate-guard.test.ts`.
+- Use `getDocsPageDir("models", slug)` and `getModelsDocsRoot()` for page-local path resolution instead of new exported constants.
+- Run `bun run prepare:content-runtime` before focused content tests that import `registry-runtime`.
+- Page-local workflow notes: `docs/internal/processes/whisper-model-page-relevant-files.md`.
+- Model registry stories follow `src/lib/content/llama-3-model-registry.test.ts`: parse JSON with `modelRecordSchema`, assert runtime resolution via `getModelById`/`getCitationById`, and verify required `relatedIds` without editing unrelated training-regime reverse links unless validation requires it.
+- Model page stories mirror `src/lib/content/llama-3-model-page.test.tsx`: validate bundle with `validateGeneratedPageBundle`, assert search ranking, curated related docs, and static render of sections/citations; add `ModelArchitectureGraph` assertions once story 005 wires `graph.whisper-architecture` and `assets.json`.
+- Architecture graph stories mirror `src/lib/content/ltx-23-architecture-graph.test.tsx`: registry graph record, `buildRegistryFlowGraph` labels, static/hydrated `RegistryGraphFlow`, and model-page architecture section graph surface.
+- Story 006 slice verification mirrors `flux-model-slice-verification.test.tsx` / `gemma-slice-verification.test.tsx`: consolidated proof for validateGeneratedPageBundle, citation/link resolution, search/tag discovery, and optional Playwright route verification in `src/lib/content/whisper-slice-verification.test.tsx`.
+
+## 2026-07-08T13:15:00Z - whisper-model-page-current-main-001
+- Verified preflight: neither `src/content/docs/models/whisper/` nor `src/content/registry/models/whisper.json` exists on current branch base.
+- Added focused duplicate-guard tests proving at most one Whisper page bundle directory, one `model.whisper` registry record, and one published Whisper route.
+- Documented preflight paths and guard test location in `docs/internal/processes/whisper-model-page-relevant-files.md`.
+- Files changed:
+  - `src/lib/content/whisper-duplicate-guard.test.ts`
+  - `docs/internal/processes/whisper-model-page-relevant-files.md`
+- **Learnings for future iterations:**
+  - Patterns discovered: duplicate-guard stories can ship observable tests before page content exists; tests assert `<= 1` matches so they pass on empty source and tighten once content lands.
+  - Gotchas encountered: `bun test` on content tests requires `prepare:content-runtime` first because `registry-runtime.generated.ts` is gitignored.
+  - Useful context: no Whisper registry, citation, or page artifacts exist anywhere under `src/content` yet; story 002 should add `whisper.json` and citations.
+---
+
+## 2026-07-08T13:30:00Z - whisper-model-page-current-main-002
+- Added canonical `model.whisper` registry record with audio/multimodal modalities, encoder-decoder architecture links, tokenization and cross-attention module relationships, and required discovery aliases.
+- Added three primary-source citation records: Whisper paper (arXiv), GitHub repository, and Hugging Face model card.
+- Added focused registry backing tests in `src/lib/content/whisper-model-registry.test.ts`; registry validation, typecheck, and whisper tests pass.
+- Updated `docs/internal/processes/whisper-model-page-relevant-files.md` with registry artifact paths and wired relationship targets.
+- Files changed:
+  - `src/content/registry/models/whisper.json`
+  - `src/content/registry/citations/whisper-robust-speech-recognition.json`
+  - `src/content/registry/citations/whisper-repository.json`
+  - `src/content/registry/citations/whisper-large-huggingface.json`
+  - `src/lib/content/whisper-model-registry.test.ts`
+  - `docs/internal/processes/whisper-model-page-relevant-files.md`
+- **Learnings for future iterations:**
+  - Patterns discovered: mirror `llama-3-model-registry.test.ts` for model registry stories; `modalities: ["audio", "text", "multimodal"]` matches LTX-style audio discovery without adding new tag taxonomy.
+  - Gotchas encountered: `bun run lint` fails on pre-existing `noNonNullAssertion` warnings in unrelated phase-1 tests; run `biome check` on touched files when full lint is noisy.
+  - Useful context: story 003 should add the page bundle at `src/content/docs/models/whisper/`; registry record is ready with `defaultTitleKey`/`defaultSummaryKey` for localized messages.
+---
+
+## 2026-07-08T13:45:00Z - whisper-model-page-current-main-003
+- Published canonical Whisper page bundle at `src/content/docs/models/whisper/` with `page.mdx`, English messages, and empty `assets.json` (architecture graph deferred to story 005).
+- Page uses standard model template components (`ModelAtAGlance`, sections, `ModelModuleList`, `DerivedRelatedDocs`, `TagPillList`, `CitationList`) without `ModelTrainingSummary` because `trainingRegimeIds` and `paperIds` are empty on `model.whisper`.
+- Added focused page validation tests in `src/lib/content/whisper-model-page.test.tsx`; `make validate-data`, typecheck, and whisper tests pass.
+- Updated `docs/internal/processes/whisper-model-page-relevant-files.md` with page bundle paths and story 005 graph deferral note.
+- Files changed:
+  - `src/content/docs/models/whisper/page.mdx`
+  - `src/content/docs/models/whisper/messages/en.json`
+  - `src/content/docs/models/whisper/assets.json`
+  - `src/lib/content/whisper-model-page.test.tsx`
+  - `docs/internal/processes/whisper-model-page-relevant-files.md`
+- **Learnings for future iterations:**
+  - Patterns discovered: prose-only architecture section is valid for story 003; clip-style training section (no `ModelTrainingSummary`) avoids empty-state placeholders when registry has no training regimes or paper pages.
+  - Gotchas encountered: `bun test` on files importing `source` requires `bun run pretest` (`fumadocs-mdx`) after `prepare:content-runtime` regenerates `.source`; dev server failed in worktree with Turbopack root inference — static render tests are the reliable local verification path.
+  - Useful context: story 004 should deepen architecture/training narrative; story 005 should add `graph.whisper-architecture`, registry graph record, `assets.json` wiring, and `ModelArchitectureGraph` to `page.mdx`.
+---
+
+## 2026-07-08T14:05:00Z - whisper-model-page-current-main-004
+- Deepened Whisper localized narrative for audio-to-text architecture and training framing in `messages/en.json`.
+- Opening, inputs/outputs, architecture, training, and practical-notes sections now distinguish ASR transcription from speech translation, walk audio → spectrogram-like features → encoder → decoder → text tokens, and frame weak supervision plus robustness goals from primary sources.
+- Added focused narrative and prose auto-link tests in `whisper-model-page.test.tsx`; typecheck, validate-data, and whisper tests pass.
+- Updated `docs/internal/processes/whisper-model-page-relevant-files.md` with story 004 scope notes.
+- Files changed:
+  - `src/content/docs/models/whisper/messages/en.json`
+  - `src/lib/content/whisper-model-page.test.tsx`
+  - `docs/internal/processes/whisper-model-page-relevant-files.md`
+- **Learnings for future iterations:**
+  - Patterns discovered: prose auto-link phrases in localized copy surface inline discovery links without MDX `Link` components; mirror llama-style negative benchmark framing (`rather than leaderboard chasing`) when avoiding leaderboard copy.
+  - Gotchas encountered: asserting `not.toMatch(/leaderboard/)` on rendered HTML fails when training copy intentionally mentions leaderboard in negative context — assert message intent instead.
+  - Useful context: story 005 should add `graph.whisper-architecture` teaching asset and wire `ModelArchitectureGraph` in `page.mdx`.
+---
+
+## 2026-07-08T14:30:00Z - whisper-model-page-current-main-005
+- Added `graph.whisper-architecture` registry record showing audio input → spectrogram-like features → audio encoder → cross-attention → text decoder → BPE tokens → transcription and translation outputs.
+- Wired `assets.json`, localized graph labels/alt text in `messages/en.json`, and `ModelArchitectureGraph` in the architecture section of `page.mdx`.
+- Added focused architecture graph tests in `src/lib/content/whisper-architecture-graph.test.tsx`; extended page render assertions for graph surface markers.
+- Updated `docs/internal/processes/whisper-model-page-relevant-files.md` with story 005 artifact paths.
+- Files changed:
+  - `src/content/registry/graphs/whisper-architecture.json`
+  - `src/content/docs/models/whisper/assets.json`
+  - `src/content/docs/models/whisper/messages/en.json`
+  - `src/content/docs/models/whisper/page.mdx`
+  - `src/lib/content/whisper-architecture-graph.test.tsx`
+  - `src/lib/content/whisper-model-page.test.tsx`
+  - `docs/internal/processes/whisper-model-page-relevant-files.md`
+- **Learnings for future iterations:**
+  - Patterns discovered: mirror `ltx-23-architecture-graph.test.tsx` for audio/multimodal encoder-decoder graphs; dual output nodes at the graph root (transcription + translation) teach ASR vs speech-translation branching from shared tokenization.
+  - Gotchas encountered: run `biome check --write` on new graph JSON and graph test files; `prepare:content-runtime` regenerates graph registry runtime when adding new graph records.
+  - Useful context: story 006 should add focused link/discovery validation across registry, page bundle, and browser-visible route.
+---
+
+## 2026-07-08T15:00:00Z - whisper-model-page-current-main-006
+- Added consolidated slice verification tests proving registry/page bundle validation, citation and internal link resolution, search and tag discovery, and optional Playwright route success for `/docs/models/whisper`.
+- Updated `docs/internal/processes/whisper-model-page-relevant-files.md` with story 006 artifact paths and quality gate commands.
+- Files changed:
+  - `src/lib/content/whisper-slice-verification.test.tsx`
+  - `docs/internal/processes/whisper-model-page-relevant-files.md`
+- **Learnings for future iterations:**
+  - Patterns discovered: mirror `flux-model-slice-verification.test.tsx` for final model-page story; `validateGeneratedPageBundle` plus `buildDocsPageMetadata`/`renderDocsSlugPage` plus tag-group browsing covers registry, link, and discovery acceptance without broad route inventories.
+  - Gotchas encountered: Playwright browser test skips when `shouldRunVerifyProductionIntegrationTests` is false; static render and search assertions remain the reliable local proof path.
+  - Useful context: all six Whisper PRD stories are complete; create PR with `prd.json` description when pushing the final review commit.
+---

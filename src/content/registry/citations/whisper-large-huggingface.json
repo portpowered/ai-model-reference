@@ -1,0 +1,28 @@
+{
+  "id": "citation.whisper-large-huggingface",
+  "slug": "whisper-large-huggingface",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Whisper Large v3 model card",
+    "openai/whisper-large-v3",
+    "Whisper Hugging Face model card",
+    "Whisper model card"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "citation.whisper-robust-speech-recognition",
+    "citation.whisper-repository"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["OpenAI"],
+  "title": "openai/whisper-large-v3",
+  "url": "https://huggingface.co/openai/whisper-large-v3",
+  "mla": "OpenAI. \"openai/whisper-large-v3.\" Hugging Face, 2023.",
+  "year": 2023
+}

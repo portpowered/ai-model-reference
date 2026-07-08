@@ -1,0 +1,81 @@
+{
+  "title": "Whisper",
+  "description": "OpenAI's Whisper model family for automatic speech recognition and speech translation, mapping audio input to text through an encoder-decoder transformer.",
+  "openingSummary": "Whisper is OpenAI's Whisper model family for automatic speech recognition and speech translation. It turns spoken audio into written text through an encoder-decoder transformer, either transcribing words in the original language or translating speech into another written language.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Whisper is OpenAI's open-weight speech recognition and translation model family released in 2022. Public materials describe a family of encoder-decoder transformer checkpoints sized from tens of millions to about 1.5 billion parameters, trained to map audio into text tokens for transcription and translation tasks."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Whisper takes audio waveforms as its primary input. In automatic speech recognition mode, the model transcribes spoken words into written text in the same language. In speech translation mode, it writes the meaning of the speech into a different target language. Both paths output text tokens that decode into the final transcript or translation string. That audio-to-text interface is what connects Whisper to the tokenizers overview and encoder-decoder architecture pages elsewhere in this reference."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "At a high level, Whisper follows an encoder-decoder pattern built for audio. Raw audio enters a feature step that converts the waveform into a time-frequency representation similar to a spectrogram. An audio encoder reads those frames and builds hidden states across the utterance. A text decoder then generates output tokens conditioned on those encoder states, using cross-attention to read audio context while it emits text one token at a time. Decoder output passes through text tokenization in reverse to become the final transcript or translation string."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The registry-linked modules below are the main building blocks to understand before comparing Whisper to text-only transformers. Multi-head attention and cross-attention carry audio context into the decoder, BPE tokenization defines the text vocabulary interface, and layer normalization stabilizes the repeated transformer blocks."
+    },
+    "training": {
+      "title": "Training",
+      "body": "OpenAI's public Whisper paper frames training around large-scale weak supervision from web-scale multilingual speech paired with text. The training objective emphasizes robustness across accents, background noise, technical vocabulary, and many languages rather than leaderboard chasing on a single clean benchmark. The linked citations below are the stable primary sources for dataset framing, task definitions, and robustness goals."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Whisper is useful to read as an audio encoder-decoder system among multimodal models rather than as a chat model with a microphone attached. Readers still need the tokenizers overview to understand the text side of the interface, encoder-decoder architecture pages explain how audio features and text generation connect across modalities, and model family discovery surfaces show where Whisper sits among other architecture families."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Whisper architecture diagram showing audio waveforms converted into spectrogram-like features, encoded by an audio encoder, read by cross-attention in a text decoder that emits BPE tokens, and decoded into transcription or speech-translation text."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "transcriptionOutput": {
+        "label": "Transcription\nText",
+        "summary": "Written transcript in the same language as the spoken audio"
+      },
+      "translationOutput": {
+        "label": "Translation\nText",
+        "summary": "Written text in a target language that captures the spoken meaning"
+      },
+      "textTokens": {
+        "label": "Text\nTokens",
+        "summary": "BPE token sequence the decoder emits before detokenization"
+      },
+      "textDecoder": {
+        "label": "Text\nDecoder",
+        "summary": "Autoregressively generates text tokens while reading encoded audio context"
+      },
+      "crossAttention": {
+        "label": "Cross-\nAttention",
+        "summary": "Lets the decoder attend to audio encoder states across the utterance"
+      },
+      "audioEncoder": {
+        "label": "Audio\nEncoder",
+        "summary": "Transformer encoder that builds hidden states from time-frequency audio frames"
+      },
+      "spectrogramFeatures": {
+        "label": "Spectrogram-\nLike Features",
+        "summary": "Time-frequency frames extracted from the raw waveform"
+      },
+      "audioInput": {
+        "label": "Audio\nInput",
+        "summary": "Spoken waveform fed into the recognition or translation task"
+      }
+    }
+  }
+}

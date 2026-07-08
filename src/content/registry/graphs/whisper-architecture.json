@@ -1,0 +1,183 @@
+{
+  "id": "graph.whisper-architecture",
+  "slug": "whisper-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Whisper architecture graph", "Whisper audio-to-text flow"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "concept.encoder-decoder",
+    "module.cross-attention",
+    "module.bpe"
+  ],
+  "citationIds": [
+    "citation.whisper-robust-speech-recognition",
+    "citation.whisper-repository"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "subjectId": "model.whisper",
+  "graphType": "model-architecture",
+  "rootNodeId": "transcription-output",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "transcription-output",
+      "labelKey": "graph.nodes.transcriptionOutput.label",
+      "summaryKey": "graph.nodes.transcriptionOutput.summary",
+      "registryId": "concept.autoregressive-generation",
+      "moduleKind": "output",
+      "position": { "x": 155, "y": 0 },
+      "size": { "width": 170, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "translation-output",
+      "labelKey": "graph.nodes.translationOutput.label",
+      "summaryKey": "graph.nodes.translationOutput.summary",
+      "registryId": "concept.autoregressive-generation",
+      "moduleKind": "output",
+      "position": { "x": 405, "y": 0 },
+      "size": { "width": 170, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "text-tokens",
+      "labelKey": "graph.nodes.textTokens.label",
+      "summaryKey": "graph.nodes.textTokens.summary",
+      "registryId": "module.bpe",
+      "moduleKind": "output",
+      "position": { "x": 265, "y": 110 },
+      "size": { "width": 200, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "text-decoder",
+      "labelKey": "graph.nodes.textDecoder.label",
+      "summaryKey": "graph.nodes.textDecoder.summary",
+      "registryId": "concept.decoder",
+      "moduleKind": "block",
+      "position": { "x": 240, "y": 230 },
+      "size": { "width": 250, "height": 82 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "cross-attention",
+      "labelKey": "graph.nodes.crossAttention.label",
+      "summaryKey": "graph.nodes.crossAttention.summary",
+      "registryId": "module.cross-attention",
+      "moduleKind": "attention",
+      "position": { "x": 560, "y": 230 },
+      "size": { "width": 170, "height": 82 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "audio-encoder",
+      "labelKey": "graph.nodes.audioEncoder.label",
+      "summaryKey": "graph.nodes.audioEncoder.summary",
+      "registryId": "concept.encoder",
+      "moduleKind": "attention",
+      "position": { "x": 240, "y": 360 },
+      "size": { "width": 250, "height": 82 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "spectrogram-features",
+      "labelKey": "graph.nodes.spectrogramFeatures.label",
+      "summaryKey": "graph.nodes.spectrogramFeatures.summary",
+      "registryId": "concept.representation",
+      "moduleKind": "block",
+      "position": { "x": 265, "y": 480 },
+      "size": { "width": 200, "height": 62 },
+      "visualRole": "architecture-linear",
+      "childNodeIds": []
+    },
+    {
+      "id": "audio-input",
+      "labelKey": "graph.nodes.audioInput.label",
+      "summaryKey": "graph.nodes.audioInput.summary",
+      "registryId": "concept.modality",
+      "moduleKind": "input",
+      "position": { "x": 265, "y": 590 },
+      "size": { "width": 200, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "text-tokens-to-transcription-output",
+      "source": "text-tokens",
+      "target": "transcription-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "text-tokens-to-translation-output",
+      "source": "text-tokens",
+      "target": "translation-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "text-decoder-to-text-tokens",
+      "source": "text-decoder",
+      "target": "text-tokens",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "cross-attention-to-text-decoder",
+      "source": "cross-attention",
+      "target": "text-decoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "left",
+      "targetHandleSide": "right"
+    },
+    {
+      "id": "audio-encoder-to-cross-attention",
+      "source": "audio-encoder",
+      "target": "cross-attention",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "audio-encoder-to-text-decoder",
+      "source": "audio-encoder",
+      "target": "text-decoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "spectrogram-features-to-audio-encoder",
+      "source": "spectrogram-features",
+      "target": "audio-encoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "audio-input-to-spectrogram-features",
+      "source": "audio-input",
+      "target": "spectrogram-features",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    }
+  ]
+}
