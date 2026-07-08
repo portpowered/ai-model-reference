@@ -45,21 +45,6 @@ review lanes):
   `assets.json`, page-local media)
 - Matching primary registry record and page-specific supporting graph/table
   records
-- Page-owned slice verification tests colocated in the bundle (for example
-  `src/content/docs/models/bert/bert-slice-verification.test.tsx`). The audit
-  classifies these as `page-owned`; do not place routine page proof in
-  `src/lib/content/*.test.tsx` or `src/tests/content/*`.
-
-**Paper/model acronym collision (routine page-local):**
-
-When a new model page shares a bare acronym with an existing paper page (for
-example bare `BERT`), keep shared `*-paper-discovery.test.tsx` files unchanged.
-Set `messages.title` and frontmatter title to a non-colliding value such as
-`BERT model` so exact-title search keeps routing the acronym to the paper, while
-registry aliases and longer queries still discover `/docs/models/<slug>`. Avoid
-adding the `attention` tag on routine branches when it would force shared
-attention-tag inventory test updates; use `model-family` / `tokenization` tag
-surfaces in page-owned slice proof instead.
 
 **Supported derived (regenerate locally; keep out of routine commits):**
 
