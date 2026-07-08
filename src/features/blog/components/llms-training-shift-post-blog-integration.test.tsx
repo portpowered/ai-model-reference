@@ -5,8 +5,36 @@ import {
   loadBlogPostFromDisk,
 } from "@/lib/content/blog-page-load";
 import { renderBlogPostShell } from "@/lib/content/blog-shell-render";
+import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import { resolveRelatedRegistryDocs } from "@/lib/content/related-registry-docs";
 
 const BLOG_SLUG = "llms-no-longer-wholly-reliant-on-the-internet";
+
+const EXPECTED_RELATED_DOC_IDS = [
+  "training-regime.pretraining",
+  "training-regime.mid-training",
+  "training-regime.post-training",
+  "training-regime.instruction-tuning",
+  "training-regime.rlhf",
+  "training-regime.rlvr",
+  "concept.synthetic-data",
+  "training-regime.distillation",
+  "training-regime.on-policy-distillation",
+  "concept.on-policy",
+] as const;
+
+const EXPECTED_RELATED_DOC_HREFS = [
+  "/docs/training/pretraining",
+  "/docs/training/mid-training",
+  "/docs/training/post-training",
+  "/docs/training/instruction-tuning",
+  "/docs/training/rlhf",
+  "/docs/training/rlvr",
+  "/docs/concepts/synthetic-data",
+  "/docs/training/distillation",
+  "/docs/training/on-policy-distillation",
+  "/docs/concepts/on-policy",
+] as const;
 
 describe("llms training shift post blog integration", () => {
   test("published blog post renders on /blog/llms-no-longer-wholly-reliant-on-the-internet", async () => {
@@ -21,9 +49,17 @@ describe("llms training shift post blog integration", () => {
     expect(post.frontmatter.assetNamespace).toBe("local");
     expect(post.frontmatter.authors).toEqual(["site-team"]);
     expect(post.frontmatter.relatedDocIds).toEqual([
-      "training-regime.pretraining",
-      "training-regime.mid-training",
-      "training-regime.post-training",
+      ...EXPECTED_RELATED_DOC_IDS,
+    ]);
+    for (const registryId of EXPECTED_RELATED_DOC_IDS) {
+      expect(PUBLISHED_DOCS_REGISTRY_IDS.has(registryId)).toBe(true);
+    }
+    const resolvedRelatedDocs = resolveRelatedRegistryDocs(
+      post.frontmatter.relatedDocIds,
+    );
+    expect(resolvedRelatedDocs.unavailable).toEqual([]);
+    expect(resolvedRelatedDocs.available.map((item) => item.href)).toEqual([
+      ...EXPECTED_RELATED_DOC_HREFS,
     ]);
     expect(html).toContain("LLMs are no longer wholly reliant on the internet");
     expect(html).toContain(
@@ -80,11 +116,17 @@ describe("llms training shift post blog integration", () => {
     );
     expect(html).toContain("without changing weights");
     expect(html).toContain("Post-training does not erase pretraining");
-    expect(html).toContain('href="/docs/training/pretraining"');
-    expect(html).toContain('href="/docs/training/mid-training"');
-    expect(html).toContain('href="/docs/training/post-training"');
+    expect(html).toContain('data-testid="blog-related-docs"');
+    for (const href of EXPECTED_RELATED_DOC_HREFS) {
+      expect(html).toContain(`href="${href}"`);
+    }
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('href="/tags/alignment"');
-    expect(html).not.toContain("training-regime.pretraining");
+    for (const registryId of EXPECTED_RELATED_DOC_IDS) {
+      expect(html).not.toContain(registryId);
+    }
+    expect(html).not.toContain(
+      'data-testid="related-registry-docs-unavailable"',
+    );
   });
 });
