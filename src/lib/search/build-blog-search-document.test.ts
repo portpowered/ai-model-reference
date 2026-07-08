@@ -199,3 +199,80 @@ Serving repeatedly reads weights from memory.
     { timeout: 20_000 },
   );
 });
+
+const ROOFLINE_MAX_THROUGHPUT_URL = "/blog/roofline-max-throughput";
+
+const ROOFLINE_MAX_THROUGHPUT_SEARCH_QUERIES = [
+  "roofline throughput",
+  "maximum throughput",
+  "memory bandwidth tokens per second",
+  "FLOPs throughput",
+] as const;
+
+describe("roofline max throughput blog search discovery", () => {
+  test("indexes the production post with title, description, headings, tags, and prose without MDX component names", async () => {
+    const indexes = await loadRegistry();
+    const posts = await loadBlogSearchPostSources();
+    const document = buildBlogSearchDocuments(posts, indexes).find(
+      (entry) => entry.url === ROOFLINE_MAX_THROUGHPUT_URL,
+    );
+
+    expect(document).toMatchObject({
+      id: ROOFLINE_MAX_THROUGHPUT_URL,
+      url: ROOFLINE_MAX_THROUGHPUT_URL,
+      kind: BLOG_SEARCH_DOCUMENT_KIND,
+      title:
+        "Roofline maximum throughput: the practical upper bound before you compare hardware",
+      description:
+        "How peak compute FLOPs, memory bandwidth, parameter precision, and active weight size jointly set the maximum tokens-per-second bound for inference serving.",
+      publishedAt: "2026-07-08",
+      tags: ["foundations", "kv-cache"],
+    });
+    expect(document?.headings).toEqual(
+      expect.arrayContaining([
+        "Peak FLOPs alone do not set tokens per second",
+        "What maximum throughput means in practice",
+        "Explore the throughput bound",
+      ]),
+    );
+    expect(document?.bodyText).toContain(
+      "Peak accelerator FLOPs look impressive on a spec sheet",
+    );
+    expect(document?.bodyText).toContain("memory-bound slope");
+    expect(document?.bodyText).not.toContain("RooflineThroughputExplorer");
+    expect(document?.bodyText).not.toContain("BlogRelatedDocs");
+    expect(document?.aliases).toEqual(
+      expect.arrayContaining(["foundations", "kv-cache"]),
+    );
+  });
+
+  test(
+    "search returns the post for representative roofline throughput queries",
+    async () => {
+      for (const query of ROOFLINE_MAX_THROUGHPUT_SEARCH_QUERIES) {
+        const results = await docsSearchApi.search(query);
+        expect(
+          results.some((result) => result.url === ROOFLINE_MAX_THROUGHPUT_URL),
+          `expected ${ROOFLINE_MAX_THROUGHPUT_URL} for query "${query}"`,
+        ).toBe(true);
+      }
+    },
+    { timeout: 20_000 },
+  );
+
+  test(
+    "tag-filtered search returns the post on foundations and kv-cache tag pages",
+    async () => {
+      for (const tag of ["foundations", "kv-cache"] as const) {
+        const results = await docsSearchApi.search("throughput", {
+          tag: [tag],
+        });
+        expect(
+          results.some((result) => result.url === ROOFLINE_MAX_THROUGHPUT_URL),
+          `expected ${ROOFLINE_MAX_THROUGHPUT_URL} for tag "${tag}"`,
+        ).toBe(true);
+      }
+    },
+    { timeout: 20_000 },
+  );
+});
