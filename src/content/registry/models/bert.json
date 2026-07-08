@@ -1,0 +1,61 @@
+{
+  "id": "model.bert",
+  "slug": "bert",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "BERT",
+    "bert",
+    "Bidirectional Encoder Representations from Transformers",
+    "BERT base",
+    "BERT large",
+    "encoder-only transformer",
+    "bidirectional transformer encoder"
+  ],
+  "tags": ["foundations", "model-family", "tokenization"],
+  "relatedIds": [
+    "paper.bert-pre-training-of-deep-bidirectional-transformers",
+    "concept.transformer-architecture",
+    "concept.self-attention",
+    "concept.encoder",
+    "concept.tokenizers-overview",
+    "module.wordpiece",
+    "module.bidirectional-attention",
+    "module.multi-head-attention",
+    "training-regime.pretraining"
+  ],
+  "citationIds": [
+    "citation.bert-pre-training-of-deep-bidirectional-transformers"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "authors": [
+    "Jacob Devlin",
+    "Ming-Wei Chang",
+    "Kenton Lee",
+    "Kristina Toutanova"
+  ],
+  "sourceId": "citation.bert-pre-training-of-deep-bidirectional-transformers",
+  "family": "bert",
+  "sourceType": "research",
+  "modalities": ["text"],
+  "architectureIds": ["concept.transformer-architecture", "concept.encoder"],
+  "moduleIds": [
+    "module.wordpiece",
+    "module.bidirectional-attention",
+    "module.multi-head-attention",
+    "module.gelu",
+    "module.layer-norm",
+    "module.learned-positional-embeddings",
+    "module.standard-ffn"
+  ],
+  "trainingRegimeIds": ["training-regime.pretraining"],
+  "datasetIds": [],
+  "paperIds": ["paper.bert-pre-training-of-deep-bidirectional-transformers"],
+  "releaseDate": "2018-10-11",
+  "parameterCount": "110 million to 340 million parameters",
+  "contextLength": 512,
+  "precision": ["float32"]
+}

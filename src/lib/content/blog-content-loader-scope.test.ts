@@ -31,6 +31,7 @@ describe("blog content loader lane isolation", () => {
 
     expect(slugs).toEqual(
       [
+        "evolution-of-diffusion",
         "llm-training-shift",
         "roofline-max-throughput",
         "roofline-throughput-explorer",

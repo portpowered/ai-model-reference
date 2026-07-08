@@ -1,0 +1,20 @@
+{
+  "id": "citation.gemma-3n-deepmind",
+  "slug": "gemma-3n-deepmind",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Gemma 3n", "Gemma 3n model page", "Gemma 3n on-device"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["citation.gemma-3-deepmind", "citation.gemma-deepmind-family"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["Google DeepMind"],
+  "title": "Gemma 3n — Google DeepMind",
+  "url": "https://deepmind.google/models/gemma/gemma-3n/",
+  "mla": "Google DeepMind. \"Gemma 3n — Google DeepMind.\" Google DeepMind, 2025.",
+  "year": 2025
+}

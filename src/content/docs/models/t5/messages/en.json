@@ -1,0 +1,141 @@
+{
+  "title": "T5",
+  "description": "An encoder-decoder transformer from Google Research that reformulates every NLP task as reading text and writing text in a shared token space.",
+  "openingSummary": "Text-to-Text Transfer Transformer (T5) is a transformer model family that treats translation, summarization, classification, and similar jobs as the same interface: read a text prompt, run it through an encoder that builds context, then let a decoder generate the answer as more text.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Text-to-Text Transfer Transformer (T5) is an encoder-decoder transformer model family from Google Research. Instead of building a separate model head for every task, T5 reformulates natural language problems as text-to-text: the model always reads text and writes text. That unified interface made T5 a central reference for transfer learning because the same pretrained weights can be steered toward many downstream jobs by changing only the input and target wording."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "T5 reads tokenized text and produces tokenized text. Input and output share one SentencePiece vocabulary, so a classification label, a translation, or a summary is just another text string on the output side. In practice, each task uses a short text prefix or template in the input—such as \"translate English to German:\" or \"summarize:\"—so the model knows which behavior to apply while the token interface stays the same."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "T5 follows an encoder-decoder layout. The encoder stack reads the full input sequence with bidirectional self-attention so every token can gather context from the whole prompt. The decoder stack then generates output tokens one at a time: masked self-attention keeps each new token from peeking ahead, and cross-attention lets decoder states read the encoder's hidden states. T5 also replaces absolute position embeddings with relative position bias, so attention scores depend on token distance rather than a fixed position vector added to every embedding."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The registry-linked modules below are the main pieces that define T5's behavior. SentencePiece tokenization turns raw text into shared input and output pieces. Relative position bias supplies distance-aware attention inside both stacks. Multi-head attention moves information across tokens, cross-attention connects encoder context to the decoder, layer normalization stabilizes each block, and the standard feed-forward network applies a local dense transform at every position."
+    },
+    "training": {
+      "title": "Training",
+      "body": "T5 pretraining uses a denoising objective called span corruption: random contiguous spans in the input text are replaced with sentinel tokens, and the model learns to reconstruct the missing pieces as its text output. That stage runs on large cleaned web text, after which supervised fine-tuning adapts the same weights to downstream benchmarks by formatting each example as a text-to-text pair. The linked training regimes and reference below point to the primary records for those stages."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "T5 remains a widely cited baseline for encoder-decoder transfer learning because it showed how one text interface could cover many NLP tasks without redesigning the model for each benchmark. Public checkpoints span several sizes, so quality and compute trade off predictably. At inference time you still choose the right task prefix or template, and the default 512-token context window is short by modern standards, but the text-to-text recipe influenced many later seq2seq and instruction-tuned systems."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "T5 architecture diagram with input text tokenized by SentencePiece, shared input embeddings, an encoder stack using relative position bias and bidirectional self-attention, cross-attention bridging encoder states into a decoder stack with masked self-attention, a linear vocabulary head, and autoregressive output text generation."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputText": {
+        "label": "Output\nText",
+        "summary": "Generated text tokens emitted one step at a time"
+      },
+      "linear": {
+        "label": "Linear",
+        "summary": "Projects decoder hidden states into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated decoder block container"
+      },
+      "decoderAttentionSublayer": {
+        "label": " ",
+        "summary": "Decoder attention sublayer container"
+      },
+      "decoderFfnSublayer": {
+        "label": " ",
+        "summary": "Decoder feed-forward sublayer container"
+      },
+      "decoderRepeatMarker": {
+        "label": "N×",
+        "summary": "Decoder blocks repeat through the stack"
+      },
+      "decoderAddNormAttention": {
+        "label": "Add & Norm",
+        "summary": "Residual add and normalization after decoder attention"
+      },
+      "maskedMha": {
+        "label": "Masked\nMulti-Head\nAttention",
+        "summary": "Decoder self-attention that can read earlier output tokens only"
+      },
+      "decoderAddNormFfn": {
+        "label": "Add & Norm",
+        "summary": "Residual add and normalization after the decoder feed-forward block"
+      },
+      "decoderFeedForward": {
+        "label": "Feed\nForward",
+        "summary": "Per-token dense transform inside each decoder block"
+      },
+      "crossAttention": {
+        "label": "Cross\nAttention",
+        "summary": "Decoder queries attend to encoder key-value states"
+      },
+      "encoderStack": {
+        "label": " ",
+        "summary": "Repeated encoder block container"
+      },
+      "encoderAttentionSublayer": {
+        "label": " ",
+        "summary": "Encoder attention sublayer container"
+      },
+      "encoderFfnSublayer": {
+        "label": " ",
+        "summary": "Encoder feed-forward sublayer container"
+      },
+      "encoderRepeatMarker": {
+        "label": "N×",
+        "summary": "Encoder blocks repeat through the stack"
+      },
+      "encoderAddNormAttention": {
+        "label": "Add & Norm",
+        "summary": "Residual add and normalization after encoder attention"
+      },
+      "bidirectionalMha": {
+        "label": "Bidirectional\nMulti-Head\nAttention",
+        "summary": "Encoder self-attention with full-sequence context on the input"
+      },
+      "encoderAddNormFfn": {
+        "label": "Add & Norm",
+        "summary": "Residual add and normalization after the encoder feed-forward block"
+      },
+      "encoderFeedForward": {
+        "label": "Feed\nForward",
+        "summary": "Per-token dense transform inside each encoder block"
+      },
+      "relativePositionBias": {
+        "label": "Relative\nPosition\nBias",
+        "summary": "Bucketed distance bias added to encoder attention scores"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs to hidden vectors shared by encoder and decoder"
+      },
+      "sentencepiece": {
+        "label": "SentencePiece\nTokenization",
+        "summary": "Splits raw text into subword tokens for the shared vocabulary"
+      },
+      "inputText": {
+        "label": "Input\nText",
+        "summary": "Source prompt or task text before tokenization"
+      }
+    }
+  }
+}

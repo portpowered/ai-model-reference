@@ -1,0 +1,121 @@
+{
+  "title": "Gemma",
+  "description": "Open model family from Google DeepMind with Gemma 4 as the current main line, spanning Effective 2B and 4B edge checkpoints through 12B, 26B mixture-of-experts, and 31B dense variants with native text, image, and audio input, thinking-mode reasoning, and Apache 2.0 licensing.",
+  "openingSummary": "Gemma is Google DeepMind's open model family for developers and researchers. Gemma 4 is the current main line, offering native text, image, and audio understanding with Apache 2.0 weights that scale from on-device Effective 2B and 4B checkpoints through 12B, 26B mixture-of-experts, and 31B dense variants.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Gemma is an open-weights model family from Google DeepMind, with Gemma 4 as the current main release announced on 2026-04-02. Google positions Gemma as inspectable, adaptable open models rather than a closed API-only platform. Earlier Gemma 3 and Gemma 3n lines remain useful family context for multimodal and on-device history, while specialized Gemmaverse members such as embedding, safety, medical, and translation variants extend the family without replacing Gemma 4 as the primary line described here."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Gemma 4 accepts text, images, and audio as native inputs and produces text outputs through autoregressive generation. Public materials describe a thinking-mode path that lets the model reason before returning a final answer. Effective 2B and 4B checkpoints target edge and on-device deployment with tighter memory and latency budgets, while the 12B dense checkpoint offers a mid-size server path. The 26B A4B mixture of experts variant stores more total capacity while activating a smaller expert subset per token, and the 31B dense checkpoint is the largest single-stack option in the family. Google advertises context length up to 256K tokens across the line, so long prompts and multimodal references can stay in context when hardware allows."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Google DeepMind describes Gemma 4 as a transformer block family with multimodal architecture support for text, image, and audio references feeding one backbone. Dense checkpoints at 12B and 31B keep the familiar repeated attention and feed-forward transformer stack, while the 26B A4B checkpoint uses mixture of experts routing on the feed-forward path so total parameter capacity can grow without paying full dense cost on every token. Public sources highlight long-context attention out to 256K tokens, per-layer embeddings on selected variants, and inference-oriented optimizations such as draft-token acceptance described in release materials. The architecture graph below shows that multimodal flow at a high level; dense variants swap the expert router for a standard feed-forward path. Earlier Gemma 3 and Gemma 3n releases mainly matter as family history for multimodal and on-device experimentation; they do not replace Gemma 4 as the architectural reference point on this page."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The registry-linked modules and concepts below explain the mechanisms named most often in Gemma 4 materials. Mixture of experts routing matters for the 26B family member, attention carries long context length across the prompt, multimodal models explains how non-text references enter the same backbone, and the tokenizers overview anchors how text is segmented before the transformer block stack runs."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Google's public Gemma materials summarize training at the family level and emphasize open-weight release under Apache 2.0 rather than publishing a full reproducible recipe on this overview. Treat training statements here as orientation from primary release pages and the technical report, not a step-by-step lab checklist."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Read Gemma 4 as an open multimodal family that spans phone-scale edge deployment through larger server checkpoints, with Apache 2.0 licensing broadening adaptation and redistribution options. Effective 2B and 4B variants trade peak quality for on-device feasibility, the 12B dense checkpoint is the practical middle tier for single-GPU or modest server setups, the 26B mixture of experts member is the capacity-efficient path when you need a larger expert pool without a full dense feed-forward on every token, and the 31B dense variant is the upper bound when memory budget allows. Confirm checkpoint availability, quantization formats, and deployment targets in the linked Google and DeepMind release pages and use the related inference-engine and deployment records for serving context rather than treating this overview as a product catalog or model-ranking page."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Gemma 4 architecture diagram showing text, image, and audio inputs encoded into a shared multimodal backbone, long-context attention and mixture-of-experts or dense feed-forward decoder blocks, and autoregressive text output."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputProbabilities": {
+        "label": "Text\nOutput",
+        "summary": "Autoregressive text generation from the Gemma 4 backbone"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Output\nLinear",
+        "summary": "Projects the final hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated Gemma 4 decoder block container"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Long-context attention sublayer container"
+      },
+      "moeSublayer": {
+        "label": " ",
+        "summary": "Feed-forward sublayer container for MoE or dense variants"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats through the full stack"
+      },
+      "rmsnormAttention": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before the attention step"
+      },
+      "longContextAttention": {
+        "label": "Long-Context\nAttention",
+        "summary": "Attention stack supporting context length up to 256K tokens"
+      },
+      "rmsnormMoe": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before the feed-forward step"
+      },
+      "moeRouting": {
+        "label": "MoE or\nDense FFN",
+        "summary": "Expert routing on the 26B A4B variant; dense feed-forward on 12B and 31B checkpoints"
+      },
+      "ropeInject": {
+        "label": "+",
+        "summary": "Applies token states together with rotary position information before the stack"
+      },
+      "rope": {
+        "label": "RoPE",
+        "summary": "Rotary position encoding gives the attention stack token order information"
+      },
+      "inputEmbedding": {
+        "label": "Token\nEmbedding",
+        "summary": "Maps encoded multimodal references into hidden vectors"
+      },
+      "multimodalEncoding": {
+        "label": "Multimodal\nEncoding",
+        "summary": "Encodes text, image, and audio references into one shared backbone"
+      },
+      "textInput": {
+        "label": "Text\nInput",
+        "summary": "Natural-language prompts and instructions"
+      },
+      "imageInput": {
+        "label": "Image\nInput",
+        "summary": "Still images that ground visual references"
+      },
+      "audioInput": {
+        "label": "Audio\nInput",
+        "summary": "Audio references for speech or sound context"
+      }
+    }
+  }
+}
