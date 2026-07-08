@@ -73,3 +73,15 @@ Story 004 deepens localized copy in `messages/en.json` only:
 - Prose auto-link phrases (`encoder-decoder architecture`, `tokenizers overview`, `multimodal models`, `model family`) surface inline discovery links via `ProseAutoLinkText`.
 
 Focused observable guard extensions live in `src/lib/content/whisper-model-page.test.tsx` under the architecture/training narrative tests.
+
+## Slice verification (story 006)
+
+Consolidated review-facing proof for registry/page validation, link resolution,
+search and tag discovery, and browser-visible route success:
+
+| Artifact | Path |
+| --- | --- |
+| Slice verification tests | `src/lib/content/whisper-slice-verification.test.tsx` |
+
+Quality gates: `bun run typecheck`, `make validate-data`, `make linkcheck`, and
+focused whisper tests (`bun test src/lib/content/whisper-*.test.ts*`).
