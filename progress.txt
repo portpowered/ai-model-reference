@@ -7,7 +7,7 @@
 - When adding a published blog post, update `blog-content-loader-scope.test.ts` and `blog-tag-landing.test.ts` slug inventories (newest-first on tag pages).
 - Blog inline canonical links use markdown `[label](/docs/...)` syntax; `validate-data` / `validatePublishedBlogPosts` rejects broken reader-visible MDX links.
 - Blog search discovery tests live in `build-blog-search-document.test.ts` under a post-specific `describe` block; assert document fields, representative `docsSearchApi.search` queries, and tag-filtered search without full-site route inventories.
-- Responsive blog post verification: add `roofline-max-throughput-responsive-verification.test.tsx` for desktop/mobile Playwright probes, keyboard tab order, and missing-preset fallbacks; reuse `verifyRooflineThroughputExplorerViewports` on `renderBlogPostShell` HTML.
+- Responsive blog post verification: RTL tests in `roofline-max-throughput-responsive-verification.test.tsx`; Playwright viewport probes in `src/lib/verify/roofline-max-throughput-blog-viewport-http.test.tsx` (main `make test` excludes `src/lib/verify/`—probes run under `test-verify-contract`).
 
 ## 2026-07-08T08:15:00Z - roofline-max-throughput-post-001
 - Published English-first blog post at `/blog/roofline-max-throughput` with local message/asset namespaces, published status, site-team author, 2026-07-08 dates, foundations + kv-cache tags, and nine canonical throughput-related doc IDs in frontmatter and `BlogRelatedDocs`.
@@ -58,4 +58,5 @@
   - Patterns discovered: mirror `roofline-post` lane story 005—reuse `verifyRooflineThroughputExplorerViewports` on full `renderBlogPostShell` output and gate served-route Playwright probes with `shouldRunVerifyProductionIntegrationTests`.
   - Gotchas encountered: assert the current `messages/en.json` title in shell tests, not titles from parallel worktree branches.
   - Useful context: RTL keyboard tab tests focus controls directly; Playwright viewport probes need `shouldRunPlaywrightHttpVerifierUnitTests` gate.
+  - Gotchas encountered (CI): Playwright probes must live under `src/lib/verify/`—`make test` excludes that prefix and lacks browser binaries; register new verifier files in `scripts/run-website-verifier-tests.ts`.
 ---
