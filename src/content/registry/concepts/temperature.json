@@ -8,8 +8,11 @@
   "tags": ["token-to-probability-chain", "foundations"],
   "relatedIds": [
     "concept.softmax",
+    "concept.entropy",
     "concept.sampling-overview",
-    "concept.greedy-decoding"
+    "concept.greedy-decoding",
+    "concept.top-k-sampling",
+    "concept.top-p-sampling"
   ],
   "citationIds": [
     "citation.curious-case-neural-text-degeneration",
@@ -17,7 +20,7 @@
   ],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
-  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-07-03T00:00:00.000Z",
   "primaryClassificationId": "classification.concept.inference",
   "conceptType": "general",
   "prerequisiteIds": ["concept.softmax"],

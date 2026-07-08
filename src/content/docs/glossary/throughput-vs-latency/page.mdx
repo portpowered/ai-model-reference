@@ -1,0 +1,104 @@
+---
+title: Throughput Vs Latency
+description: The serving tradeoff between aggregate completed work over time and the wait experienced by an individual request under concurrency.
+kind: "glossary"
+registryId: "concept.throughput-vs-latency"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - kv-cache
+aliases:
+  - "Throughput Vs Latency"
+  - "throughput vs latency"
+  - "latency throughput tradeoff"
+  - "serving throughput"
+  - "concurrency latency tradeoff"
+  - "throughput-latency tradeoff"
+updatedAt: "2026-07-08"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="under-load" titleKey="sections.underLoad.title">
+  <T k="sections.underLoad.body" />
+</Section>
+
+<Section id="runtime-pressure" titleKey="sections.runtimePressure.title">
+  <T k="sections.runtimePressure.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="serving-path" titleKey="sections.servingPath.title">
+  <T k="sections.servingPath.body" />
+  <LocalizedLinkList
+    items={[
+      {
+        href: "/docs/glossary/tokens-per-second",
+        labelKey: "links.tokensPerSecond",
+      },
+      {
+        href: "/docs/glossary/time-to-first-token",
+        labelKey: "links.timeToFirstToken",
+      },
+      {
+        href: "/docs/glossary/inter-token-latency",
+        labelKey: "links.interTokenLatency",
+      },
+      { href: "/docs/concepts/prefill", labelKey: "links.prefill" },
+      { href: "/docs/glossary/decode", labelKey: "links.decode" },
+      {
+        href: "/docs/concepts/prefill-decode-split",
+        labelKey: "links.prefillDecodeSplit",
+      },
+      { href: "/docs/systems/batching", labelKey: "links.batching" },
+      {
+        href: "/docs/systems/dynamic-batching",
+        labelKey: "links.dynamicBatching",
+      },
+      {
+        href: "/docs/systems/request-scheduling",
+        labelKey: "links.requestScheduling",
+      },
+      { href: "/docs/systems/deployment", labelKey: "links.deployment" },
+      { href: "/docs/systems/memory", labelKey: "links.memory" },
+      {
+        href: "/docs/systems/inference-engine",
+        labelKey: "links.inferenceEngine",
+      },
+    ]}
+  />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="concept.throughput-vs-latency" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.throughput-vs-latency" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.throughput-vs-latency" />
+</Section>
