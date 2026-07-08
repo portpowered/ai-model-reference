@@ -2,23 +2,24 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { renderToStaticMarkup } from "react-dom/server";
-import type { RooflineModelSizePreset } from "@/lib/content/roofline-model-size-presets";
 import {
   blogPostHref,
   loadBlogPostFromDisk,
 } from "@/lib/content/blog-page-load";
 import { renderBlogPostShell } from "@/lib/content/blog-shell-render";
+import type { RooflineModelSizePreset } from "@/lib/content/roofline-model-size-presets";
+import { shouldRunPlaywrightHttpVerifierUnitTests } from "@/lib/verify/export-integration-probe-lock";
 import {
   closePlaywrightBrowserWithTimeout,
   launchPlaywrightBrowser,
 } from "@/lib/verify/launch-playwright-browser";
-import { shouldRunPlaywrightHttpVerifierUnitTests } from "@/lib/verify/export-integration-probe-lock";
 import { verifyRooflineThroughputExplorerViewports } from "@/lib/verify/roofline-throughput-explorer-viewport-http";
 import {
   acquireVerifyServerSession,
   shouldRunVerifyProductionIntegrationTests,
 } from "@/lib/verify/server-lifecycle";
+import { RooflineThroughputExplorer } from "./RooflineThroughputExplorer";
+import { RooflineThroughputExplorerFromRegistry } from "./RooflineThroughputExplorerFromRegistry";
 import {
   ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_LEGEND_LABEL,
   ROOFLINE_THROUGHPUT_BOUNDARY_LEGEND_LABEL,
@@ -34,8 +35,6 @@ import {
   ROOFLINE_EMPTY_PRESETS_MESSAGE,
   ROOFLINE_MODEL_PRESET_CONTROL_LABEL,
 } from "./roofline-throughput-explorer-presets";
-import { RooflineThroughputExplorer } from "./RooflineThroughputExplorer";
-import { RooflineThroughputExplorerFromRegistry } from "./RooflineThroughputExplorerFromRegistry";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const BLOG_SLUG = "roofline-max-throughput";
@@ -79,7 +78,9 @@ function rectsOverlap(a: LayoutRect, b: LayoutRect): boolean {
 }
 
 function assertExplorerBehavioralSurface(container: HTMLElement) {
-  expect(container.textContent).toContain(ROOFLINE_THROUGHPUT_EXPLORER_CHART_LABEL);
+  expect(container.textContent).toContain(
+    ROOFLINE_THROUGHPUT_EXPLORER_CHART_LABEL,
+  );
   expect(container.textContent).toContain(ROOFLINE_THROUGHPUT_EXPLORER_AXIS_X);
   expect(container.textContent).toContain(ROOFLINE_THROUGHPUT_EXPLORER_AXIS_Y);
   expect(container.textContent).toContain(
@@ -90,7 +91,9 @@ function assertExplorerBehavioralSurface(container: HTMLElement) {
   );
 
   expect(
-    container.querySelector('[data-graph-legend="roofline-throughput-explorer"]'),
+    container.querySelector(
+      '[data-graph-legend="roofline-throughput-explorer"]',
+    ),
   ).toBeTruthy();
   expect(
     container.querySelector('[data-roofline-throughput-explorer="chart"]'),
@@ -153,7 +156,9 @@ describe("roofline max throughput responsive verification (005)", () => {
     const { container } = render(<RooflineThroughputExplorerFromRegistry />);
 
     const presetControl = screen.getByTestId("roofline-model-preset");
-    const activeWeightControl = screen.getByTestId("roofline-active-weight-size");
+    const activeWeightControl = screen.getByTestId(
+      "roofline-active-weight-size",
+    );
     const bytesControl = screen.getByTestId("roofline-bytes-per-parameter");
 
     expect(screen.getByLabelText(ROOFLINE_MODEL_PRESET_CONTROL_LABEL)).toBe(
@@ -243,7 +248,9 @@ describe("roofline max throughput responsive verification (005)", () => {
 
     expect(screen.getByText(ROOFLINE_EMPTY_PRESETS_MESSAGE)).toBeTruthy();
     expect(
-      container.querySelector('[data-roofline-throughput-explorer="empty-presets"]'),
+      container.querySelector(
+        '[data-roofline-throughput-explorer="empty-presets"]',
+      ),
     ).toBeTruthy();
     expect(
       screen.getByLabelText(ROOFLINE_ACTIVE_WEIGHT_SIZE_CONTROL_LABEL),

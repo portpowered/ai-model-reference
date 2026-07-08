@@ -221,8 +221,7 @@ describe("roofline max throughput blog search discovery", () => {
       id: ROOFLINE_MAX_THROUGHPUT_URL,
       url: ROOFLINE_MAX_THROUGHPUT_URL,
       kind: BLOG_SEARCH_DOCUMENT_KIND,
-      title:
-        "Roofline maximum throughput: when bandwidth beats peak FLOPs",
+      title: "Roofline maximum throughput: when bandwidth beats peak FLOPs",
       description:
         "How memory bandwidth, compute FLOPs, precision, and active weight size jointly bound the maximum tokens per second a language model can achieve during serving.",
       publishedAt: "2026-07-08",
@@ -267,7 +266,9 @@ describe("roofline max throughput blog search discovery", () => {
     "tag-filtered search returns the post on foundations and kv-cache tag pages",
     async () => {
       for (const tag of ["foundations", "kv-cache"] as const) {
-        const results = await docsSearchApi.search("throughput", { tag: [tag] });
+        const results = await docsSearchApi.search("throughput", {
+          tag: [tag],
+        });
         expect(
           results.some((result) => result.url === ROOFLINE_MAX_THROUGHPUT_URL),
           `expected ${ROOFLINE_MAX_THROUGHPUT_URL} for tag "${tag}"`,
