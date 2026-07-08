@@ -56,6 +56,7 @@ describe("groupTagIndexEntriesByCategory", () => {
     ]);
     expect(groups[0]?.tags.map((tag) => tag.slug)).toEqual([
       "foundations",
+      "hardware-distributed",
       "taxonomy",
       "token-to-probability-chain",
     ]);
@@ -149,6 +150,8 @@ describe("tags index page render", () => {
     expect(html).toContain("Tags");
     expect(html).toContain("Foundations");
     expect(html).toContain('href="/tags/foundations"');
+    expect(html).toContain("Hardware and distributed systems");
+    expect(html).toContain('href="/tags/hardware-distributed"');
     expect(html).toContain("Taxonomy");
     expect(html).toContain('href="/tags/taxonomy"');
     expect(html).toContain("Model family");

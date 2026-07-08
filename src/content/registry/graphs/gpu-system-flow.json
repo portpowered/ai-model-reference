@@ -1,0 +1,109 @@
+{
+  "id": "graph.gpu-system-flow",
+  "slug": "gpu-system-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GPU system flow", "graphics processing unit flow"],
+  "tags": ["foundations", "hardware-distributed"],
+  "relatedIds": [],
+  "citationIds": ["citation.goodfellow-deep-learning"],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "subjectId": "system.gpu",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "liveState",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "liveState",
+      "labelKey": "graph.nodes.liveState.label",
+      "moduleKind": "input",
+      "position": { "x": 260, "y": 0 },
+      "size": { "width": 260, "height": 88 },
+      "visualRole": "process-node",
+      "childNodeIds": ["parallelCores"]
+    },
+    {
+      "id": "parallelCores",
+      "labelKey": "graph.nodes.parallelCores.label",
+      "moduleKind": "block",
+      "position": { "x": 260, "y": 128 },
+      "size": { "width": 250, "height": 96 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["matrixWork", "memoryLimits"]
+    },
+    {
+      "id": "matrixWork",
+      "labelKey": "graph.nodes.matrixWork.label",
+      "moduleKind": "operation",
+      "position": { "x": 90, "y": 286 },
+      "size": { "width": 250, "height": 96 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["tensorCores"]
+    },
+    {
+      "id": "memoryLimits",
+      "labelKey": "graph.nodes.memoryLimits.label",
+      "moduleKind": "cache",
+      "position": { "x": 430, "y": 286 },
+      "size": { "width": 250, "height": 96 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["tensorCores"]
+    },
+    {
+      "id": "tensorCores",
+      "labelKey": "graph.nodes.tensorCores.label",
+      "moduleKind": "output",
+      "position": { "x": 260, "y": 444 },
+      "size": { "width": 260, "height": 96 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "live-state-parallel-cores",
+      "source": "liveState",
+      "target": "parallelCores",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "parallel-cores-matrix-work",
+      "source": "parallelCores",
+      "target": "matrixWork",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "left",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "parallel-cores-memory-limits",
+      "source": "parallelCores",
+      "target": "memoryLimits",
+      "edgeKind": "cache-write",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "matrix-work-tensor-cores",
+      "source": "matrixWork",
+      "target": "tensorCores",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "left"
+    },
+    {
+      "id": "memory-limits-tensor-cores",
+      "source": "memoryLimits",
+      "target": "tensorCores",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "right"
+    }
+  ]
+}

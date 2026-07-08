@@ -1,0 +1,39 @@
+{
+  "id": "system.gpu",
+  "slug": "gpu",
+  "kind": "system",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GPU", "graphics processing unit", "AI accelerator"],
+  "tags": ["foundations", "hardware-distributed"],
+  "relatedIds": [
+    "concept.memory-bandwidth",
+    "concept.roofline-model",
+    "concept.quantization",
+    "concept.flops",
+    "system.inference-engine",
+    "system.batching",
+    "system.deployment",
+    "system.memory"
+  ],
+  "citationIds": ["citation.goodfellow-deep-learning"],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "releaseDate": "2016-11-18",
+  "authors": ["Ian Goodfellow", "Yoshua Bengio", "Aaron Courville"],
+  "sourceId": "citation.goodfellow-deep-learning",
+  "systemType": "other",
+  "relatedModelIds": [],
+  "relatedModuleIds": [],
+  "relatedConceptIds": [
+    "concept.memory-bandwidth",
+    "concept.roofline-model",
+    "concept.quantization",
+    "concept.flops"
+  ],
+  "paperIds": [],
+  "datasetIds": [],
+  "conceptType": "inference",
+  "variantGroup": "hardware-distributed"
+}
