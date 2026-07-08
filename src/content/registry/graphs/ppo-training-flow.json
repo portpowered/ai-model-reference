@@ -1,0 +1,73 @@
+{
+  "id": "graph.ppo-training-flow",
+  "slug": "ppo-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "ppo training flow",
+    "proximal policy optimization training flow"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.proximal-policy-optimization-algorithms",
+    "citation.training-language-models-to-follow-instructions-with-human-feedback"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "training-regime.ppo",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "rollout",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "rollout",
+      "labelKey": "graph.nodes.rollout.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["score"]
+    },
+    {
+      "id": "score",
+      "labelKey": "graph.nodes.score.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["update"]
+    },
+    {
+      "id": "update",
+      "labelKey": "graph.nodes.update.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "rollout-score",
+      "source": "rollout",
+      "target": "score",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "score-update",
+      "source": "score",
+      "target": "update",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "id": "citation.proximal-policy-optimization-algorithms",
+  "slug": "proximal-policy-optimization-algorithms",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["PPO paper", "Proximal Policy Optimization paper"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "John Schulman",
+    "Filip Wolski",
+    "Prafulla Dhariwal",
+    "Alec Radford",
+    "Oleg Klimov"
+  ],
+  "title": "Proximal Policy Optimization Algorithms",
+  "year": 2017,
+  "url": "https://arxiv.org/abs/1707.06347",
+  "mla": "Schulman, John, et al. \"Proximal Policy Optimization Algorithms.\" arXiv, 2017, https://arxiv.org/abs/1707.06347."
+}
