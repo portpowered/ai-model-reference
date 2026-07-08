@@ -1,0 +1,65 @@
+{
+  "title": "BERT",
+  "description": "An encoder-only transformer that learns bidirectional text representations through masked language modeling pretraining.",
+  "openingSummary": "Bidirectional Encoder Representations from Transformers (BERT) is an encoder-only transformer that reads whole token sequences at once and learns contextual vectors for each position, which is why it became the standard starting point for classification and understanding tasks rather than open-ended text generation.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Bidirectional Encoder Representations from Transformers (BERT) is a research text model from Google that popularized deep bidirectional transformer encoders. It is encoder-only: it reads an input sequence and produces contextual representations for every token instead of generating new text one token at a time."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "BERT takes tokenized text as input. WordPiece tokenization turns words and subwords into token IDs, then the model returns a hidden vector for each token position. Downstream systems use those vectors for sentence classification, question answering, named-entity recognition, and other understanding tasks."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "The high-level path starts with WordPiece tokens, combines token, position, and segment embeddings, and passes the sequence through a stack of transformer encoder blocks. Each block uses bidirectional self-attention so every token can read the full surrounding context, followed by a feed-forward layer and residual normalization."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The modules below explain most of BERT's mechanics. WordPiece handles subword tokenization, bidirectional attention lets each token see both sides of the sequence, and learned positional embeddings mark token order inside the encoder stack."
+    },
+    "training": {
+      "title": "Training",
+      "body": "BERT's defining pretraining recipe combines masked language modeling with next-sentence prediction over large text corpora. Random tokens are hidden and the model learns to predict them from bidirectional context, which teaches rich representations before task-specific fine-tuning."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "BERT is widely reused as a feature extractor or fine-tuning backbone for understanding tasks. It is usually not the right base model for open-ended generation because it lacks an autoregressive decoder, and its 512-token context window is short compared with later long-context language models."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "BERT architecture diagram with WordPiece tokens flowing into combined embeddings, stacked transformer encoder blocks with bidirectional self-attention, and contextual token representations as output."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "contextualOutput": {
+        "label": "Contextual\nToken\nRepresentations",
+        "summary": "One hidden vector per token position after the encoder stack"
+      },
+      "encoderStack": {
+        "label": "Transformer\nEncoder\nStack",
+        "summary": "Repeated encoder blocks with bidirectional self-attention and feed-forward layers"
+      },
+      "embeddingSum": {
+        "label": "Token + Position\n+ Segment\nEmbeddings",
+        "summary": "Combines token, position, and segment signals before the encoder blocks"
+      },
+      "wordpieceTokens": {
+        "label": "WordPiece\nTokens",
+        "summary": "Subword token sequence produced by the WordPiece tokenizer"
+      }
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "id": "graph.bert-architecture",
+  "slug": "bert-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["BERT architecture graph"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.bert-pre-training-of-deep-bidirectional-transformers"
+  ],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "subjectId": "model.bert",
+  "graphType": "model-architecture",
+  "rootNodeId": "contextual-output",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "contextual-output",
+      "labelKey": "graph.nodes.contextualOutput.label",
+      "summaryKey": "graph.nodes.contextualOutput.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "encoder-stack",
+      "labelKey": "graph.nodes.encoderStack.label",
+      "summaryKey": "graph.nodes.encoderStack.summary",
+      "registryId": "concept.encoder",
+      "moduleKind": "attention",
+      "position": { "x": 220, "y": 120 },
+      "size": { "width": 260, "height": 96 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "embedding-sum",
+      "labelKey": "graph.nodes.embeddingSum.label",
+      "summaryKey": "graph.nodes.embeddingSum.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "other",
+      "position": { "x": 210, "y": 260 },
+      "size": { "width": 280, "height": 72 },
+      "visualRole": "architecture-linear",
+      "childNodeIds": []
+    },
+    {
+      "id": "wordpiece-tokens",
+      "labelKey": "graph.nodes.wordpieceTokens.label",
+      "summaryKey": "graph.nodes.wordpieceTokens.summary",
+      "registryId": "module.wordpiece",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 380 },
+      "size": { "width": 200, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "encoder-stack-to-contextual-output",
+      "source": "encoder-stack",
+      "target": "contextual-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "embedding-sum-to-encoder-stack",
+      "source": "embedding-sum",
+      "target": "encoder-stack",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "wordpiece-tokens-to-embedding-sum",
+      "source": "wordpiece-tokens",
+      "target": "embedding-sum",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    }
+  ]
+}
