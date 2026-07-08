@@ -24,6 +24,7 @@ status: "published"
 import { BlogRelatedDocs } from "@/features/blog/components/BlogRelatedDocs";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
+import { RooflineThroughputExplorerFromRegistry } from "@/features/roofline-throughput-explorer/RooflineThroughputExplorerFromRegistry";
 
 # <T k="title" />
 
@@ -58,6 +59,19 @@ Use it to sanity-check serving plans:
 - If the memory-bound rate is already below your product goal, faster peak FLOPs will not close the gap until you shrink active weights, reduce bytes per parameter, improve bandwidth, or change the model.
 - If the compute-bound rate is lower, optimization should target arithmetic efficiency, kernel fusion, or a smaller active graph—not only faster DRAM.
 - Prefill and decode stress different parts of the stack; a bound computed for steady decode does not automatically describe prompt ingestion. The reference pages below define those phases separately.
+
+## Explore the throughput bound
+
+The chart below uses the same registry-backed roofline explorer as the reference tooling. Model presets come from current registry metadata at build time—no browser-side registry fetch—so each option reflects an available effective active weight size for a shipped checkpoint.
+
+Use the controls to see how the binding limit moves:
+
+- **Model preset** — switches the active scenario to a registry-backed checkpoint size. A larger active footprint shifts the scenario marker and usually lowers the memory-bound ceiling.
+- **Active weight size** — fine-tunes how many billions of parameters participate in the forward pass when you want a size between presets or a custom override.
+- **Bytes per parameter** — encodes precision and packing width. Wider storage moves more bytes per step and steepens the memory-bound slope.
+- **Memory bandwidth and peak compute** — set the hardware ceilings. The sloped boundary is the memory-limited throughput curve; the flat top is the compute-limited cap. The active point sits where your scenario meets the lower of the two.
+
+<RooflineThroughputExplorerFromRegistry />
 
 ## Takeaway
 

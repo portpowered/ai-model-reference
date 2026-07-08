@@ -275,6 +275,12 @@ describe("production blog tag landing", () => {
             url: "/blog/roofline-throughput-explorer",
             publishedAt: "2026-07-02",
           }),
+          expect.objectContaining({
+            title:
+              "Roofline maximum throughput: the practical upper bound before you compare hardware",
+            url: "/blog/roofline-max-throughput",
+            publishedAt: "2026-07-08",
+          }),
         ]),
       );
     }
@@ -289,7 +295,11 @@ describe("production blog tag landing", () => {
     );
     expect(
       foundationsBlogGroup?.resources.map((resource) => resource.slug),
-    ).toEqual(["llm-training-shift", "roofline-throughput-explorer"]);
+    ).toEqual([
+      "roofline-max-throughput",
+      "llm-training-shift",
+      "roofline-throughput-explorer",
+    ]);
   });
 
   it("keeps attention tag groups unchanged without a blog section", async () => {
