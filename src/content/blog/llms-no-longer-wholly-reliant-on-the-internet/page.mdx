@@ -57,13 +57,13 @@ Mid-training sits between broad pretraining and the heavier post-training stages
 
 Instruction tuning adds supervised prompt-and-answer demonstrations so the model learns to follow formats, roles, and user intent. The signal is human- or curator-written examples rather than raw web text. It teaches how to respond, not just how to predict the next token on a webpage.
 
-### 5. Preference feedback
+### 5. Preference feedback and RLHF
 
-Preference feedback compares alternative model outputs and trains the model to favor the better one. Reinforcement learning from human feedback is the best-known form: human raters score style, helpfulness, and safety, and optimization pushes the policy toward those preferences. The scoring comes from people, and the weights change.
+Preference feedback compares alternative model outputs and trains the model to favor the better one. Reinforcement learning from human feedback (RLHF) is the best-known form: human raters score style, helpfulness, and safety, and optimization pushes the policy toward those preferences. The scoring comes from people, and the weights change.
 
-### 6. Verifiable reward loops
+### 6. Verifiable reward loops and RLVR
 
-Verifiable reinforcement learning replaces or supplements human taste with outcomes that can be checked automatically—exact answers, unit tests, compiler results, or other external verifiers. The reward signal is objective when the verifier passes, and the model still updates its weights through a reinforcement loop.
+Reinforcement learning from verifiable rewards (RLVR) replaces or supplements human taste with outcomes that can be checked automatically—exact answers, unit tests, compiler results, or other external verifiers. The reward signal is objective when the verifier passes, and the model still updates its weights through a reinforcement loop.
 
 ### 7. Synthetic and model-generated traces
 
@@ -72,6 +72,34 @@ When human labels are scarce, teams generate synthetic traces, chain-of-thought 
 ### 8. On-policy distillation and self-distillation
 
 On-policy distillation refreshes supervision from behavior aligned with the current or recently updated policy instead of relying only on a frozen offline dataset. On-policy self-distillation closes the loop further: the model (or a related checkpoint) generates answers, critiques, or trajectories that supervise later versions. Recipes vary, but the pattern is the same—recycle recent model behavior back into training while weights keep moving.
+
+## Key post-training and feedback loops
+
+The timeline above orders these methods historically. The loops below spell out what each one contributes. For each method, three questions matter: where the training signal comes from, who or what scores it, and whether the model updates its weights.
+
+### Instruction tuning
+
+Instruction tuning is supervised learning from prompt-and-answer demonstrations or equivalent instruction examples. The signal comes from human- or curator-written pairs that show how to follow formats, roles, and user intent. Scoring is implicit in the demonstration itself—there is no separate reward model—because each example already names the target completion. The weights update through standard supervised fine-tuning.
+
+### Reinforcement learning from human feedback (RLHF)
+
+RLHF is preference-driven behavior shaping. The signal comes from comparisons or rankings of alternative model outputs on the same prompt. Human raters score helpfulness, style, safety, or other subjective qualities; a reward or preference model may distill those judgments for optimization. The weights update through reinforcement or preference optimization that pushes the policy toward higher-scoring outputs. This post summarizes the pattern; the canonical RLHF reference page carries the full recipe.
+
+### Reinforcement learning from verifiable rewards (RLVR)
+
+RLVR is reinforcement learning from externally checkable outcomes. The signal comes from tasks where success can be verified automatically—exact answers, unit tests, compiler results, or formal checkers. Scoring is objective when the verifier passes, although humans often design the task suite. The weights update through a reinforcement loop that rewards completions that satisfy the external check. See the canonical RLVR reference page for the full workflow.
+
+### On-policy distillation
+
+On-policy distillation refreshes supervision from behavior aligned with the current or recently updated policy rather than only from a frozen offline dataset. The signal comes from fresh model rollouts or traces collected while the policy is still moving. A teacher model, stronger checkpoint, or filter typically decides which on-policy examples become labels. The weights update as the student imitates the selected on-policy behavior.
+
+### On-policy self-distillation
+
+On-policy self-distillation closes the loop inside a model family. The signal comes from generated traces, answers, critiques, or trajectories produced by the same model or a nearby checkpoint. Scoring may use filtering, ranking, critique passes, or verifier gates—recipes vary by lab and product. The weights update when later checkpoints train on that recycled model output.
+
+### Comparing signal source, scoring, and weight updates
+
+Instruction tuning draws labels from curated demonstrations and updates weights through imitation. RLHF draws comparisons from model outputs and updates weights from human preference scores. RLVR draws tasks with checkable outcomes and updates weights from verifier pass or fail signals. On-policy distillation draws fresh policy-aligned traces and updates weights from teacher-selected supervision. On-policy self-distillation draws model-generated traces and updates weights from filtered or critiqued self-labels. Few-shot prompting is the outlier in this group: it steers behavior at inference time from prompt examples without changing weights.
 
 ### What mid-training and post-training mean together
 

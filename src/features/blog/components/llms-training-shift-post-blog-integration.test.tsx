@@ -43,6 +43,24 @@ describe("llms training shift post blog integration", () => {
     expect(html).toContain("Verifiable reward loops");
     expect(html).toContain("Synthetic and model-generated traces");
     expect(html).toContain("On-policy distillation and self-distillation");
+    expect(html).toContain("Key post-training and feedback loops");
+    expect(html).toContain("Reinforcement learning from human feedback (RLHF)");
+    expect(html).toContain(
+      "Reinforcement learning from verifiable rewards (RLVR)",
+    );
+    expect(html).toContain(
+      "supervised learning from prompt-and-answer demonstrations",
+    );
+    expect(html).toContain("preference-driven behavior shaping");
+    expect(html).toContain("externally checkable outcomes");
+    expect(html).toContain("current or recently updated policy");
+    expect(html).toContain(
+      "generated traces, answers, critiques, or trajectories",
+    );
+    expect(html).toContain(
+      "Comparing signal source, scoring, and weight updates",
+    );
+    expect(html).toContain("without changing weights");
     expect(html).toContain("Post-training does not erase pretraining");
     expect(html).toContain('href="/docs/training/pretraining"');
     expect(html).toContain('href="/docs/training/mid-training"');
