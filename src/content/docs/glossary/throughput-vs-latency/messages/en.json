@@ -1,0 +1,99 @@
+{
+  "title": "Throughput Vs Latency",
+  "description": "The serving tradeoff between aggregate completed work over time and the wait experienced by an individual request under concurrency.",
+  "openingSummary": "Throughput vs latency describes why a serving system can complete more total work per second while individual requests wait longer when load, batching, and shared resources increase.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Throughput vs latency names the tension between two serving views that often move in opposite directions under load.\n\nThroughput is aggregate completed work over time. It counts how much model output the system finishes across all active requests in a chosen window—tokens per second, requests completed per minute, or similar fleet-level rates.\n\nLatency is the wait one individual request experiences from send through visible progress: time in queue before work starts, pauses between streamed tokens, and total wall clock until the answer feels done.\n\nThe tradeoff appears when raising utilization improves throughput while stretching waits for some users."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Operators and readers often see both numbers move in opposite directions under load. A dashboard can show rising tokens per second while chat replies feel sluggish. Understanding the tradeoff separates healthy utilization from overload and clarifies why tuning for one metric can harm the other."
+    },
+    "underLoad": {
+      "title": "What Changes Under Concurrency",
+      "body": "Higher concurrency and larger batches are the most common reason the two views diverge. More simultaneous requests give the scheduler more work to pack onto each accelerator step, which raises aggregate completed work. Each request may wait longer before its turn starts or between streamed tokens because shared devices, memory paths, and batch formation time are finite.\n\nA deployment is not failing when throughput climbs while one reader waits longer—that pattern can mean the system is using capacity efficiently. The question is whether individual waits still meet the experience targets operators and product teams care about."
+    },
+    "runtimePressure": {
+      "title": "Runtime Pressure And Cost",
+      "body": "Queueing is the wait before model work begins. A request may sit in an admission queue while earlier jobs finish prefill, while memory headroom is checked, or while the scheduler decides which work is safe to start. That idle time does not count toward generated tokens, but it is part of the latency one reader feels. Under load, deeper queues can let the fleet finish more total work per second even as each newcomer waits longer at the door.\n\nBatching windows add a deliberate pause so compatible requests can run together. The scheduler may hold a request for a few milliseconds to gather enough work for one accelerator step. That short formation wait raises aggregate throughput because fixed per-step overhead is spread across more tokens or requests. The same pause stretches time to first token or the gap before the next decode turn for requests that arrived just before the window closed.\n\nScheduling contention appears when many active requests compete for the same accelerators, memory pools, or worker threads. A decode turn deferred for a larger batch, a prefill burst that blocks new admissions, or a fairness policy that rotates long streams can all improve fleet utilization while making one stream wait its turn longer. Throughput rises when shared devices stay busy; individual latency rises when your request is not the one chosen next.\n\nMemory bandwidth pressure and live serving state set practical ceilings on both views. Each decode step reads growing key-value cache state, and concurrent sequences multiply that traffic. When bandwidth or resident cache size saturates, token cadence slows and aggregate output can flatten even though compute still looks available on paper. Live state—how many sequences are active, how long contexts have grown, and whether memory is near its limit—changes the tradeoff from minute to minute.\n\nCost per completed unit is the economic mirror of the same tension. Higher utilization spreads fixed hardware cost across more finished tokens or requests, which lowers cost per token when throughput climbs. Pushing utilization further often means longer queues, wider batch windows, or accepting choppier streaming for some readers. Operators balance that savings against latency targets: a deployment that maximizes completed work per dollar may still miss product goals if individual waits exceed what users tolerate."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine ten chat requests arriving close together. The scheduler groups them into one larger batch so the accelerator stays busy and total tokens per second climbs. Each user may wait longer in queue and between streamed tokens even though the system completes more aggregate work during the same wall-clock window.\n\nIf the same server handled one request at a time, that lone reader might see snappier gaps between tokens. Aggregate throughput would fall because the device idles between requests and never amortizes fixed per-step cost across concurrent streams."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Throughput vs latency is not a single latency metric like time to first token or inter-token latency, and it is not the same as tokens per second alone. Tokens per second measures aggregate output rate. Individual latency metrics measure one request's waits. The tradeoff explains how those views can diverge under concurrency, batching, and shared serving resources.\n\nHigh throughput does not guarantee a fast experience for every reader, and low latency for one request does not prove the fleet is using its capacity well. Both views answer different questions and both matter when judging serving behavior."
+    },
+    "servingPath": {
+      "title": "Go Deeper Into Serving",
+      "body": "The sections above explain why aggregate throughput and individual latency can move in opposite directions. Follow the links below to the serving pages that define each metric, execution phase, and policy that shapes the tradeoff under load."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "tokensPerSecond": "Tokens per second",
+    "timeToFirstToken": "Time to first token",
+    "interTokenLatency": "Inter-token latency",
+    "prefill": "Prefill",
+    "decode": "Decode",
+    "prefillDecodeSplit": "Prefill/decode split",
+    "batching": "Batching",
+    "dynamicBatching": "Dynamic batching",
+    "requestScheduling": "Request scheduling",
+    "deployment": "Deployment",
+    "memory": "Memory",
+    "inferenceEngine": "Inference engine"
+  },
+  "relatedDocs": {
+    "concept.tokens-per-second": {
+      "reason": "Tokens per second is the aggregate throughput view this tradeoff contrasts with individual wait times."
+    },
+    "concept.time-to-first-token": {
+      "reason": "Time to first token is one latency slice that can grow when batching windows and queues favor fleet throughput."
+    },
+    "concept.inter-token-latency": {
+      "reason": "Inter-token latency tracks streaming rhythm, which can feel uneven even when aggregate tokens per second climbs."
+    },
+    "concept.prefill": {
+      "reason": "Prefill dominates prompt work and queue pressure before decode begins, which shapes both throughput windows and first-visible waits."
+    },
+    "concept.decode": {
+      "reason": "Decode is where repeated token generation happens, so decode cost and cache traffic set the baseline for both tok/s and per-token gaps."
+    },
+    "concept.prefill-decode-split": {
+      "reason": "Split deployments move cache state between workers, which can change how much work each pool sustains and how long handoffs add to waits."
+    },
+    "system.batching": {
+      "reason": "Batching decides how many requests share each accelerator step, which is a main lever for raising throughput at the cost of longer formation waits."
+    },
+    "system.continuous-batching": {
+      "reason": "Continuous batching keeps decode slots filled as sequences finish, which can lift throughput while reshaping whose turn runs next."
+    },
+    "system.dynamic-batching": {
+      "reason": "Dynamic regrouping changes which requests decode together, so cadence and queue depth can shift when the scheduler reshuffles work."
+    },
+    "system.request-scheduling": {
+      "reason": "Request scheduling decides which work runs next under contention, so fairness and admission policies directly shape the throughput-latency balance."
+    },
+    "system.memory": {
+      "reason": "Memory bandwidth and residency limits how quickly weights and KV cache state move during decode-heavy bursts that cap both views."
+    },
+    "system.deployment": {
+      "reason": "Deployment layout—which pools handle prefill versus decode and how replicas scale—sets the operating context where the tradeoff plays out."
+    },
+    "system.inference-engine": {
+      "reason": "The inference engine implements batching, scheduling, and the decode loop that turn hardware capacity into reported throughput and visible waits."
+    }
+  }
+}
