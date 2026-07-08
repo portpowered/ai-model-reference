@@ -1,0 +1,35 @@
+## Codebase Patterns
+- Model pages live under `src/content/docs/models/{slug}/` with `page.mdx`, `messages/en.json`, and `assets.json`; follow `gpt-3` as the closest GPT-family decoder-only reference.
+- Model registry records live at `src/content/registry/models/{slug}.json` with `id: model.{slug}`, family `gpt`, and `citationIds` pointing to existing citation records.
+- Reuse existing `paper.gpt-2-report` and `citation.gpt-2-report` for GPT-2 source attribution; do not create duplicate paper/citation records.
+- Run `bun run typecheck` for typecheck gate; `make validate-data` for registry/content validation after adding records.
+- Page-local scope: avoid shared helper edits, generated artifact commits, and page-specific tests unless special behavior requires them.
+- Model `sourceType` enum is `open-weights` | `closed` | `research` (not `public`); use `open-weights` for GPT-2 since smaller checkpoints were publicly released.
+- Registry-only slices need no page bundle: `make validate-data` regenerates ignored runtime artifacts locally but they stay untracked.
+
+## 2026-07-08T13:10:00Z - gpt-2-model-page-current-main-001
+- Verified GPT-2 absence and existing record reuse before any slice work.
+- **Verification results:**
+  - `src/content/docs/models/gpt-2/` — absent (safe to create in story 003)
+  - `src/content/registry/models/gpt-2.json` — absent (safe to create in story 002)
+  - `src/content/registry/papers/gpt-2-report.json` — exists (`paper.gpt-2-report`)
+  - `src/content/registry/citations/gpt-2-report.json` — exists (`citation.gpt-2-report`)
+  - No duplicate GPT-2 paper or citation records will be introduced; reuse the existing pair.
+- Files changed: none (verification-only story)
+- **Learnings for future iterations:**
+  - Use `gpt-3` model page and `model.gpt-3.json` registry as the primary template for GPT-2 (decoder-only, GPT family, pretraining, byte-level tokenization).
+  - GPT-2 paper record has empty `modelIds`; story 002 should link `model.gpt-2` via registry `citationIds` and may update paper `modelIds` only if validation requires it—stay page-local.
+  - `module.byte-level-tokenization` is the GPT-2 tokenization module already linked from the paper record.
+---
+
+## 2026-07-08T13:30:00Z - gpt-2-model-page-current-main-002
+- Added `src/content/registry/models/gpt-2.json` as the canonical published model registry record for GPT-2.
+- Record includes slug `gpt-2`, aliases (GPT-2, Generative Pre-trained Transformer 2), GPT family, text modality, `open-weights` source type, release date 2019-02-14, parameter/context metadata, and `citation.gpt-2-report`.
+- Linked architecture (`concept.transformer-architecture`, `concept.autoregressive-generation`), modules (byte-level tokenization, multi-head attention, standard FFN, layer norm, learned positional embeddings), training regime (pretraining), and related concepts (self-attention, positional encodings, tokenizers, logit, softmax, sampling-overview).
+- Files changed: `src/content/registry/models/gpt-2.json`
+- **Learnings for future iterations:**
+  - `gpt-3.json` is the best structural template for GPT-family decoder-only model records; adapt parameter counts and `sourceType` per model.
+  - `relatedIds` is the right place for logits/softmax/sampling concept links; existing model records rarely put those in `architectureIds`/`moduleIds`.
+  - No paper `modelIds` or pretraining `usedByModelIds` back-link updates were required for validation to pass.
+  - Full `bun run test` suite takes ~34 minutes locally; `make validate-data` + `bun run typecheck` are faster gates for registry-only changes.
+---
