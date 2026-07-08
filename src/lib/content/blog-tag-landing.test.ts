@@ -300,8 +300,7 @@ describe("production blog tag landing", () => {
           publishedAt: "2026-07-08",
         }),
         expect.objectContaining({
-          title:
-            "Roofline maximum throughput: when bandwidth beats peak FLOPs",
+          title: "Roofline maximum throughput: when bandwidth beats peak FLOPs",
           url: "/blog/roofline-max-throughput",
           publishedAt: "2026-07-08",
         }),
@@ -326,8 +325,7 @@ describe("production blog tag landing", () => {
     expect(kvCacheBlogGroup?.kindLabel).toBe("Blog");
     expect(kvCacheBlogGroup?.resources).toEqual([
       expect.objectContaining({
-        title:
-          "Roofline maximum throughput: when bandwidth beats peak FLOPs",
+        title: "Roofline maximum throughput: when bandwidth beats peak FLOPs",
         url: "/blog/roofline-max-throughput",
         publishedAt: "2026-07-08",
       }),
