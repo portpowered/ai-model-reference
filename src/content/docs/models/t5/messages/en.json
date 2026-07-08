@@ -1,31 +1,31 @@
 {
   "title": "T5",
-  "description": "An encoder-decoder transformer that frames every NLP task as text-to-text generation.",
-  "openingSummary": "T5 (Text-to-Text Transfer Transformer) is a transformer model family that reads text and writes text, using an encoder to build context and a decoder to generate the answer in the same token space.",
+  "description": "An encoder-decoder transformer from Google Research that reformulates every NLP task as reading text and writing text in a shared token space.",
+  "openingSummary": "Text-to-Text Transfer Transformer (T5) is a transformer model family that treats translation, summarization, classification, and similar jobs as the same interface: read a text prompt, run it through an encoder that builds context, then let a decoder generate the answer as more text.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "T5 is an encoder-decoder transformer model family from Google Research. It treats every natural language task as text-to-text: the model reads a text prompt and produces a text completion."
+      "body": "Text-to-Text Transfer Transformer (T5) is an encoder-decoder transformer model family from Google Research. Instead of building a separate model head for every task, T5 reformulates natural language problems as text-to-text: the model always reads text and writes text. That unified interface made T5 a central reference for transfer learning because the same pretrained weights can be steered toward many downstream jobs by changing only the input and target wording."
     },
     "inputsAndOutputs": {
       "title": "Inputs And Outputs",
-      "body": "T5 reads tokenized text as input and produces tokenized text as output. Both sides use the same vocabulary, so tasks like translation, summarization, and classification are expressed as prompt-and-answer text pairs."
+      "body": "T5 reads tokenized text and produces tokenized text. Input and output share one SentencePiece vocabulary, so a classification label, a translation, or a summary is just another text string on the output side. In practice, each task uses a short text prefix or template in the input—such as \"translate English to German:\" or \"summarize:\"—so the model knows which behavior to apply while the token interface stays the same."
     },
     "architecture": {
       "title": "Architecture",
-      "body": "T5 follows the encoder-decoder transformer layout. An encoder stack processes the full input sequence with bidirectional self-attention, then a decoder stack generates output tokens autoregressively while attending to encoder states through cross-attention."
+      "body": "T5 follows an encoder-decoder layout. The encoder stack reads the full input sequence with bidirectional self-attention so every token can gather context from the whole prompt. The decoder stack then generates output tokens one at a time: masked self-attention keeps each new token from peeking ahead, and cross-attention lets decoder states read the encoder's hidden states. T5 also replaces absolute position embeddings with relative position bias, so attention scores depend on token distance rather than a fixed position vector added to every embedding."
     },
     "importantModules": {
       "title": "Important Modules",
-      "body": "The modules below are the main building blocks that define how T5 processes text. Relative position bias replaces absolute position embeddings, multi-head attention moves information across tokens, cross-attention connects encoder context to the decoder, and the feed-forward network transforms each position locally."
+      "body": "The registry-linked modules below are the main pieces that define T5's behavior. SentencePiece tokenization turns raw text into shared input and output pieces. Relative position bias supplies distance-aware attention inside both stacks. Multi-head attention moves information across tokens, cross-attention connects encoder context to the decoder, layer normalization stabilizes each block, and the standard feed-forward network applies a local dense transform at every position."
     },
     "training": {
       "title": "Training",
-      "body": "T5 is pretrained with a denoising objective on large text corpora, then fine-tuned on downstream tasks expressed as text-to-text examples. The same model weights can be adapted to many tasks by changing only the input and target text formatting."
+      "body": "T5 pretraining uses a denoising objective called span corruption: random contiguous spans in the input text are replaced with sentinel tokens, and the model learns to reconstruct the missing pieces as its text output. That stage runs on large cleaned web text, after which supervised fine-tuning adapts the same weights to downstream benchmarks by formatting each example as a text-to-text pair. The linked training regimes and reference below point to the primary records for those stages."
     },
     "practicalNotes": {
       "title": "Practical Notes",
-      "body": "T5 remains a widely used reference for encoder-decoder transformers and transfer learning with a unified text interface. Different checkpoint sizes trade off quality and compute, and task-specific prefixes or templates are still needed to steer behavior at inference time."
+      "body": "T5 remains a widely cited baseline for encoder-decoder transfer learning because it showed how one text interface could cover many NLP tasks without redesigning the model for each benchmark. Public checkpoints span several sizes, so quality and compute trade off predictably. At inference time you still choose the right task prefix or template, and the default 512-token context window is short by modern standards, but the text-to-text recipe influenced many later seq2seq and instruction-tuned systems."
     },
     "related": {
       "title": "Related Models, Modules, And Papers"
