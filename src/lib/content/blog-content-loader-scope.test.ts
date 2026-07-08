@@ -30,11 +30,22 @@ describe("blog content loader lane isolation", () => {
     const slugs = published.map((post) => post.slug).sort();
 
     expect(slugs).toEqual(
-      ["llm-training-shift", "roofline-throughput-explorer"].sort(),
+      [
+        "llm-training-shift",
+        "llms-no-longer-wholly-reliant-on-the-internet",
+        "roofline-throughput-explorer",
+      ].sort(),
     );
     await expect(
       getPublishedBlogPostBySlug("llm-training-shift"),
     ).resolves.toMatchObject({ slug: "llm-training-shift" });
+    await expect(
+      getPublishedBlogPostBySlug(
+        "llms-no-longer-wholly-reliant-on-the-internet",
+      ),
+    ).resolves.toMatchObject({
+      slug: "llms-no-longer-wholly-reliant-on-the-internet",
+    });
     await expect(
       getPublishedBlogPostBySlug("roofline-throughput-explorer"),
     ).resolves.toMatchObject({ slug: "roofline-throughput-explorer" });

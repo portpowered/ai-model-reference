@@ -1,0 +1,46 @@
+---
+messageNamespace: "local"
+assetNamespace: "local"
+publishedAt: "2026-07-08"
+updatedAt: "2026-07-08"
+authors:
+  - site-team
+tags:
+  - foundations
+  - alignment
+relatedDocIds:
+  - training-regime.pretraining
+  - training-regime.mid-training
+  - training-regime.post-training
+status: "published"
+---
+
+import { BlogRelatedDocs } from "@/features/blog/components/BlogRelatedDocs";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+# <T k="title" />
+
+<T k="contextSentence" />
+
+<TagPillList tags={["foundations", "alignment"]} />
+
+## Summary
+
+<T k="takeaway" />
+
+## The training-signal shift
+
+Large language models still begin with a broad pretraining corpus drawn from text on the open web. That internet-scale foundation teaches grammar, facts, and general reasoning patterns at scale.
+
+The finished models readers use today are not explained by that corpus alone. After pretraining, additional signals reshape behavior: curated demonstrations, preference comparisons, verifiable task rewards, synthetic traces, and distillation loops that recycle a model's own outputs back into training.
+
+This post traces how those later signals accumulated into the modern training recipe. Each stage adds to the mix rather than replacing pretraining.
+
+## What to read next
+
+For stable definitions of each training stage, use the reference pages linked below instead of treating this post as a canonical spec.
+
+## Related reference pages
+
+<BlogRelatedDocs relatedDocIds={["training-regime.pretraining", "training-regime.mid-training", "training-regime.post-training"]} />
