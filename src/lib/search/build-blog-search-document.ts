@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { blogPostHref } from "@/lib/content/blog-page-load";
 import {
   type ListPublishedBlogPostsOptions,
   listPublishedBlogPosts,
@@ -7,6 +8,7 @@ import type { LoadedBlogPostSidecars } from "@/lib/content/blog-post-load";
 import type { BlogPostMessages } from "@/lib/content/blog-post-messages";
 import type { RegistryIndexes, RegistryRecord } from "@/lib/content/registry";
 import type { TagRecord } from "@/lib/content/schemas";
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import { enrichSearchDocument } from "./enrich-search-document";
 import type { BaseSearchDocument, SearchDocument } from "./types";
 import { EMPTY_SEARCH_DOCUMENT_TOPOLOGY } from "./types";
@@ -84,8 +86,9 @@ function collectBlogMessageBodyText(messages: BlogPostMessages): string {
 export function buildBlogBaseSearchDocument(
   post: BlogSearchPostSource,
   indexes: RegistryIndexes,
+  locale: SiteLocale = defaultLocale,
 ): BaseSearchDocument {
-  const url = `/blog/${post.slug}`;
+  const url = blogPostHref(post.slug, locale);
   const tags = post.frontmatter.tags;
   const tagTerms = tagSearchTerms(indexes, tags);
   const mdxSearch = extractBlogMdxSearchText(post.mdxBody);
@@ -122,16 +125,18 @@ export function buildBlogBaseSearchDocument(
 export function buildBlogSearchDocument(
   post: BlogSearchPostSource,
   indexes: RegistryIndexes,
+  locale: SiteLocale = defaultLocale,
 ): SearchDocument {
-  const base = buildBlogBaseSearchDocument(post, indexes);
+  const base = buildBlogBaseSearchDocument(post, indexes, locale);
   return enrichSearchDocument(base, indexes);
 }
 
 export function buildBlogSearchDocuments(
   posts: BlogSearchPostSource[],
   indexes: RegistryIndexes,
+  locale: SiteLocale = defaultLocale,
 ): SearchDocument[] {
-  return posts.map((post) => buildBlogSearchDocument(post, indexes));
+  return posts.map((post) => buildBlogSearchDocument(post, indexes, locale));
 }
 
 export async function loadBlogSearchPostSources(

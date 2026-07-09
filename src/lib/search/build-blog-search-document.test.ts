@@ -107,6 +107,31 @@ describe("buildBlogSearchDocuments", () => {
     expect(document.aliases).toContain("kv-cache");
   });
 
+  test("indexes localized blog posts with locale-prefixed routes", async () => {
+    const { blogRoot } = await writeFixturePost({ slug: "kv-cache-notes" });
+    const pageDir = join(blogRoot, "kv-cache-notes");
+    await writeFile(
+      join(pageDir, "messages", "ja.json"),
+      JSON.stringify({
+        ...validMessages,
+        title: "KV Cache Serving Notes JA",
+      }),
+    );
+    const indexes = await loadRegistry();
+    const posts = await loadBlogSearchPostSources({
+      blogRoot,
+      locale: "ja",
+    });
+
+    const [document] = buildBlogSearchDocuments(posts, indexes, "ja");
+
+    expect(document).toMatchObject({
+      id: "/ja/blog/kv-cache-notes",
+      url: "/ja/blog/kv-cache-notes",
+      title: "KV Cache Serving Notes JA",
+    });
+  });
+
   test("excludes draft posts from search post sources", async () => {
     const { blogRoot } = await writeFixturePost({
       slug: "draft-only",

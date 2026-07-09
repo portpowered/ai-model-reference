@@ -108,7 +108,7 @@ describe("search result meta", () => {
 
   test("loadSearchResultMetaMap returns the shipped japanese attention proof set", async () => {
     const map = await loadSearchResultMetaMap("ja");
-    expect(map.size).toBe(8);
+    expect(map.size).toBeGreaterThanOrEqual(8);
     expect(map.get("/ja/docs/modules/attention")?.title).toBe("Attention");
     expect(map.get("/ja/docs/modules/grouped-query-attention")?.title).toBe(
       "Grouped-query attention",
@@ -128,6 +128,9 @@ describe("search result meta", () => {
     expect(map.get("/ja/docs/glossary/token")?.title).toBe("Token");
     expect(map.get("/ja/docs/concepts/transformer-architecture")?.title).toBe(
       "Transformer アーキテクチャ",
+    );
+    expect(map.get("/ja/blog/roofline-throughput-explorer")?.title).toBe(
+      "the best computer for local language models (2026)",
     );
     expect(map.has("/ja/docs/modules/swiglu")).toBe(false);
   });
