@@ -2,8 +2,9 @@ import { describe, expect, test } from "bun:test";
 import type { RooflineModelSizePreset } from "@/lib/content/roofline-model-size-presets";
 import {
   clampActiveWeightSizeBillions,
-  clampBytesPerParameter,
-  parseBytesPerParameterInput,
+  clampBatchSize,
+  clampQuantizationBits,
+  parsePositiveNumberInput,
   resolveActiveWeightSliderBounds,
   resolveGlobalActiveWeightSliderBounds,
   resolveInitialScenarioControls,
@@ -15,6 +16,11 @@ const TEST_PRESETS = [
     modelId: "model.glm-5-2",
     label: "GLM-5.2",
     effectiveSizeBillions: 40,
+  },
+  {
+    modelId: "model.qwen-3-6-35b-a3b",
+    label: "Qwen3.6-35B-A3B",
+    effectiveSizeBillions: 3,
   },
   {
     modelId: "model.qwen3-0-6b",
@@ -34,22 +40,24 @@ describe("roofline-throughput-explorer-controls", () => {
     ).toEqual(resolveGlobalActiveWeightSliderBounds());
   });
 
-  test("clamps active weight size and bytes per parameter into valid bounds", () => {
+  test("clamps active weight size, quantization bits, and batch size into valid bounds", () => {
     const bounds = resolveActiveWeightSliderBounds(TEST_PRESETS);
 
     expect(clampActiveWeightSizeBillions(0.01, bounds)).toBe(
       bounds.minBillions,
     );
     expect(clampActiveWeightSizeBillions(999, bounds)).toBe(bounds.maxBillions);
-    expect(clampBytesPerParameter(0)).toBe(1);
-    expect(clampBytesPerParameter(16)).toBe(8);
+    expect(clampQuantizationBits(0)).toBe(1);
+    expect(clampQuantizationBits(32)).toBe(16);
+    expect(clampBatchSize(0)).toBe(1);
+    expect(clampBatchSize(999)).toBe(256);
   });
 
-  test("parses bytes-per-parameter input and rejects non-numeric values", () => {
-    expect(parseBytesPerParameterInput("2")).toBe(2);
-    expect(parseBytesPerParameterInput(" 4.5 ")).toBe(4.5);
-    expect(parseBytesPerParameterInput("")).toBeUndefined();
-    expect(parseBytesPerParameterInput("abc")).toBeUndefined();
+  test("parses positive numeric input and rejects non-numeric values", () => {
+    expect(parsePositiveNumberInput("2")).toBe(2);
+    expect(parsePositiveNumberInput(" 4.5 ")).toBe(4.5);
+    expect(parsePositiveNumberInput("")).toBeUndefined();
+    expect(parsePositiveNumberInput("abc")).toBeUndefined();
   });
 
   test("initializes scenario controls from explicit inputs or first usable preset", () => {
@@ -57,11 +65,13 @@ describe("roofline-throughput-explorer-controls", () => {
       resolveInitialScenarioControls({
         presets: TEST_PRESETS,
         explicitActiveWeightSizeBillions: 12,
-        explicitBytesPerParameter: 4,
+        explicitBatchSize: 8,
+        explicitQuantizationBits: 4,
       }),
     ).toEqual({
       activeWeightSizeBillions: 12,
-      bytesPerParameter: 4,
+      batchSize: 8,
+      quantizationBits: 4,
     });
 
     expect(
@@ -69,8 +79,9 @@ describe("roofline-throughput-explorer-controls", () => {
         presets: TEST_PRESETS,
       }),
     ).toEqual({
-      activeWeightSizeBillions: 40,
-      bytesPerParameter: 2,
+      activeWeightSizeBillions: 3,
+      batchSize: 1,
+      quantizationBits: 8,
     });
   });
 
@@ -78,23 +89,27 @@ describe("roofline-throughput-explorer-controls", () => {
     const bounds = resolveActiveWeightSliderBounds(TEST_PRESETS);
     const current = {
       activeWeightSizeBillions: 40,
-      bytesPerParameter: 2,
+      batchSize: 1,
+      quantizationBits: 8,
     };
 
     expect(
-      scenarioControlsFromPreset(TEST_PRESETS[1], bounds, current, {
+      scenarioControlsFromPreset(TEST_PRESETS[2], bounds, current, {
         activeWeightSize: false,
-        bytesPerParameter: false,
+        batchSize: false,
+        quantizationBits: false,
       }),
     ).toEqual({
       activeWeightSizeBillions: 0.6,
-      bytesPerParameter: 2,
+      batchSize: 1,
+      quantizationBits: 8,
     });
 
     expect(
-      scenarioControlsFromPreset(TEST_PRESETS[1], bounds, current, {
+      scenarioControlsFromPreset(TEST_PRESETS[2], bounds, current, {
         activeWeightSize: true,
-        bytesPerParameter: false,
+        batchSize: false,
+        quantizationBits: false,
       }),
     ).toEqual(current);
   });

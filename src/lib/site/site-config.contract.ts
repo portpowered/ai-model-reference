@@ -7,6 +7,7 @@ export const SITE_NAMED_ROUTE_SURFACES = [
   "browse",
   "topology",
   "timeline",
+  "blogIndex",
   "tagsIndex",
 ] as const;
 
@@ -15,7 +16,7 @@ export type SiteNamedRouteSurface = (typeof SITE_NAMED_ROUTE_SURFACES)[number];
 /** UI message keys for primary navigation labels under `messages.nav`. */
 export type PrimaryNavLabelKey = Extract<
   keyof UiMessages["nav"],
-  "home" | "topology" | "timeline" | "tags"
+  "home" | "topology" | "timeline" | "blog" | "tags"
 >;
 
 /** Collection families represented in the site shell without binding renderers. */

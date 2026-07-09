@@ -1,27 +1,47 @@
 import type { RooflineModelSizePreset } from "@/lib/content/roofline-model-size-presets";
+import { resolveDefaultModelPreset } from "./roofline-throughput-explorer-presets";
 
 export const ROOFLINE_ACTIVE_WEIGHT_SIZE_CONTROL_LABEL =
   "Active weight size (B parameters)";
-export const ROOFLINE_BYTES_PER_PARAMETER_CONTROL_LABEL = "Bytes per parameter";
+export const ROOFLINE_BATCH_SIZE_CONTROL_LABEL = "Batch size";
+export const ROOFLINE_QUANTIZATION_BITS_CONTROL_LABEL = "Quantization bits";
 
 export const ROOFLINE_ACTIVE_WEIGHT_SIZE_SLIDER_MIN_BILLIONS = 0.1;
 export const ROOFLINE_ACTIVE_WEIGHT_SIZE_SLIDER_MAX_BILLIONS = 500;
 export const ROOFLINE_ACTIVE_WEIGHT_SIZE_SLIDER_STEP_BILLIONS = 0.1;
 
-export const ROOFLINE_BYTES_PER_PARAMETER_MIN = 1;
-export const ROOFLINE_BYTES_PER_PARAMETER_MAX = 8;
-export const ROOFLINE_BYTES_PER_PARAMETER_STEP = 0.5;
+export const ROOFLINE_BATCH_SIZE_MIN = 1;
+export const ROOFLINE_BATCH_SIZE_MAX = 256;
+export const ROOFLINE_BATCH_SIZE_STEP = 1;
 
-export const DEFAULT_ROOFLINE_BYTES_PER_PARAMETER = 2;
+export const ROOFLINE_QUANTIZATION_BITS_MIN = 1;
+export const ROOFLINE_QUANTIZATION_BITS_MAX = 16;
+export const ROOFLINE_QUANTIZATION_BITS_STEP = 1;
+
+export const DEFAULT_ROOFLINE_BATCH_SIZE = 1;
+export const DEFAULT_ROOFLINE_QUANTIZATION_BITS = 8;
+
+export const ROOFLINE_BYTES_PER_PARAMETER_MIN =
+  ROOFLINE_QUANTIZATION_BITS_MIN / 8;
+export const ROOFLINE_BYTES_PER_PARAMETER_MAX =
+  ROOFLINE_QUANTIZATION_BITS_MAX / 8;
+export const ROOFLINE_BYTES_PER_PARAMETER_STEP =
+  ROOFLINE_QUANTIZATION_BITS_STEP / 8;
+export const ROOFLINE_BYTES_PER_PARAMETER_CONTROL_LABEL =
+  ROOFLINE_QUANTIZATION_BITS_CONTROL_LABEL;
+export const DEFAULT_ROOFLINE_BYTES_PER_PARAMETER =
+  DEFAULT_ROOFLINE_QUANTIZATION_BITS / 8;
 
 export type RooflineScenarioControls = {
   activeWeightSizeBillions: number;
-  bytesPerParameter: number;
+  batchSize: number;
+  quantizationBits: number;
 };
 
 export type RooflineScenarioControlEdits = {
   activeWeightSize: boolean;
-  bytesPerParameter: boolean;
+  batchSize: boolean;
+  quantizationBits: boolean;
 };
 
 export type RooflineActiveWeightSliderBounds = {
@@ -88,20 +108,33 @@ export function clampActiveWeightSizeBillions(
   return Math.min(bounds.maxBillions, Math.max(bounds.minBillions, value));
 }
 
-export function clampBytesPerParameter(value: number): number {
+export function clampQuantizationBits(value: number): number {
   if (!Number.isFinite(value)) {
-    return DEFAULT_ROOFLINE_BYTES_PER_PARAMETER;
+    return DEFAULT_ROOFLINE_QUANTIZATION_BITS;
   }
 
   return Math.min(
-    ROOFLINE_BYTES_PER_PARAMETER_MAX,
-    Math.max(ROOFLINE_BYTES_PER_PARAMETER_MIN, value),
+    ROOFLINE_QUANTIZATION_BITS_MAX,
+    Math.max(ROOFLINE_QUANTIZATION_BITS_MIN, value),
   );
 }
 
-export function parseBytesPerParameterInput(
-  rawValue: string,
-): number | undefined {
+export function clampBatchSize(value: number): number {
+  if (!Number.isFinite(value)) {
+    return DEFAULT_ROOFLINE_BATCH_SIZE;
+  }
+
+  return Math.min(
+    ROOFLINE_BATCH_SIZE_MAX,
+    Math.max(ROOFLINE_BATCH_SIZE_MIN, Math.round(value)),
+  );
+}
+
+export function clampBytesPerParameter(value: number): number {
+  return clampQuantizationBits(value * 8) / 8;
+}
+
+export function parsePositiveNumberInput(rawValue: string): number | undefined {
   const trimmed = rawValue.trim();
   if (trimmed.length === 0) {
     return undefined;
@@ -115,20 +148,23 @@ export function parseBytesPerParameterInput(
   return parsed;
 }
 
+export const parseBytesPerParameterInput = parsePositiveNumberInput;
+
 export function resolveInitialScenarioControls({
   presets,
   explicitActiveWeightSizeBillions,
   explicitBytesPerParameter,
+  explicitBatchSize,
+  explicitQuantizationBits,
 }: {
   presets: readonly RooflineModelSizePreset[];
   explicitActiveWeightSizeBillions?: number;
+  explicitBatchSize?: number;
   explicitBytesPerParameter?: number;
+  explicitQuantizationBits?: number;
 }): RooflineScenarioControls {
   const bounds = resolveActiveWeightSliderBounds(presets);
-  const initialPreset =
-    presets.find((preset) =>
-      isUsablePresetSize(preset.effectiveSizeBillions),
-    ) ?? presets[0];
+  const initialPreset = resolveDefaultModelPreset(presets);
   const presetWeight = isUsablePresetSize(initialPreset?.effectiveSizeBillions)
     ? initialPreset.effectiveSizeBillions
     : undefined;
@@ -140,8 +176,12 @@ export function resolveInitialScenarioControls({
 
   return {
     activeWeightSizeBillions,
-    bytesPerParameter: clampBytesPerParameter(
-      explicitBytesPerParameter ?? DEFAULT_ROOFLINE_BYTES_PER_PARAMETER,
+    batchSize: clampBatchSize(explicitBatchSize ?? DEFAULT_ROOFLINE_BATCH_SIZE),
+    quantizationBits: clampQuantizationBits(
+      explicitQuantizationBits ??
+        (explicitBytesPerParameter != null
+          ? explicitBytesPerParameter * 8
+          : DEFAULT_ROOFLINE_QUANTIZATION_BITS),
     ),
   };
 }

@@ -23,12 +23,14 @@ describe("getPrimaryNavItems", () => {
       "/",
       "/topology",
       "/docs/timeline",
+      "/blog",
       "/tags",
     ]);
     expect(items.map((item) => item.label)).toEqual([
       messages.nav.home,
       messages.nav.topology,
       messages.nav.timeline,
+      messages.nav.blog,
       messages.nav.tags,
     ]);
   });
@@ -41,18 +43,21 @@ describe("getPrimaryNavItems", () => {
       "/vi",
       "/vi/topology",
       "/vi/docs/timeline",
+      "/vi/blog",
       "/vi/tags",
     ]);
     expect(items.map((item) => item.label)).toEqual([
       messages.nav.home,
       messages.nav.topology,
       messages.nav.timeline,
+      messages.nav.blog,
       messages.nav.tags,
     ]);
     expect(items.map((item) => item.label)).toEqual([
       "Trang chủ",
       messages.nav.topology,
       "Dòng thời gian",
+      messages.nav.blog,
       messages.nav.tags,
     ]);
   });
@@ -78,6 +83,7 @@ describe("getPrimaryNavItems", () => {
         browse: { surface: "browse" },
         topology: { surface: "topology" },
         timeline: { surface: "docs-page", slug: "timeline" },
+        blogIndex: { surface: "blog-index" },
         tagsIndex: { surface: "tags-index" },
       },
       primaryNav: [

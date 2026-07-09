@@ -243,6 +243,7 @@ describe("message boundary contracts", () => {
         menu: "Open menu",
         architecture: "Architecture",
         topology: "Topology",
+        blog: "Blog",
         glossary: "Glossary",
         timeline: "Timeline",
         tags: "Tags",

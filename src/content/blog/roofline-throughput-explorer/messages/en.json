@@ -1,6 +1,6 @@
 {
-  "title": "Why throughput follows a roofline",
-  "description": "An interactive roofline view of how memory bandwidth and active weight reads shape achievable model throughput.",
+  "title": "the best computer for local language models (2026)",
+  "description": "An overall guide on best computer to buy for local language models. We recommend an M series laptop or a 5090.",
   "contextSentence": "Throughput is not only about peak FLOPs. When each forward pass must move a large active weight footprint through memory, bandwidth can become the hard limit long before compute is saturated.",
   "takeaway": "Compare registry-backed model presets, then adjust active weight size and bytes per parameter to see when a scenario stays memory-bound versus when compute headroom appears."
 }

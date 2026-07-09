@@ -42,9 +42,9 @@ Use these files when extending the default English blog surface at `/blog` and
 * `bun run lint`
 * `bun test src/tests/content/blog-index.test.tsx`
 * `bun test src/tests/content/blog-post.test.tsx`
-* `bun test src/features/roofline-throughput-explorer/roofline-max-throughput-responsive-verification.test.tsx`
-  RTL keyboard tab order and missing-preset fallbacks for `/blog/roofline-max-throughput`.
-* `bun test src/lib/verify/roofline-max-throughput-blog-viewport-http.test.tsx`
+* `bun test src/features/roofline-throughput-explorer/roofline-throughput-explorer-responsive-verification.test.tsx`
+  RTL keyboard tab order and missing-preset fallbacks for `/blog/roofline-throughput-explorer`.
+* `bun test src/lib/verify/roofline-throughput-explorer-blog-viewport-http.test.tsx`
   Playwright desktop/mobile viewport probes on blog shell HTML (runs in `test-verify-contract`).
 * `bun test src/tests/content/blog-routes-slice-verification.test.tsx`
   Consolidated route proof for `/blog` metadata/render, `/blog/<slug>` body

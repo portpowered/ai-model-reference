@@ -4,10 +4,10 @@ import { renderBlogPostShell } from "@/lib/content/blog-shell-render";
 import { shouldRunPlaywrightHttpVerifierUnitTests } from "./export-integration-probe-lock";
 import { verifyRooflineThroughputExplorerViewports } from "./roofline-throughput-explorer-viewport-http";
 
-const BLOG_SLUG = "roofline-max-throughput";
+const BLOG_SLUG = "roofline-throughput-explorer";
 const ROOFLINE_VIEWPORT_PROBE_TIMEOUT_MS = 120_000;
 
-describe("roofline max throughput blog viewport probes", () => {
+describe("roofline throughput explorer blog viewport probes", () => {
   test(
     "blog post explorer markup keeps desktop and mobile control regions visible and non-overlapping",
     async () => {

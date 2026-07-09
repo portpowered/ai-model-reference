@@ -19,6 +19,7 @@ export type NavMessages = {
   menu: string;
   architecture: string;
   topology: string;
+  blog: string;
   glossary: string;
   timeline: string;
   tags: string;

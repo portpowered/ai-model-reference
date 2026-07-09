@@ -128,13 +128,31 @@ export function ChartTooltipContent({
   label,
   labelFormatter,
   formatter,
+  itemFilter,
+  itemLabelFormatter,
 }: Partial<TooltipContentProps<ValueType, NameType>> & {
   labelFormatter?: (label: string | number) => React.ReactNode;
-  formatter?: (value: ValueType, name: NameType) => React.ReactNode;
+  formatter?: (
+    value: ValueType,
+    name: NameType,
+    entry?: TooltipContentProps<ValueType, NameType>["payload"][number],
+  ) => React.ReactNode;
+  itemFilter?: (
+    entry: TooltipContentProps<ValueType, NameType>["payload"][number],
+  ) => boolean;
+  itemLabelFormatter?: (
+    name: NameType,
+    entry?: TooltipContentProps<ValueType, NameType>["payload"][number],
+  ) => React.ReactNode;
 }) {
   const config = React.useContext(ChartContext);
 
   if (!active || !payload?.length) {
+    return null;
+  }
+
+  const visiblePayload = itemFilter ? payload.filter(itemFilter) : payload;
+  if (visiblePayload.length === 0) {
     return null;
   }
 
@@ -144,7 +162,7 @@ export function ChartTooltipContent({
     <div className="min-w-44 rounded-lg border border-border bg-popover/95 px-3 py-2 text-sm text-popover-foreground shadow-lg backdrop-blur-sm">
       {title ? <div className="mb-2 font-medium">{title}</div> : null}
       <div className="space-y-1.5">
-        {payload.map(
+        {visiblePayload.map(
           (
             entry: TooltipContentProps<ValueType, NameType>["payload"][number],
           ) => {
@@ -152,8 +170,11 @@ export function ChartTooltipContent({
             const series = config?.[dataKey];
             const markerColor =
               entry.color ?? series?.color ?? "var(--muted-foreground)";
+            const itemLabel = itemLabelFormatter
+              ? itemLabelFormatter(entry.name ?? "", entry)
+              : (series?.label ?? entry.name);
             const content = formatter
-              ? formatter(entry.value ?? "", entry.name ?? "")
+              ? formatter(entry.value ?? "", entry.name ?? "", entry)
               : `${series?.label ?? entry.name}: ${entry.value}`;
 
             return (
@@ -166,9 +187,7 @@ export function ChartTooltipContent({
                     className="size-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: markerColor }}
                   />
-                  <span className="text-muted-foreground">
-                    {series?.label ?? entry.name}
-                  </span>
+                  <span className="text-muted-foreground">{itemLabel}</span>
                 </div>
                 <span className="font-medium text-popover-foreground">
                   {content}

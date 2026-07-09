@@ -19,7 +19,6 @@ import {
 import { RooflineThroughputExplorer } from "./RooflineThroughputExplorer";
 import { RooflineThroughputExplorerFromRegistry } from "./RooflineThroughputExplorerFromRegistry";
 import {
-  ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_LEGEND_LABEL,
   ROOFLINE_THROUGHPUT_BOUNDARY_LEGEND_LABEL,
   ROOFLINE_THROUGHPUT_EXPLORER_AXIS_X,
   ROOFLINE_THROUGHPUT_EXPLORER_AXIS_Y,
@@ -27,7 +26,8 @@ import {
 } from "./roofline-throughput-chart";
 import {
   ROOFLINE_ACTIVE_WEIGHT_SIZE_CONTROL_LABEL,
-  ROOFLINE_BYTES_PER_PARAMETER_CONTROL_LABEL,
+  ROOFLINE_BATCH_SIZE_CONTROL_LABEL,
+  ROOFLINE_QUANTIZATION_BITS_CONTROL_LABEL,
 } from "./roofline-throughput-explorer-controls";
 import {
   ROOFLINE_EMPTY_PRESETS_MESSAGE,
@@ -35,10 +35,9 @@ import {
 } from "./roofline-throughput-explorer-presets";
 
 const repoRoot = join(import.meta.dir, "../../..");
-const BLOG_SLUG = "roofline-max-throughput";
-const BLOG_ROUTE = "/blog/roofline-max-throughput";
-const BLOG_TITLE =
-  "Roofline maximum throughput: the practical upper bound before you compare hardware";
+const BLOG_SLUG = "roofline-throughput-explorer";
+const BLOG_ROUTE = "/blog/roofline-throughput-explorer";
+const BLOG_TITLE = "the best computer for local language models (2026)";
 const ROOFLINE_VIEWPORT_PROBE_TIMEOUT_MS = 120_000;
 
 const BLOG_VIEWPORTS = [
@@ -86,9 +85,6 @@ function assertExplorerBehavioralSurface(container: HTMLElement) {
   expect(container.textContent).toContain(
     ROOFLINE_THROUGHPUT_BOUNDARY_LEGEND_LABEL,
   );
-  expect(container.textContent).toContain(
-    ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_LEGEND_LABEL,
-  );
 
   expect(
     container.querySelector(
@@ -111,10 +107,10 @@ function assertExplorerBehavioralSurface(container: HTMLElement) {
   expect(container.querySelector(".recharts-line-curve")).toBeTruthy();
   expect(
     container.querySelector(".roofline-throughput-explorer__active-scenario"),
-  ).toBeTruthy();
+  ).toBeNull();
 }
 
-describe("roofline max throughput responsive verification (005)", () => {
+describe("roofline throughput explorer responsive verification (005)", () => {
   afterEach(() => {
     cleanup();
   });
@@ -132,7 +128,6 @@ describe("roofline max throughput responsive verification (005)", () => {
     expect(html).toContain(ROOFLINE_THROUGHPUT_EXPLORER_AXIS_X);
     expect(html).toContain(ROOFLINE_THROUGHPUT_EXPLORER_AXIS_Y);
     expect(html).toContain(ROOFLINE_THROUGHPUT_BOUNDARY_LEGEND_LABEL);
-    expect(html).toContain(ROOFLINE_THROUGHPUT_ACTIVE_SCENARIO_LEGEND_LABEL);
     expect(html).toContain('data-active-weight-size-billions="');
     expect(html).toContain('data-decode-tokens-per-second="');
   });
@@ -149,7 +144,7 @@ describe("roofline max throughput responsive verification (005)", () => {
     }
   });
 
-  test("keyboard tab order reaches preset, active weight, and bytes-per-parameter controls with focus-visible styling", async () => {
+  test("keyboard tab order reaches preset, active weight, quantization, and batch controls with focus-visible styling", async () => {
     const user = userEvent.setup();
     const { container } = render(<RooflineThroughputExplorerFromRegistry />);
 
@@ -157,7 +152,10 @@ describe("roofline max throughput responsive verification (005)", () => {
     const activeWeightControl = screen.getByTestId(
       "roofline-active-weight-size",
     );
-    const bytesControl = screen.getByTestId("roofline-bytes-per-parameter");
+    const quantizationControl = screen.getByTestId(
+      "roofline-quantization-bits",
+    );
+    const batchControl = screen.getByTestId("roofline-batch-size");
 
     expect(screen.getByLabelText(ROOFLINE_MODEL_PRESET_CONTROL_LABEL)).toBe(
       presetControl,
@@ -166,8 +164,11 @@ describe("roofline max throughput responsive verification (005)", () => {
       screen.getByLabelText(ROOFLINE_ACTIVE_WEIGHT_SIZE_CONTROL_LABEL),
     ).toBe(activeWeightControl);
     expect(
-      screen.getByLabelText(ROOFLINE_BYTES_PER_PARAMETER_CONTROL_LABEL),
-    ).toBe(bytesControl);
+      screen.getByLabelText(ROOFLINE_QUANTIZATION_BITS_CONTROL_LABEL),
+    ).toBe(quantizationControl);
+    expect(screen.getByLabelText(ROOFLINE_BATCH_SIZE_CONTROL_LABEL)).toBe(
+      batchControl,
+    );
 
     presetControl.focus();
     expect(document.activeElement).toBe(presetControl);
@@ -176,7 +177,10 @@ describe("roofline max throughput responsive verification (005)", () => {
     expect(document.activeElement).toBe(activeWeightControl);
 
     await user.tab();
-    expect(document.activeElement).toBe(bytesControl);
+    expect(document.activeElement).toBe(quantizationControl);
+
+    await user.tab();
+    expect(document.activeElement).toBe(batchControl);
 
     expect(container.innerHTML).toContain("focus-visible:ring-3");
     expect(container.innerHTML).toContain("focus-visible:border-ring");
@@ -254,7 +258,7 @@ describe("roofline max throughput responsive verification (005)", () => {
       screen.getByLabelText(ROOFLINE_ACTIVE_WEIGHT_SIZE_CONTROL_LABEL),
     ).toBeTruthy();
     expect(
-      screen.getByLabelText(ROOFLINE_BYTES_PER_PARAMETER_CONTROL_LABEL),
+      screen.getByLabelText(ROOFLINE_QUANTIZATION_BITS_CONTROL_LABEL),
     ).toBeTruthy();
     assertExplorerBehavioralSurface(container);
   });
@@ -308,8 +312,11 @@ describe("roofline max throughput responsive verification (005)", () => {
           const activeWeight = document.querySelector(
             '[data-testid="roofline-active-weight-size"]',
           );
-          const bytesControl = document.querySelector(
-            '[data-testid="roofline-bytes-per-parameter"]',
+          const quantizationControl = document.querySelector(
+            '[data-testid="roofline-quantization-bits"]',
+          );
+          const batchControl = document.querySelector(
+            '[data-testid="roofline-batch-size"]',
           );
           const chart = document.querySelector(
             '[data-roofline-throughput-explorer="chart"]',
@@ -343,7 +350,11 @@ describe("roofline max throughput responsive verification (005)", () => {
 
           const presetRect = readRect(preset, "preset");
           const activeWeightRect = readRect(activeWeight, "active-weight");
-          const bytesRect = readRect(bytesControl, "bytes-per-parameter");
+          const quantizationRect = readRect(
+            quantizationControl,
+            "quantization-bits",
+          );
+          const batchRect = readRect(batchControl, "batch-size");
           const chartRect = readRect(chart, "chart");
           const legendRect = readRect(legend, "legend");
           const titleRect = readRect(title, "title");
@@ -362,7 +373,8 @@ describe("roofline max throughput responsive verification (005)", () => {
             relatedDocsRect,
             presetRect,
             activeWeightRect,
-            bytesRect,
+            batchRect,
+            quantizationRect,
             chartRect,
             chartTitleRect: chartTitle
               ? readRect(chartTitle, "chart-title")
@@ -379,7 +391,8 @@ describe("roofline max throughput responsive verification (005)", () => {
         expect(layout.relatedDocsRect.height).toBeGreaterThan(0);
         expect(layout.presetRect.height).toBeGreaterThan(0);
         expect(layout.activeWeightRect.height).toBeGreaterThan(0);
-        expect(layout.bytesRect.height).toBeGreaterThan(0);
+        expect(layout.quantizationRect.height).toBeGreaterThan(0);
+        expect(layout.batchRect.height).toBeGreaterThan(0);
         expect(layout.chartRect.height).toBeGreaterThan(0);
         expect(layout.legendRect.height).toBeGreaterThan(0);
         expect(layout.activeWeightSummaryRect.height).toBeGreaterThan(0);
@@ -391,7 +404,10 @@ describe("roofline max throughput responsive verification (005)", () => {
         expect(layout.chartRect.bottom).toBeLessThanOrEqual(
           layout.legendRect.top + 8,
         );
-        expect(rectsOverlap(layout.presetRect, layout.bytesRect)).toBe(false);
+        expect(rectsOverlap(layout.presetRect, layout.quantizationRect)).toBe(
+          false,
+        );
+        expect(rectsOverlap(layout.presetRect, layout.batchRect)).toBe(false);
         expect(rectsOverlap(layout.activeWeightRect, layout.legendRect)).toBe(
           false,
         );

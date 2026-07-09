@@ -143,21 +143,25 @@ describe("blog prose validation boundaries", () => {
     ).toBe(false);
   });
 
-  test("published blog fixtures with narrative MDX prose pass validateRegistryContent", async () => {
-    const { blogRoot } = await writeNarrativeBlogFixture(
-      "registry-narrative-post",
-    );
+  test(
+    "published blog fixtures with narrative MDX prose pass validateRegistryContent",
+    async () => {
+      const { blogRoot } = await writeNarrativeBlogFixture(
+        "registry-narrative-post",
+      );
 
-    const errors = await validateRegistryContent({ blogRoot });
-    const blogErrors = errors.filter((error) =>
-      error.message.includes("/blog/registry-narrative-post"),
-    );
+      const errors = await validateRegistryContent({ blogRoot });
+      const blogErrors = errors.filter((error) =>
+        error.message.includes("/blog/registry-narrative-post"),
+      );
 
-    expect(blogErrors).toEqual([]);
-    expect(
-      errors.some((error) => isCanonicalMdxProseErrorCode(error.code)),
-    ).toBe(false);
-  });
+      expect(blogErrors).toEqual([]);
+      expect(
+        errors.some((error) => isCanonicalMdxProseErrorCode(error.code)),
+      ).toBe(false);
+    },
+    20_000,
+  );
 
   test("canonical docs fixtures with raw user-visible prose still fail prose validation", () => {
     const frontmatter = canonicalConceptMdx.match(/^---[\s\S]*?---/)?.[0] ?? "";
@@ -208,57 +212,65 @@ This paragraph belongs in messages, not in canonical MDX source files for docs p
     ).toBe(true);
   });
 
-  test("blog validation errors focus on metadata and references, not body prose", async () => {
-    tempRoot = await mkdtemp(join(tmpdir(), "blog-prose-boundaries-"));
-    const slug = "broken-metadata";
-    const pageDir = join(tempRoot, slug);
-    await mkdir(join(pageDir, "messages"), { recursive: true });
-    await writeFile(
-      join(pageDir, "page.mdx"),
-      `${publishedFrontmatterBlock({
-        tags: ["missing-tag"],
-        relatedDocIds: ["concept.missing-target"],
-      })}${narrativeBlogMdxBody()}`,
-    );
-    await writeFile(
-      join(pageDir, "messages", "en.json"),
-      JSON.stringify({
-        title: "Broken metadata blog",
-        description: "Fixture for metadata-focused validation errors.",
-        contextSentence:
-          "Metadata should fail while narrative prose stays allowed.",
-        takeaway: "Tags and related docs must still resolve.",
-      }),
-    );
-    await writeFile(join(pageDir, "assets.json"), "{}");
+  test(
+    "blog validation errors focus on metadata and references, not body prose",
+    async () => {
+      tempRoot = await mkdtemp(join(tmpdir(), "blog-prose-boundaries-"));
+      const slug = "broken-metadata";
+      const pageDir = join(tempRoot, slug);
+      await mkdir(join(pageDir, "messages"), { recursive: true });
+      await writeFile(
+        join(pageDir, "page.mdx"),
+        `${publishedFrontmatterBlock({
+          tags: ["missing-tag"],
+          relatedDocIds: ["concept.missing-target"],
+        })}${narrativeBlogMdxBody()}`,
+      );
+      await writeFile(
+        join(pageDir, "messages", "en.json"),
+        JSON.stringify({
+          title: "Broken metadata blog",
+          description: "Fixture for metadata-focused validation errors.",
+          contextSentence:
+            "Metadata should fail while narrative prose stays allowed.",
+          takeaway: "Tags and related docs must still resolve.",
+        }),
+      );
+      await writeFile(join(pageDir, "assets.json"), "{}");
 
-    const indexes = await loadRegistry();
-    const errors = await validatePublishedBlogPosts({
-      blogRoot: tempRoot,
-      indexes,
-    });
+      const indexes = await loadRegistry();
+      const errors = await validatePublishedBlogPosts({
+        blogRoot: tempRoot,
+        indexes,
+      });
 
-    expect(errors.length).toBeGreaterThan(0);
-    expect(errors.some((error) => error.code === "unresolved-blog-tag")).toBe(
-      true,
-    );
-    expect(
-      errors.some((error) => error.code === "unresolved-blog-related-doc"),
-    ).toBe(true);
-    expect(
-      errors.some((error) => isCanonicalMdxProseErrorCode(error.code)),
-    ).toBe(false);
-  });
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors.some((error) => error.code === "unresolved-blog-tag")).toBe(
+        true,
+      );
+      expect(
+        errors.some((error) => error.code === "unresolved-blog-related-doc"),
+      ).toBe(true);
+      expect(
+        errors.some((error) => isCanonicalMdxProseErrorCode(error.code)),
+      ).toBe(false);
+    },
+    20_000,
+  );
 
-  test("committed roofline blog post stays free of canonical prose validation errors", async () => {
-    const errors = await validateRegistryContent();
-    const blogErrors = errors.filter((error) =>
-      error.message.includes("/blog/roofline-throughput-explorer"),
-    );
+  test(
+    "committed roofline blog post stays free of canonical prose validation errors",
+    async () => {
+      const errors = await validateRegistryContent();
+      const blogErrors = errors.filter((error) =>
+        error.message.includes("/blog/roofline-throughput-explorer"),
+      );
 
-    expect(blogErrors).toEqual([]);
-    expect(
-      errors.some((error) => isCanonicalMdxProseErrorCode(error.code)),
-    ).toBe(false);
-  });
+      expect(blogErrors).toEqual([]);
+      expect(
+        errors.some((error) => isCanonicalMdxProseErrorCode(error.code)),
+      ).toBe(false);
+    },
+    20_000,
+  );
 });

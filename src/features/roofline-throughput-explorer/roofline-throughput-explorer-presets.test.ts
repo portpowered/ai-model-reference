@@ -17,6 +17,11 @@ const TEST_PRESETS = [
     effectiveSizeBillions: 27,
   },
   {
+    modelId: "model.qwen-3-6-35b-a3b",
+    label: "Qwen3.6-35B-A3B",
+    effectiveSizeBillions: 3,
+  },
+  {
     modelId: "model.qwen3-0-6b",
     label: "Test Missing Size",
     effectiveSizeBillions: null,
@@ -24,10 +29,10 @@ const TEST_PRESETS = [
 ] satisfies RooflineModelSizePreset[];
 
 describe("roofline-throughput-explorer-presets", () => {
-  test("initializes from the first preset with a usable effective size", () => {
+  test("initializes from the default Qwen MoE preset when available", () => {
     expect(resolveInitialPresetSelection(TEST_PRESETS)).toEqual({
-      selectedPresetId: "model.glm-5-2",
-      activeWeightSizeBillions: 40,
+      selectedPresetId: "model.qwen-3-6-35b-a3b",
+      activeWeightSizeBillions: 3,
     });
   });
 

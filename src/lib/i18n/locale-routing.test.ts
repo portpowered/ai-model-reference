@@ -56,6 +56,16 @@ describe("locale-routing", () => {
     expect(buildLocalizedRoute({ surface: "topology" }, "ja")).toBe(
       "/ja/topology",
     );
+    expect(buildLocalizedRoute({ surface: "blog-index" }, "en")).toBe("/blog");
+    expect(buildLocalizedRoute({ surface: "blog-index" }, "vi")).toBe(
+      "/vi/blog",
+    );
+    expect(
+      buildLocalizedRoute(
+        { surface: "blog-post", slug: "roofline-throughput-explorer" },
+        "ja",
+      ),
+    ).toBe("/ja/blog/roofline-throughput-explorer");
     expect(
       buildLocalizedRoute(
         { surface: "docs-page", slug: "modules/grouped-query-attention" },
@@ -116,6 +126,25 @@ describe("locale-routing", () => {
       destination: { surface: "topology" },
     });
 
+    expect(matchLocalizedRoute("/vi/blog")).toEqual({
+      kind: "matched",
+      locale: "vi",
+      pathname: "/blog",
+      destination: { surface: "blog-index" },
+    });
+
+    expect(
+      matchLocalizedRoute("/ja/blog/roofline-throughput-explorer"),
+    ).toEqual({
+      kind: "matched",
+      locale: "ja",
+      pathname: "/blog/roofline-throughput-explorer",
+      destination: {
+        surface: "blog-post",
+        slug: "roofline-throughput-explorer",
+      },
+    });
+
     expect(matchLocalizedRoute("/vi/docs/glossary")).toEqual({
       kind: "matched",
       locale: "vi",
@@ -173,6 +202,10 @@ describe("locale-routing", () => {
     expect(switchRouteLocale("/browse", "ja")).toBe("/ja/browse");
     expect(switchRouteLocale("/topology", "vi")).toBe("/vi/topology");
     expect(switchRouteLocale("/vi/topology", "ja")).toBe("/ja/topology");
+    expect(switchRouteLocale("/blog", "vi")).toBe("/vi/blog");
+    expect(
+      switchRouteLocale("/vi/blog/roofline-throughput-explorer", "en"),
+    ).toBe("/blog/roofline-throughput-explorer");
     expect(switchRouteLocale("/search?tag=attention", "ja")).toBe(
       "/ja/search?tag=attention",
     );
