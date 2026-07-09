@@ -71,7 +71,9 @@ describe("groupTagIndexEntriesByCategory", () => {
     expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual(["alignment"]);
     expect(groups[3]?.tags.map((tag) => tag.slug)).toEqual([
       "context-window",
+      "inference",
       "kv-cache",
+      "local-models",
       "quantization",
     ]);
     expect(groups[4]?.tags.map((tag) => tag.slug)).toEqual(["model-family"]);

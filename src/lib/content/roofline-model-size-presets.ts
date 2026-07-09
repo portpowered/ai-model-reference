@@ -6,8 +6,19 @@ import type { ModelRecord } from "./schemas";
 export const ROOFLINE_MODEL_SIZE_PRESET_DEFINITIONS = [
   { registryId: "model.glm-5-2", label: "GLM-5.2" },
   { registryId: "model.deepseek-v4-pro", label: "DeepSeek-V4-Pro" },
+  {
+    registryId: "model.deepseek-v4-flash",
+    label: "DeepSeek-V4-Flash",
+    preferCanonicalLabel: true,
+  },
   { registryId: "model.qwen-3-6-35b-a3b", label: "Qwen3.6-35B-A3B" },
   { registryId: "model.qwen-3-6-27b", label: "Qwen3.6-27B" },
+  {
+    registryId: "model.gemma",
+    label: "Gemma 4 26B-A4B",
+    effectiveSizeBillions: 4,
+    preferCanonicalLabel: true,
+  },
   { registryId: "model.qwen3-0-6b", label: "Qwen3-0.6B" },
 ] as const;
 
@@ -28,7 +39,12 @@ export type RooflineModelSizePreset = {
 function resolvePresetDisplayLabel(
   record: ModelRecord | undefined,
   canonicalLabel: string,
+  options?: { preferCanonicalLabel?: boolean },
 ): string {
+  if (options?.preferCanonicalLabel) {
+    return canonicalLabel;
+  }
+
   if (record?.aliases?.[0]) {
     return registryDisplayTitle(record);
   }
@@ -40,13 +56,15 @@ export function resolveRooflineModelSizePreset(
   registryId: RooflineModelSizePresetRegistryId,
   record: ModelRecord | undefined,
   canonicalLabel: string,
+  explicitEffectiveSizeBillions?: number,
+  options?: { preferCanonicalLabel?: boolean },
 ): RooflineModelSizePreset {
   return {
     modelId: registryId,
-    label: resolvePresetDisplayLabel(record, canonicalLabel),
-    effectiveSizeBillions: record
-      ? resolveEffectiveRooflineModelSize(record)
-      : null,
+    label: resolvePresetDisplayLabel(record, canonicalLabel, options),
+    effectiveSizeBillions:
+      explicitEffectiveSizeBillions ??
+      (record ? resolveEffectiveRooflineModelSize(record) : null),
   };
 }
 
@@ -57,7 +75,17 @@ export function resolveRooflineModelSizePreset(
  * effective size.
  */
 export function getRooflineModelSizePresets(): RooflineModelSizePreset[] {
-  return ROOFLINE_MODEL_SIZE_PRESET_DEFINITIONS.map(({ registryId, label }) =>
-    resolveRooflineModelSizePreset(registryId, getModelById(registryId), label),
+  return ROOFLINE_MODEL_SIZE_PRESET_DEFINITIONS.map((definition) =>
+    resolveRooflineModelSizePreset(
+      definition.registryId,
+      getModelById(definition.registryId),
+      definition.label,
+      "effectiveSizeBillions" in definition
+        ? definition.effectiveSizeBillions
+        : undefined,
+      "preferCanonicalLabel" in definition
+        ? { preferCanonicalLabel: definition.preferCanonicalLabel }
+        : undefined,
+    ),
   );
 }

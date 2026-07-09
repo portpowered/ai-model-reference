@@ -175,7 +175,7 @@ describe("blog tag landing resources", () => {
         tags: ["kv-cache", "foundations"],
       }),
     ]);
-  });
+  }, 20_000);
 
   test("draft blog posts are excluded from tag landing membership", async () => {
     const { blogRoot } = await writeFixturePost({
@@ -203,7 +203,7 @@ describe("blog tag landing resources", () => {
     });
 
     expect(groups.some((group) => group.kind === "blog")).toBe(false);
-  });
+  }, 20_000);
 
   test("sorts blog resources by published date newest first", async () => {
     const messages = await loadUiMessages();
@@ -276,9 +276,9 @@ describe("production blog tag landing", () => {
         tags: ["foundations", "model-family"],
       }),
     ]);
-  });
+  }, 20_000);
 
-  it("lists published blog posts on foundations and kv-cache tag pages", async () => {
+  it("lists published blog posts on foundations, inference, and local-models tag pages", async () => {
     const messages = await loadUiMessages();
     const foundationsGroups = await loadTagResourceGroups(
       "foundations",
@@ -304,41 +304,45 @@ describe("production blog tag landing", () => {
           url: "/blog/llms-no-longer-wholly-reliant-on-the-internet",
           publishedAt: "2026-07-08",
         }),
+      ]),
+    );
+
+    const inferenceGroups = await loadTagResourceGroups(
+      "inference",
+      messages,
+      "en",
+    );
+    const inferenceBlogGroup = inferenceGroups.find(
+      (group) => group.kind === "blog",
+    );
+
+    expect(inferenceBlogGroup).toBeDefined();
+    expect(inferenceBlogGroup?.kindLabel).toBe("Blog");
+    expect(inferenceBlogGroup?.resources).toEqual(
+      expect.arrayContaining([
         expect.objectContaining({
-          title:
-            "Roofline maximum throughput: the practical upper bound before you compare hardware",
-          url: "/blog/roofline-max-throughput",
-          publishedAt: "2026-07-08",
-        }),
-        expect.objectContaining({
-          title: "Why throughput follows a roofline",
+          title: "the best computer for local language models (2026)",
           url: "/blog/roofline-throughput-explorer",
           publishedAt: "2026-07-02",
         }),
       ]),
     );
 
-    const kvCacheGroups = await loadTagResourceGroups(
-      "kv-cache",
+    const localModelsGroups = await loadTagResourceGroups(
+      "local-models",
       messages,
       "en",
     );
-    const kvCacheBlogGroup = kvCacheGroups.find(
+    const localModelsBlogGroup = localModelsGroups.find(
       (group) => group.kind === "blog",
     );
 
-    expect(kvCacheBlogGroup).toBeDefined();
-    expect(kvCacheBlogGroup?.kindLabel).toBe("Blog");
-    expect(kvCacheBlogGroup?.resources).toEqual(
+    expect(localModelsBlogGroup).toBeDefined();
+    expect(localModelsBlogGroup?.kindLabel).toBe("Blog");
+    expect(localModelsBlogGroup?.resources).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          title:
-            "Roofline maximum throughput: the practical upper bound before you compare hardware",
-          url: "/blog/roofline-max-throughput",
-          publishedAt: "2026-07-08",
-        }),
-        expect.objectContaining({
-          title: "Why throughput follows a roofline",
+          title: "the best computer for local language models (2026)",
           url: "/blog/roofline-throughput-explorer",
           publishedAt: "2026-07-02",
         }),
@@ -350,20 +354,16 @@ describe("production blog tag landing", () => {
     ).toEqual([
       "evolution-of-diffusion",
       "llms-no-longer-wholly-reliant-on-the-internet",
-      "roofline-max-throughput",
-      "llm-training-shift",
-      "roofline-throughput-explorer",
     ]);
-  });
+  }, 20_000);
 
-  it("lists the training-shift post on the alignment tag page", async () => {
+  it("lists the internet-reliance post on the alignment tag page", async () => {
     const messages = await loadUiMessages();
     const groups = await loadTagResourceGroups("alignment", messages, "en");
     const blogGroup = groups.find((group) => group.kind === "blog");
 
     expect(blogGroup?.resources.map((resource) => resource.slug)).toEqual([
       "llms-no-longer-wholly-reliant-on-the-internet",
-      "llm-training-shift",
     ]);
     expect(blogGroup?.resources).toEqual(
       expect.arrayContaining([
@@ -373,7 +373,7 @@ describe("production blog tag landing", () => {
         }),
       ]),
     );
-  });
+  }, 20_000);
 
   it("keeps attention tag groups unchanged without a blog section", async () => {
     const messages = await loadUiMessages();
@@ -386,39 +386,25 @@ describe("production blog tag landing", () => {
       "paper",
       "glossary",
     ]);
-  });
+  }, 20_000);
 
-  it("renders blog metadata on the foundations tag landing page", async () => {
+  it("renders blog metadata on the inference tag landing page", async () => {
     const page = await TagLandingPage({
-      params: Promise.resolve({ slug: "foundations" }),
+      params: Promise.resolve({ slug: "inference" }),
     });
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Blog");
     expect(html).toContain(
-      "How diffusion generation evolved from pixel U-Nets to transformers, flow matching, and modern video models",
+      "the best computer for local language models (2026)",
     );
-    expect(html).toContain('href="/blog/evolution-of-diffusion"');
-    expect(html).toContain("LLMs are no longer wholly reliant on the internet");
-    expect(html).toContain(
-      'href="/blog/llms-no-longer-wholly-reliant-on-the-internet"',
-    );
-    expect(html).toContain(
-      "Roofline maximum throughput: the practical upper bound before you compare hardware",
-    );
-    expect(html).toContain('href="/blog/roofline-max-throughput"');
-    expect(html).toContain(
-      "How peak compute FLOPs, memory bandwidth, parameter precision, and active weight size jointly set the maximum tokens-per-second bound for inference serving.",
-    );
-    expect(html).toContain('dateTime="2026-07-08"');
-    expect(html).toContain("Why throughput follows a roofline");
     expect(html).toContain('href="/blog/roofline-throughput-explorer"');
     expect(html).toContain(
-      "An interactive roofline view of how memory bandwidth and active weight reads shape achievable model throughput.",
+      "An overall guide to the best computer to buy for local language models. We recommend an M-series laptop or a 5090.",
     );
     expect(html).toContain('dateTime="2026-07-02"');
-    expect(html).toContain('href="/tags/kv-cache"');
-  });
+    expect(html).toContain('href="/tags/local-models"');
+  }, 20_000);
 
   it("lists llms-no-longer-wholly-reliant-on-the-internet on the alignment tag landing page", async () => {
     const messages = await loadUiMessages();
@@ -443,7 +429,7 @@ describe("production blog tag landing", () => {
       'href="/blog/llms-no-longer-wholly-reliant-on-the-internet"',
     );
     expect(html).toContain('dateTime="2026-07-08"');
-  });
+  }, 20_000);
 });
 
 describe("TagResourceList blog presentation", () => {

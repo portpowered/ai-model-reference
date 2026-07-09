@@ -59,6 +59,7 @@ describe("Phase 1 home shell styling contracts", () => {
       "/",
       "/topology",
       "/docs/timeline",
+      "/blog",
       "/tags",
     ]);
     expect(

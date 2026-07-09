@@ -4,36 +4,10 @@ import {
   loadBlogPostFromDisk,
 } from "@/lib/content/blog-page-load";
 import { renderBlogPostShell } from "@/lib/content/blog-shell-render";
-import { resolveRelatedRegistryDocs } from "@/lib/content/related-registry-docs";
 
 const ROOFLINE_BLOG_SLUG = "roofline-throughput-explorer";
-const ROOFLINE_MAX_THROUGHPUT_SLUG = "roofline-max-throughput";
 const TRAINING_SHIFT_BLOG_SLUG =
   "llms-no-longer-wholly-reliant-on-the-internet";
-
-const ROOFLINE_MAX_THROUGHPUT_RELATED_DOC_IDS = [
-  "concept.roofline-model",
-  "concept.memory-bandwidth",
-  "concept.flops",
-  "concept.tokens-per-second",
-  "concept.prefill",
-  "concept.decode",
-  "concept.prefill-decode-split",
-  "concept.kv-cache",
-  "system.inference-engine",
-] as const;
-
-const ROOFLINE_MAX_THROUGHPUT_INLINE_LINK_HREFS = [
-  "/docs/concepts/flops",
-  "/docs/glossary/tokens-per-second",
-  "/docs/glossary/decode",
-  "/docs/concepts/memory-bandwidth",
-  "/docs/concepts/roofline-model",
-  "/docs/concepts/prefill",
-  "/docs/concepts/prefill-decode-split",
-  "/docs/concepts/kv-cache",
-  "/docs/systems/inference-engine",
-] as const;
 
 const TRAINING_SHIFT_RELATED_DOC_IDS = [
   "training-regime.pretraining",
@@ -68,35 +42,6 @@ describe("blog related docs integration", () => {
     expect(html).not.toContain("concept.prefill");
     expect(html).not.toContain("concept.decode");
     expect(html).not.toContain("concept.kv-cache");
-  });
-
-  test("roofline max throughput post resolves canonical related docs and inline links", async () => {
-    const post = await loadBlogPostFromDisk(ROOFLINE_MAX_THROUGHPUT_SLUG);
-    const html = renderBlogPostShell(post);
-    const resolved = resolveRelatedRegistryDocs(
-      ROOFLINE_MAX_THROUGHPUT_RELATED_DOC_IDS,
-    );
-
-    expect(blogPostHref(ROOFLINE_MAX_THROUGHPUT_SLUG)).toBe(
-      "/blog/roofline-max-throughput",
-    );
-    expect(post.frontmatter.relatedDocIds).toEqual([
-      ...ROOFLINE_MAX_THROUGHPUT_RELATED_DOC_IDS,
-    ]);
-    expect(resolved.unavailable).toEqual([]);
-    expect(resolved.available).toHaveLength(
-      ROOFLINE_MAX_THROUGHPUT_RELATED_DOC_IDS.length,
-    );
-
-    expect(html).toContain('data-testid="blog-related-docs"');
-    for (const item of resolved.available) {
-      expect(html).toContain(`href="${item.href}"`);
-      expect(html).not.toContain(item.registryId);
-    }
-
-    for (const href of ROOFLINE_MAX_THROUGHPUT_INLINE_LINK_HREFS) {
-      expect(html).toContain(`href="${href}"`);
-    }
   });
 
   test("llms-no-longer-wholly-reliant-on-the-internet renders landed training-regime and concept related docs", async () => {

@@ -6,36 +6,46 @@ export const DEFAULT_ROOFLINE_PEAK_COMPUTE_FLOPS_PER_SECOND = 500e12;
 
 /** Default memory-bandwidth domain for the roofline chart in GB/s. */
 export const DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS: readonly [number, number] =
-  [100, 2000];
+  [0, 2000];
 
 export type RooflineScenarioInputValues = {
   activeWeightSizeBillions: number;
-  bytesPerParameter: number;
+  batchSize?: number;
+  bytesPerParameter?: number;
   memoryBandwidthGbps: number;
   peakComputeFlopsPerSecond?: number;
+  quantizationBits?: number;
 };
 
 export type RooflineScenarioInputDraft = {
   activeWeightSizeBillions?: number;
+  batchSize?: number;
   bytesPerParameter?: number;
   memoryBandwidthGbps?: number;
   peakComputeFlopsPerSecond?: number;
+  quantizationBits?: number;
 };
 
 export type RooflineInvalidField =
   | "activeWeightSizeBillions"
+  | "batchSize"
   | "bytesPerParameter"
   | "memoryBandwidthGbps"
-  | "peakComputeFlopsPerSecond";
+  | "peakComputeFlopsPerSecond"
+  | "quantizationBits";
 
 export type RooflineInvalidReason =
   | "missing-active-weight-size"
   | "invalid-active-weight-size"
+  | "missing-batch-size"
+  | "invalid-batch-size"
   | "missing-bytes-per-parameter"
   | "invalid-bytes-per-parameter"
   | "missing-memory-bandwidth"
   | "invalid-memory-bandwidth"
   | "invalid-peak-compute"
+  | "missing-quantization-bits"
+  | "invalid-quantization-bits"
   | "invalid-bandwidth-domain";
 
 export type RooflineInvalidResult = {
@@ -70,6 +80,10 @@ function isPositiveFiniteNumber(value: number | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
 }
 
+function isNonNegativeFiniteNumber(value: number | undefined): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
 function sanitizePositiveFiniteOutput(value: number): number {
   if (!Number.isFinite(value) || value < 0) {
     return 0;
@@ -78,26 +92,62 @@ function sanitizePositiveFiniteOutput(value: number): number {
   return value;
 }
 
-function validateBytesPerParameter(
+function validatePositiveInput(
   value: number | undefined,
+  missingReason: RooflineInvalidReason,
+  invalidReason: RooflineInvalidReason,
+  field: RooflineInvalidField,
 ): RooflineInvalidResult | null {
   if (value == null) {
     return {
       kind: "invalid",
-      reason: "missing-bytes-per-parameter",
-      field: "bytesPerParameter",
+      reason: missingReason,
+      field,
     };
   }
 
   if (!isPositiveFiniteNumber(value)) {
     return {
       kind: "invalid",
-      reason: "invalid-bytes-per-parameter",
-      field: "bytesPerParameter",
+      reason: invalidReason,
+      field,
     };
   }
 
   return null;
+}
+
+function validateBytesPerParameter(
+  value: number | undefined,
+): RooflineInvalidResult | null {
+  return validatePositiveInput(
+    value,
+    "missing-bytes-per-parameter",
+    "invalid-bytes-per-parameter",
+    "bytesPerParameter",
+  );
+}
+
+function validateQuantizationBits(
+  value: number | undefined,
+): RooflineInvalidResult | null {
+  return validatePositiveInput(
+    value,
+    "missing-quantization-bits",
+    "invalid-quantization-bits",
+    "quantizationBits",
+  );
+}
+
+function validateBatchSize(
+  value: number | undefined,
+): RooflineInvalidResult | null {
+  return validatePositiveInput(
+    value,
+    "missing-batch-size",
+    "invalid-batch-size",
+    "batchSize",
+  );
 }
 
 function validateActiveWeightSizeBillions(
@@ -162,25 +212,101 @@ function resolvePeakComputeFlopsPerSecond(
   return value;
 }
 
+function resolveQuantizationBits(
+  inputs: Pick<
+    RooflineScenarioInputDraft,
+    "bytesPerParameter" | "quantizationBits"
+  >,
+): RooflineInvalidResult | number {
+  if (inputs.quantizationBits != null) {
+    const validation = validateQuantizationBits(inputs.quantizationBits);
+    return validation ?? inputs.quantizationBits;
+  }
+
+  const bytesPerParameter = inputs.bytesPerParameter;
+  const bytesValidation = validateBytesPerParameter(bytesPerParameter);
+  if (bytesValidation) {
+    return {
+      kind: "invalid",
+      reason:
+        bytesValidation.reason === "missing-bytes-per-parameter"
+          ? "missing-quantization-bits"
+          : "invalid-quantization-bits",
+      field: "quantizationBits",
+    };
+  }
+  if (bytesPerParameter == null) {
+    return {
+      kind: "invalid",
+      reason: "missing-quantization-bits",
+      field: "quantizationBits",
+    };
+  }
+
+  return bytesPerParameter * 8;
+}
+
+function resolveBatchSize(
+  value: number | undefined,
+): RooflineInvalidResult | number {
+  if (value == null) {
+    return 1;
+  }
+
+  const validation = validateBatchSize(value);
+  return validation ?? value;
+}
+
+export function computeBytesPerParameterFromQuantizationBits(
+  quantizationBits: number,
+): number {
+  return quantizationBits / 8;
+}
+
 export function computeActiveWeightBytesPerToken(
   activeWeightSizeBillions: number,
-  bytesPerParameter: number,
+  quantizationBits: number,
+  batchSize = 1,
 ): number {
-  return activeWeightSizeBillions * 1e9 * bytesPerParameter;
+  return (
+    (activeWeightSizeBillions *
+      1e9 *
+      computeBytesPerParameterFromQuantizationBits(quantizationBits)) /
+    batchSize
+  );
 }
 
 export function computeMemoryBoundDecodeTokensPerSecond({
   activeWeightSizeBillions,
+  batchSize,
   bytesPerParameter,
+  quantizationBits,
   memoryBandwidthGbps,
 }: Pick<
   RooflineScenarioInputValues,
-  "activeWeightSizeBillions" | "bytesPerParameter" | "memoryBandwidthGbps"
+  | "activeWeightSizeBillions"
+  | "batchSize"
+  | "bytesPerParameter"
+  | "memoryBandwidthGbps"
+  | "quantizationBits"
 >): number {
+  const resolvedQuantizationBits = resolveQuantizationBits({
+    bytesPerParameter,
+    quantizationBits,
+  });
+  const resolvedBatchSize = resolveBatchSize(batchSize);
+  if (
+    typeof resolvedQuantizationBits !== "number" ||
+    typeof resolvedBatchSize !== "number"
+  ) {
+    return 0;
+  }
+
   const bandwidthBytesPerSecond = memoryBandwidthGbps * 1e9;
   const activeWeightBytesPerToken = computeActiveWeightBytesPerToken(
     activeWeightSizeBillions,
-    bytesPerParameter,
+    resolvedQuantizationBits,
+    resolvedBatchSize,
   );
 
   return sanitizePositiveFiniteOutput(
@@ -231,11 +357,19 @@ export function computeRooflineScenario(
     return activeWeightValidation;
   }
 
-  const bytesPerParameterValidation = validateBytesPerParameter(
-    inputs.bytesPerParameter,
-  );
-  if (bytesPerParameterValidation) {
-    return bytesPerParameterValidation;
+  const quantizationBits = resolveQuantizationBits(inputs);
+  if (typeof quantizationBits !== "number") {
+    return quantizationBits;
+  }
+
+  const batchSize = resolveBatchSize(inputs.batchSize);
+  if (typeof batchSize !== "number") {
+    return batchSize;
+  }
+
+  const quantizationBitsValidation = validateQuantizationBits(quantizationBits);
+  if (quantizationBitsValidation) {
+    return quantizationBitsValidation;
   }
 
   const memoryBandwidthValidation = validateMemoryBandwidthGbps(
@@ -253,14 +387,9 @@ export function computeRooflineScenario(
   }
 
   const activeWeightSizeBillions = inputs.activeWeightSizeBillions;
-  const bytesPerParameter = inputs.bytesPerParameter;
   const memoryBandwidthGbps = inputs.memoryBandwidthGbps;
 
-  if (
-    activeWeightSizeBillions == null ||
-    bytesPerParameter == null ||
-    memoryBandwidthGbps == null
-  ) {
+  if (activeWeightSizeBillions == null || memoryBandwidthGbps == null) {
     return {
       kind: "invalid",
       reason: "missing-active-weight-size",
@@ -270,16 +399,18 @@ export function computeRooflineScenario(
 
   const scenarioInputs: RooflineScenarioInputValues = {
     activeWeightSizeBillions,
-    bytesPerParameter,
+    batchSize,
     memoryBandwidthGbps,
     peakComputeFlopsPerSecond: peakCompute,
+    quantizationBits,
   };
 
   return {
     kind: "valid",
     activeWeightBytesPerToken: computeActiveWeightBytesPerToken(
       activeWeightSizeBillions,
-      bytesPerParameter,
+      quantizationBits,
+      batchSize,
     ),
     computeBoundDecodeTokensPerSecond: computeComputeBoundDecodeTokensPerSecond(
       {
@@ -296,15 +427,19 @@ export function computeRooflineScenario(
 
 export function sampleMaximumThroughputBoundarySeries({
   activeWeightSizeBillions,
+  batchSize,
   bytesPerParameter,
   domain = DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS,
   peakComputeFlopsPerSecond,
+  quantizationBits,
   sampleCount = 25,
 }: {
   activeWeightSizeBillions?: number;
+  batchSize?: number;
   bytesPerParameter?: number;
   domain?: readonly [number, number];
   peakComputeFlopsPerSecond?: number;
+  quantizationBits?: number;
   sampleCount?: number;
 }): RooflineBoundarySeriesResult {
   const activeWeightValidation = validateActiveWeightSizeBillions(
@@ -314,10 +449,17 @@ export function sampleMaximumThroughputBoundarySeries({
     return activeWeightValidation;
   }
 
-  const bytesPerParameterValidation =
-    validateBytesPerParameter(bytesPerParameter);
-  if (bytesPerParameterValidation) {
-    return bytesPerParameterValidation;
+  const resolvedQuantizationBits = resolveQuantizationBits({
+    bytesPerParameter,
+    quantizationBits,
+  });
+  if (typeof resolvedQuantizationBits !== "number") {
+    return resolvedQuantizationBits;
+  }
+
+  const resolvedBatchSize = resolveBatchSize(batchSize);
+  if (typeof resolvedBatchSize !== "number") {
+    return resolvedBatchSize;
   }
 
   const peakCompute = resolvePeakComputeFlopsPerSecond(
@@ -329,7 +471,7 @@ export function sampleMaximumThroughputBoundarySeries({
 
   const [domainStart, domainEnd] = domain;
   if (
-    !isPositiveFiniteNumber(domainStart) ||
+    !isNonNegativeFiniteNumber(domainStart) ||
     !isPositiveFiniteNumber(domainEnd) ||
     domainStart >= domainEnd ||
     !Number.isInteger(sampleCount) ||
@@ -342,7 +484,7 @@ export function sampleMaximumThroughputBoundarySeries({
     };
   }
 
-  if (activeWeightSizeBillions == null || bytesPerParameter == null) {
+  if (activeWeightSizeBillions == null) {
     return {
       kind: "invalid",
       reason: "missing-active-weight-size",
@@ -360,9 +502,10 @@ export function sampleMaximumThroughputBoundarySeries({
       memoryBandwidthGbps,
       maximumDecodeTokensPerSecond: computeMaximumDecodeTokensPerSecond({
         activeWeightSizeBillions,
-        bytesPerParameter,
+        batchSize: resolvedBatchSize,
         memoryBandwidthGbps,
         peakComputeFlopsPerSecond: peakCompute,
+        quantizationBits: resolvedQuantizationBits,
       }),
     };
   });

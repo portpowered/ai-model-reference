@@ -21,9 +21,9 @@ import {
 import { blogIndexHref, blogPostHref } from "@/lib/content/blog-page-load";
 
 const ROOFLINE_SLUG = "roofline-throughput-explorer";
-const ROOFLINE_TITLE = "Why throughput follows a roofline";
+const ROOFLINE_TITLE = "the best computer for local language models (2026)";
 const ROOFLINE_DESCRIPTION =
-  "An interactive roofline view of how memory bandwidth and active weight reads shape achievable model throughput.";
+  "An overall guide to the best computer to buy for local language models. We recommend an M-series laptop or a 5090.";
 
 function frontmatterBlock(input: {
   status: "published" | "draft";
@@ -152,7 +152,7 @@ describe("blog routes slice verification (blog-routes-layout-index-004)", () => 
     expect(html).toContain(ROOFLINE_TITLE);
     expect(html).toContain(ROOFLINE_DESCRIPTION);
     expect(html).toContain(`data-blog-slug="${ROOFLINE_SLUG}"`);
-    expect(html).toContain("Why active weight reads can cap throughput");
+    expect(html).toContain("Models are constrained by memory and compute");
     expect(html).toContain('data-roofline-throughput-explorer="explorer"');
   });
 

@@ -19,8 +19,8 @@ describe("computeRooflineScenario", () => {
   test("returns a finite maximum-throughput scenario for valid inputs", () => {
     const result = computeRooflineScenario({
       activeWeightSizeBillions: 27,
-      bytesPerParameter: 2,
       memoryBandwidthGbps: 1000,
+      quantizationBits: 16,
     });
 
     expect(result.kind).toBe("valid");
@@ -43,13 +43,13 @@ describe("computeRooflineScenario", () => {
   test("uses active weight size as the explicit model-size input", () => {
     const smallModel = computeRooflineScenario({
       activeWeightSizeBillions: 0.6,
-      bytesPerParameter: 2,
       memoryBandwidthGbps: 500,
+      quantizationBits: 16,
     });
     const largeModel = computeRooflineScenario({
       activeWeightSizeBillions: 40,
-      bytesPerParameter: 2,
       memoryBandwidthGbps: 500,
+      quantizationBits: 16,
     });
 
     expect(smallModel.kind).toBe("valid");
@@ -79,8 +79,8 @@ describe("computeRooflineScenario", () => {
     expect(
       computeRooflineScenario({
         activeWeightSizeBillions: Number.NaN,
-        bytesPerParameter: 2,
         memoryBandwidthGbps: 1000,
+        quantizationBits: 16,
       }),
     ).toEqual({
       kind: "invalid",
@@ -91,20 +91,33 @@ describe("computeRooflineScenario", () => {
     expect(
       computeRooflineScenario({
         activeWeightSizeBillions: 27,
-        bytesPerParameter: 0,
         memoryBandwidthGbps: 1000,
+        batchSize: 0,
+        quantizationBits: 16,
       }),
     ).toEqual({
       kind: "invalid",
-      reason: "invalid-bytes-per-parameter",
-      field: "bytesPerParameter",
+      reason: "invalid-batch-size",
+      field: "batchSize",
     });
 
     expect(
       computeRooflineScenario({
         activeWeightSizeBillions: 27,
-        bytesPerParameter: 2,
+        memoryBandwidthGbps: 1000,
+        quantizationBits: 0,
+      }),
+    ).toEqual({
+      kind: "invalid",
+      reason: "invalid-quantization-bits",
+      field: "quantizationBits",
+    });
+
+    expect(
+      computeRooflineScenario({
+        activeWeightSizeBillions: 27,
         memoryBandwidthGbps: -1,
+        quantizationBits: 16,
       }),
     ).toEqual({
       kind: "invalid",
@@ -115,9 +128,9 @@ describe("computeRooflineScenario", () => {
     expect(
       computeRooflineScenario({
         activeWeightSizeBillions: 27,
-        bytesPerParameter: 2,
         memoryBandwidthGbps: 1000,
         peakComputeFlopsPerSecond: Number.POSITIVE_INFINITY,
+        quantizationBits: 16,
       }),
     ).toEqual({
       kind: "invalid",
@@ -131,8 +144,8 @@ describe("sampleMaximumThroughputBoundarySeries", () => {
   test("returns a sampled maximum-throughput boundary without invalid numeric output", () => {
     const result = sampleMaximumThroughputBoundarySeries({
       activeWeightSizeBillions: 27,
-      bytesPerParameter: 2,
       domain: DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS,
+      quantizationBits: 16,
       sampleCount: 5,
     });
 
@@ -166,14 +179,14 @@ describe("sampleMaximumThroughputBoundarySeries", () => {
   test("shifts the boundary down when active weight size increases", () => {
     const smallModel = sampleMaximumThroughputBoundarySeries({
       activeWeightSizeBillions: 7,
-      bytesPerParameter: 2,
       domain: DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS,
+      quantizationBits: 16,
       sampleCount: 5,
     });
     const largeModel = sampleMaximumThroughputBoundarySeries({
       activeWeightSizeBillions: 70,
-      bytesPerParameter: 2,
       domain: DEFAULT_ROOFLINE_BANDWIDTH_DOMAIN_GBPS,
+      quantizationBits: 16,
       sampleCount: 5,
     });
 
@@ -194,7 +207,7 @@ describe("sampleMaximumThroughputBoundarySeries", () => {
   test("returns typed invalid states for incomplete series inputs", () => {
     expect(
       sampleMaximumThroughputBoundarySeries({
-        bytesPerParameter: 2,
+        quantizationBits: 16,
       }),
     ).toEqual({
       kind: "invalid",
@@ -205,8 +218,8 @@ describe("sampleMaximumThroughputBoundarySeries", () => {
     expect(
       sampleMaximumThroughputBoundarySeries({
         activeWeightSizeBillions: 27,
-        bytesPerParameter: 2,
         domain: [2000, 100],
+        quantizationBits: 16,
       }),
     ).toEqual({
       kind: "invalid",
@@ -217,32 +230,50 @@ describe("sampleMaximumThroughputBoundarySeries", () => {
 });
 
 describe("roofline throughput helpers", () => {
-  test("derives active weight bytes from explicit billions and bytes per parameter", () => {
-    expect(computeActiveWeightBytesPerToken(3, 2)).toBe(6e9);
+  test("derives active weight bytes from explicit billions, quantization bits, and batch size", () => {
+    expect(computeActiveWeightBytesPerToken(3, 16)).toBe(6e9);
+    expect(computeActiveWeightBytesPerToken(3, 16, 2)).toBe(3e9);
   });
 
   test("derives memory-bound decode throughput from bandwidth and active weight reads", () => {
     const memoryBound = computeMemoryBoundDecodeTokensPerSecond({
       activeWeightSizeBillions: 10,
-      bytesPerParameter: 2,
       memoryBandwidthGbps: 1000,
+      quantizationBits: 16,
     });
 
     expect(memoryBound).toBeCloseTo((1000 * 1e9) / (10 * 1e9 * 2));
   });
 
+  test("scales memory-bound decode throughput with batch size", () => {
+    const batchOne = computeMemoryBoundDecodeTokensPerSecond({
+      activeWeightSizeBillions: 10,
+      batchSize: 1,
+      memoryBandwidthGbps: 1000,
+      quantizationBits: 16,
+    });
+    const batchEight = computeMemoryBoundDecodeTokensPerSecond({
+      activeWeightSizeBillions: 10,
+      batchSize: 8,
+      memoryBandwidthGbps: 1000,
+      quantizationBits: 16,
+    });
+
+    expect(batchEight).toBeCloseTo(batchOne * 8);
+  });
+
   test("derives maximum decode throughput as the minimum of memory and compute bounds", () => {
     const maximum = computeMaximumDecodeTokensPerSecond({
       activeWeightSizeBillions: 10,
-      bytesPerParameter: 2,
       memoryBandwidthGbps: 1000,
+      quantizationBits: 16,
       peakComputeFlopsPerSecond: DEFAULT_ROOFLINE_PEAK_COMPUTE_FLOPS_PER_SECOND,
     });
 
     const memoryBound = computeMemoryBoundDecodeTokensPerSecond({
       activeWeightSizeBillions: 10,
-      bytesPerParameter: 2,
       memoryBandwidthGbps: 1000,
+      quantizationBits: 16,
     });
     const computeBound =
       DEFAULT_ROOFLINE_PEAK_COMPUTE_FLOPS_PER_SECOND /

@@ -17,12 +17,14 @@ const representativeSiteConfig = {
     browse: { surface: "browse" },
     topology: { surface: "topology" },
     timeline: { surface: "docs-page", slug: "timeline" },
+    blogIndex: { surface: "blog-index" },
     tagsIndex: { surface: "tags-index" },
   },
   primaryNav: [
     { routeSurface: "home", labelKey: "home" },
     { routeSurface: "topology", labelKey: "topology" },
     { routeSurface: "timeline", labelKey: "timeline" },
+    { routeSurface: "blogIndex", labelKey: "blog" },
     { routeSurface: "tagsIndex", labelKey: "tags" },
   ],
   collections: SITE_COLLECTION_FAMILIES.map((family) => ({ family })),
@@ -61,6 +63,7 @@ describe("site config contract", () => {
       "browse",
       "topology",
       "timeline",
+      "blogIndex",
       "tagsIndex",
     ]);
   });
@@ -78,7 +81,7 @@ describe("site config contract", () => {
   });
 
   test("accepts a representative config shape with route, nav, and featured link placeholders", () => {
-    expect(representativeSiteConfig.primaryNav).toHaveLength(4);
+    expect(representativeSiteConfig.primaryNav).toHaveLength(5);
     expect(representativeSiteConfig.homeFeaturedLinks).toHaveLength(4);
     expect(representativeSiteConfig.collections).toHaveLength(
       SITE_COLLECTION_FAMILIES.length,

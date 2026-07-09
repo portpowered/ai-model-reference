@@ -29,7 +29,7 @@ const BLOG_VIEWPORTS = [
   { label: "desktop", width: 1280, height: 800 },
 ] as const;
 
-const BLOG_ROUTE = "/blog/llm-training-shift";
+const BLOG_ROUTE = "/blog/llms-no-longer-wholly-reliant-on-the-internet";
 
 type LayoutRect = {
   bottom: number;

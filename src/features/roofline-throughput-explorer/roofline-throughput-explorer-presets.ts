@@ -3,6 +3,7 @@ import type { RooflineModelSizePreset } from "@/lib/content/roofline-model-size-
 export const ROOFLINE_MODEL_PRESET_CONTROL_LABEL = "Model preset";
 export const ROOFLINE_EMPTY_PRESETS_MESSAGE =
   "No model presets are available. Supply valid custom scenario inputs to explore roofline throughput.";
+export const DEFAULT_ROOFLINE_MODEL_PRESET_ID = "model.qwen-3-6-35b-a3b";
 
 export type RooflinePresetSelection = {
   selectedPresetId: string | null;
@@ -26,6 +27,18 @@ export function findPresetById(
   return presets.find((preset) => preset.modelId === modelId);
 }
 
+export function resolveDefaultModelPreset(
+  presets: readonly RooflineModelSizePreset[],
+): RooflineModelSizePreset | undefined {
+  return (
+    findPresetById(presets, DEFAULT_ROOFLINE_MODEL_PRESET_ID) ??
+    presets.find((preset) =>
+      isUsablePresetSize(preset.effectiveSizeBillions),
+    ) ??
+    presets[0]
+  );
+}
+
 export function resolveInitialPresetSelection(
   presets: readonly RooflineModelSizePreset[],
   explicitActiveWeightSizeBillions?: number,
@@ -42,10 +55,7 @@ export function resolveInitialPresetSelection(
     };
   }
 
-  const initialPreset =
-    presets.find((preset) =>
-      isUsablePresetSize(preset.effectiveSizeBillions),
-    ) ?? presets[0];
+  const initialPreset = resolveDefaultModelPreset(presets);
 
   if (!initialPreset) {
     return {

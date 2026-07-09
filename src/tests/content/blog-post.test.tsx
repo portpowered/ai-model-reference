@@ -82,42 +82,6 @@ describe("blog post page render", () => {
     );
   }
 
-  it("renders the production roofline max throughput post with metadata and MDX body content", async () => {
-    const page = await renderBlogPostPage("roofline-max-throughput");
-    const html = renderToStaticMarkup(page);
-
-    expect(html).toContain(
-      "Roofline maximum throughput: the practical upper bound before you compare hardware",
-    );
-    expect(html).toContain(
-      "How peak compute FLOPs, memory bandwidth, parameter precision, and active weight size",
-    );
-    expect(html).toContain('dateTime="2026-07-08"');
-    expect(html).toContain("July 8, 2026");
-    expect(html).toContain('class="sr-only">Authors: </span>');
-    expect(html).toContain("Site Team");
-    expect(html).toContain("Foundations");
-    expect(html).toContain("Kv Cache");
-    expect(html).toContain('data-blog-slug="roofline-max-throughput"');
-    expect(html).toContain("Peak FLOPs alone do not set tokens per second");
-    expect(html).toContain(
-      "Weight reads, precision, and bandwidth dominate the bound",
-    );
-    expect(html).toContain("Explore the throughput bound");
-    expect(html).toContain('data-roofline-throughput-explorer="explorer"');
-    expect(html).toContain('data-testid="roofline-model-preset"');
-    expect(html).toContain('data-testid="blog-related-docs"');
-    expect(html).toContain('href="/docs/concepts/roofline-model"');
-    expect(html).toContain('href="/docs/concepts/memory-bandwidth"');
-    expect(html).toContain('href="/docs/concepts/flops"');
-    expect(html).toContain('href="/docs/glossary/tokens-per-second"');
-    expect(html).toContain('href="/docs/concepts/prefill"');
-    expect(html).toContain('href="/docs/glossary/decode"');
-    expect(html).toContain('href="/docs/concepts/prefill-decode-split"');
-    expect(html).toContain('href="/docs/concepts/kv-cache"');
-    expect(html).toContain('href="/docs/systems/inference-engine"');
-  });
-
   it("renders the production llms-no-longer-wholly-reliant-on-the-internet post with metadata and MDX body content", async () => {
     const page = await renderBlogPostPage(
       "llms-no-longer-wholly-reliant-on-the-internet",
@@ -158,18 +122,20 @@ describe("blog post page render", () => {
     const page = await renderBlogPostPage("roofline-throughput-explorer");
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain("Why throughput follows a roofline");
     expect(html).toContain(
-      "An interactive roofline view of how memory bandwidth",
+      "the best computer for local language models (2026)",
+    );
+    expect(html).toContain(
+      "An overall guide to the best computer to buy for local language models",
     );
     expect(html).toContain('dateTime="2026-07-02"');
     expect(html).toContain("July 2, 2026");
     expect(html).toContain('class="sr-only">Authors: </span>');
-    expect(html).toContain("Site Team");
-    expect(html).toContain("Foundations");
-    expect(html).toContain("Kv Cache");
+    expect(html).toContain("Andreas Abdi");
+    expect(html).toContain("Inference");
+    expect(html).toContain("Local Models");
     expect(html).toContain('data-blog-slug="roofline-throughput-explorer"');
-    expect(html).toContain("Why active weight reads can cap throughput");
+    expect(html).toContain("Models are constrained by memory and compute");
     expect(html).toContain('data-roofline-throughput-explorer="explorer"');
   });
 

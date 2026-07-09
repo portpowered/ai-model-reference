@@ -36,7 +36,8 @@
   "paperIds": ["paper.deepseek-v4"],
   "organizationId": "organization.deepseek-ai",
   "releaseDate": "2026-06-13",
-  "parameterCount": "smaller V4 serving profile",
+  "parameterCount": "284 billion total parameters",
+  "activeParameterCount": "13 billion active parameters",
   "contextLength": 1048576,
   "precision": ["fp8", "fp4"]
 }

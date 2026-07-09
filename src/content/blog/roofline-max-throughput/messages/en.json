@@ -1,6 +1,0 @@
-{
-  "title": "Roofline maximum throughput: the practical upper bound before you compare hardware",
-  "description": "How peak compute FLOPs, memory bandwidth, parameter precision, and active weight size jointly set the maximum tokens-per-second bound for inference serving.",
-  "contextSentence": "Peak accelerator FLOPs look impressive on a spec sheet, but they do not by themselves tell you how many tokens per second a model can emit when each forward pass must read a large active weight footprint through memory.",
-  "takeaway": "Treat maximum throughput as the lesser of what memory bandwidth can supply for weight reads and what compute can finish per step—then use precision and active weight size to see which side wins for a given model and hardware pairing."
-}

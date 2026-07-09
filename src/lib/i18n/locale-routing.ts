@@ -11,6 +11,8 @@ export type LocalizedRouteDestination =
   | { surface: "browse" }
   | { surface: "search" }
   | { surface: "topology" }
+  | { surface: "blog-index" }
+  | { surface: "blog-post"; slug: string }
   | { surface: "docs-page"; slug: string }
   | { surface: "architecture-index" }
   | { surface: "glossary-index" }
@@ -121,6 +123,10 @@ export function buildLocalizedRoute(
       return localizePath("/search", locale);
     case "topology":
       return localizePath("/topology", locale);
+    case "blog-index":
+      return localizePath("/blog", locale);
+    case "blog-post":
+      return localizePath(`/blog/${destination.slug}`, locale);
     case "docs-page":
       return localizePath(`/docs/${destination.slug}`, locale);
     case "architecture-index":
@@ -153,6 +159,10 @@ function destinationFromNormalizedPath(
     return { surface: "topology" };
   }
 
+  if (pathname === "/blog") {
+    return { surface: "blog-index" };
+  }
+
   if (pathname === "/docs/architecture") {
     return { surface: "architecture-index" };
   }
@@ -169,6 +179,13 @@ function destinationFromNormalizedPath(
     const slug = pathname.slice("/docs/".length);
     if (slug.length > 0) {
       return { surface: "docs-page", slug };
+    }
+  }
+
+  if (pathname.startsWith("/blog/")) {
+    const slug = pathname.slice("/blog/".length);
+    if (slug.length > 0) {
+      return { surface: "blog-post", slug };
     }
   }
 

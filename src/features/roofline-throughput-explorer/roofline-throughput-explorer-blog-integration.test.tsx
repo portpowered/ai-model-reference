@@ -9,6 +9,7 @@ import { renderBlogPostShell } from "@/lib/content/blog-shell-render";
 import { getRooflineModelSizePresets } from "@/lib/content/roofline-model-size-presets";
 
 const BLOG_SLUG = "roofline-throughput-explorer";
+const BLOG_TITLE = "the best computer for local language models (2026)";
 
 describe("roofline throughput explorer blog integration", () => {
   test("build-time wrapper passes registry-derived presets into the explorer", () => {
@@ -31,23 +32,10 @@ describe("roofline throughput explorer blog integration", () => {
 
     expect(blogPostHref(BLOG_SLUG)).toBe("/blog/roofline-throughput-explorer");
     expect(post.frontmatter.status).toBe("published");
+    expect(post.frontmatter.authors).toEqual(["Andreas Abdi"]);
+    expect(post.frontmatter.tags).toEqual(["inference", "local-models"]);
     expect(html).toContain('data-roofline-throughput-explorer="explorer"');
     expect(html).toContain('data-testid="roofline-model-preset"');
-    expect(html).toContain("Why throughput follows a roofline");
-  });
-
-  test("roofline max throughput post renders the registry-backed explorer on /blog/roofline-max-throughput", async () => {
-    const slug = "roofline-max-throughput";
-    const post = await loadBlogPostFromDisk(slug);
-    const html = renderBlogPostShell(post);
-
-    expect(blogPostHref(slug)).toBe("/blog/roofline-max-throughput");
-    expect(post.frontmatter.status).toBe("published");
-    expect(html).toContain('data-roofline-throughput-explorer="explorer"');
-    expect(html).toContain('data-testid="roofline-model-preset"');
-    expect(html).toContain("Explore the throughput bound");
-    expect(html).toContain(
-      "Model presets come from current registry metadata at build time",
-    );
+    expect(html).toContain(BLOG_TITLE);
   });
 });

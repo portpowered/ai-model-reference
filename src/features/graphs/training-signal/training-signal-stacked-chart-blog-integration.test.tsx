@@ -8,7 +8,6 @@ import {
 } from "@/lib/content/blog-page-load";
 import { renderBlogPostShell } from "@/lib/content/blog-shell-render";
 
-const LLM_TRAINING_SHIFT_SLUG = "llm-training-shift";
 const LLMS_NO_LONGER_RELIANT_SLUG =
   "llms-no-longer-wholly-reliant-on-the-internet";
 
@@ -24,30 +23,6 @@ describe("training signal stacked chart blog integration", () => {
     for (const bandLabel of Object.values(TRAINING_SIGNAL_BAND_LABELS)) {
       expect(html).toContain(bandLabel);
     }
-  });
-
-  test("llm-training-shift blog post renders the stacked chart on /blog/llm-training-shift", async () => {
-    const post = await loadBlogPostFromDisk(LLM_TRAINING_SHIFT_SLUG);
-    const html = renderBlogPostShell(post);
-
-    expect(blogPostHref(LLM_TRAINING_SHIFT_SLUG)).toBe(
-      "/blog/llm-training-shift",
-    );
-    expect(post.frontmatter.status).toBe("published");
-    expect(html).toContain('data-training-signal-chart="ready"');
-    expect(html).toContain(
-      "How LLM training signals shifted beyond the pretraining corpus",
-    );
-    expect(html).toContain("Conceptual illustration");
-    expect(html).toContain(
-      "Illustrative training-signal mix across three eras",
-    );
-    expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.pretrainingCorpus);
-    expect(html).toContain(TRAINING_SIGNAL_BAND_LABELS.onPolicyDistillation);
-    expect(html).toContain('href="/tags/foundations"');
-    expect(html).toContain('href="/tags/alignment"');
-    expect(html).not.toContain('href="/tags/training"');
-    expect(html).not.toContain('href="/tags/post-training"');
   });
 
   test("llms-no-longer-wholly-reliant-on-the-internet blog post renders the stacked chart near the timeline", async () => {

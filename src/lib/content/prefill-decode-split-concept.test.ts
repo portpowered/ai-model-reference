@@ -219,7 +219,7 @@ describe("prefill-decode-split concept page", () => {
 
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
-    expect(html).toContain("serving layout");
+    expect(html).toContain('href="/tags/inference">serving</a> layout');
     expect(html).toContain("cache transfer");
     expect(html).toContain('href="/docs/concepts/kv-cache"');
     expect(html).toContain('href="/docs/concepts/prefill"');

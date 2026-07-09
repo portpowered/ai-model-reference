@@ -107,6 +107,31 @@ describe("buildBlogSearchDocuments", () => {
     expect(document.aliases).toContain("kv-cache");
   });
 
+  test("indexes localized blog posts with locale-prefixed routes", async () => {
+    const { blogRoot } = await writeFixturePost({ slug: "kv-cache-notes" });
+    const pageDir = join(blogRoot, "kv-cache-notes");
+    await writeFile(
+      join(pageDir, "messages", "ja.json"),
+      JSON.stringify({
+        ...validMessages,
+        title: "KV Cache Serving Notes JA",
+      }),
+    );
+    const indexes = await loadRegistry();
+    const posts = await loadBlogSearchPostSources({
+      blogRoot,
+      locale: "ja",
+    });
+
+    const [document] = buildBlogSearchDocuments(posts, indexes, "ja");
+
+    expect(document).toMatchObject({
+      id: "/ja/blog/kv-cache-notes",
+      url: "/ja/blog/kv-cache-notes",
+      title: "KV Cache Serving Notes JA",
+    });
+  });
+
   test("excludes draft posts from search post sources", async () => {
     const { blogRoot } = await writeFixturePost({
       slug: "draft-only",
@@ -165,7 +190,7 @@ Serving repeatedly reads weights from memory.
     "search returns published blog posts for title, body phrase, and tag queries",
     async () => {
       const titleResults = await docsSearchApi.search(
-        "Why throughput follows a roofline",
+        "best computer for local language models",
       );
       expect(
         titleResults.some(
@@ -180,8 +205,8 @@ Serving repeatedly reads weights from memory.
         ),
       ).toBe(true);
 
-      const tagResults = await docsSearchApi.search("kv-cache", {
-        tag: ["kv-cache"],
+      const tagResults = await docsSearchApi.search("local models", {
+        tag: ["local-models"],
       });
       expect(
         tagResults.some(
@@ -200,60 +225,61 @@ Serving repeatedly reads weights from memory.
   );
 });
 
-const ROOFLINE_MAX_THROUGHPUT_URL = "/blog/roofline-max-throughput";
+const ROOFLINE_THROUGHPUT_EXPLORER_URL = "/blog/roofline-throughput-explorer";
 
-const ROOFLINE_MAX_THROUGHPUT_SEARCH_QUERIES = [
+const ROOFLINE_THROUGHPUT_EXPLORER_SEARCH_QUERIES = [
   "roofline throughput",
-  "maximum throughput",
+  "active weight reads",
   "memory bandwidth tokens per second",
   "FLOPs throughput",
 ] as const;
 
-describe("roofline max throughput blog search discovery", () => {
+describe("roofline throughput explorer blog search discovery", () => {
   test("indexes the production post with title, description, headings, tags, and prose without MDX component names", async () => {
     const indexes = await loadRegistry();
     const posts = await loadBlogSearchPostSources();
     const document = buildBlogSearchDocuments(posts, indexes).find(
-      (entry) => entry.url === ROOFLINE_MAX_THROUGHPUT_URL,
+      (entry) => entry.url === ROOFLINE_THROUGHPUT_EXPLORER_URL,
     );
 
     expect(document).toMatchObject({
-      id: ROOFLINE_MAX_THROUGHPUT_URL,
-      url: ROOFLINE_MAX_THROUGHPUT_URL,
+      id: ROOFLINE_THROUGHPUT_EXPLORER_URL,
+      url: ROOFLINE_THROUGHPUT_EXPLORER_URL,
       kind: BLOG_SEARCH_DOCUMENT_KIND,
-      title:
-        "Roofline maximum throughput: the practical upper bound before you compare hardware",
+      title: "the best computer for local language models (2026)",
       description:
-        "How peak compute FLOPs, memory bandwidth, parameter precision, and active weight size jointly set the maximum tokens-per-second bound for inference serving.",
-      publishedAt: "2026-07-08",
-      tags: ["foundations", "kv-cache"],
+        "An overall guide to the best computer to buy for local language models. We recommend an M-series laptop or a 5090.",
+      publishedAt: "2026-07-02",
+      tags: ["inference", "local-models"],
     });
     expect(document?.headings).toEqual(
       expect.arrayContaining([
-        "Peak FLOPs alone do not set tokens per second",
-        "What maximum throughput means in practice",
-        "Explore the throughput bound",
+        "Problem",
+        "Models are constrained by memory and compute",
+        "Explorer",
       ]),
     );
     expect(document?.bodyText).toContain(
-      "Peak accelerator FLOPs look impressive on a spec sheet",
+      "best computer to buy right now is an RTX 5090",
     );
-    expect(document?.bodyText).toContain("memory-bound slope");
+    expect(document?.bodyText).toContain("memory bandwidth");
     expect(document?.bodyText).not.toContain("RooflineThroughputExplorer");
     expect(document?.bodyText).not.toContain("BlogRelatedDocs");
     expect(document?.aliases).toEqual(
-      expect.arrayContaining(["foundations", "kv-cache"]),
+      expect.arrayContaining(["inference", "local-models"]),
     );
   });
 
   test(
     "search returns the post for representative roofline throughput queries",
     async () => {
-      for (const query of ROOFLINE_MAX_THROUGHPUT_SEARCH_QUERIES) {
+      for (const query of ROOFLINE_THROUGHPUT_EXPLORER_SEARCH_QUERIES) {
         const results = await docsSearchApi.search(query);
         expect(
-          results.some((result) => result.url === ROOFLINE_MAX_THROUGHPUT_URL),
-          `expected ${ROOFLINE_MAX_THROUGHPUT_URL} for query "${query}"`,
+          results.some(
+            (result) => result.url === ROOFLINE_THROUGHPUT_EXPLORER_URL,
+          ),
+          `expected ${ROOFLINE_THROUGHPUT_EXPLORER_URL} for query "${query}"`,
         ).toBe(true);
       }
     },
@@ -261,15 +287,17 @@ describe("roofline max throughput blog search discovery", () => {
   );
 
   test(
-    "tag-filtered search returns the post on foundations and kv-cache tag pages",
+    "tag-filtered search returns the post on inference and local-models tag pages",
     async () => {
-      for (const tag of ["foundations", "kv-cache"] as const) {
+      for (const tag of ["inference", "local-models"] as const) {
         const results = await docsSearchApi.search("throughput", {
           tag: [tag],
         });
         expect(
-          results.some((result) => result.url === ROOFLINE_MAX_THROUGHPUT_URL),
-          `expected ${ROOFLINE_MAX_THROUGHPUT_URL} for tag "${tag}"`,
+          results.some(
+            (result) => result.url === ROOFLINE_THROUGHPUT_EXPLORER_URL,
+          ),
+          `expected ${ROOFLINE_THROUGHPUT_EXPLORER_URL} for tag "${tag}"`,
         ).toBe(true);
       }
     },

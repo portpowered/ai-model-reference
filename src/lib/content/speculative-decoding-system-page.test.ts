@@ -191,10 +191,15 @@ describe("speculative decoding docs route render", () => {
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain("draft path");
-    expect(html).toContain("serving system around the same underlying model");
-    expect(html).toContain("inference-serving runtime");
+    expect(html).toContain(
+      'href="/tags/inference">serving</a> system around the same underlying model',
+    );
+    expect(html).toContain("inference-");
+    expect(html).toContain("runtime");
     expect(html).toContain("deployment choices");
-    expect(html).toContain("high-volume serving paths");
+    expect(html).toContain(
+      'high-volume <a class="text-primary underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background" data-prose-auto-link="true" href="/tags/inference">serving</a> paths',
+    );
     expect(html).toContain(
       "verifier turn usually means less reader-visible delay",
     );

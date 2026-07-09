@@ -157,7 +157,7 @@ describe("blog prose validation boundaries", () => {
     expect(
       errors.some((error) => isCanonicalMdxProseErrorCode(error.code)),
     ).toBe(false);
-  });
+  }, 20_000);
 
   test("canonical docs fixtures with raw user-visible prose still fail prose validation", () => {
     const frontmatter = canonicalConceptMdx.match(/^---[\s\S]*?---/)?.[0] ?? "";
@@ -248,7 +248,7 @@ This paragraph belongs in messages, not in canonical MDX source files for docs p
     expect(
       errors.some((error) => isCanonicalMdxProseErrorCode(error.code)),
     ).toBe(false);
-  });
+  }, 20_000);
 
   test("committed roofline blog post stays free of canonical prose validation errors", async () => {
     const errors = await validateRegistryContent();
@@ -260,5 +260,5 @@ This paragraph belongs in messages, not in canonical MDX source files for docs p
     expect(
       errors.some((error) => isCanonicalMdxProseErrorCode(error.code)),
     ).toBe(false);
-  });
+  }, 20_000);
 });

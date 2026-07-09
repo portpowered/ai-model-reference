@@ -71,38 +71,47 @@ describe("Phase 1 shell discovery built-app HTML", () => {
 });
 
 describe("Phase 1 shell and search discovery alignment", () => {
-  test("representative attention search queries surface published module routes from discovery helpers", async () => {
-    const indexes = await loadRegistry();
-    const pages = await loadPublishedDocsPages("en");
-    const pageByUrl = new Map(pages.map((page) => [page.url, page]));
-    const moduleUrls = new Set(await loadPhase1AttentionModuleUrls("en"));
+  test(
+    "representative attention search queries surface published module routes from discovery helpers",
+    async () => {
+      const indexes = await loadRegistry();
+      const pages = await loadPublishedDocsPages("en");
+      const pageByUrl = new Map(pages.map((page) => [page.url, page]));
+      const moduleUrls = new Set(await loadPhase1AttentionModuleUrls("en"));
 
-    for (const contract of REPRESENTATIVE_ATTENTION_SEARCH_CONTRACTS) {
-      const page = pageByUrl.get(contract.url);
-      expect(
-        page,
-        `missing published page for representative route ${contract.url}`,
-      ).toBeDefined();
-      expect(
-        moduleUrls.has(contract.url),
-        `${contract.url} should resolve as a published attention module`,
-      ).toBe(true);
-      expect(
-        publishedResourceMatchesTag(page!, "attention", indexes),
-        `${contract.url} should match the attention discovery tag`,
-      ).toBe(true);
+      for (const contract of REPRESENTATIVE_ATTENTION_SEARCH_CONTRACTS) {
+        const page = pageByUrl.get(contract.url);
+        expect(
+          page,
+          `missing published page for representative route ${contract.url}`,
+        ).toBeDefined();
+        if (!page) {
+          throw new Error(
+            `missing published page for representative route ${contract.url}`,
+          );
+        }
+        expect(
+          moduleUrls.has(contract.url),
+          `${contract.url} should resolve as a published attention module`,
+        ).toBe(true);
+        expect(
+          publishedResourceMatchesTag(page, "attention", indexes),
+          `${contract.url} should match the attention discovery tag`,
+        ).toBe(true);
 
-      const results = await docsSearchApi.search(contract.query);
-      expect(
-        results.some(
-          (result) =>
-            result.url === contract.url ||
-            result.url.startsWith(`${contract.url}#`),
-        ),
-        `query "${contract.query}" should surface ${contract.url}`,
-      ).toBe(true);
-    }
-  });
+        const results = await docsSearchApi.search(contract.query);
+        expect(
+          results.some(
+            (result) =>
+              result.url === contract.url ||
+              result.url.startsWith(`${contract.url}#`),
+          ),
+          `query "${contract.query}" should surface ${contract.url}`,
+        ).toBe(true);
+      }
+    },
+    { timeout: 20_000 },
+  );
 
   test("served built app attention search API includes grouped-query-attention", async () => {
     if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {

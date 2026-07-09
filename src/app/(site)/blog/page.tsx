@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { blogIndexHref } from "@/lib/content/blog-page-load";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
 import { renderBlogIndexPage } from "../site-renderers";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -9,9 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: messages.blogIndex.title,
     description: messages.blogIndex.description,
-    alternates: {
-      canonical: blogIndexHref(),
-    },
+    alternates: localizedRouteAlternates({ surface: "blog-index" }),
   };
 }
 

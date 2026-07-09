@@ -50,12 +50,14 @@ const alternateSiteConfig = {
     browse: { surface: "browse" },
     topology: { surface: "topology" },
     timeline: { surface: "docs-page", slug: "timeline" },
+    blogIndex: { surface: "blog-index" },
     tagsIndex: { surface: "tags-index" },
   },
   primaryNav: [
     { routeSurface: "home", labelKey: "home" },
     { routeSurface: "topology", labelKey: "topology" },
     { routeSurface: "timeline", labelKey: "timeline" },
+    { routeSurface: "blogIndex", labelKey: "blog" },
     { routeSurface: "tagsIndex", labelKey: "tags" },
   ],
   collections: SITE_COLLECTION_FAMILIES.map((family) => ({ family })),
@@ -131,6 +133,7 @@ describe("ModelAtlasDocsHeader", () => {
       "/",
       "/topology",
       "/docs/timeline",
+      "/blog",
       "/tags",
     ]);
 

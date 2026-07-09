@@ -1,5 +1,6 @@
 import type { DocsPageSource } from "@/lib/content/pages";
 import type { RegistryIndexes } from "@/lib/content/registry";
+import type { SiteLocale } from "@/lib/i18n/locale-routing";
 import { buildBaseSearchDocument } from "./build-base-document";
 import {
   type BlogSearchPostSource,
@@ -26,7 +27,7 @@ export function buildSearchDocuments(
 }
 
 export function buildSearchDocumentsForLocale(
-  locale: string,
+  locale: SiteLocale,
   indexes: RegistryIndexes,
   pages: DocsPageSource[],
   blogPosts: BlogSearchPostSource[] = [],
@@ -37,6 +38,6 @@ export function buildSearchDocumentsForLocale(
 
   return [
     ...buildSearchDocuments(pages, indexes),
-    ...buildBlogSearchDocuments(blogPosts, indexes),
+    ...buildBlogSearchDocuments(blogPosts, indexes, locale),
   ];
 }
