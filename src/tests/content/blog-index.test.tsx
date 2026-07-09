@@ -117,17 +117,19 @@ describe("blog index page render", () => {
     const page = await renderBlogIndexPage();
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain("Why throughput follows a roofline");
     expect(html).toContain(
-      "An interactive roofline view of how memory bandwidth",
+      "the best computer for local language models (2026)",
+    );
+    expect(html).toContain(
+      "An overall guide to the best computer to buy for local language models",
     );
     expect(html).toContain('dateTime="2026-07-02"');
     expect(html).toContain("July 2, 2026");
-    expect(html).toContain("Foundations");
-    expect(html).toContain("Kv Cache");
+    expect(html).toContain("Inference");
+    expect(html).toContain("Local Models");
     expect(html).toContain('href="/blog/roofline-throughput-explorer"');
     expect(html).toContain(
-      'aria-label="Read blog post: Why throughput follows a roofline"',
+      'aria-label="Read blog post: the best computer for local language models (2026)"',
     );
   });
 

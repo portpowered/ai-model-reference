@@ -122,18 +122,20 @@ describe("blog post page render", () => {
     const page = await renderBlogPostPage("roofline-throughput-explorer");
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain("Why throughput follows a roofline");
     expect(html).toContain(
-      "An interactive roofline view of how memory bandwidth",
+      "the best computer for local language models (2026)",
+    );
+    expect(html).toContain(
+      "An overall guide to the best computer to buy for local language models",
     );
     expect(html).toContain('dateTime="2026-07-02"');
     expect(html).toContain("July 2, 2026");
     expect(html).toContain('class="sr-only">Authors: </span>');
-    expect(html).toContain("Site Team");
-    expect(html).toContain("Foundations");
-    expect(html).toContain("Kv Cache");
+    expect(html).toContain("Andreas Abdi");
+    expect(html).toContain("Inference");
+    expect(html).toContain("Local Models");
     expect(html).toContain('data-blog-slug="roofline-throughput-explorer"');
-    expect(html).toContain("Constraints of throughputs");
+    expect(html).toContain("Models are constrained by memory and compute");
     expect(html).toContain('data-roofline-throughput-explorer="explorer"');
   });
 

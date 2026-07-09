@@ -80,9 +80,7 @@ function isPositiveFiniteNumber(value: number | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
 }
 
-function isNonNegativeFiniteNumber(
-  value: number | undefined,
-): value is number {
+function isNonNegativeFiniteNumber(value: number | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0;
 }
 
@@ -225,7 +223,8 @@ function resolveQuantizationBits(
     return validation ?? inputs.quantizationBits;
   }
 
-  const bytesValidation = validateBytesPerParameter(inputs.bytesPerParameter);
+  const bytesPerParameter = inputs.bytesPerParameter;
+  const bytesValidation = validateBytesPerParameter(bytesPerParameter);
   if (bytesValidation) {
     return {
       kind: "invalid",
@@ -236,8 +235,15 @@ function resolveQuantizationBits(
       field: "quantizationBits",
     };
   }
+  if (bytesPerParameter == null) {
+    return {
+      kind: "invalid",
+      reason: "missing-quantization-bits",
+      field: "quantizationBits",
+    };
+  }
 
-  return inputs.bytesPerParameter * 8;
+  return bytesPerParameter * 8;
 }
 
 function resolveBatchSize(
@@ -361,9 +367,7 @@ export function computeRooflineScenario(
     return batchSize;
   }
 
-  const quantizationBitsValidation = validateQuantizationBits(
-    quantizationBits,
-  );
+  const quantizationBitsValidation = validateQuantizationBits(quantizationBits);
   if (quantizationBitsValidation) {
     return quantizationBitsValidation;
   }

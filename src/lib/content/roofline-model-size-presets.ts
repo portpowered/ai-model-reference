@@ -62,9 +62,9 @@ export function resolveRooflineModelSizePreset(
   return {
     modelId: registryId,
     label: resolvePresetDisplayLabel(record, canonicalLabel, options),
-    effectiveSizeBillions: explicitEffectiveSizeBillions ?? (record
-      ? resolveEffectiveRooflineModelSize(record)
-      : null),
+    effectiveSizeBillions:
+      explicitEffectiveSizeBillions ??
+      (record ? resolveEffectiveRooflineModelSize(record) : null),
   };
 }
 

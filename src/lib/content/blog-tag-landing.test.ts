@@ -192,22 +192,18 @@ describe("blog tag landing resources", () => {
     expect(entries.some((entry) => entry.kind === "blog")).toBe(false);
   });
 
-  test(
-    "omits the blog group when no published posts match the tag",
-    async () => {
-      const { blogRoot } = await writeFixturePost({
-        slug: "foundations-only",
-        frontmatter: publishedFrontmatterBlock({ tags: ["foundations"] }),
-      });
-      const messages = await loadUiMessages();
-      const groups = await loadTagResourceGroups("attention", messages, "en", {
-        blogRoot,
-      });
+  test("omits the blog group when no published posts match the tag", async () => {
+    const { blogRoot } = await writeFixturePost({
+      slug: "foundations-only",
+      frontmatter: publishedFrontmatterBlock({ tags: ["foundations"] }),
+    });
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups("attention", messages, "en", {
+      blogRoot,
+    });
 
-      expect(groups.some((group) => group.kind === "blog")).toBe(false);
-    },
-    20_000,
-  );
+    expect(groups.some((group) => group.kind === "blog")).toBe(false);
+  }, 20_000);
 
   test("sorts blog resources by published date newest first", async () => {
     const messages = await loadUiMessages();
@@ -264,31 +260,23 @@ describe("blog tag landing resources", () => {
 });
 
 describe("production blog tag landing", () => {
-  it(
-    "lists evolution-of-diffusion on the model-family tag page",
-    async () => {
-      const messages = await loadUiMessages();
-      const groups = await loadTagResourceGroups(
-        "model-family",
-        messages,
-        "en",
-      );
-      const blogGroup = groups.find((group) => group.kind === "blog");
+  it("lists evolution-of-diffusion on the model-family tag page", async () => {
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups("model-family", messages, "en");
+    const blogGroup = groups.find((group) => group.kind === "blog");
 
-      expect(blogGroup).toBeDefined();
-      expect(blogGroup?.kindLabel).toBe("Blog");
-      expect(blogGroup?.resources).toEqual([
-        expect.objectContaining({
-          title:
-            "How diffusion generation evolved from pixel U-Nets to transformers, flow matching, and modern video models",
-          url: "/blog/evolution-of-diffusion",
-          publishedAt: "2026-07-08",
-          tags: ["foundations", "model-family"],
-        }),
-      ]);
-    },
-    20_000,
-  );
+    expect(blogGroup).toBeDefined();
+    expect(blogGroup?.kindLabel).toBe("Blog");
+    expect(blogGroup?.resources).toEqual([
+      expect.objectContaining({
+        title:
+          "How diffusion generation evolved from pixel U-Nets to transformers, flow matching, and modern video models",
+        url: "/blog/evolution-of-diffusion",
+        publishedAt: "2026-07-08",
+        tags: ["foundations", "model-family"],
+      }),
+    ]);
+  }, 20_000);
 
   it("lists published blog posts on foundations, inference, and local-models tag pages", async () => {
     const messages = await loadUiMessages();
@@ -407,10 +395,12 @@ describe("production blog tag landing", () => {
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Blog");
-    expect(html).toContain("the best computer for local language models (2026)");
+    expect(html).toContain(
+      "the best computer for local language models (2026)",
+    );
     expect(html).toContain('href="/blog/roofline-throughput-explorer"');
     expect(html).toContain(
-      "An overall guide on best computer to buy for local language models. We recommend an M series laptop or a 5090.",
+      "An overall guide to the best computer to buy for local language models. We recommend an M-series laptop or a 5090.",
     );
     expect(html).toContain('dateTime="2026-07-02"');
     expect(html).toContain('href="/tags/local-models"');

@@ -165,24 +165,25 @@ export function resolveInitialScenarioControls({
 }): RooflineScenarioControls {
   const bounds = resolveActiveWeightSliderBounds(presets);
   const initialPreset = resolveDefaultModelPreset(presets);
-  const presetWeight = isUsablePresetSize(initialPreset?.effectiveSizeBillions)
-    ? initialPreset.effectiveSizeBillions
+  const presetEffectiveSize = initialPreset?.effectiveSizeBillions ?? null;
+  const presetWeight = isUsablePresetSize(presetEffectiveSize)
+    ? presetEffectiveSize
     : undefined;
 
   const activeWeightSizeBillions = clampActiveWeightSizeBillions(
     explicitActiveWeightSizeBillions ?? presetWeight ?? 27,
     bounds,
   );
+  const initialQuantizationBits =
+    explicitQuantizationBits ??
+    (explicitBytesPerParameter != null
+      ? explicitBytesPerParameter * 8
+      : DEFAULT_ROOFLINE_QUANTIZATION_BITS);
 
   return {
     activeWeightSizeBillions,
     batchSize: clampBatchSize(explicitBatchSize ?? DEFAULT_ROOFLINE_BATCH_SIZE),
-    quantizationBits: clampQuantizationBits(
-      explicitQuantizationBits ??
-        (explicitBytesPerParameter != null
-          ? explicitBytesPerParameter * 8
-          : DEFAULT_ROOFLINE_QUANTIZATION_BITS),
-    ),
+    quantizationBits: clampQuantizationBits(initialQuantizationBits),
   };
 }
 

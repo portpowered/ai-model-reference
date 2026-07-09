@@ -4,7 +4,7 @@ assetNamespace: "local"
 publishedAt: "2026-07-02"
 updatedAt: "2026-07-02"
 authors:
-  - "andreas abdi"
+  - "Andreas Abdi"
 tags:
   - inference
   - local-models
@@ -22,23 +22,23 @@ import { RooflineThroughputExplorerFromRegistry } from "@/features/roofline-thro
 
 ## Problem
 
-When you want to buy a computer for local large language model inference, its hard to figure out which one to buy.
+When you want to buy a computer for local large language model inference, it's hard to figure out which one to buy.
 
 ## Solution
 
 As of 2026, the best bang for your buck buys are:
-1. a M series laptop if you need a laptop at about \$2000  to $8000. M1 max laptops are good options.
-2. a Nvidia RTX 5090/4090 if you need a desktop at up to $5000 in cost.
+1. an M-series laptop if you need a laptop at about \$2000 to $8000. M1 Max laptops are good options.
+2. an NVIDIA RTX 5090/4090 if you need a desktop at up to $5000 in cost.
 
-Later versions of M series laptops and newer desktop accelerators increase compute, but they're often bottlenecked by memory bandwidth.
-There is therefore limited ROI versus buying an older one that has more memory bandwidth unless your compute workload is specifically compute heavy such as image generation or video procesing. 
+Later versions of M-series laptops and newer desktop accelerators increase compute, but they're often bottlenecked by memory bandwidth.
+There is therefore limited ROI versus buying an older one that has more memory bandwidth unless your compute workload is specifically compute-heavy, such as image generation or video processing. 
 
 ## Overview
 
-This post explains what constrains model optimal compute, what the models of today look like. 
+This post explains what constrains model-optimal compute and what the models of today look like. 
 The post gives a graph of the various constraints in running local models. 
 
-Finally, the post explores various concepts such as batching, multi token prediction, mixture of experts, and prefill vs decode. 
+Finally, the post explores concepts such as batching, multi-token prediction, mixture of experts, and prefill vs. decode. 
 
 ## Models are constrained by memory and compute 
 
@@ -48,32 +48,32 @@ How fast you can run a model is constrained by two things:
 
 Overall, you want to buy the computer that balances the compute and bandwidth. 
 
-For example if you have 3 billion parameter model, if we run it at int8 precision it uses about 3 GB of memory and about 3 GFLOPs to compute a single token. 
+For example, if you have a 3 billion parameter model and run it at int8 precision, it uses about 3 GB of memory and about 3 GFLOPs to compute a single token. 
 
-1. With infinite compute but you have only 300 GB memory bandwidth, then you get 100 tokens/ second. 
-2. With infinite bandwidth but only have say 300 GFLOPs of compute, you still get 100 tokens / second. 
+1. With infinite compute but only 300 GB/s of memory bandwidth, you get 100 tokens/s. 
+2. With infinite bandwidth but only 300 GFLOPs of compute, you still get 100 tokens/s. 
 
-## Models of today are roughly under 24GB or 128GB in memory
+## Models of today are roughly under 24 GB or 128 GB in memory
 
-Current AI models for local can be segmented to two classes, the smaller sub 24 GB models and the 128 GB models. 
+Current AI models for local inference can be segmented into two classes: smaller sub-24 GB models and 128 GB-class models. 
 
-### Sub 24GB models 
+### Sub-24 GB models 
 
-The smaller sub 24GB models vary in size between 3 to 16 GB for model weights. 
-You then use some up to 6 GB on context cache for a single prompt. 
-The current best models for local compute are the qwen-3.6 35b-a3b, 27b as well as gemma-4 models. 
+The smaller sub-24 GB models vary in size between 3 and 16 GB for model weights. 
+You can then use up to 6 GB on context cache for a single prompt. 
+The current best models for local compute are Qwen-3.6 35B-A3B, Qwen 27B, and Gemma-4 models. 
 
-### Sub 128GB models
+### Sub-128 GB models
 
 The higher class local models include things like DeepSeek-V4-Flash at 284 billion total parameters with 13 billion active parameters.
-These models are generally smart but are only runnable with higher amounts of RAM. i.e. you need a M series max, or a RTX6000 above to run. 
+These models are generally smart but are only runnable with higher amounts of RAM. i.e. you need an M-series Max chip, or an RTX 6000 and above to run. 
 
-### performance is okay at sub 24GB
+### Performance is okay at sub-24 GB
 
-The small sub 24GB models perform okay, and are generally able to perform small edits or write scripts. 
+The small sub-24 GB models perform okay, and are generally able to perform small edits or write scripts. 
 They are not able to run agentic long running tasks that one can do with a GPT 5.5 or opus 4.8. 
 
-At sub 128GB models, the models tend to have more world knowledge, and fail less, but its all degrees of percentages. 
+At sub-128 GB, the models tend to have more world knowledge and fail less, but it's all degrees of percentages. 
 You need to experiment to validate the outputs and quality.
 
 You typically want to use the largest possible large language model runnable on your computer. 
@@ -82,7 +82,7 @@ The larger models tend to be able to encode more knowledge, as well as express m
 ## Optimal throughput is ~ 100 tokens per second for reading
 
 Roughly, 100 tokens per second gets you a decent throughput and is acceptable to read at.
-Humans read roughly 20-30 letters per second, so you are good if you generate above that for reading its enough. 
+Humans read roughly 20-30 letters per second, so generating above that is enough for reading. 
 Assume that you get roughly a 2:1 output of thinking to output tokens for reasonable execution. 
 
 Higher throughput for tokens is better for generating code and tool use. In tool use and coding use cases,
@@ -94,7 +94,7 @@ The graph below shows different computers and how fast they can generate tokens.
 
 Generally to the right of the graph is better, and closer to the line is optimal. 
 
-Play around with the model points, but you can sort of see overall that the best computer to buy right now is a RTX 5090 or a M series max chip for running a local model.
+Play around with the model points, but you can sort of see overall that the best computer to buy right now is an RTX 5090 or an M-series Max chip for running a local model.
 Higher-memory workstation cards can run bigger models, but they're still constrained by memory bandwidth.
 
 <RooflineThroughputExplorerFromRegistry />
@@ -103,9 +103,9 @@ Higher-memory workstation cards can run bigger models, but they're still constra
 On the graph there's a line that is the optimal compute versus bandwidth border. Anything above the line means you have too much compute but not enough bandwidth to saturate. 
 Anything below the line means you have lots of memory bandwidth, but not enough compute. 
 
-The dots on the graph show different compute hosts. We see that overall, most models are memory bounded not computed bounded. 
+The dots on the graph show different compute hosts. Overall, most models are memory-bound, not compute-bound. 
 
-DGX spark and strix Halo were recent releases for compute hosts, but they are heavily bottlenecked by memory throughput. 
+DGX Spark and Strix Halo were recent releases for compute hosts, but they are heavily bottlenecked by memory throughput. 
 We don't recommend using them for local language model inference. 
 
 # FAQ
@@ -113,7 +113,7 @@ We don't recommend using them for local language model inference.
 ## Why would you even run a local model? 
 
 - offline access (like when you're in china or remote somewhere)
-- censorship (you can run abliterated models that can do whatever your want without safeguards, like for legal/nsfw/military)
+- censorship (you can run abliterated models that can do whatever you want without safeguards, like for legal/nsfw/military)
 - efficient training (certain workloads are cheaper to run if you can fine tune the models)
 - experimentation 
 - for fun
@@ -122,19 +122,19 @@ We don't recommend using them for local language model inference.
 ## Is the guidance true for all workloads? 
 - no, if your workload is compute heavy like you're trying to parse lots of videos or images or something, then you're going to be more compute bound. 
 
-## I can't afford so much, can i run a smaller model? 
+## I can't afford so much, can I run a smaller model? 
 - yes, but the ROI is questionable. You can do textual stuff like ask basic questions, or play fake characters but the outputs are marginally useful. 
 
 ## which model should I use? 
 
-experiment. Optimal model is typically largest model you can get away with for acceptable token throughput. 
+Experiment. The optimal model is typically the largest model you can get away with for acceptable token throughput. 
 
 ## is the token/s from the graph accurate? 
-sort of. Its the theoretical limit. When running inference, most inference software is not purely optimal. 
+Sort of. It's the theoretical limit. When running inference, most inference software is not purely optimal. 
 
 i.e. default llama.cpp inference does not do sufficient kernel fusion and scheduling to maximize throughput, losing roughly 2-3x versus optimal. 
 
-## How do i even run the model after I get the computer? 
+## How do I even run the model after I get the computer? 
 - llama.cpp, sglang, vllm, ollama, etc. 
 
 we recommend: 
@@ -147,33 +147,33 @@ we recommend:
 
 ## Form factor
 
-M1 ultras and the equivalent are only available as Mac studios. 
+M1 Ultras and the equivalent are only available as Mac Studios. 
 
-If you need something portable, the Apple M series laptops with Max chips are the best ROI. 
+If you need something portable, the Apple M-series laptops with Max chips are the best ROI. 
 
 ## Prefill vs decode
 
 Compute of large language models is broken into two steps: prefill and decode. 
 
-1. The prefill step converts the input data tokens into key value cache that the model can compute. 
-2. The decode step computes the next tokens on the key value cache. 
+1. The prefill step converts the input data tokens into key-value cache that the model can compute. 
+2. The decode step computes the next tokens on the key-value cache. 
 
 Prefill generally is compute bound, since the conversion is running the same operation for every single input token. 
 
-For example, if you're trying to process a video and do a captioning. 
+For example, if you're trying to process a video and do captioning. 
 Then the video may take some 50000 tokens, and say you have a 3 billion parameter model. 
-The overall FLOPS needed is 3 billion x 50000 = 0.3 Peta FLOPs. 
+The overall FLOPs needed is 3 billion x 50000 = 0.3 petaFLOPs. 
 The overall memory used is still the 3 billion parameters, which is somewhere between 1.5 GB to 12 GB depending on the variant. 
 Therefore, on a typical M5 Max Mac laptop, it would take 20 seconds to prefill. 
 
-Prefill is not important when you can cache the prompt. i.e. if you are using pi/opencode or something with a fixed input prompt, you don't have to run prefill and just load in the KV cache from memory. 
+Prefill is not important when you can cache the prompt. i.e. if you are using pi/opencode or something with a fixed input prompt, you don't have to run prefill and can just load in the KV cache from memory. 
 
 ## Context window memory
 
-As context windows grows, more memory is used. The memory of the context window is pulled in during decoding. 
+As context windows grow, more memory is used. The memory of the context window is pulled in during decoding. 
 The longer the context window grows the more memory bandwidth is used. 
 
-i.e. for an int8 3B active parameter model like qwen-35B, at 200000 token context window we use roughly 3GB of KV cache memory. 
+i.e. for an int8 3B active parameter model like Qwen-35B, at a 200000 token context window we use roughly 3 GB of KV cache memory. 
 So for a bandwidth of 400 GB/s, processing at 0 context window is roughly twice as fast since you double the active memory bandwidth usage. 
 
 The equation for computation is roughly 
@@ -190,8 +190,8 @@ This means those types of models can compute large context windows very efficien
 
 Quantization is where we convert the model weights to a lower precision to reduce the overall memory usage. 
 
-For example if you have 3 Billion parameters, the default size is say 16 bits per parameter using the bf16 format. Total bandwidth used is 6 GB per token. 
-If you quantize it to int8 then the model only takes 8 bits, or 3GB/ token. You can go further to 4bits at 1.5GB/token and so on. 
+For example, if you have 3 billion parameters, the default size is say 16 bits per parameter using the bf16 format. Total bandwidth used is 6 GB per token. 
+If you quantize it to int8, then the model only takes 8 bits, or 3 GB/token. You can go further to 4 bits at 1.5 GB/token and so on. 
 
 Quantization makes a tradeoff in precision. The general finding is that int8 quantization is nearly lossless but lower quantizations rapidly decay. 
 
@@ -199,43 +199,43 @@ Quantization makes a tradeoff in precision. The general finding is that int8 qua
 
 When decoding models you can use a thing called batching. 
 Batching lets a customer run multiple AI rollouts at the same time. 
-When you batch, you for example use the same memory bandwidth to do multiple AI. 
+When you batch, for example, you use the same memory bandwidth to do multiple AI generations. 
 
-So whereas before with a single rollout running at 100 tokens/s with 3 Billion int8 parameters on 300 GB bandwdth and 1000 GFLOPS of compute. 
-When you increase batch to 3, you get 300 tokens/s,  but each rollout is independent. 
+So whereas before you had a single rollout running at 100 tokens/s with 3 billion int8 parameters on 300 GB/s bandwidth and 1000 GFLOPs of compute. 
+When you increase batch to 3, you get 300 tokens/s, but each rollout is independent. 
 
 Batch size increases improve overall total token throughput until other constraints appear: 
-1. as the context window increases, the memory bandwidth usage from KV cache increases, which introduced throughput limits
-2. as the batch size increase the number of FLOPs used increases, which bottlenecks throughput. 
+1. as the context window increases, the memory bandwidth usage from KV cache increases, which introduces throughput limits
+2. as the batch size increases, the number of FLOPs used increases, which bottlenecks throughput. 
 
 ## Mixture of experts 
 
 Mixture of experts reduces the amount of active parameters when generating tokens. 
 For example, a model with 3B active parameters, and 35B total parameters overall will only use ~3B parameters worth of memory bandwidth plus shared active layer like embedding and routing. 
 
-The extra 30 billion parameters is useful as it allows the model to encode information and processes but not actively use them at every decode step. 
+The extra 30 billion parameters are useful because they allow the model to encode information and processes without actively using them at every decode step. 
 
-A rough calculation is to do sqrt(parameters) * actie parameters for evaluating a comparatively equivalent model. 
-i.e. 3B active with 30B is roughly 9B active model equivalent. 
+A rough calculation is to do sqrt(parameters) * active parameters for evaluating a comparatively equivalent model. 
+i.e. 3B active with 30B total is roughly a 9B active model equivalent. 
 
 ## Compute workloads
 
 The type of computer you should buy depends on the type of compute workload you have: 
-1. if you are a local model runner thats mostly running LLMs, you should use whichever balances your budget vs memory bandwidth. 
+1. if you are a local model runner that's mostly running LLMs, you should use whichever balances your budget vs memory bandwidth. 
 2. if you are a person who's doing batch processing of images or something, then you should use the latest possible computer. 
 3. if you are running local models that are high in compute, buy the latest one that maximizes your bottleneck. 
 
-## Multi token prediction
+## Multi-token prediction
 
-Multi token prediction is a mechanism to generate multiple token outputs for a single prediction step. 
+Multi-token prediction is a mechanism to generate multiple token outputs for a single prediction step. 
 
-In theory multi token prediction can generate proportional increases in token throughput. 
-i.e. generate 4 multi token predictions, and you generate 4 tokens for the price of two decode steps (one generate, one verify). 
+In theory, multi-token prediction can generate proportional increases in token throughput. 
+i.e. generate 4 multi-token predictions, and you generate 4 tokens for the price of two decode steps (one generate, one verify). 
 
-In practice multi token prediction doesn't fully map cleanly to multiplicative output. 
-For each predicted token, there is some probability that the output token is correct. if you generate only 0% correct, then you actually generate a -50% speed down.
+In practice, multi-token prediction doesn't fully map cleanly to multiplicative output. 
+For each predicted token, there is some probability that the output token is correct. If you generate only 0% correct, then you actually generate a -50% slowdown.
 
-Use multi token prediction when you know the predictor has high chance of outputs during testing. 
+Use multi-token prediction when you know the predictor has a high chance of producing correct outputs during testing. 
 
 
 ## Related reference pages

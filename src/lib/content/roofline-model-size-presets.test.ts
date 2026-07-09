@@ -98,21 +98,20 @@ describe("getRooflineModelSizePresets", () => {
   });
 
   test("keeps stable ordering when a registry record is missing", () => {
-    const presets = ROOFLINE_MODEL_SIZE_PRESET_DEFINITIONS.map(
-      (definition) =>
-        resolveRooflineModelSizePreset(
-          definition.registryId,
-          definition.registryId === "model.glm-5-2"
-            ? undefined
-            : getModelById(definition.registryId),
-          definition.label,
-          "effectiveSizeBillions" in definition
-            ? definition.effectiveSizeBillions
-            : undefined,
-          "preferCanonicalLabel" in definition
-            ? { preferCanonicalLabel: definition.preferCanonicalLabel }
-            : undefined,
-        ),
+    const presets = ROOFLINE_MODEL_SIZE_PRESET_DEFINITIONS.map((definition) =>
+      resolveRooflineModelSizePreset(
+        definition.registryId,
+        definition.registryId === "model.glm-5-2"
+          ? undefined
+          : getModelById(definition.registryId),
+        definition.label,
+        "effectiveSizeBillions" in definition
+          ? definition.effectiveSizeBillions
+          : undefined,
+        "preferCanonicalLabel" in definition
+          ? { preferCanonicalLabel: definition.preferCanonicalLabel }
+          : undefined,
+      ),
     );
 
     expect(presets.map((preset) => preset.modelId)).toEqual([

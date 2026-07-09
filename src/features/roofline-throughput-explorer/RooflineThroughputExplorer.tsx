@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type MouseEvent } from "react";
 import { ChevronDown, Cpu } from "lucide-react";
+import { type FocusEvent, type MouseEvent, useState } from "react";
 import * as Recharts from "recharts";
 import {
   type ChartConfig,
@@ -24,14 +24,14 @@ import {
   formatRooflineBandwidthGbps,
   formatRooflineDecodeTokensPerSecond,
   formatRooflineFlopsPerSecond,
-  type RooflineComputeHostId,
   ROOFLINE_COMPUTE_HOST_PRESETS,
-  type RooflineThroughputHostPoint,
   ROOFLINE_THROUGHPUT_BOUNDARY_COLOR,
   ROOFLINE_THROUGHPUT_BOUNDARY_LEGEND_LABEL,
   ROOFLINE_THROUGHPUT_EXPLORER_AXIS_X,
   ROOFLINE_THROUGHPUT_EXPLORER_AXIS_Y,
   ROOFLINE_THROUGHPUT_EXPLORER_CHART_LABEL,
+  type RooflineComputeHostId,
+  type RooflineThroughputHostPoint,
 } from "./roofline-throughput-chart";
 import {
   clampActiveWeightSizeBillions,
@@ -160,9 +160,7 @@ function RooflineBoundaryTooltipContent({
           point.maximumDecodeTokensPerSecond,
         )}
       </div>
-      <div className="text-[0.7rem] text-muted-foreground">
-        total tokens/s
-      </div>
+      <div className="text-[0.7rem] text-muted-foreground">total tokens/s</div>
       <div className="mt-2 space-y-1 border-t border-border/70 pt-2 text-xs">
         <div className="flex items-center justify-between gap-4">
           <span className="text-muted-foreground">Memory bandwidth</span>
@@ -173,9 +171,7 @@ function RooflineBoundaryTooltipContent({
         <div className="flex items-center justify-between gap-4 text-muted-foreground">
           <span>Compute</span>
           <span className="tabular-nums">
-            {formatRooflineFlopsPerSecond(
-              point.boundaryComputeFlopsPerSecond,
-            )}{" "}
+            {formatRooflineFlopsPerSecond(point.boundaryComputeFlopsPerSecond)}{" "}
             FLOP/s
           </span>
         </div>
@@ -339,7 +335,7 @@ export function RooflineThroughputExplorer({
           (point) =>
             point.boundaryComputeFlopsPerSecond > 0 &&
             point.memoryBandwidthGbps <=
-            (visibleXDomain ?? chartModel.xDomain)[1],
+              (visibleXDomain ?? chartModel.xDomain)[1],
         )
       : [];
   const visibleGuidePoints =
@@ -455,7 +451,7 @@ export function RooflineThroughputExplorer({
 
   function showHostTooltip(
     host: RooflineThroughputHostPoint,
-    event: MouseEvent<Element>,
+    event: FocusEvent<Element> | MouseEvent<Element>,
   ) {
     const chartContainer = event.currentTarget.closest('[data-slot="chart"]');
     const containerRect = chartContainer?.getBoundingClientRect();
@@ -896,7 +892,8 @@ export function RooflineThroughputExplorer({
                       <Cpu className="size-4 text-muted-foreground" />
                       <span>Compute hosts</span>
                       <span className="text-xs text-muted-foreground tabular-nums">
-                        {visibleHostCount}/{ROOFLINE_COMPUTE_HOST_PRESETS.length}
+                        {visibleHostCount}/
+                        {ROOFLINE_COMPUTE_HOST_PRESETS.length}
                       </span>
                       <ChevronDown className="size-4 text-muted-foreground" />
                     </DropdownMenuTrigger>
@@ -1025,20 +1022,17 @@ export function RooflineThroughputExplorer({
                         fill="var(--background)"
                         stroke={ROOFLINE_THROUGHPUT_BOUNDARY_COLOR}
                         strokeWidth={2}
-                        shape={(dotProps: {
-                          cx?: number;
-                          cy?: number;
-                          r?: number;
-                        }) => {
+                        shape={(dotProps) => {
                           const cx = dotProps.cx ?? 0;
                           const cy = dotProps.cy ?? 0;
+                          const radius = Number(dotProps.r ?? 0);
 
                           return (
                             <g data-roofline-throughput-guide={point.label}>
                               <circle
                                 cx={cx}
                                 cy={cy}
-                                r={dotProps.r}
+                                r={radius}
                                 fill="var(--background)"
                                 pointerEvents="none"
                                 stroke={ROOFLINE_THROUGHPUT_BOUNDARY_COLOR}
@@ -1074,16 +1068,10 @@ export function RooflineThroughputExplorer({
                           fill={host.color}
                           stroke="var(--background)"
                           strokeWidth={2}
-                          shape={(dotProps: {
-                            cx?: number;
-                            cy?: number;
-                            fill?: string;
-                            r?: number;
-                            stroke?: string;
-                            strokeWidth?: number;
-                          }) => {
+                          shape={(dotProps) => {
                             const cx = dotProps.cx ?? 0;
                             const cy = dotProps.cy ?? 0;
+                            const radius = Number(dotProps.r ?? 0);
                             const labelX = cx + 9;
                             const labelY = cy - 8;
                             const pointLabel = `${host.label} (${formatRooflineDecodeTokensPerSecond(
@@ -1091,23 +1079,34 @@ export function RooflineThroughputExplorer({
                             )})`;
 
                             return (
-                              <g>
+                              // biome-ignore lint/a11y/useSemanticElements: SVG chart marks cannot render HTML button elements.
+                              <g
+                                aria-label={`${host.label} maximum decode ${formatRooflineDecodeTokensPerSecond(
+                                  host.maximumDecodeTokensPerSecond,
+                                )} tokens per second`}
+                                role="button"
+                                tabIndex={0}
+                                onBlur={() => setHostTooltip(null)}
+                                onFocus={(event) =>
+                                  showHostTooltip(host, event)
+                                }
+                                onMouseEnter={(event) =>
+                                  showHostTooltip(host, event)
+                                }
+                                onMouseLeave={() => setHostTooltip(null)}
+                                onMouseOut={() => setHostTooltip(null)}
+                                onMouseOver={(event) =>
+                                  showHostTooltip(host, event)
+                                }
+                              >
                                 <circle
                                   className="roofline-throughput-explorer__compute-host"
                                   cx={cx}
                                   cy={cy}
-                                  r={dotProps.r}
+                                  r={radius}
                                   fill={dotProps.fill}
                                   stroke={dotProps.stroke}
                                   strokeWidth={dotProps.strokeWidth}
-                                  onMouseEnter={(event) =>
-                                    showHostTooltip(host, event)
-                                  }
-                                  onMouseOver={(event) =>
-                                    showHostTooltip(host, event)
-                                  }
-                                  onMouseLeave={() => setHostTooltip(null)}
-                                  onMouseOut={() => setHostTooltip(null)}
                                 />
                                 <text
                                   className="roofline-throughput-explorer__compute-host-label"
@@ -1136,9 +1135,7 @@ export function RooflineThroughputExplorer({
                   <div
                     className="pointer-events-none absolute z-10 min-w-48 rounded-lg border border-border bg-popover/95 px-3 py-2 text-sm text-popover-foreground shadow-lg backdrop-blur-sm"
                     data-roofline-host-tooltip={hostTooltip.host.id}
-                    data-roofline-host-tooltip-placement={
-                      hostTooltip.placement
-                    }
+                    data-roofline-host-tooltip-placement={hostTooltip.placement}
                     style={{
                       left: hostTooltip.left,
                       top: hostTooltip.top,
@@ -1156,9 +1153,7 @@ export function RooflineThroughputExplorer({
                       <span>{hostTooltip.host.label}</span>
                     </div>
                     <div className="flex items-center justify-between gap-4 text-xs">
-                      <span className="text-muted-foreground">
-                        Max decode
-                      </span>
+                      <span className="text-muted-foreground">Max decode</span>
                       <span className="font-medium tabular-nums">
                         {formatRooflineDecodeTokensPerSecond(
                           hostTooltip.host.maximumDecodeTokensPerSecond,

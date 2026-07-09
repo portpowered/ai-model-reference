@@ -153,7 +153,9 @@ describe("buildRooflineThroughputChartModel", () => {
     expect(smallModel.data.at(-1)?.boundaryComputeFlopsPerSecond).toBe(
       largeModel.data.at(-1)?.boundaryComputeFlopsPerSecond,
     );
-    expect(smallModel.data.at(-1)?.maximumDecodeTokensPerSecond).toBeGreaterThan(
+    expect(
+      smallModel.data.at(-1)?.maximumDecodeTokensPerSecond,
+    ).toBeGreaterThan(
       largeModel.data.at(-1)?.maximumDecodeTokensPerSecond ?? 0,
     );
   });
@@ -220,9 +222,7 @@ describe("buildRooflineThroughputChartModel", () => {
       plottedMax * 1.15,
     ]);
     expect(model.yDomain[0]).toBeGreaterThan(0);
-    expect(model.yDomain[1]).toBeGreaterThan(
-      model.yDomain[0],
-    );
+    expect(model.yDomain[1]).toBeGreaterThan(model.yDomain[0]);
   });
 
   test("returns typed invalid state for incomplete inputs", () => {

@@ -223,7 +223,7 @@ describe("roofline throughput explorer blog search discovery", () => {
       kind: BLOG_SEARCH_DOCUMENT_KIND,
       title: "the best computer for local language models (2026)",
       description:
-        "An overall guide on best computer to buy for local language models. We recommend an M series laptop or a 5090.",
+        "An overall guide to the best computer to buy for local language models. We recommend an M-series laptop or a 5090.",
       publishedAt: "2026-07-02",
       tags: ["inference", "local-models"],
     });
@@ -235,7 +235,7 @@ describe("roofline throughput explorer blog search discovery", () => {
       ]),
     );
     expect(document?.bodyText).toContain(
-      "best computer to buy right now is a RTX 5090",
+      "best computer to buy right now is an RTX 5090",
     );
     expect(document?.bodyText).toContain("memory bandwidth");
     expect(document?.bodyText).not.toContain("RooflineThroughputExplorer");

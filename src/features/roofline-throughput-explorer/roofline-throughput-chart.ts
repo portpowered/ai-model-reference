@@ -441,7 +441,8 @@ function computeMaximumDecodeTokensPerSecondForHardware({
     (activeWeightSizeBillions *
       computeBytesPerParameterFromQuantizationBits(quantizationBits));
   const computeBoundTokensPerSecond =
-    computeFlopsPerSecond / computeDecodeFlopsPerToken(activeWeightSizeBillions);
+    computeFlopsPerSecond /
+    computeDecodeFlopsPerToken(activeWeightSizeBillions);
 
   return Math.min(memoryBoundTokensPerSecond, computeBoundTokensPerSecond);
 }
@@ -539,9 +540,7 @@ export function buildRooflineThroughputChartModel(
     (maximumDecodeTokensPerSecond) => ({
       boundaryComputeFlopsPerSecond:
         maximumDecodeTokensPerSecond * flopsPerToken,
-      label: formatRooflineDecodeTokensPerSecond(
-        maximumDecodeTokensPerSecond,
-      ),
+      label: formatRooflineDecodeTokensPerSecond(maximumDecodeTokensPerSecond),
       maximumDecodeTokensPerSecond,
       memoryBandwidthGbps:
         (maximumDecodeTokensPerSecond *
@@ -552,15 +551,14 @@ export function buildRooflineThroughputChartModel(
   );
   const hostPoints = ROOFLINE_COMPUTE_HOST_PRESETS.map((host) => ({
     ...host,
-    maximumDecodeTokensPerSecond: computeMaximumDecodeTokensPerSecondForHardware(
-      {
+    maximumDecodeTokensPerSecond:
+      computeMaximumDecodeTokensPerSecondForHardware({
         activeWeightSizeBillions,
         batchSize,
         computeFlopsPerSecond: host.computeFlopsPerSecond,
         memoryBandwidthGbps: host.memoryBandwidthGbps,
         quantizationBits,
-      },
-    ),
+      }),
   }));
 
   return {

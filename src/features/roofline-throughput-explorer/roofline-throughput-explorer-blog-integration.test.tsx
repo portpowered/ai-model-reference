@@ -32,7 +32,7 @@ describe("roofline throughput explorer blog integration", () => {
 
     expect(blogPostHref(BLOG_SLUG)).toBe("/blog/roofline-throughput-explorer");
     expect(post.frontmatter.status).toBe("published");
-    expect(post.frontmatter.authors).toEqual(["andreas abdi"]);
+    expect(post.frontmatter.authors).toEqual(["Andreas Abdi"]);
     expect(post.frontmatter.tags).toEqual(["inference", "local-models"]);
     expect(html).toContain('data-roofline-throughput-explorer="explorer"');
     expect(html).toContain('data-testid="roofline-model-preset"');

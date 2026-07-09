@@ -43,7 +43,10 @@ const TEST_PRESETS = [
   },
 ] satisfies RooflineModelSizePreset[];
 
-function getLegendButton(container: HTMLElement, label: string): HTMLButtonElement {
+function getLegendButton(
+  container: HTMLElement,
+  label: string,
+): HTMLButtonElement {
   const buttons = Array.from(
     container.querySelectorAll<HTMLButtonElement>(
       '[data-graph-legend="roofline-throughput-explorer"] button',
@@ -76,9 +79,7 @@ describe("RooflineThroughputExplorer", () => {
     expect(
       screen.getAllByText(ROOFLINE_THROUGHPUT_EXPLORER_AXIS_Y).length,
     ).toBeGreaterThanOrEqual(1);
-    expect(
-      container.querySelector(".recharts-label tspan"),
-    ).toBeTruthy();
+    expect(container.querySelector(".recharts-label tspan")).toBeTruthy();
     expect(
       screen.getByText(ROOFLINE_THROUGHPUT_BOUNDARY_LEGEND_LABEL),
     ).toBeTruthy();
@@ -112,9 +113,8 @@ describe("RooflineThroughputExplorer", () => {
       container.querySelector(".roofline-throughput-explorer__active-scenario"),
     ).toBeNull();
     expect(
-      container.querySelectorAll(
-        ".roofline-throughput-explorer__compute-host",
-      ).length,
+      container.querySelectorAll(".roofline-throughput-explorer__compute-host")
+        .length,
     ).toBe(8);
     expect(
       container.querySelectorAll(
@@ -161,9 +161,8 @@ describe("RooflineThroughputExplorer", () => {
 
     expect(rtx5090Toggle.getAttribute("aria-pressed")).toBe("true");
     expect(
-      container.querySelectorAll(
-        ".roofline-throughput-explorer__compute-host",
-      ).length,
+      container.querySelectorAll(".roofline-throughput-explorer__compute-host")
+        .length,
     ).toBe(8);
     expect(initialYDomainMax).toBeTruthy();
     expect(initialXDomainMax).toBeTruthy();
@@ -173,18 +172,16 @@ describe("RooflineThroughputExplorer", () => {
 
     expect(() => getLegendButton(container, "RTX 5090")).toThrow();
     expect(
-      container.querySelectorAll(
-        ".roofline-throughput-explorer__compute-host",
-      ).length,
+      container.querySelectorAll(".roofline-throughput-explorer__compute-host")
+        .length,
     ).toBe(7);
 
     await user.click(rtx6000Toggle);
 
     expect(() => getLegendButton(container, "RTX 6000 Ada")).toThrow();
     expect(
-      container.querySelectorAll(
-        ".roofline-throughput-explorer__compute-host",
-      ).length,
+      container.querySelectorAll(".roofline-throughput-explorer__compute-host")
+        .length,
     ).toBe(6);
     const reducedYDomainMax = chart?.getAttribute("data-roofline-y-domain-max");
     const reducedXDomainMax = chart?.getAttribute("data-roofline-x-domain-max");
@@ -199,7 +196,6 @@ describe("RooflineThroughputExplorer", () => {
     expect(Number(reducedBoundaryPointCount)).toBeLessThan(
       Number(initialBoundaryPointCount),
     );
-
   }, 20_000);
 
   test("exposes additional compute hosts from the dropdown without scatter tooltip interference", async () => {
@@ -210,14 +206,17 @@ describe("RooflineThroughputExplorer", () => {
 
     expect(container.querySelector(".recharts-scatter")).toBeNull();
     expect(
-      container.querySelectorAll(
-        ".roofline-throughput-explorer__compute-host",
-      ).length,
+      container.querySelectorAll(".roofline-throughput-explorer__compute-host")
+        .length,
     ).toBe(8);
 
     await user.click(screen.getByTestId("roofline-compute-host-dropdown"));
-    await user.click(screen.getByRole("menuitemcheckbox", { name: /H200 SXM/ }));
-    await user.click(screen.getByRole("menuitemcheckbox", { name: /DGX Spark/ }));
+    await user.click(
+      screen.getByRole("menuitemcheckbox", { name: /H200 SXM/ }),
+    );
+    await user.click(
+      screen.getByRole("menuitemcheckbox", { name: /DGX Spark/ }),
+    );
     await user.click(
       screen.getByRole("menuitemcheckbox", { name: /Huawei Ascend 910C/ }),
     );
@@ -226,9 +225,8 @@ describe("RooflineThroughputExplorer", () => {
     );
 
     expect(
-      container.querySelectorAll(
-        ".roofline-throughput-explorer__compute-host",
-      ).length,
+      container.querySelectorAll(".roofline-throughput-explorer__compute-host")
+        .length,
     ).toBe(12);
     expect(getLegendButton(container, "H200 SXM")).toBeTruthy();
     expect(getLegendButton(container, "DGX Spark")).toBeTruthy();
@@ -642,14 +640,14 @@ describe("RooflineThroughputExplorer", () => {
 
     fireEvent.change(quantizationControl, { target: { value: "" } });
     expect(screen.getAllByRole("alert").length).toBeGreaterThan(0);
-    expect(
-      chart?.getAttribute("data-decode-tokens-per-second"),
-    ).toBe(initialDecodeTokens);
+    expect(chart?.getAttribute("data-decode-tokens-per-second")).toBe(
+      initialDecodeTokens,
+    );
 
     fireEvent.change(quantizationControl, { target: { value: "4" } });
     expect(quantizationControl.value).toBe("4");
-    expect(
-      chart?.getAttribute("data-decode-tokens-per-second"),
-    ).not.toBe(initialDecodeTokens);
+    expect(chart?.getAttribute("data-decode-tokens-per-second")).not.toBe(
+      initialDecodeTokens,
+    );
   });
 });
