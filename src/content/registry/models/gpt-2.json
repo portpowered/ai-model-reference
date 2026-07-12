@@ -1,0 +1,68 @@
+{
+  "id": "model.gpt-2",
+  "slug": "gpt-2",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GPT-2", "Generative Pre-trained Transformer 2"],
+  "tags": [
+    "foundations",
+    "model-family",
+    "attention",
+    "tokenization",
+    "context-window",
+    "position-encoding"
+  ],
+  "relatedIds": [
+    "paper.gpt-2-report",
+    "concept.transformer-architecture",
+    "concept.self-attention",
+    "concept.autoregressive-generation",
+    "concept.positional-encodings",
+    "concept.learned-positional-embeddings",
+    "concept.tokenizers-overview",
+    "concept.logit",
+    "concept.softmax",
+    "concept.sampling-overview",
+    "training-regime.pretraining",
+    "module.byte-level-tokenization",
+    "module.multi-head-attention",
+    "module.standard-ffn",
+    "module.layer-norm",
+    "module.learned-positional-embeddings"
+  ],
+  "citationIds": ["citation.gpt-2-report"],
+  "status": "published",
+  "createdAt": "2026-07-08T13:15:00.000Z",
+  "updatedAt": "2026-07-08T13:15:00.000Z",
+  "authors": [
+    "Alec Radford",
+    "Jeffrey Wu",
+    "Rewon Child",
+    "David Luan",
+    "Dario Amodei",
+    "Ilya Sutskever"
+  ],
+  "sourceId": "citation.gpt-2-report",
+  "family": "gpt",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer-architecture",
+    "concept.autoregressive-generation"
+  ],
+  "moduleIds": [
+    "module.byte-level-tokenization",
+    "module.multi-head-attention",
+    "module.standard-ffn",
+    "module.layer-norm",
+    "module.learned-positional-embeddings"
+  ],
+  "trainingRegimeIds": ["training-regime.pretraining"],
+  "datasetIds": [],
+  "paperIds": ["paper.gpt-2-report"],
+  "releaseDate": "2019-02-14",
+  "parameterCount": "117 million to 1.5 billion parameters",
+  "contextLength": 1024,
+  "precision": ["float32"]
+}
