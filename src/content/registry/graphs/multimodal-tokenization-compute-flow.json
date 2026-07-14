@@ -1,0 +1,78 @@
+{
+  "id": "graph.multimodal-tokenization-compute-flow",
+  "slug": "multimodal-tokenization-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["tokenization", "foundations", "taxonomy"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-07-08T00:00:00.000Z",
+  "updatedAt": "2026-07-08T00:00:00.000Z",
+  "subjectId": "module.multimodal-tokenization",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "raw-inputs",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "raw-inputs",
+      "labelKey": "graph.nodes.rawInputs.label",
+      "moduleKind": "input",
+      "childNodeIds": ["modality-encoders"]
+    },
+    {
+      "id": "modality-encoders",
+      "labelKey": "graph.nodes.modalityEncoders.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["modality-adapters"]
+    },
+    {
+      "id": "modality-adapters",
+      "labelKey": "graph.nodes.modalityAdapters.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["token-embeddings"]
+    },
+    {
+      "id": "token-embeddings",
+      "labelKey": "graph.nodes.tokenEmbeddings.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["shared-sequence"]
+    },
+    {
+      "id": "shared-sequence",
+      "labelKey": "graph.nodes.sharedSequence.label",
+      "moduleKind": "output",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "inputs-to-encoders",
+      "source": "raw-inputs",
+      "target": "modality-encoders",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "encoders-to-adapters",
+      "source": "modality-encoders",
+      "target": "modality-adapters",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "adapters-to-embeddings",
+      "source": "modality-adapters",
+      "target": "token-embeddings",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "embeddings-to-sequence",
+      "source": "token-embeddings",
+      "target": "shared-sequence",
+      "edgeKind": "data-flow"
+    }
+  ]
+}
