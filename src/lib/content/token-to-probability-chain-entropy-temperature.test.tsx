@@ -77,7 +77,7 @@ describe("Phase 2 entropy and temperature glossary pages (US-006)", () => {
     expect(html).toContain("What It Is");
     expect(html).toContain("softmax(z / T)");
     expect(html).toContain("probabilities move closer together");
-    expect(html).toContain('href="/docs/glossary/softmax"');
+    expect(html).toContain('href="/docs/concepts/softmax"');
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
   });
 });

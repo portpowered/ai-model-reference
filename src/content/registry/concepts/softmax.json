@@ -9,6 +9,9 @@
   "relatedIds": [
     "concept.entropy",
     "concept.temperature",
+    "concept.greedy-decoding",
+    "concept.top-k-sampling",
+    "concept.top-p-sampling",
     "concept.parameter",
     "concept.sampling-overview"
   ],

@@ -1,0 +1,117 @@
+---
+title: Softmax
+description: A function that turns a vector of logits into a probability distribution that sums to one.
+kind: "concept"
+registryId: "concept.softmax"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - token-to-probability-chain
+  - foundations
+aliases:
+  - "softmax function"
+  - "softmax layer"
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+  <BlockMath formula="p_i = \frac{e^{z_i}}{\sum_j e^{z_j}}" />
+  <div
+    className="rounded-lg border border-border bg-card p-4"
+    data-page-math-variable-definitions="distribution"
+  >
+    <dl className="space-y-2">
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="zi"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            z<sub>i</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.distribution.variableDefinitions.zi.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="pi"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            p<sub>i</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.distribution.variableDefinitions.pi.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="j"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>j</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.distribution.variableDefinitions.j.definition" />
+        </dd>
+      </div>
+    </dl>
+  </div>
+</Section>
+
+<Section id="where-it-appears" titleKey="sections.whereItAppears.title">
+  <T k="sections.whereItAppears.body" />
+</Section>
+
+<Section
+  id="from-probabilities-to-decoding"
+  titleKey="sections.fromProbabilitiesToDecoding.title"
+>
+  <T k="sections.fromProbabilitiesToDecoding.body" />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.softmax"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.softmax" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.softmax" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.softmax" />
+</Section>

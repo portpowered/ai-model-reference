@@ -1,0 +1,80 @@
+{
+  "title": "Softmax",
+  "description": "A function that turns a vector of logits into a probability distribution that sums to one.",
+  "openingSummary": "Softmax converts logits into nonnegative probabilities that sum to 1 across the vocabulary—the standard step from raw scores to interpretable chances.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Softmax is the usual final step that turns raw model scores into probabilities over a fixed list of choices, such as every token in the vocabulary. The inputs are logits: relative scores that are not probabilities. They can be negative, greater than one, and they do not need to sum to one. Softmax exponentiates each logit so larger scores receive exponentially more weight while every candidate stays strictly positive. It then divides each positive weight by the same shared total weight across all candidates. That shared denominator is why the outputs are nonnegative and add up to exactly 1."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Language models emit one logit per vocabulary item at each position. Softmax is what turns that score vector into the probability distribution sampling and ranking read. Cross-entropy training compares those probabilities to the target token. Measures such as entropy and controls such as temperature all assume you know how logits became a full distribution whose masses sum to 1."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose three candidate next tokens have logits 2.0, 1.0, and 0.0. Exponentiating gives weights about 7.39, 2.72, and 1.00. The shared total is about 11.11, so the probabilities are about 0.66, 0.24, and 0.09. The largest logit still wins the largest share, but every candidate keeps a strictly positive chance because exponentiation never returns zero."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Autoregressive transformers apply softmax along the vocabulary dimension of the logits tensor at each position. Frameworks expose it as nn.Softmax, jax.nn.softmax, or fused kernels inside sampling loops. Distinctive chain phrase: vocabulary softmax normalization at decode time."
+    },
+    "fromProbabilitiesToDecoding": {
+      "title": "From Probabilities To Decoding",
+      "body": "Once softmax finishes, downstream steps read the same probability vector in different ways. Temperature divides logits before softmax—or equivalently reshapes how sharply the masses concentrate—so creative runs can stay diverse while factual runs stay tight. Entropy summarizes how spread out those resulting probabilities are: a peaked vector means the model is committing, while a flat one means many tokens still look plausible. Greedy decoding always takes the single highest-probability token. Top-k sampling keeps only the k strongest candidates and draws from that fixed shortlist. Top-p sampling keeps the smallest set whose cumulative mass reaches a threshold, then samples inside that nucleus. All of these rules assume softmax already turned logits into a full distribution that sums to 1."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Logits are not probabilities until softmax runs. Softmax is also not the same as a single activation inside a hidden layer—those may be ReLU or GELU. It differs from sigmoid, which handles one binary outcome at a time. Applying softmax twice does not generally recover the original logits."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "math": {
+    "distribution": {
+      "label": "Softmax distribution",
+      "formula": "p_i = \\frac{e^{z_i}}{\\sum_j e^{z_j}}",
+      "variableDefinitions": {
+        "zi": {
+          "term": "z_i",
+          "definition": "logit index i"
+        },
+        "pi": {
+          "term": "p_i",
+          "definition": "softmax probability index i"
+        },
+        "j": {
+          "term": "j",
+          "definition": "vocabulary index"
+        }
+      }
+    }
+  },
+  "relatedDocs": {
+    "concept.temperature": {
+      "reason": "Temperature divides logits before softmax to sharpen or flatten the distribution decoding reads."
+    },
+    "concept.entropy": {
+      "reason": "Entropy summarizes how spread out the softmax probability vector is at each decode step."
+    },
+    "concept.greedy-decoding": {
+      "reason": "Greedy decoding always picks the single highest softmax probability at each step."
+    },
+    "concept.top-k-sampling": {
+      "reason": "Top-k sampling restricts the next-token draw to the k highest softmax probabilities."
+    },
+    "concept.top-p-sampling": {
+      "reason": "Top-p sampling keeps the smallest token set whose softmax masses sum to a threshold, then samples within it."
+    },
+    "concept.sampling-overview": {
+      "reason": "Sampling overview explains how different choice rules read the same softmax distribution."
+    }
+  }
+}
